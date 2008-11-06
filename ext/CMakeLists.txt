@@ -1,7 +1,14 @@
 
 # Subdirectories to process.
-add_subdirectory(PQP CMakeTmp/pqp)
-add_subdirectory(yaobi CMakeTmp/yaobi)
+
+if (DEFINED PQP_LIB)
+  add_subdirectory(PQP CMakeTmp/pqp)
+endif()
+
+if (DEFINED YAOBI_LIB)
+  add_subdirectory(yaobi CMakeTmp/yaobi)
+endif()
+
 add_subdirectory(lua)
 add_subdirectory(tolua)
 
