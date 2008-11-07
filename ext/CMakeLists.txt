@@ -1,11 +1,11 @@
 
 # Subdirectories to process.
 
-if (DEFINED PQP_LIB)
+if (RW_HAVE_PQP)
   add_subdirectory(PQP CMakeTmp/pqp)
 endif()
 
-if (DEFINED YAOBI_LIB)
+if (RW_HAVE_YAOBI)
   add_subdirectory(yaobi CMakeTmp/yaobi)
 endif()
 
