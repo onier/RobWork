@@ -3,6 +3,6 @@
 #include <string>
 #include <RobWorkConfig.hpp>
 
-#define RW_TEST_FILE_DIR "/home/lpe/workspace/release-0.3/test/testfiles/"
+#define RW_TEST_FILE_DIR "/Users/preben/working/release-0.3/RobWork/test/testfiles/"
 
 std::string testFilePath();
