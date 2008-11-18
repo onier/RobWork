@@ -27,7 +27,7 @@ namespace rw { namespace loaders {
 	class PGMLoader
 	{
 	public:
-		static std::auto_ptr<rw::sensor::Image> load(const std::string& filename);
+		static rw::sensor::ImagePtr load(const std::string& filename);
 	};
 }}
 
