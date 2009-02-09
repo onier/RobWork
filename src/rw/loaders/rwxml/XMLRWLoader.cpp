@@ -511,11 +511,12 @@ namespace {
                              << dev._frames[i].getRefFrame());
                 }
 
+                Frame *parent = child;
                 child = createFrame( dev._frames[i] , setup);
                 frameMap[ child->getName() ] = child;
                 //tree->addFrame(child, res->second);
 
-                if( dev._frames[i]._type == "EndEffector" ){
+                if( dev._frames[i]._type == "EndEffector" || parent!=child->getParent()){
                     endEffectors.push_back(child);
                 }
             }
