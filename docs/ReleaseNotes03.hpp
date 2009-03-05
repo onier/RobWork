@@ -1,7 +1,20 @@
 // -*- latex -*-
 
+
 /**
+
+\page page_release_notes_031 Release Notes RobWork Version 0.3.1
+
+\section sec_release_notes_031 Updates in release 0.3.1
+- Support for GCC 4.3
+
+- Projects files for Visual Studio Included
+
+- Bug-fix in RobWorkStudio to enable reloading scenes
+
 \page page_release_notes_03 Release Notes RobWork Version 0.3
+
+
 
 \section sec_release_notes_03_major Major Changes
 
