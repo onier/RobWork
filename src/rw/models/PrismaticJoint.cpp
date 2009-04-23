@@ -94,6 +94,15 @@ namespace
 // PrismaticJoint
 //----------------------------------------------------------------------
 
+
+PrismaticJoint::PrismaticJoint(const std::string& name, const math::Transform3D<>& transform): Joint(name) {
+    if (transform.P() == Vector3D<>(0, 0, 0))
+        return new PrismaticJointZeroOffsetImpl(name, transform.R());
+    else
+        return new PrismaticJointImpl(name, transform);
+
+}
+
 void PrismaticJoint::getJointValueTransform(
     const Transform3D<>& parent,
     double q,

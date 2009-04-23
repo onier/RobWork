@@ -56,7 +56,6 @@ namespace rw { namespace kinematics {
         typedef std::vector<Frame*> ChildList;
 
     public:
-        /// @cond SHOW_ALL
         /**
          * @brief Post-multiply the transform of the frame to the parent transform.
          *
@@ -69,10 +68,9 @@ namespace rw { namespace kinematics {
          * @param state [in] Joint values for the forward kinematics tree.
          * @param result [in] The transform of the frame in the world frame.
          */
-        void getTransform(const math::Transform3D<>& parent,
-                          const State& state,
-                          math::Transform3D<>& result) const;
-        /// @endcond
+        void multiplyTransform(const math::Transform3D<>& parent,
+                               const State& state,
+                               math::Transform3D<>& result) const;
 
         /**
          * @brief The transform of the frame relative to its parent.
@@ -261,10 +259,9 @@ namespace rw { namespace kinematics {
         /**
            @brief Subclass implementation of the getTransform() method.
         */
-        virtual void doGetTransform(
-            const math::Transform3D<>& parent,
-            const State& state,
-            math::Transform3D<>& result) const;
+        virtual void doGetTransform(const math::Transform3D<>& parent,
+                                    const State& state,
+                                    math::Transform3D<>& result) const;
 
     private:
         friend class StateStructure;

@@ -303,21 +303,17 @@ namespace rw { namespace math {
             return res;
         }
 
-        /// @cond SHOW_ALL
         /**
            @brief Write to \b result the product \b a * \b b.
         */
-        static
-        inline void transformMultiply(
-            const Transform3D<T>& a,
-            const Transform3D<T>& b,
-            Transform3D<T>& result)
+        static inline void multiply(const Transform3D<T>& a,
+                                    const Transform3D<T>& b,
+                                    Transform3D<T>& result)
         {
-            Rotation3D<T>::rotationMultiply(a.R(), b.R(), result.R());
-            Rotation3D<T>::rotationVectorMultiply(a.R(), b.P(), result.P());
+            Rotation3D<T>::multiply(a.R(), b.R(), result.R());
+            Rotation3D<T>::multiply(a.R(), b.P(), result.P());
             result.P() += a.P();
         }
-        /// @endcond
 
     private:
         Vector3D<T> _d;

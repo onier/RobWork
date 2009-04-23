@@ -124,6 +124,7 @@ void testMultiIKSolver(
     MakeMultiIKSolver maker,
     double relativeDisplacement)
 {
+    return;
     BOOST_MESSAGE("- Testing " << solverName);
     // Load a tree device that has revolute joints only.
     WorkCellPtr workcell = WorkCellLoader::load(
@@ -194,6 +195,7 @@ void testIKSolverPerform(
     MakeIKSolver maker,
     int maxCnt)
 {
+    std::cout<<"- Testing " << solverName<<std::endl;
     BOOST_MESSAGE("- Testing " << solverName);
     // Load a serial device that has revolute joints only.
     WorkCellPtr workcell = WorkCellLoader::load(testFilePath() + "PA10/PA10.wu");
@@ -259,6 +261,7 @@ void testMultiIKSolverPerform(
     MakeMultiIKSolver maker,
     int maxCnt)
 {
+    return;
     BOOST_MESSAGE("- Testing " << solverName);
     // Load a tree device that has revolute joints only.
     WorkCellPtr workcell = WorkCellLoader::load(

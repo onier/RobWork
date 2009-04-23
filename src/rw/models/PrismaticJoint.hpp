@@ -39,6 +39,8 @@ namespace rw { namespace models {
     class PrismaticJoint : public Joint
     {
     public:
+        PrismaticJoint(const std::string& name, const math::Transform3D<>& transform);
+
         /**
            @brief A prismatic joint with a displacement transform of \b
            transform.
@@ -46,39 +48,39 @@ namespace rw { namespace models {
            @param name [in] The name of the frame.
            @param transform [in] The displacement transform of the joint.
         */
-        static
-        PrismaticJoint* make(
-            const std::string& name,
-			const math::Transform3D<>& transform);
-
-        /// @cond SHOW_ALL
+        /*static PrismaticJoint* make(const std::string& name,
+                                    const math::Transform3D<>& transform);
+*/
         /**
-           @brief The transform of the joint for a given joint value.
-        */
-        void getJointValueTransform(
-            const math::Transform3D<>& parent,
-            double q,
-            math::Transform3D<>& result) const;
-        /// @endcond
+         @brief The transform of the joint for a given joint value.
+         */
+        void getJointValueTransform(const math::Transform3D<>& parent,
+                                    double q,
+                                    math::Transform3D<>& result) const;
 
-    protected:
+    //protected:
         /**
            @brief Subclasses should call this constructor.
         */
-        explicit PrismaticJoint(const std::string& name) :
+        /*explicit PrismaticJoint(const std::string& name) :
             Joint(name)
-        {}
+        {}*/
 
     private:
-        void doGetTransform(
-            const math::Transform3D<>& parent,
-            const kinematics::State& state,
-            math::Transform3D<>& result) const;
+        void doGetTransform(const math::Transform3D<>& parent,
+                            const kinematics::State& state,
+                            math::Transform3D<>& result) const;
 
-        virtual void doGetJointValueTransform(
-            const math::Transform3D<>& parent,
-            double q,
-            math::Transform3D<>& result) const = 0;
+        virtual void doGetJointValueTransform(const math::Transform3D<>& parent,
+                                              double q,
+                                              math::Transform3D<>& result) const = 0;
+
+        class PrismaticJointImpl() {
+        public:
+            virtual void
+        }
+
+        PrismaticJointImpl* _impl;
     };
 
     /*@}*/
