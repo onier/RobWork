@@ -1,0 +1,648 @@
+In file included from /usr/include/c++/4.2/cstring:51,
+                 from /usr/include/c++/4.2/i486-linux-gnu/bits/c++locale.h:47,
+                 from /usr/include/c++/4.2/iosfwd:45,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/cstddef:55: error: '::ptrdiff_t' has not been declared
+/usr/include/c++/4.2/cstddef:56: error: '::size_t' has not been declared
+In file included from /usr/include/c++/4.2/i486-linux-gnu/bits/c++locale.h:47,
+                 from /usr/include/c++/4.2/iosfwd:45,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/cstring:80: error: '::memcpy' has not been declared
+/usr/include/c++/4.2/cstring:81: error: '::memmove' has not been declared
+/usr/include/c++/4.2/cstring:82: error: '::strcpy' has not been declared
+/usr/include/c++/4.2/cstring:83: error: '::strncpy' has not been declared
+/usr/include/c++/4.2/cstring:84: error: '::strcat' has not been declared
+/usr/include/c++/4.2/cstring:85: error: '::strncat' has not been declared
+/usr/include/c++/4.2/cstring:86: error: '::memcmp' has not been declared
+/usr/include/c++/4.2/cstring:87: error: '::strcmp' has not been declared
+/usr/include/c++/4.2/cstring:88: error: '::strcoll' has not been declared
+/usr/include/c++/4.2/cstring:89: error: '::strncmp' has not been declared
+/usr/include/c++/4.2/cstring:90: error: '::strxfrm' has not been declared
+/usr/include/c++/4.2/cstring:91: error: '::strcspn' has not been declared
+/usr/include/c++/4.2/cstring:92: error: '::strspn' has not been declared
+/usr/include/c++/4.2/cstring:93: error: '::strtok' has not been declared
+/usr/include/c++/4.2/cstring:94: error: '::memset' has not been declared
+/usr/include/c++/4.2/cstring:95: error: '::strerror' has not been declared
+/usr/include/c++/4.2/cstring:96: error: '::strlen' has not been declared
+/usr/include/c++/4.2/cstring:98: error: '::memchr' has not been declared
+/usr/include/c++/4.2/cstring: In function 'void* rw::sandbox::std::memchr(void*, int, rw::sandbox::size_t)':
+/usr/include/c++/4.2/cstring:102: error: invalid conversion from 'const void*' to 'void*'
+/usr/include/c++/4.2/cstring:102: error:   initializing argument 1 of 'void* rw::sandbox::std::memchr(void*, int, rw::sandbox::size_t)'
+/usr/include/c++/4.2/cstring: At global scope:
+/usr/include/c++/4.2/cstring:104: error: '::strchr' has not been declared
+/usr/include/c++/4.2/cstring:110: error: '::strpbrk' has not been declared
+/usr/include/c++/4.2/cstring:116: error: '::strrchr' has not been declared
+/usr/include/c++/4.2/cstring:122: error: '::strstr' has not been declared
+In file included from /usr/include/c++/4.2/i486-linux-gnu/bits/c++locale.h:48,
+                 from /usr/include/c++/4.2/iosfwd:45,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/cstdio:100: error: '::FILE' has not been declared
+/usr/include/c++/4.2/cstdio:101: error: '::fpos_t' has not been declared
+/usr/include/c++/4.2/cstdio:103: error: '::clearerr' has not been declared
+/usr/include/c++/4.2/cstdio:104: error: '::fclose' has not been declared
+/usr/include/c++/4.2/cstdio:105: error: '::feof' has not been declared
+/usr/include/c++/4.2/cstdio:106: error: '::ferror' has not been declared
+/usr/include/c++/4.2/cstdio:107: error: '::fflush' has not been declared
+/usr/include/c++/4.2/cstdio:108: error: '::fgetc' has not been declared
+/usr/include/c++/4.2/cstdio:109: error: '::fgetpos' has not been declared
+/usr/include/c++/4.2/cstdio:110: error: '::fgets' has not been declared
+/usr/include/c++/4.2/cstdio:111: error: '::fopen' has not been declared
+/usr/include/c++/4.2/cstdio:112: error: '::fprintf' has not been declared
+/usr/include/c++/4.2/cstdio:113: error: '::fputc' has not been declared
+/usr/include/c++/4.2/cstdio:114: error: '::fputs' has not been declared
+/usr/include/c++/4.2/cstdio:115: error: '::fread' has not been declared
+/usr/include/c++/4.2/cstdio:116: error: '::freopen' has not been declared
+/usr/include/c++/4.2/cstdio:117: error: '::fscanf' has not been declared
+/usr/include/c++/4.2/cstdio:118: error: '::fseek' has not been declared
+/usr/include/c++/4.2/cstdio:119: error: '::fsetpos' has not been declared
+/usr/include/c++/4.2/cstdio:120: error: '::ftell' has not been declared
+/usr/include/c++/4.2/cstdio:121: error: '::fwrite' has not been declared
+/usr/include/c++/4.2/cstdio:122: error: '::getc' has not been declared
+/usr/include/c++/4.2/cstdio:123: error: '::getchar' has not been declared
+/usr/include/c++/4.2/cstdio:124: error: '::gets' has not been declared
+/usr/include/c++/4.2/cstdio:125: error: '::perror' has not been declared
+/usr/include/c++/4.2/cstdio:126: error: '::printf' has not been declared
+/usr/include/c++/4.2/cstdio:127: error: '::putc' has not been declared
+/usr/include/c++/4.2/cstdio:128: error: '::putchar' has not been declared
+/usr/include/c++/4.2/cstdio:129: error: '::puts' has not been declared
+/usr/include/c++/4.2/cstdio:130: error: '::remove' has not been declared
+/usr/include/c++/4.2/cstdio:131: error: '::rename' has not been declared
+/usr/include/c++/4.2/cstdio:132: error: '::rewind' has not been declared
+/usr/include/c++/4.2/cstdio:133: error: '::scanf' has not been declared
+/usr/include/c++/4.2/cstdio:134: error: '::setbuf' has not been declared
+/usr/include/c++/4.2/cstdio:135: error: '::setvbuf' has not been declared
+/usr/include/c++/4.2/cstdio:136: error: '::sprintf' has not been declared
+/usr/include/c++/4.2/cstdio:137: error: '::sscanf' has not been declared
+/usr/include/c++/4.2/cstdio:138: error: '::tmpfile' has not been declared
+/usr/include/c++/4.2/cstdio:139: error: '::tmpnam' has not been declared
+/usr/include/c++/4.2/cstdio:140: error: '::ungetc' has not been declared
+/usr/include/c++/4.2/cstdio:141: error: '::vfprintf' has not been declared
+/usr/include/c++/4.2/cstdio:142: error: '::vprintf' has not been declared
+/usr/include/c++/4.2/cstdio:143: error: '::vsprintf' has not been declared
+/usr/include/c++/4.2/cstdio:170: error: '::snprintf' has not been declared
+/usr/include/c++/4.2/cstdio:171: error: '::vfscanf' has not been declared
+/usr/include/c++/4.2/cstdio:172: error: '::vscanf' has not been declared
+/usr/include/c++/4.2/cstdio:173: error: '::vsnprintf' has not been declared
+/usr/include/c++/4.2/cstdio:174: error: '::vsscanf' has not been declared
+/usr/include/c++/4.2/cstdio:181: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdio:182: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdio:183: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdio:184: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdio:185: error: '::__gnu_cxx' has not been declared
+In file included from /usr/include/c++/4.2/i486-linux-gnu/bits/c++locale.h:49,
+                 from /usr/include/c++/4.2/iosfwd:45,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/clocale:59: error: '::lconv' has not been declared
+/usr/include/c++/4.2/clocale:60: error: '::setlocale' has not been declared
+/usr/include/c++/4.2/clocale:61: error: '::localeconv' has not been declared
+In file included from /usr/include/c++/4.2/i486-linux-gnu/bits/c++locale.h:53,
+                 from /usr/include/c++/4.2/iosfwd:45,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/cstdarg:60: error: '::va_list' has not been declared
+In file included from /usr/include/c++/4.2/iosfwd:45,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/i486-linux-gnu/bits/c++locale.h: In function 'int rw::sandbox::std::__convert_from_v(rw::sandbox::__locale_struct* const&, char*, int, const char*, ...)':
+/usr/include/c++/4.2/i486-linux-gnu/bits/c++locale.h:94: error: 'vsnprintf' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/iosfwd:47,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/cctype: At global scope:
+/usr/include/c++/4.2/cctype:70: error: '::isalnum' has not been declared
+/usr/include/c++/4.2/cctype:71: error: '::isalpha' has not been declared
+/usr/include/c++/4.2/cctype:72: error: '::iscntrl' has not been declared
+/usr/include/c++/4.2/cctype:73: error: '::isdigit' has not been declared
+/usr/include/c++/4.2/cctype:74: error: '::isgraph' has not been declared
+/usr/include/c++/4.2/cctype:75: error: '::islower' has not been declared
+/usr/include/c++/4.2/cctype:76: error: '::isprint' has not been declared
+/usr/include/c++/4.2/cctype:77: error: '::ispunct' has not been declared
+/usr/include/c++/4.2/cctype:78: error: '::isspace' has not been declared
+/usr/include/c++/4.2/cctype:79: error: '::isupper' has not been declared
+/usr/include/c++/4.2/cctype:80: error: '::isxdigit' has not been declared
+/usr/include/c++/4.2/cctype:81: error: '::tolower' has not been declared
+/usr/include/c++/4.2/cctype:82: error: '::toupper' has not been declared
+In file included from /usr/include/c++/4.2/cwchar:52,
+                 from /usr/include/c++/4.2/bits/postypes.h:46,
+                 from /usr/include/c++/4.2/iosfwd:49,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/ctime:66: error: '::clock_t' has not been declared
+/usr/include/c++/4.2/ctime:67: error: '::time_t' has not been declared
+/usr/include/c++/4.2/ctime:68: error: '::tm' has not been declared
+/usr/include/c++/4.2/ctime:70: error: '::clock' has not been declared
+/usr/include/c++/4.2/ctime:71: error: '::difftime' has not been declared
+/usr/include/c++/4.2/ctime:72: error: '::mktime' has not been declared
+/usr/include/c++/4.2/ctime:73: error: '::time' has not been declared
+/usr/include/c++/4.2/ctime:74: error: '::asctime' has not been declared
+/usr/include/c++/4.2/ctime:75: error: '::ctime' has not been declared
+/usr/include/c++/4.2/ctime:76: error: '::gmtime' has not been declared
+/usr/include/c++/4.2/ctime:77: error: '::localtime' has not been declared
+/usr/include/c++/4.2/ctime:78: error: '::strftime' has not been declared
+In file included from /usr/include/c++/4.2/bits/postypes.h:46,
+                 from /usr/include/c++/4.2/iosfwd:49,
+                 from /usr/include/c++/4.2/ios:43,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/cwchar:72: error: '::mbstate_t' has not been declared
+/usr/include/c++/4.2/cwchar:146: error: '::wint_t' has not been declared
+/usr/include/c++/4.2/cwchar:148: error: '::btowc' has not been declared
+/usr/include/c++/4.2/cwchar:149: error: '::fgetwc' has not been declared
+/usr/include/c++/4.2/cwchar:150: error: '::fgetws' has not been declared
+/usr/include/c++/4.2/cwchar:151: error: '::fputwc' has not been declared
+/usr/include/c++/4.2/cwchar:152: error: '::fputws' has not been declared
+/usr/include/c++/4.2/cwchar:153: error: '::fwide' has not been declared
+/usr/include/c++/4.2/cwchar:154: error: '::fwprintf' has not been declared
+/usr/include/c++/4.2/cwchar:155: error: '::fwscanf' has not been declared
+/usr/include/c++/4.2/cwchar:156: error: '::getwc' has not been declared
+/usr/include/c++/4.2/cwchar:157: error: '::getwchar' has not been declared
+/usr/include/c++/4.2/cwchar:158: error: '::mbrlen' has not been declared
+/usr/include/c++/4.2/cwchar:159: error: '::mbrtowc' has not been declared
+/usr/include/c++/4.2/cwchar:160: error: '::mbsinit' has not been declared
+/usr/include/c++/4.2/cwchar:161: error: '::mbsrtowcs' has not been declared
+/usr/include/c++/4.2/cwchar:162: error: '::putwc' has not been declared
+/usr/include/c++/4.2/cwchar:163: error: '::putwchar' has not been declared
+/usr/include/c++/4.2/cwchar:164: error: '::swprintf' has not been declared
+/usr/include/c++/4.2/cwchar:165: error: '::swscanf' has not been declared
+/usr/include/c++/4.2/cwchar:166: error: '::ungetwc' has not been declared
+/usr/include/c++/4.2/cwchar:167: error: '::vfwprintf' has not been declared
+/usr/include/c++/4.2/cwchar:169: error: '::vfwscanf' has not been declared
+/usr/include/c++/4.2/cwchar:171: error: '::vswprintf' has not been declared
+/usr/include/c++/4.2/cwchar:173: error: '::vswscanf' has not been declared
+/usr/include/c++/4.2/cwchar:175: error: '::vwprintf' has not been declared
+/usr/include/c++/4.2/cwchar:177: error: '::vwscanf' has not been declared
+/usr/include/c++/4.2/cwchar:179: error: '::wcrtomb' has not been declared
+/usr/include/c++/4.2/cwchar:180: error: '::wcscat' has not been declared
+/usr/include/c++/4.2/cwchar:181: error: '::wcscmp' has not been declared
+/usr/include/c++/4.2/cwchar:182: error: '::wcscoll' has not been declared
+/usr/include/c++/4.2/cwchar:183: error: '::wcscpy' has not been declared
+/usr/include/c++/4.2/cwchar:184: error: '::wcscspn' has not been declared
+/usr/include/c++/4.2/cwchar:185: error: '::wcsftime' has not been declared
+/usr/include/c++/4.2/cwchar:186: error: '::wcslen' has not been declared
+/usr/include/c++/4.2/cwchar:187: error: '::wcsncat' has not been declared
+/usr/include/c++/4.2/cwchar:188: error: '::wcsncmp' has not been declared
+/usr/include/c++/4.2/cwchar:189: error: '::wcsncpy' has not been declared
+/usr/include/c++/4.2/cwchar:190: error: '::wcsrtombs' has not been declared
+/usr/include/c++/4.2/cwchar:191: error: '::wcsspn' has not been declared
+/usr/include/c++/4.2/cwchar:192: error: '::wcstod' has not been declared
+/usr/include/c++/4.2/cwchar:194: error: '::wcstof' has not been declared
+/usr/include/c++/4.2/cwchar:196: error: '::wcstok' has not been declared
+/usr/include/c++/4.2/cwchar:197: error: '::wcstol' has not been declared
+/usr/include/c++/4.2/cwchar:198: error: '::wcstoul' has not been declared
+/usr/include/c++/4.2/cwchar:199: error: '::wcsxfrm' has not been declared
+/usr/include/c++/4.2/cwchar:200: error: '::wctob' has not been declared
+/usr/include/c++/4.2/cwchar:201: error: '::wmemcmp' has not been declared
+/usr/include/c++/4.2/cwchar:202: error: '::wmemcpy' has not been declared
+/usr/include/c++/4.2/cwchar:203: error: '::wmemmove' has not been declared
+/usr/include/c++/4.2/cwchar:204: error: '::wmemset' has not been declared
+/usr/include/c++/4.2/cwchar:205: error: '::wprintf' has not been declared
+/usr/include/c++/4.2/cwchar:206: error: '::wscanf' has not been declared
+/usr/include/c++/4.2/cwchar:208: error: '::wcschr' has not been declared
+/usr/include/c++/4.2/cwchar: In function 'wchar_t* rw::sandbox::std::wcschr(wchar_t*, wchar_t)':
+/usr/include/c++/4.2/cwchar:212: error: invalid conversion from 'const wchar_t*' to 'wchar_t*'
+/usr/include/c++/4.2/cwchar:212: error:   initializing argument 1 of 'wchar_t* rw::sandbox::std::wcschr(wchar_t*, wchar_t)'
+/usr/include/c++/4.2/cwchar: At global scope:
+/usr/include/c++/4.2/cwchar:214: error: '::wcspbrk' has not been declared
+/usr/include/c++/4.2/cwchar: In function 'wchar_t* rw::sandbox::std::wcspbrk(wchar_t*, const wchar_t*)':
+/usr/include/c++/4.2/cwchar:218: error: invalid conversion from 'const wchar_t*' to 'wchar_t*'
+/usr/include/c++/4.2/cwchar:218: error:   initializing argument 1 of 'wchar_t* rw::sandbox::std::wcspbrk(wchar_t*, const wchar_t*)'
+/usr/include/c++/4.2/cwchar: At global scope:
+/usr/include/c++/4.2/cwchar:220: error: '::wcsrchr' has not been declared
+/usr/include/c++/4.2/cwchar: In function 'wchar_t* rw::sandbox::std::wcsrchr(wchar_t*, wchar_t)':
+/usr/include/c++/4.2/cwchar:224: error: invalid conversion from 'const wchar_t*' to 'wchar_t*'
+/usr/include/c++/4.2/cwchar:224: error:   initializing argument 1 of 'wchar_t* rw::sandbox::std::wcsrchr(wchar_t*, wchar_t)'
+/usr/include/c++/4.2/cwchar: At global scope:
+/usr/include/c++/4.2/cwchar:226: error: '::wcsstr' has not been declared
+/usr/include/c++/4.2/cwchar: In function 'wchar_t* rw::sandbox::std::wcsstr(wchar_t*, const wchar_t*)':
+/usr/include/c++/4.2/cwchar:230: error: invalid conversion from 'const wchar_t*' to 'wchar_t*'
+/usr/include/c++/4.2/cwchar:230: error:   initializing argument 1 of 'wchar_t* rw::sandbox::std::wcsstr(wchar_t*, const wchar_t*)'
+/usr/include/c++/4.2/cwchar: At global scope:
+/usr/include/c++/4.2/cwchar:232: error: '::wmemchr' has not been declared
+/usr/include/c++/4.2/cwchar: In function 'wchar_t* rw::sandbox::std::wmemchr(wchar_t*, wchar_t, rw::sandbox::size_t)':
+/usr/include/c++/4.2/cwchar:236: error: invalid conversion from 'const wchar_t*' to 'wchar_t*'
+/usr/include/c++/4.2/cwchar:236: error:   initializing argument 1 of 'wchar_t* rw::sandbox::std::wmemchr(wchar_t*, wchar_t, rw::sandbox::size_t)'
+/usr/include/c++/4.2/cwchar: At global scope:
+/usr/include/c++/4.2/cwchar:253: error: '::wcstold' has not been declared
+/usr/include/c++/4.2/cwchar:262: error: '::wcstoll' has not been declared
+/usr/include/c++/4.2/cwchar:263: error: '::wcstoull' has not been declared
+/usr/include/c++/4.2/cwchar:270: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cwchar:271: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cwchar:272: error: '::__gnu_cxx' has not been declared
+In file included from /usr/include/c++/4.2/bits/stl_algobase.h:68,
+                 from /usr/include/c++/4.2/bits/char_traits.h:46,
+                 from /usr/include/c++/4.2/ios:45,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/cstdlib:106: error: '::div_t' has not been declared
+/usr/include/c++/4.2/cstdlib:107: error: '::ldiv_t' has not been declared
+/usr/include/c++/4.2/cstdlib:109: error: '::abort' has not been declared
+/usr/include/c++/4.2/cstdlib:110: error: '::abs' has not been declared
+/usr/include/c++/4.2/cstdlib:111: error: '::atexit' has not been declared
+/usr/include/c++/4.2/cstdlib:112: error: '::atof' has not been declared
+/usr/include/c++/4.2/cstdlib:113: error: '::atoi' has not been declared
+/usr/include/c++/4.2/cstdlib:114: error: '::atol' has not been declared
+/usr/include/c++/4.2/cstdlib:115: error: '::bsearch' has not been declared
+/usr/include/c++/4.2/cstdlib:116: error: '::calloc' has not been declared
+/usr/include/c++/4.2/cstdlib:117: error: '::div' has not been declared
+/usr/include/c++/4.2/cstdlib:118: error: '::exit' has not been declared
+/usr/include/c++/4.2/cstdlib:119: error: '::free' has not been declared
+/usr/include/c++/4.2/cstdlib:120: error: '::getenv' has not been declared
+/usr/include/c++/4.2/cstdlib:121: error: '::labs' has not been declared
+/usr/include/c++/4.2/cstdlib:122: error: '::ldiv' has not been declared
+/usr/include/c++/4.2/cstdlib:123: error: '::malloc' has not been declared
+/usr/include/c++/4.2/cstdlib:125: error: '::mblen' has not been declared
+/usr/include/c++/4.2/cstdlib:126: error: '::mbstowcs' has not been declared
+/usr/include/c++/4.2/cstdlib:127: error: '::mbtowc' has not been declared
+/usr/include/c++/4.2/cstdlib:129: error: '::qsort' has not been declared
+/usr/include/c++/4.2/cstdlib:130: error: '::rand' has not been declared
+/usr/include/c++/4.2/cstdlib:131: error: '::realloc' has not been declared
+/usr/include/c++/4.2/cstdlib:132: error: '::srand' has not been declared
+/usr/include/c++/4.2/cstdlib:133: error: '::strtod' has not been declared
+/usr/include/c++/4.2/cstdlib:134: error: '::strtol' has not been declared
+/usr/include/c++/4.2/cstdlib:135: error: '::strtoul' has not been declared
+/usr/include/c++/4.2/cstdlib:136: error: '::system' has not been declared
+/usr/include/c++/4.2/cstdlib:138: error: '::wcstombs' has not been declared
+/usr/include/c++/4.2/cstdlib:139: error: '::wctomb' has not been declared
+/usr/include/c++/4.2/cstdlib:164: error: '::lldiv_t' has not been declared
+/usr/include/c++/4.2/cstdlib:170: error: '::_Exit' has not been declared
+/usr/include/c++/4.2/cstdlib:177: error: '::llabs' has not been declared
+/usr/include/c++/4.2/cstdlib:183: error: '::lldiv' has not been declared
+/usr/include/c++/4.2/cstdlib:194: error: '::atoll' has not been declared
+/usr/include/c++/4.2/cstdlib:195: error: '::strtoll' has not been declared
+/usr/include/c++/4.2/cstdlib:196: error: '::strtoull' has not been declared
+/usr/include/c++/4.2/cstdlib:198: error: '::strtof' has not been declared
+/usr/include/c++/4.2/cstdlib:199: error: '::strtold' has not been declared
+/usr/include/c++/4.2/cstdlib:206: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:208: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:209: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:211: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:212: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:213: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:215: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:216: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:217: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:218: error: '::__gnu_cxx' has not been declared
+/usr/include/c++/4.2/cstdlib:219: error: '::__gnu_cxx' has not been declared
+In file included from /usr/include/c++/4.2/bits/char_traits.h:46,
+                 from /usr/include/c++/4.2/ios:45,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/stl_algobase.h: In static member function 'static _Tp* rw::sandbox::std::__copy<true, rw::sandbox::std::random_access_iterator_tag>::copy(const _Tp*, const _Tp*, _Tp*)':
+/usr/include/c++/4.2/bits/stl_algobase.h:298: error: 'memmove' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/stl_algobase.h: In static member function 'static _Tp* rw::sandbox::std::__copy_backward<true, rw::sandbox::std::random_access_iterator_tag>::__copy_b(const _Tp*, const _Tp*, _Tp*)':
+/usr/include/c++/4.2/bits/stl_algobase.h:446: error: 'memmove' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/stl_algobase.h: In function 'void rw::sandbox::std::fill(unsigned char*, unsigned char*, const unsigned char&)':
+/usr/include/c++/4.2/bits/stl_algobase.h:600: error: 'memset' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/stl_algobase.h: In function 'void rw::sandbox::std::fill(signed char*, signed char*, const signed char&)':
+/usr/include/c++/4.2/bits/stl_algobase.h:608: error: 'memset' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/stl_algobase.h: In function 'void rw::sandbox::std::fill(char*, char*, const char&)':
+/usr/include/c++/4.2/bits/stl_algobase.h:616: error: 'memset' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/stl_algobase.h: In function 'bool rw::sandbox::std::lexicographical_compare(const unsigned char*, const unsigned char*, const unsigned char*, const unsigned char*)':
+/usr/include/c++/4.2/bits/stl_algobase.h:908: error: 'memcmp' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/ios:45,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/char_traits.h: At global scope:
+/usr/include/c++/4.2/bits/char_traits.h:67: error: 'mbstate_t' in namespace 'rw::sandbox::std' does not name a type
+/usr/include/c++/4.2/bits/char_traits.h:108: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h:110: error: 'size_t' in namespace 'rw::sandbox::std' does not name a type
+/usr/include/c++/4.2/bits/char_traits.h:114: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h:117: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h:120: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h:123: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h:149: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h: In static member function 'static int rw::sandbox::__gnu_cxx::char_traits<_CharT>::compare(const _CharT*, const _CharT*, int)':
+/usr/include/c++/4.2/bits/char_traits.h:151: error: 'size_t' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/char_traits.h:151: error: expected `;' before '__i'
+/usr/include/c++/4.2/bits/char_traits.h:151: error: '__i' was not declared in this scope
+/usr/include/c++/4.2/bits/char_traits.h: At global scope:
+/usr/include/c++/4.2/bits/char_traits.h:161: error: expected constructor, destructor, or type conversion before 'char_traits'
+/usr/include/c++/4.2/bits/char_traits.h:173: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h: In static member function 'static const typename rw::sandbox::__gnu_cxx::char_traits<_CharT>::char_type* rw::sandbox::__gnu_cxx::char_traits<_CharT>::find(const _CharT*, int, const _CharT&)':
+/usr/include/c++/4.2/bits/char_traits.h:175: error: 'size_t' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/char_traits.h:175: error: expected `;' before '__i'
+/usr/include/c++/4.2/bits/char_traits.h:175: error: '__i' was not declared in this scope
+/usr/include/c++/4.2/bits/char_traits.h: At global scope:
+/usr/include/c++/4.2/bits/char_traits.h:184: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h: In static member function 'static typename rw::sandbox::__gnu_cxx::char_traits<_CharT>::char_type* rw::sandbox::__gnu_cxx::char_traits<_CharT>::move(_CharT*, const _CharT*, int)':
+/usr/include/c++/4.2/bits/char_traits.h:186: error: 'memmove' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/char_traits.h: At global scope:
+/usr/include/c++/4.2/bits/char_traits.h:193: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h:202: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/bits/char_traits.h: In static member function 'static const char* rw::sandbox::std::char_traits<char>::find(const char*, rw::sandbox::size_t, const char&)':
+/usr/include/c++/4.2/bits/char_traits.h:262: error: invalid conversion from 'const void*' to 'void*'
+/usr/include/c++/4.2/bits/char_traits.h:262: error:   initializing argument 1 of 'void* rw::sandbox::std::memchr(void*, int, rw::sandbox::size_t)'
+/usr/include/c++/4.2/bits/char_traits.h: In static member function 'static const wchar_t* rw::sandbox::std::char_traits<wchar_t>::find(const wchar_t*, rw::sandbox::size_t, const wchar_t&)':
+/usr/include/c++/4.2/bits/char_traits.h:332: error: invalid conversion from 'const wchar_t*' to 'wchar_t*'
+/usr/include/c++/4.2/bits/char_traits.h:332: error:   initializing argument 1 of 'wchar_t* rw::sandbox::std::wmemchr(wchar_t*, wchar_t, rw::sandbox::size_t)'
+In file included from /usr/include/c++/4.2/ext/new_allocator.h:37,
+                 from /usr/include/c++/4.2/i486-linux-gnu/bits/c++allocator.h:39,
+                 from /usr/include/c++/4.2/bits/allocator.h:53,
+                 from /usr/include/c++/4.2/memory:54,
+                 from /usr/include/c++/4.2/string:48,
+                 from /usr/include/c++/4.2/bits/locale_classes.h:47,
+                 from /usr/include/c++/4.2/bits/ios_base.h:47,
+                 from /usr/include/c++/4.2/ios:48,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/new: At global scope:
+/usr/include/c++/4.2/new:95: error: declaration of 'operator new' as non-function
+/usr/include/c++/4.2/new:95: error: 'size_t' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/new:96: error: declaration of 'operator new []' as non-function
+/usr/include/c++/4.2/new:96: error: 'size_t' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/new:97: error: 'void rw::sandbox::operator delete(void*)' may not be declared within a namespace
+/usr/include/c++/4.2/new:98: error: 'void rw::sandbox::operator delete [](void*)' may not be declared within a namespace
+/usr/include/c++/4.2/new:99: error: declaration of 'operator new' as non-function
+/usr/include/c++/4.2/new:99: error: 'size_t' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/new:99: error: expected primary-expression before 'const'
+/usr/include/c++/4.2/new:100: error: declaration of 'operator new []' as non-function
+/usr/include/c++/4.2/new:100: error: 'size_t' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/new:100: error: expected primary-expression before 'const'
+/usr/include/c++/4.2/new:101: error: 'void rw::sandbox::operator delete(void*, const rw::sandbox::std::nothrow_t&)' may not be declared within a namespace
+/usr/include/c++/4.2/new:102: error: 'void rw::sandbox::operator delete [](void*, const rw::sandbox::std::nothrow_t&)' may not be declared within a namespace
+/usr/include/c++/4.2/new:105: error: declaration of 'operator new' as non-function
+/usr/include/c++/4.2/new:105: error: 'size_t' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/new:105: error: expected primary-expression before 'void'
+/usr/include/c++/4.2/new:106: error: declaration of 'operator new []' as non-function
+/usr/include/c++/4.2/new:106: error: 'size_t' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/new:106: error: expected primary-expression before 'void'
+/usr/include/c++/4.2/new:109: error: 'void rw::sandbox::operator delete(void*, void*)' may not be declared within a namespace
+/usr/include/c++/4.2/new:110: error: 'void rw::sandbox::operator delete [](void*, void*)' may not be declared within a namespace
+In file included from /usr/include/c++/4.2/i486-linux-gnu/bits/c++allocator.h:39,
+                 from /usr/include/c++/4.2/bits/allocator.h:53,
+                 from /usr/include/c++/4.2/memory:54,
+                 from /usr/include/c++/4.2/string:48,
+                 from /usr/include/c++/4.2/bits/locale_classes.h:47,
+                 from /usr/include/c++/4.2/bits/ios_base.h:47,
+                 from /usr/include/c++/4.2/ios:48,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/ext/new_allocator.h:42: error: 'rw::sandbox::std::size_t' has not been declared
+/usr/include/c++/4.2/ext/new_allocator.h:43: error: 'rw::sandbox::std::ptrdiff_t' has not been declared
+In file included from /usr/include/c++/4.2/memory:57,
+                 from /usr/include/c++/4.2/string:48,
+                 from /usr/include/c++/4.2/bits/locale_classes.h:47,
+                 from /usr/include/c++/4.2/bits/ios_base.h:47,
+                 from /usr/include/c++/4.2/ios:48,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/stl_uninitialized.h: In function 'char* rw::sandbox::std::uninitialized_copy(const char*, const char*, char*)':
+/usr/include/c++/4.2/bits/stl_uninitialized.h:120: error: 'memmove' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/stl_uninitialized.h: In function 'wchar_t* rw::sandbox::std::uninitialized_copy(const wchar_t*, const wchar_t*, wchar_t*)':
+/usr/include/c++/4.2/bits/stl_uninitialized.h:128: error: 'memmove' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/string:48,
+                 from /usr/include/c++/4.2/bits/locale_classes.h:47,
+                 from /usr/include/c++/4.2/bits/ios_base.h:47,
+                 from /usr/include/c++/4.2/ios:48,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+<built-in>: In function 'rw::sandbox::std::pair<_Tp*, int> rw::sandbox::std::__get_temporary_buffer(rw::sandbox::ptrdiff_t, _Tp*)':
+<built-in>:0: error: too many arguments to function 'void* operator new(unsigned int)'
+/usr/include/c++/4.2/memory:83: error: at this point in file
+In file included from /usr/include/c++/4.2/algorithm:68,
+                 from /usr/include/c++/4.2/string:57,
+                 from /usr/include/c++/4.2/bits/locale_classes.h:47,
+                 from /usr/include/c++/4.2/bits/ios_base.h:47,
+                 from /usr/include/c++/4.2/ios:48,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/stl_algo.h: In function 'void rw::sandbox::std::random_shuffle(_RandomAccessIterator, _RandomAccessIterator)':
+/usr/include/c++/4.2/bits/stl_algo.h:1985: error: 'rand' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/bits/ios_base.h:47,
+                 from /usr/include/c++/4.2/ios:48,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/locale_classes.h: In member function 'bool rw::sandbox::std::locale::_Impl::_M_check_same_name()':
+/usr/include/c++/4.2/bits/locale_classes.h:539: error: 'strcmp' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/bits/locale_facets.h:46,
+                 from /usr/include/c++/4.2/bits/basic_ios.h:44,
+                 from /usr/include/c++/4.2/ios:50,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/cwctype: At global scope:
+/usr/include/c++/4.2/cwctype:82: error: '::wint_t' has not been declared
+/usr/include/c++/4.2/cwctype:84: error: '::wctype_t' has not been declared
+/usr/include/c++/4.2/cwctype:85: error: '::wctrans_t' has not been declared
+/usr/include/c++/4.2/cwctype:87: error: '::iswalnum' has not been declared
+/usr/include/c++/4.2/cwctype:88: error: '::iswalpha' has not been declared
+/usr/include/c++/4.2/cwctype:90: error: '::iswblank' has not been declared
+/usr/include/c++/4.2/cwctype:92: error: '::iswcntrl' has not been declared
+/usr/include/c++/4.2/cwctype:93: error: '::iswctype' has not been declared
+/usr/include/c++/4.2/cwctype:94: error: '::iswdigit' has not been declared
+/usr/include/c++/4.2/cwctype:95: error: '::iswgraph' has not been declared
+/usr/include/c++/4.2/cwctype:96: error: '::iswlower' has not been declared
+/usr/include/c++/4.2/cwctype:97: error: '::iswprint' has not been declared
+/usr/include/c++/4.2/cwctype:98: error: '::iswpunct' has not been declared
+/usr/include/c++/4.2/cwctype:99: error: '::iswspace' has not been declared
+/usr/include/c++/4.2/cwctype:100: error: '::iswupper' has not been declared
+/usr/include/c++/4.2/cwctype:101: error: '::iswxdigit' has not been declared
+/usr/include/c++/4.2/cwctype:102: error: '::towctrans' has not been declared
+/usr/include/c++/4.2/cwctype:103: error: '::towlower' has not been declared
+/usr/include/c++/4.2/cwctype:104: error: '::towupper' has not been declared
+/usr/include/c++/4.2/cwctype:105: error: '::wctrans' has not been declared
+/usr/include/c++/4.2/cwctype:106: error: '::wctype' has not been declared
+In file included from /usr/include/c++/4.2/bits/locale_facets.h:1536,
+                 from /usr/include/c++/4.2/bits/basic_ios.h:44,
+                 from /usr/include/c++/4.2/ios:50,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/codecvt.h: In constructor 'rw::sandbox::std::codecvt_byname<_InternT, _ExternT, _StateT>::codecvt_byname(const char*, rw::sandbox::size_t)':
+/usr/include/c++/4.2/bits/codecvt.h:460: error: 'strcmp' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/codecvt.h:460: error: 'strcmp' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/bits/basic_ios.h:44,
+                 from /usr/include/c++/4.2/ios:50,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/locale_facets.h: In constructor 'rw::sandbox::std::numpunct_byname<_CharT>::numpunct_byname(const char*, rw::sandbox::size_t)':
+/usr/include/c++/4.2/bits/locale_facets.h:1904: error: 'strcmp' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/locale_facets.h:1904: error: 'strcmp' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/locale_facets.h: In constructor 'rw::sandbox::std::collate_byname<_CharT>::collate_byname(const char*, rw::sandbox::size_t)':
+/usr/include/c++/4.2/bits/locale_facets.h:2726: error: 'strcmp' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/locale_facets.h:2726: error: 'strcmp' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/bits/locale_facets.h:3040,
+                 from /usr/include/c++/4.2/bits/basic_ios.h:44,
+                 from /usr/include/c++/4.2/ios:50,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/i486-linux-gnu/bits/time_members.h: In constructor 'rw::sandbox::std::__timepunct<_CharT>::__timepunct(rw::sandbox::__locale_struct*, const char*, rw::sandbox::size_t)':
+/usr/include/c++/4.2/i486-linux-gnu/bits/time_members.h:62: error: 'strlen' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/i486-linux-gnu/bits/time_members.h:64: error: 'memcpy' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/bits/basic_ios.h:44,
+                 from /usr/include/c++/4.2/ios:50,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/locale_facets.h: In constructor 'rw::sandbox::std::moneypunct_byname<_CharT, _Intl>::moneypunct_byname(const char*, rw::sandbox::size_t)':
+/usr/include/c++/4.2/bits/locale_facets.h:4014: error: 'strcmp' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/bits/locale_facets.h:4014: error: 'strcmp' is not a member of 'rw::sandbox::std'
+In file included from /usr/include/c++/4.2/bits/locale_facets.h:4599,
+                 from /usr/include/c++/4.2/bits/basic_ios.h:44,
+                 from /usr/include/c++/4.2/ios:50,
+                 from /usr/include/c++/4.2/ostream:45,
+                 from /usr/include/c++/4.2/iostream:45,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Message.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Exception.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:25,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/i486-linux-gnu/bits/messages_members.h: In constructor 'rw::sandbox::std::messages<_CharT>::messages(rw::sandbox::__locale_struct*, const char*, rw::sandbox::size_t)':
+/usr/include/c++/4.2/i486-linux-gnu/bits/messages_members.h:55: error: 'strlen' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/i486-linux-gnu/bits/messages_members.h:57: error: 'memcpy' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/i486-linux-gnu/bits/messages_members.h: In constructor 'rw::sandbox::std::messages_byname<_CharT>::messages_byname(const char*, rw::sandbox::size_t)':
+/usr/include/c++/4.2/i486-linux-gnu/bits/messages_members.h:105: error: 'strlen' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/i486-linux-gnu/bits/messages_members.h:106: error: 'strcpy' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/i486-linux-gnu/bits/messages_members.h:109: error: 'strcmp' is not a member of 'rw::sandbox::std'
+/usr/include/c++/4.2/i486-linux-gnu/bits/messages_members.h:109: error: 'strcmp' is not a member of 'rw::sandbox::std'
+In file included from /home/lpe/workspace/RobWork/ext/boost/detail/shared_count.hpp:30,
+                 from /home/lpe/workspace/RobWork/ext/boost/shared_ptr.hpp:28,
+                 from /home/lpe/workspace/RobWork/src/rw/common/Log.hpp:6,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:26,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/home/lpe/workspace/RobWork/ext/boost/detail/sp_counted_impl.hpp: In member function 'virtual void* rw::sandbox::boost::detail::sp_counted_impl_pd<P, D>::get_deleter(const rw::sandbox::std::type_info&)':
+/home/lpe/workspace/RobWork/ext/boost/detail/sp_counted_impl.hpp:150: error: must #include <typeinfo> before using typeid
+/home/lpe/workspace/RobWork/ext/boost/detail/sp_counted_impl.hpp: In member function 'virtual void* rw::sandbox::boost::detail::sp_counted_impl_pda<P, D, A>::get_deleter(const rw::sandbox::std::type_info&)':
+/home/lpe/workspace/RobWork/ext/boost/detail/sp_counted_impl.hpp:220: error: must #include <typeinfo> before using typeid
+In file included from /home/lpe/workspace/RobWork/src/rw/common/Log.hpp:6,
+                 from /home/lpe/workspace/RobWork/src/rw/common/macros.hpp:26,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.hpp:8,
+                 from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/home/lpe/workspace/RobWork/ext/boost/shared_ptr.hpp: In function 'D* rw::sandbox::boost::get_deleter(const rw::sandbox::boost::shared_ptr<U>&)':
+/home/lpe/workspace/RobWork/ext/boost/shared_ptr.hpp:545: error: must #include <typeinfo> before using typeid
+In file included from /home/lpe/workspace/RobWork/src/sandbox/interpolator/CubicSplineInterpolator.cpp:1:
+/usr/include/c++/4.2/bits/basic_string.tcc: In static member function 'static typename rw::sandbox::std::basic_string<_CharT, _Traits, _Alloc>::_Rep* rw::sandbox::std::basic_string<_CharT, _Traits, _Alloc>::_Rep::_S_create(typename _Alloc::rebind<_CharT>::other::size_type, typename _Alloc::rebind<_CharT>::other::size_type, const _Alloc&) [with _CharT = char, _Traits = rw::sandbox::std::char_traits<char>, _Alloc = rw::sandbox::std::allocator<char>]':
+/usr/include/c++/4.2/bits/basic_string.tcc:611:   instantiated from '_CharT* rw::sandbox::std::basic_string<_CharT, _Traits, _Alloc>::_Rep::_M_clone(const _Alloc&, typename _Alloc::rebind<_CharT>::other::size_type) [with _CharT = char, _Traits = rw::sandbox::std::char_traits<char>, _Alloc = rw::sandbox::std::allocator<char>]'
+/usr/include/c++/4.2/bits/basic_string.h:223:   instantiated from '_CharT* rw::sandbox::std::basic_string<_CharT, _Traits, _Alloc>::_Rep::_M_grab(const _Alloc&, const _Alloc&) [with _CharT = char, _Traits = rw::sandbox::std::char_traits<char>, _Alloc = rw::sandbox::std::allocator<char>]'
+/usr/include/c++/4.2/bits/basic_string.tcc:186:   instantiated from 'rw::sandbox::std::basic_string<_CharT, _Traits, _Alloc>::basic_string(const rw::sandbox::std::basic_string<_CharT, _Traits, _Alloc>&) [with _CharT = char, _Traits = rw::sandbox::std::char_traits<char>, _Alloc = rw::sandbox::std::allocator<char>]'
+/home/lpe/workspace/RobWork/src/rw/common/Message.hpp:70:   instantiated from here
+/usr/include/c++/4.2/bits/basic_string.tcc:590: error: no matching function for call to 'operator new(unsigned int, void*&)'
+<built-in>:0: note: candidates are: void* operator new(unsigned int)
+make[2]: *** [src/CMakeTmp/sandbox/CMakeFiles/rw_sandbox.dir/interpolator/CubicSplineInterpolator.o] Error 1
+make[1]: *** [src/CMakeTmp/sandbox/CMakeFiles/rw_sandbox.dir/all] Error 2
+make: *** [all] Error 2
