@@ -1,0 +1,10 @@
+
+FIND_PACKAGE(KATANA)
+IF(KATANA_FOUND)
+ MESSAGE(STATUS "Katana sdk found. Katana driver will be build!")
+ INCLUDE_DIRECTORIES(${KATANA_INCLUDE_DIR})
+ ADD_LIBRARY(rwhw_katana Katana.cpp Katana.hpp)
+ INSTALL(TARGETS rwhw_katana DESTINATION ${RWHW_LIB_INSTALL_DIR})
+ELSE()
+ MESSAGE(STATUS "Katana sdk NOT found. Katana driver will NOT be build!")
+ENDIF()

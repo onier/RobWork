@@ -1,0 +1,3 @@
+
+ADD_LIBRARY(rwhw_crsa465 ./CRSA465.cpp ./crs_aci.cpp)
+INSTALL(TARGETS rwhw_crsa465 DESTINATION ${RWHW_LIB_INSTALL_DIR})
