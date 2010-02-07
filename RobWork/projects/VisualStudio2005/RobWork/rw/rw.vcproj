@@ -1677,6 +1677,34 @@
 			Name="sandbox"
 			>
 		</Filter>
+		<Filter
+			Name="plugin"
+			>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\PluginConstructor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\PluginConstructor.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\PluginRepository.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\PluginRepository.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\RobWork.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\RobWork.hpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\..\..\..\src\rw\robwork.hpp"
 			>

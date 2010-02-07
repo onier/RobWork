@@ -190,6 +190,14 @@
 				RelativePath="..\..\..\..\src\sandbox\plugin\PluginRepository.hpp"
 				>
 			</File>
+			<File
+				RelativePath="..\..\..\..\src\sandbox\plugin\RobWork.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\sandbox\plugin\RobWork.hpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>
