@@ -23,8 +23,9 @@
 #include <float.h>
 #include <vector>
 
-#include <rw/geometry/Face.hpp>
-#include <rw/geometry/FaceArrayFactory.hpp>
+#include <rw/geometry/TriMesh.hpp>
+#include <rw/geometry/GeometryFactory.hpp>
+#include <rw/geometry/GeometryUtil.hpp>
 #include <rw/kinematics/Frame.hpp>
 #include <rw/common/macros.hpp>
 #include <rw/common/Exception.hpp>
@@ -48,6 +49,7 @@ using namespace rwlibs::proximitystrategies;
 
 namespace
 {
+/*
     std::auto_ptr<PQP_Model> makePQPModelFromSoup(
         const std::vector<Face<float> > &faceList)
     {
@@ -65,7 +67,7 @@ namespace
 
         return model;
     }
-
+*/
     // Convert Transform3D to rapid representation.
     void toRapidTransform(
         const Transform3D<>& tr,
@@ -110,7 +112,7 @@ namespace
     {
         return Vector3D<>((double)T[0], (double)T[1], (double)T[2]);
     }
-
+/*
     std::auto_ptr<PQP_Model> makePQPModel(const CollisionModelInfo& info)
     {
         typedef std::auto_ptr<PQP_Model> T;
@@ -133,7 +135,7 @@ namespace
         }
         return T(NULL);;
     }
-
+*/
     void pqpCollide(
         PQP_Model& ma, const Transform3D<>& wTa,
         PQP_Model& mb, const Transform3D<>& wTb,
@@ -218,26 +220,32 @@ void ProximityStrategyPQP::destroyModel(rw::proximity::ProximityModelPtr model){
 
 }
 
-bool ProximityStrategyPQP::addGeometry(rw::proximity::ProximityModelPtr model, const rw::geometry::Geometry& geom){
+bool ProximityStrategyPQP::addGeometry(
+		rw::proximity::ProximityModelPtr model,
+		const rw::geometry::Geometry& geom){
     PQPProximityModel *pmodel = (PQPProximityModel*) model.get();
 
     PQPModelPtr pqpmodel;
-
+    GeometryDataPtr gdata = geom.getGeometryData();
     // first check if model is in cache
     if( _modelCache.has(geom.getId()) ){
         pqpmodel = _modelCache.get(geom.getId());
     } else {
-        const std::vector<rw::geometry::Face<float> > &faceList = geom.getFaces();
-        if(faceList.size()==0)
+    	TriMeshPtr mesh = GeometryUtil::toTriMesh( gdata.get() );
+        if(mesh->size()==0)
             return false;
         pqpmodel = ownedPtr(new PQP_Model());
 
-        pqpmodel->BeginModel(faceList.size());
+        pqpmodel->BeginModel(mesh->size());
         {
-            for (int i = 0; i < (int)faceList.size(); i++) {
+            for (size_t i = 0; i < mesh->size(); i++) {
                 // NB: Note the cast.
-                const Face<PQP_REAL> face = faceList.at(i);
-                pqpmodel->AddTri(face._vertex1, face._vertex2, face._vertex3, i);
+            	TriangleN0<double> face = mesh->getTriangle(i);
+            	Vector3D<PQP_REAL> v0 = cast<PQP_REAL>(face[0]);
+            	Vector3D<PQP_REAL> v1 = cast<PQP_REAL>(face[1]);
+            	Vector3D<PQP_REAL> v2 = cast<PQP_REAL>(face[2]);
+
+                pqpmodel->AddTri(&v0[0], &v1[0], &v2[0], i);
             }
         }
         pqpmodel->EndModel();

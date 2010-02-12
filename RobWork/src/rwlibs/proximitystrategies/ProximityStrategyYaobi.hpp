@@ -33,7 +33,6 @@
 
 #include <rw/kinematics/Frame.hpp>
 #include <rw/kinematics/FrameMap.hpp>
-#include <rw/geometry/Face.hpp>
 #include <rw/proximity/CollisionStrategy.hpp>
 
 namespace rwlibs { namespace proximitystrategies {

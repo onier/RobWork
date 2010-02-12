@@ -32,7 +32,6 @@
 #include <rw/common/Cache.hpp>
 
 #include <rw/kinematics/Frame.hpp>
-#include <rw/geometry/Face.hpp>
 #include <rw/proximity/CollisionStrategy.hpp>
 #include <rw/proximity/CollisionToleranceStrategy.hpp>
 #include <rw/proximity/DistanceStrategy.hpp>
