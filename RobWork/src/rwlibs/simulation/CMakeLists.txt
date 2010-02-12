@@ -8,12 +8,26 @@ SET(SRC_FILES
   ./camera/FrameGrabber.cpp
   ./camera/GLFrameGrabber.cpp
   ./camera/VirtualCamera.cpp
+  
+  FrameGrabber25D.cpp
+  GLFrameGrabber25D.cpp
+  KinematicSimulator.cpp
+  SimulatedController.cpp
+  SimulatedSensor.cpp
+  Simulator.cpp
 )
 
 SET(SRC_FILES_HPP
   ./camera/FrameGrabber.hpp
   ./camera/GLFrameGrabber.hpp
   ./camera/VirtualCamera.hpp
+
+  FrameGrabber25D.hpp
+  GLFrameGrabber25D.hpp
+  KinematicSimulator.hpp
+  SimulatedController.hpp
+  SimulatedSensor.hpp
+  Simulator.hpp
 )
 
 ADD_LIBRARY(rw_simulation ${SRC_FILES} ${SRC_FILES_HPP})
