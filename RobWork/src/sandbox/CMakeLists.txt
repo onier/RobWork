@@ -2,9 +2,9 @@ SET(SRC_FILES
     ${RW_SANDBOX_USER_FILES}
     pathanalysis/PathAnalyzer.cpp
     VelocityRamps/SyncVelocityRamp.cpp
-    control/JointController.cpp
+    #control/JointController.cpp
         
-    TactileArrayUtil.cpp
+    #TactileArrayUtil.cpp
     
     invkin/BasicGPMM.cpp
     invkin/IKGPMMSolver.cpp
@@ -21,7 +21,7 @@ SET(SRC_FILES
     #geometry/TriMesh.cpp
     #geometry/GeometryUtil.cpp
     
-    MovingAverage.cpp
+    #MovingAverage.cpp
 
     
     #proximity/BroadPhaseStrategy.cpp
@@ -44,9 +44,8 @@ SET(SRC_FILES
 SET(SRC_FILES_HPP
     pathanalysis/PathAnalyzer.hpp
     VelocityRamps/SyncVelocityRamp.hpp
-    control/JointController.hpp
-    TactileArrayUtil.hpp
-    
+    #control/JointController.hpp
+        
     #geometry/STLFile.hpp
     #geometry/Geometry.hpp
     #geometry/GeometryData.hpp
@@ -58,7 +57,7 @@ SET(SRC_FILES_HPP
     #geometry/TriangleUtil.hpp
     #geometry/TriMesh.hpp
     
-    MovingAverage.hpp
+    #MovingAverage.hpp
     		
     ConvertUtil.hpp
     #Log.hpp
