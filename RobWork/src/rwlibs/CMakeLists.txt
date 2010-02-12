@@ -7,6 +7,7 @@ add_subdirectory(pathplanners)
 add_subdirectory(pathoptimization)
 add_subdirectory(lua)
 add_subdirectory(dll)
+add_subdirectory(control)
 add_subdirectory(simulation)
 add_subdirectory(task)
 
