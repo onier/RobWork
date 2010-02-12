@@ -61,10 +61,14 @@ public:
     }
 
     void setTransform(const rw::math::Transform3D<>& t3d){_transform = t3d;};
-    const rw::math::Transform3D<>& getTransform(){return _transform;};
+    const rw::math::Transform3D<>& getTransform() const {return _transform;};
 
     GeometryDataPtr getGeometryData(){return _data;};
+    const GeometryDataPtr getGeometryData() const {return _data;};
+
     void setGeometryData(GeometryDataPtr data){_data = data;};
+
+    virtual const std::string& getId() const {return _id; };
 
     GeometryData* getBV(){return _bv;};
     void setBV(GeometryData* bv){_bv = bv;};
@@ -75,6 +79,7 @@ private:
     GeometryData *_bv;
     rw::math::Transform3D<> _transform;
     double _scale;
+    std::string _id;
 
 };
 

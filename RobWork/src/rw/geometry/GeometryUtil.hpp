@@ -124,6 +124,15 @@ public:
         return trimesh;
 	};
 
+	static TriMeshPtr toTriMesh(GeometryData *gdata){
+        // check if type of geom is really a trimesh
+        if( !dynamic_cast<TriMesh*>(gdata) ){
+
+        	return NULL;
+        }
+        TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata);
+        return TriMeshPtr(trimesh);
+	};
 
 };
 

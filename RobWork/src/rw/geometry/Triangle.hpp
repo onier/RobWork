@@ -68,10 +68,9 @@ namespace geometry {
             return rw::math::MetricUtil::norm2( cross(ab,ac) )/2;
         }
 
-        GeometryData::GeometryType getType(){
+        GeometryData::GeometryType getType() const{
             return GeometryData::TrianglePrim;
         };
-
 
         //virtual TriType getType() = 0;
     };

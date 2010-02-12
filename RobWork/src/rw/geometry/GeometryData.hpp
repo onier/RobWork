@@ -20,7 +20,6 @@
 #define GEOMETRYDATA_HPP_
 
 #include <rw/common/Ptr.hpp>
-
 namespace rw { namespace geometry {
 
 class GeometryData;
@@ -44,7 +43,7 @@ public:
 
     //};
 
-    virtual GeometryType getType() = 0;
+    virtual GeometryType getType() const = 0;
 
 };
 }

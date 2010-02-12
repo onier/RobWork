@@ -22,6 +22,15 @@ SET(FILES_CPP
     Point.cpp
     Line.cpp
     Plane.cpp
+    
+    ConvexHull2D.cpp
+    ConvexHull3D.cpp
+    #GiftWrapHull2D.cpp
+    GiftWrapHull3D.cpp
+    triangulate.cpp
+    Contour2D.cpp
+    Contour2Dto3D.cpp
+    Contour2DUtil.cpp
 )
 
 SET(FILES_HPP
@@ -48,6 +57,15 @@ SET(FILES_HPP
     Point.hpp 
     Line.hpp
     Plane.hpp
+    
+    ConvexHull2D.hpp
+    ConvexHull3D.hpp
+    #GiftWrapHull2D.hpp
+    GiftWrapHull3D.hpp
+    triangulate.hpp
+    Contour2D.hpp
+    Contour2Dto3D.hpp
+    Contour2DUtil.hpp
 )
 
 SOURCE_GROUP(geometry FILES ${FILES_CPP} ${FILES_HPP})

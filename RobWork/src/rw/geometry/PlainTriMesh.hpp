@@ -104,7 +104,7 @@ namespace geometry {
 			return _triangles.size();
 		}
 
-		GeometryData::GeometryType getType(){
+		GeometryData::GeometryType getType() const{
 		    return GeometryData::PlainTriMesh;
 		};
 

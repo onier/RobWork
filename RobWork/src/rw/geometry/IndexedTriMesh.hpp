@@ -81,7 +81,7 @@ namespace geometry {
 
         virtual int getNrTris() const = 0 ;
 
-        GeometryData::GeometryType getType(){
+        GeometryData::GeometryType getType() const{
             return GeometryData::IdxTriMesh;
         };
 
