@@ -35,7 +35,7 @@
 
 #include <rwlibs/os/rwgl.hpp>
 
-#include <rw/geometry/Face.hpp>
+#include <rw/geometry/TriMesh.hpp>
 
 #include "Render.hpp"
 
@@ -76,7 +76,7 @@ namespace rwlibs { namespace drawable {
          * @param b [in] blue color component
          */
         void addFaces(
-            const std::vector<rw::geometry::Face<float> >& faces,
+            const rw::geometry::TriMesh& faces,
             double r,
             double g,
             double b);
@@ -99,16 +99,8 @@ namespace rwlibs { namespace drawable {
             Rgb(float r, float g, float b) { val[0] = r; val[1] = g; val[2] = b; }
         };
 
-        struct Vertex {
-            float val[3];
-
-            Vertex(float x,float y,float z){ val[0] = x; val[1] = y; val[2] = z; }
-        };
-
-        typedef Vertex Normal;
-
-        std::vector<Vertex> _vertexArray;
-        std::vector<Normal> _normalArray;
+        std::vector<rw::math::Vector3D<float> > _vertexArray;
+        std::vector<rw::math::Vector3D<float> > _normalArray;
         std::vector<Rgb> _rgbArray;
         std::vector<int> _rgbToVertexMap;
 

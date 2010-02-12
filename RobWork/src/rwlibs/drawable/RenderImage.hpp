@@ -16,53 +16,53 @@
  ********************************************************************************/
 
 
-#ifndef RWLIBS_DRAWABLE_RENDEROBJ_HPP
-#define RWLIBS_DRAWABLE_RENDEROBJ_HPP
+#ifndef RWLIBS_DRAWABLE_RENDERIMAGE_HPP
+#define RWLIBS_DRAWABLE_RENDERIMAGE_HPP
 
 /**
- * @file rwlibs/drawable/RenderOBJ.hpp
+ * @file RenderFrame.hpp
  */
 
-#include <rwlibs/drawable/Render.hpp>
-#include "OBJReader.hpp"
-
 #include <rwlibs/os/rwgl.hpp>
-#include <vector>
-
+#include <rw/sensor/Image.hpp>
+#include "RWGLTexture.hpp"
+#include "Render.hpp"
 
 namespace rwlibs { namespace drawable {
 
-	/** @addtogroup drawable */
+    /** @addtogroup drawable */
     /*@{*/
 
     /**
-     * @brief This class loads geometry from a OBJ file format
+     * @brief RenderImage renders a image in a plane defined by
+     * [-w/2;h/2][w/2;-h/2]. The image can be scaled
      */
-    class RenderOBJ : public Render
+    class RenderImage : public Render
     {
     public:
+
         /**
-         * @brief Creates object
-         * @param filename [in] filename of .ivg file
+         * @brief Constructs a RenderFrame
+         * @param size [in] size of the frame coordinate system
          */
-        RenderOBJ(const std::string &filename);
+        RenderImage(const rw::sensor::Image& img, float scale=1.0/1000.0);
+
+        /**
+         * @brief Destructor
+         */
+        virtual ~RenderImage(){};
+
+    	/* Functions inherited from Render */
 
         /**
          * @copydoc Render::draw
          */
-	    void draw(DrawType type, double alpha) const
-		{
-			glCallList(_displayListId);
-			//GLuint displayListId;
-			//Render(alpha, displayListId);
-			//glCallList(displayListId);
-		}
+        void draw(DrawType type, double alpha) const;
 
     private:
-		OBJReader _reader;
-        GLuint _displayListId;
-
-		void render(float alpha, GLuint &displayListId) const;
+        int _w, _h;
+        float _scale;
+        RWGLTexture _tex;
     };
 
     /*@}*/

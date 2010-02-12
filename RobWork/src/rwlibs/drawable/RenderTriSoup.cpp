@@ -21,14 +21,13 @@
 #include <rw/common/StringUtil.hpp>
 #include <rw/common/macros.hpp>
 
-#include <rw/geometry/GeometrySTL.hpp>
 using namespace rw::common;
 
 #define LINE_MAX_LENGTH 100
 
 using namespace rwlibs::drawable;
 using namespace rw::geometry;
-
+using namespace rw::math;
 namespace {
 
 	void renderSoup(){
@@ -57,7 +56,7 @@ RenderTriSoup::~RenderTriSoup()
 }
 
 void RenderTriSoup::addFaces(
-    const std::vector<Face<float> >& faces,
+     const rw::geometry::TriMesh& faces,
     const double dr,
     const double dg,
     const double db)
@@ -71,20 +70,21 @@ void RenderTriSoup::addFaces(
     _rgbArray.push_back(Rgb(r,g,b));
     _rgbToVertexMap.push_back(np);
 
-    typedef std::vector<Face<float> >::const_iterator I;
-    for (I it = faces.begin(); it != faces.end(); ++it) {
-        Normal n((*it)._normal[0], (*it)._normal[1], (*it)._normal[2]);
-        Vertex v1((*it)._vertex1[0], (*it)._vertex1[1], (*it)._vertex1[2]);
+    for(size_t i=0;i<faces.size();i++){
+    	TriangleN0<double> tri = faces.getTriangle(i);
+    	Vector3D<float> n = cast<float>( tri.calcFaceNormal() );
+
+        Vector3D<float> v1 = cast<float>(tri[0]);
         _normalArray.push_back(n);
         _vertexArray.push_back(v1);
         np++;
 
-        Vertex v2((*it)._vertex2[0], (*it)._vertex2[1], (*it)._vertex2[2]);
+        Vector3D<float> v2 = cast<float>(tri[1]);
         _normalArray.push_back(n);
         _vertexArray.push_back(v2);
         np++;
 
-        Vertex v3((*it)._vertex3[0], (*it)._vertex3[1], (*it)._vertex3[2]);
+        Vector3D<float> v3 = cast<float>(tri[2]);
         _normalArray.push_back(n);
         _vertexArray.push_back(v3);
         np++;
@@ -133,8 +133,8 @@ void RenderTriSoup::rerender()
         for(size_t i = 0; i<_rgbToVertexMap.size()-1; i++){
             glColor3f(_rgbArray[i].val[0],_rgbArray[i].val[1],_rgbArray[i].val[2]);
             for(;curr_index<_rgbToVertexMap[i+1];curr_index++){
-                glNormal3fv(_normalArray[curr_index].val);
-                glVertex3fv(_vertexArray[curr_index].val);
+                glNormal3fv(&_normalArray[curr_index][0]);
+                glVertex3fv(&_vertexArray[curr_index][0]);
             }
         }
     }
@@ -185,8 +185,8 @@ void RenderTriSoup::loadTriFile(const std::string &filename)
         } else if( !strcmp( token, "point" ) ){
             float x,y,z,nx,ny,nz;
             sscanf ( next, "%e %e %e %e %e %e", &x, &y, &z, &nx, &ny, &nz );
-            Normal n(nx,ny,nz);
-            Vertex v(x,y,z);
+            Vector3D<float> n(nx,ny,nz);
+            Vector3D<float> v(x,y,z);
             _normalArray.push_back(n);
             _vertexArray.push_back(v);
             nb_points++;

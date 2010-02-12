@@ -24,6 +24,7 @@ SET(SRC_FILES
   ./WorkCellGLDrawer.cpp
   ./TactileArrayRender.cpp
   RWGLTexture.cpp
+  RenderImage.cpp
 )
 
 SET(SRC_FILES_HPP
@@ -46,6 +47,8 @@ SET(SRC_FILES_HPP
   ./WorkCellGLDrawer.hpp
   RWGLTexture.hpp
   ./TactileArrayRender.hpp
+  
+  RenderImage.hpp
 )
 
 ADD_LIBRARY(rw_drawable ${SRC_FILES} ${SRC_FILES_HPP})

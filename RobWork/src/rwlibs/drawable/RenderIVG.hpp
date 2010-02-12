@@ -27,7 +27,7 @@
 #include "IVGReader.hpp"
 
 #include <rwlibs/os/rwgl.hpp>
-#include <rw/geometry/Face.hpp>
+#include <rw/geometry/TriMesh.hpp>
 #include <vector>
 
 
@@ -111,7 +111,7 @@ namespace
 	     * @brief Sets the faces
 	     * @param faces [in] vector with faces
 	     */
-	    void setFaces(const std::vector<rw::geometry::Face<float> >& faces);
+	    void setTriMesh(const rw::geometry::TriMesh& faces);
 
         /**
          * @copydoc Render::draw

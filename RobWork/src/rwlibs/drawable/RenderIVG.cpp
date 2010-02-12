@@ -57,7 +57,7 @@ RenderIVG::RenderIVG(const std::string &filename, float r, float g, float b)
     glEndList();
 }
 
-void RenderIVG::setFaces(const std::vector<Face<float> >& faces) {
+void RenderIVG::setTriMesh(const rw::geometry::TriMesh& faces) {
 //    _vfaces = faces;
 }
 

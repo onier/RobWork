@@ -28,7 +28,7 @@
 
 
 #include <rwlibs/os/rwgl.hpp>
-#include <rw/geometry/GeometrySTL.hpp>
+#include <rw/geometry/TriMesh.hpp>
 #include <vector>
 #include <list>
 
@@ -75,14 +75,14 @@ namespace rwlibs { namespace drawable {
 	     * @brief Sets the faces
 	     * @param faces [in] vector with faces
 	     */
-	    void setFaces(const std::vector<rw::geometry::Face<float> >& faces);
+	    void setFaces(rw::geometry::TriMeshPtr faces);
 
 
 	    /**
 	     * @brief Returns the faces associated to the render
 	     * @return Reference to vector with faces
 	     */
-	    const std::vector<rw::geometry::Face<float> >& getFaces() const;
+	    const rw::geometry::TriMeshPtr getFaces() const;
 
         /**
          * @copydoc Render::draw
@@ -92,7 +92,7 @@ namespace rwlibs { namespace drawable {
     private:
     	//class FaceArrayGeometry _geom;
     	//RenderGeometry *_renderer;
-    	std::vector<rw::geometry::Face<float> > _faces;
+        rw::geometry::TriMeshPtr _faces;
     	mutable GLfloat _diffuse[4];
     	GLfloat _ambient[4];
     	GLfloat _emission[4];

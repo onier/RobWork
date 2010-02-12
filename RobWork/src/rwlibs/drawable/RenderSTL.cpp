@@ -19,9 +19,9 @@
 #include "RenderSTL.hpp"
 
 #include <rw/geometry/Geometry.hpp>
-#include <rw/geometry/GeometrySTL.hpp>
 
 #include <rw/math/Vector3D.hpp>
+#include <rw/geometry/STLFile.hpp>
 
 using namespace rwlibs::drawable;
 using namespace rw::geometry;
@@ -31,14 +31,6 @@ using namespace rwlibs::drawable;
 
 namespace
 {
-
-    void drawFace(const Face<float>& face)
-    {
-        glNormal3fv(face._normal);
-        glVertex3fv(face._vertex1);
-        glVertex3fv(face._vertex2);
-        glVertex3fv(face._vertex3);
-    }
 
     void setArray4(float *array, float v0, float v1, float v2, float v3 ){
     	array[0]=v0;
@@ -51,7 +43,9 @@ namespace
 RenderSTL::RenderSTL(const std::string &filename):
 	_r(0.8f),_g(0.8f),_b(0.8f)
 {
-	GeometrySTL::load(filename, _faces);
+	PlainTriMesh<TriangleN1<float> >* faces = STLFile::read(filename);
+	_faces = faces;
+
 	//_renderer = new RenderGeometry( _id, new FaceArrayGeometry(_faces));
 	setArray4(_diffuse, 0.8f,0.8f,0.8f,1.0f);
 	setArray4(_ambient, 0.2f,0.2f,0.2f,1.0f);
@@ -66,19 +60,27 @@ RenderSTL::RenderSTL(const std::string &filename):
     glBegin(GL_TRIANGLES);
     // Draw all faces.
     // TODO: faces should have norma
-    std::for_each(_faces.begin(),
-    		  	  _faces.end(), drawFace);
+
+    for(size_t i=0;i<faces->size();i++){
+    	TriangleN1<float> &tri = (*faces)[i];
+        glNormal3fv(&tri.getFaceNormal()[0]);
+        glVertex3fv(&tri[0][0]);
+        glVertex3fv(&tri[1][0]);
+        glVertex3fv(&tri[2][0]);
+    }
+
     glEnd();
     glPopMatrix();
     glEndList();
+    delete faces;
 }
 
-void RenderSTL::setFaces(const std::vector<Face<float> >& faces) {
+void RenderSTL::setFaces(rw::geometry::TriMeshPtr faces) {
     _faces = faces;
 }
 
 
-const std::vector<rw::geometry::Face<float> >& RenderSTL::getFaces() const {
+const rw::geometry::TriMeshPtr RenderSTL::getFaces() const {
     return _faces;
 }
 

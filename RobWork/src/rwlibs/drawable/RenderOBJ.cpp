@@ -38,7 +38,6 @@
 
 using namespace rwlibs::drawable;
 using namespace rw::math;
-using namespace rw::geometry;
 
 RenderOBJ::RenderOBJ(const std::string &filename)
 {
