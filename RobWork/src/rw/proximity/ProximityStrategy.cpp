@@ -101,19 +101,18 @@ namespace {
       };
 }
 #endif
-/*
-bool ProximityStrategy::addModel(const Frame* frame, const std::vector<Face<float> >& faces)
+
+bool ProximityStrategy::addModel(const Frame* frame, const rw::geometry::Geometry& geom)
 {
     ProximityModelPtr model = getModel(frame);
     if(model==NULL){
         model = createModel();
     }
 
-    GeometryFaceWrap gface( frame->getName(), faces );
-    bool res = addGeometry(model, gface);
+    bool res = addGeometry(model, geom);
     return res;
 }
-*/
+
 
 bool ProximityStrategy::hasModel(const rw::kinematics::Frame* frame){
     if( !_frameToModel.has( *frame ) ){
