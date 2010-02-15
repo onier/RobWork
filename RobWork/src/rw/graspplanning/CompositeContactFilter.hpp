@@ -36,7 +36,7 @@ public:
     /**
      * @copydoc ContactValidateFilter::isValid
      */
-    bool isValid(const Contact3D& contact);
+    bool isValid(const rw::sensor::Contact3D& contact);
 
     void addFilter(ContactValidateFilter* filter);
 

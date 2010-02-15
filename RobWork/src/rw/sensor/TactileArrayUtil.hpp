@@ -25,6 +25,10 @@
 #include <rw/sensor/Contact3D.hpp>
 #include <rw/sensor/TactileArray.hpp>
 
+namespace rw {
+namespace sensor {
+
+
 /**
  * @brief Utillity class for general computations on a tactile array
  */
@@ -47,5 +51,6 @@ public:
 
 };
 
-
+}
+}
 #endif /* TACTILEARRAYUTIL_HPP_ */

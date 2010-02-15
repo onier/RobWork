@@ -13,6 +13,7 @@
 
 using namespace rw::math;
 using namespace rw::graspplanning;
+using namespace rw::sensor;
 
 
 bool PlaneClearanceFilter::isValid(const Grasp3D& grasp){

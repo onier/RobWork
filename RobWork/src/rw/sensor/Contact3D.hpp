@@ -21,6 +21,10 @@
 
 #include <rw/math/Vector3D.hpp>
 
+namespace rw {
+namespace sensor {
+
+
 class Contact3D {
 public:
     Contact3D():mu(0.6){}
@@ -53,6 +57,8 @@ public:
     double mu; // coulomb friction coefficient
 };
 
+}
+}
 
 #endif /*RW_SENSOR_CONTACT3D_HPP*/
 

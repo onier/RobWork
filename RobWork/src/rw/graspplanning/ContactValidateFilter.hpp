@@ -31,7 +31,7 @@ public:
      * @param grasp
      * @return
      */
-    virtual bool isValid(const Contact3D& contact) = 0;
+    virtual bool isValid(const rw::sensor::Contact3D& contact) = 0;
 
 };
 }

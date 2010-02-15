@@ -5,6 +5,7 @@
 
 using namespace rw::geometry;
 using namespace rw::common;
+using namespace rw::sensor;
 using namespace rw::math;
 using namespace rw::graspplanning;
 

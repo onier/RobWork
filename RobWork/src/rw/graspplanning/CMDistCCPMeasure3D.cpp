@@ -5,6 +5,7 @@
 
 using namespace rw::math;
 using namespace rw::graspplanning;
+using namespace rw::sensor;
 
 double CMDistCCPMeasure3D::quality(const Grasp3D& grasp) const {
     Vector3D<> sum(0,0,0);

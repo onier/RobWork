@@ -21,7 +21,7 @@ public:
         approach(nrOfContacts)
     {}
 
-    Grasp3D(const std::vector<Contact3D> cons):
+    Grasp3D(const std::vector<rw::sensor::Contact3D> cons):
         contacts(cons),
         approach(cons.size())
     {}
@@ -32,7 +32,7 @@ public:
     }
 
     double phi,psi,quality;
-    std::vector<Contact3D> contacts;
+    std::vector<rw::sensor::Contact3D> contacts;
     std::vector<rw::math::Vector3D<> > approach;
     rw::math::Vector3D<> center;
 

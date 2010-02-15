@@ -20,7 +20,7 @@ CompositeContactFilter::CompositeContactFilter(bool enableFullStats):
 
 }
 
-bool CompositeContactFilter::isValid(const Contact3D& con){
+bool CompositeContactFilter::isValid(const rw::sensor::Contact3D& con){
     _nrOfTests++;
     bool valid = true;
 

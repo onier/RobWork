@@ -10,6 +10,7 @@
 
 #include "Grasp3D.hpp"
 #include <rw/math/Transform3D.hpp>
+#include <rw/sensor/Contact3D.hpp>
 
 #include "GraspValidateFilter.hpp"
 #include "ContactValidateFilter.hpp"
@@ -63,7 +64,7 @@ public:
     /**
      * @copydoc ContactValidateFilter::isValid
      */
-    bool isValid(const Contact3D& contact);
+    bool isValid(const rw::sensor::Contact3D& contact);
 
 private:
     rw::math::Transform3D<> _planeFrame;
