@@ -10,23 +10,13 @@ IF(Boost_FOUND)
 	LIST(APPEND ROBWORK_LIBRARIES ${Boost_LIBRARIES})
 ENDIF ()
 
-LINK_DIRECTORIES( ${ROBWORKSTUDIO_LIBRARY_DIRS} ${GRASPING_LIBRARY_DIRS} ${BulletLinkDir} ${OdeLinkDir} )
-INCLUDE_DIRECTORIES( ${ROBWORKSTUDIO_INCLUDE_DIR} ${BulletIncludes} ${OdeIncludes} )
+LINK_DIRECTORIES( 
+    ${ROBWORKSTUDIO_LIBRARY_DIRS} ${GRASPING_LIBRARY_DIRS} ${BulletLinkDir} ${ODE_LIBRARY_DIRS} )
 
-#INCLUDE_DIRECTORIES( ${CMAKE_CURRENT_BINARY_DIR} )
-INCLUDE_DIRECTORIES( ${RW_ROOT}/../RobWorkHardware/src/ )
+INCLUDE_DIRECTORIES( 
+    ${ROBWORKSTUDIO_INCLUDE_DIR} ${BULLET_INCLUDE_DIR} ${ODE_INCLUDE_DIR} )
 
 ADD_DEFINITIONS(-DQT_PLUGIN)
-
-################################################################
-# make sure not to include opencv dependent stuff if opencv is not used
-
-SET(CPP_USING_OPENCV )
-SET(HPP_USING_OPENCV )
-IF( DEFINED USE_OPENCV )
-    SET(CPP_USING_OPENCV )
-    SET(HPP_USING_OPENCV )
-ENDIF() 
 
 ################################################################
 # first compile the general stuff into a static gui lib
@@ -82,18 +72,21 @@ SET(SrcFiles
 # The static library to build:
 ADD_LIBRARY(RWSimGui ${SrcFiles} ${MocSrcFiles} ${RccSrcFiles})
 
+IF( RWSIM_HAVE_BULLET )
+    SET(BULLET_LIBRARIES_TMP ${BULLET_LIBRARIES})
+ENDIF()
+
+IF( RWSIM_HAVE_ODE )
+    SET(ODE_LIBRARIES_TMP ${ODE_LIBRARIES})
+ENDIF()
+
 # Additional libraries
 SET(LibraryList RWSimGui 
     rwsim 
-    ${BulletLibs} 
-    ${ODE_LIBRARY} 
-    ${OPENCV_LIBRARIES} 
+    ${BULLET_LIBRARIES_TMP} 
+    ${ODE_LIBRARIES_TMP} 
     ${ROBWORKSTUDIO_LIBRARIES} 
     ${ROBWORK_LIBRARIES})
-
-MESSAGE(${ROBWORK_LIBRARIES})
-
-
 
 ################################################################
 # next compile RWSimulatorPlugin

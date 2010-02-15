@@ -1,8 +1,8 @@
 #ifndef _SIMULATOR_HPP_
 #define _SIMULATOR_HPP_
 
-#include <sandbox/simulation/SimulatedController.hpp>
-#include <sandbox/simulation/SimulatedSensor.hpp>
+#include <rwlibs/simulation/SimulatedController.hpp>
+#include <rwlibs/simulation/SimulatedSensor.hpp>
 
 #include <rw/kinematics/State.hpp>
 #include <dynamics/RigidBody.hpp>

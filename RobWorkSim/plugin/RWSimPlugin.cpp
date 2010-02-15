@@ -34,9 +34,10 @@
 
 #include <rw/sensor/TactileArray.hpp>
 #include <rwlibs/drawable/TactileArrayRender.hpp>
-#include <sandbox/simulation/SimulatedController.hpp>
-#include <sandbox/control/JointController.hpp>
-#include <sandbox/simulation/SimulatedSensor.hpp>
+#include <rwlibs/simulation/SimulatedController.hpp>
+#include <rwlibs/simulation/SimulatedSensor.hpp>
+#include <rwlibs/control/JointController.hpp>
+
 
 #include <control/PDController.hpp>
 #include <control/VelRampController.hpp>
@@ -364,7 +365,7 @@ void RWSimPlugin::initialize(){
         _timerShot->start();
         connect( _timerShot, SIGNAL(timeout()), this, SLOT(btnPressed()) );
 
-        getRobWorkStudio()->getView()->setZoomScale(5.0);
+        //getRobWorkStudio()->getView()->setZoomScale(5.0);
         getRobWorkStudio()->getView()->setCheckForCollision(false);
     } else {
         std::cout << "NOOOOO ARG" << std::endl;

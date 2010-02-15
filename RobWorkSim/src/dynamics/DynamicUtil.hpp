@@ -24,12 +24,12 @@ public:
 	 * @brief estimates the inertia and center of mass for a group of frames that is anchored
 	 * to the reference frame. the inertia will be described relative to the frame
 	 */
-	static std::pair<rw::math::Vector3D<>, rw::math::InertiaMatrix<> >
+/*	static std::pair<rw::math::Vector3D<>, rw::math::InertiaMatrix<> >
         estimateInertia(
             double mass,
 			rw::kinematics::Frame &frame,
 			const rw::kinematics::State& state);
-
+*/
 	/**
 	 * @brief estimates the inertia of a Face soup. The inertia is described relative
 	 * to the coordinate system that the faces are described, but around center of mass

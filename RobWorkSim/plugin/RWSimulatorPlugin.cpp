@@ -57,8 +57,8 @@
 #include <control/PDController.hpp>
 #include <control/SyncPDController.hpp>
 #include <rwlibs/drawable/TactileArrayRender.hpp>
-#include <sandbox/simulation/SimulatedController.hpp>
-#include <sandbox/simulation/SimulatedSensor.hpp>
+#include <rwlibs/simulation/SimulatedController.hpp>
+#include <rwlibs/simulation/SimulatedSensor.hpp>
 
 #include <simulator/PhysicsEngineFactory.hpp>
 

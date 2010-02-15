@@ -137,7 +137,7 @@ public:
      * @brief all contacts that was accumulated into pressure
      * @return
      */
-    const std::vector<Contact3D>& getActualContacts(){
+    const std::vector<rw::sensor::Contact3D>& getActualContacts(){
         return _allForces;
     }
 
@@ -199,12 +199,12 @@ private:
     // the
     //const VertexMatrix& _vMatrix;
 
-    std::vector<Contact3D> _allAccForces,_allForces;
+    std::vector<rw::sensor::Contact3D> _allAccForces,_allForces;
 
 
     //std::vector<Contact3D> _forces;
 
-    std::map<dynamics::Body*, std::vector<Contact3D> > _forces;
+    std::map<dynamics::Body*, std::vector<rw::sensor::Contact3D> > _forces;
     rwlibs::proximitystrategies::ProximityStrategyPQP *_narrowStrategy;
 
     rw::proximity::ProximityModel *model;

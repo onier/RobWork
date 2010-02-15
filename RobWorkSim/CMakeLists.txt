@@ -16,21 +16,18 @@ LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 # if we have any exe files or plugins that depend on the libraries
 INCLUDE_DIRECTORIES( src )
 
-# set up include directories
-include_directories(
-	./src
-    ${BulletIncludes}
-)
-
 # test if Bullet exists
-if(DEFINED BulletLibs)
-	set(RWSIM_HAVE_BULLET 1)
+IF(USE_BULLET)
+	#todo: call FindPackage(Bullet)
+	set(RWSIM_HAVE_BULLET TRUE)
+	INCLUDE_DIRECTORIES( ${BULLET_INCLUDE_DIR} )
+    LINK_DIRECTORIES( ${BULLET_LIBRARY_DIRS} )
 endif()
 
 # test if ODE exists
 IF( USE_ODE )
     # todo: call FindPackage(ODE)
-	SET(RWSIM_HAVE_ODE 1)
+	SET(RWSIM_HAVE_ODE TRUE)
 	INCLUDE_DIRECTORIES( ${ODE_INCLUDE_DIR} )
     LINK_DIRECTORIES( ${ODE_LIBRARY_DIRS} )
 ENDIF()

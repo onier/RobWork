@@ -11,11 +11,12 @@ INCLUDE_DIRECTORIES( ${BulletIncludes} ${OdeIncludes} )
 INCLUDE_DIRECTORIES("${RW_ROOT}/example/simplegui")
 
 add_executable(ModelPropertyTest ModelPropertyTest.cpp)
-target_link_libraries(ModelPropertyTest rwsim ${LibraryList})
+target_link_libraries(ModelPropertyTest rwsim 
+    ${ROBWORK_LIBRARIES})
 
 add_executable(RWSimTest RWSimTest.cpp)
-target_link_libraries(RWSimTest rwsim ${LibraryList})
+target_link_libraries(RWSimTest rwsim ${ROBWORK_LIBRARIES})
 
 add_executable(ModelStablePoseTest ModelStablePoseTest.cpp)
-target_link_libraries(ModelStablePoseTest rwsim ${LibraryList})
+target_link_libraries(ModelStablePoseTest rwsim ${ROBWORK_LIBRARIES})
 

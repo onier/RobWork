@@ -61,14 +61,14 @@ public:
      * @brief return all contacts registered in the last timestep
      * @return
      */
-    const std::vector<Contact3D>& getContacts(){
+    const std::vector<rw::sensor::Contact3D>& getContacts(){
         return _contacts;
     }
 
 
 private:
     // hmm,
-    std::vector<Contact3D> _contactsTmp,_contacts;
+    std::vector<rw::sensor::Contact3D> _contactsTmp,_contacts;
     rw::math::Transform3D<> _wTf, _fTw;
 };
 

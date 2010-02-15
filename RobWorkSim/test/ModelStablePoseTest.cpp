@@ -5,16 +5,14 @@
  *      Author: jimali
  */
 
-#include <rw/geometry/Face.hpp>
-#include <rw/geometry/FaceArrayFactory.hpp>
 #include <vector>
 
-#include <sandbox/geometry/STLFile.hpp>
-#include <sandbox/geometry/Triangle.hpp>
-#include <sandbox/geometry/PlainTriMesh.hpp>
-#include <sandbox/geometry/TriangleUtil.hpp>
-#include <sandbox/geometry/GeometryFactory.hpp>
-#include <sandbox/geometry/IndexedTriMesh.hpp>
+#include <rw/geometry/STLFile.hpp>
+#include <rw/geometry/Triangle.hpp>
+#include <rw/geometry/PlainTriMesh.hpp>
+#include <rw/geometry/TriangleUtil.hpp>
+#include <rw/geometry/GeometryFactory.hpp>
+#include <rw/geometry/IndexedTriMesh.hpp>
 
 #include <dynamics/ContactPoint.hpp>
 #include <dynamics/ContactCluster.hpp>
@@ -22,19 +20,17 @@
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 
-#include <sandbox/geometry/GeometryUtil.hpp>
+#include <rw/geometry/GeometryUtil.hpp>
 
 #include <dynamics/ContactManifold.hpp>
-#include <sandbox/geometry/GeometryFactory.hpp>
+#include <rw/geometry/GeometryFactory.hpp>
 
-#include <geometry/GiftWrapHull3D.hpp>
+#include <rw/geometry/GiftWrapHull3D.hpp>
 
 using namespace rw::math;
 using namespace boost::numeric;
 using namespace rw::math;
 using namespace rw::geometry;
-using namespace rw::geometry::sandbox;
-
 
 using namespace boost::numeric::ublas;
 

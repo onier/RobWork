@@ -43,7 +43,7 @@
 #include <drawable/RenderForce.hpp>
 #include <drawable/RenderGhost.hpp>
 
-#include <sandbox/control/JointController.hpp>
+#include <rwlibs/control/JointController.hpp>
 
 #include "JointControlDialog.hpp"
 

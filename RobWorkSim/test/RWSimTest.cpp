@@ -1,14 +1,12 @@
 
 //#include "OBB.hpp"
-#include <rw/geometry/Face.hpp>
-#include <rw/geometry/FaceArrayFactory.hpp>
 #include <vector>
 
-#include <sandbox/geometry/STLFile.hpp>
-#include <sandbox/geometry/Triangle.hpp>
-#include <sandbox/geometry/PlainTriMesh.hpp>
-#include <sandbox/geometry/TriangleUtil.hpp>
-#include <sandbox/geometry/GeometryFactory.hpp>
+#include <rw/geometry/STLFile.hpp>
+#include <rw/geometry/Triangle.hpp>
+#include <rw/geometry/PlainTriMesh.hpp>
+#include <rw/geometry/TriangleUtil.hpp>
+#include <rw/geometry/GeometryFactory.hpp>
 
 #include <dynamics/ContactPoint.hpp>
 #include <dynamics/ContactCluster.hpp>

@@ -4,7 +4,6 @@
 
 #include <rw/models/Accessor.hpp>
 #include <rw/kinematics/Kinematics.hpp>
-#include <rw/geometry/FaceArrayFactory.hpp>
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Quaternion.hpp>
@@ -15,7 +14,7 @@
 #include <rw/models/RevoluteJoint.hpp>
 #include <rw/models/PrismaticJoint.hpp>
 
-#include <sandbox/geometry/TriangleUtil.hpp>
+#include <rw/geometry/TriangleUtil.hpp>
 
 #include <dynamics/KinematicDevice.hpp>
 #include <dynamics/RigidDevice.hpp>
@@ -110,12 +109,12 @@ namespace {
 	    std::cout  << "----------------------------------------------------" << std::endl;
 	}
 
-	rw::common::Cache<sandbox::GeometryData*, ODESimulator::TriMeshData > _cache;
+	rw::common::Cache<GeometryData*, ODESimulator::TriMeshData > _cache;
 
 //	ODESimulator::TriMeshData* buildTriMesh(dTriMeshDataID triMeshDataId, const std::vector<Frame*>& frames,
 //			rw::kinematics::Frame* parent, const rw::kinematics::State &state, bool invert){
 
-	ODESimulator::TriMeshDataPtr buildTriMesh(sandbox::GeometryDataPtr gdata, const State &state, bool invert = false){
+	ODESimulator::TriMeshDataPtr buildTriMesh(GeometryDataPtr gdata, const State &state, bool invert = false){
 		// check if the geometry is allready in cache
 		if( _cache.isInCache(gdata.get()) ){
 			ODESimulator::TriMeshDataPtr tridata = _cache.get(gdata.get());
@@ -124,16 +123,16 @@ namespace {
 
 		// if not in cache then we need to create a TriMeshData geom,
 		// but only if the geomdata is a trianglemesh
-		if( !dynamic_cast<sandbox::TriMesh*>(gdata.get()) )
+		if( !dynamic_cast<TriMesh*>(gdata.get()) )
 			return NULL;
 		bool ownedData = false;
-		sandbox::IndexedTriMesh<float> *imesh = NULL;
-		if( !dynamic_cast< sandbox::IndexedTriMesh<float>* >(gdata.get()) ){
+		IndexedTriMesh<float> *imesh = NULL;
+		if( !dynamic_cast< IndexedTriMesh<float>* >(gdata.get()) ){
 			// convert the trimesh to an indexed trimesh
-			imesh = sandbox::TriangleUtil::toIndexedTriMesh<sandbox::IndexedTriMeshN0<float> >(*((sandbox::TriMesh*)gdata.get()),0.00001);
+			imesh = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<float> >(*((TriMesh*)gdata.get()),0.00001);
 			ownedData = true;
 		} else {
-			imesh = static_cast< sandbox::IndexedTriMesh<float>* >(gdata.get());
+			imesh = static_cast< IndexedTriMesh<float>* >(gdata.get());
 		}
 
 		int nrOfVerts = imesh->getVertices().size();
@@ -223,11 +222,11 @@ namespace {
 
 	std::vector<ODESimulator::TriGeomData*> buildTriGeom(Body *body, const State &state, dSpaceID spaceid, bool invert = false){
         RW_DEBUGS( "----- BEGIN buildTriGeom --------" );
-		std::vector<sandbox::Geometry*> geoms = body->getGeometry();
+		std::vector<Geometry*> geoms = body->getGeometry();
 		RW_DEBUGS( "Nr of geoms: " << geoms.size() );
         std::vector<ODESimulator::TriGeomData*> triGeomDatas;
         for(size_t i=0; i<geoms.size(); i++){
-            sandbox::GeometryDataPtr rwgdata = geoms[i]->getGeometryData();
+            GeometryDataPtr rwgdata = geoms[i]->getGeometryData();
             Transform3D<> transform = geoms[i]->getTransform();
             RW_DEBUGS(" TRANSFORM: " << geoms[i]->getTransform());
 

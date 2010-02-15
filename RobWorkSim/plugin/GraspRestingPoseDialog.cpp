@@ -24,10 +24,10 @@
 #include <rw/models/Accessor.hpp>
 #include <sensors/TactileArraySensor.hpp>
 
-#include <planning/WrenchMeasure3D.hpp>
-#include <planning/CMDistCCPMeasure3D.hpp>
+#include <rw/graspplanning/WrenchMeasure3D.hpp>
+#include <rw/graspplanning/CMDistCCPMeasure3D.hpp>
 
-#include <geometry/GiftWrapHull3D.hpp>
+#include <rw/geometry/GiftWrapHull3D.hpp>
 
 
 //#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
@@ -38,11 +38,14 @@ using namespace dynamics;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;
+using namespace rw::sensor;
 using namespace rw::proximity;
 using namespace rw::loaders;
 using namespace rw::trajectory;
 using namespace rwlibs::simulation;
 using namespace rw::models;
+using namespace rw::geometry;
+using namespace rw::graspplanning;
 
 using namespace boost::numeric::ublas;
 

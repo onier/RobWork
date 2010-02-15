@@ -129,7 +129,7 @@ std::vector<Frame*> DynamicUtil::getAnchoredChildFrames(Frame *initparent,
     return res;
 }
 
-
+#ifdef oldold
 std::pair<rw::math::Vector3D<>, rw::math::InertiaMatrix<> >
 DynamicUtil::estimateInertia(
     double mass,
@@ -179,6 +179,7 @@ DynamicUtil::estimateInertia(
 	}
 	return std::make_pair(center, itotal);
 }
+#endif
 
 rw::math::Vector3D<>
 DynamicUtil::estimateCOG(
@@ -289,7 +290,7 @@ DynamicUtil::estimateInertia(
                             Izx, Izy, Izz);
     return inertia;
 }
-
+#ifdef OLDOLD
 InertiaMatrix<>
     DynamicUtil::estimateInertia(
         double mass,
@@ -328,7 +329,7 @@ InertiaMatrix<>
 							Iyx, Iyy, Iyz,
 							Izx, Izy, Izz);
 }
-
+#endif
 std::vector<dynamics::RigidBody*> DynamicUtil::getRigidBodies(dynamics::DynamicWorkcell& dwc){
 	using namespace dynamics;
 	std::vector<RigidBody*> bodies;

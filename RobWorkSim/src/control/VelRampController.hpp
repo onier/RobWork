@@ -82,7 +82,7 @@ public:
 private:
     KinematicDevice *_ddev;
     double _time;
-    rw::sandbox::SyncVelocityRamp _velramp;
+    rw::control::SyncVelocityRamp _velramp;
     rw::math::Q _target;
     rw::math::Q _currentQ;
 

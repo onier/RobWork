@@ -1,5 +1,5 @@
 
-if (DEFINED RWSIM_HAVE_BULLET)
+if (RWSIM_HAVE_BULLET)
     MESSAGE(STATUS "Enabling Bullet")
   set(BulletFilesCPP 	
   		simulator/bullet/BtSimulator.cpp
@@ -7,7 +7,7 @@ if (DEFINED RWSIM_HAVE_BULLET)
   )
 endif ()
 
-if (DEFINED RWSIM_HAVE_ODE )
+if (RWSIM_HAVE_ODE )
     MESSAGE(STATUS "Enabling ODE")
   set(OdeFilesCPP
 	simulator/ode/ODESimulator.cpp
