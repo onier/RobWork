@@ -23,7 +23,7 @@
 
 using namespace rw::math;
 using namespace rw::models;
-using namespace rw::sandbox;
+using namespace rw::control;
 
 SyncVelocityRamp::SyncVelocityRamp(Device* device):
     _taus(Q::zero(device->getDOF())),
