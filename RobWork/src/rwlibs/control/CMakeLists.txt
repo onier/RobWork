@@ -5,11 +5,13 @@ set(Ext ${PROJECT_SOURCE_DIR}/ext)
 SET(SRC_FILES
     Controller.cpp
     JointController.cpp
+    SyncVelocityRamp.cpp
 )
 
 SET(SRC_FILES_HPP
     Controller.hpp
     JointController.hpp
+    SyncVelocityRamp.hpp
 )
 
 ADD_LIBRARY(rw_control ${SRC_FILES} ${SRC_FILES_HPP})
