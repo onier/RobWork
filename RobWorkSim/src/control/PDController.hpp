@@ -1,8 +1,8 @@
 #ifndef PDCONTROLLER_HPP_
 #define PDCONTROLLER_HPP_
 
-#include <sandbox/control/JointController.hpp>
-#include <sandbox/simulation/SimulatedController.hpp>
+#include <rwlibs/control/JointController.hpp>
+#include <rwlibs/simulation/SimulatedController.hpp>
 
 #include <dynamics/RigidDevice.hpp>
 

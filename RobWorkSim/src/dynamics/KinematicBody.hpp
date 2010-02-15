@@ -24,7 +24,7 @@ namespace dynamics {
         KinematicBody(
                    const BodyInfo& info,
                    rw::kinematics::Frame &j,
-                   const std::vector<rw::geometry::sandbox::Geometry*>& geoms,
+                   const std::vector<rw::geometry::Geometry*>& geoms,
                    rw::kinematics::State &state);
 
     	virtual ~KinematicBody();

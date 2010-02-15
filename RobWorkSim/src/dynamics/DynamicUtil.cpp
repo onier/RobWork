@@ -3,13 +3,12 @@
 #include <stack>
 
 #include <rw/models/Accessor.hpp>
-#include <rw/geometry/FaceArrayFactory.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 #include "Accessor.hpp"
 
-#include <sandbox/geometry/Geometry.hpp>
-#include <sandbox/geometry/TriMesh.hpp>
-#include <sandbox/geometry/PlainTriMesh.hpp>
+#include <rw/geometry/Geometry.hpp>
+#include <rw/geometry/TriMesh.hpp>
+#include <rw/geometry/PlainTriMesh.hpp>
 #include <boost/foreach.hpp>
 
 #include "DynamicWorkcell.hpp"
@@ -20,7 +19,7 @@ using namespace rw::math;
 using namespace rw::models;
 using namespace rw::kinematics;
 using namespace rw::geometry;
-//using namespace rw::geometry;
+
 /*
  * Locates all frames that are staticly connected to the frame and
  * that has geometry information
@@ -184,22 +183,22 @@ DynamicUtil::estimateInertia(
 rw::math::Vector3D<>
 DynamicUtil::estimateCOG(
      double mass,
-     const std::vector<sandbox::Geometry*> &geoms)
+     const std::vector<Geometry*> &geoms)
 {
     // first find center mass
     double totalArea(0);
     Vector3D<> center(0.f,0.f,0.f);
-    BOOST_FOREACH(sandbox::Geometry *geom, geoms){
-        sandbox::GeometryDataPtr gdata = geom->getGeometryData();
+    BOOST_FOREACH(Geometry *geom, geoms){
+        GeometryDataPtr gdata = geom->getGeometryData();
         // check if type of geom is really a trimesh
-        if( !dynamic_cast<sandbox::TriMesh*>(gdata.get()) ){
+        if( !dynamic_cast<TriMesh*>(gdata.get()) ){
             continue;
         }
-        sandbox::TriMesh *trimesh = dynamic_cast<sandbox::TriMesh*>(gdata.get());
+        TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata.get());
 
         Transform3D<> t3d = geom->getTransform();
         for(int i=0; i<trimesh->size(); i++){
-            sandbox::TriangleN0<double> tri = trimesh->getTriangle(i);
+            TriangleN0<double> tri = trimesh->getTriangle(i);
             const Vector3D<>& p = t3d* (tri[0]);
             const Vector3D<>& q = t3d* (tri[1]);
             const Vector3D<>& r = t3d* (tri[2]);
@@ -222,7 +221,7 @@ DynamicUtil::estimateCOG(
 std::pair<Vector3D<>, InertiaMatrix<> >
 DynamicUtil::estimateInertiaCOG(
     double mass,
-    const std::vector<sandbox::Geometry*>& geoms,
+    const std::vector<Geometry*>& geoms,
     const Transform3D<>& ref)
 {
     Vector3D<float> center = cast<float>( ref * estimateCOG(mass, geoms) );
@@ -235,25 +234,25 @@ DynamicUtil::estimateInertiaCOG(
 rw::math::InertiaMatrix<>
 DynamicUtil::estimateInertia(
     double mass,
-    const std::vector<sandbox::Geometry*>& geoms,
+    const std::vector<Geometry*>& geoms,
     const Transform3D<>& ref)
 {
     double Ixx = 0, Iyy=0, Izz = 0; // the diagonal elements
     double Ixy = 0, Ixz=0, Iyz = 0; // the off diagonal elements
     int triCnt = 0;
-    BOOST_FOREACH(sandbox::Geometry *geom, geoms){
-        sandbox::GeometryDataPtr gdata = geom->getGeometryData();
+    BOOST_FOREACH(Geometry *geom, geoms){
+        GeometryDataPtr gdata = geom->getGeometryData();
         // check if type of geom is really a trimesh
-        if( !dynamic_cast<sandbox::TriMesh*>(gdata.get()) ){
+        if( !dynamic_cast<TriMesh*>(gdata.get()) ){
             continue;
         }
-        sandbox::TriMesh *trimesh = dynamic_cast<sandbox::TriMesh*>(gdata.get());
+        TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata.get());
 
         Transform3D<> t3d = ref*geom->getTransform();
 
         triCnt += trimesh->size();
         for(int i=0; i<trimesh->size(); i++){
-            sandbox::TriangleN0<double> tri = trimesh->getTriangle(i);
+            TriangleN0<double> tri = trimesh->getTriangle(i);
             const Vector3D<>& p = t3d* (tri[0]);
             const Vector3D<>& q = t3d* (tri[1]);
             const Vector3D<>& r = t3d* (tri[2]);

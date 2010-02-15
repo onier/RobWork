@@ -25,7 +25,7 @@ namespace {
 RigidJoint::RigidJoint(
     const BodyInfo& info,
     rw::kinematics::Frame* joint,
-    const std::vector<rw::geometry::sandbox::Geometry*>& geoms,
+    const std::vector<rw::geometry::Geometry*>& geoms,
     rw::kinematics::State& state
     ):
         Body(info, joint , geoms),

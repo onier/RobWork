@@ -8,7 +8,7 @@
 #include <rw/math/Vector3D.hpp>
 
 #include <boost/foreach.hpp>
-#include <sandbox/geometry/Geometry.hpp>
+#include <rw/geometry/Geometry.hpp>
 //#include "Geometry.hpp"
 
 namespace dynamics {
@@ -66,7 +66,7 @@ namespace dynamics {
     protected:
         Body(const BodyInfo& info,
         	 rw::kinematics::Frame *bodyframe,
-             const std::vector<rw::geometry::sandbox::Geometry*>& geometry):
+             const std::vector<rw::geometry::Geometry*>& geometry):
                 _bodyframe(*bodyframe),
                 _geometry(geometry),
                 _info(info)
@@ -92,7 +92,7 @@ namespace dynamics {
             return _bodyframe;
         }
 
-        const std::vector<rw::geometry::sandbox::Geometry*>& getGeometry(){
+        const std::vector<rw::geometry::Geometry*>& getGeometry(){
             return _geometry;
         }
 
@@ -183,7 +183,7 @@ namespace dynamics {
     private:
         rw::kinematics::Frame &_bodyframe;
 
-        std::vector<rw::geometry::sandbox::Geometry*> _geometry;
+        std::vector<rw::geometry::Geometry*> _geometry;
     protected:
     	BodyInfo _info;
 

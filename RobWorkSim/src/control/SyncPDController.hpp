@@ -1,9 +1,9 @@
 #ifndef SYNCPDController_HPP_
 #define SYNCPDController_HPP_
 
-#include <sandbox/control/JointController.hpp>
-#include <sandbox/VelocityRamps/SyncVelocityRamp.hpp>
-#include <sandbox/simulation/SimulatedController.hpp>
+#include <rwlibs/control/JointController.hpp>
+#include <rwlibs/control/SyncVelocityRamp.hpp>
+#include <rwlibs/simulation/SimulatedController.hpp>
 
 #include <dynamics/RigidDevice.hpp>
 
@@ -67,7 +67,7 @@ private:
     double _time;
     rw::math::Q _target;
     rw::math::Q _lastError;
-    rw::sandbox::SyncVelocityRamp _velramp;
+    rw::control::SyncVelocityRamp _velramp;
     rw::math::Q _currentQ;
     rw::math::Q _maxVel;
     rw::math::Q _x;

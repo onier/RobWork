@@ -15,7 +15,7 @@
 
 #include "Body.hpp"
 //#include "BodyIntegrator.hpp"
-#include <sandbox/geometry/Geometry.hpp>
+#include <rw/geometry/Geometry.hpp>
 
 namespace dynamics {
 
@@ -32,7 +32,7 @@ namespace dynamics {
         RigidJoint(
             const BodyInfo& info,
             rw::kinematics::Frame* joint,
-            const std::vector<rw::geometry::sandbox::Geometry*>& geoms,
+            const std::vector<rw::geometry::Geometry*>& geoms,
             rw::kinematics::State& state
             );
 

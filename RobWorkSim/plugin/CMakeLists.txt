@@ -86,7 +86,7 @@ ADD_LIBRARY(RWSimGui ${SrcFiles} ${MocSrcFiles} ${RccSrcFiles})
 SET(LibraryList RWSimGui 
     rwsim 
     ${BulletLibs} 
-    ${OdeLibs} 
+    ${ODE_LIBRARY} 
     ${OPENCV_LIBRARIES} 
     ${ROBWORKSTUDIO_LIBRARIES} 
     ${ROBWORK_LIBRARIES})

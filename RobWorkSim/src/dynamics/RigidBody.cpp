@@ -9,7 +9,7 @@ using namespace boost::numeric;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace dynamics;
-using namespace rw::geometry::sandbox;
+using namespace rw::geometry;
 
 #define MIN_MASS_SIZE 0.0000001
 

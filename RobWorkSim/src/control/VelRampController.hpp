@@ -1,12 +1,13 @@
 #ifndef VELRAMPCONTROLLER_HPP_
 #define VELRAMPCONTROLLER_HPP_
 
-#include <sandbox/control/JointController.hpp>
-#include <sandbox/simulation/SimulatedController.hpp>
+#include <rwlibs/control/JointController.hpp>
+#include <rwlibs/control/SyncVelocityRamp.hpp>
+#include <rwlibs/simulation/SimulatedController.hpp>
 
 #include <dynamics/KinematicDevice.hpp>
 
-#include <sandbox/VelocityRamps/SyncVelocityRamp.hpp>
+
 
 /**
  * @brief a JointController that use a velocityramp profile of a

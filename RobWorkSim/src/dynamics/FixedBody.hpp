@@ -12,7 +12,7 @@ namespace dynamics {
     	FixedBody(
     	    const BodyInfo& info,
     	    rw::kinematics::Frame *bodyframe,
-            const std::vector<rw::geometry::sandbox::Geometry*>& geoms):
+            const std::vector<rw::geometry::Geometry*>& geoms):
     	    Body(info, bodyframe, geoms)
     	{
 

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.6.0)
 
-PROJECT(RWSim)
+PROJECT(RobWorkSim)
 
 # Used to resolve absolute path names
 SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
@@ -10,13 +10,8 @@ INCLUDE(${ROOT}/build/ProjectSetup.cmake)
 
 #Include default settings for constructing a robwork dependent project
 INCLUDE(${RW_ROOT}/build/FindRobWork.cmake)
-
 INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIR} )
 LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
-
-# also include stuff from grasping library
-INCLUDE_DIRECTORIES( ${GRASPING_INCLUDE_DIRS} )
-LINK_DIRECTORIES( ${GRASPING_LIBRARY_DIRS})
 
 # if we have any exe files or plugins that depend on the libraries
 INCLUDE_DIRECTORIES( src )
@@ -25,7 +20,6 @@ INCLUDE_DIRECTORIES( src )
 include_directories(
 	./src
     ${BulletIncludes}
-    ${OdeIncludes}
 )
 
 # test if Bullet exists
@@ -34,9 +28,12 @@ if(DEFINED BulletLibs)
 endif()
 
 # test if ODE exists
-if(DEFINED OdeLibs)
-	set(RWSIM_HAVE_ODE 1)
-endif()
+IF( USE_ODE )
+    # todo: call FindPackage(ODE)
+	SET(RWSIM_HAVE_ODE 1)
+	INCLUDE_DIRECTORIES( ${ODE_INCLUDE_DIR} )
+    LINK_DIRECTORIES( ${ODE_LIBRARY_DIRS} )
+ENDIF()
 
 # Store the test results in a RWSimConfig.hpp file.
 configure_file(

@@ -7,8 +7,8 @@
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/State.hpp>
 
-#include <sandbox/simulation/SimulatedController.hpp>
-#include <sandbox/simulation/SimulatedSensor.hpp>
+#include <rwlibs/simulation/SimulatedController.hpp>
+#include <rwlibs/simulation/SimulatedSensor.hpp>
 
 #include "Body.hpp"
 #include "BodyController.hpp"

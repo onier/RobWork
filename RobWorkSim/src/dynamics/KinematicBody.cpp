@@ -12,7 +12,7 @@ using namespace rw::math;
 using namespace rw::models;
 using namespace rw::kinematics;
 using namespace dynamics;
-using namespace rw::geometry::sandbox;
+using namespace rw::geometry;
 
 namespace {
 

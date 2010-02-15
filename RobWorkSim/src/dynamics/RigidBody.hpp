@@ -36,7 +36,7 @@ namespace dynamics {
         RigidBody(
             const BodyInfo& info,
             rw::kinematics::MovableFrame& frame,
-            const std::vector<rw::geometry::sandbox::Geometry*>& geoms,
+            const std::vector<rw::geometry::Geometry*>& geoms,
             rw::kinematics::State& state
             );
 

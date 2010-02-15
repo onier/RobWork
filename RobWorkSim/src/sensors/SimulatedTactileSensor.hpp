@@ -8,7 +8,7 @@
 #ifndef SIMULATEDTACTILESENSOR_HPP_
 #define SIMULATEDTACTILESENSOR_HPP_
 
-#include <sandbox/simulation/SimulatedSensor.hpp>
+#include <rwlibs/simulation/SimulatedSensor.hpp>
 #include <dynamics/Body.hpp>
 
 /**

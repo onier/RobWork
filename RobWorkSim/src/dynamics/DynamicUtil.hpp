@@ -7,9 +7,8 @@
 #include <rw/kinematics/State.hpp>
 #include <rw/math/InertiaMatrix.hpp>
 #include <rw/math/Transform3D.hpp>
-#include <rw/geometry/Face.hpp>
 
-#include <sandbox/geometry/Geometry.hpp>
+#include <rw/geometry/Geometry.hpp>
 
 #include "DynamicWorkcell.hpp"
 #include "RigidBody.hpp"
@@ -35,12 +34,12 @@ public:
 	 * @brief estimates the inertia of a Face soup. The inertia is described relative
 	 * to the coordinate system that the faces are described, but around center of mass
 	 */
-	static rw::math::InertiaMatrix<>
+/*	static rw::math::InertiaMatrix<>
         estimateInertia(
             double mass,
 			const std::vector<rw::geometry::Face<float> >& faces,
 			const rw::math::Transform3D<>& t3d);
-
+*/
    /**
      * @brief estimates the inertia of a list of geometries.
      * The inertia is described relative
@@ -51,7 +50,7 @@ public:
    static rw::math::InertiaMatrix<>
         estimateInertia(
             double mass,
-            const std::vector<rw::geometry::sandbox::Geometry*> &geoms,
+            const std::vector<rw::geometry::Geometry*> &geoms,
             const rw::math::Transform3D<>& ref = rw::math::Transform3D<>::identity() );
 
    /**
@@ -63,7 +62,7 @@ public:
    static std::pair<rw::math::Vector3D<>, rw::math::InertiaMatrix<> >
         estimateInertiaCOG(
             double mass,
-            const std::vector<rw::geometry::sandbox::Geometry*> &geoms,
+            const std::vector<rw::geometry::Geometry*> &geoms,
             const rw::math::Transform3D<>& ref = rw::math::Transform3D<>::identity() );
 
    /**
@@ -72,7 +71,7 @@ public:
    static rw::math::Vector3D<>
         estimateCOG(
             double mass,
-            const std::vector<rw::geometry::sandbox::Geometry*> &geoms);
+            const std::vector<rw::geometry::Geometry*> &geoms);
 
 
 	/**
