@@ -29,6 +29,7 @@
 
 #include "Controller.hpp"
 
+
 /**
  * @brief the joint controller interface describe how to input to a joint controller.
  * The output Force, Vel, Pos... must be available in the class implementing JointController interface
