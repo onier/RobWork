@@ -77,10 +77,11 @@ void RobWorkStudio::sendAllMessages(
 {
 }
 
-RobWorkStudio::RobWorkStudio(const std::vector<PluginSetup>& plugins,
+RobWorkStudio::RobWorkStudio(RobWorkPtr robwork,
+                             const std::vector<PluginSetup>& plugins,
                              const PropertyMap& map,
                              const std::string& inifile)
-    :
+    :    
     _stateChangedEvent(boost::bind(&RobWorkStudio::fireStateChangedEvent, this, _1)),
     _frameSelectedEvent(boost::bind(&RobWorkStudio::fireFrameSelectedEvent, this, _1)),
     _genericEvent(boost::bind(&RobWorkStudio::fireGenericEvent, this, _1)),
@@ -88,6 +89,7 @@ RobWorkStudio::RobWorkStudio(const std::vector<PluginSetup>& plugins,
     _stateTrajectoryChangedEvent(boost::bind(&RobWorkStudio::fireStateTrajectoryChangedEvent, this, _1)),
     _positionSelectedEvent(boost::bind(&RobWorkStudio::firePositionSelectedEvent, this, _1)),
     _mousePressedEvent(boost::bind(&RobWorkStudio::fireMousePressedEvent, this, _1)),
+    _robwork(robwork),
     _inStateUpdate(false),
     _propMap(map),
     _settingsMap(NULL)
@@ -290,37 +292,36 @@ void RobWorkStudio::closePlugin(RobWorkStudioPlugin& plugin)
     }
 }
 
-void RobWorkStudio::sendMessage(
-    RobWorkStudioPlugin& plugin,
-    const std::string& pluginName,
-    const std::string& id,
-    const Message& msg)
-{
-/*    try {
-        plugin.receiveMessage(pluginName, id, msg);
-    } catch (const Exception& exc) {
-        std::stringstream buf;
-        buf
-            << "Exception in message receive of plugin "
-            << StringUtil::quote(plugin.name().toStdString());
+//void RobWorkStudio::sendMessage(RobWorkStudioPlugin& plugin,
+//                                const std::string& pluginName,
+//                                const std::string& id,
+//                                const Message& msg)
+//{
+///*    try {
+//        plugin.receiveMessage(pluginName, id, msg);
+//    } catch (const Exception& exc) {
+//        std::stringstream buf;
+//        buf
+//            << "Exception in message receive of plugin "
+//            << StringUtil::quote(plugin.name().toStdString());
+//
+//        QMessageBox::information(
+//            NULL,
+//            buf.str().c_str(),
+//            exc.getMessage().getText().c_str(),
+//            QMessageBox::Ok);
+//    }*/
+//}
 
-        QMessageBox::information(
-            NULL,
-            buf.str().c_str(),
-            exc.getMessage().getText().c_str(),
-            QMessageBox::Ok);
-    }*/
-}
-
-void RobWorkStudio::addPlugin(
-    RobWorkStudioPlugin* plugin,
-    bool visible,
-    Qt::DockWidgetArea area)
+void RobWorkStudio::addPlugin(RobWorkStudioPlugin* plugin,
+                              bool visible,
+                              Qt::DockWidgetArea area)
 {
     plugin->setupMenu(_pluginsMenu);
     plugin->setupToolBar(_pluginsToolBar);
     plugin->setConvert(&_converter);
     plugin->setRobWorkStudio(this);
+    plugin->setRobWorkInstance(_robwork);
     plugin->setLog( Log::getInstance() );
     plugin->initialize();
 
@@ -393,13 +394,16 @@ void RobWorkStudio::setupPlugins(QSettings& settings)
         Qt::DockWidgetArea dockarea =
             (Qt::DockWidgetArea)settings.value("DockArea").toInt();
 
-#if defined(RW_WIN32)
+        filename = pathname+ "/" + filename + "." + OS::getDLLExtension().c_str();
+
+/*#if defined(RW_WIN32)
         filename = pathname + "/" + filename + ".dll";
 #elif defined(RW_MACOS)
 		filename = pathname + "/" +filename + ".dylib";
 #else
         filename = pathname + "/" +filename + ".so";
 #endif
+*/        
         QPluginLoader loader(filename);
 #if QT_VERSION >= 0x040400
 		// Needed to make dynamicly loaded libraries use dynamic
@@ -412,10 +416,9 @@ void RobWorkStudio::setupPlugins(QSettings& settings)
         QObject* pluginObject = loader.instance();
         if (pluginObject != NULL) {
         	RobWorkStudioPlugin* testP = dynamic_cast<RobWorkStudioPlugin*>(pluginObject);
-        	RW_ASSERT(testP);
-        	//std::cout << "Plugin can be cast " << std::endl;
-            RobWorkStudioPlugin* plugin =
-                qobject_cast<RobWorkStudioPlugin*>(pluginObject);
+            if (testP == NULL)
+                RW_THROW("Loaded plugin is NULL");        	
+            RobWorkStudioPlugin* plugin = qobject_cast<RobWorkStudioPlugin*>(pluginObject);
 
             if (plugin) {
                 addPlugin(plugin, visible, dockarea);

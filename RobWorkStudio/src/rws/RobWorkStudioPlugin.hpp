@@ -30,6 +30,8 @@
 #include <QIcon>
 #include <QtGui>
 
+
+#include <rw/RobWork.hpp>
 #include <rw/common/Message.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/State.hpp>
@@ -121,6 +123,10 @@ public:
      */
     virtual RobWorkStudio* getRobWorkStudio();
 
+    virtual void setRobWorkInstance(rw::RobWorkPtr robwork);
+
+    virtual rw::RobWorkPtr getRobWorkInstance();
+
     /**
      * @brief returns the RobWorkStudio log instance
      */
@@ -143,6 +149,7 @@ protected:
 
     ///! @brief hook back to RobWorkStudio
     RobWorkStudio* _studio;
+    rw::RobWorkPtr _robwork;
     rw::common::LogPtr _log;
 };
 

@@ -22,6 +22,9 @@
 #include <windows.h>
 #endif
 #include <QApplication>
+#include <rw/RobWork.hpp>
+#include <rw/math/Q.hpp>
+#include <rw/trajectory/Trajectory.hpp>
 #include <rws/RobWorkStudio.hpp>
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/PropertyMap.hpp>
@@ -51,6 +54,7 @@
 #endif
 
 using namespace std;
+using namespace rw;
 using namespace rw::common;
 
 std::vector<RobWorkStudio::PluginSetup> getPlugins()
@@ -174,11 +178,12 @@ int main(int argc, char** argv)
         cout << "Specify --help for usage. \n";
         return 0;
     }
-#endif //#ifdef MSVS
+#endif //#ifdef MSVS #else
 
     //__try1(exp_handle){
+    QApplication app(argc, argv);
     try {
-        QApplication app(argc, argv);
+        
         QPixmap pixmap(":/images/splash.jpg");
 
         QSplashScreen splash(pixmap);
@@ -194,20 +199,66 @@ int main(int argc, char** argv)
         // Establishing connections
         splash.showMessage("Loading dynamic plugins");
 		inifile="./RobWorkStudio.ini";
-        RobWorkStudio rstudio(plugins, map, inifile);
+        
+        
+
+
+        
+        RobWork robwork;
+       /* try {
+            std::string str1 = "*."+OS::getDLLExtension();
+            std::string str2 = "*.dll";
+            int n1 = sizeof(str1);
+            int n2 = sizeof(str2);
+            char* ch = &str1[0];
+            char ch3 = ch[3];
+            char ch4 = ch[4];
+            char ch5 = ch[5];
+            char ch6 = ch[6];
+
+            char* cha = &str2[0];
+            char cha3 = cha[3];
+            char cha4 = cha[4];
+            char cha5 = cha[5];
+            char cha6 = cha[6];
+
+
+            std::vector<std::string> files1 = IOUtil::getFilesInFolder(".", true, str2);
+            std::vector<std::string> files2 = IOUtil::getFilesInFolder(".", true, str1);
+                                                            
+            robwork.getPluginRepository().addFilesInFolder("C:/workspace_rw05/release-0.5/RobWorkApp/PluginTestProject/Debug/");
+            std::vector<rw::common::Ptr<rw::plugin::PluginFactory<rw::trajectory::QTrajectory> > > factories;
+            factories = robwork.getPluginRepository().getPlugins<rw::trajectory::QTrajectory>();
+            std::cout<<"Number of plugins = "<<factories.size()<<std::endl;
+
+            BOOST_FOREACH(rw::common::Ptr<rw::plugin::PluginFactory<rw::trajectory::QTrajectory> > factory, factories) {
+                rw::trajectory::QTrajectoryPtr traj = factory->make();
+                std::cout<<"Trajectory["<<traj->startTime()<<" "<<traj->endTime()<<" "<<traj->x(0)<<std::endl;
+            }
+        } catch (const Exception& exp) {
+            QMessageBox::critical(NULL, "Exception", "Unable to load plugins!");
+        }*/
+
+        RobWorkStudio rwstudio(&robwork, plugins, map, inifile);
         if(!inputfile.empty()){
-            rstudio.openFile(inputfile);
+            rwstudio.openFile(inputfile);
         }
         // load configuration into RobWorkStudio
         // Todo: check that the config file exists
         // splash.showMessage("Loading settings");
 
-        rstudio.show();
-        splash.finish(&rstudio);
+        rwstudio.show();
+        splash.finish(&rwstudio);
         res = app.exec();
-    } catch (exception& e) {
+    } catch (const Exception& e) {
         std::cout << e.what() << std::endl;
-        return 0;
+        QMessageBox::critical(NULL, "RW Exception", e.what().c_str());
+        return -1;
+    }
+    catch (exception& e) {
+        std::cout << e.what() << std::endl;
+        QMessageBox::critical(NULL, "Exception", e.what());
+        return -1;
     }
     //}
     //__except1{
