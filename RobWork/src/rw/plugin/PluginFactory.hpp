@@ -12,6 +12,10 @@ namespace plugin {
 
 
 
+    /** @addtogroup plugin */
+    /*@{*/
+
+
 
 
 template <class T>
@@ -24,16 +28,16 @@ public:
     }
 
     virtual rw::common::Ptr<T> make() {
-        RW_THROW2(5000, "PluginFactory<T>::make() is not implemented");             
+        RW_THROW2(5000, "PluginFactory<T>::make() is not implemented");
     };
 
     virtual rw::common::Ptr<T> make(const std::string&) {
-        RW_THROW2(5001, "PluginFactory<T>::make(const std::string&) is not implemented");             
+        RW_THROW2(5001, "PluginFactory<T>::make(const std::string&) is not implemented");
     };
 
 };
 
-
+/** @} */
 
 } //end namespace plugin
 } //end namespace rw

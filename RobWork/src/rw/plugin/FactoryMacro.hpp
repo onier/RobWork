@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef RWLIBS_DLL_FACTORYMACRO_HPP
-#define RWLIBS_DLL_FACTORYMACRO_HPP
+#ifndef RW_PLUGIN_FACTORYMACRO_HPP
+#define RW_PLUGIN_FACTORYMACRO_HPP
 
 #include <rw/common/os.hpp>
 
@@ -47,4 +47,4 @@
     }
 
 
-#endif /*RWLIBS_DLL_FACTORYMACRO_HPP_*/
+#endif /*RW_PLUGIN_FACTORYMACRO_HPP*/

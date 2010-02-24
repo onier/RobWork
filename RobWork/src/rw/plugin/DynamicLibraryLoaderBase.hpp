@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef RWLIBS_DLL_DYNAMICLIBRARYLOADERBASE_HPP
-#define RWLIBS_DLL_DYNAMICLIBRARYLOADERBASE_HPP
+#ifndef RW_PLUGIN_DYNAMICLIBRARYLOADERBASE_HPP
+#define RW_PLUGIN_DYNAMICLIBRARYLOADERBASE_HPP
 
 
 #include <string>
@@ -32,12 +32,12 @@
 
 #include <rw/common/macros.hpp>
 
-namespace rwlibs {
-namespace dll {
+namespace rw {
+namespace plugin {
 
 
-    /** @addtogroup dll */
-    /*@{*/
+/** @addtogroup plugin */
+/*@{*/
 
 
 /**
@@ -92,9 +92,9 @@ private:
 };
 
 
+/** @} */
 
+} //end namespace plugin
+} //end namespace rw
 
-} //end namespace dll
-} //end namespace rwlibs
-
-#endif /*RWLIBS_DLL_DYNAMICLIBRARYLOADERBASE_HPP*/
+#endif /*RW_PLUGIN_DYNAMICLIBRARYLOADERBASE_HPP*/

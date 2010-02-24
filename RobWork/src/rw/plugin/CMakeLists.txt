@@ -1,27 +1,18 @@
 SET(FILES_CPP
-  Proximity.cpp
-  CollisionStrategy.cpp
-  CollisionSetup.cpp
-  CollisionToleranceStrategy.cpp
-  ProximityStrategy.cpp
-  CollisionDetector.cpp
-  DistanceStrategy.cpp
-  DistanceToleranceStrategy.cpp
-  DistanceCalculator.cpp
-  ProximityModel.cpp
+  DynamicLibraryLoader.cpp
+  DynamicLibraryLoaderBase.cpp
+  PluginFactory.cpp
+  PluginFactoryBase.cpp
+  PluginRepository.cpp
 )
 
 SET(FILES_HPP
-  Proximity.hpp
-  CollisionStrategy.hpp
-  CollisionSetup.hpp
-  CollisionToleranceStrategy.hpp
-  ProximityStrategy.hpp
-  CollisionDetector.hpp
-  DistanceStrategy.hpp
-  DistanceToleranceStrategy.hpp
-  DistanceCalculator.hpp
-  ProximityModel.hpp
+  DynamicLibraryLoader.hpp
+  DynamicLibraryLoaderBase.hpp
+  PluginFactory.hpp
+  PluginFactoryBase.hpp
+  PluginRepository.hpp
+  FactoryMacro.hpp
 )
 
 SOURCE_GROUP(proximity FILES ${FILES_CPP} ${FILES_HPP})

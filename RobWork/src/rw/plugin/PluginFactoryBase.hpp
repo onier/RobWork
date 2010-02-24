@@ -7,15 +7,21 @@
 namespace rw {
 namespace plugin {
 
-enum PluginType { DEVICE = 1, JOINT, FRAME, INVKIN_SOLVER, TRAJECTORY, USER }; 
+
+
+/** @addtogroup plugin */
+/*@{*/
+
+
+enum PluginType { DEVICE = 1, JOINT, FRAME, INVKIN_SOLVER, TRAJECTORY, USER };
 
 
 class PluginFactoryBase
 {
-public:      
+public:
     PluginFactoryBase(const std::string& identifier, PluginType type);
     virtual ~PluginFactoryBase(void);
-     
+
     virtual std::string identifier() const;
 
     virtual PluginType getType() const;
@@ -26,6 +32,8 @@ private:
 };
 
 typedef rw::common::Ptr<PluginFactoryBase> PluginFactoryBasePtr;
+
+/** @} */
 
 } //end namespace plugin
 } //end namespace rw

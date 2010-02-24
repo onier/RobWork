@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,16 +16,16 @@
  ********************************************************************************/
 
 
-#ifndef RWLIBS_DLL_DYNAMICLIBRARYLOADER_HPP
-#define RWLIBS_DLL_DYNAMICLIBRARYLOADER_HPP
+#ifndef RW_PLUGIN_DYNAMICLIBRARYLOADER_HPP
+#define RW_PLUGIN_DYNAMICLIBRARYLOADER_HPP
 
 #include "DynamicLibraryLoaderBase.hpp"
 
-namespace rwlibs {
-namespace dll {
+namespace rw {
+namespace plugin {
 
 
-    /** @addtogroup dll */
+    /** @addtogroup plugin */
     /*@{*/
 
 /**
@@ -62,7 +62,7 @@ public:
      * @copydoc ~DynamicLibraryLoaderBase
      */
     virtual ~DynamicLibraryLoader() {
-    
+
     };
 
     /**
@@ -84,7 +84,7 @@ private:
 
 /** @} */
 
-} //end namespace dll
-} //end namespace rwlibs
+} //end namespace plugin
+} //end namespace rw
 
-#endif /*RWLIBS_DLL_DYNAMICLIBRARYLOADER_HPP*/
+#endif /*RW_PLUGIN_DYNAMICLIBRARYLOADER_HPP*/
