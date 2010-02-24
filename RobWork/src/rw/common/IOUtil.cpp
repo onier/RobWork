@@ -199,7 +199,9 @@ std::vector<std::string> IOUtil::getFilesInFolder(const std::string& path, bool 
     
     try
     {
-        std::string regStr = fileMask;
+        //Depending on how string has been generated boost::replace_all sometimes fails. 
+        //A fix of this is to convert it with c_str().
+        std::string regStr = fileMask.c_str();
 
 	    boost::replace_all(regStr, "\\", "\\\\");
 	    boost::replace_all(regStr, ".", "\\.");

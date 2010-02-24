@@ -16,31 +16,4 @@
  ********************************************************************************/
 
 
-#ifndef OBB_HPP_
-#define OBB_HPP_
-
-#include "Primitive.hpp"
-
-namespace rw {
-namespace geometry {
-
-class Box: public Primitive {
-public:
-	Box();
-	virtual ~Box();
-
-	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution);
-
-	const rw::math::Q& getParameters();
-
-	GeometryType getType(){ return OBBPrim; };
-private:
-	rw::math::Q _param;
-};
-
-} // geometry
-} // rw
-
-
-#endif /* OBB_HPP_ */
+#include "DynamicLibraryLoader.hpp"

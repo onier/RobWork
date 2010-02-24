@@ -16,31 +16,35 @@
  ********************************************************************************/
 
 
-#ifndef OBB_HPP_
-#define OBB_HPP_
+#ifndef RWLIBS_DLL_FACTORYMACRO_HPP
+#define RWLIBS_DLL_FACTORYMACRO_HPP
 
-#include "Primitive.hpp"
+#include <rw/common/os.hpp>
 
-namespace rw {
-namespace geometry {
+#ifdef RW_WIN32
+#define DLL_EXPORT extern "C" __declspec(dllexport)
+#else
+#define DLL_EXPORT extern "C"
+#endif
 
-class Box: public Primitive {
-public:
-	Box();
-	virtual ~Box();
+/**
+ * @brief Macro to be used when loading dynamically
+ *
+ * Given a class MyPlugin call this macro in the MyPlugin.cpp
+ * file as
+ * \code
+ * DLL_FACTORY_METHOD(MyPlugin);
+ * \endcode
+ *
+ * Notice that to be able to load a plugin dynamically it is required
+ * to have a default constructor.
+ *
+ * @param name [in] Name of class to provide factory method for.
+ */
+#define DLL_FACTORY_METHOD(name) \
+    DLL_EXPORT void* factory0(void) { \
+        return new name(); \
+    }
 
-	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution);
 
-	const rw::math::Q& getParameters();
-
-	GeometryType getType(){ return OBBPrim; };
-private:
-	rw::math::Q _param;
-};
-
-} // geometry
-} // rw
-
-
-#endif /* OBB_HPP_ */
+#endif /*RWLIBS_DLL_FACTORYMACRO_HPP_*/

@@ -45,6 +45,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
+				TreatWChar_tAsBuiltInType="false"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
@@ -147,15 +148,75 @@
 			Name="geometry"
 			>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\Face.hpp"
+				RelativePath="..\..\..\..\src\rw\geometry\AABB.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\FaceArrayFactory.cpp"
+				RelativePath="..\..\..\..\src\rw\geometry\AABB.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\FaceArrayFactory.hpp"
+				RelativePath="..\..\..\..\src\rw\geometry\Box.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Box.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Cone.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Cone.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Contour2D.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Contour2D.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Contour2Dto3D.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Contour2Dto3D.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Contour2DUtil.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Contour2DUtil.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\ConvexHull2D.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\ConvexHull2D.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\ConvexHull3D.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\ConvexHull3D.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Cylinder.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Cylinder.hpp"
 				>
 			</File>
 			<File
@@ -167,27 +228,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GeometryBox.cpp"
+				RelativePath="..\..\..\..\src\rw\geometry\GeometryData.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GeometryBox.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GeometryCylinder.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GeometryCylinder.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GeometryFace.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GeometryFace.hpp"
+				RelativePath="..\..\..\..\src\rw\geometry\GeometryData.hpp"
 				>
 			</File>
 			<File
@@ -199,11 +244,155 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GeometrySTL.cpp"
+				RelativePath="..\..\..\..\src\rw\geometry\GeometryUtil.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GeometrySTL.hpp"
+				RelativePath="..\..\..\..\src\rw\geometry\GeometryUtil.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\GiftWrapHull2D.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\GiftWrapHull2D.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\GiftWrapHull3D.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\GiftWrapHull3D.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\IncrementalHull.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\IndexedTriangle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\IndexedTriangle.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\IndexedTriMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\IndexedTriMesh.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Line.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Line.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\OBB.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\OBB.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\OBBFrameMap.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\PlainTriMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\PlainTriMesh.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Plane.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Plane.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Point.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Point.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Primitive.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Primitive.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Pyramid.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Pyramid.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Sphere.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Sphere.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\STLFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\STLFile.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Triangle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Triangle.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\TriangleUtil.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\TriangleUtil.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\triangulate.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\triangulate.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\TriMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\TriMesh.hpp"
 				>
 			</File>
 		</Filter>
@@ -1681,11 +1870,39 @@
 			Name="plugin"
 			>
 			<File
-				RelativePath="..\..\..\..\src\rw\plugin\PluginConstructor.cpp"
+				RelativePath="..\..\..\..\src\rw\plugin\DynamicLibraryLoader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\plugin\PluginConstructor.hpp"
+				RelativePath="..\..\..\..\src\rw\plugin\DynamicLibraryLoader.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\DynamicLibraryLoaderBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\DynamicLibraryLoaderBase.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\FactoryMacro.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\PluginFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\PluginFactory.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\PluginFactoryBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\plugin\PluginFactoryBase.hpp"
 				>
 			</File>
 			<File
@@ -1696,17 +1913,61 @@
 				RelativePath="..\..\..\..\src\rw\plugin\PluginRepository.hpp"
 				>
 			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\plugin\RobWork.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\plugin\RobWork.hpp"
-				>
-			</File>
 		</Filter>
 		<File
-			RelativePath="..\..\..\..\src\rw\robwork.hpp"
+			RelativePath="..\..\..\..\src\rw\common.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\geometry.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\invkin.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\kinematics.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\loaders.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\math.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\models.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\pathplanning.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\proximity.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\RobWork.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\RobWork.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\rw.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\sensor.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rw\trajectory.hpp"
 			>
 		</File>
 	</Files>
