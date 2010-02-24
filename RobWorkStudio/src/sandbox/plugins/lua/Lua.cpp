@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -180,7 +180,7 @@ void Lua::initialize()
 void Lua::stateChangedListener(const State& state)
 {
     _state = state;
-    RobWork::setState(_lua, &_state);
+    rwlibs::lua::RobWork::setState(_lua, &_state);
 }
 
 void Lua::luaStateChangedListener(const State& state)
@@ -205,9 +205,9 @@ void Lua::open(WorkCell* workcell)
     rwlibs::lua::RobWork::setOutput(_lua, new PluginToLogOutput( _log ));
     rwlibs::lua::RobWork::setCollisionDetector(_lua,
         getRobWorkStudio()->getCollisionDetector());
-    RobWork::setWorkCell(_lua, workcell);
+    rwlibs::lua::RobWork::setWorkCell(_lua, workcell);
 
-    RobWork::setStateChangedListener(
+    rwlibs::lua::RobWork::setStateChangedListener(
         boost::bind(
             &Lua::luaStateChangedListener,
             this,

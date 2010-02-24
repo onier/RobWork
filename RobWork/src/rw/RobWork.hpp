@@ -11,8 +11,8 @@ namespace rw {
 class RobWork
 {
 public:
-    RobWork(void);
-    ~RobWork(void);
+    RobWork(void) {}
+    ~RobWork(void) {}
 
     rw::plugin::PluginRepository& getPluginRepository() {
         return _pluginRepository;
