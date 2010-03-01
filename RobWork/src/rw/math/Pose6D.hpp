@@ -154,6 +154,19 @@ namespace rw { namespace math {
         }
     };
 
+    /**
+     * @brief Streaming operator.
+     *
+     * @relates Q
+     */
+    template <class T>
+    std::ostream& operator<<(std::ostream& out, const Pose6D<T>& v)
+    {
+        return out
+            << "Pose6D {"<< v(0)<< ", "<< v(1)<< ", " << v(2)
+            << ", " << v(3) << ", " << v(4) << ", " << v(5) << "}";
+    }
+
     /*@}*/
 }} // end namespaces
 
