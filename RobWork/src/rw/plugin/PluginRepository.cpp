@@ -8,13 +8,12 @@
 
 using namespace rw::common;
 using namespace rw::plugin;
-using namespace rwlibs::dll;
 
 
 //PluginRepository PluginRepository::_repository;
 
 
-void PluginRepository::add(const std::string& filename) {
+void PluginRepository::load(const std::string& filename) {
     PluginFactoryBasePtr constructor; 
     try 
     {
@@ -39,14 +38,14 @@ void PluginRepository::add(const std::string& filename) {
     }
 }
 
-void PluginRepository::addFilesInFolder(const std::string& path) {
+void PluginRepository::loadFilesInFolder(const std::string& path, bool searchSubFolders) {
     
     std::vector<std::string> files = IOUtil::getFilesInFolder(path, true, "*."+OS::getDLLExtension());
 //    std::vector<std::string> files = IOUtil::getFilesInFolder(path, true, "*.dll");
 
     BOOST_FOREACH(std::string str, files) {
         std::cout<<"DLL File = "<<str<<std::endl;
-        add(str);        
+        load(str);        
     }
 }
 
@@ -57,7 +56,7 @@ void PluginRepository::addListener(boost::function<void(void)>& listener) {
 
 
 
-std::vector<PluginFactoryBasePtr> PluginRepository::getPlugins(PluginType type) const {
+/*std::vector<PluginFactoryBasePtr> PluginRepository::getPlugins(PluginType type) const {
     std::vector<PluginFactoryBasePtr> result;
     for (std::map<std::string, PluginFactoryBasePtr>::const_iterator it = _str2constructorMap.begin(); it != _str2constructorMap.end(); ++it) {
         if ((*it).second->getType() == type) {
@@ -66,6 +65,7 @@ std::vector<PluginFactoryBasePtr> PluginRepository::getPlugins(PluginType type) 
     }
     return result;
 }
+*/
 
 const std::map<std::string, PluginFactoryBasePtr>& PluginRepository::getAllPlugins() const {
     return _str2constructorMap;
@@ -78,7 +78,9 @@ std::map<std::string, PluginFactoryBasePtr>& PluginRepository::getAllPlugins() {
 
 
 
+/*
 PluginRepository& PluginRepository::instance() {
     static PluginRepository repository;    
     return repository;
 }
+*/

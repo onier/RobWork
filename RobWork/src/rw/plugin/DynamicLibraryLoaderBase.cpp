@@ -19,7 +19,7 @@
 #include "DynamicLibraryLoaderBase.hpp"
 #include <rw/common/macros.hpp>
 
-using namespace rwlibs::dll;
+using namespace rw::plugin;
 
 #ifdef RW_WIN32
 

@@ -25,8 +25,8 @@ namespace rw {
 namespace plugin {
 
 
-    /** @addtogroup plugin */
-    /*@{*/
+/** @addtogroup plugin */
+/*@{*/
 
 /**
  * @brief Loader for dynamic/shared libraries

@@ -12,25 +12,40 @@ namespace plugin {
 /** @addtogroup plugin */
 /*@{*/
 
-
-enum PluginType { DEVICE = 1, JOINT, FRAME, INVKIN_SOLVER, TRAJECTORY, USER };
-
-
+/**
+ * @brief Base class for PluginFactory.
+ *
+ * When a PluginFactory is loaded it is stored as a PluginFactoryBase within the rw::plugin::PluginRepository.
+ * 
+ */
 class PluginFactoryBase
 {
 public:
-    PluginFactoryBase(const std::string& identifier, PluginType type);
+    /**
+     * @brief Constructor 
+     *
+     * @param [in] identifier used to identify the plugin
+     */
+    PluginFactoryBase(const std::string& identifier);
+
+    /**
+     * @brief Destructor
+     */
     virtual ~PluginFactoryBase(void);
 
+    /** 
+     * @brief Returns identifier associated with the PluginFactory
+     * @return Identifier for the plugin
+     */
     virtual std::string identifier() const;
-
-    virtual PluginType getType() const;
 
 private:
     std::string _identifier;
-    PluginType _type;
 };
 
+/**
+ * @brief Definition of rw::common::Ptr to a PluginFactoryBase
+ */
 typedef rw::common::Ptr<PluginFactoryBase> PluginFactoryBasePtr;
 
 /** @} */

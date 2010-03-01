@@ -2,9 +2,8 @@
 
 using namespace rw::plugin;
 
-PluginFactoryBase::PluginFactoryBase(const std::string& identifier, PluginType type):
-_identifier(identifier),
-_type(type)
+PluginFactoryBase::PluginFactoryBase(const std::string& identifier):
+_identifier(identifier)
 {
 }
 
@@ -17,6 +16,3 @@ std::string PluginFactoryBase::identifier() const {
     return _identifier;
 }
 
-PluginType PluginFactoryBase::getType() const {
-    return _type;
-}
