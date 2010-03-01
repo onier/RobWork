@@ -40,7 +40,9 @@ void FixedFrame::doMultiplyTransform(const Transform3D<>& parent,
     Transform3D<>::multiply(parent, _transform, result);
 }
 
-
+void FixedFrame::setTransform(const math::Transform3D<>& transform){
+	_transform = transform;
+}
 
 
 Transform3D<> FixedFrame::doGetTransform(const State& state) const {
