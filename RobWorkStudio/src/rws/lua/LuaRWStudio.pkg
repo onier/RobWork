@@ -1,0 +1,26 @@
+
+$#include <rw/math.hpp>
+
+$#include "LuaSensor.hpp"
+
+namespace rwlibs { namespace lua { namespace sensors {
+    /*
+  		These are the classes and functions we export.
+	*/
+	
+	
+}}}
+
+/*
+  We provide a rw module of wrapper functions and utility functions.
+
+  These functions are compiled into the executable, so that the user never has
+  to worry about the installation of the rw module.
+
+  Also the user need not know about what namespace all of the above classes are
+  actually located in.
+*/
+//$[
+
+
+//$]
