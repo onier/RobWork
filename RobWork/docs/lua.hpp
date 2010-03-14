@@ -5,6 +5,7 @@
 \page page_lua Lua scripting language interface
 
 - \ref sec_lua_intro
+- \ref sec_lua_construction
 - \ref sec_lua_interpreter
 - \ref sec_lua_script
 - \ref sec_lua_robworkstudio
@@ -15,6 +16,21 @@
 
 RobWork has a small (experimental) interface to the 
 <a href="http://www.lua.org/">Lua</a> scripting language.
+
+\section sec_lua_construction Under construction
+
+The lua interface is under expansion and this section will contain the preliminary interface
+that is wanted from the different rw packages.
+
+Heres a list of the packages and what content that is most important
+\begin{itemize}
+\item math - All math types (Vector3D, Transform3D, RPY ...) in this package is
+important since they are basic building blocks in all of robwork. Besides these basic types
+some of the more popular utillity functions need be available (SVD, conversion, ran, min, max, clamp, metrics)
+\item common - Most of the stuff in common is utility functions and are not that important
+in script interface. Though some filefunctions, timerfunctions and log functions could come inhandy.
+\item geometry - factory methods and
+\end{itemize}
 
 \section sec_lua_interpreter Building a Lua interpreter
 
