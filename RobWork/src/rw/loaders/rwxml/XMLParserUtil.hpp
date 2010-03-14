@@ -48,7 +48,7 @@ struct result_closure: public boost::spirit::closure<result_closure<ResultT>, Re
 /**********    Useful structures for saving temporary workcell data ********/
 
 typedef enum{Fixed=0,Movable,Prismatic,Revolute,DependRevolute,
-             DependtPrismatic} FrameType;
+             DependtPrismatic} FrameTypeInt;
 typedef enum{SerialType,ParallelType,TreeType,MobileType,
              CompositeType,ConveyorType} DeviceType;
 typedef enum{AccLimitType,VelLimitType,PosLimitType} LimitType;
@@ -70,7 +70,7 @@ struct DummyProperty {
 };
 
 struct DHParam {
-    FrameType _dhtype;
+    FrameTypeInt _dhtype;
     double _alpha;
     double _a;
     double _d;
