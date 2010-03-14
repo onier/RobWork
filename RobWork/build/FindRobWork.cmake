@@ -40,6 +40,9 @@ SET(RW_ROOT ${ROBWORK_ROOT})
 
 MESSAGE(STATUS "RobWork Path: ${ROBWORK_ROOT}")
 
+ENABLE_LANGUAGE(CXX)
+ENABLE_LANGUAGE(Fortran)
+
 # Setup the default include and library dirs for robwork
 SET(ROBWORK_INCLUDE_DIR 
 	${RW_ROOT}/ext
@@ -175,6 +178,16 @@ IF (DEFINED MSVC)
   ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
 ENDIF ()
 
+#SET(BLAS_DIR "${RW_ROOT}/ext/libs_vs")
+#FIND_PACKAGE(LAPACK REQUIRED PATHS "${RW_ROOT}/ext/libs_vs")
+#FIND_PACKAGE(BLAS REQUIRED PATHS "${RW_ROOT}/ext/libs_vs")
+#IF( NOT (LAPACK_FOUND OR BLAS_FOUND) )
+#    MESSAGE(SEND_ERROR "Lapack or blas was not found! ")
+#ENDIF()
+
+#SET(RW_UBLAS_LIBRARY_NAMES ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
+#MESSAGE("${RW_UBLAS_LIBRARY_NAMES}")
+
 
 # All mandatory libraries for linking with rw:
 if (DEFINED MINGW)
@@ -187,6 +200,9 @@ elseif (DEFINED UNIX)
 endif ()
 
 #INCLUDE(${RW_ROOT}/config/link.cmake)
+
+FIND_PACKAGE(Lua51)
+FIND_PACKAGE(Tolua++)
 
 # Opengl
 IF (NOT OPENGL_FOUND)
@@ -219,14 +235,15 @@ SET(ROBWORK_LIBRARIES
   "rw_lua"
   "rw_simulation"
   ${RW_DRAWABLE_LIBS}
+  "rw_control"
   "rw_algorithms"
   "rw_task"
   "rw_pathplanners"
   "rw_pathoptimization"
   "rw_proximitystrategies"
   "rw"
-  "tolualib"
-  "lualib" 
+  ${TOLUA_LIBRARIES}
+  ${LUA_LIBRARIES}
   ${RW_UBLAS_LIBRARY_NAMES}  
   ${PQP_LIB}
   ${YAOBI_LIB}
