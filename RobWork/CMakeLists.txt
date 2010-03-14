@@ -1,6 +1,8 @@
 # Test CMake version
 cmake_minimum_required(VERSION 2.6.0)
 
+CMAKE_POLICY(SET CMP0011 NEW)
+
 # The name of the project.
 PROJECT(RobWork)
 SET(ROBWORK_VERSION 0.4.0)
