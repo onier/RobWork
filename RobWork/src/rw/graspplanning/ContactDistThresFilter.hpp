@@ -48,7 +48,7 @@ public:
      */
     bool isValid(const Grasp3D& grasp);
 
-    bool isContactPairValid(const Contact3D& c1, const Contact3D& c2);
+    bool isContactPairValid(const rw::sensor::Contact3D& c1, const rw::sensor::Contact3D& c2);
 
 private:
     double _minDist;

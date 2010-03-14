@@ -11,6 +11,7 @@
 #include <rw/math.hpp>
 #include <rw/common.hpp>
 #include "Grasp3D.hpp"
+#include <rw/sensor/TactileArray.hpp>
 
 
 namespace rw {
@@ -36,6 +37,7 @@ public:
         rw::math::Pose6D<> op; // object pose
         Grasp3D grasp;
         rw::math::Q quality;
+        std::vector<rw::sensor::TactileArray::ValueMatrix> _tactiledata;
     };
 
 public:
@@ -50,6 +52,8 @@ public:
     static GraspTable* load(const std::string& filename);
 
     void save(const std::string& filename);
+
+    std::vector<GraspData>& getData(){return _graspData;};
 
     /**
      *

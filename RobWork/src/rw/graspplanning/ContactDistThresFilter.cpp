@@ -11,6 +11,7 @@
 
 using namespace rw::math;
 using namespace rw::graspplanning;
+using namespace rw::sensor;
 
 bool ContactDistThresFilter::isContactPairValid(const Contact3D& c1, const Contact3D& c2){
     double dist = MetricUtil::dist2(c1.p, c2.p);
