@@ -55,6 +55,9 @@ public:
 
     std::vector<GraspData>& getData(){return _graspData;};
 
+    const std::string& getHandName(){return _handName;};
+
+    const std::string& getObjectName(){return _objectId;};
     /**
      *
      * @return
