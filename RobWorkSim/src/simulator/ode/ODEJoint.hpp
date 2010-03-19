@@ -21,6 +21,7 @@
 class ODEJoint {
 public:
     typedef enum{FIXED, RIGID, DEPEND} ODEJointType;
+    typedef enum{Revolute, Prismatic} JointType;
 
     /**
      * @brief constructor
@@ -29,13 +30,14 @@ public:
      * @param rwbody
      * @return
      */
-    ODEJoint(
+    ODEJoint(JointType jtype,
              dJointID odeJoint,
              dJointID odeMotor,
              dBodyID body,
              dynamics::RigidJoint* rwbody);
 
-    ODEJoint(dJointID odeJoint,
+    ODEJoint(JointType jtype,
+    		 dJointID odeJoint,
              dJointID odeMotor,
              dBodyID body,
              ODEJoint* owner,
@@ -45,32 +47,42 @@ public:
     virtual ~ODEJoint(){};
 
     void setVelocity(double vel){
-        dJointSetAMotorParam(_motorId, dParamVel, vel);
+        if(_jtype==Revolute) dJointSetAMotorParam(_motorId, dParamVel, vel);
+        else dJointSetLMotorParam(_motorId, dParamVel, vel);
     }
 
     double getVelocity(){
-        return dJointGetAMotorParam(_motorId, dParamVel);
+        double vel;
+        if(_jtype==Revolute) vel = dJointGetAMotorParam(_motorId, dParamVel);
+        else vel = dJointGetLMotorParam(_motorId, dParamVel);
+    	return vel;
     }
 
     void setAngle(double pos){
-        dJointSetAMotorAngle(_motorId, 0, pos);
+    	if(_jtype==Revolute) dJointSetAMotorAngle(_motorId, 0, pos);
+    	//else dJointSetLMotorAngle(_motorId, 0, pos);
     }
 
     double getAngle(){
-        return dJointGetHingeAngle( _jointId );
-        //return dJointGetAMotorAngle(_motorId, 0);
+    	double val;
+    	if(_jtype==Revolute) val = dJointGetHingeAngle( _jointId );
+    	else val = dJointGetSliderPosition ( _jointId );
+    	return val;
     }
 
     double getActualVelocity(){
-        return dJointGetHingeAngleRate( _jointId );
+    	if(_jtype==Revolute)  return dJointGetHingeAngleRate( _jointId );
+    	return dJointGetSliderPositionRate ( _jointId );
     }
 
     void setMaxForce(double force){
-        dJointSetAMotorParam(_motorId,dParamFMax, force );
+    	if(_jtype==Revolute) dJointSetAMotorParam(_motorId,dParamFMax, force );
+    	else dJointSetLMotorParam(_motorId,dParamFMax, force );
     }
 
     double getMaxForce(){
-        return dJointGetAMotorParam(_motorId,dParamFMax);
+    	if(_jtype==Revolute)return dJointGetAMotorParam(_motorId,dParamFMax);
+    	return dJointGetLMotorParam(_motorId,dParamFMax);
     }
 
     ODEJoint* getOwner(){
@@ -100,9 +112,12 @@ private:
     ODEJoint *_owner;
     double _scale,_off;
     ODEJointType _type;
+    JointType _jtype;
 
     rw::kinematics::Frame *_bodyFrame;
     rw::math::Vector3D<> _offset;
+
+
 };
 
 

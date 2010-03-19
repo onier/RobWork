@@ -20,10 +20,12 @@ using namespace rw::math;
 
 
 ODEJoint::ODEJoint(
+		JointType jtype,
          dJointID odeJoint,
          dJointID odeMotor,
          dBodyID body,
          dynamics::RigidJoint* rwjoint):
+			 _jtype(jtype),
              _jointId(odeJoint),
              _bodyId(body),
              _motorId(odeMotor),
@@ -36,7 +38,9 @@ ODEJoint::ODEJoint(
 
 }
 
-ODEJoint::ODEJoint(dJointID odeJoint,
+ODEJoint::ODEJoint(
+		 JointType jtype,
+		 dJointID odeJoint,
          dJointID odeMotor,
          dBodyID body,
          ODEJoint* owner,

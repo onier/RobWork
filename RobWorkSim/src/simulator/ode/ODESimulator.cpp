@@ -930,22 +930,23 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
                      dJointSetAMotorAxis(motor, 0, 1, haxis(0) , haxis(1), haxis(2));
                      dJointSetAMotorAngle(motor,0, qinit);
                      dJointSetAMotorParam(motor,dParamFMax, maxForce(i) );
-
                      dJointSetAMotorParam(motor,dParamVel,0);
 
+                     // we use motor to simulate friction
+                     /*dJointID motor2 = dJointCreateAMotor (_worldId, 0);
+                     dJointAttach(motor2, odeChild, odeParent);
+                     dJointSetAMotorNumAxes(motor2, 1);
+                     dJointSetAMotorAxis(motor2, 0, 1, haxis(0) , haxis(1), haxis(2));
+                     dJointSetAMotorAngle(motor2,0, qinit);
+                     dJointSetAMotorParam(motor2,dParamFMax, maxForce(i)/50 );
+                     dJointSetAMotorParam(motor2,dParamVel,0);
+					*/
                      //dJointSetAMotorParam(Amotor,dParamLoStop,-0);
                      //dJointSetAMotorParam(Amotor,dParamHiStop,0);
-                     ODEJoint *odeJoint = new ODEJoint(hinge, motor, odeChild, rjoint);
+                     ODEJoint *odeJoint = new ODEJoint(ODEJoint::Revolute, hinge, motor, odeChild, rjoint);
                      _jointToODEJoint[rwjoint] = odeJoint;
                      odeJoints.push_back(odeJoint);
                      _allODEJoints.push_back(odeJoint);
-                 } else if( dynamic_cast<PrismaticJoint*>(joint) ){
-                     // std::cout  << "Slider constraint" << std::endl;
-
-                     //_jointToConstraintMap[joint] = slider;
-                     //constraints.push_back(slider);
-                 //} else if(  ) {
-
                  } else if( dynamic_cast<DependentRevoluteJoint*>(joint)){
                      RW_DEBUGS("DependentRevolute");
                      DependentRevoluteJoint *rframe = dynamic_cast<DependentRevoluteJoint*>(joint);
@@ -965,14 +966,43 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
                      dJointSetAMotorParam(motor,dParamFMax, maxForce(i) );
                      dJointSetAMotorParam(motor,dParamVel,0);
 
+
+
                      ODEJoint *odeOwner = _jointToODEJoint[owner];
-                     ODEJoint *odeJoint = new ODEJoint( hinge, motor,  odeChild,
+                     ODEJoint *odeJoint = new ODEJoint( ODEJoint::Revolute, hinge, motor,  odeChild,
                                                         odeOwner, rframe ,
                                                         rframe->getScale(), 0 );
                      odeJoints.push_back(odeJoint);
                      //dJointSetAMotorParam(Amotor,dParamLoStop,-0);
                      //dJointSetAMotorParam(Amotor,dParamHiStop,0);
                      _allODEJoints.push_back(odeJoint);
+                 } else if( PrismaticJoint *pjoint = dynamic_cast<PrismaticJoint*>(joint) ){
+                     std::cout  << "Slider constraint" << std::endl;
+
+                     const double qinit = pjoint->getQ(initState)[0];
+
+                     dJointID slider = dJointCreateSlider (_worldId, 0);
+                     dJointAttach(slider, odeChild, odeParent);
+                     dJointSetSliderAxis(slider, haxis(0) , haxis(1), haxis(2));
+                     //dJointSetHingeAnchor(slider, hpos(0), hpos(1), hpos(2));
+
+                     dJointID motor = dJointCreateLMotor (_worldId, 0);
+                     dJointAttach(motor, odeChild, odeParent);
+                     dJointSetLMotorNumAxes(motor, 1);
+                     dJointSetLMotorAxis(motor, 0, 1, haxis(0) , haxis(1), haxis(2));
+                     //dJointSetLMotorAngle(motor,0, qinit);
+                     dJointSetLMotorParam(motor,dParamFMax, maxForce(i) );
+                     dJointSetLMotorParam(motor,dParamVel,0);
+
+                     //dJointSetAMotorParam(Amotor,dParamLoStop,-0);
+                     //dJointSetAMotorParam(Amotor,dParamHiStop,0);
+                     ODEJoint *odeJoint = new ODEJoint(ODEJoint::Prismatic, slider, motor, odeChild, rjoint);
+                     _jointToODEJoint[pjoint] = odeJoint;
+                     odeJoints.push_back(odeJoint);
+                     _allODEJoints.push_back(odeJoint);
+
+                 //} else if( dynamic_cast<DependentPrismaticJoint*>(joint) ) {
+
                  } else {
                      RW_WARN("Joint type not supported!");
                  }
