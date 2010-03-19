@@ -83,6 +83,8 @@ using namespace loaders;
 using namespace drawable;
 using namespace rwlibs::simulation;
 
+using namespace rws;
+
 #define RW_DEBUGRWS( str ) std::cout << str  << std::endl;
 
 namespace

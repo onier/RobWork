@@ -22,6 +22,7 @@
 #include <control/PDController.hpp>
 #include <rw/kinematics/FrameMap.hpp>
 
+#include <rw/graspplanning/GraspTable.hpp>
 #include <util/MovingAverage.hpp>
 
 #include <boost/numeric/ublas/matrix.hpp>
@@ -194,6 +195,9 @@ class GraspRestingPoseDialog : public QDialog, private Ui::GraspRestingPoseDialo
 
         //QSampler *_handQSampler;
         std::vector<int> _currentPreshapeIDX;
+
+        rw::graspplanning::GraspTable _gtable;
+        int _nrOfGraspsInGroup;
 };
 
 

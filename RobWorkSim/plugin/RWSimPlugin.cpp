@@ -58,7 +58,7 @@ using namespace rwlibs::simulation;
 using namespace dynamics;
 using namespace drawable;
 using namespace loaders;
-
+using namespace rws;
 #define RW_DEBUGS( str ) //std::cout << str  << std::endl;
 
 RWSimPlugin::RWSimPlugin():

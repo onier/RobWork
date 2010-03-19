@@ -31,7 +31,6 @@
 #include <rw/common/Ptr.hpp>
 #include <RobWorkStudioPlugin.hpp>
 
-
 #include <QObject>
 #include <QtGui>
 
@@ -39,14 +38,15 @@ class RestingPoseDialog;
 class SupportPoseAnalyserDialog;
 
 #include "GraspRestingPoseDialog.hpp"
+#include "GraspSelectionDialog.hpp"
 
 /**
  * @brief This plugin defines a set of utilities that are useful for analysis
  * and simulation purposes, that are based on some form of dynamic simulation.
  */
-class SimUtilityPlugin: public RobWorkStudioPlugin {
+class SimUtilityPlugin: public rws::RobWorkStudioPlugin {
 Q_OBJECT
-Q_INTERFACES( RobWorkStudioPlugin )
+Q_INTERFACES( rws::RobWorkStudioPlugin )
 public:
     /**
      * @brief constructor
@@ -94,13 +94,14 @@ private slots:
     void restConfigEvent(const RestingConfig& state);
 
 private: // qt stuff
-	QPushButton *_restPoseBtn, *_poseAnalyserBtn, *_toolEvalBtn;
+	QPushButton *_restPoseBtn, *_poseAnalyserBtn, *_toolEvalBtn, *_graspSelectBtn;
 
 private:
     rw::common::Ptr<dynamics::DynamicWorkcell> _dwc;
     RestingPoseDialog *_restPoseDialog;
     GraspRestingPoseDialog *_graspRestPoseDialog;
     SupportPoseAnalyserDialog *_poseAnalyserDialog;
+    GraspSelectionDialog *_graspSelectionDialog;
     QTimer *_timer;
 };
 

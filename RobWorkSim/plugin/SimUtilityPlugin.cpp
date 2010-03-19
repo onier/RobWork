@@ -79,6 +79,8 @@ using namespace dynamics;
 using namespace loaders;
 using namespace drawable;
 
+using namespace rws;
+
 //#define RW_DEBUG( str ) std::cout << str  << std::endl;
 
 SimUtilityPlugin::SimUtilityPlugin():
@@ -116,11 +118,19 @@ SimUtilityPlugin::SimUtilityPlugin():
             lay->addWidget(button,row++,0);
             _toolEvalBtn = button;
         }
+        {
+            QPushButton* button = new QPushButton("Grasp selection");
+            connect(button,SIGNAL(clicked()),this,SLOT(btnPressed()));
+            lay->addWidget(button,row++,0);
+            _graspSelectBtn = button;
+        }
+
     }
 
     _restPoseBtn->setEnabled(false);
     _poseAnalyserBtn->setEnabled(false);
     _toolEvalBtn->setEnabled(false);
+    _graspSelectBtn->setEnabled(false);
 
     toplay->addStretch(1);
 }
@@ -179,6 +189,20 @@ void SimUtilityPlugin::btnPressed(){
 	    _graspRestPoseDialog->activateWindow();
 	} else if( obj == _timer ){
 
+	} else if( obj==_graspSelectBtn ){
+		if(_dwc==NULL)
+			RW_THROW("No dynamic workcell loaded!");
+
+	    if (!_graspSelectionDialog ) {
+	        State state = getRobWorkStudio()->getState();
+	        rw::proximity::CollisionDetector *colDect = getRobWorkStudio()->getCollisionDetector();
+	        _graspSelectionDialog = new GraspSelectionDialog(state, _dwc.get(), colDect,  NULL);
+	        connect(_graspSelectionDialog,SIGNAL(stateChanged(const rw::kinematics::State&)),this,SLOT(stateChangedEvent(const rw::kinematics::State&)) );
+	    }
+
+	    _graspSelectionDialog->show();
+	    _graspSelectionDialog->raise();
+	    _graspSelectionDialog->activateWindow();
 	}
 }
 
@@ -241,6 +265,7 @@ void SimUtilityPlugin::genericEventListener(const std::string& event){
         _restPoseBtn->setEnabled(true);
         _poseAnalyserBtn->setEnabled(true);
         _toolEvalBtn->setEnabled(true);
+        _graspSelectBtn->setEnabled(true);
 
         if( getRobWorkStudio()->getPropertyMap().has("Arg1") ){
             if(_dwc==NULL)
@@ -276,6 +301,7 @@ void SimUtilityPlugin::close()
     _restPoseBtn->setEnabled(false);
     _poseAnalyserBtn->setEnabled(false);
     _toolEvalBtn->setEnabled(false);
+    _graspSelectBtn->setEnabled(false);
     _dwc = NULL;
     if(_restPoseDialog)
     	delete _restPoseDialog;
@@ -291,6 +317,10 @@ void SimUtilityPlugin::stateChangedHandler(RobWorkStudioPlugin* sender)
 void SimUtilityPlugin::initialize(){
     getRobWorkStudio()->genericEvent().add(
           boost::bind(&SimUtilityPlugin::genericEventListener, this, _1), this);
+
+
+
+    Log::setLog( _log );
 
     _timer = new QTimer( NULL );
     _timer->setSingleShot(true);

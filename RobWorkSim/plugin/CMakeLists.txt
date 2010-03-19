@@ -21,7 +21,8 @@ ADD_DEFINITIONS(-DQT_PLUGIN)
 ################################################################
 # first compile the general stuff into a static gui lib
 SET(FILES_UI 
-	RestingPoseDialog.ui 
+	RestingPoseDialog.ui
+	GraspSelectionDialog.ui 
 	GraspRestingPoseDialog.ui
 	SupportPoseAnalyserDialog.ui
 	CreateEngineDialog.ui
@@ -39,6 +40,7 @@ QT4_WRAP_CPP(MocSrcFiles
     JointControlDialog.hpp
     JogGroup.hpp
     RestingPoseDialog.hpp
+    GraspSelectionDialog.hpp
     GraspRestingPoseDialog.hpp
     SupportPoseAnalyserDialog.hpp
 	GLViewRW.hpp
@@ -57,6 +59,7 @@ SET(SrcFiles
     JointControlDialog.cpp 
     JogGroup.cpp
     RestingPoseDialog.cpp
+    GraspSelectionDialog.cpp
     GraspRestingPoseDialog.cpp
     SupportPoseAnalyserDialog.cpp
 	GLViewRW.cpp

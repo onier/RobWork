@@ -52,9 +52,9 @@
 #include <QtGui>
 #include <QTimer>
 
-class RWSimulatorPlugin: public RobWorkStudioPlugin {
+class RWSimulatorPlugin: public rws::RobWorkStudioPlugin {
 Q_OBJECT
-Q_INTERFACES( RobWorkStudioPlugin )
+Q_INTERFACES( rws::RobWorkStudioPlugin )
 public:
     RWSimulatorPlugin();
 
@@ -70,7 +70,7 @@ public:
 
     void open(const std::string& file);
 protected:
-	virtual void stateChangedHandler(RobWorkStudioPlugin* sender);
+	virtual void stateChangedHandler(rws::RobWorkStudioPlugin* sender);
 
 private slots:
     void open();

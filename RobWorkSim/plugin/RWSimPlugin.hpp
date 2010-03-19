@@ -44,10 +44,10 @@ struct UserContext {
  *
  *
  */
-class RWSimPlugin : public RobWorkStudioPlugin, private Ui::RWSimPlugin
+class RWSimPlugin : public rws::RobWorkStudioPlugin, private Ui::RWSimPlugin
     {
 		Q_OBJECT
-		Q_INTERFACES( RobWorkStudioPlugin )
+		Q_INTERFACES( rws::RobWorkStudioPlugin )
     public:
     	/**
     	 * @brief constructor
