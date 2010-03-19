@@ -295,26 +295,27 @@ void TactileArraySensor::addForce(const Vector3D<>& point,
     Contact3D c3d(_wTf*point,_wTf.R()*snormal,_wTf.R()*force);
     _allAccForces.push_back( c3d );
 
+    //std::cout << "3";
+    // remember to test if the force direction is in the negative z-direction of each texel
+    Vector3D<> f = _hmapTf.R() * force;
+
 
     // test if point lie in (+x,+y,+z) relative to the sensor base transform
     // though we give a little slack to allow forces on the boundary in
     Vector3D<> p = _hmapTf * point;
-    if(p(0)<-_texelSize(0) || p(1)<-_texelSize(1) || p(2)<-0.002){
+    if( /*p(0)<-_texelSize(0) || p(1)<-_texelSize(1) ||*/ p(2)<-0.002){
         //std::cout << "1pos wrong: " << p << std::endl;
         return;
     }
 
     //std::cout << "2";
     // and also if it lie inside the width and height of the grid
-    if(p(0)>(_w+1)*_texelSize(0) || p(1)>(_h+1)*_texelSize(1)){
+    //if(p(0)>(_w+1)*_texelSize(0) || p(1)>(_h+1)*_texelSize(1)){
         ////std::cout << "1pos wrong: " << p << std::endl;
-        return;
-    }
+    //    return;
+    //}
 
 
-    //std::cout << "3";
-    // remember to test if the force direction is in the negative z-direction of each texel
-    Vector3D<> f = _hmapTf.R() * force;
 
     // oki so we know that the force acts on the grid somewhere
     // now locate all at most 15 texels points within
@@ -336,6 +337,7 @@ void TactileArraySensor::addForce(const Vector3D<>& point,
     // so heres the point force...
     double forceVal = fabs( dot(f,normal) );
     double scaleSum = 0;
+
 
     // we save all forces until the update is called
     Contact3D con(point,snormal, force);
@@ -437,10 +439,10 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
     // surface is elastic. We do this by finding all point to point distances
     // between the two bodies.
     //std::cout << "Update tactile sensor array" << std::endl;
-
+	ValueMatrix lastpres = _pressure;
     for(size_t x=0; x<_pressure.size1(); x++){
         for(size_t y=0; y<_pressure.size2(); y++){
-        	_pressure(x,y) = 0;
+        	_pressure(x,y) = lastpres(x,y)*0.8;
         }
     }
 

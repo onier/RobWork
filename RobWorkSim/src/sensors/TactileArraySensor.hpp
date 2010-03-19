@@ -58,6 +58,8 @@ public:
      */
     boost::numeric::ublas::matrix<float> getTexelData()  const ;
 
+    void setTexelData(const boost::numeric::ublas::matrix<float>& data){_pressure = data;};
+
     /**
      * @copydoc TactileArray::getTexelSize
      */
