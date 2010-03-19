@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.6.0)
 
+CMAKE_POLICY(SET CMP0011 NEW)
+
 PROJECT(RobWorkSim)
 
 # Used to resolve absolute path names
