@@ -1,7 +1,7 @@
 #include "PluginRepository.hpp"
 
 #include <rw/common/IOUtil.hpp>
-#include <rw/common/Os.hpp>
+#include <rw/common/os.hpp>
 #include "DynamicLibraryLoader.hpp"
 
 #include <boost/foreach.hpp>
