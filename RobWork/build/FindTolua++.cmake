@@ -10,6 +10,10 @@
 
 MACRO (ADD_TOLUA_PACKAGE pkgname stubname)
 
+FIND_FILE(TOLUA_CMD_FULL_PATH ${TOLUA_CMD})
+
+MESSAGE("TOLUA CMD GET TO: ${TOLUA_CMD}")
+
 ADD_CUSTOM_COMMAND(
   # Because we are building in a temporary directory, we have to use absolute
   # paths here.
