@@ -11,9 +11,9 @@ SET(RW_ENABLE_ASSERT ON)
 SET(RW_ENABLE_CXX_FLAGS ON)
 
 # Enable building tests, examples and sandbox
-SET(RW_BUILD_TESTS ON)
-SET(RW_BUILD_EXAMPLES ON)
-SET(RW_BUILD_SANDBOX OFF)
+SET(RW_BUILD_TESTS OFF)
+SET(RW_BUILD_EXAMPLES OFF)
+SET(RW_BUILD_SANDBOX ON)
 
 # If you want to use the new Xerces based XML loader then set to ON. But make sure that
 # cmake is able to find the xerces include dir and lib dir
@@ -26,6 +26,14 @@ SET(BOOST_ROOT $ENV{BOOST_ROOT})
 SET(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib/") # if installed in non-standard dir
 SET(BOOST_INCLUDEDIR "${BOOST_ROOT}/include")
 
+# If you want to use Lua scripting then enable it    
+SET(USE_LUA ON)
+SET(LUA_INCLUDE_DIR "${RW_ROOT}/ext/lua/src/")
+SET(LUA_LIBRARY_DIR "${RW_ROOT}/libs/release/")
+SET(TOLUA_CMD "${RW_ROOT}/bin/release/tolua")
+SET(TOLUA_INCLUDE_DIR "${RW_ROOT}/ext/tolua/include/")
+SET(TOLUA_LIBRARY_DIR "${RW_ROOT}/libs/release/")
+
 # Specify if you want to enable the use of yaobi for collision detection
 SET(USE_YAOBI on)
 SET(YAOBI_INCLUDE_DIR "${RW_ROOT}/ext/yaobi")
@@ -36,31 +44,3 @@ SET(USE_PQP on)
 SET(PQP_INCLUDE_DIR "${RW_ROOT}/ext/PQP")
 #SET(PQP_LIBRARY_DIR "${RW_ROOT}/ext/PQP")
 
-#set(CMAKE_VERBOSE_MAKEFILE true)
-
-# By changing this variable you can *override* the default compile flags for
-# RobWork. 
-# SET(RW_CXX_FLAGS "-Wall")
-
-# You can add your own specific compile flags (without overriding RobWork
-# defaults) like this:
-# SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -fPIC -fmessage-length=0")
-
-# With Visual Studio maybe you want to add your own definitions
-# if (DEFINED MSVC)
-#   add_definitions(-D...)
-# endif ()
-
-# If you have optional libraries with include files outside of RobWork/ext/, you
-# can add paths to these directories like this:
-# list(APPEND CMAKE_REQUIRED_INCLUDES /path/to/somewhere)
-
-# Add files to the library using the predefined USER variables.
-# If you f.ex. want to add KDTree.cpp to sandbox library add the following
-#
-# SET(RW_SANDBOX_USER_FILES ${RW_SANDBOX_USER_FILES} KDTree.cpp)
-#
-# Other variables include RW_USER_FILES, RW_DRAWABLE_USER_FILES, etc.
-
-# Set compiler to Intel C++ computer (currently there is trouble with lua)
-# set(CMAKE_CXX_COMPILER icc
