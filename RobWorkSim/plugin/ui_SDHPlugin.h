@@ -1,10 +1,10 @@
 /********************************************************************************
-** Form generated from reading UI file 'SDHPlugin.ui'
+** Form generated from reading ui file 'SDHPlugin.ui'
 **
-** Created: Thu 28. Jan 14:04:54 2010
-**      by: Qt User Interface Compiler version 4.6.0
+** Created: Fri 19. Mar 15:49:55 2010
+**      by: Qt User Interface Compiler version 4.5.3
 **
-** WARNING! All changes made in this file will be lost when recompiling UI file!
+** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
 
 #ifndef UI_SDHPLUGIN_H
@@ -298,6 +298,7 @@ public:
         _resetBtn->setText(QApplication::translate("SDHPlugin", "...", 0, QApplication::UnicodeUTF8));
         _addTargetBtn->setText(QApplication::translate("SDHPlugin", "Add target", 0, QApplication::UnicodeUTF8));
         _moveTargetBtn->setText(QApplication::translate("SDHPlugin", "Move to target", 0, QApplication::UnicodeUTF8));
+        Q_UNUSED(SDHPlugin);
     } // retranslateUi
 
 };

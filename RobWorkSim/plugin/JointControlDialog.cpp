@@ -25,9 +25,9 @@ PosTab::PosTab(JointControllerPtr jcontroller, QWidget *parent)
 
    }
    {
-       QPushButton *button = new QPushButton(tr("Get q state"));
-       lay->addWidget(button,row++,0);
-       connect(button, SIGNAL(clicked()), this, SLOT(getQState()));
+       //QPushButton *button = new QPushButton(tr("Get q state"));
+       //lay->addWidget(button,row++,0);
+       //connect(button, SIGNAL(clicked()), this, SLOT(getQState()));
 
    }
 

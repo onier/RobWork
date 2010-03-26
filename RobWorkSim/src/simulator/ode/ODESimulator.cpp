@@ -28,6 +28,7 @@
 #include <sandbox/kinematics/FramePairMap.hpp>
 
 #include <rw/models/DependentRevoluteJoint.hpp>
+#include <rw/models/DependentPrismaticJoint.hpp>
 #include <rw/common/TimerUtil.hpp>
 
 #include "ODEKinematicDevice.hpp"
@@ -429,9 +430,10 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 		Log::errorLog() << "Caught exeption in step function!" << std::endl;
 	}
 
-/*	saveODEState();
+/*
+	saveODEState();
 	double dttmp = dt;
-	for(int i=0;i<4;i++){
+	for(int i=0;i<10;i++){
 		TIMING("Step: ", dWorldStep(_worldId, dttmp));
 		_allcontacts.clear();
 
@@ -439,12 +441,13 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 		TIMING("Collision: ", dSpaceCollide(_spaceId, this, &nearCallback) );
 		_allcontactsTmp = _allcontacts;
 
-		if(_maxPenetration<0.001 || i>2){
+		if(_maxPenetration<0.001 || i>4){
 			break;
 		}
 		dJointGroupEmpty(_contactGroupId);
 		// max penetration was then we step back to the last configuration and we try again
 		dttmp /= 2;
+		std::cout << "Timestep: "<< dttmp << std::endl;
 		restoreODEState();
 	}
 */
@@ -722,15 +725,21 @@ dBodyID ODESimulator::createFixedBody(Body* rwbody,
 
 namespace {
 	void EmptyMessageFunction(int errnum, const char *msg, va_list ap){
-
+		//char str[400];
+		//sprintf(str, msg, *ap);
+		Log::infoLog() << "ODE internal msg: errnum=" << errnum << " odemsg=\"" << msg<< "\"\n";
 	}
-
 
 	void ErrorMessageFunction(int errnum, const char *msg, va_list ap){
-		RW_THROW("ODE internal Error");
+		//char str[400];
+		//sprintf(str, msg, *ap);
+		RW_THROW("ODE internal Error: errnum=" << errnum << " odemsg=\"" <<  msg<< "\"");
 	}
+
 	void DebugMessageFunction(int errnum, const char *msg, va_list ap){
-		RW_THROW("ODE internal Debug");
+		//char str[400];
+		//sprintf(str, msg, *ap);
+		RW_THROW("ODE internal Debug: errnum=" << errnum << " odemsg=\"" <<  msg<< "\"");
 	}
 
 }
@@ -977,10 +986,7 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
                      //dJointSetAMotorParam(Amotor,dParamHiStop,0);
                      _allODEJoints.push_back(odeJoint);
                  } else if( PrismaticJoint *pjoint = dynamic_cast<PrismaticJoint*>(joint) ){
-                     std::cout  << "Slider constraint" << std::endl;
-
                      const double qinit = pjoint->getQ(initState)[0];
-
                      dJointID slider = dJointCreateSlider (_worldId, 0);
                      dJointAttach(slider, odeChild, odeParent);
                      dJointSetSliderAxis(slider, haxis(0) , haxis(1), haxis(2));
@@ -991,6 +997,7 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
                      dJointSetLMotorNumAxes(motor, 1);
                      dJointSetLMotorAxis(motor, 0, 1, haxis(0) , haxis(1), haxis(2));
                      //dJointSetLMotorAngle(motor,0, qinit);
+
                      dJointSetLMotorParam(motor,dParamFMax, maxForce(i) );
                      dJointSetLMotorParam(motor,dParamVel,0);
 
@@ -1001,8 +1008,36 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
                      odeJoints.push_back(odeJoint);
                      _allODEJoints.push_back(odeJoint);
 
-                 //} else if( dynamic_cast<DependentPrismaticJoint*>(joint) ) {
+                 } else if( dynamic_cast<DependentPrismaticJoint*>(joint) ) {
+                     RW_DEBUGS("DependentRevolute");
+                     DependentPrismaticJoint *pframe = dynamic_cast<DependentPrismaticJoint*>(joint);
+                     Joint *owner = &pframe->getOwner();
+                     const double qinit = owner->getQ(initState)[0]*pframe->getScale()+0;
 
+                     dJointID slider = dJointCreateSlider (_worldId, 0);
+                     dJointAttach(slider, odeChild, odeParent);
+                     dJointSetSliderAxis(slider, haxis(0) , haxis(1), haxis(2));
+                     //dJointSetHingeAnchor(hinge, hpos(0), hpos(1), hpos(2));
+
+                     dJointID motor = dJointCreateLMotor (_worldId, 0);
+                     dJointAttach(motor, odeChild, odeParent);
+                     dJointSetLMotorNumAxes(motor, 1);
+                     dJointSetLMotorAxis(motor, 0, 1, haxis(0) , haxis(1), haxis(2));
+                     //dJointSetAMotorAngle(motor,0, qinit);
+                     std::cout << "i:" << i << " mforce_len: " << maxForce.size() << std::endl;
+                     // TODO: should take the maxforce value of the owner joint
+                     dJointSetLMotorParam(motor,dParamFMax, 20  /*maxForce(i)*/ );
+                     dJointSetLMotorParam(motor,dParamVel,0);
+
+                     ODEJoint *odeOwner = _jointToODEJoint[owner];
+                     ODEJoint *odeJoint = new ODEJoint( ODEJoint::Prismatic, slider, motor, odeChild,
+                                                        odeOwner, pframe,
+                                                        pframe->getScale(), 0 );
+                     odeJoints.push_back(odeJoint);
+                     //dJointSetAMotorParam(Amotor,dParamLoStop,-0);
+                     //dJointSetAMotorParam(Amotor,dParamHiStop,0);
+
+                     _allODEJoints.push_back(odeJoint);
                  } else {
                      RW_WARN("Joint type not supported!");
                  }
@@ -1135,20 +1170,7 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
     	RW_WARN( "------- Too small collision buffer ------" );
     }
 
-
-    /*MultiDistanceResult result;
-    bool res = _narrowStrategy->getDistances(result,
-                                  frameA,wTa,
-                                  frameB,wTb,
-                                  _touchDist);
-    int numc = result.distances.size();
-
-    // if no contacts are detected then return
-    if( numc<=0)
-        return;
-*/
     RW_DEBUGS("- detected: " << frameB1->getName() << " " << frameB2->getName());
-
 
     // check if any of the bodies are actually sensors
     ODETactileSensor *odeSensorb1 = _odeBodyToSensor[b1];
@@ -1180,6 +1202,7 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
                                     &_rwClusteredContacts[0],
                                     threshold);
 
+    std::cout << "Threshold: " << threshold << " numc:" << numc << " fnumc:" << fnumc << std::endl;
     //RW_DEBUGS("Threshold: " << threshold << " numc:" << numc << " fnumc:" << fnumc);
     //RW_DEBUGS("Nr of average contact points in cluster: " << numc/((double)fnumc));
 
@@ -1233,18 +1256,24 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
     Vector3D<> cNormal(0,0,0);
     double maxPenetration = 0;
     // Run through all contacts and define contact constraints between them
-    for (int i = 0; i < fnumc; i++) {
-        ContactPoint &point = _rwClusteredContacts[i];
-//    for(int i=0;i<numc;i++){
-//        ContactPoint &point = _rwcontacts[i];
-        dContact &con = *((dContact*)point.userdata);
+
+    int num = numc;
+    if(numc>10)
+    	num = fnumc;
+    for (int i = 0; i < num; i++) {
+        ContactPoint *point;
+        if(numc>10)
+        	point = &_rwClusteredContacts[i];
+        else
+        	point = &_rwcontacts[i];
+        dContact &con = *((dContact*)point->userdata);
         //std::cout << point.n << "  " << point.p << "  " << point.penetration << std::endl;
-        cNormal += point.n;
-        ODEUtil::toODEVector(point.n, con.geom.normal);
-        ODEUtil::toODEVector(point.p, con.geom.pos);
-        con.geom.depth = point.penetration;
-        maxPenetration = std::max(point.penetration, maxPenetration);
-        _maxPenetration = std::max(point.penetration, _maxPenetration);
+        cNormal += point->n;
+        ODEUtil::toODEVector(point->n, con.geom.normal);
+        ODEUtil::toODEVector(point->p, con.geom.pos);
+        con.geom.depth = point->penetration;
+        maxPenetration = std::max(point->penetration, maxPenetration);
+        _maxPenetration = std::max(point->penetration, _maxPenetration);
 
 
 //    for(int i=0;i<numc; i++){
@@ -1272,6 +1301,7 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
             dJointSetFeedback( c, feedback );
         }
     }
+    std::cout << "_maxPenetration: " << _maxPenetration << " meter" << std::endl;
 
     if(enableFeedback && odeSensorb1){
         odeSensorb1->addFeedback(feedbacks, feedbackContacts, dataB2->getRwBody(), 0);

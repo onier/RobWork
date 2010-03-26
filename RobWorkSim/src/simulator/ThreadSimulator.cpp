@@ -112,7 +112,8 @@ void ThreadSimulator::stepperLoop(){
             running = _running;
             _simulator->step(_dt, _state);
         }
-        _stepcb(_state);
+        if(_stepcb!=NULL)
+        	_stepcb(_state);
         if( nextTime>time ){
             waitUntil(nextTime);
         } else {

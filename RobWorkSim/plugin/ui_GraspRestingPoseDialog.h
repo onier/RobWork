@@ -1,10 +1,10 @@
 /********************************************************************************
-** Form generated from reading UI file 'GraspRestingPoseDialog.ui'
+** Form generated from reading ui file 'GraspRestingPoseDialog.ui'
 **
-** Created: Thu 28. Jan 14:04:53 2010
-**      by: Qt User Interface Compiler version 4.6.0
+** Created: Fri 19. Mar 15:49:54 2010
+**      by: Qt User Interface Compiler version 4.5.3
 **
-** WARNING! All changes made in this file will be lost when recompiling UI file!
+** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
 
 #ifndef UI_GRASPRESTINGPOSEDIALOG_H
@@ -89,6 +89,10 @@ public:
     QLabel *label_16;
     QDoubleSpinBox *_minTimeValidSpin;
     QLabel *label_17;
+    QCheckBox *_inGroupsCheck;
+    QSpinBox *_groupSizeSpin;
+    QLabel *label_28;
+    QCheckBox *_fixedGroupBox;
     QLineEdit *_descBox;
     QGroupBox *groupBox_3;
     QComboBox *_graspPolicyBox;
@@ -270,6 +274,25 @@ public:
         label_27 = new QLabel(groupBox_5);
         label_27->setObjectName(QString::fromUtf8("label_27"));
         label_27->setGeometry(QRect(140, 140, 81, 16));
+        label_5->raise();
+        _lowRollSpin->raise();
+        _highRollSpin->raise();
+        _highPitchSpin->raise();
+        _lowPitchSpin->raise();
+        _lowYawSpin->raise();
+        _highYawSpin->raise();
+        label_6->raise();
+        label_7->raise();
+        label_8->raise();
+        label_9->raise();
+        label_10->raise();
+        _xSpinBox->raise();
+        _ySpinBox->raise();
+        _zSpinBox->raise();
+        _colFreeStart->raise();
+        _continuesLogging->raise();
+        _logIntervalSpin->raise();
+        label_27->raise();
 
         verticalLayout->addWidget(groupBox_5);
 
@@ -362,6 +385,22 @@ public:
         label_17 = new QLabel(groupBox_2);
         label_17->setObjectName(QString::fromUtf8("label_17"));
         label_17->setGeometry(QRect(10, 260, 101, 21));
+        _inGroupsCheck = new QCheckBox(groupBox_2);
+        _inGroupsCheck->setObjectName(QString::fromUtf8("_inGroupsCheck"));
+        _inGroupsCheck->setGeometry(QRect(10, 300, 161, 18));
+        _groupSizeSpin = new QSpinBox(groupBox_2);
+        _groupSizeSpin->setObjectName(QString::fromUtf8("_groupSizeSpin"));
+        _groupSizeSpin->setGeometry(QRect(70, 320, 51, 21));
+        _groupSizeSpin->setMinimum(2);
+        _groupSizeSpin->setMaximum(10000);
+        _groupSizeSpin->setSingleStep(1);
+        _groupSizeSpin->setValue(100);
+        label_28 = new QLabel(groupBox_2);
+        label_28->setObjectName(QString::fromUtf8("label_28"));
+        label_28->setGeometry(QRect(10, 320, 81, 16));
+        _fixedGroupBox = new QCheckBox(groupBox_2);
+        _fixedGroupBox->setObjectName(QString::fromUtf8("_fixedGroupBox"));
+        _fixedGroupBox->setGeometry(QRect(140, 320, 91, 18));
 
         horizontalLayout->addWidget(groupBox_2);
 
@@ -708,6 +747,9 @@ public:
 "criterias are evaluated.", 0, QApplication::UnicodeUTF8));
 #endif // QT_NO_TOOLTIP
         label_17->setText(QApplication::translate("GraspRestingPoseDialog", "Min time before valid", 0, QApplication::UnicodeUTF8));
+        _inGroupsCheck->setText(QApplication::translate("GraspRestingPoseDialog", "Generate grasps in groups", 0, QApplication::UnicodeUTF8));
+        label_28->setText(QApplication::translate("GraspRestingPoseDialog", "Group size: ", 0, QApplication::UnicodeUTF8));
+        _fixedGroupBox->setText(QApplication::translate("GraspRestingPoseDialog", "Use fixed step", 0, QApplication::UnicodeUTF8));
         _descBox->setText(QApplication::translate("GraspRestingPoseDialog", "#Descriction: ", 0, QApplication::UnicodeUTF8));
         groupBox_3->setTitle(QApplication::translate("GraspRestingPoseDialog", "Grasp control", 0, QApplication::UnicodeUTF8));
         label_23->setText(QApplication::translate("GraspRestingPoseDialog", "Grasp policy", 0, QApplication::UnicodeUTF8));
@@ -739,6 +781,7 @@ public:
         _scapeBtn->setText(QApplication::translate("GraspRestingPoseDialog", "Export Scape", 0, QApplication::UnicodeUTF8));
         _saveBtn1->setText(QApplication::translate("GraspRestingPoseDialog", "Save file", 0, QApplication::UnicodeUTF8));
         _exitBtn->setText(QApplication::translate("GraspRestingPoseDialog", "Exit", 0, QApplication::UnicodeUTF8));
+        Q_UNUSED(GraspRestingPoseDialog);
     } // retranslateUi
 
 };

@@ -223,9 +223,10 @@ JogGroup::JogGroup(
     layout->addWidget(new QLabel(""), 0, 3); // own _slider
 
     const std::pair<Q, Q>& bounds = device.getBounds();
+    std::cout << "Device bounds: "<< bounds.first << " " << bounds.second << std::endl;
     for (size_t i = 1; i < _n+1; i++) {
-        const double low = bounds.first(i);
-        const double high = bounds.second(i);
+        const double low = bounds.first(i-1);
+        const double high = bounds.second(i-1);
         JointLine* line = new JointLine(low, high, layout, i, this); // owned
 
         connect(line, SIGNAL(valueChanged()), this, SLOT(valueChanged()));

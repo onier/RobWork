@@ -93,7 +93,7 @@ GraspSelectionDialog::GraspSelectionDialog(const rw::kinematics::State& state,
     _graspTableSlider->setRange(0, 0);
     connect(_graspTableSlider,SIGNAL(valueChanged(int)), this, SLOT(changedEvent()) );
 
-    connect(_graspTableSlider,SIGNAL(stateChanged(int)),_graspSpin,SLOT(setValue(int)));
+    connect(_graspTableSlider,SIGNAL(valueChanged(int)),_graspSpin,SLOT(setValue(int)));
 
 
 
@@ -187,12 +187,12 @@ void GraspSelectionDialog::btnPressed(){
 
     } else if( obj == _searchBtn)  {
     	// TODO:
-    	std::string str = _searchEdit->text().toStdString();
+    	//std::string str = _searchEdit->text().toStdString();
 
     	//scanf("")
 
     	Q q(6);
-    	q(0) = 1;q(1) = 1;q(2) = 1;q(3) = -1; q(4) = 0;q(5) = 0;
+    	q(0) = 1;q(1) = 1;q(2) = 1;q(3) = -180*Deg2Rad; q(4) = 0;q(5) = 0;
     	GraspTable::GraspData *data = _kdtree->nnSearch(q).value;
     	setGraspState(*data,_state);
     	stateChanged(_state);
@@ -225,8 +225,11 @@ void GraspSelectionDialog::btnPressed(){
 
 void GraspSelectionDialog::setGraspState(GraspTable::GraspData& data, rw::kinematics::State &state){
 	_dev->setQ(data.cq,state);
-	_object->setTransform( data.op.toTransform3D(), state );
-	_handBase->setTransform(data.hp.toTransform3D(), state);
+	Transform3D<> hbTo = data.hp.toTransform3D();
+	Transform3D<> wTo = data.op.toTransform3D();
+
+	_object->setTransform( wTo, state );
+	_handBase->setTransform( wTo*inverse(hbTo), state);
 
 	TactileArraySensor *tsensor;
 	int j=0;
@@ -245,6 +248,12 @@ void GraspSelectionDialog::setGraspState(GraspTable::GraspData& data, rw::kinema
 	{
 		std::stringstream sstr; sstr << "Nr contacts: " << data.grasp.contacts.size();
 		_contactLbl->setText(sstr.str().c_str());
+	}
+	Transform3D<> oTh = inverse(data.op.toTransform3D())*data.hp.toTransform3D();
+	RPY<> rpy( oTh.R() );
+	{
+		std::stringstream sstr; sstr << "Pose: " << oTh.P() <<" "<< rpy;
+		_poseLbl->setText(sstr.str().c_str());
 	}
 }
 

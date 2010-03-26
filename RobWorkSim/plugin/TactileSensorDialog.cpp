@@ -39,6 +39,33 @@ using namespace rwlibs::simulation;
 
 namespace {
 
+	void calcMoments2D(matrix<float>& mat, double low_thres){
+        matrix<float> covar( zero_matrix<float>(2, 2) );
+        Vector2D<float> centroid(0,0);
+
+        //float totalval = 0;
+        // we only use triangle centers the vertices directly
+        for(size_t x=0; x<mat.size1();x++){
+        	for(size_t y=0; y<mat.size2(); y++){
+        		if(mat(x,y)>low_thres){
+        			Vector2D<float> val(x*mat(x,y),y*mat(x,y));
+        			centroid += val;
+                    for(size_t j=0;j<2;j++)
+                        for(size_t k=0;k<2;k++)
+                            covar(j,k) += val(j)*val(k);
+        		}
+        	}
+        }
+        const size_t n = mat.size1()*mat.size2();
+        for(size_t j=0;j<2;j++)
+            for(size_t k=0;k<2;k++)
+                covar(j,k) = covar(j,k)-centroid[j]*centroid[k]/n;
+
+        //typedef std::pair<ublas::matrix<T>,ublas::vector<T> > ResultType;
+        //std::cout << "COVAR: " << covar << std::endl;
+        //ResultType res = LinearAlgebra::eigenDecompositionSymmetric( covar );
+
+	}
 
 }
 
@@ -73,6 +100,9 @@ TactileSensorDialog::TactileSensorDialog(
     connect(_loadDataBtn, SIGNAL(pressed()), this, SLOT(btnPressed()));
     connect(_saveDataBtn, SIGNAL(pressed()), this, SLOT(btnPressed()));
 
+    connect(_uppBoundSpin,SIGNAL(valueChanged(double)), this, SLOT(changedEvent()) );
+    connect(_lowBoundSpin,SIGNAL(valueChanged(double)), this, SLOT(changedEvent()) );
+
     _gview->update();
 
     connect(_maxPressureSpin,SIGNAL(valueChanged(double)), this, SLOT(changedEvent()) );
@@ -104,6 +134,7 @@ void TactileSensorDialog::initTactileInput(){
                 //float val = data(x,y);
                 rectItems[x+y*w] = _scene->addRect(padOffsetY+y*rectH, padOffsetX+x*rectW, rectH, rectW);
                 rectItems[x+y*w]->setBrush(QBrush(QColor(0,0,254), Qt::SolidPattern) );
+                rectItems[x+y*w]->setZValue(5);
             }
         }
         padOffsetY += (int) ( h*rectH+4*rectH );
@@ -113,6 +144,12 @@ void TactileSensorDialog::initTactileInput(){
             maxWidth = 0;
         }
         _rectItems.push_back(rectItems);
+
+        // also add stuff to visualize center mass
+        QGraphicsEllipseItem *item = _scene->addEllipse(QRectF(0,0,5,5));
+        item->setBrush(QBrush(QColor(0,254,0), Qt::SolidPattern) );
+        item->setZValue(10);
+        _centerItems.push_back(item);
     }
     _maxPressureSpin->setMaximum(maxPressure);
     _maxPressureSpin->setValue(maxPressure);
@@ -150,6 +187,23 @@ void TactileSensorDialog::drawTactileInput(){
             }
         }
     }
+    // if features is enabled then we draw them as well
+    if( _centerOfMassBtn->isChecked() ){
+
+    	for(int i=0;i<_centers.size();i++){
+    		//std::cout << "center : " << _centers[i] << std::endl;
+    		// we need to map the coordinates into graphics view coordinates
+
+    		// we get the coordinate of the first texel in the view
+    		qreal offsetx = _rectItems[i][0]->rect().x();
+    		qreal offsety = _rectItems[i][0]->rect().y();
+    		std::cout << offsetx << " " <<  offsety << std::endl;
+    		// 10 is the width of the tactile sensors so we use that
+    		_centerItems[i]->setPos(_centers[i](1)*10+2.5+offsetx,_centers[i](0)*10+2.5+offsety);
+    		std::cout << "Pos: " << _centers[i](1)*10+5+offsetx << " " << _centers[i](0)*10+5+offsety << std::endl;
+    	}
+    }
+
     _gview->update();
     /*
     matrix<float> data = _tsensors[0]->getTexelData();
@@ -237,6 +291,14 @@ void TactileSensorDialog::changedEvent(){
     QObject *obj = sender();
     if( obj == _maxPressureSpin ){
         drawTactileInput();
+    } else if(obj == _lowBoundSpin){
+    	if(_lowBoundSpin->value()>_uppBoundSpin->value()){
+    		_uppBoundSpin->setValue(_lowBoundSpin->value());
+    	}
+    } else if(obj == _uppBoundSpin){
+    	if(_lowBoundSpin->value()>_uppBoundSpin->value()){
+    		_lowBoundSpin->setValue(_uppBoundSpin->value());
+    	}
     }
 }
 
@@ -245,6 +307,9 @@ void TactileSensorDialog::updateState(){
     BOOST_FOREACH(TactileArraySensor *sensor, _tsensors){
         _values.push_back(sensor->getTexelData());
     }
+    // now detect features in the tactile images enabled
+    detectFeatures();
+
     drawTactileInput();
     if(_saveCheckBox->isChecked()){
         Frame *world = _dwc->getWorkcell()->getWorldFrame();
@@ -259,3 +324,54 @@ void TactileSensorDialog::updateState(){
         img.save(sstr.str().c_str());
     }
 }
+
+void TactileSensorDialog::detectFeatures(){
+	if( _centerOfMassBtn->isChecked() ){
+		detectCenterMass();
+	}
+}
+
+void TactileSensorDialog::detectCenterMass(){
+	// we run through all sensors and for each texel we calculate the center of mass
+	_centers.clear();
+	const int low_thres = _lowBoundSpin->value();
+	const int upp_thres = _uppBoundSpin->value();
+	BOOST_FOREACH(matrix<float>& mat, _values){
+        size_t w = mat.size1();
+        size_t h = mat.size2();
+
+        double nrOfVals = 0;
+        double totalValue = 0;
+        double x=0,y=0;
+        for(int i=0;i<w;i++){
+            for(int j=0;j<h;j++){
+            	if(low_thres<=mat(i,j) && mat(i,j)<=upp_thres){
+            		nrOfVals++;
+            		totalValue += mat(i,j);
+            		x += i*mat(i,j);
+            		y += j*mat(i,j);
+            	}
+            }
+        }
+        if(totalValue>0){
+        	x /= totalValue;
+        	y /= totalValue;
+        } else {
+        	x=-5; y=-5;
+        }
+        _centers.push_back(Vector2D<>(x,y));
+	}
+}
+
+void TactileSensorDialog::zoomIn() { _gview->scale(1.2, 1.2); }
+void TactileSensorDialog::zoomOut() { _gview->scale(1 / 1.2, 1 / 1.2); }
+void TactileSensorDialog::rotateLeft() { _gview->rotate(-10); }
+void TactileSensorDialog::rotateRight() { _gview->rotate(10); }
+void TactileSensorDialog::wheelEvent(QWheelEvent* event)
+{
+   qreal factor = 1.2;
+   if (event->delta() < 0)
+     factor = 1.0 / factor;
+   _gview->scale(factor, factor);
+}
+

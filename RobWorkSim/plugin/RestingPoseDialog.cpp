@@ -134,6 +134,7 @@ void RestingPoseDialog::btnPressed(){
         // initialize
         if( isStart )
             initializeStart();
+
         _timer->start();
 
         Log::infoLog() << "Resting pose calculation started: " << std::endl
@@ -212,6 +213,7 @@ void RestingPoseDialog::updateStatus(){
     State state;
     int nrOfTestsOld = _nrOfTests;
     for(size_t i=0;i<_simulators.size(); i++){
+
         Ptr<ThreadSimulator> sim = _simulators[i];
 
         if(!sim->isRunning() && _nrOfTests>=_nrOfTestsSpin->value()){
@@ -251,10 +253,8 @@ void RestingPoseDialog::updateStatus(){
         if(!allBelowThres || time<_minTimeValidSpin->value())
             _lastBelowThresUpdate = time;
 
-
         if(i==0)
             _state = state;
-
 
         if( time-_lastBelowThresUpdate >  _minRestTimeSpin->value() ){
             // one simulation has finished...
@@ -345,12 +345,13 @@ void RestingPoseDialog::updateStatus(){
 
     // and last signal that workcell state has changed if user request it
     if(_forceUpdateCheck->isChecked())
-        stateChanged(state);
+        stateChanged(_state);
 
     if( _nrOfTests>=_nrOfTestsSpin->value() ){
         _stopBtn->click();
         return;
     }
+
 }
 void RestingPoseDialog::calcColFreeRandomCfg(rw::kinematics::State& state){
     //std::cout << "-------- Col free collision: " << std::endl;

@@ -537,7 +537,7 @@ namespace
             }
             jIdx++;
         }
-        if(bodies.size()!=device->getDOF()){
+        if(bodies.size()!=device->getJoints().size()){
         	RW_THROW("Parser error - All joints of a RigidDevice must be specified!");
         }
         if( !base ){

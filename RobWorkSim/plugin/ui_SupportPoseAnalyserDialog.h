@@ -1,10 +1,10 @@
 /********************************************************************************
-** Form generated from reading UI file 'SupportPoseAnalyserDialog.ui'
+** Form generated from reading ui file 'SupportPoseAnalyserDialog.ui'
 **
-** Created: Thu 28. Jan 14:04:54 2010
-**      by: Qt User Interface Compiler version 4.6.0
+** Created: Fri 19. Mar 15:49:54 2010
+**      by: Qt User Interface Compiler version 4.5.3
 **
-** WARNING! All changes made in this file will be lost when recompiling UI file!
+** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
 
 #ifndef UI_SUPPORTPOSEANALYSERDIALOG_H
@@ -431,6 +431,7 @@ public:
         _drawPointsBox->setText(QApplication::translate("SupportPoseAnalyserDialog", "Draw points", 0, QApplication::UnicodeUTF8));
         _drawCirclesBox->setText(QApplication::translate("SupportPoseAnalyserDialog", "Draw circles", 0, QApplication::UnicodeUTF8));
         _drawStartPosesBox->setText(QApplication::translate("SupportPoseAnalyserDialog", "Draw start poses", 0, QApplication::UnicodeUTF8));
+        Q_UNUSED(SupportPoseAnalyserDialog);
     } // retranslateUi
 
 };

@@ -354,6 +354,8 @@ void GraspRestingPoseDialog::initializeStart(){
     _nrOfTestsOld = 0;
     _fingersInContact.clear();
     _currentPreshapeIDX.clear();;
+    _lastTableBackupCnt = 0;
+    _tactileDataOnAllCnt=0;
 
     // if the designated directory for saving the output does not exist, then create it
     bfs::create_directory( bfs::path(_savePath->text().toStdString()) );
@@ -517,6 +519,7 @@ void GraspRestingPoseDialog::initializeStart(){
         tsim->setStepCallBack( cb );
         _simulators.push_back( ownedPtr( tsim ) );
         tsim->setPeriodMs(0);
+        tsim->setTimeStep(0.001);
         RW_DEBUGS("-- Calc random cfg " << i);
         calcRandomCfg(state);
         _initStates.push_back(state);
@@ -585,40 +588,52 @@ void GraspRestingPoseDialog::stepCallBack(int i, const rw::kinematics::State& st
     // record the tactile stuff if enabled
     int fingersWithData = 0;
     std::vector<matrix<float> > datas;
+
+
+    // save tactile data
+    std::vector<SimulatedSensorPtr> sensors = sim->getSensors();
+    std::vector<std::vector<Contact3D> > tactileContacts;
+    BOOST_FOREACH(SimulatedSensorPtr& sensor, sensors){
+        if( TactileArraySensor *tsensor = dynamic_cast<TactileArraySensor*>( sensor.get() ) ) {
+            datas.push_back( tsensor->getTexelData() );
+
+            float sum = 0;
+            // we require samples on at least two of the fingers
+            for(int i=0; i<datas.back().size1(); i++)
+                for(int j=0; j<datas.back().size2(); j++)
+                	if(datas.back()(i,j)>500)
+                		sum += datas.back()(i,j);
+            if( sum>1 ){
+            	tactileContacts.push_back(tsensor->getActualContacts());
+                fingersWithData++;
+            }
+
+        }
+    }
+
+    if( fingersWithData>0 ){
+    	_tactileDataOnAllCnt++;
+    } else {
+    	_tactileDataOnAllCnt =0;
+    }
+
     if( _continuesLogging->isChecked() ){
 
-        // save tactile data
-        std::vector<SimulatedSensorPtr> sensors = sim->getSensors();
-
-        BOOST_FOREACH(SimulatedSensorPtr& sensor, sensors){
-            if( TactileArraySensor *tsensor = dynamic_cast<TactileArraySensor*>( sensor.get() ) ) {
-                datas.push_back( tsensor->getTexelData() );
-
-                float sum = 0;
-                // we require samples on at least two of the fingers
-                for(int i=0; i<datas.back().size1(); i++)
-                    for(int j=0; j<datas.back().size2(); j++)
-                        sum += datas.back()(i,j);
-                if( sum>1 ){
-                    fingersWithData++;
-                }
+        if( fingersWithData>0 ){
+            _fingersInContact[i] = true;
+        } else {
+            if( _fingersInContact[i] ){
+                _tactiledatas[i].clear();
+                _handconfigs[i].clear();
+                _fingersInContact[i] = false;
             }
         }
-    }
-    if( fingersWithData>0 ){
-        _fingersInContact[i] = true;
-    } else {
-        if( _fingersInContact[i] ){
-            _tactiledatas[i].clear();
-            _handconfigs[i].clear();
-            _fingersInContact[i] = false;
+        if(_fingersInContact[i]){
+            _tactiledatas[i].push_back(datas);
+            // save configuration
+            _handconfigs[i].push_back(_hand->getModel().getQ(state));
         }
-    }
 
-    if(_fingersInContact[i]){
-        _tactiledatas[i].push_back(datas);
-        // save configuration
-        _handconfigs[i].push_back(_hand->getModel().getQ(state));
     }
 
     bool isSimFinished = isSimulationFinished(sim, state);
@@ -635,9 +650,9 @@ void GraspRestingPoseDialog::stepCallBack(int i, const rw::kinematics::State& st
     if(i==0)
         _state = state;
     bool dataValid = false;
-    if( time-_lastBelowThresUpdate >  _minRestTimeSpin->value() ){
+    if( time-_lastBelowThresUpdate >  _minRestTimeSpin->value() || _tactileDataOnAllCnt>50){
         // one simulation has finished...
-
+    	_tactileDataOnAllCnt = 0;
         {
             int simidx = i;
             // calculate grasp quality
@@ -663,12 +678,29 @@ void GraspRestingPoseDialog::stepCallBack(int i, const rw::kinematics::State& st
             }
 
             Frame *world = _dwc->getWorkcell()->getWorldFrame();
-            Transform3D<> t3d = Kinematics::worldTframe(_handBase, state);
-            Transform3D<> t3dObject = Kinematics::worldTframe(_object, state);
-            Vector3D<> approach = Kinematics::worldTframe(_handBase, state).R() * Vector3D<>(0,0,1);
+            Transform3D<> wThb = Kinematics::worldTframe(_handBase, state);
+            Transform3D<> hbTw = inverse(wThb);
+            Transform3D<> wTo = Kinematics::worldTframe(_object, state);
+
+            Transform3D<> hpTo = inverse(wThb)*wTo;
+
+            Vector3D<> approach = hpTo * Vector3D<>(0,0,1);
             GraspTable::GraspData data;
-            data.hp = Pose6D<>( t3d );
-            data.op = Pose6D<>( t3dObject );
+
+            // all contacts are in world coordinates. Transform them...
+            BOOST_FOREACH(std::vector<Contact3D>& convec, tactileContacts){
+            	for(int i=0;i<convec.size();i++){
+            		Contact3D &con = convec[i];
+            		//_wTf*point,_wTf.R()*snormal,_wTf.R()*force
+            		con.p = hbTw*con.p;
+            		con.n = hbTw.R()*con.n;
+            		con.f = hbTw.R()*con.f;
+            	}
+            }
+            data.tactileContacts = tactileContacts;
+
+            data.hp = Pose6D<>( hpTo );
+            data.op = Pose6D<>( wTo );
             data.approach = approach;
             data.cq = _hand->getModel().getQ(state);
             data.pq = _preshapes[_currentPreshapeIDX[simidx]];
@@ -677,13 +709,22 @@ void GraspRestingPoseDialog::stepCallBack(int i, const rw::kinematics::State& st
 
             data.quality = qualities;
             data.grasp = g3d;
-            if( _nrOfGraspsInGroup==1 && ( qualities(0)<0.1 || qualities(1)<=0 || qualities(2)<=0) ){
+            if( _nrOfGraspsInGroup==1 && ( qualities(0)<0.1 || qualities(1)<=0 || qualities(2)<=0.1 || fingersWithData<3) ){
             	_nrOfGraspsInGroup = 0;
             	dataValid = false;
-            } else {
+            } else if(_nrOfGraspsInGroup>0){
             	dataValid = true;
             	_gtable.addGrasp(data);
             	_nrOfTests++;
+
+            	if(_nrOfTests-_lastTableBackupCnt>100){
+                	std::string str = _savePath->text().toStdString();
+                	std::stringstream sstr;
+                	sstr << str << "/" << "grasptablefile" << _nrOfTests << ".txt";
+                	_gtable.save(sstr.str());
+                	_lastTableBackupCnt = _nrOfTests;
+            	}
+
             }
         	_totalSimTime += time;
         }
@@ -701,43 +742,83 @@ void GraspRestingPoseDialog::stepCallBack(int i, const rw::kinematics::State& st
         // recalc random start configurations and reset the simulator
         State nstate;
         _nextTimeUpdate[i] = 0;
+        Q target = _target;
+        Q preshape = _preshape;
     	if( _inGroupsCheck->isChecked()){
-    		if(_nrOfGraspsInGroup == 0){
+    		if(_nrOfGraspsInGroup == 0 || _nrOfGraspsInGroup==_groupSizeSpin->value()){
     			// generate a new random grasp
         		nstate = _defstate;
                 _currentPreshapeIDX[i] = Math::ranI(0,_preshapes.size());
+                _preshape = _preshapes[_currentPreshapeIDX[i]];
+                _target = _targetQ[_currentPreshapeIDX[i]];
+                target = _target;
+                preshape = _preshape;
+
                 calcRandomCfg(nstate);
     			// and make sure to save
-
-                _nrOfGraspsInGroup++;
+                _nrOfGraspsInGroup = 1;
     			_initStates[i] = nstate;
     		} else {
     			// calculate a pose of the hand that is very close to the previous
+    			if(_nrOfGraspsInGroup==1){
+    				_objTransform = _object->getTransform(state);
+    				_preshape = _hand->getQ(state);
+    				_target = _hand->getQ(state);
+    			}
     			nstate = _initStates[i];
     			Vector3D<> pos(0,0,0);
     			RPY<> rpy(0,0,0);
     			Q qtmp = Q::zero(6);
     			if( _fixedGroupBox->isChecked() ){
-        			double devi = 0.010; //
+        			double devi = 0.005; //
         			if(_nrOfGraspsInGroup-1>5)
         				devi = Pi/90.0;
         			if(_nrOfGraspsInGroup-1&0x1)
         				devi = -devi;
-        			std::cout << (int)floor((_nrOfGraspsInGroup-1)/2) << std::endl;
-        			qtmp( (int)floor((_nrOfGraspsInGroup-1)/2) ) = devi;
+
+
+        			std::cout << (int)floor(_nrOfGraspsInGroup/2.0-0.1) << std::endl;
+        			qtmp( (int)floor(_nrOfGraspsInGroup/2.0-0.1) ) = devi;
+
     			} else {
-        			Q q_p(3,0.01); // 10 mm, pos
+        			Q q_p(3,0.005); // 10 mm, pos
         			Q q_r(3, Pi/90.0); //
         			Q q_pr = concat(q_p,q_r);
         			Q qd = Math::ranQ(-q_pr, q_pr);
         			qtmp = qd;
     			}
+    			_object->setTransform(_objTransform,nstate);
     			pos = Vector3D<>(qtmp(0),qtmp(1),qtmp(2));
     			rpy = RPY<>(qtmp(3),qtmp(4),qtmp(5));
+    	        target = _target;
+    	        preshape = _preshape;
+
+    			// we set the target and preshape of the hand such that
+    			// the fingers close approximately at the same point again
+    			//preshape = _hand->getQ(state);
+    			//target = _hand->getQ(state);
+
+    			preshape(0) -= 30*Deg2Rad;
+    			//preshape(1) -= 30*Deg2Rad;
+    			//preshape(2) -= 30*Deg2Rad;
+    			preshape(3) -= 30*Deg2Rad;
+    			//preshape(4) -= 30*Deg2Rad;
+    			//preshape(5) -= 30*Deg2Rad;
+    			preshape(6) -= 30*Deg2Rad;
+    			//preshape(7) -= 30*Deg2Rad;
+
+    			target(0) += 2*Deg2Rad;
+    			//target(1) += 5*Deg2Rad;
+    			//preshape(2) += 5*Deg2Rad;
+    			target(3) += 2*Deg2Rad;
+    			//target(4) += 5*Deg2Rad;
+    			//preshape(5) -= 30*Deg2Rad;
+    			target(6) += 2*Deg2Rad;
+    			//target(7) += 5*Deg2Rad;
 
 
-    			Transform3D<> t3d = _handBase->getTransform(nstate);
-    			_handBase->setTransform( Transform3D<>(pos,rpy.toRotation3D())*t3d , nstate);
+    			Transform3D<> wThb = _handBase->getTransform(nstate);
+    			_handBase->setTransform( wThb*Transform3D<>(pos,rpy.toRotation3D()) , nstate);
 
     			_nrOfGraspsInGroup++;
     			if(_nrOfGraspsInGroup>_groupSizeSpin->value())
@@ -748,12 +829,14 @@ void GraspRestingPoseDialog::stepCallBack(int i, const rw::kinematics::State& st
 
     		nstate = _defstate;
             _currentPreshapeIDX[i] = Math::ranI(0,_preshapes.size());
+            preshape = _preshapes[_currentPreshapeIDX[i]];
+            target = _targetQ[_currentPreshapeIDX[i]];
             calcRandomCfg(nstate);
             _initStates[i] = nstate;
     	}
 
-        _hand->getModel().setQ(_preshapes[_currentPreshapeIDX[i]], nstate);
-        _controllers[i]->setTargetPos(_targetQ[_currentPreshapeIDX[i]] );
+        _hand->getModel().setQ(preshape, nstate);
+        _controllers[i]->setTargetPos( target );
         _fingersInContact[i] = false;
 
         tsim->setState(nstate);
@@ -879,7 +962,7 @@ void GraspRestingPoseDialog::changedEvent(){
         }
     } else if(obj == _fixedGroupBox){
     	if( _fixedGroupBox->isChecked()){
-    		_groupSizeSpin->setValue(12);
+    		_groupSizeSpin->setValue(13);
     		_groupSizeSpin->setEnabled(false);
     	} else {
     		_groupSizeSpin->setEnabled(true);
@@ -1219,7 +1302,7 @@ void GraspRestingPoseDialog::calcRandomCfg(std::vector<RigidBody*> &bodies, rw::
 		Rotation3D<> hR = RPY<>(Math::ran(-Pi/2,Pi/2),
 								Math::ran(-Pi/2,Pi/2),
 								Math::ran(-Pi/2,Pi/2)).toRotation3D()/* * bTo.R()*/;
-
+		hR = rrot;
 
 		Transform3D<> oTb_n = Transform3D<>(Vector3D<>(0,0,0),hR) * inverse(bTo);
 		Transform3D<> wTb_n = wTo*oTb_n;

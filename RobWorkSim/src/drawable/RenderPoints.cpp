@@ -9,7 +9,10 @@ using namespace rw::kinematics;
 using namespace rw::math;
 using namespace rwlibs::drawable;
 
-RenderPoints::RenderPoints(){}
+RenderPoints::RenderPoints(){
+	_sphereObj = gluNewQuadric();
+}
+
 RenderPoints::~RenderPoints(){}
 
 void RenderPoints::addPoints(const std::vector<rw::math::Vector3D<> >& points){
@@ -32,10 +35,26 @@ void RenderPoints::clear(){
 }
 
 void RenderPoints::draw(DrawType type, double alpha) const {
-	glColor3fv(_color);
-	glBegin(GL_POINTS);
-	BOOST_FOREACH(const Vector3D<> &p, _points){
-		glVertex3f( (float)p(0), (float)p(1), (float)p(2) );
-	}
-	glEnd( );
+	//glColor3fv(_color);
+	//glPointSize(100.0f);
+	//glBegin(GL_POINTS);
+
+	// Save and restore the color so that everything doesn't turn red.
+    glPushAttrib(GL_CURRENT_BIT);
+    {
+        glPushMatrix();
+        glColor3fv(_color);
+        BOOST_FOREACH(const Vector3D<> &p, _points){
+        	glTranslatef((float)p(0), (float)p(1), (float)p(2));
+        	gluSphere(_sphereObj, 0.01, 3, 3);
+        	glTranslatef((float)-p(0), (float)-p(1), (float)-p(2));
+        }
+        glPopMatrix();
+    }
+    glPopAttrib();
+
+	//BOOST_FOREACH(const Vector3D<> &p, _points){
+	//	glVertex3f( (float)p(0), (float)p(1), (float)p(2) );
+	//}
+	//glEnd( );
 }

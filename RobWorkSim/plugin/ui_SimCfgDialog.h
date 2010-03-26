@@ -1,10 +1,10 @@
 /********************************************************************************
-** Form generated from reading UI file 'SimCfgDialog.ui'
+** Form generated from reading ui file 'SimCfgDialog.ui'
 **
-** Created: Thu 28. Jan 14:04:54 2010
-**      by: Qt User Interface Compiler version 4.6.0
+** Created: Fri 19. Mar 15:49:55 2010
+**      by: Qt User Interface Compiler version 4.5.3
 **
-** WARNING! All changes made in this file will be lost when recompiling UI file!
+** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
 
 #ifndef UI_SIMCFGDIALOG_H
@@ -116,6 +116,7 @@ public:
         _tabPane->setTabText(_tabPane->indexOf(RWPhysics), QApplication::translate("SimCfgDialog", "RWPhysics", 0, QApplication::UnicodeUTF8));
         _applyBtn->setText(QApplication::translate("SimCfgDialog", "Apply", 0, QApplication::UnicodeUTF8));
         _cancelBtn->setText(QApplication::translate("SimCfgDialog", "Cancel", 0, QApplication::UnicodeUTF8));
+        Q_UNUSED(SimCfgDialog);
     } // retranslateUi
 
 };

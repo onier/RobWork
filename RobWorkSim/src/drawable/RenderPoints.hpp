@@ -29,6 +29,7 @@ public:
 
 	virtual void draw(DrawType type, double alpha) const;
 private:
+	GLUquadricObj* _sphereObj;
 	std::vector<rw::math::Vector3D<> > _points;
 	float _color[3];
 };

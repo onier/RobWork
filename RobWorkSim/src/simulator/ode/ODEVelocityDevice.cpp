@@ -55,19 +55,37 @@ void ODEVelocityDevice::reset(rw::kinematics::State& state){
         _odeJoints[i]->reset(state);
     }
 }
+namespace {
+	int sign(double val){
+		if(val<0)
+			return -1;
+		return 1;
+	}
+}
 
 
 void ODEVelocityDevice::update(double dt, rw::kinematics::State& state){
     rw::math::Q velQ = _rdev->getVelocity(state);
+    rw::math::Q accLim = _rdev->getModel().getAccelerationLimits();
     int qi=0;
     for(size_t i = 0; i<_odeJoints.size(); i++){
         // dependend joints need to be handled separately
         if(_odeJoints[i]->getType()==ODEJoint::DEPEND){
             continue;
         }
-        _odeJoints[i]->setVelocity( velQ(qi) );
+        //TODO: make sure to stay within the actual acceleration limits
+        double vel = velQ(qi);
+        /*double avel = _odeJoints[i]->getActualVelocity();
+        double acc = (vel-avel)/dt;
+        std::cout << avel << ",";
+        if( fabs(acc)>accLim(qi) )
+        	acc = sign(acc)*accLim(qi);
+        vel = acc*dt+avel;
+        std::cout << accLim(qi) << ",";*/
+        _odeJoints[i]->setVelocity( vel );
         qi++;
     }
+    std::cout << std::endl;
 
     // we now handle the dependent joints
     for(size_t i = 0; i<_odeJoints.size(); i++){
@@ -78,17 +96,23 @@ void ODEVelocityDevice::update(double dt, rw::kinematics::State& state){
             double s = _odeJoints[i]->getScale();
             double off = _odeJoints[i]->getOffset();
 
-            /*          double v = _odeJoints[i]->getVelocity();
+
+            double v = _odeJoints[i]->getVelocity();
             double a = _odeJoints[i]->getAngle();
 
-            if( fabs(v)<fabs(ov) ){
-                ov = (a + v*dt - s*oa - off)/dt;
-                _odeJoints[i]->getOwner()->setVelocity
-            }
+            // the dependent joint need to be controlled such that the position/angle
+            // in the next timestep will match that of the other joint
 
-*/          std::cout << "Owner angle: " << oa << " " << s << std::endl;
-            //_odeJoints[i]->setAngle(oa*s+off);
-            _odeJoints[i]->setVelocity(ov*s);
+            // so first we look at the current position error. This should be
+            // cancelled by adding a velocity
+            double aerr  = (oa*s+off)-a;
+            double averr = aerr/dt; // velocity that will cancel the error
+
+            // now we add the velocity that we expect the joint to have
+            averr += ov*s;
+
+            _odeJoints[i]->setVelocity(averr);
+
         }
     }
 }
@@ -109,7 +133,7 @@ void ODEVelocityDevice::postUpdate(rw::kinematics::State& state){
             double diff = fabs( velQ(qi) );
             if( diff>0.00001 ){
                 //diff = std::max(0.1,diff)*10;
-                _odeJoints[i]->setMaxForce( _maxForce(i)*2);
+                _odeJoints[i]->setMaxForce( _maxForce(i)*1.5);
             }
         } else {
             _odeJoints[i]->setMaxForce( _maxForce(i) );
@@ -119,6 +143,7 @@ void ODEVelocityDevice::postUpdate(rw::kinematics::State& state){
         qi++;
     }
     //std::cout  << "q without offset: " << q << std::endl;
+    //std::cout  << "Actual vel: " << actualVel << std::endl;
     _rdev->getModel().setQ(q, state);
     _rdev->setActualVelocity(actualVel, state);
 }

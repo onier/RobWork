@@ -20,9 +20,7 @@ class JointControlDialog : public QDialog
 public:
     JointControlDialog(JointControllerPtr jcontroller, QWidget *parent = 0);
 
-    virtual ~JointControlDialog(){
-        std::cout << "*********************** JOINT DIALOG DESTRUCT" << std::endl;
-    }
+    virtual ~JointControlDialog(){}
 
 private:
     QTabWidget *tabWidget;

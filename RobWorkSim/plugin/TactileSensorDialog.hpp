@@ -21,7 +21,7 @@
 #include <simulator/ThreadSimulator.hpp>
 #include <sensors/TactileArraySensor.hpp>
 #include <rw/kinematics/FrameMap.hpp>
-
+#include <rw/math.hpp>
 #include <util/MovingAverage.hpp>
 
 #include <rw/proximity/CollisionDetector.hpp>
@@ -36,7 +36,7 @@
  *
  *
  */
-class TactileSensorDialog : public QDialog, private Ui::TactileSensorDialog
+class TactileSensorDialog : public QDialog, public Ui::TactileSensorDialog
     {
         Q_OBJECT
 
@@ -47,16 +47,27 @@ class TactileSensorDialog : public QDialog, private Ui::TactileSensorDialog
 
         void drawTactileInput();
 
+        void detectFeatures();
+
     signals:
+
+
+    public slots:
+        void zoomIn();
+        void zoomOut();
+        void rotateLeft();
+        void rotateRight();
+        void wheelEvent(QWheelEvent* event);
 
     private slots:
         void btnPressed();
         void changedEvent();
         void updateState();
 
+
     private:
         void initTactileInput();
-
+        void detectCenterMass();
 
     private:
         Ui::TactileSensorDialog _ui;
@@ -67,9 +78,10 @@ class TactileSensorDialog : public QDialog, private Ui::TactileSensorDialog
         QGraphicsScene *_scene;
 
         std::vector< std::vector<QGraphicsRectItem*> > _rectItems;
+        std::vector<QGraphicsEllipseItem*> _centerItems;
         int _w;
         int _h;
-
+        std::vector< rw::math::Vector2D<> > _centers;
         int _nrOfPadsH;
 
 };

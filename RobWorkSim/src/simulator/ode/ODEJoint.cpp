@@ -47,6 +47,7 @@ ODEJoint::ODEJoint(
          rw::kinematics::Frame *bframe,
          double scale,
          double off):
+			 _jtype(jtype),
              _jointId(odeJoint),
              _motorId(odeMotor),
              _bodyId(body),

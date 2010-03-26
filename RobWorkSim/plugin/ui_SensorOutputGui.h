@@ -1,10 +1,10 @@
 /********************************************************************************
-** Form generated from reading UI file 'SensorOutputGui.ui'
+** Form generated from reading ui file 'SensorOutputGui.ui'
 **
-** Created: Thu 28. Jan 14:04:54 2010
-**      by: Qt User Interface Compiler version 4.6.0
+** Created: Fri 19. Mar 15:49:55 2010
+**      by: Qt User Interface Compiler version 4.5.3
 **
-** WARNING! All changes made in this file will be lost when recompiling UI file!
+** WARNING! All changes made in this file will be lost when recompiling ui file!
 ********************************************************************************/
 
 #ifndef UI_SENSOROUTPUTGUI_H
@@ -88,6 +88,7 @@ public:
         SensorOutputGui->setWindowTitle(QApplication::translate("SensorOutputGui", "Form", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("SensorOutputGui", "Tab 1", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("SensorOutputGui", "Tab 2", 0, QApplication::UnicodeUTF8));
+        Q_UNUSED(SensorOutputGui);
     } // retranslateUi
 
 };
