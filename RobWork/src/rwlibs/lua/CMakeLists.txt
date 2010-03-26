@@ -1,7 +1,8 @@
 FIND_PACKAGE(Tolua++)
 
 SET(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
-MESSAGE("SRC_DIR: ${SRC_DIR}") 
+MESSAGE("SRC_DIR: ${SRC_DIR}")
+MESSAGE("TOLUA_CMD: ${SRC_DIR}")  
 MACRO (ADD_TOLUA_PACKAGE1 pkgname stubname)
 ADD_CUSTOM_COMMAND(
   # Because we are building in a temporary directory, we have to use absolute
