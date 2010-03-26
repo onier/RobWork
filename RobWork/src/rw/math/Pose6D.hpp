@@ -111,6 +111,10 @@ namespace rw { namespace math {
                 return _orientation.axis()(i-3)*_orientation.angle();
         }
 
+        EAA<T> getEAA() const{
+        	return _orientation;
+        }
+
         /**
          * @brief Returns the \f$i\f$'th element in the pose.
          *

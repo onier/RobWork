@@ -36,6 +36,7 @@ public:
     std::vector<rw::math::Vector3D<> > approach;
     rw::math::Vector3D<> center;
 
+
 };
 }
 }

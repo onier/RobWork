@@ -75,7 +75,9 @@ namespace rw { namespace proximity {
          */
         virtual bool addModel(
             const rw::kinematics::Frame* frame,
-            const rw::geometry::Geometry& faces);
+            const rw::geometry::Geometry& faces
+            //,const rw::math::Transform3D<>&
+            );
 
         /**
          * @brief Tells whether the frame has a proximity model in the strategy

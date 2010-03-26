@@ -146,6 +146,16 @@ namespace rw {
             return _collisionPairs;
         }
 
+        /**
+         * @brief updates the collision detector such that changes to frames,
+         * collision strategies and such is updated.
+         *
+         * @example a new model has been added to the collision strategy. If
+         * the frame did not have a model prior to adding, it is necesary to call
+         * update on the collision detector.
+         */
+        //void update();
+
         // Constructor functions.
 
         /**
@@ -232,6 +242,8 @@ namespace rw {
                                   const std::vector<rw::models::DevicePtr>& obstacleDevices,
                                   const std::vector<rw::models::DevicePtr>& controlledDevices,
                                   const rw::kinematics::State& state);
+
+
 
     private:
         CollisionStrategyPtr _strategy;

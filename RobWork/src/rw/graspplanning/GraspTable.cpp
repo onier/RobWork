@@ -140,6 +140,24 @@ GraspTable* GraspTable::load(const std::string& filename){
         	data._tactiledata[j] = mat;
         }
 
+    	size_t nrsencon;
+    	istr >> nrsencon >> tmpC;
+    	//std::cout << "Nr sensors: " << nrsensors << std::endl;
+    	data.tactileContacts.resize(nrsencon);
+        for(size_t j=0;j<nrsencon;j++){
+        	// write dimensions of pad
+
+        	size_t len;
+        	istr >> len >> tmpC;
+        	data.tactileContacts[j].resize(len);
+        	for(size_t x=0;x<len;x++){
+        		rw::sensor::Contact3D &con = (data.tactileContacts[j])[x];
+				istr >> con.p(0) >> tmpC >> con.p(1) >> tmpC >> con.p(2) >> tmpC;
+				istr >> con.n(0) >> tmpC >> con.n(1) >> tmpC >> con.n(2) >> tmpC;
+				istr >> con.f(0) >> tmpC >> con.f(1) >> tmpC >> con.f(2) >> tmpC;
+			}
+        	//std::cout << xdim << ";" << ydim << ";"<<
+        }
     	gtable->addGrasp(data);
 
     }
@@ -149,22 +167,22 @@ GraspTable* GraspTable::load(const std::string& filename){
 
 void GraspTable::save(const std::string& filename){
     std::ofstream fstr(filename.c_str());
-    std::cout << "saving grasp stuff" << std::endl;
+    //std::cout << "saving grasp stuff" << std::endl;
 
     fstr << "hand: " << _handName << "\n";
-    std::cout << "hand: " << _handName << "\n";
+    //std::cout << "hand: " << _handName << "\n";
     fstr << "object: " << _objectId << "\n";
-    std::cout << "object: " << _objectId << "\n";
+    //std::cout << "object: " << _objectId << "\n";
     fstr << "TableSize: " << _graspData.size() << "\n";
-    std::cout << "TableSize: " << _graspData.size() << "\n";
+    //std::cout << "TableSize: " << _graspData.size() << "\n";
     if(_graspData.size()==0){
     	fstr.close();
     	return;
     }
     fstr << "HandDOF: " << _graspData[0].pq.size() << "\n";
-    std::cout << "HandDOF: " << _graspData[0].pq.size() << "\n";
+    //std::cout << "HandDOF: " << _graspData[0].pq.size() << "\n";
     fstr << "NrOfQualityMeasures: " << _graspData[0].quality.size() << "\n";
-    std::cout << "NrOfQualityMeasures: " << _graspData[0].quality.size() << "\n";
+    //std::cout << "NrOfQualityMeasures: " << _graspData[0].quality.size() << "\n";
 
     // each data entry is printed on a line
     for(size_t i=0;i<_graspData.size();i++){
@@ -188,21 +206,21 @@ void GraspTable::save(const std::string& filename){
         // hand pose
         for(size_t j=0;j<6;j++){
             fstr << data.hp.get(j) << ";";
-            std::cout << data.hp.get(j) << ";";
+            //std::cout << data.hp.get(j) << ";";
         }
 
         // object pose
         for(size_t j=0;j<6;j++){
             fstr << data.op.get(j) << ";";
-            std::cout <<data.op.get(j) << ";";
+            //std::cout <<data.op.get(j) << ";";
         }
 
         // then we print the contact configuration
         fstr << data.cq.size() << ";";
-        std::cout << data.cq.size() << ";";
+        //std::cout << data.cq.size() << ";";
         for(size_t j=0;j<data.cq.size();j++){
             fstr << data.cq[j] << ";";
-            std::cout << data.cq[j] << ";";
+            //std::cout << data.cq[j] << ";";
         }
 
         // now comes the actual contacts
@@ -229,9 +247,31 @@ void GraspTable::save(const std::string& filename){
 
         }
 
+        // now for the tactile contacts, if there is any
+        fstr << data.tactileContacts.size() << ";";
+
+        for(size_t j=0;j<data.tactileContacts.size();j++){
+        	// write dimensions of pad
+        	fstr << data.tactileContacts[j].size() << ";";
+        	for(size_t x=0;x<data.tactileContacts[j].size();x++){
+        		// pos, norm, force
+                fstr << (data.tactileContacts[j])[x].p[0] << ";";
+                fstr << (data.tactileContacts[j])[x].p[1] << ";";
+                fstr << (data.tactileContacts[j])[x].p[2] << ";";
+                fstr << (data.tactileContacts[j])[x].n[0] << ";";
+                fstr << (data.tactileContacts[j])[x].n[1] << ";";
+                fstr << (data.tactileContacts[j])[x].n[2] << ";";
+                fstr << (data.tactileContacts[j])[x].f[0] << ";";
+                fstr << (data.tactileContacts[j])[x].f[1] << ";";
+                fstr << (data.tactileContacts[j])[x].f[2] << ";";
+        	}
+        }
+
+
         // we end the data entry with a endline
         fstr << std::endl;
-        std::cout << std::endl;
+
+        //std::cout << std::endl;
     }
 
     fstr.close();

@@ -14,6 +14,7 @@
 #include <rw/sensor/TactileArray.hpp>
 
 
+
 namespace rw {
 namespace graspplanning {
 
@@ -38,6 +39,7 @@ public:
         Grasp3D grasp;
         rw::math::Q quality;
         std::vector<rw::sensor::TactileArray::ValueMatrix> _tactiledata;
+        std::vector<std::vector<rw::sensor::Contact3D> > tactileContacts;
     };
 
 public:
