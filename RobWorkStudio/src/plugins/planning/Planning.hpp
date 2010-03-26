@@ -42,10 +42,12 @@
 #include <QTextEdit>
 
 #include <rws/RobWorkStudioPlugin.hpp>
+namespace rws {
+
 
 class Planning: public RobWorkStudioPlugin {
 Q_OBJECT
-Q_INTERFACES( RobWorkStudioPlugin )
+Q_INTERFACES( rws::RobWorkStudioPlugin )
 public:
     Planning();
 
@@ -89,5 +91,5 @@ private:
 
     std::string _previousOpenSaveDirectory;
 };
-
+}
 #endif //#ifndef PLANNING_HPP

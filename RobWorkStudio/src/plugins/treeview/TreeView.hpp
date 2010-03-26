@@ -35,11 +35,11 @@
 #include <QtGui>
 
 
-
+namespace rws {
 class TreeView: public RobWorkStudioPlugin {
 Q_OBJECT
 #ifndef RW_STATIC_LINK_PLUGINS
-Q_INTERFACES( RobWorkStudioPlugin )
+Q_INTERFACES( rws::RobWorkStudioPlugin )
 #endif
 public:
     TreeView();
@@ -131,7 +131,7 @@ private:
 
     rw::common::Ptr<rwlibs::drawable::RenderFrame> _renderFrame;
 };
-
+}
 
 
 #endif //#ifndef TREEVIEW_HPP

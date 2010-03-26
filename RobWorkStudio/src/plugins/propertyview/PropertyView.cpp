@@ -22,7 +22,7 @@
 
 using namespace rw::kinematics;
 using namespace rw::models;
-
+using namespace rws;
 
 PropertyView::PropertyView() :
     RobWorkStudioPlugin("PropertyView", QIcon(":/propertyview.png")),

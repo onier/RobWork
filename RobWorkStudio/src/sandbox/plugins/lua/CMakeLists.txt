@@ -1,7 +1,7 @@
 #----------------------------------------------------------------------
 # Define the following variables:
 
-SET(TargetName rwstudio_lua)
+SET(TargetName rws_plugin_lua)
 
 # Standard cpp files to compile:
 SET(SrcFiles Lua.cpp)

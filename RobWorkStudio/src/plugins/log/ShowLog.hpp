@@ -30,6 +30,7 @@
 
 class WriterWrapper;
 
+namespace rws {
 /**
  * @brief This plugin registers a number of LogWriters at the Log component
  * such that any output written to info, warning or error logs will be routed
@@ -39,7 +40,7 @@ class ShowLog : public RobWorkStudioPlugin
 {
     Q_OBJECT
 #ifndef RW_STATIC_LINK_PLUGINS
-    Q_INTERFACES(RobWorkStudioPlugin)
+    Q_INTERFACES(rws::RobWorkStudioPlugin)
 #endif
 public:
     /**
@@ -97,5 +98,7 @@ private:
 
     //rw::kinematics::State _state;
 };
+
+}
 
 #endif

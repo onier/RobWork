@@ -31,10 +31,11 @@ extern "C" {
 	#include <lauxlib.h>
 }
 
-#include <rwlibs/lua/RobWork.hpp>
-#include <rwlibs/lua/Output.hpp>
+#include <rwlibs/lua/LuaRobWork.hpp>
+#include <rws/lua/LuaRWStudioStub.hpp>
+#include <rws/lua/LuaRWStudio.hpp>
 using namespace rwlibs::lua;
-
+using namespace rws;
 #include <sstream>
 
 //----------------------------------------------------------------------
@@ -56,8 +57,8 @@ namespace
             lua_pop(lua, 1);
         }
     }
-
-    class PluginOutput : public rwlibs::lua::Output
+/*
+    class PluginOutput
     {
     public:
         PluginOutput(QTextEdit* output) : _output(output) {}
@@ -70,20 +71,22 @@ namespace
     private:
         QTextEdit* _output;
     };
-
-    class PluginToLogOutput : public rwlibs::lua::Output
+*/
+    /*
+    class PluginToLogOutput
     {
     public:
     	PluginToLogOutput(rw::common::LogPtr log) : _output(log) {}
 
         void write(const std::string& str)
         {
-        	_output->info() << str;
+        	rw::common::Log::info() << str;
         }
 
     private:
         rw::common::LogPtr _output;
     };
+    */
 
 }
 
@@ -162,6 +165,9 @@ void Lua::initialize()
 {
     _lua = lua_open();
     luaL_openlibs(_lua);
+    rwlibs::lua::luaRobWork_open(_lua);
+    tolua_LuaRWStudio_open(_lua);
+    rws::lua::rwstudio::setRobWorkStudio( getRobWorkStudio() );
 
     getRobWorkStudio()->stateChangedEvent().add(
         boost::bind(
@@ -180,7 +186,7 @@ void Lua::initialize()
 void Lua::stateChangedListener(const State& state)
 {
     _state = state;
-    rwlibs::lua::RobWork::setState(_lua, &_state);
+    //RobWork::setState(_lua, &_state);
 }
 
 void Lua::luaStateChangedListener(const State& state)
@@ -201,17 +207,21 @@ void Lua::open(WorkCell* workcell)
     // Open the Lua state.
     _lua = lua_open();
     luaL_openlibs(_lua);
-    rwlibs::lua::RobWork::open(_lua);
-    rwlibs::lua::RobWork::setOutput(_lua, new PluginToLogOutput( _log ));
-    rwlibs::lua::RobWork::setCollisionDetector(_lua,
-        getRobWorkStudio()->getCollisionDetector());
-    rwlibs::lua::RobWork::setWorkCell(_lua, workcell);
+    rwlibs::lua::luaRobWork_open(_lua);
+    tolua_LuaRWStudio_open(_lua);
+    rws::lua::rwstudio::setRobWorkStudio( getRobWorkStudio() );
 
-    rwlibs::lua::RobWork::setStateChangedListener(
-        boost::bind(
-            &Lua::luaStateChangedListener,
-            this,
-            _1));
+
+    //rwlibs::lua::RobWork::setOutput(_lua, new PluginToLogOutput( _log ));
+    //rwlibs::lua::RobWork::setCollisionDetector(_lua,
+    //    getRobWorkStudio()->getCollisionDetector());
+    //RobWork::setWorkCell(_lua, workcell);
+
+    //RobWork::setStateChangedListener(
+    //    boost::bind(
+    //       &Lua::luaStateChangedListener,
+    //        this,
+    //        _1));
 
     stateChangedListener(getRobWorkStudio()->getState());
 }

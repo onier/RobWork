@@ -10,8 +10,7 @@ extern "C" {
 
 #include "TreeModelCompleter.hpp"
 
-#include <rwlibs/lua/RobWork.hpp>
-#include <rwlibs/lua/Output.hpp>
+#include <rwlibs/lua/LuaRobWork.hpp>
 using namespace rwlibs::lua;
 using namespace rw::common;
 

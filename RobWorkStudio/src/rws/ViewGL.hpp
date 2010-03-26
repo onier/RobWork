@@ -55,6 +55,8 @@
 #include "CameraController.hpp"
 #include "RobWorkStudioPlugin.hpp"
 
+namespace rws {
+
 
 class RobWorkStudio;
 
@@ -329,5 +331,7 @@ private:
     const QString _viewLogo;
     bool _cameraViewChanged;
 };
+
+}
 
 #endif //#ifndef QTGUI_VIEWGL_HPP

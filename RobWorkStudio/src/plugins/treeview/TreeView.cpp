@@ -37,7 +37,7 @@
 
 using namespace robwork;
 using namespace rwlibs::drawable;
-
+using namespace rws;
 
 using std::make_pair;
 

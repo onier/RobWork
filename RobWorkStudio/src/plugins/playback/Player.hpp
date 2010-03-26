@@ -45,7 +45,7 @@ public:
     Player(robwork::TimedStatePath statePath,
            StateDrawPtr drawer,
            double tickInterval,
-           RobWorkStudio* rwstudio);
+           rws::RobWorkStudio* rwstudio);
 
     // Start the playback in forward direction.
     void forward();
@@ -124,7 +124,7 @@ private:
     // The time between calls to tick().
     double _tickInterval;
 
-    RobWorkStudio* _rwstudio;
+    rws::RobWorkStudio* _rwstudio;
 
     bool _record;
     int _recNo;
@@ -154,6 +154,8 @@ PlayerPtr makeEmptyPlayer();
 PlayerPtr makePlayer(const robwork::TimedStatePath& path,
                      StateDrawPtr drawer,
                      double tickInterval,
-                     RobWorkStudio* rwstudio);
+                     rws::RobWorkStudio* rwstudio);
+
+
 
 #endif

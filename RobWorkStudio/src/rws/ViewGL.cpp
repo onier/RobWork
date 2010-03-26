@@ -45,6 +45,8 @@ using namespace rw::proximity;
 using namespace rwlibs::drawable;
 using namespace rw::kinematics;
 
+using namespace rws;
+
 namespace
 {
     Timer eventTimer;

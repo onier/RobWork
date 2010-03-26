@@ -57,20 +57,20 @@ using namespace std;
 using namespace rw;
 using namespace rw::common;
 
-std::vector<RobWorkStudio::PluginSetup> getPlugins()
+std::vector<rws::RobWorkStudio::PluginSetup> getPlugins()
 {
-    typedef RobWorkStudio::PluginSetup Pl;
+    typedef rws::RobWorkStudio::PluginSetup Pl;
     std::vector<Pl> plugins;
-    plugins.push_back(Pl(new Jog(), false, Qt::LeftDockWidgetArea));
-    plugins.push_back(Pl(new TreeView(), false, Qt::LeftDockWidgetArea));
-    plugins.push_back(Pl(new PlayBack(), false, Qt::BottomDockWidgetArea));
+    plugins.push_back(Pl(new rws::Jog(), false, Qt::LeftDockWidgetArea));
+    plugins.push_back(Pl(new rws::TreeView(), false, Qt::LeftDockWidgetArea));
+    plugins.push_back(Pl(new rws::PlayBack(), false, Qt::BottomDockWidgetArea));
 
-    plugins.push_back(Pl(new PropertyView(), false, Qt::LeftDockWidgetArea));
-    plugins.push_back(Pl(new ShowLog(), false, Qt::BottomDockWidgetArea));
-    plugins.push_back(Pl(new Planning(), false, Qt::LeftDockWidgetArea));
+    plugins.push_back(Pl(new rws::PropertyView(), false, Qt::LeftDockWidgetArea));
+    plugins.push_back(Pl(new rws::ShowLog(), false, Qt::BottomDockWidgetArea));
+    plugins.push_back(Pl(new rws::Planning(), false, Qt::LeftDockWidgetArea));
 
 #if RWS_HAVE_SANDBOX
-    plugins.push_back(Pl(new Lua(), false, Qt::LeftDockWidgetArea));
+    plugins.push_back(Pl(new rws::Lua(), false, Qt::LeftDockWidgetArea));
 #endif
 
     return plugins;
@@ -190,7 +190,7 @@ int main(int argc, char** argv)
         splash.show();
         // Loading some items
         splash.showMessage("Adding static plugins");
-        std::vector<RobWorkStudio::PluginSetup> plugins = getPlugins();
+        std::vector<rws::RobWorkStudio::PluginSetup> plugins = getPlugins();
         //rw::common::TimerUtil::sleepMs(500);
         // could be nice to load all dynamic plugins here
         // also perhaps loading configuration file
@@ -239,7 +239,7 @@ int main(int argc, char** argv)
             QMessageBox::critical(NULL, "Exception", "Unable to load plugins!");
         }*/
 
-        RobWorkStudio rwstudio(&robwork, plugins, map, inifile);
+        rws::RobWorkStudio rwstudio(&robwork, plugins, map, inifile);
         if(!inputfile.empty()){
             rwstudio.openFile(inputfile);
         }

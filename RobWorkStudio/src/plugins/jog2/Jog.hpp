@@ -38,6 +38,8 @@
 
 #include "SliderTab.hpp"
 
+namespace rws {
+
 /**
  * @brief The Jog plugin enables cartesean and joint level jogging of MovableFrames
  * and Devices. Reference frame can freely be choosen and the devices are jogged using
@@ -47,7 +49,7 @@ class Jog: public RobWorkStudioPlugin
 {
     Q_OBJECT
 #ifndef RW_STATIC_LINK_PLUGINS
-    Q_INTERFACES(RobWorkStudioPlugin)
+    Q_INTERFACES(rws::RobWorkStudioPlugin)
 #endif
 public:
 	/**
@@ -126,5 +128,7 @@ private:
 
     rw::kinematics::FrameMap<int> _frameToIndex;
 };
+
+}
 
 #endif //#ifndef JOGMODULE

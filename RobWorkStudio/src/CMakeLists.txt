@@ -35,6 +35,7 @@ set(LibraryList
   ${PluginLibraries}
   ${ComponentLibraries}
   ${RWS_SANDBOX_LIB}
+  rwstudio_lua
   ${ROBWORKSTUDIO_LIBRARIES}
   ${ROBWORK_LIBRARIES}
 )

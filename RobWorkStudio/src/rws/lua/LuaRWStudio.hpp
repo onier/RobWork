@@ -2,52 +2,58 @@
 /**
  * We need to specify the wrapper classes,
  */
-#include "LuaMath.hpp"
+//#include "LuaMath.hpp"
 #include <rw/sensor.hpp>
 
 #ifndef RWS_LUA_RWSTUDIO_HPP
 #define RWS_LUA_RWSTUDIO_HPP
 
+#include <rws/RobWorkStudio.hpp>
+#include <rw/trajectory.hpp>
+#include <rw/trajectory/Path.hpp>
+#include <rw/kinematics.hpp>
+#include <rwlibs/lua/LuaRobWork.hpp>
 
 namespace rws {
 namespace lua {
 namespace rwstudio {
 
-    void openFile(const std::string& filename);
+class RobWorkStudio {
+public:
+	RobWorkStudio(rws::RobWorkStudio* rws);
 
-    rw::common::PropertyMap& getPropertyMap(){
-        return _propMap;
-    }
+	void openFile(const std::string& filename);
 
-    void setWorkcell(rw::models::WorkCellPtr workcell);
+	rw::common::PropertyMap& getPropertyMap();
 
-    rw::proximity::CollisionDetector* getCollisionDetector() {
-        return _detector.get();
-    }
+	void setWorkcell(rw::models::WorkCellPtr workcell);
 
-    rwlibs::drawable::WorkCellGLDrawer* getWorkCellGLDrawer() {
-        return &_workcellGLDrawer;
-    }
+	rw::proximity::CollisionDetector* getCollisionDetector();
 
-    const rw::trajectory::TimedStatePath& getTimedStatePath() {
-        return _timedStatePath;
-    }
+	rwlibs::drawable::WorkCellGLDrawer* getWorkCellGLDrawer();
 
-    void setTimedStatePath(const rw::trajectory::TimedStatePath& path);
+	const rwlibs::lua::trajectory::TimedStatePath& getTimedStatePath();
 
-    void setState(const rw::kinematics::State& state);
+	void setTimedStatePath(const rwlibs::lua::trajectory::TimedStatePath& path);
 
-    const rw::kinematics::State& getState() { return _state; }
+	void setState(const rwlibs::lua::kinematics::State& state);
 
-    rw::common::Log& log();
+	const rwlibs::lua::kinematics::State& getState();
 
-    void saveViewGL(const QString& filename);
+	rw::common::Log& log();
 
-    void updateAndRepaint();
+	void saveViewGL(const std::string& filename);
 
-    ViewGL* getView();
+	void updateAndRepaint();
 
+	rws::ViewGL* getView();
 
+	rws::RobWorkStudio *_rws;
+};
+
+RobWorkStudio* getRobWorkStudio();
+
+	void setRobWorkStudio(rws::RobWorkStudio* rwstudio);
 
 }}}
 

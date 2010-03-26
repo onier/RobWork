@@ -83,6 +83,8 @@ using namespace rwlibs::proximitystrategies;
 using namespace rwlibs::pathplanners;
 using namespace rwlibs::pathoptimization;
 
+using namespace rws;
+
 using namespace boost::numeric::ublas;
 
 namespace {

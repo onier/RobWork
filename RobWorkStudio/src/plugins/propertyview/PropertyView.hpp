@@ -37,10 +37,12 @@
 
 #include <QtGui>
 
+namespace rws {
+
 class PropertyView: public RobWorkStudioPlugin {
 Q_OBJECT
 #ifndef RW_STATIC_LINK_PLUGINS
-Q_INTERFACES( RobWorkStudioPlugin )
+Q_INTERFACES( rws::RobWorkStudioPlugin )
 #endif
 public:
     PropertyView();
@@ -75,5 +77,7 @@ private:
 	QComboBox* _cmbFrames;
 	PropertyInspector* _inspector;
 };
+
+}
 
 #endif //#ifndef PROPERTYVIEW_HPP

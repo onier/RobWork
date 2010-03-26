@@ -63,7 +63,7 @@ using namespace rw::common;
 using namespace rw::proximity;
 using namespace rwlibs::proximitystrategies;
 
-
+using namespace rws;
 
 void RobWorkStudio::connectEmitMessage(
     RobWorkStudioPlugin* plugin)
@@ -396,14 +396,6 @@ void RobWorkStudio::setupPlugins(QSettings& settings)
 
         filename = pathname+ "/" + filename + "." + OS::getDLLExtension().c_str();
 
-/*#if defined(RW_WIN32)
-        filename = pathname + "/" + filename + ".dll";
-#elif defined(RW_MACOS)
-		filename = pathname + "/" +filename + ".dylib";
-#else
-        filename = pathname + "/" +filename + ".so";
-#endif
-*/        
         QPluginLoader loader(filename);
 #if QT_VERSION >= 0x040400
 		// Needed to make dynamicly loaded libraries use dynamic
@@ -417,7 +409,7 @@ void RobWorkStudio::setupPlugins(QSettings& settings)
         if (pluginObject != NULL) {
         	RobWorkStudioPlugin* testP = dynamic_cast<RobWorkStudioPlugin*>(pluginObject);
             if (testP == NULL)
-                RW_THROW("Loaded plugin is NULL");        	
+                RW_THROW("Loaded plugin is NULL, tried loading \"" << filename.toStdString() << "\"" );
             RobWorkStudioPlugin* plugin = qobject_cast<RobWorkStudioPlugin*>(pluginObject);
 
             if (plugin) {

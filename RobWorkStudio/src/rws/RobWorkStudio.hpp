@@ -51,10 +51,13 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
-
-class ViewGL;
 class QDragEnterEvent;
 class QDragDropEvent;
+
+namespace rws {
+
+
+class ViewGL;
 
 /**
  * @brief main robwork studio class
@@ -552,5 +555,7 @@ private:
     RobWorkStudio(const RobWorkStudio&);
     RobWorkStudio& operator=(const RobWorkStudio&);
 };
+
+}
 
 #endif

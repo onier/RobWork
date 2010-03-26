@@ -66,6 +66,9 @@
  * \endcode
  *
  */
+
+namespace rws {
+
 template <class CallBackMethod, typename FireEventMethod>
 class Event
 {
@@ -211,5 +214,7 @@ public:
 private:
     std::list<Listener> _listeners;
 };
+
+}
 
 #endif /*EVENT_HPP*/

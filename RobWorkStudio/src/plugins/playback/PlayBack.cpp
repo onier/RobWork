@@ -31,7 +31,7 @@
 
 using namespace robwork;
 using namespace rw::trajectory;
-
+using namespace rws;
 namespace
 {
     const int sliderEnd = 4000;

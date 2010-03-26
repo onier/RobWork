@@ -24,7 +24,7 @@
 using namespace robwork;
 using namespace rwlibs::drawable;
 using namespace rw::common;
-
+using namespace rws;
 namespace
 {
 }

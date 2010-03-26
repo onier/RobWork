@@ -30,10 +30,12 @@
 
 struct lua_State;
 
+namespace rws {
+
 class Lua : public RobWorkStudioPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(RobWorkStudioPlugin)
+    Q_INTERFACES(rws::RobWorkStudioPlugin)
 
 public:
     Lua();
@@ -73,5 +75,7 @@ private:
 
     LuaEditorWindow *_editor;
 };
+
+}
 
 #endif

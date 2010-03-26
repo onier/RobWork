@@ -23,7 +23,7 @@
 
 using namespace robwork;
 using namespace rw::trajectory;
-
+using namespace rws;
 namespace {
     const int RECORD_NUM_OF_DIGITS = 6;
 }

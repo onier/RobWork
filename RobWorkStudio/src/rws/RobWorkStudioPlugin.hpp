@@ -49,6 +49,7 @@
 
 #include "Convert.hpp"
 
+namespace rws {
 class RobWorkStudio;
 
 /**
@@ -153,6 +154,10 @@ protected:
     rw::common::LogPtr _log;
 };
 
-Q_DECLARE_INTERFACE(RobWorkStudioPlugin, "dk.sdu.mip.Robwork.RobWorkStudioPlugin/0.1");
+}
+
+Q_DECLARE_INTERFACE(rws::RobWorkStudioPlugin, "dk.sdu.mip.Robwork.RobWorkStudioPlugin/0.1");
+
+
 
 #endif //#ifndef ROBWORKSTUDIOPLUGIN_HPP

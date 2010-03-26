@@ -39,11 +39,13 @@
 #include <rwlibs/drawable/WorkCellGLDrawer.hpp>
 #include <rw/use_robwork_namespace.hpp>
 
+namespace rws {
+
 class PlayBack : public RobWorkStudioPlugin
 {
     Q_OBJECT
 #ifndef RW_STATIC_LINK_PLUGINS
-    Q_INTERFACES(RobWorkStudioPlugin)
+    Q_INTERFACES(rws::RobWorkStudioPlugin)
 #endif
 public:
     PlayBack();
@@ -106,5 +108,7 @@ private:
 
     PlayBackSettings _settings;
 };
+
+}
 
 #endif
