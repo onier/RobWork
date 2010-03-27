@@ -64,9 +64,9 @@ Rotation3D::Rotation3D(const rw::math::Rotation3D<double>& R):
     NS::Rotation3D<double>(R){};
 
 Rotation3D Rotation3D::operator*(const Rotation3D& other) const{return (*((NS::Rotation3D<>*)this))*other;};
-Vector3D Rotation3D::operator*(const Vector3D& vec) const{return (*((NS::Rotation3D<>*)this)*vec;};
+Vector3D Rotation3D::operator*(const Vector3D& vec) const{return (*((NS::Rotation3D<>*)this))*vec;};
 Rotation3D Rotation3D::inverse() const{return NS::inverse(*this);};
-EAA Rotation3D::operator*(const EAA& other) const{ return (*((NS::Rotation3D<>*)this)*other; };
+EAA Rotation3D::operator*(const EAA& other) const{ return (*((NS::Rotation3D<>*)this))*other; };
 //bool Rotation3D::operator==(const Rotation3D &rhs) const{return NS::operator ==(*this,rhs);};
 //bool Rotation3D::equal(const Rotation3D& rot, double precision)
 std::string Rotation3D::__tostring() const{ return toString(*this); };
