@@ -1,7 +1,7 @@
 SET(CMAKE_MODULE_PATH ${RW_ROOT}/build ${CMAKE_MODULE_PATH})
 
 # okay, this is probably a hack but i only want to do this once
-IF(NOT DEFINED DEPENDS_RUN_ALLREADY)
+#IF(NOT DEFINED DEPENDS_RUN_ALLREADY)
     SET(DEPENDS_RUN_ALLREADY "set")
         
     # We need the boost package
@@ -9,7 +9,9 @@ IF(NOT DEFINED DEPENDS_RUN_ALLREADY)
     IF(Boost_FOUND)
         LIST(APPEND ROBWORK_LIBRARY_DIRS ${Boost_LIBRARY_DIRS})
         LIST(APPEND ROBWORK_INCLUDE_DIR ${Boost_INCLUDE_DIR})
-    ENDIF ()
+MESSAGE("boost include: ${Boost_INCLUDE_DIR}")    
+ENDIF ()
+    
     
     # For some libs we need the opengl package
     FIND_PACKAGE(OpenGL)
@@ -73,4 +75,4 @@ IF(NOT DEFINED DEPENDS_RUN_ALLREADY)
             SET(PQP_LIB "pqp")
         ENDIF()
     ENDIF()
-ENDIF ()
+#ENDIF ()

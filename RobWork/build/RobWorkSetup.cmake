@@ -30,8 +30,8 @@ SET(ROBWORK_INCLUDE_DIR
 # Check for all dependencies, this adds LIBRARY_DIRS and include dirs that 
 # the configuration depends on
 INCLUDE(${RW_ROOT}/build/depends.cmake)
-#MESSAGE(${ROBWORK_LIBRARY_DIRS})
-#MESSAGE(${ROBWORK_INCLUDE_DIR})
+MESSAGE(${ROBWORK_LIBRARY_DIRS})
+MESSAGE(${ROBWORK_INCLUDE_DIR})
 
 # Enable the RW_ASSERT() macro.
 OPTION(RW_ENABLE_ASSERT "Enables RW_ASSERT macro: on|off" ${RW_ENABLE_ASSERT})

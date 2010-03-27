@@ -2,7 +2,7 @@ FIND_PACKAGE(Tolua++)
 
 SET(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 MESSAGE("SRC_DIR: ${SRC_DIR}")
-MESSAGE("TOLUA_CMD: ${SRC_DIR}")  
+MESSAGE("TOLUA_CMD: ${TOLUA_CMD}")  
 MACRO (ADD_TOLUA_PACKAGE1 pkgname stubname)
 ADD_CUSTOM_COMMAND(
   # Because we are building in a temporary directory, we have to use absolute
@@ -23,8 +23,8 @@ LIST(APPEND SRC_FILES
 )
 
 LIST(APPEND SRC_FILES_HPP  
-  "${pkgname}.cpp"
-  "${SRC_DIR}/${pkgname}Stub.cpp"
+  "${pkgname}.hpp"
+  "${SRC_DIR}/${pkgname}Stub.hpp"
 )
 ENDMACRO (ADD_TOLUA_PACKAGE1)
 
@@ -34,15 +34,16 @@ IF( USE_LUA )
     SET(SRC_FILES LuaRobWork.cpp)
     SET(SRC_FILES_HPP LuaRobWork.hpp)
     
-    ADD_TOLUA_PACKAGE1("LuaMath" "LuaMathStu")
-    ADD_TOLUA_PACKAGE1("LuaKinematics" "LuaKinematicsStu")
-    ADD_TOLUA_PACKAGE1("LuaLoaders" "LuaLoadersStu")
-    ADD_TOLUA_PACKAGE1("LuaSensor" "LuaLoadersStu")
-    ADD_TOLUA_PACKAGE1("LuaModels" "LuaModelsStu")
-    ADD_TOLUA_PACKAGE1("LuaTrajectory" "LuaTrajectoryStu") 
-    ADD_TOLUA_PACKAGE1("LuaProximity" "LuaProximityStu")
-    ADD_TOLUA_PACKAGE1("LuaCommon" "LuaCommonStu")
-    
+    ADD_TOLUA_PACKAGE1("LuaMath" "LuaMathStub")
+    ADD_TOLUA_PACKAGE1("LuaKinematics" "LuaKinematicsStub")
+    ADD_TOLUA_PACKAGE1("LuaLoaders" "LuaLoadersStub")
+    ADD_TOLUA_PACKAGE1("LuaSensor" "LuaLoadersStub")
+    ADD_TOLUA_PACKAGE1("LuaModels" "LuaModelsStub")
+    ADD_TOLUA_PACKAGE1("LuaTrajectory" "LuaTrajectoryStub") 
+    ADD_TOLUA_PACKAGE1("LuaProximity" "LuaProximityStub")
+    ADD_TOLUA_PACKAGE1("LuaCommon" "LuaCommonStub")
+	
+    MESSAGE( "SRC_FILES ${SRC_FILES}.... HEADER FILES: ${SRC_FILES_HPP}")   
     ADD_LIBRARY(rw_lua ${SRC_FILES} ${SRC_FILES_HPP})
     
     INSTALL(TARGETS rw_lua DESTINATION ${RW_LIB_INSTALL_DIR})
