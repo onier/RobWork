@@ -35,7 +35,7 @@ Q Q::operator-(const Q& b){ return Q(*((NS::Q*)this)-b); };
 Q Q::operator+(const Q& b){ return Q(*((NS::Q*)this)+b); };
 Q Q::operator*(double s){ return Q(*((NS::Q*)this)*s); };
 Q Q::operator/(double s){ return Q(*((NS::Q*)this)/s); };
-bool Q::operator==(const Q& q){return NS::operator==( *this, q ); }
+bool Q::operator==(const Q& q){return *((NS::Q*)this)== q; }
 std::string Q::__tostring() const{
 	return toString(*this);
 };
@@ -44,11 +44,11 @@ std::string Q::__tostring() const{
 Vector3D::Vector3D(double x,double y, double z):NS::Vector3D<double>(x,y,z){};
 Vector3D::Vector3D(const NS::Vector3D<double>& v):NS::Vector3D<double>(v){};
 
-Vector3D Vector3D::operator*(double scale) const { return (*((NS::Vector3D<>*)this))* scale;};
-Vector3D Vector3D::operator/(double s){ return ((NS::Vector3D<>*)this))/s;};
-Vector3D Vector3D::operator+(const Vector3D& other) const{ return ((NS::Vector3D<>*)this))+other;};
-Vector3D Vector3D::operator-(const Vector3D& other) const{ return ((NS::Vector3D<>*)this))-other;};
-bool Vector3D::operator==(const Vector3D& q){ return NS::operator ==(*this, q);};
+Vector3D Vector3D::operator*(double scale) const { return *(*((NS::Vector3D<>*)this))* scale;};
+Vector3D Vector3D::operator/(double s){ return (*((NS::Vector3D<>*)this))/s;};
+Vector3D Vector3D::operator+(const Vector3D& other) const{ return (*((NS::Vector3D<>*)this))+other;};
+Vector3D Vector3D::operator-(const Vector3D& other) const{ return (*((NS::Vector3D<>*)this))-other;};
+bool Vector3D::operator==(const Vector3D& q){ return (*((NS::Vector3D<>*)this))==q;};
 std::string Vector3D::__tostring() const{ return toString(*this); };
 
 
@@ -63,10 +63,10 @@ Rotation3D::Rotation3D(const Vector3D& i, const Vector3D& j, const Vector3D& k):
 Rotation3D::Rotation3D(const rw::math::Rotation3D<double>& R):
     NS::Rotation3D<double>(R){};
 
-Rotation3D Rotation3D::operator*(const Rotation3D& other) const{return NS::operator *(*this,other);};
-Vector3D Rotation3D::operator*(const Vector3D& vec) const{return NS::operator *(*this,vec);};
+Rotation3D Rotation3D::operator*(const Rotation3D& other) const{return (*((NS::Rotation3D<>*)this)*other);};
+Vector3D Rotation3D::operator*(const Vector3D& vec) const{return (*((NS::Rotation3D<>*)this)*vec;};
 Rotation3D Rotation3D::inverse() const{return NS::inverse(*this);};
-EAA Rotation3D::operator*(const EAA& other) const{ return NS::operator *(*this,other); };
+EAA Rotation3D::operator*(const EAA& other) const{ return (*((NS::Rotation3D<>*)this)*other; };
 //bool Rotation3D::operator==(const Rotation3D &rhs) const{return NS::operator ==(*this,rhs);};
 //bool Rotation3D::equal(const Rotation3D& rot, double precision)
 std::string Rotation3D::__tostring() const{ return toString(*this); };
