@@ -41,14 +41,13 @@ std::string Q::__tostring() const{
 };
 
 
-
 Vector3D::Vector3D(double x,double y, double z):NS::Vector3D<double>(x,y,z){};
 Vector3D::Vector3D(const NS::Vector3D<double>& v):NS::Vector3D<double>(v){};
 
-Vector3D Vector3D::operator*(double scale) const { return NS::operator *(*this, scale);};
-Vector3D Vector3D::operator/(double s){ return NS::operator /(*this, s);};
-Vector3D Vector3D::operator+(const Vector3D& other) const{ return NS::operator +(*this, other);};
-Vector3D Vector3D::operator-(const Vector3D& other) const{ return NS::operator -(*this, other);};
+Vector3D Vector3D::operator*(double scale) const { return (*((NS::Vector3D<>*)this))* scale;};
+Vector3D Vector3D::operator/(double s){ return ((NS::Vector3D<>*)this))/s;};
+Vector3D Vector3D::operator+(const Vector3D& other) const{ return ((NS::Vector3D<>*)this))+other;};
+Vector3D Vector3D::operator-(const Vector3D& other) const{ return ((NS::Vector3D<>*)this))-other;};
 bool Vector3D::operator==(const Vector3D& q){ return NS::operator ==(*this, q);};
 std::string Vector3D::__tostring() const{ return toString(*this); };
 
@@ -102,7 +101,7 @@ Quaternion::Quaternion(double vals[4]):NS::Quaternion<double>(vals[0],vals[1],va
 Quaternion Quaternion::operator*(const Quaternion& other) const{
     return NS::Quaternion<>((*(NS::Quaternion<>*)this) * *((NS::Quaternion<>*)&other));
 };
-Quaternion Quaternion::operator*(double s){return NS::operator *(*this,s);};
+Quaternion Quaternion::operator*(double s){return (*((NS::Quaternion<>*)this))*s;};
 bool Quaternion::operator==(const Quaternion &rhs) const{return true;}; //TODO
 std::string Quaternion::__tostring() const{ return toString(*this); };
 
@@ -117,10 +116,10 @@ Transform3D::Transform3D(
 {}
 
 Transform3D Transform3D::operator*(const Transform3D& other) const{
-    return NS::operator *(*this,other);
+    return (*((NS::Transform3D<>*)this)) *other;
 }
 Vector3D Transform3D::operator*(const Vector3D& other) const{
-    return NS::operator *(*this,other);
+    return (*((NS::Transform3D<>*)this))*other;
 }
 Transform3D Transform3D::inverse() const{
     return NS::inverse(*this);
