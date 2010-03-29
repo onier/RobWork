@@ -10,10 +10,6 @@
 
 MACRO (ADD_TOLUA_PACKAGE pkgname stubname)
 
-FIND_FILE(TOLUA_CMD_FULL_PATH ${TOLUA_CMD})
-
-MESSAGE("TOLUA CMD GET TO: ${TOLUA_CMD}")
-
 ADD_CUSTOM_COMMAND(
   # Because we are building in a temporary directory, we have to use absolute
   # paths here.
@@ -55,7 +51,7 @@ FIND_PATH(TOLUA_INCLUDE_DIR tolua++.h
 )
 
 FIND_LIBRARY(TOLUA_LIBRARY 
-  NAMES tolua tolua51 tolua5.1 tolua++ tolua++5.1 tolua++51
+  NAMES tolua++ tolua++5.1 tolua++51 tolua tolua51 tolua5.1
   HINTS
   $ENV{TOLUA_DIR}
   ${TOLUA_LIBRARY_DIR}
