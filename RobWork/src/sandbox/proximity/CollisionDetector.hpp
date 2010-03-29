@@ -168,6 +168,9 @@ namespace rw {
             return _bpfilter;
         }
 
+
+        void addModel();
+
     private:
         CollisionStrategyPtr _strategy;
         BroadPhaseStrategyPtr _bpfilter;

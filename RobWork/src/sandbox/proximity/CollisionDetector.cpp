@@ -63,8 +63,13 @@ bool CollisionDetector::inCollision(
     CollisionResult* result,
     bool stopAtFirstContact) const
 {
-    _bpfilter->update(state);
+    // first we update the broadphase filter with the current state
+	_bpfilter->update(state);
 
+	// next we query the BP filter for framepairs that are possibly in collision
+	while(_bpfiler->hasNext()){
+		const FramePair& pair = _bpfilter->next();
+	}
 
     return false;
 }
