@@ -38,9 +38,10 @@ set(LibraryList
   rwstudio_lua
   ${ROBWORKSTUDIO_LIBRARIES}
   ${ROBWORK_LIBRARIES}
+  ${TOLUA_LIBRARIES}
 )
 
-#MESSAGE(${LibraryList})
+MESSAGE(${TOLUA_LIBRARIES})
 
 # Now the RobWorkStudio executable need to be build:
 ADD_EXECUTABLE(RobWorkStudio main.cpp)
