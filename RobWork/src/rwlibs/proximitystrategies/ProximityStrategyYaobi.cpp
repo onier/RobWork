@@ -125,15 +125,15 @@ rw::proximity::ProximityModelPtr ProximityStrategyYaobi::createModel()
     return ownedPtr(model);
 }
 
-void ProximityStrategyYaobi::destroyModel(rw::proximity::ProximityModelPtr model){
+void ProximityStrategyYaobi::destroyModel(rw::proximity::ProximityModel* model){
     RW_ASSERT(model!=NULL);
     //model->models.clear();
     //YaobiProximityModel *pmodel = (YaobiProximityModel*) model.get();
 }
 
-bool ProximityStrategyYaobi::addGeometry(rw::proximity::ProximityModelPtr model, const rw::geometry::Geometry& geom){
+bool ProximityStrategyYaobi::addGeometry(rw::proximity::ProximityModel* model, const rw::geometry::Geometry& geom){
     RW_ASSERT(model!=NULL);
-    YaobiProximityModel *pmodel = (YaobiProximityModel*) model.get();
+    YaobiProximityModel *pmodel = (YaobiProximityModel*) model;
     YaobiModelPtr yaobimodel;
     GeometryDataPtr gdata = geom.getGeometryData();
     // first check if model is in cache
@@ -153,7 +153,7 @@ bool ProximityStrategyYaobi::addGeometry(rw::proximity::ProximityModelPtr model,
     return true;
 }
 
-bool ProximityStrategyYaobi::removeGeometry(rw::proximity::ProximityModelPtr model, const std::string& geomId){
+bool ProximityStrategyYaobi::removeGeometry(rw::proximity::ProximityModel* model, const std::string& geomId){
 	return false;
 }
 
@@ -193,6 +193,10 @@ void ProximityStrategyYaobi::clear()
 void ProximityStrategyYaobi::setFirstContact(bool b)
 {
     _firstContact = b;
+}
+
+std::vector<std::string> ProximityStrategyYaobi::getGeometryIDs(rw::proximity::ProximityModel* model){
+	return std::vector<std::string>();
 }
 
 CollisionStrategyPtr ProximityStrategyYaobi::make()

@@ -216,14 +216,14 @@ rw::proximity::ProximityModelPtr ProximityStrategyPQP::createModel()
     return ownedPtr(model);
 }
 
-void ProximityStrategyPQP::destroyModel(rw::proximity::ProximityModelPtr model){
+void ProximityStrategyPQP::destroyModel(rw::proximity::ProximityModel* model){
 
 }
 
 bool ProximityStrategyPQP::addGeometry(
-		rw::proximity::ProximityModelPtr model,
+		rw::proximity::ProximityModel* model,
 		const rw::geometry::Geometry& geom){
-    PQPProximityModel *pmodel = (PQPProximityModel*) model.get();
+    PQPProximityModel *pmodel = (PQPProximityModel*) model;
 
     PQPModelPtr pqpmodel;
     GeometryDataPtr gdata = geom.getGeometryData();
@@ -257,7 +257,10 @@ bool ProximityStrategyPQP::addGeometry(
     return true;
 }
 
-bool ProximityStrategyPQP::removeGeometry(rw::proximity::ProximityModelPtr model, const std::string& geomId){
+bool ProximityStrategyPQP::removeGeometry(rw::proximity::ProximityModel* model, const std::string& geomId){
+
+
+
 	return false;
 }
 
@@ -478,6 +481,9 @@ bool ProximityStrategyPQP::calcDistances(
     return true;
 }
 
+std::vector<std::string> ProximityStrategyPQP::getGeometryIDs(rw::proximity::ProximityModel* model){
+	return std::vector<std::string>();
+}
 
 void ProximityStrategyPQP::clear()
 {
