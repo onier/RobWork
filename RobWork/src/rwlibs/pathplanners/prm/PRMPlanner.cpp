@@ -605,17 +605,17 @@ bool PRMPlanner::searchForShortestPathAstar(const Node& nInit, const Node& nGoal
     //std::vector<PRM::vertex_descriptor> p(num_vertices(_graph));
     std::vector<float> d(num_vertices(_graph));
     try {
-		std::cout<<"A* C"<<std::endl;std::cout.flush();    
+		std::cout<<"A* C"<<std::endl;std::cout.flush();
+		const boost::bundle_property_map<PRM, boost::detail::edge_desc_impl<boost::undirected_tag, void*>, rwlibs::pathplanners::PRMPlanner::EdgeData, double>
+			&pmap = get(&EdgeData::weight, _graph);
+
 		// call astar named parameter interface
         astar_search(
             _graph,
             nInit,
             PathHeuristic(_graph, _metric.get(), nGoal),
-            weight_map(get(&EdgeData::weight, _graph)).
-            vertex_index_map(indexMap).
-            predecessor_map(p).
-            /*predecessor_map(&p[0]).*/
-            /*distance_map(&d[0]).*/
+            weight_map(pmap).
+            vertex_index_map(indexMap).predecessor_map(p).
             visitor(AStarGoalVisitor<Node>(nGoal, _astarTimeOutTime))
             );
 		std::cout<<"A* D"<<std::endl;std::cout.flush();
