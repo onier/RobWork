@@ -178,26 +178,31 @@ IF (DEFINED MSVC)
   ADD_DEFINITIONS(-D_CRT_SECURE_NO_WARNINGS)
 ENDIF ()
 
-#SET(BLAS_DIR "${RW_ROOT}/ext/libs_vs")
-#FIND_PACKAGE(LAPACK REQUIRED PATHS "${RW_ROOT}/ext/libs_vs")
-#FIND_PACKAGE(BLAS REQUIRED PATHS "${RW_ROOT}/ext/libs_vs")
-#IF( NOT (LAPACK_FOUND OR BLAS_FOUND) )
-#    MESSAGE(SEND_ERROR "Lapack or blas was not found! ")
-#ENDIF()
+SET(BLAS_DIR "${RW_ROOT}/ext/libs_vs")
+FIND_PACKAGE(LAPACK REQUIRED PATHS "${RW_ROOT}/ext/libs_vs")
+FIND_PACKAGE(BLAS REQUIRED PATHS "${RW_ROOT}/ext/libs_vs")
+IF( NOT (LAPACK_FOUND OR BLAS_FOUND) )
+    MESSAGE(SEND_ERROR "Lapack or blas was not found! ")
+ENDIF()
+
+SET(RW_UBLAS_LIBRARY_NAMES ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
+
 
 #SET(RW_UBLAS_LIBRARY_NAMES ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES})
 #MESSAGE("${RW_UBLAS_LIBRARY_NAMES}")
 
 
 # All mandatory libraries for linking with rw:
-if (DEFINED MINGW)
+#if (DEFINED MINGW)
   #set(RW_UBLAS_LIBRARY_NAMES lapack blas g2c)
-  set(RW_UBLAS_LIBRARY_NAMES lapack_win32 blas_win32)
-elseif (DEFINED MSVC)
-  set(RW_UBLAS_LIBRARY_NAMES lapack_win32 blas_win32)
-elseif (DEFINED UNIX)
-  set(RW_UBLAS_LIBRARY_NAMES lapack)
-endif ()
+#  set(RW_UBLAS_LIBRARY_NAMES lapack_win32 blas_win32)
+#elseif (DEFINED MSVC)
+#  set(RW_UBLAS_LIBRARY_NAMES lapack_win32 blas_win32)
+#elseif (DEFINED UNIX)
+#  set(RW_UBLAS_LIBRARY_NAMES lapack)
+#endif ()
+
+
 
 #INCLUDE(${RW_ROOT}/config/link.cmake)
 
