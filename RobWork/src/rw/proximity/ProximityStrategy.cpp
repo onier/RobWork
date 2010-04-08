@@ -81,7 +81,7 @@ bool ProximityStrategy::addModel(const Frame* frame)
         geom->setTransform( info.getTransform() );
         geom->setScale( info.getGeoScale() );
 
-        addGeometry(model, *geom);
+        addGeometry(model.get(), *geom);
     }
     return true;
 }
@@ -109,7 +109,7 @@ bool ProximityStrategy::addModel(const Frame* frame, const rw::geometry::Geometr
         model = createModel();
     }
 
-    bool res = addGeometry(model, geom);
+    bool res = addGeometry(model.get(), geom);
     return res;
 }
 
@@ -129,7 +129,7 @@ void ProximityStrategy::clearFrame(const rw::kinematics::Frame* frame){
         return;
     ProximityModelPtr model = _frameToModel[*frame];
     _frameToModel[*frame] = NULL;
-    destroyModel(model);
+    destroyModel(model.get());
 }
 
 void ProximityStrategy::clearFrames(){

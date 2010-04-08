@@ -44,9 +44,9 @@ public:
 
 	virtual CollisionSetup& getCollisionSetup() = 0;
 
-	virtual void addModel(const rw::kinematics::Frame* frame, const rw::geometry::Geometry& geom) = 0;
+	virtual void addModel(rw::kinematics::Frame* frame, const rw::geometry::Geometry& geom) = 0;
 
-	virtual void removeModel(const rw::kinematics::Frame* frame, const std::string& geoid) = 0;
+	virtual void removeModel(rw::kinematics::Frame* frame, const std::string& geoid) = 0;
 
 };
 
