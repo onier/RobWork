@@ -35,8 +35,9 @@
 #include <RobWorkStudioConfig.hpp>
 #endif
 
+#include <RobWorkConfig.hpp>
 
-#ifdef RW_STATIC_LINK_PLUGINS
+#ifdef RWS_USE_STATIC_LINK_PLUGINS
 
 #include <plugins/log/ShowLog.hpp>
 #include <plugins/jog2/Jog.hpp>
@@ -45,9 +46,6 @@
 
 #include <plugins/planning/Planning.hpp>
 #include <plugins/propertyview/PropertyView.hpp>
-
-#include <RobWorkConfig.hpp>
-
 
 #ifdef RWS_HAVE_SANDBOX
 	#include <sandbox/plugins/lua/Lua.hpp>

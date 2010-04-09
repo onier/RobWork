@@ -4,12 +4,11 @@
 // to change the definitions then change them in RobWorkConfig.hpp.in  
 // 
 
-#define RWS_VERSION "0.4.0"
+#define RWS_VERSION "0.5.0"
 #define RWS_VERSION_MAJOR 0 
-#define RWS_VERSION_MINOR 4
+#define RWS_VERSION_MINOR 5
 #define RWS_VERSION_PATCH 0
 
-#define RWS_HAVE_SANDBOX 1
+/* #undef RWS_HAVE_SANDBOX */
 
 #define RWS_USE_STATIC_LINK_PLUGINS
-#define RW_STATIC_LINK_PLUGINS

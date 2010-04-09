@@ -85,11 +85,11 @@ namespace
     {
         setCollisionPairsHighlighted(drawer, previous, false);
 
-        FramePairSet current;
+        CollisionResult current;
         detector.inCollision(state, &current);
 
-        setCollisionPairsHighlighted(drawer, current, true);
-        return current;
+        setCollisionPairsHighlighted(drawer, current.collidingFrames, true);
+        return current.collidingFrames;
     }
 
     void setOrthographicProjection(int width, int height)

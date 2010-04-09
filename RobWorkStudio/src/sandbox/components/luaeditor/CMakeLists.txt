@@ -1,3 +1,5 @@
+IF( ${RW_BUILD_WITH_LUA} )
+
 #----------------------------------------------------------------------
 # Define the following variables:
 
@@ -32,3 +34,5 @@ ENDIF ()
 
 INSTALL(TARGETS ${TargetName} DESTINATION libs)
 SET(ENV{RWS_COMPONENT_LIBRARIES} "$ENV{RWS_COMPONENT_LIBRARIES}${TargetName};")
+
+ENDIF()

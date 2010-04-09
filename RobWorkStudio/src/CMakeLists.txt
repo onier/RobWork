@@ -1,11 +1,5 @@
 #MESSAGE("ROBWORKSTUDIO LIBS: ${ROBWORKSTUDIO_LIBRARIES}")
 
-# If we are using static linking then remember to 
-IF (RWS_USE_STATIC_LINK_PLUGINS)
-  MESSAGE(STATUS "RobWorkStudio: Using static linking of default plugins!")
-ELSE ()
-  MESSAGE(STATUS "RobWorkStudio: Using dynamic linking of default plugins!")
-ENDIF ()
 
 # First we compile the robworkstudio library
 ADD_SUBDIRECTORY(rws)
@@ -19,33 +13,20 @@ SET(ENV{RWS_PLUGIN_LIBRARIES} "")
 ADD_SUBDIRECTORY(plugins)
 
 # Then sandbox if choosen
+OPTION(RWS_BUILD_SANDBOX "Set when you want to build the sandbox library" ${RWS_BUILD_SANDBOX})
 IF ( RWS_BUILD_SANDBOX )
     ADD_SUBDIRECTORY(sandbox)
-    SET(RWS_HAVE_SANDBOX ON CACHE BOOL "")
-    SET(RWS_SANDBOX_LIB rwstudio_sandbox)
 ENDIF ()
 
-SET(PluginLibraries $ENV{RWS_PLUGIN_LIBRARIES} CACHE string "plugin libs")
-SET(ComponentLibraries $ENV{RWS_COMPONENT_LIBRARIES} CACHE string "component libs")
+SET(RWS_PLUGIN_LIBRARIES $ENV{RWS_PLUGIN_LIBRARIES} CACHE string "plugin libs")
+SET(RWS_COMPONENT_LIBRARIES $ENV{RWS_COMPONENT_LIBRARIES} CACHE string "component libs")
 
 # now create the actual RobWorkStudio executable
 
-# Libraries that RobWorkStudio depends on
-set(LibraryList
-  ${PluginLibraries}
-  ${ComponentLibraries}
-  ${RWS_SANDBOX_LIB}
-  rwstudio_lua
-  ${ROBWORKSTUDIO_LIBRARIES}
-  ${ROBWORK_LIBRARIES}
-  ${TOLUA_LIBRARIES}
-)
-
-MESSAGE(${TOLUA_LIBRARIES})
-
 # Now the RobWorkStudio executable need to be build:
 ADD_EXECUTABLE(RobWorkStudio main.cpp)
-TARGET_LINK_LIBRARIES(RobWorkStudio ${LibraryList})
+SET(LIBS_TMP ${RWS_PLUGIN_LIBRARIES} ${RWS_COMPONENT_LIBRARIES} ${ROBWORKSTUDIO_LIBRARIES})
+TARGET_LINK_LIBRARIES(RobWorkStudio ${LIBS_TMP})
 
 # Some install stuff
 INSTALL(TARGETS RobWorkStudio DESTINATION bin)
