@@ -5,22 +5,27 @@ CMAKE_POLICY(SET CMP0011 NEW)
 
 # The name of the project.
 project(RobWorkStudio)
-SET(ROBWORKSTUDIO_VERSION 0.4.0)
+SET(ROBWORKSTUDIO_VERSION 0.5.0)
 STRING( REGEX MATCHALL "[0-9]+" ROBWORKSTUDIO_VERSIONS ${ROBWORKSTUDIO_VERSION} )
 LIST( GET ROBWORKSTUDIO_VERSIONS 0 ROBWORKSTUDIO_VERSION_MAJOR)
 LIST( GET ROBWORKSTUDIO_VERSIONS 1 ROBWORKSTUDIO_VERSION_MINOR)
 LIST( GET ROBWORKSTUDIO_VERSIONS 2 ROBWORKSTUDIO_VERSION_PATCH)
+
+MESSAGE(STATUS "RobWorkStudio version ${ROBWORKSTUDIO_VERSION}")
 
 # We want to install in same directory as RobWork
 STRING( REGEX REPLACE "[/][^/]*([/]$|$)" "/RobWork" output ${CMAKE_INSTALL_PREFIX})
 SET(CMAKE_INSTALL_PREFIX ${output})
 
 # Used to resolve absolute path names
-SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-SET(RWSTUDIO_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+IF (NOT RWS_ROOT)
+    SET(RWS_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+    SET(RWSTUDIO_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
+ENDIF ()
 
 #Include default settings for constructing a robwork dependent project
-INCLUDE(${ROOT}/build/ProjectSetup.cmake)
+SET(ROOT ${RWS_ROOT})
+INCLUDE(${RWS_ROOT}/build/ProjectSetup.cmake)
 
 # setup the install dirs TODO should be cached to allow the use to change it 
 SET(RWS_BIN_INSTALL_DIR "bin/${CMAKE_BUILD_TYPE}/")
@@ -30,38 +35,41 @@ SET(RWS_HPP_INSTALL_DIR "src/")
 SET(RWS_RUNTIME runtime)
 SET(RWS_DEVEL development)
 
-#Include default settings for constructing a robwork dependent project
-SET(ROBWORK_ROOT ${RW_ROOT})
-INCLUDE(${RW_ROOT}/build/FindRobWork.cmake)
-
-INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIR} )
-LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
-
-FIND_PACKAGE(Boost COMPONENTS thread program_options  REQUIRED)
-IF(Boost_FOUND)    
-    LIST(APPEND ROBWORK_LIBRARIES ${Boost_LIBRARIES})
-ENDIF ()
+# Configure build/RobWorkConfig.cmake.in such that other projects might use robwork
+CONFIGURE_FILE(
+  ${RWS_ROOT}/build/RobWorkStudioConfig.cmake.in
+  "${RWS_ROOT}/build/RobWorkStudioConfig${CMAKE_BUILD_TYPE}.cmake")
 
 # This sets up ROBWORKSTUDIO_INCLUDE_DIR and ROBWORKSTUDIO_LIBRARIES
-# since rwstudio depends on RobWork we start by setting up rwstudio
-INCLUDE(${RWSTUDIO_ROOT}/build/RobWorkStudioSetup.cmake)
+# RobWork dependencies are included in these vars
+INCLUDE(${RWS_ROOT}/build/RobWorkStudioSetup.cmake)
+
 INCLUDE_DIRECTORIES( ${ROBWORKSTUDIO_INCLUDE_DIR} )
-LINK_DIRECTORIES(${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-LINK_DIRECTORIES( ${ROBWORKSTUDIO_LIBRARY_DIRS} )
-
-#ADD_SUBDIRECTORY(ext)
-ADD_SUBDIRECTORY(src)
-
-SET(RW_STATIC_LINK_PLUGINS ${RWS_USE_STATIC_LINK_PLUGINS})
+LINK_DIRECTORIES( ${ROBWORKSTUDIO_LIBRARY_DIRS} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
+MESSAGE("${ROBWORKSTUDIO_INCLUDE_DIR}")
+#SET(RW_STATIC_LINK_PLUGINS ${RWS_USE_STATIC_LINK_PLUGINS})
 # Store the test results in a RobWorkConfig.hpp file.
 CONFIGURE_FILE(
-  ${RWSTUDIO_ROOT}/src/RobWorkStudioConfig.hpp.in
-  ${RWSTUDIO_ROOT}/src/RobWorkStudioConfig.hpp)
+  ${RWS_ROOT}/src/RobWorkStudioConfig.hpp.in
+  ${RWS_ROOT}/src/RobWorkStudioConfig.hpp)
+
+# sub directories to process
+ADD_SUBDIRECTORY(src)
+
+OPTION(RWS_BUILD_TESTS "Set when you want to build the tests" ${RWS_BUILD_TESTS})
+IF( RWS_BUILD_TESTS )
+    MESSAGE(STATUS "RobWorkStudio tests ENABLED!")
+    INCLUDE(CTest)
+    ADD_SUBDIRECTORY(test)
+ELSE ()
+    MESSAGE(STATUS "RobWorkStudio tests DISABLED!")
+ENDIF()
+
 
 # Configure build/RobWorkConfig.cmake.in such that other projects might use robwork
 CONFIGURE_FILE(
-  ${RWSTUDIO_ROOT}/build/RobWorkStudioBuildConfig.cmake.in
-  "${RWSTUDIO_ROOT}/build/RobWorkStudioBuildConfig${CMAKE_BUILD_TYPE}.cmake")
+  ${RWS_ROOT}/build/RobWorkStudioBuildConfig.cmake.in
+  "${RWS_ROOT}/build/RobWorkStudioBuildConfig${CMAKE_BUILD_TYPE}.cmake")
 
 # Documentation
 #FIND_PACKAGE(Doxygen)
@@ -70,6 +78,15 @@ CONFIGURE_FILE(
 #ELSE ()
 #    MESSAGE(STATUS "Documentation target is not added! To enable doxygen, make sure doxygen.exe is in the path.")
 #ENDIF( )
+
+# Try to find the current revision 
+FIND_PACKAGE(Subversion)
+IF(Subversion_FOUND)
+    #Subversion_WC_INFO(${RW_ROOT} RobWork)
+    MESSAGE("Current revision is ${RobWork_WC_REVISION}")
+    #Subversion_WC_LOG(${PROJECT_SOURCE_DIR} RobWork) # not foundd in linux
+    #MESSAGE("Last changed log is ${Project_LAST_CHANGED_LOG}")
+ENDIF(Subversion_FOUND)
 
 # Packaging
 INCLUDE(build/packing.cmake)
