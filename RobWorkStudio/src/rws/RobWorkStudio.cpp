@@ -41,8 +41,8 @@
 #include <rw/proximity/CollisionSetup.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
-//#include <rw/loaders/xml/XMLPropertyLoader.hpp>
-//#include <rw/loaders/xml/XMLPropertySaver.hpp>
+#include <rw/loaders/xml/XMLPropertyLoader.hpp>
+#include <rw/loaders/xml/XMLPropertySaver.hpp>
 
 #include <rw/common/StringUtil.hpp>
 #include <rw/common/Exception.hpp>
@@ -104,7 +104,7 @@ RobWorkStudio::RobWorkStudio(RobWorkPtr robwork,
 
     PropertyMap settings;
     try {
-    //	settings = XMLPropertyLoader::load("rwsettings.xml");
+    	settings = XMLPropertyLoader::load("rwsettings.xml");
     } catch(rw::common::Exception &e){
     	RW_WARN("Could not load settings from 'rwsettings.xml': " << e.getMessage().getText() << "\n Using default settings!");
     } catch(std::exception &e){
@@ -164,7 +164,7 @@ RobWorkStudio::~RobWorkStudio()
 
     _settingsMap->set<bool>("CheckForCollision", _view->isCheckForCollisionEnabled() );
 
-  //  XMLPropertySaver::save(*_settingsMap, "rwsettings.xml");
+    XMLPropertySaver::save(*_settingsMap, "rwsettings.xml");
 
     typedef std::vector<RobWorkStudioPlugin*>::iterator I;
     for (I it = _plugins.begin(); it != _plugins.end(); ++it) {
