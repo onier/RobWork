@@ -69,6 +69,7 @@ INCLUDE(${QT_USE_FILE})
 IF (RWS_BUILD_SANDBOX)
     MESSAGE(STATUS "RobWorkStudio Sandbox ENABLED!")
     SET(SANDBOX_LIB "rwstudio_sandbox")
+    SET(RWS_HAVE_SANDBOX true)
 ELSE ()
     MESSAGE(STATUS "RobWorkStudio Sandbox DISABLED!")    
 ENDIF ()
@@ -163,7 +164,7 @@ SET(ROBWORKSTUDIO_LIBRARY_DIRS
     ${RWS_LIBRARY_OUT_DIR} 
     ${RWS_ARCHIVE_OUT_DIR}
 )
-
+#MESSAGE("${ROBWORK_LIBRARY_DIRS}")
 #
 # Setup the Library List here. We need to make sure the correct order is maintained
 # which is crucial for some compilers.
@@ -172,6 +173,7 @@ SET(ROBWORKSTUDIO_LIBRARIES
   ${RWS_SANDBOX}
   ${RWS_LUA}
   "rwstudio"
+  ${ROBWORK_LIBRARIES}
   ${QT_LIBRARIES}
   ${Boost_LIBRARIES}
   ${OPENGL_LIBRARIES}
