@@ -266,7 +266,7 @@ SET(RW_CXX_FLAGS ${RW_CXX_FLAGS_TMP}
                   flags and not those of RobWork"
 )
 ADD_DEFINITIONS(${RW_CXX_FLAGS})
-MESSAGE(STATUS "Using CXX flags: ${RW_CXX_FLAGS}") 
+MESSAGE(STATUS "Adding RW CXX flags: ${RW_CXX_FLAGS}") 
 
 
 
