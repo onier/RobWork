@@ -40,7 +40,7 @@
 #include <rw/kinematics/FixedFrame.hpp>
 #include <rw/proximity/CollisionSetup.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
-#include <rwlibs/proximitystrategies/ProximityStrategyYaobi.hpp>
+#include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 //#include <rw/loaders/xml/XMLPropertyLoader.hpp>
 //#include <rw/loaders/xml/XMLPropertySaver.hpp>
 
@@ -451,7 +451,9 @@ namespace
         return rw::common::ownedPtr(
             new CollisionDetector(
                 workcell,
-                ProximityStrategyYaobi::make()));
+                ProximityStrategyFactory::makeDefaultCollisionStrategy()
+                //ProximityStrategyYaobi::make()
+        ));
     }
 }
 
