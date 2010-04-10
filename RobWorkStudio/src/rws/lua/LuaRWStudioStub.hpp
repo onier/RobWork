@@ -1,6 +1,6 @@
 /*
 ** Lua binding: LuaRWStudio
-** Generated automatically by tolua++-1.0.92 on 03/11/10 00:58:24.
+** Generated automatically by tolua++-1.0.92 on 04/10/10 20:42:33.
 */
 
 /* Exported function */

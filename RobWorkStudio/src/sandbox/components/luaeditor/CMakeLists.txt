@@ -1,4 +1,4 @@
-IF( ${RW_BUILD_WITH_LUA} )
+IF( RW_BUILD_WITH_LUA )
 
 #----------------------------------------------------------------------
 # Define the following variables:

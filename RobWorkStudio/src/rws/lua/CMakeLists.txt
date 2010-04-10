@@ -1,8 +1,6 @@
 
-IF( ${RW_BUILD_WITH_LUA} )
-    FIND_PACKAGE(Tolua++)
+IF( RW_BUILD_WITH_LUA )
     ADD_TOLUA_PACKAGE("LuaRWStudio" "LuaRWStudioStub")
-
     ADD_LIBRARY(rwstudio_lua ${SRC_FILES} ${SRC_FILES_HPP})
 
     INSTALL(TARGETS rwstudio_lua DESTINATION lib)
