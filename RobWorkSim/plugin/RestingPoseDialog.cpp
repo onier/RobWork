@@ -358,11 +358,11 @@ void RestingPoseDialog::calcColFreeRandomCfg(rw::kinematics::State& state){
     // first calculate a random state
     calcRandomCfg(_bodies, state);
     int nrOfTries=0;
-    FramePairSet result;
+    CollisionResult result;
     std::vector<RigidBody*> bodies;
     while( _colDect->inCollision(state, &result, false) ){
         nrOfTries++;
-        BOOST_FOREACH(rw::kinematics::FramePair pair, result){
+        BOOST_FOREACH(rw::kinematics::FramePair pair, result.collidingFrames){
             // generate new collision free configuration between
             RigidBody *body1 = _frameToBody[*pair.first];
             RigidBody *body2 = _frameToBody[*pair.second];
@@ -371,7 +371,7 @@ void RestingPoseDialog::calcColFreeRandomCfg(rw::kinematics::State& state){
             //bodies.push_back(body2);
         }
         calcRandomCfg(bodies, state);
-        result.clear();
+        result.collidingFrames.clear();
         bodies.clear();
     }
     //std::cout << "-------- Col free collision END " << std::endl;

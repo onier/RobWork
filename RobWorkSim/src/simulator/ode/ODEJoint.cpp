@@ -94,6 +94,10 @@ void ODEJoint::reset(const rw::kinematics::State& state){
         Transform3D<> wTb = rw::kinematics::Kinematics::worldTframe( bframe, state);
         wTb.P() += wTb.R()*_offset;
         ODEUtil::setODEBodyT3D( _bodyId, wTb );
+    } else {
+        Transform3D<> wTb = rw::kinematics::Kinematics::worldTframe( _bodyFrame, state);
+        wTb.P() += wTb.R()*_offset;
+        ODEUtil::setODEBodyT3D( _bodyId, wTb );
     }
 
     dBodyEnable( _bodyId );

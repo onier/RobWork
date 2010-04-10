@@ -113,7 +113,9 @@ ContactModelFactory::ContactModelFactory(
 
 void ContactModelFactory::broadPhaseCalc(rw::kinematics::State &state, rw::kinematics::FramePairSet &oFrames){
     std::cout << "* Nr of Collisions: " << oFrames.size() << std::endl;
-    _toleranceDetector->inCollision( state, &oFrames, false);
+    CollisionResult res;
+    _toleranceDetector->inCollision( state, &res, false);
+    oFrames = res.collidingFrames;
     std::cout << "* Nr of Collisions: " << oFrames.size() << std::endl;
 }
 

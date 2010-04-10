@@ -1173,7 +1173,7 @@ void GraspRestingPoseDialog::updateStatus(){
 void GraspRestingPoseDialog::calcColFreeRandomCfg(rw::kinematics::State& state){
     //std::cout << "-------- Col free collision: " << std::endl;
     // first calculate a random state
-    FramePairSet colresult;
+    CollisionResult colresult;
     State istate;
     do {
         istate=state;

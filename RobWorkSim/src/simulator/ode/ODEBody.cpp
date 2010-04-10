@@ -147,10 +147,26 @@ void ODEBody::postupdate(rw::kinematics::State& state){
 }
 
 void ODEBody::reset(const rw::kinematics::State& state){
+	switch(_type){
+    case(ODEBody::RIGID): {
+    	Transform3D<> wTb = rw::kinematics::Kinematics::worldTframe( _mframe, state);
+        wTb.P() += wTb.R()*_offset;
+        ODEUtil::setODEBodyT3D( _bodyId, wTb );
+    }
+    case(ODEBody::RIGIDJOINT): {
+    	//std::cout << "Reset rigid joint" << std::endl;
+    	//Transform3D<> wTb = rw::kinematics::Kinematics::worldTframe( _rwframe, state);
+        //wTb.P() += wTb.R()*_offset;
+        //ODEUtil::setODEBodyT3D( _bodyId, wTb );
+    }
+    break;
+    case(ODEBody::FIXED): {
 
-	Transform3D<> wTb = rw::kinematics::Kinematics::worldTframe( _mframe, state);
-    wTb.P() += wTb.R()*_offset;
-    ODEUtil::setODEBodyT3D( _bodyId, wTb );
+    }
+    break;
+    default:
+    	RW_WARN("UNSUPPORTED ODEBody type");
+	}
 
     dBodyEnable( _bodyId );
     dBodySetAngularVel( _bodyId, 0, 0, 0 );
