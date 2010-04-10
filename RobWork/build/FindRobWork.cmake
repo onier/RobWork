@@ -102,6 +102,10 @@ ENDIF()
 # if robwork was build with xerces then we also need to link with it now
 #
 IF(RW_BUILD_WITH_XERCES)
+    IF(NOT DEFINED XERCES_INCLUDE_DIR OR NOT XERCES_INCLUDE_DIR)
+        SET(XERCESC_INCLUDE_DIR ${RW_BUILD_WITH_XERCES_INCLUDE_DIR})
+    ENDIF()
+
     FIND_PACKAGE(XercesC REQUIRED)
     IF( XERCESC_FOUND )
         MESSAGE(STATUS "Xerces REQUIRED! FOUND!")
@@ -118,6 +122,10 @@ ENDIF()
 # If robwork was build with yaobi then we also need to link with it now
 #
 IF(RW_BUILD_WITH_YAOBI)   
+    IF(NOT DEFINED YAOBI_INCLUDE_DIR OR NOT YAOBI_INCLUDE_DIR)
+        SET(YAOBI_INCLUDE_DIR ${RW_BUILD_WITH_YAOBI_INCLUDE_DIR})
+    ENDIF()
+
     FIND_PACKAGE(Yaobi REQUIRED)
     IF( YAOBI_FOUND )
         MESSAGE(STATUS "Yaobi REQUIRED! FOUND!")
@@ -132,7 +140,13 @@ ENDIF()
 #
 # If robwork was build with pqp then we also need to link with it now
 #
+
+
 IF(RW_BUILD_WITH_PQP)
+    IF(NOT DEFINED PQP_INCLUDE_DIR OR NOT PQP_INCLUDE_DIR)
+        SET(PQP_INCLUDE_DIR ${RW_BUILD_WITH_PQP_INCLUDE_DIR})
+    ENDIF()
+
     FIND_PACKAGE(PQP REQUIRED)
     IF( PQP_FOUND )
         MESSAGE(STATUS "PQP REQUIRED! FOUND!")
@@ -269,9 +283,11 @@ SET(ROBWORK_LIBRARY_DIRS
 # 
 SET(ROBWORK_LIBRARIES
   ${SANDBOX_LIB}
+  "rw_control"
   "rw_algorithms"
   "rw_pathplanners"
   "rw_pathoptimization"
+  "rw_task"
   ${RW_DRAWABLE_LIB}
   "rw_simulation"
   ${RW_LUA_LIBRARY}
