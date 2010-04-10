@@ -37,6 +37,7 @@ ENDMACRO (ADD_TOLUA_PACKAGE)
 
 FIND_PATH(TOLUA_INCLUDE_DIR tolua++.h
   HINTS
+  ${TOLUA_DIR}
   $ENV{TOLUA_DIR}
   PATH_SUFFIXES include/tolua include
   PATHS
@@ -53,6 +54,7 @@ FIND_PATH(TOLUA_INCLUDE_DIR tolua++.h
 FIND_LIBRARY(TOLUA_LIBRARY 
   NAMES tolua++ tolua++5.1 tolua++51 tolua tolua51 tolua5.1
   HINTS
+  ${TOLUA_DIR}  
   $ENV{TOLUA_DIR}
   ${TOLUA_LIBRARY_DIR}
   PATH_SUFFIXES lib64 lib
