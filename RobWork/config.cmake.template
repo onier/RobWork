@@ -19,16 +19,20 @@ IF (DEFINED MINGW OR DEFINED MSVC)
 ENDIF()
 
 # Specify the root dir of your boost installation if it is not autodetected
-FILE(TO_CMAKE_PATH $ENV{BOOST_ROOT} BOOST_ROOT)
-SET(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib/") # if installed in non-standard dir
-SET(BOOST_INCLUDEDIR "${BOOST_ROOT}/include")
+IF($ENV{BOOST_ROOT})
+  FILE(TO_CMAKE_PATH $ENV{BOOST_ROOT} BOOST_ROOT)
+  SET(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib/") # if installed in non-standard dir
+  SET(BOOST_INCLUDEDIR "${BOOST_ROOT}/include")
+ENDIF()
 
 # If you want to use the new Xerces based XML loader then set to ON. But make sure that
 # cmake is able to find the xerces include dir and lib dir
 SET(USE_XERCES ON)
-FILE(TO_CMAKE_PATH $ENV{XERCES_ROOT} XERCES_ROOT) # to make sure that we use / instead of \ in path
-SET(XERCESC_INCLUDE_DIR "${XERCES_ROOT}/include")
-SET(XERCESC_LIB_DIR "${XERCES_ROOT}/lib")
+IF($ENV{XERCES_ROOT})
+  FILE(TO_CMAKE_PATH $ENV{XERCES_ROOT} XERCES_ROOT) # to make sure that we use / instead of \ in path
+  SET(XERCESC_INCLUDE_DIR "${XERCES_ROOT}/include")
+  SET(XERCESC_LIB_DIR "${XERCES_ROOT}/lib")
+ENDIF()
 
 # Specify which optional packages you want,these external pacakges are included 
 # with robwork and will be used if other packages are not specified

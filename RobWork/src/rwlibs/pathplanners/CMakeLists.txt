@@ -3,7 +3,7 @@ SET(SRC_FILES
   ./z3/Z3QToQPlanner.cpp
   ./z3/Z3Planner.cpp
   ./prm/PartialIndexTable.cpp
-  ./prm/PRMPlanner.cpp
+#  ./prm/PRMPlanner.cpp
   ./rrt/RRTQToQPlanner.cpp
   ./rrt/RRTPlanner.cpp
   ./arw/ARWExpand.cpp
@@ -20,7 +20,7 @@ SET(SRC_FILES_HPP
   ./z3/Z3QToQPlanner.hpp
   ./z3/Z3Planner.hpp
   ./prm/PartialIndexTable.hpp
-  ./prm/PRMPlanner.hpp
+#  ./prm/PRMPlanner.hpp
   ./rrt/RRTQToQPlanner.hpp
   ./rrt/RRTPlanner.hpp
   ./arw/ARWExpand.hpp
