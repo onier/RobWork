@@ -18,7 +18,7 @@ SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Now set the robwork root (IMPORTANT EDIT THIS)
 IF(NOT DEFINED RW_ROOT)
-    SET(RW_ROOT "${ROOT}/../../../RobWork_branch/")
+    SET(RW_ROOT "${ROOT}/../../../RobWork/")
 ENDIF()
 
 # set some robwork settings (EDIT THESE TO FIT YOUR ENVIRONMENT)
