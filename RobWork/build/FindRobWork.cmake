@@ -75,6 +75,9 @@ LIST(APPEND CMAKE_LIBRARY_PATH ${RW_BUILD_WITH_LIBRARY_DIRS})
 #
 FIND_PACKAGE(Boost COMPONENTS thread filesystem system regex REQUIRED )
 
+IF(NOT DEFINED WIN32)
+  SET(BLA_STATIC ON)
+ENDIF()
 #SET(BLA_STATIC ON) # for some reason this creates an error in the system and find_library will not function correctly after this
 #FIND_PACKAGE(BLAS REQUIRED)
 FIND_PACKAGE(LAPACK REQUIRED) # automatically detects BLAS
