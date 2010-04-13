@@ -610,7 +610,8 @@ bool PRMPlanner::searchForShortestPathAstar(const Node& nInit, const Node& nGoal
 			&pmap = get(&EdgeData::weight, _graph);
 
 		// call astar named parameter interface
-        astar_search(
+		// TODO: PRM Planner fails with gcc 4.4  -  astar_search disabled = not working
+        /*astar_search(
             _graph,
             nInit,
             PathHeuristic(_graph, _metric.get(), nGoal),
@@ -618,6 +619,7 @@ bool PRMPlanner::searchForShortestPathAstar(const Node& nInit, const Node& nGoal
             vertex_index_map(indexMap).predecessor_map(p).
             visitor(AStarGoalVisitor<Node>(nGoal, _astarTimeOutTime))
             );
+            */
 		std::cout<<"A* D"<<std::endl;std::cout.flush();
         /*astar_search(
 
