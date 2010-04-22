@@ -21,10 +21,10 @@ if (DEFINED MINGW)
   configure_file("${Root}/libs_mingw/glut32.lib" "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/glut32.lib" COPYONLY)
   configure_file("${Root}/libs_mingw/glut32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/glut32.dll" COPYONLY)
 
-  configure_file("${Root}/libs_vs/blas_win32.lib" "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/blas.lib" COPYONLY)
-  configure_file("${Root}/libs_vs/lapack_win32.lib" "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lapack.lib" COPYONLY)
-  configure_file("${Root}/libs_vs/blas_win32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/blas.dll" COPYONLY)
-  configure_file("${Root}/libs_vs/lapack_win32.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lapack.dll" COPYONLY)
+  configure_file("${Root}/libs_vs/blas.lib" "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/blas.lib" COPYONLY)
+  configure_file("${Root}/libs_vs/lapack.lib" "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lapack.lib" COPYONLY)
+  configure_file("${Root}/libs_vs/blas.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/blas.dll" COPYONLY)
+  configure_file("${Root}/libs_vs/lapack.dll" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/lapack.dll" COPYONLY)
 
   INSTALL(FILES 
       "${Root}/libs_mingw/glut32.lib"
