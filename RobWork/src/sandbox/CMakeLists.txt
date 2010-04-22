@@ -23,6 +23,7 @@ SET(SRC_FILES
     
     #MovingAverage.cpp
 
+    loaders/RWXMLFile.cpp
     
     #proximity/BroadPhaseStrategy.cpp
     #proximity/CollisionStrategy.cpp
