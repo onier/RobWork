@@ -5,8 +5,19 @@
 \page page_rw_installation RobWork and RobWorkStudio installation
 
 - \ref sec_rw_install_common
+-- \ref sec_rw_dependencies
+
 - \ref sec_rw_install_linux
-- \ref sec_rw_install_windows
+
+- \ref sec_rw_install_windows_mingw
+-- \ref sec_rw_install_xerces_mingw
+-- \ref sec_rw_install_boost_mingw
+-- \ref sec_rw_compiling_robwork_mingw
+
+- \ref subsec_rw_install_windows_visual
+-- \ref sec_rw_install_xerces_visual
+-- \ref sec_rw_install_boost_visual
+-- \ref sec_rw_compiling_robwork_visual
 
 \section sec_rw_install_common Installation instructions common for all platforms
 
@@ -61,6 +72,8 @@ RobWorkStudio/bin/RobWorkStudio.ini_template shows suggested contents
 for the \c RobWorkStudio.ini file. Start the \b RobWorkStudio program
 and try opening a workcell file like for example \c
 RobWork/docs/workcell.wu.
+
+\section sec_rw_dependencies Dependencies of RobWork
 
 \section sec_rw_install_linux Installation on Linux
 
@@ -169,112 +182,7 @@ This CMake command generates a Visual Studio solution file named \c
 RobWork.sln. Open the solution file with Visual Studio and build the
 solution. Repeat the procedure for the \c RobWorkStudio directory.
 
-*/
 
-/*
 
-----------------------------------------------------------------------
--- Killed text
-----------------------------------------------------------------------
-
-- Now open the Visual Studio solution and compile.
-    - Notice: Newer versions of Visual Studio has many of the c-style
-      functions (e.g. sscanf, fopen, etc.) as deprecated and gives
-      warnings. Just ignore these.
-
-----------------------------------------------------------------------
-
-- Blas and lapack - libraries that typically exists on linux/unix
-  platforms. We have supplied precompiled libraries for windows
-  platforms in our download section.
-
-- (Optional) Eclipse Europe - Eclipse Europe is a C++ programming
-  framework. Eclipse project files are supplied with the RobWork
-  source.
-
-- Notice that If you choose to install mingw using the QT installer
-  you will be missing the gcc-g77 package.
-
-----------------------------------------------------------------------
-
-- Check that the installers has made the correct setup of system variables
-  - QTDIR set to your QT folder (e.g. c:\\local\\Qt\\4.3.1)
-  - PATH contains you QT, MingQ and System32 folders (e.g.
-  c:\\local\\Qt\\4.3.1; c:\\local\\MingW\\bin;
-  c:\\Windows\\System32)
-  - QMAKESPEC set to win32-g++
-
-----------------------------------------------------------------------
-
-The CMake build system can be used with different compilers. Currently
-only the GCC compilation system of <a
-href="http://www.mingw.org">MinGW</a> is fully supported, but if you
-don't need RobWorkStudio then <a
-href="http://msdn.microsoft.com/vstudio">Microsoft Visual Studio</a>
-is usable also.
-
-If MinGW if the only compiler on you system you can omit the -G "MinGW
-Makefiles".
-
-----------------------------------------------------------------------
-
-By default the project is compiled without orocos. To use orocos WHAT
-WAS IT WE NEEDED TO DO FOR THIS?
-
-- Goto RobWork/ext/orocos/
-- execute \code cmake .\endcode
-- execute \code make\endcode and then \code make install \endcode
-- liborocos-rtt.a will be installed to the rwroot/libs/ folder and all header files will be installed to rwroot/ext/orocos/include
-
-Common pitfals:
-
-- Problem - CMake does not find MinGW but instead locates another
-  compiler (visual cl.exe or the likes).
-    - Solution - Check if MinGW is in your system path. If you have
-      more than one make system on your platform then CMake will
-      automatically choose one. To force CMake to choose MinGW
-      compiler use <cmake -G"MinGW Makefiles" .> instead of just
-      <cmake .>
-
-However, if you have and would like to explain how, please send us the
-information.
-
-----------------------------------------------------------------------
-(Orocos has been removed.)
-
-The Orocos system is included in the RobWork package. If you want to
-use RobWork together with Orocos you can build the Orocos library as
-follows:
-
-\code
-cd RobWork/ext/orocos
-cmake .
-make
-make install
-\endcode
-
-Note that \c make \c install command will install Orocos locally.
-
-----------------------------------------------------------------------
-\subsection subsec_rw_install_linux_start_robworkstudio Starting RobWorkStudio
-
-The RobWorkStudio program a \c RobWorkStudio.ini file from the current
-working directory. To create the \c RobWorkStudio.ini file and start up
-RobWorkStudio do as follows:
-
-\code
-cd RobWorkStudio/bin
-cp RobWorkStudio.ini_template RobWorkStudio.ini
-./RobWorkStudio
-\endcode
-
-\subsection subsec_rw_install_linux_dependencies Dependencies
-\subsection subsec_rw_install_linux_unpack Downloading and uncompressing the software
-\subsection subsec_rw_install_linux_compile Building RobWork and RobWorkStudio
-
-The RobWorkStudio program is found in the \c RobWorkStudio\\bin
-directory. Before running the program for the first time, you must
-rename the \c RobWorkStudio.ini_template file found in the \c
-RobWorkStudio\\bin directory to \c RobWorkStudio.ini.
 
 */

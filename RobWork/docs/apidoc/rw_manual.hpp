@@ -24,10 +24,10 @@
 - \ref sec_rw_manual_invkin
 - \ref sec_rw_manual_pointer_conventions
 
-- \ref page_rw_installation
-- \ref page_tul
-- \ref page_xml_workcell_format
-- \ref page_lua
+- \subpage page_rw_installation
+- \subpage page_tul
+- \subpage page_xml_workcell_format
+- \subpage page_lua
 
 \section sec_rw_manual_intro Introduction
 
