@@ -262,14 +262,14 @@ EXTRACT_LOCAL_METHODS = NO
 # various overviews, but no documentation section is generated.
 # This option has no effect if EXTRACT_ALL is enabled.
 
-HIDE_UNDOC_MEMBERS = YES
+HIDE_UNDOC_MEMBERS = NO
 
 # If the HIDE_UNDOC_CLASSES tag is set to YES, Doxygen will hide all
 # undocumented classes that are normally visible in the class hierarchy.
 # If set to NO (the default) these classes will be included in the various
 # overviews. This option has no effect if EXTRACT_ALL is enabled.
 
-HIDE_UNDOC_CLASSES = YES
+HIDE_UNDOC_CLASSES = NO
 
 # If the HIDE_FRIEND_COMPOUNDS tag is set to YES, Doxygen will hide all
 # friend (class|struct|union) declarations.
@@ -436,7 +436,7 @@ WARN_IF_DOC_ERROR = YES
 # wrong or incomplete parameter documentation, but not about the absence of
 # documentation.
 
-WARN_NO_PARAMDOC = NO
+WARN_NO_PARAMDOC = YES
 
 # The WARN_FORMAT tag determines the format of the warning messages that
 # doxygen can produce. The string should contain the $file, $line, and $text
@@ -491,7 +491,7 @@ RECURSIVE = YES
 
 # This is really dumb, but you have to have a space between the file name and
 # the \ character.
-EXCLUDE =  src/deprecated src/rw/math/Metric_.hpp src/rwlibs/pathplanners/sbl/SBLInternal.hpp src/rwlibs/pathplanners/sbl/SBLOptions.hpp src/rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp src/rwlibs/pathplanners/rrt/RRTTree.hpp src/rwlibs/pathplanners/rrt/RRTNode.hpp src/rwlibs/lua/robwork_stub.hpp src/rwlibs/lua/robwork_wrapper.hpp src/rwlibs/lua/robwork_stub.hpp src/rwlibs/drawable/GLTexture.h src/rwlibs/drawable/Model_3DS.h
+EXCLUDE = src/deprecated src/rw/math/Metric_.hpp src/rwlibs/pathplanners/sbl/SBLInternal.hpp src/rwlibs/pathplanners/sbl/SBLOptions.hpp src/rwlibs/pathplanners/rrt/RRTQToQPlanner.hpp src/rwlibs/pathplanners/rrt/RRTTree.hpp src/rwlibs/pathplanners/rrt/RRTNode.hpp src/rwlibs/lua/robwork_stub.hpp src/rwlibs/lua/robwork_wrapper.hpp src/rwlibs/lua/robwork_stub.hpp src/rwlibs/drawable/GLTexture.h src/rwlibs/drawable/Model_3DS.h
 
 # Other candidates: Accessor, JacobianUtil, QState, TreeState, QStateSetup, Tree.
 
@@ -574,7 +574,7 @@ FILTER_SOURCE_FILES = NO
 # Note: To get rid of all source code in the generated output, make sure also
 # VERBATIM_HEADERS is set to NO.
 
-SOURCE_BROWSER = NO
+SOURCE_BROWSER = YES
 
 # Setting the INLINE_SOURCES tag to YES will include the body
 # of functions and classes directly in the documentation.
@@ -661,13 +661,13 @@ HTML_FILE_EXTENSION = .html
 # each generated HTML page. If it is left blank doxygen will generate a
 # standard header.
 
-HTML_HEADER = 
+HTML_HEADER = ./docs/doxygen_header_wiki.html
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for
 # each generated HTML page. If it is left blank doxygen will generate a
 # standard footer.
 
-HTML_FOOTER = 
+HTML_FOOTER = ./docs/doxygen_footer_wiki.html
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading
 # style sheet that is used by each HTML page. It can be used to
@@ -676,7 +676,7 @@ HTML_FOOTER =
 # the style sheet file to the HTML output directory, so don't put your own
 # stylesheet in the HTML output directory as well, or it will be erased!
 
-HTML_STYLESHEET = stylesheet.css
+HTML_STYLESHEET = ./docs/doxygen_monobook.css
 
 # If the HTML_ALIGN_MEMBERS tag is set to YES, the members of classes,
 # files or namespaces will be aligned in HTML using tables. If set to
@@ -1255,3 +1255,6 @@ DOT_CLEANUP = YES
 # used. If set to NO the values of all tags below this one will be ignored.
 
 SEARCHENGINE = YES
+
+
+LAYOUT_FILE = ./docs/doxygenlayout.xml
