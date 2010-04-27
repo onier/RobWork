@@ -30,7 +30,7 @@ public:
                   IdxTriMesh,
                   SpherePrim, BoxPrim, OBBPrim, AABBPrim,
                   LinePrim, PointPrim, PyramidPrim, ConePrim,
-                  TrianglePrim, CylinderPrim, PlanePrim,
+                  TrianglePrim, CylinderPrim, PlanePrim, RayPrim,
                   UserType} GeometryType;
 
     //typedef enum {Primitive, PlainTriMesh, IdxTriMesh, UserType} GeomClass;

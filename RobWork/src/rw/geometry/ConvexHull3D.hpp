@@ -5,8 +5,8 @@
  *      Author: jimali
  */
 
-#ifndef HULL3D_HPP_
-#define HULL3D_HPP_
+#ifndef RW_GEOMETRY_CONVEXHULLHULL3D_HPP_
+#define RW_GEOMETRY_CONVEXHULLHULL3D_HPP_
 
 #include "Triangle.hpp"
 #include "IndexedTriangle.hpp"
