@@ -30,7 +30,7 @@ namespace simulation {
 /**
  * @brief inter
  */
-class SimulatedController {
+class SimulatedController /*: public rwlibs::control::Controller*/ {
 
 public:
 
