@@ -32,10 +32,13 @@
 #include <rw/common/Cache.hpp>
 
 #include <rw/kinematics/Frame.hpp>
+#include <rw/proximity/CollisionData.hpp>
 #include <rw/proximity/CollisionStrategy.hpp>
 #include <rw/proximity/CollisionToleranceStrategy.hpp>
 #include <rw/proximity/DistanceStrategy.hpp>
 #include <rw/proximity/DistanceToleranceStrategy.hpp>
+
+#include <rw/proximity/ProximityCache.hpp>
 
 #include <PQP/PQP.h>
 
@@ -44,6 +47,17 @@ namespace PQP { class PQP_Model; }
 namespace rwlibs { namespace proximitystrategies {
     /** @addtogroup proximitystrategies */
     /*@{*/
+
+	class PQPCollisionCache: public rw::proximity::ProximityCache {
+	public:
+		PQPCollisionCache(rw::proximity::ProximityStrategy *owner):
+				rw::proximity::ProximityCache(owner){};
+
+		size_t size() const{ return result.num_pairs_alloced;}
+		void clear() { result.FreePairsList(); };
+
+		PQP::PQP_CollideResult result;
+	};
 
     /**
      * @brief This is a strategy wrapper for the distance library
@@ -86,7 +100,7 @@ namespace rwlibs { namespace proximitystrategies {
 
         //// interface of ProximityStrategy
 
-        /**
+        /** 16811Marmor: 696Krystal glas: 6944Svovl: 15547
          * @copydoc rw::proximity::ProximityStrategy::createModel
          */
         virtual rw::proximity::ProximityModelPtr createModel();
@@ -124,6 +138,13 @@ namespace rwlibs { namespace proximitystrategies {
             const rw::math::Transform3D<>& wTa,
             rw::proximity::ProximityModelPtr b,
             const rw::math::Transform3D<>& wTb);
+
+        bool collides(
+            rw::proximity::ProximityModelPtr a,
+            const rw::math::Transform3D<>& wTa,
+            rw::proximity::ProximityModelPtr b,
+            const rw::math::Transform3D<>& wTb,
+            rw::proximity::CollisionData& data);
 
         /**
          * @copydoc rw::proximity::CollisionToleranceStrategy::inCollision

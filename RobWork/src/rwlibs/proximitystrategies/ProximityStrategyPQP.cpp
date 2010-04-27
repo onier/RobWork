@@ -211,13 +211,13 @@ ProximityStrategyPQP::ProximityStrategyPQP() :
 
 rw::proximity::ProximityModelPtr ProximityStrategyPQP::createModel()
 {
-    std::cout << "create model PQP" << std::endl;
     PQPProximityModel *model = new PQPProximityModel(this);
     return ownedPtr(model);
 }
 
 void ProximityStrategyPQP::destroyModel(rw::proximity::ProximityModel* model){
-
+	// when model gets deleted it should cleanup itself
+	// TODO: though the models should probably be removed from cache
 }
 
 bool ProximityStrategyPQP::addGeometry(
@@ -228,7 +228,11 @@ bool ProximityStrategyPQP::addGeometry(
     PQPModelPtr pqpmodel;
     GeometryDataPtr gdata = geom.getGeometryData();
     // first check if model is in cache
-    if( _modelCache.has(geom.getId()) ){
+    bool useCache = true;
+    if(geom.getId()=="")
+    	useCache = false;
+
+    if( useCache && _modelCache.has(geom.getId()) ){
         pqpmodel = _modelCache.get(geom.getId());
     } else {
     	TriMeshPtr mesh = GeometryUtil::toTriMesh( gdata.get() );
@@ -249,9 +253,12 @@ bool ProximityStrategyPQP::addGeometry(
             }
         }
         pqpmodel->EndModel();
+        if( useCache )
+        	_modelCache.add(geom.getId(), pqpmodel);
     }
 
     pmodel->models.push_back( RWPQPModel(geom.getTransform(), pqpmodel) );
+
     _allmodels.push_back(pmodel->models.back());
     _geoIdToModelIdx[geom.getId()].push_back(_allmodels.size()-1);
     return true;
@@ -311,7 +318,7 @@ bool ProximityStrategyPQP::collides(ProximityModelPtr aModel,
 
     PQPProximityModel *a = (PQPProximityModel*)aModel.get();
     PQPProximityModel *b = (PQPProximityModel*)bModel.get();
-
+    bool collides = false;
     PQP::PQP_CollideResult result;
     BOOST_FOREACH(const RWPQPModel& ma, a->models) {
         BOOST_FOREACH(const RWPQPModel& mb, b->models) {
@@ -323,13 +330,71 @@ bool ProximityStrategyPQP::collides(ProximityModelPtr aModel,
 
             _numBVTests += result.NumBVTests();
             _numTriTests += result.NumTriTests();
-            if (result.Colliding() != 0)
-            	return true;
+            if (result.Colliding() != 0){
+            	collides = true;
+            	// copy all results to col data record
+            	if( _firstContact )
+            		return true;
+            }
         }
     }
 
-    return false;
+    return collides;
 }
+
+bool ProximityStrategyPQP::collides(ProximityModelPtr aModel,
+									   const Transform3D<>& wTa,
+									   ProximityModelPtr bModel,
+									   const Transform3D<>& wTb,
+									   CollisionData &data)
+{
+    //RW_ASSERT(aModel->owner==this);
+    //RW_ASSERT(bModel->owner==this);
+	if(data._cache==NULL)
+		data._cache = ownedPtr(new PQPCollisionCache(this));
+	PQPCollisionCache *cache = (PQPCollisionCache*)data._cache.get();
+
+    PQPProximityModel *a = (PQPProximityModel*)aModel.get();
+    PQPProximityModel *b = (PQPProximityModel*)bModel.get();
+    int nrOfCollidingGeoms = 0, geoIdxA=0, geoIdxB=0;
+    bool col_res = false;
+    BOOST_FOREACH(const RWPQPModel& ma, a->models) {
+        BOOST_FOREACH(const RWPQPModel& mb, b->models) {
+            pqpCollide(
+                *ma.second, wTa * ma.first,
+                *mb.second, wTb * mb.first,
+                cache->result,
+                _firstContact);
+
+            _numBVTests += cache->result.NumBVTests();
+            _numTriTests += cache->result.NumTriTests();
+            if (cache->result.Colliding() != 0){
+            	data.a = a;
+            	data.b = b;
+            	data._aTb = fromRapidTransform(cache->result.R,cache->result.T);
+            	if(_firstContact)
+            		return true;
+            	nrOfCollidingGeoms++;
+            	// copy data to collision data res
+            	if(data._collidePairs.size()<nrOfCollidingGeoms)
+            		data._collidePairs.resize(nrOfCollidingGeoms);
+            	data._collidePairs[nrOfCollidingGeoms-1].geoIdxA = geoIdxA;
+            	data._collidePairs[nrOfCollidingGeoms-1].geoIdxB = geoIdxB;
+
+            	data._collidePairs[nrOfCollidingGeoms-1]._geomPrimIds.resize(cache->result.num_pairs);
+            	for(int j=0;j<cache->result.num_pairs;j++){
+            		data._collidePairs[nrOfCollidingGeoms-1]._geomPrimIds[j].first = cache->result.pairs[j].id1;
+            		data._collidePairs[nrOfCollidingGeoms-1]._geomPrimIds[j].second = cache->result.pairs[j].id2;
+            	}
+            	col_res = true;
+            }
+            geoIdxB++;
+        }
+        geoIdxA++;
+    }
+    return col_res;
+}
+
 
 bool ProximityStrategyPQP::calcDistance(DistanceResult &rwresult,
 									ProximityModelPtr aModel,
