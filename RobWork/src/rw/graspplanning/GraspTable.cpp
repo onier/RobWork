@@ -66,15 +66,18 @@ GraspTable* GraspTable::load(const std::string& filename){
     	GraspData data;
     	float a[3];
     	float pq[handdof];
-    	float qual[nrquality];
     	float hp[6], op[6];
     	istr >> a[0] >> tmpC >> a[1] >> tmpC >> a[2] >> tmpC;
     	data.approach = Vector3D<>(a[0],a[1],a[2]);
     	//std::cout << "1";
-    	data.quality = Q(nrquality);
-    	for(size_t j=0;j<nrquality;j++){
-    		istr >> qual[j]>> tmpC;
-    		data.quality[j] = qual[j];
+
+    	if(nrquality>0){
+			float qual[nrquality];
+			data.quality = Q(nrquality);
+			for(size_t j=0;j<nrquality;j++){
+				istr >> qual[j]>> tmpC;
+				data.quality[j] = qual[j];
+			}
     	}
     	//std::cout << "2";
     	data.pq = Q(handdof);
