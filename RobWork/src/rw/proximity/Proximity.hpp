@@ -22,6 +22,7 @@
 #include "CollisionStrategy.hpp"
 #include <rw/models/WorkCell.hpp>
 #include <rw/models/Device.hpp>
+#include <rw/geometry/Geometry.hpp>
 
 #include <vector>
 #include <set>
@@ -60,6 +61,8 @@ namespace rw { namespace proximity {
         static
         CollisionSetup getCollisionSetup(const rw::models::WorkCell& workcell);
 
+        static
+        std::vector<rw::geometry::GeometryPtr> getGeometry(const rw::kinematics::Frame* frame);
     private:
         Proximity();
         Proximity(const Proximity&);

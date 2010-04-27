@@ -29,6 +29,7 @@
 #include <rw/models/RevoluteJoint.hpp>
 #include <rw/models/DependentPrismaticJoint.hpp>
 #include <rw/models/DependentRevoluteJoint.hpp>
+#include <rw/geometry/GeometryFactory.hpp>
 
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/common/macros.hpp>
@@ -40,7 +41,7 @@ using namespace rw::kinematics;
 using namespace rw::proximity;
 using namespace rw::common;
 using namespace rw::models;
-
+using namespace rw::geometry;
 
 
 
@@ -51,5 +52,28 @@ CollisionSetup Proximity::getCollisionSetup(const WorkCell& workcell)
         return Accessor::collisionSetup().get(root);
     else
         return CollisionSetup();
+}
+
+std::vector<GeometryPtr> Proximity::getGeometry(const rw::kinematics::Frame* frame){
+	std::vector<GeometryPtr> geoms;
+    if (!Accessor::collisionModelInfo().has(*frame)) {
+    	return geoms;
+	}
+
+	std::vector<CollisionModelInfo> modelInfos = Accessor::collisionModelInfo().get(*frame);
+	if( modelInfos.size()==0 ){
+		return geoms;
+	}
+
+	BOOST_FOREACH(CollisionModelInfo &info, modelInfos){
+		GeometryPtr geom = GeometryFactory::getGeometry(info.getId());
+		if(geom==NULL)
+			continue;
+
+		geom->setTransform( info.getTransform() );
+		geom->setScale( info.getGeoScale() );
+		geoms.push_back(geom);
+	}
+	return geoms;
 }
 

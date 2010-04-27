@@ -60,6 +60,7 @@ namespace rw {
     	kinematics::FramePairSet collidingFrames;
     };
 
+
     /**
      @brief The CollisionDetector implements an efficient way of checking a
      complete frame tree for collisions.
