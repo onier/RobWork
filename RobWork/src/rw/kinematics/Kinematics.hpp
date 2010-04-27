@@ -90,6 +90,8 @@ namespace rw { namespace kinematics {
          */
         static std::vector<Frame*> findAllFrames(Frame* root, const State& state);
 
+        static std::vector<Frame*> findAllFrames(Frame* root);
+
         /**
            @brief Find the world frame of the workcell by traversing the path
            from \b frame to the root of the tree.
