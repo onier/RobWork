@@ -29,7 +29,7 @@
  */
 
 class RWXMLFile {
-
+public:
 	/**
 	 * @brief save a workcell with some intial states "initState" to a file with name
 	 * "filename".

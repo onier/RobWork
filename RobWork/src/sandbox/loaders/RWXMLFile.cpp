@@ -40,7 +40,7 @@ int clvl=0;
 namespace {
     std::string wlvl(){
         std::stringstream sstr;
-        for(int i=0;i++;i<clvl)
+        for(int i=0;i<clvl;i++)
             sstr << " ";
         return sstr.str();
     }
@@ -57,14 +57,84 @@ namespace {
 		    return false;
 		}
 
+		bool isFrameParentToDevice(Frame *frame){
+		    return parentToDevice.find(frame)!=parentToDevice.end();
+		}
+
+		void init(){
+			Frame *world = wc->getWorldFrame();
+			//std::vector<>Kinematics::findAllFrames(world, state);
+			devices = wc->getDevices();
+			frames = Kinematics::findAllFrames(world, state);
+			BOOST_FOREACH(Device* dev, devices){
+				std::vector<Frame*> dframes = Kinematics::findAllFrames( dev->getBase() );
+				std::string dname = dev->getName();
+				BOOST_FOREACH(Frame* dframe, dframes){
+					std::string fname = dframe->getName();
+
+					if(fname.length() > dname.length()){
+						if(dname == fname.substr(0,dname.length())){
+							frameToDevice[dframe] = dev;
+						}
+					}
+				}
+
+				if(TreeDevice *tdev = dynamic_cast<TreeDevice*>(dev)){
+					BOOST_FOREACH(Frame* endf, tdev->getEnds())
+							isEndEffector[endf] = true;
+				} else {
+					isEndEffector[dev->getEnd()] = true;
+				}
+
+
+				parentToDevice[dev->getBase()->getParent()] = dev;
+			}
+
+		}
+
 		State state;
 		WorkCell *wc;
 		std::vector<Frame*> frames;
 		std::map<Frame*,Device*> frameToDevice;
+		std::map<Frame*,Device*> parentToDevice;
+		std::map<Frame*,bool> isEndEffector;
 		std::vector<Device*> devices;
 	};
 
-	DummyWorkcell _dwc;
+	// remove the device scope name from frame
+	std::string scopedName(Device* dev, Frame *frame){
+		std::string fname = frame->getName();
+		std::string dname = dev->getName();
+		std::cout << dname << "-->" << fname << std::endl;
+		if(fname.length()>dname.length()){
+			if( dname == fname.substr(0,dname.length())  ){
+				return fname.substr(dname.length()+1, fname.length()-(dname.length()+1));
+			}
+		}
+		return fname;
+
+
+	}
+
+	std::string scopedName(DummyWorkcell &dwc, Frame *frame){
+		if(dwc.isFrameInDevice(frame)){
+			return scopedName(dwc.frameToDevice[frame], frame);
+		}
+
+		return frame->getName();
+	}
+
+	std::string scopedName(DummyWorkcell &dwc, Frame *sframe, Frame *frame){
+		std::cout << "scoped name" << std::endl;
+		std::cout << sframe->getName() << "-->" << frame->getName() << std::endl;
+		if(dwc.isFrameInDevice(frame)){
+			std::cout << "scoped me" << std::endl;
+			if(dwc.isFrameInDevice(sframe,dwc.frameToDevice[frame]))
+				return scopedName(dwc.frameToDevice[frame], frame);
+		}
+		std::cout << "scoped " << std::endl;
+		return frame->getName();
+	}
 
 	std::string getDeviceType(Device &dev){
 	        if( dynamic_cast<SerialDevice*>(&dev) ){
@@ -98,21 +168,21 @@ namespace {
 
 	void writeRevoluteJoint(DummyWorkcell& dwc, RevoluteJoint &joint, std::ostream &ostr){
         ostr << wlvl()
-             << "<Joint name=\"" << joint.getName()
-             << "\" refframe=\"" << joint.getParent()->getName()
+             << "<Joint name=\"" << scopedName(dwc, &joint)
+             << "\" refframe=\"" << scopedName(dwc, &joint, joint.getParent(dwc.state))
              << "\" type=\"Revolute\">\n";
 
         clvl++;
         writeTransform(joint.getTransform(dwc.state), ostr );
         Q pmin = joint.getBounds().first;
-        Q pmax = joint.getBounds().first;
-        ostr << wlvl() << "<PosLimit min=\""<<pmin(0)<<"\" max=\""<<pmax(0)<<"\" />\n";
+        Q pmax = joint.getBounds().second;
+        ostr << wlvl() << "<PosLimit min=\""<<pmin(0)*Rad2Deg<<"\" max=\""<<pmax(0)*Rad2Deg<<"\" />\n";
 
         Q vel = joint.getMaxAcceleration();
-        ostr << wlvl() << "<VelLimit max=\""<<vel(0)<<"\" />\n";
+        ostr << wlvl() << "<VelLimit max=\""<<vel(0)*Rad2Deg<<"\" />\n";
 
         Q acc = joint.getMaxAcceleration();
-        ostr << wlvl() << "<AccLimit max=\""<<acc(0)<<"\" />\n";
+        ostr << wlvl() << "<AccLimit max=\""<<acc(0)*Rad2Deg<<"\" />\n";
 
         clvl--;
         ostr << wlvl() << "</Joint>\n";
@@ -120,13 +190,13 @@ namespace {
 
    void writePrismaticJoint(DummyWorkcell& dwc, PrismaticJoint &joint, std::ostream &ostr){
         ostr << wlvl()
-             << "<Joint name=\"" << joint.getName()
-             << "\" refframe=\"" << joint.getParent()->getName()
+             << "<Joint name=\"" << scopedName(dwc,&joint)
+             << "\" refframe=\"" << scopedName(dwc,&joint, joint.getParent(dwc.state))
              << "\" type=\"Prismatic\">\n";
         clvl++;
         writeTransform(joint.getTransform(dwc.state), ostr );
         Q pmin = joint.getBounds().first;
-        Q pmax = joint.getBounds().first;
+        Q pmax = joint.getBounds().second;
         ostr << wlvl() << "<PosLimit min=\""<<pmin(0)<<"\" max=\""<<pmax(0)<<"\" />\n";
 
         Q vel = joint.getMaxAcceleration();
@@ -139,11 +209,42 @@ namespace {
         ostr << wlvl() << "</Prismatic>\n";
     }
 
+	void writeDependentRevoluteJoint(DummyWorkcell& dwc, DependentRevoluteJoint &joint, std::ostream &ostr){
+       ostr << wlvl()
+            << "<Joint name=\"" << scopedName(dwc, &joint)
+            << "\" refframe=\"" << scopedName(dwc, &joint, joint.getParent(dwc.state))
+            << "\" type=\"Revolute\">\n";
+
+       clvl++;
+       writeTransform(joint.getFixedTransform(), ostr );
+       ostr << wlvl()
+			<< "<Depend on\"" << scopedName(dwc,&joint.getOwner(),&joint)
+			<< "\" gain=\"" << joint.getScale()
+			<< "\" offset=\""<< joint.getOffset()*Rad2Deg<< "\" />\n";
+       clvl--;
+       ostr << wlvl() << "</Joint>\n";
+	}
+
+  void writeDependentPrismaticJoint(DummyWorkcell& dwc, DependentPrismaticJoint &joint, std::ostream &ostr){
+       ostr << wlvl()
+            << "<Joint name=\"" << scopedName(dwc,&joint)
+            << "\" refframe=\"" << scopedName(dwc,&joint, joint.getParent(dwc.state))
+            << "\" type=\"Prismatic\">\n";
+       clvl++;
+       writeTransform(joint.getFixedTransform(), ostr );
+       ostr << wlvl()
+			<< "<Depend on\"" << scopedName(dwc,&joint.getOwner(),&joint)
+			<< "\" gain=\"" << joint.getScale()
+			<< "\" offset=\""<< joint.getOffset()<< "\" />\n";
+       clvl--;
+       ostr << wlvl() << "</Prismatic>\n";
+   }
+
    // method for writing a frame
     void writeFixedFrame(DummyWorkcell& dwc,FixedFrame &frame, std::ostream &ostr){
         ostr << wlvl()
-             << "<Frame name=\"" << frame.getName()
-             << "\" refframe=\"" << frame.getParent()->getName() << "\">\n";
+             << "<Frame name=\"" << scopedName(dwc,&frame)
+             << "\" refframe=\"" << scopedName(dwc,&frame,frame.getParent(dwc.state)) << "\">\n";
 
         clvl++;
         writeTransform(frame.getTransform(dwc.state), ostr );
@@ -151,18 +252,51 @@ namespace {
         ostr << wlvl() << "</Frame>\n";
     }
 
+    // method for writing a frame
+     void writeMovableFrame(DummyWorkcell& dwc,MovableFrame &frame, std::ostream &ostr){
+    	 ostr << wlvl()
+              << "<Frame name=\"" << scopedName(dwc,&frame)
+              << "\" refframe=\"" << scopedName(dwc,&frame, frame.getParent(dwc.state))
+              << "\" type=\"Movable\">\n";
+
+         clvl++;
+         writeTransform(frame.getTransform(dwc.state), ostr );
+         clvl--;
+         ostr << wlvl() << "</Frame>\n";
+     }
 
 	// method for writing a frame
 	void writeFrame(DummyWorkcell& dwc, Frame &frame, std::ostream &ostr){
+		// world frame is implicit, and should not be defined in the file
+		if(&frame==dwc.wc->getWorldFrame())
+			return;
+		if(frame.getParent()==NULL){
+			RW_WARN("frame: " << frame.getName() << " is DAF!");
+		}
 
+        if( FixedFrame *ff = dynamic_cast<FixedFrame*>(&frame) ){
+            writeFixedFrame(dwc, *ff, ostr );
+        } else if(MovableFrame *mf = dynamic_cast<MovableFrame*>(&frame) ){
+        	writeMovableFrame(dwc, *mf, ostr );
+        } else if(RevoluteJoint *rj = dynamic_cast<RevoluteJoint*>(&frame) ){
+            writeRevoluteJoint(dwc,*rj,ostr);
+        } else if(PrismaticJoint *pj = dynamic_cast<PrismaticJoint*>(&frame) ){
+            writePrismaticJoint(dwc,*pj,ostr);
+        } else if(DependentRevoluteJoint* rdj = dynamic_cast<DependentRevoluteJoint*>(&frame) ){
+        	writeDependentRevoluteJoint(dwc,*rdj,ostr);
+        } else if(DependentPrismaticJoint* rdj = dynamic_cast<DependentPrismaticJoint*>(&frame) ){
+        	writeDependentPrismaticJoint(dwc,*rdj,ostr);
+        } else {
+            RW_THROW("unknown Frame type!");
+        }
 	}
 
-   void writeCollisionInfo(CollisionModelInfo &info, Frame *frame, std::ostream &ostr){
+   void writeCollisionInfo(DummyWorkcell& dwc,CollisionModelInfo &info, Frame *frame, std::ostream &ostr){
         std::stringstream sstr;
-        sstr << frame->getName() << "Geo";
+        sstr << scopedName(dwc, frame) << "Geo";
         ostr << wlvl()
              << "<CollisionModel name=\"" <<  sstr.str()
-             << "\" refframe=\"" << frame->getName() << "\">\n";
+             << "\" refframe=\"" << scopedName(dwc, frame) << "\">\n";
 
         clvl++;
         writeTransform(info.getTransform(), ostr );
@@ -174,12 +308,12 @@ namespace {
         ostr << wlvl() << "</Drawable>\n";
     }
 
-	void writeDrawableInfo(DrawableModelInfo &info, Frame *frame, std::ostream &ostr){
+	void writeDrawableInfo(DummyWorkcell& dwc,DrawableModelInfo &info, Frame *frame, std::ostream &ostr){
         std::stringstream sstr;
-        sstr << frame->getName() << "Geo";
+        sstr << scopedName(dwc, frame) << "Geo";
 	    ostr << wlvl()
              << "<Drawable name=\"" <<  sstr.str()
-             << "\" refframe=\"" << frame->getName()
+             << "\" refframe=\"" << scopedName(dwc, frame)
              << "\" colmodel=\"Disabled\">\n";
 
         clvl++;
@@ -193,9 +327,11 @@ namespace {
 	}
 
 	void writeDevice(DummyWorkcell& wc, Device &dev, std::ostream &ostr){
+		ostr << "\n";
 	    std::string devType = getDeviceType(dev);
 	    ostr << wlvl() << "<" << devType << " name=\""<< dev.getName() <<"\">\n";
 	    clvl++;
+	    ostr << "\n";
 	    // write device joint structure
 	    std::vector<Frame*> flist;
 	    std::stack<Frame*> frames;
@@ -211,6 +347,7 @@ namespace {
 	            frames.push(&child);
 	        }
 	    }
+	    ostr << "\n";
 	    // write all drawables and collision models
 	    ostr << "<!-- drawables -->\n";
 	    BOOST_FOREACH(Frame* frame, flist){
@@ -218,11 +355,12 @@ namespace {
 	        if( Accessor::drawableModelInfo().has(*frame) ){
 	            std::vector<DrawableModelInfo> infos = Accessor::drawableModelInfo().get(*frame);
 	            BOOST_FOREACH(DrawableModelInfo info, infos){
-	                writeDrawableInfo(info, frame, ostr);
+	                writeDrawableInfo(wc, info, frame, ostr);
 	            }
 	        }
 	    }
 
+	    ostr << "\n";
        // write all drawables and collision models
         ostr << "<!-- Collision models -->\n";
         BOOST_FOREACH(Frame* frame, flist){
@@ -230,7 +368,7 @@ namespace {
             if( Accessor::collisionModelInfo().has(*frame) ){
                 std::vector<CollisionModelInfo> infos = Accessor::collisionModelInfo().get(*frame);
                 BOOST_FOREACH(CollisionModelInfo info, infos){
-                    writeCollisionInfo(info, frame, ostr);
+                    writeCollisionInfo(wc, info, frame, ostr);
                 }
             }
         }
@@ -247,12 +385,16 @@ namespace {
 		BOOST_FOREACH(Frame* frame, dwc.frames){
 			if( dwc.isFrameInDevice(frame) )
 				continue;
+			if( dwc.isFrameParentToDevice(frame))
+				continue;
 			writeFrame(dwc, *frame, ostr);
 		}
 
 		ostr << "<!-- Next we list all devices in the workcell -->\n";
 		// now write the devices
 		BOOST_FOREACH(Device* dev, dwc.devices){
+			Frame *parent = dev->getBase()->getParent();
+			writeFrame(dwc, *parent, ostr);
 			writeDevice(dwc, *dev, ostr);
 		}
 
@@ -275,6 +417,8 @@ void RWXMLFile::saveWorkCell(rw::models::WorkCell& wc,
 	DummyWorkcell dwc;
 	dwc.wc = &wc;
 	dwc.state = initState;
+
+	dwc.init();
 	// write the workcell to file
 	writeWorkcell(dwc, fstr);
 }
