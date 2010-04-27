@@ -31,6 +31,8 @@ SET(FILES_CPP
     Contour2D.cpp
     Contour2Dto3D.cpp
     Contour2DUtil.cpp
+    
+    IntersectUtil.cpp
 )
 
 SET(FILES_HPP
