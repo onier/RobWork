@@ -196,9 +196,11 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
        }
     }
 
-    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && e->key() == Qt::Key_Space); // CTRL+E
-    if (!_c || !isShortcut) // dont process the shortcut when we have a completer
+    bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && (e->key() == Qt::Key_Space)); // CTRL+E
+    if (!_c || !isShortcut){ // dont process the shortcut when we have a completer
         QPlainTextEdit::keyPressEvent(e);
+        return;
+    }
 
     const bool ctrlOrShift = e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier);
     if (!_c || (ctrlOrShift && e->text().isEmpty()))
