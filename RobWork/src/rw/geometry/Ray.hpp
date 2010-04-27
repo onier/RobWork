@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef PLANE_HPP_
-#define PLANE_HPP_
+#ifndef LINE_HPP_
+#define LINE_HPP_
 
 
 #include "Primitive.hpp"
@@ -25,47 +25,32 @@
 namespace rw {
 namespace geometry {
 
-class Plane: public Primitive {
+/**
+ * @brief a line sigment in 3d. described by two points
+ */
+class Ray {
 public:
-	Plane(const rw::math::Q& initQ)
-	{}
+	Ray(rw::math::Vector3D<>& pos, rw::math::Vector3D<>& dir);
+	virtual ~Ray();
 
-	Plane(const rw::math::Vector3D<>& n, double d):
-		_normal(n),_d(d){}
+	rw::math::Vector3D<>& pos();
 
-	Plane(const rw::math::Vector3D<>& p1,
-		  const rw::math::Vector3D<>& p2,
-		  const rw::math::Vector3D<>& p3):
-			  _normal(normalize( cross( p2 - p1, p3 - p1 )) )
-	{
-		_d = dot(_normal, p1);
-	}
-
-	virtual ~Plane(){};
-
-	inline rw::math::Vector3D<>& normal(){return _normal;};
-
-	inline const rw::math::Vector3D<>& normal() const {return _normal;};
-
-	inline double& d(){return _d;};
-	inline double d() const {return _d;};
-
-
+	rw::math::Vector3D<>& dir();
 
 	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution){ return NULL;};
+	TriMeshPtr createMesh(int resolution);
 
-	const rw::math::Q& getParameters(){ }
+	const rw::math::Q& getParameters();
 
-	GeometryType getType() const{ return PlanePrim; };
+	GeometryType getType(){ return LinePrim; };
 
 private:
-	rw::math::Vector3D<> _normal;
-	double _d;
+	rw::math::Vector3D<> _p1,_p2;
+	//rw::math::Q _param;
 };
 
 } // geometry
 } // rw
 
 
-#endif /* PLANE_HPP_ */
+#endif /* LINE_HPP_ */

@@ -25,10 +25,10 @@
 namespace rw {
 namespace geometry {
 
-class Box: public Primitive {
+class Pyramid: public Primitive {
 public:
-	Box(const rw::math::Q& initQ);
-	virtual ~Box();
+	Pyramid(const rw::math::Q& initQ);
+	virtual ~Pyramid();
 
 	// inherited from Primitive
 	TriMeshPtr createMesh(int resolution);

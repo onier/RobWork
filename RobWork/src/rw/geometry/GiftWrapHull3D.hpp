@@ -9,7 +9,6 @@
 #define GIFTWRAPHULL3D_HPP_
 
 #include "ConvexHull3D.hpp"
-
 #include "Triangle.hpp"
 #include "PlainTriMesh.hpp"
 

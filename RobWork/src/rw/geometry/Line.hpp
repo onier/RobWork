@@ -25,10 +25,18 @@
 namespace rw {
 namespace geometry {
 
+/**
+ * @brief a line sigment in 3d. described by two points
+ */
 class Line: public Primitive {
 public:
-	Line();
+	Line(const rw::math::Q& params);
 	virtual ~Line();
+
+	inline rw::math::Vector3D<>& p1(){ return _p1;};
+	inline const rw::math::Vector3D<>& p1() const{ return _p1;};
+	inline rw::math::Vector3D<>& p2(){ return _p2;};
+	inline const rw::math::Vector3D<>& p2() const { return _p2;};
 
 	// inherited from Primitive
 	TriMeshPtr createMesh(int resolution);
@@ -36,8 +44,10 @@ public:
 	const rw::math::Q& getParameters();
 
 	GeometryType getType(){ return LinePrim; };
+
 private:
-	rw::math::Q _param;
+	rw::math::Vector3D<> _p1,_p2;
+	//rw::math::Q _param;
 };
 
 } // geometry
