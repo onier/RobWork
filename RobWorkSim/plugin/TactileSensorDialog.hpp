@@ -30,6 +30,12 @@
 #include <QtGui>
 #include <QTimer>
 
+        struct Moment {
+        	rw::math::Vector2D<> center;
+        	rw::math::Vector2D<> first,second;
+        };
+
+
 /**
  * @brief a grphical interface for calculating resting configurations of
  * rigid bodies using rigid body physics simulation.
@@ -68,7 +74,7 @@ class TactileSensorDialog : public QDialog, public Ui::TactileSensorDialog
     private:
         void initTactileInput();
         void detectCenterMass();
-
+        void findMoments();
     private:
         Ui::TactileSensorDialog _ui;
 
@@ -79,9 +85,16 @@ class TactileSensorDialog : public QDialog, public Ui::TactileSensorDialog
 
         std::vector< std::vector<QGraphicsRectItem*> > _rectItems;
         std::vector<QGraphicsEllipseItem*> _centerItems;
-        int _w;
-        int _h;
+        std::vector<QGraphicsLineItem*> _momentItems;
+        std::vector<QGraphicsLineItem*> _momentSecItems;
+        std::vector<std::pair<int,int> > _dims;
+
+
+        //typedef std::pair<rw::math::Vector2D<>,rw::math::Vector2D<> > Moment;
+
+
         std::vector< rw::math::Vector2D<> > _centers;
+        std::vector< Moment > _moments;
         int _nrOfPadsH;
 
 };

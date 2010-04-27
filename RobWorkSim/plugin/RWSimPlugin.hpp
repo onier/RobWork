@@ -20,6 +20,7 @@
 #include <simulator/ThreadSimulator.hpp>
 #include <util/MovingAverage.hpp>
 #include "TactileSensorDialog.hpp"
+#include <rw/graspplanning/GraspTable.hpp>
 
 #include <rw/common/Ptr.hpp>
 #include <rw/kinematics/State.hpp>
@@ -88,6 +89,8 @@ class RWSimPlugin : public rws::RobWorkStudioPlugin, private Ui::RWSimPlugin
          */
         void openDwc(const std::string& file);
 
+        void stepCallBack(const rw::kinematics::State& state);
+
     signals:
         void updateView();
         void updateDialog();
@@ -132,6 +135,8 @@ class RWSimPlugin : public rws::RobWorkStudioPlugin, private Ui::RWSimPlugin
         TactileSensorDialog *_tactileSensorDialog;
 
         QTimer *_timerShot;
+
+        rw::graspplanning::GraspTable _gtable;
 };
 
 

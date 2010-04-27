@@ -8,6 +8,9 @@
 
 #include <rw/sensor/Contact3D.hpp>
 
+#include <rw/geometry.hpp>
+#include <rw/common.hpp>
+#include <rw/proximity/Proximity.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -16,7 +19,9 @@ using namespace rw::sensor;
 using namespace rw::kinematics;
 using namespace boost::numeric;
 using namespace rw::proximity;
-
+using namespace rw::geometry;
+using namespace rw::common;
+using namespace dynamics;
 #define MIN_CONTACT_FORCE 0.1
 
 namespace {
@@ -95,9 +100,14 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
         TactileArray(name, frame),
         _centerMatrix(getShape(heightMap,-1,-1)),
         _normalMatrix(getShape(heightMap,-1,-1)),
+        _contactMatrix(getShape(heightMap,-1,-1)),
+        _distCenterMatrix(getShape(heightMap,-1,-1)),
+        _distMatrix(ublas::zero_matrix<float>(heightMap.size1()-1,heightMap.size2()-1)),
+        _distDefMatrix(ublas::zero_matrix<float>(heightMap.size1()-1,heightMap.size2()-1)),
         _accForces(ublas::zero_matrix<float>(heightMap.size1()-1,heightMap.size2()-1)),
         _pressure(ublas::zero_matrix<float>(heightMap.size1()-1,heightMap.size2()-1)),
         _texelSize(texelSize),
+        _texelArea(texelSize(0)*texelSize(1)),
         _fThmap(fThmap),
         _hmapTf(inverse(fThmap)),
         _w(heightMap.size1()-1),
@@ -108,7 +118,8 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
         _dmask(5*3,5*3),
         _narrowStrategy(new rwlibs::proximitystrategies::ProximityStrategyPQP()),
         _maxPenetration(0.0015),
-        _elasticity(3000)
+        _elasticity(700),// KPa ~ 0.0008 GPa
+        _tau(0.1)
 {
 
     // calculate the normals and centers of all texels
@@ -121,8 +132,9 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
             _vMatrix[x][y](2) = heightMap(x,y);
         }
     }
-    for(int i=0;i<_w; i++){
-        for(int j=0;j<_h; j++){
+
+    for(int j=0;j<_h; j++){
+     	for(int i=0;i<_w; i++){
             Vector3D<> p = _vMatrix[i][j]  +_vMatrix[i+1][j]+
                            _vMatrix[i][j+1]+_vMatrix[i+1][j+1];
             _centerMatrix[i][j] = p/4;
@@ -148,8 +160,6 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
 
     double tSize1 = 1.0/_dmask.size1();
     double tSize2 = 1.0/_dmask.size2();
-    double w = 1.0;
-    double h = 1.0;
 
     for(size_t i=0;i<_dmask.size1();i++){
         for(size_t j=0;j<_dmask.size2();j++){
@@ -164,8 +174,90 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
     }
 
     _dmask = _dmask/dmaskSum;
+
+    // create a geometry of the normals
+
+    const TactileArray::VertexMatrix& normals = _normalMatrix;
+    const TactileArray::VertexMatrix& centers = _centerMatrix;
+
+    Vector3D<> offsetDir = (centers[1][0]-centers[0][0])/5;
+    //std::cout << "offesetDir: " << offsetDir << std::endl;
+
+    PlainTriMesh<TriangleN0<> > *trimesh = new PlainTriMesh<TriangleN0<> >(_h*_w);
+    for(int x=0;x<_w;x++){
+    	for(int y=0;y<_h;y++){
+    		int i=x*_h+y;
+    		(*trimesh)[i][0] = centers[x][y];
+    		(*trimesh)[i][1] = centers[x][y]+offsetDir;
+    		(*trimesh)[i][2] = centers[x][y]+normals[x][y]*0.008;
+        }
+    }
+
+    _ntrimesh = ownedPtr(trimesh);
+    _ngeom = ownedPtr( new Geometry( _ntrimesh ));
+    _nmodel = _narrowStrategy->createModel();
+
+    _narrowStrategy->addGeometry(_nmodel.get(), *_ngeom );
+    _narrowStrategy->addModel(this->getFrame());
+	_frameToGeoms[this->getFrame()] = Proximity::getGeometry(this->getFrame());
+	std::vector<GeometryPtr> &geoms = _frameToGeoms[this->getFrame()];
+    _narrowStrategy->setFirstContact(false);
     //std::cout << "DMask: " << _dmask << std::endl;
     //std::cout << "Finger pad dimensions: (" << _texelSize(0)*(_w+1) << "," << (_h+1)*_texelSize(1) <<")" <<  std::endl;
+
+    /// now build the map of contacts between normals and surface of finger
+
+	Transform3D<> wTb = Transform3D<>::identity();
+	//ProximityModelPtr modelA = _narrowStrategy->getModel(tframe);
+	ProximityModelPtr model = _narrowStrategy->getModel(this->getFrame());
+	CollisionData data;
+	_narrowStrategy->collides(_nmodel, _fThmap, model, wTb, data);
+	if(data._collidePairs.size()>0){
+		int bodyGeomId = data._collidePairs[0].geoIdxB;
+		//std::cout << "BodyGeomId: " << std::endl;
+		TriMesh *mesh = dynamic_cast<TriMesh*> (geoms[bodyGeomId]->getGeometryData().get());
+		if(mesh){
+			for(int i = 0; i<data._collidePairs[0]._geomPrimIds.size();i++){
+				std::pair<int,int> &pids = data._collidePairs[0]._geomPrimIds[i];
+				//std::cout << "Colliding pairs: " << pids.first << " <---> " << pids.second << std::endl;
+				RW_ASSERT(0<=pids.first);
+				RW_ASSERT(pids.first<_ntrimesh->size());
+
+				// for each colliding pair we find the closest intersection
+				// get the triangle
+				TriangleN0<> triA = _ntrimesh->getTriangle(pids.first);
+				TriangleN0<> tri = mesh->getTriangle(pids.second);
+/*
+				std::cout << "POINTS1:"
+						  << "\n  " <<  triA[0]
+						  << "\n  " <<  triA[1]
+						  << "\n  " <<  triA[2] << std::endl;
+
+				std::cout << "POINTS2:"
+						  << "\n  " <<  data._aTb*tri[0]
+						  << "\n  " <<  data._aTb*tri[1]
+						  << "\n  " <<  data._aTb*tri[2] << std::endl;
+*/
+				Vector3D<> point;
+				if( !IntersectUtil::intersetPtRayPlane(triA[0], triA[2], data._aTb*tri[0], data._aTb*tri[1], data._aTb*tri[2], point) )
+					continue;
+
+				// now we have the point of intersection, now save it in the contact array
+				// if its closer than the existing point
+
+				double ndist = MetricUtil::dist2( triA[0], point);
+				//std::cout << "Intersect: " << point << std::endl;
+				//std::cout << "NDist: " << ndist << std::endl;
+				if( ndist < (&_distMatrix(0,0))[pids.first] )
+					continue;
+				(&_distDefMatrix(0,0))[pids.first] = ndist;
+				(&_contactMatrix[0][0])[pids.first] = point;
+			}
+		}
+	}
+	std::cout << "Dist" << _distDefMatrix << std::endl;
+
+
 }
 /*
 TactileArraySensor::TactileArraySensor(const VertexMatrix& vMatrix):
@@ -193,7 +285,8 @@ TactileArraySensor::TactileArraySensor(const VertexMatrix& vMatrix):
 
 namespace {
 
-    double getValueOfTexel(double tx, double ty, double tw, double th, //texel position data
+    double getValueOfTexel(double tx, double ty, // texel position data
+						   double tw, double th, // texel width
                            double cx, double cy,
                            ublas::matrix<float>& distM, double mwidth, double mheight)
     {
@@ -206,6 +299,9 @@ namespace {
         // transforming texel coordinates to
         double x = mwidth/2+(tx-cx);
         double y = mheight/2+(ty-cy);
+        //std::cout << mwidth/2 << "+("<<tx<<"-"<<cx<<")" << std::endl;
+        //std::cout << mheight/2 << "+("<<ty<<"-"<<cy<<")" << std::endl;
+        //std::cout << "TexCoords: " << x << " , "  << y << std::endl;
 
         // now calculate the start and end index
         // the point must lie inside the texel so we round up
@@ -229,7 +325,7 @@ namespace {
         }
         return texelVal;
     }
-
+    using namespace boost;
     double determinePenetration(double c, double initPen, std::vector<TactileArraySensor::DistPoint>& points, double force){
         // this should be full filled
         // force == SUM[ points[i] ]*c
@@ -286,11 +382,11 @@ void TactileArraySensor::addForce(const Vector3D<>& point,
                                    const Vector3D<>& snormal,
                                    dynamics::Body *body)
 {
-    //std::cout << "ADDING FORCE.... " << snormal << std::endl;
-
-    if( dot(force,snormal)<0 ){
-        return;
-    }
+    //std::cout << "ADDING FORCE.... " << snormal << force << std::endl;
+    //std::cout << "ADDING FORCE dot.... " << dot(snormal,force) << std::endl;
+    //if( dot(force,snormal)<0 ){
+    //    return;
+    //}
     //std::cout << "1";
     Contact3D c3d(_wTf*point,_wTf.R()*snormal,_wTf.R()*force);
     _allAccForces.push_back( c3d );
@@ -323,24 +419,25 @@ void TactileArraySensor::addForce(const Vector3D<>& point,
     int yIdx = (int)( floor(p(1)/_texelSize(1)));
 
     // if the index is boundary then pick the closest texel normal
-    int xIdxTmp = std::min( std::max(xIdx,0), _w-1);
-    int yIdxTmp = std::min( std::max(yIdx,0), _h-1);
+    int xIdxTmp = Math::clamp(xIdx, 0, _w-1);
+    int yIdxTmp = Math::clamp(yIdx, 0, _h-1);
 
     //std::cout << "4";
     Vector3D<> normal = _normalMatrix[xIdxTmp][yIdxTmp];
-    if( dot(f, normal)>0 ){
+    if( dot(f, normal)>=0 ){
         //std::cout << "SAME DIRECTION" << std::endl;
         return;
     }
 
     //std::cout << "5";
     // so heres the point force...
-    double forceVal = fabs( dot(f,normal) );
-    double scaleSum = 0;
+    //double forceVal = fabs( dot(f,normal) );
+    //double scaleSum = 0;
 
 
     // we save all forces until the update is called
-    Contact3D con(point,snormal, force);
+    //,_wTf.R()*snormal,_wTf.R()*force
+    Contact3D con(p, normal, f);
     _forces[body].push_back(con);
 }
 
@@ -433,6 +530,282 @@ std::vector<TactileArraySensor::DistPoint> TactileArraySensor::generateContacts(
     return validResult;
 }
 
+namespace {
+
+/*	getContactPoints(){
+
+	}
+	*/
+
+
+}
+
+
+void TactileArraySensor::update(double dt, rw::kinematics::State& state){
+	//std::cout << "update!" << std::endl;
+    // we have collected all forces that affect the sensor.
+    // Now we need to extrapolate the area of the force since the
+    // surface is elastic. We do this by checking for collision between
+	// the touching object and the normal trimesh
+
+	bool hasCollision = false;
+	double totalNormalForce = 0;
+    typedef std::map<dynamics::Body*, std::vector<Contact3D> > BodyForceMap;
+    BodyForceMap::iterator iter = _forces.begin();
+    for(;iter!=_forces.end();++iter){
+    	//std::cout << "BODY" << std::endl;
+    	Body *body = (*iter).first;
+
+
+		Frame *tframe = this->getFrame();
+		Frame *bframe = &body->getBodyFrame();
+		RW_ASSERT(tframe);
+		RW_ASSERT(bframe);
+
+		Transform3D<> wTa = Kinematics::worldTframe(tframe, state)*_fThmap;
+		Transform3D<> wTb = Kinematics::worldTframe(bframe, state);
+		//ProximityModelPtr modelA = _narrowStrategy->getModel(tframe);
+		ProximityModelPtr modelB = _narrowStrategy->getModel(bframe);
+		CollisionData data;
+		bool collides = _narrowStrategy->collides(_nmodel, wTa, modelB, wTb, data); //wTa*_fThmap
+
+		if( !collides )
+			continue;
+		if( !hasCollision ){
+			// initialize variables
+			_distMatrix =  ValueMatrix(_distMatrix.size1(),_distMatrix.size2(), 100);
+			//std::cout << "DIMENSIONS: " << _distMatrix.size1() << " " << _distMatrix.size2()<< std::endl;
+		}
+		hasCollision = true;
+		//std::cout << "Yes it really collides!" << bframe->getName() << std::endl;
+
+		if(_frameToGeoms.find(bframe)==_frameToGeoms.end())
+			_frameToGeoms[bframe] = Proximity::getGeometry(bframe);
+
+		std::vector<GeometryPtr> &geoms = _frameToGeoms[bframe];
+		// now we try to get the contact information
+		if(data._collidePairs.size()>0){
+			int bodyGeomId = data._collidePairs[0].geoIdxB;
+			//std::cout << "BodyGeomId: " << std::endl;
+			TriMesh *mesh = dynamic_cast<TriMesh*> (geoms[bodyGeomId]->getGeometryData().get());
+			if(mesh){
+
+				for(int i = 0; i<data._collidePairs[0]._geomPrimIds.size();i++){
+					std::pair<int,int> &pids = data._collidePairs[0]._geomPrimIds[i];
+					//std::cout << "Colliding pairs: " << pids.first << " <---> " << pids.second << std::endl;
+					RW_ASSERT(0<=pids.first);
+					RW_ASSERT(pids.first<_ntrimesh->size());
+
+					// for each colliding pair we find the closest intersection
+					// get the triangle
+					TriangleN0<> tri = mesh->getTriangle(pids.second);
+					TriangleN0<> triA = _ntrimesh->getTriangle(pids.first);
+
+					Vector3D<> point;
+					if( !IntersectUtil::intersetPtRayPlane(triA[0], triA[2], data._aTb*tri[0], data._aTb*tri[1], data._aTb*tri[2], point) )
+						continue;
+
+					// now we have the point of intersection, now save it in the contact array
+					// if its closer than the existing point
+
+					double ndist = MetricUtil::dist2( triA[0], point);
+					//std::cout << "Intersect: " << point << std::endl;
+					//std::cout << "NDist: " << ndist << std::endl;
+					if( ndist > (&_distMatrix(0,0))[pids.first] )
+						continue;
+					(&_distMatrix(0,0))[pids.first] = ndist;
+					//(&_contactMatrix[0][0])[pids.first] = point;
+				}
+			}
+	    	std::vector<rw::sensor::Contact3D> &bforce = (*iter).second;
+	    	// add to total force
+	    	BOOST_FOREACH(rw::sensor::Contact3D& c, bforce){
+	    		//std::cout << "TotalNormalForce += " << (-c.normalForce) << std::endl;
+	    		totalNormalForce += -c.normalForce;
+	    	}
+
+		}
+    }
+    _forces.clear();
+
+    double closest = 100;
+    if( hasCollision ){
+		for(size_t y=0; y<_distMatrix.size2(); y++){
+			for(size_t x=0; x<_distMatrix.size1(); x++){
+				_distMatrix(x,y) = _distMatrix(x,y) - _distDefMatrix(x,y);
+				if(_distMatrix(x,y)<closest)
+					closest = _distMatrix(x,y);
+			}
+		}
+		//std::cout << "\n\n" << _distMatrix << "\n\n"<< std::endl;
+    }
+    // now we need to convert the _distMatrix to pressure values
+    ValueMatrix pressure =  boost::numeric::ublas::zero_matrix<float>(_pressure.size1(),_pressure.size2());
+    //
+    // we only have the total normal force, we expect the position between finger and
+    // object to be error prone so we iteratively determine the area of contact such
+    // that area*Ftotal = deformed_volume * defToStress
+    //
+    if( hasCollision ){
+		double offset = 0;
+		double bestOffset = 0;
+		double bestScore = 100000;
+		for(int i=0;i<20;i++){
+			//std::cout << i << " offset: " << offset << std::endl;
+			// 1. we aallready have total force
+			// 2. calculate area and "volume"
+			double area = 0;
+			double volume = 0;
+			double totalVolume = 0;
+			for(size_t y=0; y<_distMatrix.size2(); y++){
+				for(size_t x=0; x<_distMatrix.size1(); x++){
+					//std::cout << _distMatrix(x,y) << "\n";
+					double val = _distMatrix(x,y)-closest+offset;
+					if( val<0 ){
+						area += _texelArea;
+						volume += -val*_texelArea;
+						totalVolume += 0.002*_texelArea;
+					}
+				}
+			}
+			//std::cout << "area: " << area << std::endl;
+			if(area>0){
+				// (area*Ftotal) < (deformed_volume * defToStress)
+				// increase offset
+				// and if
+				// (area*Ftotal) < (deformed_volume * defToStress)
+				//   <   GPa * unitless = stress
+
+				double score = totalNormalForce/(area*1000) - (volume * _elasticity)/totalVolume;
+
+				//std::cout << "Score: " << score << std::endl;
+				if(fabs(score)>bestScore)
+					continue;
+				bestScore = fabs(score);
+				bestOffset = offset;
+
+				std::cout << offset << ":" << score << " = " << totalNormalForce/(area*1000)
+						<< "kPa -" << ((volume*_elasticity)/totalVolume) << "kPa" << std::endl;
+				//std::cout << offset << ":" << score << " = " << totalNormalForce<< "/" << (area*1000)
+				//		<< "-" << "(" << volume << "*" <<_elasticity << ")"
+				//		<< "/" << totalVolume << std::endl;
+
+			}
+			offset -= 0.001/20;
+		}
+		double totalDist = 0;
+		for(size_t y=0; y<_distMatrix.size2(); y++){
+			for(size_t x=0; x<_distMatrix.size1(); x++){
+				double dist = _distMatrix(x,y)-closest+bestOffset;
+				if( dist>0 )
+					continue;
+				totalDist +=  dist;
+			}
+		}
+		//std::cout << "TOTAL DIST: " << totalDist << std::endl;
+		double distToForce = totalNormalForce/totalDist;
+	    std::cout << "BestScore: " << bestScore << std::endl;
+	    // now we now the actual penetration/position we can apply point force function
+	    // to calculate the pressure on the sensor surface
+		for(size_t y=0; y<_distMatrix.size2(); y++){
+			for(size_t x=0; x<_distMatrix.size1(); x++){
+
+				//std::cout << _distMatrix(x,y) << "\n";
+				double dist = _distMatrix(x,y)-closest+bestOffset;
+				if( dist>0 )
+					continue;
+
+				double force = dist*distToForce;
+
+				//Vector3D<> p = _hmapTf * dp.p1;
+				Vector3D<> p = _centerMatrix[x][y];//_contactMatrix[x][y];
+
+
+				//int xIdx = (int)( floor(p(0)/_texelSize(0)));
+				//int yIdx = (int)( floor(p(1)/_texelSize(1)));
+				int xIdx = x;
+				int yIdx = y;
+				for(int xi=std::max(0,xIdx-1); xi<std::min(xIdx+2,_w); xi++){
+					for(int yi=std::max(0,yIdx-1); yi<std::min(yIdx+2,_h); yi++){
+						double texelScale = getValueOfTexel(xi*_texelSize(0),yi*_texelSize(1),
+															_texelSize(0),_texelSize(1),
+															p(0),p(1),
+															_dmask, _maskWidth, _maskHeight);
+						_accForces(xi,yi) += force*texelScale;
+						//std::cout << "accForce +="<< force << "*" << texelScale << std::endl;
+					}
+				}
+			}
+		}
+
+	    // copy and convert accumulated forces into pressure values
+	    //double texelArea = _texelSize(0)*_texelSize(1);
+		double totalPressure = 0, totalArea = 0;
+	    for(size_t x=0; x<_accForces.size1(); x++){
+	        for(size_t y=0; y<_accForces.size2(); y++){
+	            // clamp to max pressure
+	            //if( _accForces(x,y)/texelArea>1.0 )
+	            //    std::cout << "Pressure: ("<<x<<","<<y<<") " << _accForces(x,y)/texelArea << " N/m^2 " << std::endl;
+	        	if(_accForces(x,y)<=0){
+	        		continue;
+	        	}
+
+	            pressure(x,y) = std::min( _accForces(x,y)/(_texelArea*1000), _maxPressure );
+	            totalArea += _texelArea;
+	            totalPressure += pressure(x,y);
+	        }
+	    }
+	    std::cout << "totalPressure: "
+	    		<< totalPressure/(totalNormalForce/(totalArea*1000)) << " --> "
+	    		<< totalPressure << "kPa == "
+	    		<< (totalNormalForce/(totalArea*1000))
+	    		<< "kPa == "<< totalNormalForce << "/" << totalArea << std::endl;
+
+	    // the actual pressure should not be more than totForce/(totalArea*1000)
+	    // so we scale it down to fit-....
+	    double presScale = (totalNormalForce/(totalArea*1000))/totalPressure;
+	    double ntotpressure = 0;
+	    for(size_t x=0; x<pressure.size1(); x++){
+	        for(size_t y=0; y<pressure.size2(); y++){
+	        	if(pressure(x,y)>0){
+	        		// and convert it to pascal
+	        		pressure(x,y) *= presScale*1000;
+	        		ntotpressure += pressure(x,y)/1000;
+	        	}
+	        }
+	    }
+
+	    std::cout << "New total pressure: " << ntotpressure << std::endl;
+
+	    _accForces = ublas::zero_matrix<double>(_accForces.size1(),_accForces.size2());
+	    _allForces = _allAccForces;
+	    _allAccForces.clear();
+    }
+
+
+    // Low pass filtering is done in the end
+    // for i from 1 to n
+    //    y[i] := y[i-1] + alpha * (x[i] - y[i-1])
+    ValueMatrix &ym = _pressure;
+    ValueMatrix &xm = pressure;
+    const double alpha = dt/(_tau+dt);
+    for(size_t y=0; y<ym.size2(); y++){
+    	for(size_t x=0; x<ym.size1(); x++){
+        	ym(x,y) += alpha * (xm(x,y)-ym(x,y));
+        }
+    }
+
+    _pressure = pressure;
+    //std::cout << _pressure << std::endl;
+
+    // update aux variables
+    _wTf = Kinematics::worldTframe( getFrame(), state);
+    _fTw = inverse(_wTf);
+
+
+}
+
+#ifdef OLD_STUFF
 void TactileArraySensor::update(double dt, rw::kinematics::State& state){
     // we have collected all forces that affect the sensor.
     // Now we need to extrapolate the area of the force since the
@@ -625,6 +998,21 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
     _wTf = Kinematics::worldTframe( getFrame(), state);
     _fTw = inverse(_wTf);
 }
+#endif
+
+void TactileArraySensor::setTexelData(const boost::numeric::ublas::matrix<float>& data){
+	if(data.size1()!=_pressure.size1()){
+		RW_WARN("dimension mismatch: " << data.size1() <<"!=" <<_pressure.size1());
+		return;
+	}
+	if(data.size2()!=_pressure.size2()){
+		RW_WARN("dimension mismatch: " << data.size2() <<"!=" <<_pressure.size2());
+		return;
+	}
+
+	_pressure = data;
+};
+
 
 
 #ifdef OLD_ADDFORCE

@@ -22,3 +22,9 @@ target_link_libraries(ModelStablePoseTest rwsim ${ROBWORK_LIBRARIES})
 
 add_executable(GraspTableConvert GraspTableConvert.cpp)
 target_link_libraries(GraspTableConvert rwsim ${ROBWORK_LIBRARIES})
+
+add_executable(LoadGraspTableKTH LoadGraspTableKTH.cpp)
+target_link_libraries(LoadGraspTableKTH rwsim ${ROBWORK_LIBRARIES})
+
+add_executable(ScaleWorkCell ScaleWorkCell.cpp)
+target_link_libraries(ScaleWorkCell rwsim ${ROBWORK_LIBRARIES})

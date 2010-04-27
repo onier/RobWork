@@ -160,18 +160,22 @@ void GraspSelectionDialog::btnPressed(){
     		Log::errorLog() << "Load failed!\n";
     		return;
     	}
+    	Log::infoLog() << "Trying to find device: " << _gtable->getHandName() << std::endl;
     	_dev = _dwc->getWorkcell()->findDevice(_gtable->getHandName());
+    	Log::infoLog() << "Trying to find frame: " << _gtable->getObjectName() << std::endl;
     	Frame *obj = _dwc->getWorkcell()->findFrame(_gtable->getObjectName());
 
-    	_object = dynamic_cast<MovableFrame*>(obj);
+
     	if( _dev==NULL ){
     		Log::errorLog() << "Hand: "<< _gtable->getHandName() << " not found in workcell!\n";
     		return;
     	}
-    	if( _object==NULL ){
+    	if( obj==NULL || dynamic_cast<MovableFrame*>(obj)==NULL){
     		Log::errorLog() << "Object: "<< _gtable->getObjectName() << " not found in workcell!\n";
     		return;
     	}
+    	_object = dynamic_cast<MovableFrame*>(obj);
+
     	_graspTableSlider->setRange(0, _gtable->size()-1);
     	Frame* fbase = _dev->getBase()->getParent(_state);
     	while( !dynamic_cast<MovableFrame*>(fbase) ){

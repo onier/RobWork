@@ -973,7 +973,7 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
                      dJointSetAMotorNumAxes(motor, 1);
                      dJointSetAMotorAxis(motor, 0, 1, haxis(0) , haxis(1), haxis(2));
                      dJointSetAMotorAngle(motor,0, qinit);
-                     dJointSetAMotorParam(motor,dParamFMax, maxForce(i) );
+                     dJointSetAMotorParam(motor,dParamFMax, 20/*maxForce(i)*/ );
                      dJointSetAMotorParam(motor,dParamVel,0);
 
 
@@ -1025,7 +1025,7 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
                      dJointSetLMotorNumAxes(motor, 1);
                      dJointSetLMotorAxis(motor, 0, 1, haxis(0) , haxis(1), haxis(2));
                      //dJointSetAMotorAngle(motor,0, qinit);
-                     std::cout << "i:" << i << " mforce_len: " << maxForce.size() << std::endl;
+                     //std::cout << "i:" << i << " mforce_len: " << maxForce.size() << std::endl;
                      // TODO: should take the maxforce value of the owner joint
                      dJointSetLMotorParam(motor,dParamFMax, 20  /*maxForce(i)*/ );
                      dJointSetLMotorParam(motor,dParamVel,0);
@@ -1203,7 +1203,7 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
                                     &_rwClusteredContacts[0],
                                     threshold);
 
-    std::cout << "Threshold: " << threshold << " numc:" << numc << " fnumc:" << fnumc << std::endl;
+    //std::cout << "Threshold: " << threshold << " numc:" << numc << " fnumc:" << fnumc << std::endl;
     //RW_DEBUGS("Threshold: " << threshold << " numc:" << numc << " fnumc:" << fnumc);
     //RW_DEBUGS("Nr of average contact points in cluster: " << numc/((double)fnumc));
 
@@ -1302,7 +1302,7 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
             dJointSetFeedback( c, feedback );
         }
     }
-    std::cout << "_maxPenetration: " << _maxPenetration << " meter" << std::endl;
+    //std::cout << "_maxPenetration: " << _maxPenetration << " meter" << std::endl;
 
     if(enableFeedback && odeSensorb1){
         odeSensorb1->addFeedback(feedbacks, feedbackContacts, dataB2->getRwBody(), 0);

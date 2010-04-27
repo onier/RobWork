@@ -58,8 +58,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>174</width>
-            <height>443</height>
+            <width>150</width>
+            <height>343</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -257,21 +257,21 @@
          </property>
          <layout class="QVBoxLayout" name="verticalLayout_6">
           <item>
-           <widget class="QRadioButton" name="_centerOfMassBtn">
+           <widget class="QCheckBox" name="_centerOfMassBtn">
             <property name="text">
              <string>Center of mass</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="_momentsBtn">
+           <widget class="QCheckBox" name="_momentsBtn">
             <property name="text">
              <string>Moments</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="_segmentationBtn">
+           <widget class="QCheckBox" name="_segmentationBtn">
             <property name="text">
              <string>Segmentation</string>
             </property>

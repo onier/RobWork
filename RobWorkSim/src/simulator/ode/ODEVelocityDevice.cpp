@@ -127,17 +127,17 @@ void ODEVelocityDevice::postUpdate(rw::kinematics::State& state){
         if(_odeJoints[i]->getType()==ODEJoint::DEPEND){
             continue;
         }
-        actualVel(i) = _odeJoints[i]->getActualVelocity();
+        actualVel(qi) = _odeJoints[i]->getActualVelocity();
 
-        if( !equalSign(_odeJoints[i]->getVelocity(),velQ(qi) ) ){
+        /*if( !equalSign(_odeJoints[i]->getVelocity(),velQ(qi) ) ){
             double diff = fabs( velQ(qi) );
             if( diff>0.00001 ){
                 //diff = std::max(0.1,diff)*10;
-                _odeJoints[i]->setMaxForce( _maxForce(i)*1.5);
+                _odeJoints[i]->setMaxForce( _maxForce(qi)*1.5);
             }
         } else {
-            _odeJoints[i]->setMaxForce( _maxForce(i) );
-        }
+            _odeJoints[i]->setMaxForce( _maxForce(qi) );
+        }*/
 
         q(qi) = _odeJoints[i]->getAngle();
         qi++;

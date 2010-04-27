@@ -32,6 +32,7 @@
 #include <rw/kinematics/Frame.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/loaders/WorkCellLoader.hpp>
+#include <rw/loaders/rwxml/DependencyGraph.hpp>
 #include <rw/models/JointDevice.hpp>
 
 #include <rw/common/macros.hpp>
@@ -112,6 +113,8 @@ namespace
         std::string objA,objB;
     };
 
+    typedef PTree::iterator CI;
+
     struct ParserState {
     public:
         ParserState(std::string file):
@@ -145,11 +148,20 @@ namespace
         std::vector<ContactDataTmp> cdatas;
 
         std::vector<Frame*> deviceBases;
+        std::string dir;
+
+        DependencyGraph graph;
+       /* PTree& top();
+        void push(PTree* tree);
+        void pop();
+        bool hasNext();
+        CI next();
+        */
     };
 
     string quote(const string& str) { return StringUtil::quote(str); }
 
-    typedef PTree::const_iterator CI;
+
 
 
     std::vector<Geometry*> loadGeometrySingle(Frame &f, const State& rwstate){
@@ -219,7 +231,7 @@ namespace
     }
 /*
     template<class ARR>
-    ARR readFixedArray(const PTree& tree, ARR &values, int size){
+    ARR readFixedArray(PTree& tree, ARR &values, int size){
         istringstream buf(tree.get_own<string>());
 
         std::string str;
@@ -235,7 +247,7 @@ namespace
         }
     }
 */
-    std::vector<double> readArray(const PTree& tree){
+    std::vector<double> readArray(PTree& tree){
         RW_DEBUGS( "ReadArray: " << tree.get_own<string>() );
         istringstream buf(tree.get_own<string>());
         std::vector<double> values;
@@ -250,7 +262,7 @@ namespace
         return values;
     }
 
-    Q readQ(const PTree& tree){
+    Q readQ(PTree& tree){
         Log::debugLog()<< "ReadQ" << std::endl;
         std::vector<double> arr = readArray(tree);
         Q q(arr.size());
@@ -260,7 +272,7 @@ namespace
         return q;
     }
 
-    Vector3D<> readVector3D(const PTree& tree){
+    Vector3D<> readVector3D(PTree& tree){
         Log::debugLog()<< "ReadVector3D" << std::endl;
         Q q = readQ(tree);
         if(q.size()!=3)
@@ -268,7 +280,7 @@ namespace
         return Vector3D<>(q[0],q[1],q[2]);
     }
 
-    Vector2D<> readVector2D(const PTree& tree){
+    Vector2D<> readVector2D(PTree& tree){
         Log::debugLog()<< "ReadVector2D" << std::endl;
         Q q = readQ(tree);
         if(q.size()!=2)
@@ -276,7 +288,7 @@ namespace
         return Vector2D<>(q[0],q[1]);
     }
 
-    ublas::matrix<float> readMatrix(const PTree& tree, std::pair<int,int> dim){
+    ublas::matrix<float> readMatrix(PTree& tree, std::pair<int,int> dim){
         Log::debugLog()<< "ReadVector2D" << std::endl;
         Q q = readQ(tree);
         if(q.size()!=(size_t)(dim.first*dim.second))
@@ -290,7 +302,7 @@ namespace
         return values;
     }
 
-    InertiaMatrix<> readInertia(const PTree& tree){
+    InertiaMatrix<> readInertia(PTree& tree){
         Q q = readQ(tree);
         if(q.size()==3){
             return InertiaMatrix<>(q[0],q[1],q[2]);
@@ -302,7 +314,7 @@ namespace
 
     }
 
-    Frame *getFrameFromAttr(const PTree& tree, ParserState &state, const std::string& attr){
+    Frame *getFrameFromAttr(PTree& tree, ParserState &state, const std::string& attr){
         Log::debugLog()<< "getFrameFromAttr" << std::endl;
         string refframeName = tree.get_child("<xmlattr>").get<std::string>(attr);
         Frame* frame = state.wc->findFrame(refframeName);
@@ -311,7 +323,7 @@ namespace
         return frame;
     }
 
-    Frame *getFrameFromAttr(const PTree& tree, ParserState &state, const std::string& attr, const std::string& prefix){
+    Frame *getFrameFromAttr(PTree& tree, ParserState &state, const std::string& attr, const std::string& prefix){
         Log::debugLog()<< "getFrameFromAttr" << std::endl;
         string refframeName = tree.get_child("<xmlattr>").get<std::string>(attr);
         Frame* frame = state.wc->findFrame(prefix+refframeName);
@@ -321,7 +333,7 @@ namespace
 
     }
 
-    RigidBody* readRigidBody(const PTree& tree, const std::string& prefix, ParserState &state){
+    RigidBody* readRigidBody(PTree& tree, const std::string& prefix, ParserState &state){
         Log::debugLog()<< "ReadRigidBody" << std::endl;
         Frame *refframe = getFrameFromAttr(tree, state, "frame", prefix);
         // check if frame is actually a moveable frame
@@ -359,11 +371,11 @@ namespace
         return body;
     }
 
-    RigidBody* readRigidBody(const PTree& tree, ParserState &state){
+    RigidBody* readRigidBody(PTree& tree, ParserState &state){
     	return readRigidBody(tree,"",state);
     }
 
-    FixedBody* readFixedBody(const PTree& tree, ParserState &state){
+    FixedBody* readFixedBody(PTree& tree, ParserState &state){
         Log::infoLog() << "ReadFixedBody" << std::endl;
         Frame *refframe = getFrameFromAttr(tree, state, "frame");
 
@@ -376,7 +388,7 @@ namespace
         return body;
     }
 
-    FixedBody* readFixedBase(const PTree& tree, ParserState &state, JointDevice *dev){
+    FixedBody* readFixedBase(PTree& tree, ParserState &state, JointDevice *dev){
          Log::infoLog() << "ReadFixedBase" << std::endl;
         Frame *refframe = getFrameFromAttr(tree, state, "frame", dev->getName()+".");
 
@@ -393,7 +405,7 @@ namespace
     }
 
 
-    JointDevice* getDeviceFromAttr(const PTree& tree, ParserState &state){
+    JointDevice* getDeviceFromAttr(PTree& tree, ParserState &state){
         Log::debugLog()<< "Device from attr" << std::endl;
         string deviceName = tree.get_child("<xmlattr>").get<std::string>("device");
         Device* device = state.wc->findDevice(deviceName);
@@ -416,7 +428,7 @@ namespace
         return -1;
     }
 
-    KinematicBody* readKinematicBody(const PTree& tree,
+    KinematicBody* readKinematicBody(PTree& tree,
     		const std::string& frameAttr,
     		const std::string& prefix,
     		ParserState &state){
@@ -433,13 +445,13 @@ namespace
         RW_DEBUGS( "NR of geoms: " << geoms.size() );
         return body;
     }
-    KinematicBody* readKinematicBody(const PTree& tree,
+    KinematicBody* readKinematicBody(PTree& tree,
     		const std::string& frameAttr,
     		ParserState &state){
     	return readKinematicBody(tree,frameAttr,"",state);
     }
 
-    RigidJoint* readRigidJoint(const PTree& tree, ParserState &state, JointDevice *device ){
+    RigidJoint* readRigidJoint(PTree& tree, ParserState &state, JointDevice *device ){
 
         Log::debugLog()<< "ReadRigidJoint" << std::endl;
         string refjointName = tree.get_child("<xmlattr>").get<std::string>("joint");
@@ -476,7 +488,7 @@ namespace
         return rjoint;
     }
 
-    KinematicDevice* readKinematicDevice(const PTree& tree, ParserState &state){
+    KinematicDevice* readKinematicDevice(PTree& tree, ParserState &state){
         Log::debugLog()<< "ReadKinematicBody" << std::endl;
         JointDevice *device = getDeviceFromAttr(tree, state);
         std::vector<double> maxForce;
@@ -508,7 +520,7 @@ namespace
         return kdev;
     }
 
-    RigidDevice* readRigidDevice(const PTree& tree, ParserState &state){
+    RigidDevice* readRigidDevice(PTree& tree, ParserState &state){
         Log::debugLog()<< "ReadRigidDevice" << std::endl;
         JointDevice *device = getDeviceFromAttr(tree, state);
         //Q maxForce(device->getDOF());
@@ -551,7 +563,7 @@ namespace
         return rigiddev;
     }
 
-    void readTactileSensor(const PTree& tree, ParserState &state){
+    void readTactileSensor(PTree& tree, ParserState &state){
         Log::debugLog()<< "ReadTactileData" << std::endl;
         Frame *tactileFrame = getFrameFromAttr(tree, state, "frame");
         if(tactileFrame==NULL)
@@ -578,7 +590,7 @@ namespace
         state.sensors.push_back( ownedPtr( sensor ) );
     }
 
-    void readFrictionDatas(const PTree& tree, string first, string second, ParserState &state){
+    void readFrictionDatas(PTree& tree, string first, string second, ParserState &state){
         Log::debugLog()<< "ReadFrictionDatas1" << std::endl;
         FrictionDataTmp dataTmp;
         dataTmp.matA = first;
@@ -603,7 +615,7 @@ namespace
 
     }
 
-    void readFrictionMap(const PTree& tree, ParserState &state){
+    void readFrictionMap(PTree& tree, ParserState &state){
         Log::debugLog()<< "FrictionMap" << std::endl;
         for (CI p = tree.begin(); p != tree.end(); ++p) {
             if (p->first == "Pair") {
@@ -616,7 +628,7 @@ namespace
         }
     }
 
-    void readMaterialDataList(const PTree& tree, ParserState &state ){
+    void readMaterialDataList(PTree& tree, ParserState &state ){
         Log::debugLog()<< "ReadMaterialList" << std::endl;
         for (CI p = tree.begin(); p != tree.end(); ++p) {
             if (p->first == "Material") {
@@ -632,7 +644,7 @@ namespace
         }
     }
 
-    void readContactDatas(const PTree& tree, string first, string second, ParserState &state){
+    void readContactDatas(PTree& tree, string first, string second, ParserState &state){
         Log::debugLog()<< "ReadFrictionDatas" << std::endl;
         ContactDataTmp dataTmp;
         dataTmp.objA = first;
@@ -650,7 +662,7 @@ namespace
         }
     }
 
-    void readContactMap(const PTree& tree, ParserState &state ){
+    void readContactMap(PTree& tree, ParserState &state ){
         Log::debugLog()<< "ReadMaterialList" << std::endl;
         Log::debugLog()<< "FrictionMap" << std::endl;
         for (CI p = tree.begin(); p != tree.end(); ++p) {
@@ -664,7 +676,7 @@ namespace
         }
     }
 
-    void readContactDataList(const PTree& tree, ParserState &state ){
+    void readContactDataList(PTree& tree, ParserState &state ){
         Log::debugLog() << "ReadMaterialList" << std::endl;
         for (CI p = tree.begin(); p != tree.end(); ++p) {
             if (p->first == "ObjectType") {
@@ -680,7 +692,30 @@ namespace
         }
     }
 
-    void readPhysicsEngine(const PTree& tree, ParserState& state){
+    void readInclude(PTree& tree, PTree &parent, CI &iter, ParserState& state){
+    	CI lastIter = iter;
+    	--lastIter;
+    	std::string filename = tree.get_child("<xmlattr>").get<std::string>("file");
+    	//std::string filename = tree.get<std::string>("file");
+    	//std::cout << "Filename: " << filename << std::endl;
+
+        if(!StringUtil::isAbsoluteFileName(filename)){
+        	std::string fullname = state.dir;
+        	fullname.append(filename);
+        	filename = fullname;
+        }
+
+        PTree ntree;
+        read_xml(filename, ntree);
+        PTree &data = ntree.get_child("IncludeData");
+
+        CI nextiter = iter;
+        ++nextiter;
+    	parent.insert(nextiter, data.begin(), data.end() );
+
+    }
+
+    void readPhysicsEngine(PTree& tree, ParserState& state){
         state.defaultcolmargin =  tree.get<double>("CollisionMargin", 0.01);
         state.defaultRestModel = tree.get<string>("RestitutionModel","Newton");
         state.defaultContactModel = tree.get<string>("ContactModel","Newton");
@@ -719,7 +754,7 @@ namespace
 
 
     void getWorkCellOptionally(
-        const PTree& tree, ParserState& state)
+        PTree& tree, ParserState& state)
     {
         if (state.wc){
             Log::debugLog()<< "workcell allready loadet" << std::endl;
@@ -735,7 +770,8 @@ namespace
         }
     }
 
-    DynamicWorkcell* readDynamicWC(const PTree& tree, ParserState& state)
+
+    DynamicWorkcell* readDynamicWC(PTree& tree, ParserState& state)
     {
         getWorkCellOptionally(tree, state);
         state.rwstate = state.wc->getDefaultState();
@@ -785,6 +821,8 @@ namespace
             } else if (p->first == "ContactModel") {
             } else if (p->first == "TactileArraySensor") {
                 readTactileSensor(p->second, state);
+            } else if (p->first == "Include") {
+            	readInclude(p->second, tree, p, state);
             } else if (p->first == "<xmlattr>") {
             } else if (p->first == "<xmlcomment>") {
             } else {
@@ -840,11 +878,15 @@ namespace
     }
 }
 
-rw::common::Ptr<dynamics::DynamicWorkcell> DynamicWorkCellLoader::load(const string& file)
+rw::common::Ptr<dynamics::DynamicWorkcell> DynamicWorkCellLoader::load(const string& filename)
 {
+	std::string file = IOUtil::getAbsoluteFileName(filename);
+
     DynamicWorkcell *dwc;
     try {
         ParserState state(file);
+
+        state.dir = StringUtil::getDirectoryName(file);
 
         PTree tree;
         read_xml(file, tree);

@@ -31,6 +31,7 @@ SET(FILES_UI
 	SensorOutputGui.ui
 	SDHPlugin.ui
 	TactileSensorDialog.ui
+	GraspTableGeneratorPlugin.ui
 )
 RWS_QT4_WRAP_UI(UIS_OUT_H ${FILES_UI})
 
@@ -139,7 +140,21 @@ QT4_ADD_RESOURCES(RccSrcFiles resources.qrc)
 ADD_LIBRARY(SimUtilityPlugin MODULE ${SrcFiles} ${MocSrcFiles}  ${RccSrcFiles})
 TARGET_LINK_LIBRARIES(SimUtilityPlugin ${LibraryList})
 
+################################################################
+# next compile SimUtilityPlugin
+#
+SET(SrcFiles GraspTableGeneratorDialog.cpp )
 
+# Call the create_plugin macro for creating the plugin
+SET(MocSrcFiles )
+QT4_WRAP_CPP(MocSrcFiles GraspTableGeneratorDialog.hpp)
+# Rcc the files:
+SET(RccSrcFiles )
+#QT4_ADD_RESOURCES(RccSrcFiles resources.qrc)
+
+# The shared library to build:
+#ADD_LIBRARY(GraspTableGeneratorDialog MODULE ${SrcFiles} ${MocSrcFiles}  ${RccSrcFiles})
+#TARGET_LINK_LIBRARIES(GraspTableGeneratorDialog ${LibraryList})
 ###### The RW Simulation 
 
 RWS_QT4_WRAP_UI(UIS_OUT_H RWSimPlugin.ui)

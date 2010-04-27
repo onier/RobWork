@@ -61,7 +61,10 @@ public:
     }
 
     void setVelocity(const rw::math::Q& vel, const rw::kinematics::State& state){
-        rw::math::Q velLimit = getModel().getVelocityLimits();
+    	rw::math::Q velLimit = getModel().getVelocityLimits();
+
+    	RW_ASSERT(vel.size()==velLimit.size());
+
        // std::cout  << "Vel limits: " << velLimit <<  std::endl;
        // std::cout  << "Before clamp: " << vel << std::endl;
         _vel = rw::math::Math::clampQ(vel, -velLimit, velLimit);

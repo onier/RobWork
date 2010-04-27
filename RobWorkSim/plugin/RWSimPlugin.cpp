@@ -66,7 +66,8 @@ RWSimPlugin::RWSimPlugin():
 	_dwc(NULL),
 	_sim(NULL),
 	_debugRender(NULL),
-	_tactileSensorDialog(NULL)
+	_tactileSensorDialog(NULL),
+	_gtable("SchunkHand","Object")
 {
     setupUi(this);
 
@@ -105,7 +106,6 @@ RWSimPlugin::RWSimPlugin():
 
 void RWSimPlugin::btnPressed(){
     QObject *obj = sender();
-    std::cout << "Bumbum" << std::endl;
     if( obj == _openDwcBtn ){
     	openDwc("");
     	if(_dwc==NULL) return;
@@ -113,7 +113,7 @@ void RWSimPlugin::btnPressed(){
     	_openDwcBtn->setDisabled(true);
     	_openLastDwcBtn->setDisabled(true);
     } else if( obj == _timerShot ) {
-        std::cout << "timer shot" << std::endl;
+        //std::cout << "timer shot" << std::endl;
         std::string str = getRobWorkStudio()->getPropertyMap().get<std::string>("Arg1");
         openDwc(str);
         if( _dwc==NULL ) return;
@@ -151,6 +151,10 @@ void RWSimPlugin::btnPressed(){
     	State state = getRobWorkStudio()->getState();
     	sim->initPhysics(state);
     	_sim = ownedPtr(new ThreadSimulator(sim, getRobWorkStudio()->getState()));
+
+    	ThreadSimulator::StepCallback cb( boost::bind(&RWSimPlugin::stepCallBack,this, _1) );
+
+    	_sim->setStepCallBack(cb);
     	_timer->start();
     } else if( obj == _destroySimulatorBtn ) {
     	_sim->stop();
@@ -171,7 +175,11 @@ void RWSimPlugin::btnPressed(){
     } else if( obj == _stepBtn ) {
     	if( _sim->isRunning() )
     		_sim->stop();
+
     	_sim->step();
+
+
+
     	getRobWorkStudio()->setState(_sim->getState());
     } else if( obj == _startBtn ) {
     	_startBtn->setDisabled(true);
@@ -184,7 +192,7 @@ void RWSimPlugin::btnPressed(){
     } else if( obj == _resetBtn ) {
     	_sim->setState( getRobWorkStudio()->getState() );
     } else if( obj == _saveStatePathBtn )  {
-
+    	_gtable.save("GraspTableSchunkSim.rwplay");
     } else if( obj == _openDeviceCtrlBtn ){
         std::string devname = _deviceControlBox->currentText().toStdString();
         DynamicDevice *ddev = _dwc->findDevice(devname);
@@ -219,6 +227,53 @@ void RWSimPlugin::btnPressed(){
     }
 }
 
+using namespace boost::numeric::ublas;
+#include <rw/graspplanning/GraspTable.hpp>
+using namespace rw::graspplanning;
+namespace {
+
+	std::vector<matrix<float> > getTactileData(const std::vector<SimulatedSensorPtr>& sensors){
+		std::vector<matrix<float> > datas;
+		BOOST_FOREACH(const SimulatedSensorPtr& sensor, sensors){
+        	if( TactileArraySensor *tsensor = dynamic_cast<TactileArraySensor*>( sensor.get() ) ) {
+                datas.push_back( tsensor->getTexelData() );
+            }
+        }
+		return datas;
+	}
+}
+
+void RWSimPlugin::stepCallBack(const rw::kinematics::State& state){
+    // here we log stuff if enabled
+	if( _recordStatePathBox->isChecked()){
+        Frame *world = _dwc->getWorkcell()->getWorldFrame();
+        //Transform3D<> wThb = Kinematics::worldTframe(_handBase, state);
+        //Transform3D<> hbTw = inverse(wThb);
+        //Transform3D<> wTo = Kinematics::worldTframe(_object, state);
+
+        //Transform3D<> hpTo = inverse(wThb)*wTo;
+
+        //Vector3D<> approach = hpTo * Vector3D<>(0,0,1);
+        GraspTable::GraspData data;
+
+        //data.tactileContacts = tactileContacts;
+
+        //data.hp = Pose6D<>( hpTo );
+        //data.op = Pose6D<>( wTo );
+        //data.approach = approach;
+        DynamicDevice *hand = _dwc->findDevice("SchunkHand");
+        data.cq = hand->getModel().getQ(state);
+        data.pq = data.cq;//preshapes[_currentPreshapeIDX[simidx]];
+
+        data._tactiledata = getTactileData( _sim->getSimulator()->getSensors() );
+
+        //data.quality = qualities;
+
+        _gtable.addGrasp(data);
+	}
+}
+
+
 void RWSimPlugin::changedEvent(){
     QObject *obj = sender();
     if( obj == _timer ){
@@ -231,7 +286,7 @@ void RWSimPlugin::changedEvent(){
     } else if( obj == _timeScaleSpin ){
     	_sim->setPeriodMs( (int)(_timeScaleSpin->value()*_timeStepSpin->value()*1000) );
     } else if( obj == _debugLevelSpin ){
-    	std::cout << "Debug level spin!!" << std::endl;
+    	//std::cout << "Debug level spin!!" << std::endl;
     	if(_debugRender==NULL){
     		if( _debugLevelSpin->value()==0 )
     			return;
@@ -284,8 +339,8 @@ void RWSimPlugin::open(rw::models::WorkCell* workcell){
     BOOST_FOREACH(DynamicDevice* device, _dwc->getDynamicDevices()){
         rw::models::Device *dev = &device->getModel();
         RW_ASSERT(dev);
-        std::cout << "Dev name: " << std::endl;
-        std::cout << dev->getName() << std::endl;
+        //std::cout << "Dev name: " << std::endl;
+        //std::cout << dev->getName() << std::endl;
         _deviceControlBox->addItem(dev->getName().c_str());
     }
 }
@@ -368,7 +423,7 @@ void RWSimPlugin::initialize(){
         //getRobWorkStudio()->getView()->setZoomScale(5.0);
         getRobWorkStudio()->getView()->setCheckForCollision(false);
     } else {
-        std::cout << "NOOOOO ARG" << std::endl;
+        //std::cout << "NOOOOO ARG" << std::endl;
     }
 }
 

@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'TactileSensorDialog.ui'
 **
-** Created: Sat 20. Mar 12:25:59 2010
+** Created: Tue 27. Apr 02:42:07 2010
 **      by: Qt User Interface Compiler version 4.5.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -24,7 +24,6 @@
 #include <QtGui/QHeaderView>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
-#include <QtGui/QRadioButton>
 #include <QtGui/QScrollArea>
 #include <QtGui/QSpacerItem>
 #include <QtGui/QSpinBox>
@@ -65,9 +64,9 @@ public:
     QVBoxLayout *verticalLayout_5;
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout_6;
-    QRadioButton *_centerOfMassBtn;
-    QRadioButton *_momentsBtn;
-    QRadioButton *_segmentationBtn;
+    QCheckBox *_centerOfMassBtn;
+    QCheckBox *_momentsBtn;
+    QCheckBox *_segmentationBtn;
     QHBoxLayout *horizontalLayout_2;
     QSpinBox *_lowBoundSpin;
     QSpinBox *_uppBoundSpin;
@@ -104,7 +103,7 @@ public:
         scrollArea->setWidgetResizable(true);
         scrollAreaWidgetContents = new QWidget();
         scrollAreaWidgetContents->setObjectName(QString::fromUtf8("scrollAreaWidgetContents"));
-        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 174, 443));
+        scrollAreaWidgetContents->setGeometry(QRect(0, 0, 150, 343));
         verticalLayout_3 = new QVBoxLayout(scrollAreaWidgetContents);
         verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
         verticalLayout_2 = new QVBoxLayout();
@@ -216,17 +215,17 @@ public:
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         verticalLayout_6 = new QVBoxLayout(groupBox);
         verticalLayout_6->setObjectName(QString::fromUtf8("verticalLayout_6"));
-        _centerOfMassBtn = new QRadioButton(groupBox);
+        _centerOfMassBtn = new QCheckBox(groupBox);
         _centerOfMassBtn->setObjectName(QString::fromUtf8("_centerOfMassBtn"));
 
         verticalLayout_6->addWidget(_centerOfMassBtn);
 
-        _momentsBtn = new QRadioButton(groupBox);
+        _momentsBtn = new QCheckBox(groupBox);
         _momentsBtn->setObjectName(QString::fromUtf8("_momentsBtn"));
 
         verticalLayout_6->addWidget(_momentsBtn);
 
-        _segmentationBtn = new QRadioButton(groupBox);
+        _segmentationBtn = new QCheckBox(groupBox);
         _segmentationBtn->setObjectName(QString::fromUtf8("_segmentationBtn"));
 
         verticalLayout_6->addWidget(_segmentationBtn);

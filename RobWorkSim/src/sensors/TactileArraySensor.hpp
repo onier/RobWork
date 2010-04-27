@@ -8,6 +8,7 @@
 #include <rw/math/Transform3D.hpp>
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/multi_array.hpp>
+#include <rw/geometry.hpp>
 
 #include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
 
@@ -58,7 +59,7 @@ public:
      */
     boost::numeric::ublas::matrix<float> getTexelData()  const ;
 
-    void setTexelData(const boost::numeric::ublas::matrix<float>& data){_pressure = data;};
+    void setTexelData(const boost::numeric::ublas::matrix<float>& data);
 
     /**
      * @copydoc TactileArray::getTexelSize
@@ -127,6 +128,7 @@ public:
 
     /**
      * @brief set the upper and lower pressure bound that the sensors can measure
+     * in kPa
      * @param minPressure
      * @param maxPressure
      */
@@ -172,6 +174,7 @@ public:
         generateContacts(dynamics::Body *body, const rw::math::Vector3D<>& normal, const rw::kinematics::State& state);
 
 
+    const rw::geometry::PlainTriMesh<rw::geometry::TriangleN0<> >& getMesh(){return *_ntrimesh;}
 private:
 
 
@@ -179,12 +182,22 @@ private:
     VertexMatrix _centerMatrix;
     // matrix containing the surface normal of each tactil. Calculated from VertexShape
     VertexMatrix _normalMatrix;
+
+    VertexMatrix _contactMatrix;
+
+    VertexMatrix _distCenterMatrix;
+    boost::numeric::ublas::matrix<float> _distMatrix;
+    boost::numeric::ublas::matrix<float> _distDefMatrix;
+
     ValueMatrix _accForces,_pressure;
 	const rw::math::Vector2D<> _texelSize;
 	const rw::math::Transform3D<> _fThmap,_hmapTf;
 
     // width and height of matrix
 	const int _w,_h;
+	// lowpass filter time constant
+	double _tau;
+	double _texelArea;
 
     // matrix containing the center position of each tactil. Calculated from VertexShape
     VertexMatrix _vMatrix;
@@ -212,6 +225,13 @@ private:
     rw::proximity::ProximityModel *model;
     // max penetration in meter
     double _maxPenetration,_elasticity;
+
+    rw::geometry::GeometryPtr _ngeom;
+    rw::common::Ptr<rw::geometry::PlainTriMesh<rw::geometry::TriangleN0<> > > _ntrimesh;
+    rw::proximity::ProximityModelPtr _nmodel;
+
+
+    std::map<rw::kinematics::Frame*, std::vector<rw::geometry::GeometryPtr> > _frameToGeoms;
 };
 
 #endif /*TactileArraySensor_HPP_*/

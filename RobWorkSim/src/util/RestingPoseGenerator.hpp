@@ -48,10 +48,12 @@ public:
         _restConstraint = restconstraint;
     }
 
+    /**
+     *
+     */
     void setResultCallback(RestingPoseCallback callback){
         _restCallback = callback;
     }
-
 
     void setUpdateEventCallback(UpdateEventCallback callback){
         _updateCallback = callback;
@@ -66,6 +68,19 @@ public:
     void proceed();
 
     void stop();
+
+    bool isFinished();
+    /**
+     * @brief returns the number of samples that has been simulated.
+     */
+    int getNrOfSamplesDone();
+
+    /**
+     * @brief returns the number of samples that has yet to be simulated.
+     */
+    int getNrOfSamplesLeft();
+
+    std::string getStatusString();
 
 protected:
     void stepperLoop();
