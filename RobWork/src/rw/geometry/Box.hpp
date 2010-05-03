@@ -26,7 +26,8 @@ namespace geometry {
 
 class Box: public Primitive {
 public:
-	Box();
+	Box():_dx(1),_dy(1),_dz(1){};
+	Box(double x, double y, double z);
 	Box(const rw::math::Q& initQ);
 	virtual ~Box();
 
@@ -35,10 +36,10 @@ public:
 
 	const rw::math::Q& getParameters();
 
-	GeometryType getType(){ return BoxPrim; };
+	GeometryType getType() const { return BoxPrim; };
 
 private:
-	rw::math::Q _param;
+	double _dx,_dy,_dz;
 };
 
 } // geometry

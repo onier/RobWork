@@ -28,6 +28,17 @@ class Cylinder: public Primitive {
 public:
 
 	Cylinder();
+
+	/**
+     * @brief Constructs cylinder primitive with the specified setup
+     *
+     * The cylinder is aligned with the height in the z-direction.
+     *
+     * @param radius [in] radius of the cylinder.
+     * @param height [in] height of the cylinder.
+     */
+    Cylinder(float radius, float height);
+
 	Cylinder(const rw::math::Q& initQ);
 	virtual ~Cylinder();
 
@@ -36,11 +47,11 @@ public:
 
 	const rw::math::Q& getParameters();
 
-	GeometryType getType(){ return CylinderPrim; };
+	GeometryType getType() const { return CylinderPrim; };
 
 private:
 	float _radius;
-	float _length;
+	float _height;
 };
 
 } // geometry

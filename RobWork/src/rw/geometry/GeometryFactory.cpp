@@ -23,6 +23,17 @@
 #include <rw/models/Accessor.hpp>
 #include <rw/math/Transform3D.hpp>
 #include "STLFile.hpp"
+#include "Box.hpp"
+#include "Cylinder.hpp"
+
+/*
+#include "Line.hpp"
+#include "Point.hpp"
+#include "Plane.hpp"
+#include "Pyramid.hpp"
+#include "Sphere.hpp"
+#include "Triangle.hpp"
+*/
 #include <boost/foreach.hpp>
 
 using namespace rw::common;
@@ -41,6 +52,31 @@ namespace
 
     const std::vector<std::string> extensions(
         extensionsArray, extensionsArray + extensionCount);
+
+	Geometry* constructBox(std::stringstream& sstr)
+	{
+		float x, y, z;
+		sstr >> x >> y >> z;
+		return new Geometry(ownedPtr(new Box(x, y, z)));
+	}
+
+	Geometry* constructCylinder(std::stringstream& sstr)
+	{
+		float radius, height;
+		int divisions;
+		if (sstr >> radius >> height >> divisions) {
+			if (divisions < 0)
+				RW_THROW(
+					"Negative discretization level "
+					<< divisions);
+
+			return new Geometry(ownedPtr(new Cylinder(radius, height)));
+		} else {
+			RW_THROW("Could not read (radius, height, divisions).");
+			return NULL;
+		}
+	}
+
 }
 
 std::vector<Geometry*> GeometryFactory::loadCollisionGeometry(const rw::kinematics::Frame &f){
@@ -85,31 +121,48 @@ Geometry* GeometryFactory::getGeometry(const std::string& raw_filename, bool use
         return new Geometry(getCache().get(filename));
     }
 
-    // else check if the file has been loaded before
-    if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
-        GeometryData* data = STLFile::read(filename);
-        if( data == NULL )
-            RW_THROW("Reading of geometry failed!");
-        getCache().add(filename, data);
-        return new Geometry(getCache().get(filename));
-    /*
-    } else if (filetype == ".3DS") {
+    if( raw_filename[0] != '#' ){
+		// else check if the file has been loaded before
+		if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
+			GeometryData* data = STLFile::read(filename);
+			if( data == NULL )
+				RW_THROW("Reading of geometry failed!");
+			getCache().add(filename, data);
+			return new Geometry(getCache().get(filename));
+		/*
+		} else if (filetype == ".3DS") {
+			return NULL;
+		} else if (filetype == ".AC" || filetype == ".AC3D") {
+			return NULL;
+		} else if (filetype == ".TRI") {
+			return NULL;
+		} else if (filetype == ".IVG") {
+			return NULL;
+		*/
+		} else {
+			RW_THROW(
+				"Unknown extension "
+				<< StringUtil::quote(StringUtil::getFileExtension(filename))
+				<< " for file "
+				<< StringUtil::quote(raw_filename)
+				<< " that was resolved to file name "
+				<< filename);
+		}
+    }
+
+    std::stringstream sstr(raw_filename);
+    std::string type;
+    sstr >> type;
+
+    if (type == "#Box")
+        return constructBox(sstr);
+    if (type == "#Cylinder")
+        return constructCylinder(sstr);
+    else {
+        RW_THROW("Unable to construct geometry from string: \"" << raw_filename << "\"");
+
+        // To avoid a compiler warning.
         return NULL;
-    } else if (filetype == ".AC" || filetype == ".AC3D") {
-        return NULL;
-    } else if (filetype == ".TRI") {
-        return NULL;
-    } else if (filetype == ".IVG") {
-        return NULL;
-    */
-    } else {
-        RW_THROW(
-            "Unknown extension "
-            << StringUtil::quote(StringUtil::getFileExtension(filename))
-            << " for file "
-            << StringUtil::quote(raw_filename)
-            << " that was resolved to file name "
-            << filename);
     }
 
     RW_ASSERT(!"Impossible");
