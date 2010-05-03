@@ -58,7 +58,7 @@ void RenderGeometry::setGeometry(rw::geometry::GeometryPtr geom){
     glBegin(GL_TRIANGLES);
     // Draw all faces.
     GeometryDataPtr geomdata = geom->getGeometryData();
-    TriMeshPtr mesh = GeometryUtil::toTriMesh(geomdata.get());
+    TriMeshPtr mesh = GeometryUtil::toTriMesh(geomdata);
 
     for(size_t i=0;i<mesh->size();i++){
     	TriangleN0<double> tri = mesh->getTriangle(i);
