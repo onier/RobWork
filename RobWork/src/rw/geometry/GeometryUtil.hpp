@@ -27,6 +27,7 @@
 //#include <rw/geometry/Face.hpp>
 
 #include "Geometry.hpp"
+#include "Primitive.hpp"
 #include "TriMesh.hpp"
 
 namespace rw { namespace geometry {
@@ -115,7 +116,8 @@ public:
 
 
 	static TriMesh* toTriMesh(Geometry *geom){
-        GeometryDataPtr gdata = geom->getGeometryData();
+		GeometryDataPtr gdata = geom->getGeometryData();
+
         // check if type of geom is really a trimesh
         if( !dynamic_cast<TriMesh*>(gdata.get()) ){
             return NULL;
@@ -127,11 +129,20 @@ public:
 	static TriMeshPtr toTriMesh(GeometryData *gdata){
         // check if type of geom is really a trimesh
         if( !dynamic_cast<TriMesh*>(gdata) ){
-
         	return NULL;
         }
         TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata);
         return TriMeshPtr(trimesh);
+	};
+
+	static TriMeshPtr toTriMesh(GeometryDataPtr gdata){
+        // check if type of geom is really a trimesh
+        if( dynamic_cast<TriMesh*>(gdata.get()) ){
+        	return *((TriMeshPtr*)&gdata);
+        } else if(Primitive *prim = dynamic_cast<Primitive*>(gdata.get())){
+        	return prim->createMesh(-1); // use default resolution
+        }
+        return TriMeshPtr(NULL);
 	};
 
 };
