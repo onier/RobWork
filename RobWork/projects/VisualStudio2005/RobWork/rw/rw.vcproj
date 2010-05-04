@@ -40,7 +40,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../../src;&quot;$(RW_DEPENDENCIES)\boost_1_39_0&quot;;../../../../ext/;&quot;$(RW_DEPENDENCIES)\xerces-c_2_8_0-x86-windows-vc_8_0\include&quot;"
+				AdditionalIncludeDirectories="../../../../src;&quot;$(RW_DEPENDENCIES)\boost_1_39_0&quot;;../../../../ext/;&quot;$(RW_DEPENDENCIES)\xerces-c-3.1.0-x86-windows-vc-8.0\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;NOMINMAX;BIND_FORTRAN_LOWERCASE_UNDERSCORE;RW_ENABLE_ASSERT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_SECURE_SCL=0;_HAS_ITERATOR_DEBUGGING=0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,6 +62,8 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="xerces-c_3D.lib"
+				AdditionalLibraryDirectories="&quot;$(QTDIR)\lib&quot;;..\..\..\..\..\RobWork\ext\libs_vs;&quot;$(RW_DEPENDENCIES)\xerces-c-3.1.0-x86-windows-vc-8.0\lib&quot;;&quot;$(RW_DEPENDENCIES)\boost_1_39_0\stage\lib&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -1865,6 +1867,14 @@
 		<Filter
 			Name="sandbox"
 			>
+			<File
+				RelativePath="..\..\..\..\src\sandbox\DOMCount\DOMCount.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\sandbox\DOMCount\DOMCount.hpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="plugin"

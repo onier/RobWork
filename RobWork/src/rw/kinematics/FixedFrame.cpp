@@ -34,13 +34,13 @@ Transform3D<> FixedFrame::getTransform(const State& state) const
 }*/
 
 void FixedFrame::doMultiplyTransform(const Transform3D<>& parent,
-                                const State& state,
-                                Transform3D<>& result) const
+                                     const State& state,
+                                     Transform3D<>& result) const
 {
     Transform3D<>::multiply(parent, _transform, result);
 }
 
-void FixedFrame::setTransform(const math::Transform3D<>& transform){
+void FixedFrame::setTransform(const Transform3D<>& transform){
 	_transform = transform;
 }
 

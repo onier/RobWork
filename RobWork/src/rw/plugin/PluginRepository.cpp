@@ -40,7 +40,7 @@ void PluginRepository::load(const std::string& filename) {
 
 void PluginRepository::loadFilesInFolder(const std::string& path, bool searchSubFolders) {
     
-    std::vector<std::string> files = IOUtil::getFilesInFolder(path, true, "*."+OS::getDLLExtension());
+    std::vector<std::string> files = IOUtil::getFilesInFolder(path, true, true, "*."+OS::getDLLExtension());
 //    std::vector<std::string> files = IOUtil::getFilesInFolder(path, true, "*.dll");
 
     BOOST_FOREACH(std::string str, files) {
