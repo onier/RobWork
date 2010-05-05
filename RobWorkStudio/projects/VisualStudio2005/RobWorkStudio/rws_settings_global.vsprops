@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="Windows-1252"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="rws_settings_global"
+	>
+	<Tool
+		Name="VCCLCompilerTool"
+		AdditionalIncludeDirectories="..\rwstudio\generatedfiles;..\..\..\..\src\;..\..\..\..\..\RobWork\src;..\..\..\..\..\RobWork\ext;&quot;$(XERCES_VS_ROOT)&quot;;..\..\..\..\src\rws"
+	/>
+	<Tool
+		Name="VCLinkerTool"
+		AdditionalLibraryDirectories="$(XERCES_VS_ROOT)/lib"
+	/>
+</VisualStudioPropertySheet>

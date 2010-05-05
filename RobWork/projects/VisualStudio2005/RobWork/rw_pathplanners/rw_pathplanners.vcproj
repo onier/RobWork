@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\rw\rw.vsprops"
+			InheritedPropertySheets="..\rw_settings_debug.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -85,7 +85,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\rw\rw.vsprops"
+			InheritedPropertySheets="..\rw_settings_release.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>

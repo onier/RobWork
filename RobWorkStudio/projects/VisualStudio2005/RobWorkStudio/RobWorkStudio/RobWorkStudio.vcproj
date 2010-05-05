@@ -20,6 +20,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\..\..\..\RobWork\projects\VisualStudio2005\RobWork\rw_settings_release.vsprops;..\rws_settings_global.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -96,6 +97,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\..\..\..\..\RobWork\projects\VisualStudio2005\RobWork\rw_settings_debug.vsprops;..\rws_settings_global.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -115,7 +117,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(RW_DEPENDENCIES)\Boost_1_39_0&quot;;.\GeneratedFiles;&quot;$(QTDIR)\include&quot;;&quot;.\GeneratedFiles\$(ConfigurationName)&quot;;..\rwstudio\generatedfiles;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;;&quot;$(QTDIR)\include\QtOpenGL&quot;;.\;..\..\..\..\src\;..\..\..\..\..\RobWork\src;..\..\..\..\..\RobWork\ext;&quot;$(RW_DEPENDENCIES)\xerces-c-3.0.1-x86-windows-vc-8.0\include&quot;;..\..\..\..\src\rws"
+				AdditionalIncludeDirectories=".\GeneratedFiles;&quot;$(QTDIR)\include&quot;;&quot;.\GeneratedFiles\$(ConfigurationName)&quot;;..\rwstudio\generatedfiles;&quot;$(QTDIR)\include\QtCore&quot;;&quot;$(QTDIR)\include\QtGui&quot;;&quot;$(QTDIR)\include\QtOpenGL&quot;;.\"
 				PreprocessorDefinitions="WIN32;NOMINMAX;QT_LARGEFILE_SUPPORT;QT_THREAD_SUPPORT;QT_CORE_LIB;QT_GUI_LIB;QT_OPENGL_LIB;BIND_FORTRAN_LOWERCASE_UNDERSCORE;RW_ENABLE_ASSERT;RW_STATIC_LINK_PLUGINS;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_SECURE_SCL=0;_HAS_ITERATOR_DEBUGGING=0"
 				RuntimeLibrary="3"
 				TreatWChar_tAsBuiltInType="true"
@@ -445,7 +447,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\plugins\jog\jog.png"
+				RelativePath="..\..\..\..\src\images\jog.png"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -465,7 +467,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\images\jog.png"
+				RelativePath="..\..\..\..\src\plugins\jog\jog.png"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -665,7 +667,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\plugins\planning\planning.png"
+				RelativePath=".\Resources\planning.png"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -685,7 +687,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Resources\planning.png"
+				RelativePath="..\..\..\..\src\plugins\planning\planning.png"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
