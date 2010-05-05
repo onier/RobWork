@@ -40,6 +40,8 @@ SET(SRC_FILES
     
     ConvertUtil.cpp
     #Log.cpp
+    
+    calibration/EncoderDecentralization.cpp
 )
 
 SET(SRC_FILES_HPP
@@ -62,6 +64,8 @@ SET(SRC_FILES_HPP
     		
     ConvertUtil.hpp
     #Log.hpp
+    
+    calibration/EncoderDecentralization.hpp
 )
 
 ADD_LIBRARY(rw_sandbox ${SRC_FILES} ${SRC_FILES_HPP})

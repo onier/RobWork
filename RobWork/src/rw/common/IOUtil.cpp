@@ -241,46 +241,5 @@ std::vector<std::string> IOUtil::getFilesInFolder(const std::string& path, bool 
     std::vector<std::string> result;
     getFilesInFolder(path, fileMask, recursive, addPath, result);
     return result;
-    
-    try
-    {
-        //Depending on how string has been generated boost::replace_all sometimes fails. 
-        //A fix of this is to convert it with c_str().
-        std::string regStr = fileMask.c_str();
-
-	    boost::replace_all(regStr, "\\", "\\\\");
-	    boost::replace_all(regStr, ".", "\\.");
-	    boost::replace_all(regStr, "*", ".*");
-	    boost::replace_all(regStr, "(", "\\(");
-	    boost::replace_all(regStr, ")", "\\)");
-	    boost::replace_all(regStr, "+", "\\+");
-
-        const boost::regex regex(regStr);
-        boost::cmatch match;
-
-        boost::filesystem::directory_iterator end;
-        for (boost::filesystem::directory_iterator it(path); it != end; it++)
-        {			        
-
-
-	        if (!boost::filesystem::is_regular_file(it->status())) //If not a regular file
-                continue;
-            std::string filename = it->path().filename();
-
-            if (!boost::regex_match(filename.c_str(), match, regex)) 
-                continue;
-
-	        if (addPath)
-		        result.push_back(it->path().string());
-	        else
-                result.push_back(it->path().filename());
-		        
-        }
-    }
-    catch (const std::exception& e)
-    {
-        RW_THROW("Unable to retrieve files in folder: "<<e.what());
-    }
-    return result;
-
 }
+

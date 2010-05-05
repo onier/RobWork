@@ -209,9 +209,9 @@ int main(int argc, char** argv)
         
         RobWork robwork;
         std::string pluginFolder = "./plugins/";
-        try {
+      /*  try {
                                                             
-            robwork.getPluginRepository().addFilesInFolder(pluginFolder);
+            robwork.getPluginRepository().loadFilesInFolder(pluginFolder);
 
             std::vector<rw::common::Ptr<rw::plugin::PluginFactory<rw::trajectory::QTrajectory> > > factories;
             factories = robwork.getPluginRepository().getPlugins<rw::trajectory::QTrajectory>();

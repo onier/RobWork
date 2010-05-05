@@ -26,6 +26,7 @@
 #include <boost/foreach.hpp>
 #include <map>
 
+using namespace rw;
 using namespace rw::kinematics;
 using namespace rw::proximity;
 using namespace rw::common;

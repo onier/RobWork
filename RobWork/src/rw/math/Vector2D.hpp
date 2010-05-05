@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -92,9 +92,8 @@ namespace rw { namespace math {
          * @param r [in] an ublas vector_expression
          */
         template <class R>
-        Vector2D(
-            const boost::numeric::ublas::vector_expression<R>& r) :
-            	_vec(r)
+        Vector2D(const boost::numeric::ublas::vector_expression<R>& r) :
+            _vec(r)
         {}
 
         /**
@@ -116,6 +115,7 @@ namespace rw { namespace math {
         size_t size() const { return 2; }
 
         // Various operators.
+
 
         /**
          * @brief Returns reference to vector element
@@ -158,7 +158,7 @@ namespace rw { namespace math {
         /**
            @brief Scalar division.
          */
-        friend Vector2D<T> operator/(const Vector2D<T>& v, T s)
+        friend const Vector2D<T> operator/(const Vector2D<T>& v, T s)
         {
             return Vector2D<T>(v.m() / s);
         }
@@ -166,7 +166,7 @@ namespace rw { namespace math {
         /**
            @brief Scalar multiplication.
          */
-        friend Vector2D<T> operator*(const Vector2D<T>& v, T s)
+        friend const Vector2D<T> operator*(const Vector2D<T>& v, T s)
         {
             return Vector2D<T>(v.m() * s);
         }
@@ -174,7 +174,7 @@ namespace rw { namespace math {
         /**
            @brief Scalar multiplication.
          */
-        friend Vector2D<T> operator*(T s, const Vector2D<T>& v)
+        friend const Vector2D<T> operator*(T s, const Vector2D<T>& v)
         {
             return Vector2D<T>(s * v.m());
         }
@@ -182,7 +182,7 @@ namespace rw { namespace math {
         /**
            @brief Vector subtraction.
          */
-        friend Vector2D<T> operator-(const Vector2D<T>& a, const Vector2D<T>& b)
+        friend const Vector2D<T> operator-(const Vector2D<T>& a, const Vector2D<T>& b)
         {
             return Vector2D<T>(a.m() - b.m());
         }
@@ -190,7 +190,7 @@ namespace rw { namespace math {
         /**
            @brief Vector addition.
          */
-        friend Vector2D<T> operator+(const Vector2D<T>& a, const Vector2D<T>& b)
+        friend const Vector2D<T> operator+(const Vector2D<T>& a, const Vector2D<T>& b)
         {
             return Vector2D<T>(a.m() + b.m());
         }
@@ -234,7 +234,7 @@ namespace rw { namespace math {
         /**
            @brief Unary minus.
          */
-        Vector2D<T> operator-() const
+        const Vector2D<T> operator-() const
         {
             return Vector2D<T>(-m());
         }
@@ -300,7 +300,7 @@ namespace rw { namespace math {
          *
          * @return the normalized vector \f$ \mathbf{n} \f$
          */
-        friend Vector2D<T> normalize(const Vector2D<T>& v)
+        friend const Vector2D<T> normalize(const Vector2D<T>& v)
         {
             T length = v.norm2();
             if (length != 0)
@@ -317,7 +317,7 @@ namespace rw { namespace math {
          * @return Vector2D with type Q
          */
         template<class Q>
-        friend Vector2D<Q> cast(const Vector2D<T>& v)
+        friend const Vector2D<Q> cast(const Vector2D<T>& v)
         {
             return Vector2D<Q>(
                 static_cast<Q>(v(0)),
@@ -357,6 +357,19 @@ namespace rw { namespace math {
 
     	Base _vec;
     };
+
+    /**
+       @brief Compares \b a and \b b for equality.
+
+       @relates Vector2D
+
+       @param a [in]
+       @param b [in]
+       @return True if a equals b, false otherwise.
+    */
+    template <class T>
+    bool operator==(const Vector2D<T>& a, const Vector2D<T>& b)
+    { return a[0] == b[0] && a[1] == b[1]; }
 
     /**@}*/
 }} // end namespaces

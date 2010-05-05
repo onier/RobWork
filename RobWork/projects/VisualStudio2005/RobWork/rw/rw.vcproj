@@ -24,6 +24,7 @@
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
+				CommandLine="copy ..\..\..\..\src\RobWorkConfig.hpp.template ..\..\..\..\src\RobWorkConfig.hpp"
 			/>
 			<Tool
 				Name="VCCustomBuildTool"
@@ -40,12 +41,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="../../../../src;&quot;$(RW_DEPENDENCIES)\boost_1_39_0&quot;;../../../../ext/;&quot;$(RW_DEPENDENCIES)\xerces-c-3.1.0-x86-windows-vc-8.0\include&quot;"
+				AdditionalIncludeDirectories="../../../../src;&quot;$(RW_DEPENDENCIES)\boost_1_39_0&quot;;../../../../ext/;&quot;$(RW_DEPENDENCIES)\xerces-c-3.0.1-x86-windows-vc-8.0\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;NOMINMAX;BIND_FORTRAN_LOWERCASE_UNDERSCORE;RW_ENABLE_ASSERT;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_SECURE_SCL=0;_HAS_ITERATOR_DEBUGGING=0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				TreatWChar_tAsBuiltInType="false"
+				TreatWChar_tAsBuiltInType="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				Detect64BitPortabilityProblems="false"
@@ -63,7 +64,7 @@
 			<Tool
 				Name="VCLibrarianTool"
 				AdditionalDependencies="xerces-c_3D.lib"
-				AdditionalLibraryDirectories="&quot;$(QTDIR)\lib&quot;;..\..\..\..\..\RobWork\ext\libs_vs;&quot;$(RW_DEPENDENCIES)\xerces-c-3.1.0-x86-windows-vc-8.0\lib&quot;;&quot;$(RW_DEPENDENCIES)\boost_1_39_0\stage\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(QTDIR)\lib&quot;;..\..\..\..\..\RobWork\ext\libs_vs;&quot;$(RW_DEPENDENCIES)\xerces-c-3.0.1-x86-windows-vc-8.0\lib&quot;;&quot;$(RW_DEPENDENCIES)\boost_1_39_0\stage\lib&quot;"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -107,7 +108,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				AdditionalIncludeDirectories="../../../../src;$(RW_DEPENDENCIES)\boost_1_39_0;../../../../ext/;&quot;$(RW_DEPENDENCIES)\xerces-c_2_8_0-x86-windows-vc_8_0\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;NOMINMAX;BIND_FORTRAN_LOWERCASE_UNDERSCORE;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;NOMINMAX;BIND_FORTRAN_LOWERCASE_UNDERSCORE;_SCL_SECURE_NO_WARNINGS;_CRT_SECURE_NO_WARNINGS;_HAS_ITERATOR_DEBUGGING=0;_SECURE_SCL=0"
 				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -679,6 +680,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rw\common\LogBufferedMsg.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\common\LogFileWriter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\common\LogFileWriter.hpp"
 				>
 			</File>
 			<File
@@ -1564,6 +1573,22 @@
 			Name="proximity"
 			>
 			<File
+				RelativePath="..\..\..\..\src\rw\proximity\BroadPhaseStrategy.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\proximity\BroadPhaseStrategy.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\proximity\CollisionData.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\proximity\CollisionData.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\rw\proximity\CollisionDetector.cpp"
 				>
 			</File>
@@ -1612,6 +1637,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\src\rw\proximity\DistanceThresholdStrategy.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\proximity\distancethresholdstrategy.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\rw\proximity\DistanceToleranceStrategy.cpp"
 				>
 			</File>
@@ -1620,11 +1653,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\src\rw\proximity\ExcludeListBPFilter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\proximity\ExcludeListBPFilter.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\rw\proximity\Proximity.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rw\proximity\Proximity.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\proximity\ProximityCache.hpp"
 				>
 			</File>
 			<File
@@ -1641,6 +1686,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rw\proximity\ProximityStrategy.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\proximity\StaticListFilter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\proximity\StaticListFilter.hpp"
 				>
 			</File>
 		</Filter>
@@ -1776,6 +1829,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\src\rw\trajectory\BlendedTrajectory.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\trajectory\BlendedTrajectory.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\rw\trajectory\CircularInterpolator.hpp"
 				>
 			</File>
@@ -1789,6 +1850,14 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rw\trajectory\CubicSplineInterpolator.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\trajectory\FixedInterpolator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\trajectory\FixedInterpolator.hpp"
 				>
 			</File>
 			<File
@@ -1861,18 +1930,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rw\trajectory\TrajectoryIterator.hpp"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="sandbox"
-			>
-			<File
-				RelativePath="..\..\..\..\src\sandbox\DOMCount\DOMCount.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\sandbox\DOMCount\DOMCount.hpp"
 				>
 			</File>
 		</Filter>

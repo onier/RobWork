@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef RW_SENSOR_CONTACT3D_HPP
-#define RW_SENSOR_CONTACT3D_HPP
+#ifndef RW_SENSOR_CONTACT3D_HPP_
+#define RW_SENSOR_CONTACT3D_HPP_
 
 #include <rw/math/Vector3D.hpp>
 

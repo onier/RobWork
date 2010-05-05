@@ -16,7 +16,7 @@ SET(CMAKE_INSTALL_PREFIX ${output})
 
 # Used to resolve absolute path names
 SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
-
+SET(ROBWORKHARDWARE_ROOT ${ROOT})
 #Include default settings for constructing a robwork dependent project
 INCLUDE(${ROOT}/build/ProjectSetup.cmake)
 
@@ -46,6 +46,8 @@ INCLUDE_DIRECTORIES(
 
 # TODO: test if boost asio package is available
 
+# Enable the RW_ASSERT() macro.
+add_definitions(-DRW_ENABLE_ASSERT -fPIC)
 
 # Subdirectories to process.
 #add_subdirectory(ext)

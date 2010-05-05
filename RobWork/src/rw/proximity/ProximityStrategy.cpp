@@ -115,7 +115,7 @@ bool ProximityStrategy::addModel(const Frame* frame, const rw::geometry::Geometr
 
 
 bool ProximityStrategy::hasModel(const rw::kinematics::Frame* frame){
-    if( !_frameToModel.has( *frame ) ){
+    if( !_frameToModel.has( *frame ) || _frameToModel[*frame]==NULL){
         if (Accessor::collisionModelInfo().has(*frame))
             if(Accessor::collisionModelInfo().get(*frame).size()>0)
                 return true;
@@ -125,9 +125,12 @@ bool ProximityStrategy::hasModel(const rw::kinematics::Frame* frame){
 }
 
 void ProximityStrategy::clearFrame(const rw::kinematics::Frame* frame){
-    if( !_frameToModel.has( *frame ) )
+    if( !_frameToModel.has( *frame ) || _frameToModel[*frame]==NULL )
         return;
     ProximityModelPtr model = _frameToModel[*frame];
+    std::cout << "clear frame" << std::endl;
+    if( model == NULL )
+    	return;
     _frameToModel[*frame] = NULL;
     destroyModel(model.get());
 }
