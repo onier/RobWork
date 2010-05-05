@@ -10,6 +10,7 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalLibraryDirectories="$(XERCES_VS_ROOT)/lib"
+		AdditionalDependencies="blas.lib lapack.lib xerces-c_3D.lib"
+		AdditionalLibraryDirectories="&quot;$(BOOST_ROOT)/stage/lib&quot;;&quot;$(XERCES_VS_ROOT)/lib&quot;"
 	/>
 </VisualStudioPropertySheet>
