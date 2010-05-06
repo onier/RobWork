@@ -98,7 +98,7 @@ TriMeshPtr Box::createMesh(int resolution){
 	return ownedPtr( mesh );
 }
 
-const rw::math::Q& Box::getParameters(){
+rw::math::Q Box::getParameters() const {
 	Q q(3);
 	q(0) = _dx;
 	q(1) = _dy;

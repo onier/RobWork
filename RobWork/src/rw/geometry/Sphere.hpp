@@ -33,7 +33,7 @@ public:
 	// inherited from Primitive
 	TriMeshPtr createMesh(int resolution);
 
-	const rw::math::Q& getParameters();
+	rw::math::Q getParameters() const;
 private:
 	rw::math::Q _param;
 };

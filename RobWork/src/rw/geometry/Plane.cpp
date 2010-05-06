@@ -16,3 +16,15 @@
  ********************************************************************************/
 
 #include "Plane.hpp"
+
+using namespace rw::geometry;
+using namespace rw::math;
+
+Q Plane::getParameters() const { 
+    Q q(4);
+    q(0) = _normal(0);
+    q(1) = _normal(1);
+    q(2) = _normal(2);
+    q(3) = _d;
+    return q;
+}

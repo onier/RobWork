@@ -27,7 +27,7 @@ public:
 	/**
 	 * @brief the set of parameters that defines this primitive
 	 */
-	virtual const rw::math::Q& getParameters() = 0;
+	virtual rw::math::Q getParameters() const = 0;
 
 };
 

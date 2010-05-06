@@ -371,7 +371,7 @@ bool ProximityStrategyPQP::collides(ProximityModelPtr aModel,
 
     PQPProximityModel *a = (PQPProximityModel*)aModel.get();
     PQPProximityModel *b = (PQPProximityModel*)bModel.get();
-    int nrOfCollidingGeoms = 0, geoIdxA=0, geoIdxB=0;
+    size_t nrOfCollidingGeoms = 0, geoIdxA=0, geoIdxB=0;
     bool col_res = false;
     BOOST_FOREACH(const RWPQPModel& ma, a->models) {
         BOOST_FOREACH(const RWPQPModel& mb, b->models) {

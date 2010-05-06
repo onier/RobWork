@@ -55,7 +55,7 @@ public:
 	// inherited from Primitive
 	TriMeshPtr createMesh(int resolution){ return NULL;};
 
-	const rw::math::Q& getParameters(){ }
+	rw::math::Q getParameters() const;
 
 	GeometryType getType() const{ return PlanePrim; };
 

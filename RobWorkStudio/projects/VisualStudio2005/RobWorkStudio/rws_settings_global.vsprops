@@ -6,11 +6,15 @@
 	>
 	<Tool
 		Name="VCCLCompilerTool"
-		AdditionalIncludeDirectories="..\rwstudio\generatedfiles;..\..\..\..\src\;..\..\..\..\..\RobWork\src;..\..\..\..\..\RobWork\ext;&quot;$(XERCES_VS_ROOT)&quot;;..\..\..\..\src\rws"
+		AdditionalIncludeDirectories="..\rwstudio\generatedfiles;&quot;$(RWS_ROOT)\src\&quot;;&quot;$(XERCES_VS_ROOT)&quot;;&quot;$(RWS_ROOT)\src&quot;"
 	/>
 	<Tool
 		Name="VCLinkerTool"
 		AdditionalDependencies="blas.lib lapack.lib xerces-c_3D.lib"
 		AdditionalLibraryDirectories="&quot;$(BOOST_ROOT)/stage/lib&quot;;&quot;$(XERCES_VS_ROOT)/lib&quot;"
+	/>
+	<UserMacro
+		Name="RWS_ROOT"
+		Value="$(ROBWORK_DIR)\RobWorkStudio"
 	/>
 </VisualStudioPropertySheet>

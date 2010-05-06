@@ -99,7 +99,7 @@ TriMeshPtr Cylinder::createMesh(int resolution){
 	return ownedPtr(mesh);
 }
 
-const rw::math::Q& Cylinder::getParameters(){
+rw::math::Q Cylinder::getParameters() const {
 	Q q(2);
 	q(0) = _height;
 	q(1) = _radius;

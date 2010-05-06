@@ -168,7 +168,7 @@ GeometryUtil::estimateCOG(const std::vector<Geometry*> &geoms)
         TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata.get());
 
         Transform3D<> t3d = geom->getTransform();
-        for(int i=0; i<trimesh->size(); i++){
+        for(size_t i=0; i<trimesh->size(); i++){
             TriangleN0<double> tri = trimesh->getTriangle(i);
             const Vector3D<>& p = t3d* (tri[0]);
             const Vector3D<>& q = t3d* (tri[1]);
@@ -203,7 +203,7 @@ double GeometryUtil::calcMaxDist(const std::vector<Geometry*> &geoms,
         TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata.get());
 
         Transform3D<> t3d = geom->getTransform();
-        for(int i=0; i<trimesh->size(); i++){
+        for(size_t i=0; i<trimesh->size(); i++){
             TriangleN0<double> tri = trimesh->getTriangle(i);
             const Vector3D<>& p = t3d* (tri[0]);
             const Vector3D<>& q = t3d* (tri[1]);
@@ -250,7 +250,7 @@ GeometryUtil::estimateInertia(
         Transform3D<> t3d = ref*geom->getTransform();
 
         triCnt += trimesh->size();
-        for(int i=0; i<trimesh->size(); i++){
+        for(size_t i=0; i<trimesh->size(); i++){
             TriangleN0<double> tri = trimesh->getTriangle(i);
             const Vector3D<>& p = t3d* (tri[0]);
             const Vector3D<>& q = t3d* (tri[1]);
