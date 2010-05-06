@@ -10,7 +10,7 @@
 	/>
 	<UserMacro
 		Name="RW_ROOT"
-		Value="../../../../"
+		Value="$(RW_ROOT)"
 	/>
 	<UserMacro
 		Name="XERCES_VS_ROOT"
