@@ -10,7 +10,7 @@
 
 namespace rwhw {
 
-    /** @addtogroup rwhw  */
+    /** @addtogroup can  */
     /*@{*/
 
     /**

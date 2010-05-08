@@ -29,6 +29,10 @@
 
 namespace rwhw { namespace crsA465 {
 
+    /** @addtogroup crsA465 */
+    /*@{*/
+
+
     typedef unsigned long ulong;
     typedef unsigned int uint;
     typedef unsigned short uword;
@@ -471,6 +475,7 @@ namespace rwhw { namespace crsA465 {
     };
 
     /// @endcond
+    /*@}*/
 
 }} // end namespaces
 

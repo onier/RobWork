@@ -21,7 +21,7 @@
 #include <rw/math/Math.hpp>
 #include <rw/math/Constants.hpp>
 #include <rw/common/TimerUtil.hpp>
-
+#include <rw/common/Log.hpp>
 #include <sdh/sdh.h>
 #include <rwhw/can/ESDCAN/ESDCANPort.hpp>
 

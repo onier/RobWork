@@ -28,7 +28,7 @@
 
 namespace rwhw {
 
-    /** @addtogroup rwhw */
+    /** @addtogroup serialport */
     /*@{*/
 
     /**

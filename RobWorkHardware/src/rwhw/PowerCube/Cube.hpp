@@ -8,7 +8,7 @@
 
 namespace rwhw {
 
-    /** @addtogroup rwhw */
+    /** @addtogroup PowerCube */
     /*@{*/
 
     /**

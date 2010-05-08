@@ -30,7 +30,7 @@
 class C1394Camera;
 
 namespace rwhw {
-    /** @addtogroup rwhw */
+    /** @addtogroup camera */
     /* @{ */
 
     /**

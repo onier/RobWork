@@ -37,7 +37,7 @@ namespace rwhw {
 
 	class ESDCANPort;
 
-    /** @addtogroup rwhw */
+    /** @addtogroup sdh */
     /*@{*/
 
     /**

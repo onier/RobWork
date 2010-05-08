@@ -3,6 +3,9 @@
 
 #include <vector>
 
+/** @addtogroup PowerCube */
+/*@{*/
+
 
 // ******************** CAN ID for commands
 
@@ -355,5 +358,8 @@ private:
         unsigned char data[4];
     };
 };
+
+/*@}*/
+
 
 #endif /*RWHW_PCUBEPROTOCOL_HPP*/

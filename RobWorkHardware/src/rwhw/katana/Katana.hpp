@@ -16,7 +16,7 @@ class CKatana;
 
 namespace rwhw {
 
-    /** @addtogroup rwhw */
+    /** @addtogroup katana */
     /*@{*/
 
     /**

@@ -39,7 +39,7 @@
 
 namespace rwhw { namespace camera {
 
-    /** @addtogroup rwhw */
+    /** @addtogroup camera */
     /* @{ */
 
     /**

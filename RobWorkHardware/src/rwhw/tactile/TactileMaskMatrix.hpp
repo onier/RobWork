@@ -5,6 +5,8 @@
 #include <boost/numeric/ublas/matrix.hpp>
 
 namespace rwhw {
+    /** @addtogroup tactile */
+    /* @{ */
 
 	class TactileMaskMatrix
 	{
@@ -52,6 +54,8 @@ namespace rwhw {
 
 		boost::numeric::ublas::matrix<bool> _data;
 	};
+
+    /* @} */
 
 } // namespace rwhw
 

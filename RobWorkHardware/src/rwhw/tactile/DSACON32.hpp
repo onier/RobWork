@@ -11,6 +11,10 @@
 
 namespace rwhw {
 
+    /** @addtogroup tactile */
+    /* @{ */
+
+
     class DSACON32
     {
     public:
@@ -211,6 +215,8 @@ namespace rwhw {
         static size_t _preambleIdx;
         static const unsigned short CRC_TABLE_CCITT16[256];
     };
+
+    /* @} */
 
 }
 

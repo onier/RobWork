@@ -26,6 +26,9 @@
  * Namespace providing the common constants for the SwissRanger
  */
 namespace rwhw { namespace swissranger {
+    /** @addtogroup swissranger */
+    /* @{ */
+
     /**
      * @brief Image width in pixels
      */
@@ -65,6 +68,7 @@ namespace rwhw { namespace swissranger {
      * @brief Height of a single pixel on the chip (in meter)
      */
     const double PIXEL_HEIGHT = 5.4e-5;
+    /* @} */
 
 }} // end namespaces
 

@@ -6,7 +6,7 @@
 
 namespace rwhw {
 
-/** @addtogroup rwhw */
+/** @addtogroup sick */
 /*@{*/
 
 

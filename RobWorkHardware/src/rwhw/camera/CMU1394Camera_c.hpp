@@ -19,7 +19,7 @@
 #define RWHW_CMU1394CAMERA_HPP
 
 /**
- * @file CMU1394Camera.hpp
+ * @file CMU1394Camera_c.hpp
  */
 
 #include <rw/sensor/CameraFirewire.hpp>
@@ -30,21 +30,21 @@
 #include <1394Camera_c.h>
 
 namespace rwhw {
-    /** @addtogroup rwhw */
+    /** @addtogroup camera */
     /* @{ */
 
     /**
      * @brief This class implements the Camera interface using
      * the CMU 1394 windows drivers. Check out http://www.cs.cmu.edu/~iwan/1394/
      */
-    class CMU1394Camera : public rw::sensor::CameraFirewire
+    class CMU1394CameraC : public rw::sensor::CameraFirewire
     {
     protected:
         /**
          * @brief constructor
          * @param cam [in] handle to camera
          */
-        CMU1394Camera(CameraID camid,std::string camName, std::string vendorName);
+        CMU1394CameraC(CameraID camid,std::string camName, std::string vendorName);
 
         /**
          * @brief returns the C1394Camera object that is bound to this WinCamera
@@ -70,14 +70,14 @@ namespace rwhw {
         /**
          * @brief destructor
          */
-        virtual ~CMU1394Camera();
+        virtual ~CMU1394CameraC();
 
         /**
          * @brief return handles (Camera objects) to all connected
          * firewire cameras.
          * @return a list of available cameras
          */
-        static const std::vector<CMU1394Camera*> getCameraHandles();
+        static const std::vector<CMU1394CameraC*> getCameraHandles();
 
         /**
          * @copydoc rw::sensor::Camera::initialize
@@ -175,7 +175,7 @@ namespace rwhw {
         bool _connected;
         // List of all cameras
         static std::vector<CameraID> _cameras;
-        static std::vector<CMU1394Camera*> _connectedCameras;
+        static std::vector<CMU1394CameraC*> _connectedCameras;
         static bool _queryCameras;
         CapturePolicy _policy;
         bool _isAquired;

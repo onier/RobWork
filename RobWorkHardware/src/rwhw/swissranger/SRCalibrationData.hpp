@@ -27,7 +27,7 @@
 #include <string>
 
 namespace rwhw { namespace swissranger {
-    /** @addtogroup rwhw */
+    /** @addtogroup swissranger */
     /* @{ */
     /**
      * @brief Class representing calibration data for the SwissRanger

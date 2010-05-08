@@ -31,7 +31,7 @@
 
 namespace rwhw {
 
-    /** @addtogroup rwhw */
+    /** @addtogroup pa10 */
     /*@{*/
 
     /**

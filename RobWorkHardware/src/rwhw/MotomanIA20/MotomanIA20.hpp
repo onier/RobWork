@@ -11,6 +11,8 @@
 #include <rw/math/Q.hpp>
 
 namespace rwhw {
+    /** @addtogroup MotomanIA20 */
+    /*@{*/
 
 /**
  * @brief Provides simple communication with a Motoman IA20
@@ -50,6 +52,8 @@ private:
 
 
 };
+/*@}*/
+
 
 } //end namespace
 

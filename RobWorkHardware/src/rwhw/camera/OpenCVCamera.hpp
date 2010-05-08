@@ -32,7 +32,7 @@
 #include <vector>
 
 namespace rwhw {
-    /** @addtogroup rwhw */
+    /** @addtogroup camera */
     /* @{ */
 
 	class OpenCVCamera;

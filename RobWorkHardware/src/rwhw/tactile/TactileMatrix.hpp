@@ -6,6 +6,8 @@
 
 namespace rwhw {
 
+    /** @addtogroup tactile */
+    /* @{ */
 
 	class TactileMatrix
 	{
@@ -49,6 +51,7 @@ namespace rwhw {
 
 		boost::numeric::ublas::matrix<float> _data;
 	};
+    /* @} */
 
 } // rwhw
 

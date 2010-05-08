@@ -32,7 +32,7 @@
 
 namespace rwhw {
 
-    /** @addtogroup rwhw */
+    /** @addtogroup swissranger */
     /* @{ */
 
     /**
