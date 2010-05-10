@@ -71,6 +71,7 @@ DistanceCalculator::DistanceCalculator(WorkCellPtr workcell,
     try {
         _setup = Accessor::collisionSetup().get(*workcell->getWorldFrame());
     } catch (const Exception& exp) {
+        RW_WARN(exp.what());
     }
     initialize();
 }

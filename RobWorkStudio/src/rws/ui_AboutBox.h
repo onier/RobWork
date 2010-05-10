@@ -1,10 +1,10 @@
 /********************************************************************************
-** Form generated from reading ui file 'AboutBox.ui'
+** Form generated from reading UI file 'AboutBox.ui'
 **
-** Created: Thu 6. May 11:40:35 2010
-**      by: Qt User Interface Compiler version 4.5.3
+** Created: Mon 10. May 18:09:10 2010
+**      by: Qt User Interface Compiler version 4.6.2
 **
-** WARNING! All changes made in this file will be lost when recompiling ui file!
+** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
 #ifndef UI_ABOUTBOX_H
@@ -60,7 +60,7 @@ public:
         AboutBoxClass->resize(400, 377);
         verticalLayout = new QVBoxLayout(AboutBoxClass);
         verticalLayout->setSpacing(6);
-        verticalLayout->setMargin(11);
+        verticalLayout->setContentsMargins(11, 11, 11, 11);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
         lblLogo = new QLabel(AboutBoxClass);
         lblLogo->setObjectName(QString::fromUtf8("lblLogo"));
@@ -87,7 +87,7 @@ public:
         widget_2->setObjectName(QString::fromUtf8("widget_2"));
         gridLayout = new QGridLayout(widget_2);
         gridLayout->setSpacing(6);
-        gridLayout->setMargin(11);
+        gridLayout->setContentsMargins(11, 11, 11, 11);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         lblVersionText = new QLabel(widget_2);
         lblVersionText->setObjectName(QString::fromUtf8("lblVersionText"));
@@ -142,7 +142,7 @@ public:
         grpAddons->setObjectName(QString::fromUtf8("grpAddons"));
         verticalLayout_2 = new QVBoxLayout(grpAddons);
         verticalLayout_2->setSpacing(6);
-        verticalLayout_2->setMargin(11);
+        verticalLayout_2->setContentsMargins(11, 11, 11, 11);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
         tabWidget = new QTabWidget(grpAddons);
         tabWidget->setObjectName(QString::fromUtf8("tabWidget"));
@@ -162,7 +162,7 @@ public:
         widget->setObjectName(QString::fromUtf8("widget"));
         horizontalLayout = new QHBoxLayout(widget);
         horizontalLayout->setSpacing(6);
-        horizontalLayout->setMargin(11);
+        horizontalLayout->setContentsMargins(11, 11, 11, 11);
         horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
@@ -203,7 +203,6 @@ public:
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("AboutBoxClass", "Tab 1", 0, QApplication::UnicodeUTF8));
         tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("AboutBoxClass", "Tab 2", 0, QApplication::UnicodeUTF8));
         btnOk->setText(QApplication::translate("AboutBoxClass", "Ok", 0, QApplication::UnicodeUTF8));
-        Q_UNUSED(AboutBoxClass);
     } // retranslateUi
 
 };

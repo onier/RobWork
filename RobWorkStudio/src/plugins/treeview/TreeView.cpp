@@ -684,7 +684,7 @@ void TreeView::open(WorkCell* workcell)
 
 void TreeView::setupFrame(Frame& frame, QTreeWidgetItem* parentItem)
 {
-    _state = getRobWorkStudio()->getState();
+    //State state = getRobWorkStudio()->getState();
     QTreeWidgetItem* item = new QTreeWidgetItem();
     if (parentItem != NULL)
         parentItem->addChild(item); // own item

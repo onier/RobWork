@@ -44,10 +44,10 @@ RenderGeometry::RenderGeometry(GeometryPtr geometry):
 }
 
 void RenderGeometry::setGeometry(rw::geometry::GeometryPtr geom){
-    setArray4(_diffuse, 0.8,0.8,0.8,1.0);
-    setArray4(_ambient, 0.2,0.2,0.2,1.0);
-    setArray4(_emission, 0.0,0.0,0.0,0.0);
-    setArray4(_specular, 0.2,0.2,0.2,1.0);
+    setArray4(_diffuse, 0.8f,0.8f,0.8f,1.0f);
+    setArray4(_ambient, 0.2f,0.2f,0.2f,1.0f);
+    setArray4(_emission, 0.0f,0.0f,0.0f,0.0f);
+    setArray4(_specular, 0.2f,0.2f,0.2f,1.0f);
     _shininess[0] = 128;
 
     // create displaylist
