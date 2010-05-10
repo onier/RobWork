@@ -74,17 +74,17 @@ void PropertyView::open(WorkCell* workcell)
 
 }
 
-
 void PropertyView::addFrame(const Frame* frame) {
-    _state = getRobWorkStudio()->getState();
+    State state = getRobWorkStudio()->getState();
 	_cmbFrames->addItem(frame->getName().c_str());
-	Frame::const_iterator_pair frames = frame->getChildren(_state);
-
-	for (Frame::const_iterator it = frames.first; it != frames.second; ++it)
+	
+	Frame::const_iterator_pair frames = frame->getChildren(state);
+	
+	for (Frame::const_iterator it = frames.first; it != frames.second; ++it) {		
 		addFrame(&(*it));
-
+	}
 }
-
+ 
 
 
 void PropertyView::close()

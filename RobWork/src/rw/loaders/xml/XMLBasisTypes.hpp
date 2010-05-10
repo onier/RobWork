@@ -680,9 +680,14 @@ private:
      */
     class UnitMap {
     public:
+		std::map<std::string, double> _map;
+
         UnitMap();
-        std::map<std::string, double> _map;
+		UnitMap(const std::map<std::string, double>& map):
+		_map(map) {}
     };
+
+	
 
     static const UnitMap _Units;
 };

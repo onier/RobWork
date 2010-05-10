@@ -65,10 +65,6 @@ using namespace rwlibs::proximitystrategies;
 
 using namespace rws;
 
-void RobWorkStudio::connectEmitMessage(
-    RobWorkStudioPlugin* plugin)
-{
-}
 
 void RobWorkStudio::sendAllMessages(
     std::string pluginName,
@@ -154,6 +150,7 @@ RobWorkStudio::RobWorkStudio(RobWorkPtr robwork,
 
 RobWorkStudio::~RobWorkStudio()
 {
+	
     close();
 
     _settingsMap->set<int>("WindowPosX", this->pos().x());
@@ -170,8 +167,8 @@ RobWorkStudio::~RobWorkStudio()
     for (I it = _plugins.begin(); it != _plugins.end(); ++it) {
         delete *it;
     }
-
 }
+
 
 void RobWorkStudio::closeEvent( QCloseEvent * e ){
     // save the settings of each plugin
@@ -313,6 +310,10 @@ void RobWorkStudio::closePlugin(RobWorkStudioPlugin& plugin)
 //    }*/
 //}
 
+
+
+
+
 void RobWorkStudio::addPlugin(RobWorkStudioPlugin* plugin,
                               bool visible,
                               Qt::DockWidgetArea area)
@@ -326,9 +327,6 @@ void RobWorkStudio::addPlugin(RobWorkStudioPlugin* plugin,
     plugin->initialize();
 
  //   connect(plugin, SIGNAL(updateSignal()), this, SLOT(updateHandler()));
-
-    connectEmitMessage(plugin);
-
     _plugins.push_back(plugin);
     std::string pname = plugin->name().toStdString();
     bool isVisible = _settingsMap->get<bool>( std::string("PluginVisible_")+pname, visible);
@@ -346,6 +344,7 @@ void RobWorkStudio::addPlugin(RobWorkStudioPlugin* plugin,
 
 
 }
+
 
 QSettings::Status RobWorkStudio::loadSettingsSetupPlugins(const std::string& file)
 {
@@ -439,10 +438,8 @@ namespace
 {
     WorkCellPtr emptyWorkCell()
     {
-        WorkCellPtr workcell =
-            rw::common::ownedPtr(new WorkCell(new StateStructure));
-        Accessor::collisionSetup().set(
-            *workcell->getWorldFrame(), CollisionSetup());
+        WorkCellPtr workcell = rw::common::ownedPtr(new WorkCell(new StateStructure()));
+        Accessor::collisionSetup().set(*workcell->getWorldFrame(), CollisionSetup());
         return workcell;
     }
 
@@ -507,6 +504,7 @@ void RobWorkStudio::dropEvent(QDropEvent* event)
         event->ignore();
     }
 }
+
 
 void RobWorkStudio::openFile(const std::string& file)
 {
@@ -673,6 +671,7 @@ void RobWorkStudio::fireStateTrajectoryChangedEvent(const rw::trajectory::TimedS
         listener.callback(trajectory);
     }
 }
+
 
 void RobWorkStudio::setTimedStatePath(const rw::trajectory::TimedStatePath& path)
 {

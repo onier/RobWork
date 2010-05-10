@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ********************************************************************************/
-#define _HAS_ITERATOR_DEBUGGING 0
 
 #define QT_NO_EMIT
 
@@ -41,7 +40,19 @@
 using namespace rws;
 using namespace rw;
 using namespace rw::common;
+
+#include <rw/loaders/xml/XMLPropertyLoader.hpp>
+#include <rw/loaders/xml/XMLPropertySaver.hpp>
+#include <rw/loaders/xml/XMLPropertyFormat.hpp>
+
+using namespace rw::loaders;
+using namespace rw::common;
+
+
 #ifdef RWS_USE_STATIC_LINK_PLUGINS
+
+
+
 
 #include <plugins/log/ShowLog.hpp>
 #include <plugins/jog2/Jog.hpp>
@@ -61,13 +72,13 @@ std::vector<rws::RobWorkStudio::PluginSetup> getPlugins()
 {
     typedef rws::RobWorkStudio::PluginSetup Pl;
     std::vector<Pl> plugins;
-    plugins.push_back(Pl(new rws::Jog(), false, Qt::LeftDockWidgetArea));
-    plugins.push_back(Pl(new rws::TreeView(), false, Qt::LeftDockWidgetArea));
-    plugins.push_back(Pl(new rws::PlayBack(), false, Qt::BottomDockWidgetArea));
+   // plugins.push_back(Pl(new rws::Jog(), false, Qt::LeftDockWidgetArea));
+   // plugins.push_back(Pl(new rws::TreeView(), false, Qt::LeftDockWidgetArea));
+    //plugins.push_back(Pl(new rws::PlayBack(), false, Qt::BottomDockWidgetArea));
 
     plugins.push_back(Pl(new rws::PropertyView(), false, Qt::LeftDockWidgetArea));
-    plugins.push_back(Pl(new rws::ShowLog(), false, Qt::BottomDockWidgetArea));
-    plugins.push_back(Pl(new rws::Planning(), false, Qt::LeftDockWidgetArea));
+    //plugins.push_back(Pl(new rws::ShowLog(), false, Qt::BottomDockWidgetArea));
+   // plugins.push_back(Pl(new rws::Planning(), false, Qt::LeftDockWidgetArea));
 
 #if RWS_HAVE_SANDBOX
     plugins.push_back(Pl(new rws::Lua(), false, Qt::LeftDockWidgetArea));
@@ -80,6 +91,11 @@ std::vector<RobWorkStudio::PluginSetup> getPlugins()
 {
     return std::vector<RobWorkStudio::PluginSetup>();
 }
+
+std::vector<int> getIntegers() {
+	return std::vector<int>();
+}
+
 #endif /* RW_STATIC_LINK_PLUGINS */
 
 /*
@@ -92,6 +108,7 @@ int exp_handle()
 
 #ifndef _MSC_VER
 
+
 #include "ProgramOptions.hpp"
 po::options_description desc("Options");
 int opt;
@@ -101,18 +118,20 @@ int opt;
 
 
 
+
 #include <fstream>
-int main(int argc, char** argv)
+int main(int argc, char** argv) 
 {
-	std::ofstream file("file.txt");
+	/*std::ofstream file("file.txt");
 	std::streambuf * old = std::cout.rdbuf(file.rdbuf());
 // do here output to std::cout
-	std::cout.rdbuf(old); // restore
+	std::cout.rdbuf(old); // restore*/
 
     Q_INIT_RESOURCE(rwstudio_resources);
     int res = 0;
     PropertyMap map;
     std::string inifile, inputfile;
+	
 #ifdef _MSC_VER
 	if (argc > 1)
 		inputfile = argv[1];
@@ -186,14 +205,18 @@ int main(int argc, char** argv)
     //__try1(exp_handle){
     QApplication app(argc, argv);
     try {
-        
+		//std::vector<int> integers;
+		//integers = getIntegers();
+
+        std::vector<rws::RobWorkStudio::PluginSetup> plugins;
         QPixmap pixmap(":/images/splash.jpg");
 
         QSplashScreen splash(pixmap);
         splash.show();
         // Loading some items
         splash.showMessage("Adding static plugins");
-        std::vector<rws::RobWorkStudio::PluginSetup> plugins = getPlugins();
+        plugins = getPlugins();
+
         //rw::common::TimerUtil::sleepMs(500);
         // could be nice to load all dynamic plugins here
         // also perhaps loading configuration file
@@ -206,9 +229,10 @@ int main(int argc, char** argv)
         
 
 
-        
+      
         RobWork robwork;
         std::string pluginFolder = "./plugins/";
+
       /*  try {
                                                             
             robwork.getPluginRepository().loadFilesInFolder(pluginFolder);
@@ -229,9 +253,10 @@ int main(int argc, char** argv)
         if(!inputfile.empty()){
             rwstudio.openFile(inputfile);
         }
+		
         // load configuration into RobWorkStudio
         // Todo: check that the config file exists
-        // splash.showMessage("Loading settings");
+        splash.showMessage("Loading settings");
 
         rwstudio.show();
         splash.finish(&rwstudio);
@@ -252,7 +277,8 @@ int main(int argc, char** argv)
     //}
 
     // remember to save configuration
-    // XMLPropertySaver::save(rstudio.getConfig(), "RobWorkStudio.config.xml");
-    return res;
+    //XMLPropertySaver::save(rstudio.getConfig(), "RobWorkStudio.config.xml");
+
+    return 0;
 }
 

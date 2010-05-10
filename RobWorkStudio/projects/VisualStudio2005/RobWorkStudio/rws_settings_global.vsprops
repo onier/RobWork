@@ -7,6 +7,7 @@
 	<Tool
 		Name="VCCLCompilerTool"
 		AdditionalIncludeDirectories="..\rwstudio\generatedfiles;&quot;$(RWS_ROOT)\src\&quot;;&quot;$(XERCES_VS_ROOT)&quot;;&quot;$(RWS_ROOT)\src&quot;"
+		PreprocessorDefinitions="_UNICODE;UNICODE"
 	/>
 	<Tool
 		Name="VCLinkerTool"

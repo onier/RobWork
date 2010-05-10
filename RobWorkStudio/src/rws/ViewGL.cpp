@@ -301,7 +301,7 @@ ViewGL::~ViewGL()
 
 void ViewGL::keyPressEvent(QKeyEvent *e)
 {
-    size_t camNr=0;
+  /*  6/5/2010 size_t camNr=0;
     switch(e->key()){
     case(Qt::Key_1): camNr = 0; break;
     case(Qt::Key_2): camNr = 1; break;
@@ -322,7 +322,7 @@ void ViewGL::keyPressEvent(QKeyEvent *e)
         updateGL();
     }
 
-    _rwStudio->keyEvent().fire(e->key(), e->modifiers());
+    _rwStudio->keyEvent().fire(e->key(), e->modifiers());*/
 }
 
 void ViewGL::setupToolBar(QToolBar* toolbar)
@@ -812,7 +812,7 @@ rw::kinematics::Frame* ViewGL::pickFrame(int cursorX, int cursorY){
 
 void ViewGL::mouseDoubleClickEvent(QMouseEvent* event)
 {
-    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
+   /* 6/5/2010 if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
 
         int winx = event->x();
         int winy = height()-event->y();
@@ -854,11 +854,12 @@ void ViewGL::mouseDoubleClickEvent(QMouseEvent* event)
             }
         }
 
-    }
+    }*/
 }
 
 void ViewGL::mousePressEvent(QMouseEvent* event)
 {
+	/* 6/5/2010
     _lastPos(0) = event->x();
     _lastPos(1) = event->y();
     _cameraCtrl->click( _lastPos(0), _lastPos(1));
@@ -870,6 +871,7 @@ void ViewGL::mousePressEvent(QMouseEvent* event)
     }
 
     _rwStudio->mousePressedEvent().fire(event);
+	*/
 }
 
 void ViewGL::mouseMoveEvent(QMouseEvent* event)

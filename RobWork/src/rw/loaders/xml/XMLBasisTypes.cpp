@@ -92,11 +92,14 @@ const XMLCh* XMLBasisTypes::StringPairId = XMLString::transcode("StringPair");
 
 const XMLCh* XMLBasisTypes::UnitAttributeId = XMLString::transcode("unit");
 
+
 const XMLBasisTypes::UnitMap XMLBasisTypes::_Units;
+
+
 
 //Setup map with units
 XMLBasisTypes::UnitMap::UnitMap() {
-    _map["mm"] = 1.0/1000.0;
+	_map["mm"] = 1.0/1000.0; 
     _map["cm"] = 1.0/100.0;
     _map["m"] = 1;
     _map["inch"] = 0.0254;

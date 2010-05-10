@@ -471,6 +471,7 @@ private:
 private slots:
     void newWorkCell();
     void open();
+	
     void close();
     void showSolidTriggered();
     void showWireTriggered();
@@ -492,8 +493,6 @@ protected:
 
 private:
 
-    void connectEmitMessage(RobWorkStudioPlugin* plugin);
-
     void addPlugin(RobWorkStudioPlugin* plugin,
                    bool visible,
                    Qt::DockWidgetArea area = Qt::LeftDockWidgetArea);
@@ -502,13 +501,15 @@ private:
     void setupViewGL();
     void setupHelpMenu();
 
-    void createPlugins();
+    //void createPlugins();
     QSettings::Status loadSettingsSetupPlugins(const std::string& file);
     void setupPlugins(QSettings& settings);
 
     void openDrawable(const QString& filename);
     void openWorkCellFile(const QString& filename);
+	
     rw::RobWorkPtr _robwork;
+	
     ViewGL* _view;
     AboutBox* _aboutBox;
     rw::models::WorkCellPtr _workcell;
@@ -545,12 +546,10 @@ private:
     // These all forward to the plugin and catch any exceptions.
     void openPlugin(RobWorkStudioPlugin& plugin);
     void closePlugin(RobWorkStudioPlugin& plugin);
-    void sendStateUpdate(RobWorkStudioPlugin& plugin);
-   /* void sendMessage(RobWorkStudioPlugin& plugin,
-                     const std::string& pluginName,
-                     const std::string& id,
-                     const rw::common::Message& msg);
-*/
+    //void sendStateUpdate(RobWorkStudioPlugin& plugin);
+
+
+	
 private:
     RobWorkStudio(const RobWorkStudio&);
     RobWorkStudio& operator=(const RobWorkStudio&);
