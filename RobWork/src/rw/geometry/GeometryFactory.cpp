@@ -117,7 +117,7 @@ Geometry* GeometryFactory::getGeometry(const std::string& raw_filename, bool use
     }
 
     if (useCache && getCache().isInCache(filename)) {
-        std::cout << "GeometryFactory - CACHE HIT" << std::endl;
+        //std::cout << "GeometryFactory - CACHE HIT" << std::endl;
         return new Geometry(getCache().get(filename));
     }
 
