@@ -3,7 +3,11 @@ $#include <rw/math.hpp>
 
 $#include "LuaMath.hpp"
 
-namespace rwlibs { namespace lua { namespace math {
+namespace rwlibs { 
+
+namespace lua {
+
+namespace math {
     /*
   These are the classes and functions we export.
 */
@@ -11,21 +15,49 @@ namespace rwlibs { namespace lua { namespace math {
     //----------------------------------------------------------------------
     // Math
     //----------------------------------------------------------------------
-
+	/*
+		Class: rwlibs::lua::math::Q
+		Wraps rw::math::Q
+				
+		See Also:
+			<rw::math::Q>
+	*/
     class Q : public rw::math::Q
     {
     public:
         // first we define functions that are native to Q
+		/*
+			Constructor: Q
+			initialize object					
+		*/
         Q(int n, double vals[n]);
 
         // rw::amth::Q functions
+       	/*
+			Function: size
+			Returns the dimension of this Q
+		*/
         size_t size() const;
+       	
+       	/*
+			Function: size
+			Returns the dimension of this Q
+		*/
         double& operator[](unsigned int i) ;
         Q operator-() const;
-
+		
+		// Group: Arithmetic Operations
+		
+		// Function: operator-
         Q operator-(const Q& b);
+        
+        // Function: operator+
         Q operator+(const Q& b);
+        
+        // Function: operator*
         Q operator*(double s);
+        
+        // operator: /
         Q operator/(double s);
 
         double norm2();

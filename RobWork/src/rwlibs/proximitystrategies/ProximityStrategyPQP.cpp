@@ -253,6 +253,7 @@ bool ProximityStrategyPQP::addGeometry(
     	TriMeshPtr mesh = GeometryUtil::toTriMesh( gdata.get() );
         if(mesh->size()==0)
             return false;
+        const double scale = geom.getScale();
         pqpmodel = ownedPtr(new PQP_Model());
 
         pqpmodel->BeginModel(mesh->size());
@@ -260,9 +261,9 @@ bool ProximityStrategyPQP::addGeometry(
             for (size_t i = 0; i < mesh->size(); i++) {
                 // NB: Note the cast.
             	TriangleN0<double> face = mesh->getTriangle(i);
-            	Vector3D<PQP_REAL> v0 = cast<PQP_REAL>(face[0]);
-            	Vector3D<PQP_REAL> v1 = cast<PQP_REAL>(face[1]);
-            	Vector3D<PQP_REAL> v2 = cast<PQP_REAL>(face[2]);
+            	Vector3D<PQP_REAL> v0 = cast<PQP_REAL>(face[0]*scale);
+            	Vector3D<PQP_REAL> v1 = cast<PQP_REAL>(face[1]*scale);
+            	Vector3D<PQP_REAL> v2 = cast<PQP_REAL>(face[2]*scale);
 
                 pqpmodel->AddTri(&v0[0], &v1[0], &v2[0], i);
             }

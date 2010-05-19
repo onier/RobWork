@@ -6,56 +6,108 @@ $#include "LuaKinematics.hpp"
 
 $using namespace rwlibs::lua;
 
+// package: rwlibs::lua::kinematics
 namespace rwlibs { namespace lua { namespace kinematics {
-    /*
-  These are the classes and functions we export.
-  */
+	
+    /* Class: State
+  		
+  	   See Also:
+  	   	<rw::kinematics::State.hpp>	
+  	*/
  	class State: public rw::kinematics::State
 	{
 	public:
+		// Function: copy 
+		//  copies this state object
 		State copy();
+		// Function: size 
+		// returns the size of this state object 
 		unsigned int size() const;
+		// Function: __tostring 
+		// to enable Lua print
 		std::string __tostring() const;
 	};
 
+    /* Class: Frame
+  		
+  	   See Also:
+  	   	<rw::kinematics::Frame.hpp>	
+  	*/
 	class Frame
 	{
 	public:
+		// Function: Constructor
 		Frame(rw::kinematics::Frame* frame);
-
+	
+		// Function: getTransform(State) 
+		// return the static transform of this frame
 		math::Transform3D getTransform(const State& state) const;
+		// Function: getDOF()
+		// return the degree of freedom of this frame
 		int getDOF() const;
+		
+		// Function: getParent()
 		Frame* getParent();
+		// Function: getParent(State)
 		Frame* getParent(const State& state);
+		// Function: attachTo
 		void attachTo(Frame* parent, State& state);
 
+		// Function: isDAF()
 		bool isDAF();
 
+		// Function: wTt(State)
+		// returns transform from world to this frame
 		math::Transform3D wTt(const State& state) const;
+		
+		// Function: tTf(Frame, State)
+		// returns transform from this frame to another frame
 		math::Transform3D tTf(const Frame& frame, const State& state) const;
 
+		// Function: get()
+		// returns the rw Frame object that is wrapped
 		const rw::kinematics::Frame* get() const;
+		// Function: get()
+		// returns the rw Frame object that is wrapped
 		rw::kinematics::Frame* get();
 
+		// Function: __tostring()
+		// to enable Lua print
 		std::string __tostring() const;
 
+		// Var: _frame 
+		// the rw Frame that is wrapped in this Lua object
 		rw::kinematics::Frame* _frame;
 	};
 
+    /* Class: FixedFrame
+  		
+  	   See Also:
+  	   	<rw::kinematics::FixedFrame.hpp>	
+  	*/
 	class FixedFrame: public Frame
 	{
 	public:
+		// Constructor: FixedFrame(FixedFrame*) 
 		FixedFrame(rw::kinematics::FixedFrame* frame);
-
+	
+		// Function: setTransform(Transform3D)
 		void setTransform(const math::Transform3D& transform);
 
-
+		// Function: get()
 		const rw::kinematics::FixedFrame* get() const;
+		// Function: __tostring()
 		std::string __tostring() const;
 
+		// Var: _fframe
 		rw::kinematics::FixedFrame* _fframe;
 	};
 
+    /* Class: MovableFrame
+  		
+  	   See Also:
+  	   	<rw::kinematics::MovableFrame.hpp>	
+  	*/
 	class MovableFrame: public Frame
 	{
 	public:
@@ -70,15 +122,18 @@ namespace rwlibs { namespace lua { namespace kinematics {
 		rw::kinematics::MovableFrame* _mframe;
 	};
 
+	// Section: Utility functions
+	// Function: frameTframe(Frame,Frame,State)
 	math::Transform3D frameTframe(
 		const Frame* from, const Frame* to, const State& state);
-
+	// Function: worldTframe(Frame,State)
 	math::Transform3D worldTframe(const Frame* to, const State& state);
 
+	// Function: worldFrame(Frame,State)
 	Frame& worldFrame(Frame& frame, const State& state);
-
+	// Function: gripFrame(State,Frame,Frame)
 	void gripFrame(State& state, Frame& item, Frame& gripper);
-
+	// Function: isDAF(Frame)
 	bool isDAF(const Frame& frame);
   
 

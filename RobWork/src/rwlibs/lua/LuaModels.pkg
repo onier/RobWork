@@ -5,8 +5,8 @@ $#include "LuaModels.hpp"
 
 
 $using namespace rwlibs::lua;
-
-namespace rwlibs { namespace lua { 
+namespace rwlibs {
+namespace lua { 
 
 namespace kinematics {
 	class State;
@@ -16,20 +16,25 @@ namespace math {
 	class Q;
 	class Vector3D;
 }
-
 namespace models {
-    /*
+    /* Class: rwlibs::lua::models::Device
   		These are the classes and functions we export.
-	*/	
-	
+  		
+  	   See Also:
+  	   	<rw::models::Device>
+	*/		
 	class Device
 	{
 	public:
+		// Constructor: Device 
 		Device(rw::models::DevicePtr device);
 
+		// Function: setQ
         void setQ(const math::Q& q, kinematics::State& state) const;
+        // Function: getQ
         math::Q getQ(const kinematics::State& state) const;
 
+		// Function: getAccLimits
         math::Q getAccLimits() const;
         void setAccLimits(const math::Q& lim);
 
