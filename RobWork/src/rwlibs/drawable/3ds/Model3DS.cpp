@@ -3,7 +3,7 @@
 // 3D Studio Model Class
 // by: Matthew Fairfax
 //
-// Model_3DS.cpp: implementation of the Model_3DS class.
+// Model3DS.cpp: implementation of the Model3DS class.
 // This is a simple class for loading and viewing
 // 3D Studio model files (.3ds). It supports models
 // with multiple objects. It also supports multiple
@@ -33,7 +33,7 @@
 // can read.
 //
 // Usage:
-// Model_3DS m;
+// Model3DS m;
 //
 // m.Load("model.3ds"); // Load the model
 // m.Draw();                    // Renders the model to the screen
@@ -78,7 +78,7 @@
 //#pragma warn( You need to uncomment this if you are using MFC )
 //#include "stdafx.h"
 
-#include "Model_3DS.h"
+#include "Model3DS.h"
 
 #include <rwlibs/os/rwgl.hpp>
 
@@ -89,6 +89,7 @@
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>
 using namespace rw::common;
+using namespace rw::drawable;
 
 // The chunk's id numbers
 #define MAIN3DS                         0x4D4D
@@ -140,7 +141,7 @@ using namespace rw::common;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Model_3DS::Model_3DS()
+Model3DS::Model3DS()
 {
     // Initialization
 
@@ -174,10 +175,10 @@ Model_3DS::Model_3DS()
     scale = 1.0f;
 }
 
-Model_3DS::~Model_3DS()
+Model3DS::~Model3DS()
 {}
 
-void Model_3DS::Load(const std::string& name)
+void Model3DS::Load(const std::string& name)
 {
     // holds the main chunk header
     ChunkHeader main;
@@ -253,7 +254,7 @@ void Model_3DS::Load(const std::string& name)
     }
 }
 
-void Model_3DS::Draw()
+void Model3DS::Draw()
 {
     if (visible)
     {
@@ -363,7 +364,7 @@ void Model_3DS::Draw()
     }
 }
 
-void Model_3DS::CalculateNormals()
+void Model3DS::CalculateNormals()
 {
     // Let's build some normals
     for (int i = 0; i < numObjects; i++)
@@ -394,7 +395,7 @@ void Model_3DS::CalculateNormals()
     }
 }
 
-void Model_3DS::MainChunkProcessor(long length, long findex)
+void Model3DS::MainChunkProcessor(long length, long findex)
 {
     ChunkHeader h;
 
@@ -431,7 +432,7 @@ void Model_3DS::MainChunkProcessor(long length, long findex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::EditChunkProcessor(long length, long findex)
+void Model3DS::EditChunkProcessor(long length, long findex)
 {
     ChunkHeader h;
 
@@ -546,7 +547,7 @@ void Model_3DS::EditChunkProcessor(long length, long findex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
+void Model3DS::MaterialChunkProcessor(long length, long findex, int matindex)
 {
     ChunkHeader h;
 
@@ -590,7 +591,7 @@ void Model_3DS::MaterialChunkProcessor(long length, long findex, int matindex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::MaterialNameChunkProcessor(long length, long findex, int matindex)
+void Model3DS::MaterialNameChunkProcessor(long length, long findex, int matindex)
 {
     // move the file pointer to the beginning of the main
     // chunk's data findex + the size of the header
@@ -613,7 +614,7 @@ void Model_3DS::MaterialNameChunkProcessor(long length, long findex, int matinde
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::DiffuseColorChunkProcessor(long length, long findex, int matindex)
+void Model3DS::DiffuseColorChunkProcessor(long length, long findex, int matindex)
 {
     ChunkHeader h;
 
@@ -658,7 +659,7 @@ void Model_3DS::DiffuseColorChunkProcessor(long length, long findex, int matinde
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::FloatColorChunkProcessor(long length, long findex, int matindex)
+void Model3DS::FloatColorChunkProcessor(long length, long findex, int matindex)
 {
     float r;
     float g;
@@ -683,7 +684,7 @@ void Model_3DS::FloatColorChunkProcessor(long length, long findex, int matindex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::IntColorChunkProcessor(long length, long findex, int matindex)
+void Model3DS::IntColorChunkProcessor(long length, long findex, int matindex)
 {
     unsigned char r;
     unsigned char g;
@@ -708,7 +709,7 @@ void Model_3DS::IntColorChunkProcessor(long length, long findex, int matindex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::TextureMapChunkProcessor(long length, long findex, int matindex)
+void Model3DS::TextureMapChunkProcessor(long length, long findex, int matindex)
 {
     ChunkHeader h;
 
@@ -740,7 +741,7 @@ void Model_3DS::TextureMapChunkProcessor(long length, long findex, int matindex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
+void Model3DS::MapNameChunkProcessor(long length, long findex, int matindex)
 {
     char name[80];
 
@@ -771,7 +772,7 @@ void Model_3DS::MapNameChunkProcessor(long length, long findex, int matindex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
+void Model3DS::ObjectChunkProcessor(long length, long findex, int objindex)
 {
     ChunkHeader h;
 
@@ -814,7 +815,7 @@ void Model_3DS::ObjectChunkProcessor(long length, long findex, int objindex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::TriangularMeshChunkProcessor(long length, long findex, int objindex)
+void Model3DS::TriangularMeshChunkProcessor(long length, long findex, int objindex)
 {
     ChunkHeader h;
 
@@ -877,7 +878,7 @@ void Model_3DS::TriangularMeshChunkProcessor(long length, long findex, int objin
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
+void Model3DS::VertexListChunkProcessor(long length, long findex, int objindex)
 {
     unsigned short numVerts;
 
@@ -917,7 +918,7 @@ void Model_3DS::VertexListChunkProcessor(long length, long findex, int objindex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::TexCoordsChunkProcessor(long length, long findex, int objindex)
+void Model3DS::TexCoordsChunkProcessor(long length, long findex, int objindex)
 {
     // The number of texture coordinates
     unsigned short numCoords;
@@ -948,7 +949,7 @@ void Model_3DS::TexCoordsChunkProcessor(long length, long findex, int objindex)
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int objindex)
+void Model3DS::FacesDescriptionChunkProcessor(long length, long findex, int objindex)
 {
 
     ChunkHeader h;
@@ -1095,7 +1096,7 @@ void Model_3DS::FacesDescriptionChunkProcessor(long length, long findex, int obj
     fseek(bin3ds, findex, SEEK_SET);
 }
 
-void Model_3DS::FacesMaterialsListChunkProcessor(
+void Model3DS::FacesMaterialsListChunkProcessor(
     long length, long findex, int objindex, int subfacesindex)
 {
     char name[80];                          // The material's name

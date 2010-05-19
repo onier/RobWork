@@ -11,10 +11,11 @@ SET(SRC_FILES
   ./RenderGeometry.cpp
   ./RenderLines.cpp
   ./RenderMatrix.cpp
-  ./GLTexture.cpp
   ./WorkCellGLDrawer.cpp
   ./TactileArrayRender.cpp
   ./ac3d/LoaderAC3D.cpp
+  ./3ds/Loader3DS.cpp
+  ./ivg/LoaderIVG.cpp
   
   RWGLTexture.cpp
   RenderImage.cpp

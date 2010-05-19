@@ -25,7 +25,7 @@
 // 3D Studio Model Class
 // by: Matthew Fairfax
 //
-// Model_3DS.h: interface for the Model_3DS class.
+// Model3DS.h: interface for the Model3DS class.
 // This is a simple class for loading and viewing
 // 3D Studio model files (.3ds). It supports models
 // with multiple objects. It also supports multiple
@@ -55,7 +55,7 @@
 // can read.
 //
 // Usage:
-// Model_3DS m;
+// Model3DS m;
 //
 // m.Load("model.3ds"); // Load the model
 // m.Draw();			// Renders the model to the screen
@@ -90,13 +90,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#ifndef MODEL_3DS_H
-#define MODEL_3DS_H
+#ifndef RWLIBS_DRAWABLE_3DS_MODEL3DS_HPP
+#define RWLIBS_DRAWABLE_3DS_MODEL3DS_HPP
 
 // I decided to use my GLTexture class b/c adding all of its functions
 // Would have greatly bloated the model class's code
 // Just replace this with your favorite texture class
-#include "GLTexture.h"
+#include <rwlibs/drawable/RWGLTexture.hpp>
 
 #include <cstdio>
 #include <cstring>
@@ -104,7 +104,11 @@
 
 #include <string>
 
-class Model_3DS
+namespace rwlibs{
+namespace drawable {
+
+
+class Model3DS
 {
 public:
     // A VERY simple vector struct
@@ -134,7 +138,7 @@ public:
     // TODO: add color support for non textured polys
     struct Material {
         char name[80];	// The material's name
-        GLTexture tex;	// The texture (this is the only outside reference in this class)
+        RWGLTexture tex;	// The texture (this is the only outside reference in this class)
         bool textured;	// whether or not it is textured
         Color4i color;
     };
@@ -186,8 +190,8 @@ public:
     void Load(const std::string& name);	// Loads a model
     void Draw();			// Draws the model
     FILE *bin3ds;			// The binary 3ds file
-    Model_3DS();			// Constructor
-    virtual ~Model_3DS();	// Destructor
+    Model3DS();			// Constructor
+    virtual ~Model3DS();	// Destructor
 
 private:
     void IntColorChunkProcessor(long length, long findex, int matindex);
@@ -226,5 +230,6 @@ private:
     // the normals of the faces that use that vertex
     void CalculateNormals();
 };
-
-#endif // MODEL_3DS_H
+}
+}
+#endif // Model3DS_H

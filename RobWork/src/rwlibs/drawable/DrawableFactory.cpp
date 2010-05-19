@@ -24,8 +24,14 @@
 //#include "RenderAC3D.hpp"
 //#include "RenderTriSoup.hpp"
 #include "RenderGeometry.hpp"
+#include "RenderModel3D.hpp"
 //#include "RenderOBJ.hpp"
 //#include "RenderIVG.hpp"
+
+#include <rwlibs/drawable/3ds/Loader3DS.hpp>
+#include <rwlibs/drawable/ac3d/LoaderAC3D.hpp>
+#include <rwlibs/drawable/ivg/LoaderIVG.hpp>
+#include <rwlibs/drawable/obj/LoaderOBJ.hpp>
 
 #include <rw/common/StringUtil.hpp>
 #include <rw/common/IOUtil.hpp>
@@ -125,11 +131,15 @@ Drawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
 
     // else check if the file has been loaded before
     if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
-        Render *render;// = new RenderSTL(filename);
+    	// create a geometry
+    	Geometry* geom = GeometryFactory::getGeometry(filename);
+    	RenderGeometry *render = new RenderGeometry( ownedPtr(geom) );
         getCache().add(filename, render, moddate);
         return new Drawable(getCache().get(filename));
     } else if (filetype == ".3DS") {
-        Render *render;// = new Render3DS(filename);
+    	Loader3DS loader;
+    	Model3DPtr model = loader.load(filename);
+        Render *render = new RenderModel3D( model );
         getCache().add(filename, render, moddate);
         rw::common::Ptr<Render> r = getCache().get(filename);
         return new Drawable(r);

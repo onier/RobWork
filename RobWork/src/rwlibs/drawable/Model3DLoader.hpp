@@ -12,13 +12,15 @@
 
 namespace rwlibs {
 namespace drawable {
-
+	/**
+	 * @brief interface for classes that are able to load 3d models
+	 */
     class Model3DLoader {
     public:
 
         virtual Model3DPtr load(const std::string& filename) = 0;
 
-        virtual void save(Model3DPtr model, const std::string& filename) = 0;
+        //virtual void save(Model3DPtr model, const std::string& filename) = 0;
 
     };
 

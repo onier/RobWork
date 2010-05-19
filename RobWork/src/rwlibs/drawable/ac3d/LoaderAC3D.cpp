@@ -191,7 +191,7 @@ namespace {
     }
 }
 
-void LoaderAC3D::save(Model3DPtr model, const std::string& filename){
+//void LoaderAC3D::save(Model3DPtr model, const std::string& filename){
 
     /*
     std::ofstream out(filename.c_str());
@@ -241,7 +241,7 @@ void LoaderAC3D::save(Model3DPtr model, const std::string& filename){
     }
 
 */
-}
+//}
 
 
 LoaderAC3D::AC3DMaterial LoaderAC3D::read_material(std::istream& in)

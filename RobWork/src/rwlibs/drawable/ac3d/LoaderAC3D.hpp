@@ -57,7 +57,7 @@ namespace rwlibs { namespace drawable {
 
         Model3DPtr load(const std::string& filename);
 
-        void save(Model3DPtr model, const std::string& filename);
+        //void save(Model3DPtr model, const std::string& filename);
 
     private:
         void initialize(std::istream& in, float alpha);
