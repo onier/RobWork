@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,14 +16,14 @@
  ********************************************************************************/
 
 
-#ifndef rwlibs_drawable_Render3DS_HPP
-#define rwlibs_drawable_Render3DS_HPP
+#ifndef rwlibs_drawable_RenderModel3D_HPP
+#define rwlibs_drawable_RenderModel3D_HPP
 
 /**
  * @file Render3DS.hpp
  */
 
-#include "Model_3DS.h"
+#include "Model3D.hpp"
 #include "Render.hpp"
 
 #include <rwlibs/os/rwgl.hpp>
@@ -41,21 +41,21 @@ namespace rwlibs { namespace drawable {
      * format.
      *
      */
-    class Render3DS : public Render {
+    class RenderModel3D : public Render {
     private:
-        mutable Model_3DS _model;
+        Model3DPtr _model;
 
     public:
         /**
          * @brief creates a Render3DS given a 3DS file.
          * @param filename [in] - the path and name of the 3DS file
          */
-        Render3DS(const std::string &filename);
+        RenderModel3D(Model3DPtr model);
 
         /**
          * @brief Destructor
          */
-    	virtual ~Render3DS(){}
+    	virtual ~RenderModel3D(){}
 
     	// Functions inherited from Render
 

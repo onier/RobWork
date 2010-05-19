@@ -19,13 +19,13 @@
 #include <cctype>
 
 #include "DrawableFactory.hpp"
-#include "RenderSTL.hpp"
-#include "Render3DS.hpp"
-#include "RenderAC3D.hpp"
-#include "RenderTriSoup.hpp"
+//#include "RenderSTL.hpp"
+//#include "Render3DS.hpp"
+//#include "RenderAC3D.hpp"
+//#include "RenderTriSoup.hpp"
 #include "RenderGeometry.hpp"
-#include "RenderOBJ.hpp"
-#include "RenderIVG.hpp"
+//#include "RenderOBJ.hpp"
+//#include "RenderIVG.hpp"
 
 #include <rw/common/StringUtil.hpp>
 #include <rw/common/IOUtil.hpp>
@@ -125,28 +125,28 @@ Drawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
 
     // else check if the file has been loaded before
     if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
-        Render *render = new RenderSTL(filename);
+        Render *render;// = new RenderSTL(filename);
         getCache().add(filename, render, moddate);
         return new Drawable(getCache().get(filename));
     } else if (filetype == ".3DS") {
-        Render *render = new Render3DS(filename);
+        Render *render;// = new Render3DS(filename);
         getCache().add(filename, render, moddate);
         rw::common::Ptr<Render> r = getCache().get(filename);
         return new Drawable(r);
     } else if (filetype == ".AC" || filetype == ".AC3D") {
-        Render *render = new RenderAC3D(filename);
+        Render *render;// = new RenderAC3D(filename);
         getCache().add(filename, render, moddate);
         return new Drawable(getCache().get(filename));
     } else if (filetype == ".TRI") {
-        Render *render = new RenderTriSoup(filename);
+        Render *render;// = new RenderTriSoup(filename);
         getCache().add(filename, render, moddate);
         return new Drawable(getCache().get(filename));
     } else if (filetype == ".OBJ") {
-        Render *render = new RenderOBJ(filename);
+        Render *render;// = new RenderOBJ(filename);
         getCache().add(filename, render, moddate);
         return new Drawable(getCache().get(filename));
     } else if (filetype == ".IVG") {
-        Render *render = new RenderIVG(filename);
+        Render *render;// = new RenderIVG(filename);
         getCache().add(filename, render, moddate);
         return new Drawable(getCache().get(filename));
 	} else {
