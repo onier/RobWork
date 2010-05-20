@@ -65,6 +65,7 @@ namespace boost { namespace property_tree
         iterator begin();
         const_iterator begin() const;
         iterator end();
+        iterator not_found(){ return end(); }; // for forward compatibility: ROBWORK
         const_iterator end() const;
         reverse_iterator rbegin();
         const_reverse_iterator rbegin() const;
@@ -145,6 +146,9 @@ namespace boost { namespace property_tree
 
         // Put child ptree with default separator
         basic_ptree<Tr> &put_child(const key_type &path, const basic_ptree<Tr> &value, bool do_not_replace = false);
+
+        template<class Type> Type get_value(const std::locale &loc = std::locale()) const{ return get_own(loc); };
+        template<class Type> Type get_value(const Type &default_value, const std::locale &loc = std::locale()) const{ return get_own(loc); };
 
         // Get value from data of ptree
         template<class Type> Type get_own(const std::locale &loc = std::locale()) const;
