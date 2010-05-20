@@ -55,7 +55,7 @@ namespace rwlibs { namespace drawable {
         /**
          * @brief Destructor
          */
-    	virtual ~RenderModel3D(){}
+    	virtual ~RenderModel3D();
 
     	// Functions inherited from Render
 

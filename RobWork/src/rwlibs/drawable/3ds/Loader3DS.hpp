@@ -16,8 +16,8 @@ namespace drawable {
 	class Loader3DS: public Model3DLoader
 	{
 	public:
-		Loader3DS();
-		virtual ~Loader3DS();
+		Loader3DS(){};
+		virtual ~Loader3DS(){};
 
 		Model3DPtr load(const std::string& name); // Loads a model
 

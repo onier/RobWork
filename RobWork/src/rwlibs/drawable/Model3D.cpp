@@ -19,12 +19,12 @@
 
 using namespace rwlibs::drawable;
 
-int Model3D::addObject(Object3D* obj){
+int Model3D::addObject(Model3D::Object3D* obj){
     _objects.push_back(obj);
     return _objects.size()-1;
 }
 
-int Model3D::addMaterial(const Material& mat){
+int Model3D::addMaterial(const Model3D::Material& mat){
     _materials.push_back(mat);
     return _materials.size()-1;
 }

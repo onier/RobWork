@@ -21,7 +21,8 @@ SET(SRC_FILES
   ./tri/LoaderTRI.cpp
   RWGLTexture.cpp
   RenderImage.cpp
-  
+  RenderModel3D.cpp
+  Model3D.cpp
     #./Render3DS.cpp
   #./RenderAC3D.cpp
   #./RenderSTL.cpp

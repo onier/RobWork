@@ -124,7 +124,7 @@ public:
 private:
 	rw::math::Transform3D<> _transform;
     std::vector<Material> _materials; // The array of materials
-    std::vector<Object3D> _objects; // The array of objects in the model
+    std::vector<Object3D*> _objects; // The array of objects in the model
     std::vector<RWGLTexture*> _textures;
 
     int totalVerts;			// Total number of vertices in the model

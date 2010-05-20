@@ -499,16 +499,16 @@ bool ProximityStrategyPQP::calcDistances(
             }
 
             IdMap idMap1;
-            for(size_t i=0; i<result.id2s.size(); i++){
-                double dist = result.distances[i];
-                int id = result.id2s[i];
+            for(size_t j=0; j<result.id2s.size(); j++){
+                double dist = result.distances[j];
+                int id = result.id2s[j];
                 IdMap::iterator res = idMap1.find(id);
                 if( res == idMap1.end() ){
-                    idMap1[id] = i;
+                    idMap1[id] = j;
                     continue;
                 }
                 if( result.distances[ (*res).second ] > dist ){
-                    (*res).second = i;
+                    (*res).second = j;
                 }
             }
 
@@ -542,7 +542,7 @@ bool ProximityStrategyPQP::calcDistances(
             rwresult.distances.resize(prevSize+vsize);
 
 
-            i = prevSize;
+            size_t i = prevSize;
             for(IdMap::iterator it = idMap.begin();it != idMap.end(); ++it,i++){
                 int idx = (*it).second;
                 rwresult.distances[i] = result.distances[idx];
