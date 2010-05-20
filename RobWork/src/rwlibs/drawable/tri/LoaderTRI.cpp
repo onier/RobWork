@@ -20,6 +20,10 @@ using namespace rw::math;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
+LoaderTRI::LoaderTRI(){};
+LoaderTRI::~LoaderTRI(){};
+
+
 Model3DPtr LoaderTRI::load(const std::string& filename)
 {
 

@@ -100,6 +100,7 @@ public:
         std::vector<rw::geometry::IndexedTriangleN1<float> > _faces;
         std::vector<rw::geometry::IndexedTriangleN3<float> > _faces3;
 
+
 		// todo: perhaps a list of polytopes also
 		// std::vector<Polytope>
 
@@ -117,8 +118,8 @@ public:
 	int addMaterial(const Material& mat);
 	void removeObject(const std::string& name);
 
-	std::vector<Material>& getMaterials();
-	std::vector<Object3D*>& getObjects();
+	std::vector<Material>& getMaterials(){ return _materials; };
+	std::vector<Object3D*>& getObjects(){ return _objects; };
 
 
 private:

@@ -19,6 +19,10 @@
 
 using namespace rwlibs::drawable;
 
+Model3D::Model3D(){}
+Model3D::~Model3D(){}
+
+
 int Model3D::addObject(Model3D::Object3D* obj){
     _objects.push_back(obj);
     return _objects.size()-1;

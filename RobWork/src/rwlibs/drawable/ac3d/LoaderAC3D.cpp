@@ -156,7 +156,6 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
                 rwobj->_normals.push_back(s.normal.toV3D());
                 rwobj->_faces[i] = IndexedTriangleN1<float>(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2],rwobj->_normals.size()-1);
             } else {
-
                 rwobj->_normals.push_back( s.normals[0].toV3D() );
                 rwobj->_normals.push_back( s.normals[1].toV3D() );
                 rwobj->_normals.push_back( s.normals[2].toV3D() );

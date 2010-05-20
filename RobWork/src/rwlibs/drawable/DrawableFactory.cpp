@@ -32,6 +32,7 @@
 #include <rwlibs/drawable/ac3d/LoaderAC3D.hpp>
 #include <rwlibs/drawable/ivg/LoaderIVG.hpp>
 #include <rwlibs/drawable/obj/LoaderOBJ.hpp>
+#include <rwlibs/drawable/tri/LoaderTRI.hpp>
 
 #include <rw/common/StringUtil.hpp>
 #include <rw/common/IOUtil.hpp>
@@ -128,6 +129,7 @@ Drawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
     if ( getCache().isInCache(filename, moddate) ) {
     	return new Drawable(getCache().get(filename));
     }
+    // if not in cache then create new render
 
     // else check if the file has been loaded before
     if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
@@ -141,24 +143,31 @@ Drawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
     	Model3DPtr model = loader.load(filename);
         Render *render = new RenderModel3D( model );
         getCache().add(filename, render, moddate);
-        rw::common::Ptr<Render> r = getCache().get(filename);
-        return new Drawable(r);
+        return new Drawable( getCache().get(filename) );
     } else if (filetype == ".AC" || filetype == ".AC3D") {
-        Render *render;// = new RenderAC3D(filename);
+    	LoaderAC3D loader;
+    	Model3DPtr model = loader.load(filename);
+        Render *render = new RenderModel3D( model );
         getCache().add(filename, render, moddate);
-        return new Drawable(getCache().get(filename));
+        return new Drawable( getCache().get(filename) );
     } else if (filetype == ".TRI") {
-        Render *render;// = new RenderTriSoup(filename);
+    	LoaderTRI loader;
+    	Model3DPtr model = loader.load(filename);
+        Render *render = new RenderModel3D( model );
         getCache().add(filename, render, moddate);
-        return new Drawable(getCache().get(filename));
+        return new Drawable( getCache().get(filename) );
     } else if (filetype == ".OBJ") {
-        Render *render;// = new RenderOBJ(filename);
+    	LoaderOBJ loader;
+    	Model3DPtr model = loader.load(filename);
+        Render *render = new RenderModel3D( model );
         getCache().add(filename, render, moddate);
-        return new Drawable(getCache().get(filename));
+        return new Drawable( getCache().get(filename) );
     } else if (filetype == ".IVG") {
-        Render *render;// = new RenderIVG(filename);
+    	LoaderIVG loader;
+    	Model3DPtr model = loader.load(filename);
+        Render *render = new RenderModel3D( model );
         getCache().add(filename, render, moddate);
-        return new Drawable(getCache().get(filename));
+        return new Drawable( getCache().get(filename) );
 	} else {
         RW_THROW(
             "Unknown extension "
