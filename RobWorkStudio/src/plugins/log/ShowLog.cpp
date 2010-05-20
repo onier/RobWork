@@ -56,9 +56,15 @@ public:
         if(_isNewLine){
             buf	<< "["<<_id<<"] : ";
         }
-        buf << str;
+        size_t lpos = 0;
+        size_t pos = str.find("\n");
+        while(pos!=std::string::npos){
+        	buf << str.substr(pos,pos-lpos) << "\n    ";
+        	lpos = pos;
+        	pos = str.find("\n", pos+1);
+        }
+        buf << str.substr(lpos) << "\n";
         _slog->write(buf.str(),_color);
-
         _isNewLine = false;
     }
 
@@ -81,6 +87,8 @@ QIcon ShowLog::getIcon() {
 ShowLog::ShowLog():
     RobWorkStudioPlugin("Log", getIcon() )
 {
+	this->setWindowFlags(Qt::CustomizeWindowHint);
+
     _editor = new QTextEdit();
     _editor->setReadOnly(true);
     _editor->setCurrentFont( QFont("Courier New", 10) );
@@ -123,7 +131,8 @@ void ShowLog::receiveMessage(
     const std::string& id,
     const robwork::Message& msg)
 {
-    std::stringstream buf;
+	RW_WARN("Deprecated function, use log().info() << \"your string\" instead");
+    /*std::stringstream buf;
     buf
         << id
         << " ["
@@ -137,6 +146,7 @@ void ShowLog::receiveMessage(
         << msg.getText()
         << "\n";
     _editor->append(buf.str().c_str());
+    */
 }
 
 void ShowLog::write(const std::string& str, const QColor& color){

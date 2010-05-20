@@ -109,12 +109,18 @@
          if (block.isVisible() && bottom >= event->rect().top()) {
              QString number = QString::number(blockNumber + 1);
 
-             if( hasExecuted( blockNumber ) ){
-            	 painter.setPen(Qt::gray);
-             } else {
+             /*
+             LineState lstate = getLineState(blockNumber);
+             if(lstate==Nothing){
             	 painter.setPen(Qt::black);
-             }
-
+             } else if(Executed){
+            	 painter.setPen(Qt::green);
+             } else if(HighLighted){
+            	 painter.setPen(Qt::yellow);
+             } else if(ExecutedError){
+            	 painter.setPen(Qt::red);
+             }*/
+             painter.setPen(Qt::black);
              painter.drawText(0, top, lineNumberArea->width(), fontMetrics().height(),
                               Qt::AlignRight, number);
          }
@@ -126,8 +132,11 @@
      }
  }
 
-bool CodeEditor::hasExecuted(int lineNr){
+CodeEditor::LineState CodeEditor::getLineState(int lineNr){
+	if(_executedLines.size()<=lineNr || lineNr<0)
+		return Nothing;
 
+	return _executedLines[lineNr];
 }
 
 void CodeEditor::setCompleter(QCompleter *completer)
@@ -198,7 +207,7 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
 
     bool isShortcut = ((e->modifiers() & Qt::ControlModifier) && (e->key() == Qt::Key_Space)); // CTRL+E
     if (!_c || !isShortcut){ // dont process the shortcut when we have a completer
-        QPlainTextEdit::keyPressEvent(e);
+    	QPlainTextEdit::keyPressEvent(e);
         return;
     }
 
@@ -209,10 +218,10 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
     static QString eow("~!@#$%^&*()_+{}|:\"<>?,/;'[]\\-="); // end of word
     bool hasModifier = (e->modifiers() != Qt::NoModifier) && !ctrlOrShift;
     QString completionPrefix = textUnderCursor();
-    std::cout << "textUnderCursor: " << completionPrefix.toStdString() << std::endl;
+    //std::cout << "textUnderCursor: " << completionPrefix.toStdString() << std::endl;
     if (!isShortcut && (hasModifier || e->text().isEmpty()|| completionPrefix.length() < 1
                       || eow.contains(e->text().right(1)))) {
-        std::cout << "HIDE " << std::endl;
+        //std::cout << "HIDE " << std::endl;
         _c->popup()->hide();
         return;
     }
@@ -220,11 +229,11 @@ void CodeEditor::keyPressEvent(QKeyEvent *e)
 
 
     if (completionPrefix != _c->completionPrefix()) {
-        std::cout << "text1" << std::endl;
+        //std::cout << "text1" << std::endl;
         _c->setCompletionPrefix(completionPrefix);
         _c->popup()->setCurrentIndex(_c->completionModel()->index(0, 0));
     }
-    std::cout << "text2" << std::endl;
+    //std::cout << "text2" << std::endl;
 
     QRect cr = cursorRect();
     cr.setWidth(_c->popup()->sizeHintForColumn(0)

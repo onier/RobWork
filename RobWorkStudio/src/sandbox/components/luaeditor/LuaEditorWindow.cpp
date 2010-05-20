@@ -106,6 +106,28 @@ void LuaEditorWindow::setupEditor(){
 
     _highlighter = new LuaHighlighter(_editor->document());
 
+    QAction* newAction =
+        new QAction(QIcon(":/images/new.png"), tr("&New"), this); // owned
+    connect(newAction, SIGNAL(triggered()), this, SLOT(newFile()));
+
+    QAction* openAction =
+        new QAction(QIcon(":/images/open.png"), tr("&Open..."), this); // owned
+    connect(openAction, SIGNAL(triggered()), this, SLOT(openFile()));
+
+    QAction* closeAction =
+        new QAction(QIcon(":/images/close.png"), tr("&Close"), this); // owned
+    connect(closeAction, SIGNAL(triggered()), this, SLOT(closeFile()));
+
+    _fileToolBar->addAction(newAction);
+    _fileToolBar->addAction(openAction);
+    _fileToolBar->addAction(closeAction);
+/*
+    QMenu* pFileMenu = menuBar()->addMenu(tr("&File"));
+    pFileMenu->addAction(newAction);
+    pFileMenu->addAction(openAction);
+    pFileMenu->addAction(closeAction);
+*/
+
     QFile file("LuaEditorWindow.hpp");
     if (file.open(QFile::ReadOnly | QFile::Text))
         _editor->setPlainText(file.readAll());
@@ -117,13 +139,22 @@ void LuaEditorWindow::runChunk()
 
     const std::string cmd =
         _editor->textCursor().block().text().toStdString();
+    int number = _editor->textCursor().blockNumber();
 
     _output->info() << "--\n";
     const int error = // The string "" is part of the error message.
         luaL_loadbuffer(_lua, cmd.data(), cmd.size(), "") ||
         lua_pcall(_lua, 0, 0, 0);
 
-    processError(error, _lua, _output);
+    if(error){
+    	_editor->setLineState(number, CodeEditor::ExecutedError);
+    	processError(error, _lua, _output);
+    } else {
+    	_editor->setLineState(number, CodeEditor::Executed);
+    }
+
+
+    _editor->moveCursor(QTextCursor::Down);
 }
 
 

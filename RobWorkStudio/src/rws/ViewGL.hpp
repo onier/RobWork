@@ -120,6 +120,7 @@ public:
 
     /**
      * @brief adds a camera view to the scene
+     * @param view [in] the camera view
      */
     void addCameraView(const GLCameraView& view){
     	_cameraViews.push_back(view);
@@ -196,8 +197,16 @@ public:
      */
     void keyPressEvent(QKeyEvent *e);
 
+    /**
+     * @brief
+     * @return true if collision checking is enabled, false otherwise
+     */
     bool isCheckForCollisionEnabled(){ return _checkForCollision->isChecked();};
 
+    /**
+     * @brief set the camera view controller.
+     * @param camController
+     */
     void setCameraController(CameraControllerPtr camController){
         _cameraCtrl = camController;
     }
@@ -227,22 +236,57 @@ public:
      */
     float getZoomScale(){return _zoomScale;}
 
+
+    /**
+     * Set the zoom level
+     * @param scale
+     */
     void setZoomScale(float scale){_zoomScale = scale;}
 
+    /**
+     * @brief set the orientation of the view
+     * @param rot [in] rotation relative to world
+     */
     void setViewRotation(robwork::Rotation3D<float> rot){
     	_viewRotation = rot;
     }
 
+    /**
+     * @brief get the current rotation of the view
+     * @return orientation of the view
+     */
     robwork::Rotation3D<float> getViewRotation(){
     	return _viewRotation;
     }
 
+    /**
+     * Set the position of the view
+     * @param pos [in] position of the view relative to world
+     */
     void setViewPos(robwork::Vector3D<float> pos){
      	_viewPos = pos;
     }
 
+    /**
+     * @brief gets the position of the view
+     * @return
+     */
     robwork::Vector3D<float> getViewPos(){
     	return _viewPos;
+    }
+
+    /**
+     * @brief get the logo that is displayed in the 3d scene
+     */
+    QString getLogo(){
+    	return _viewLogo;
+    }
+    /**
+     * @brief set the logo that is displayed in the 3d scene
+     * @param string
+     */
+    void setLogo(QString string){
+    	_viewLogo = string;
     }
 
 public slots:

@@ -44,6 +44,7 @@ public slots:
 	void about();
 	void newFile();
 	void openFile(const QString &path = QString());
+	void closeFile();
 	void runChunk();
 	void run();
 

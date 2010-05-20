@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading ui file 'LuaEditorWindow.ui'
 **
-** Created: Mon 30. Nov 14:46:36 2009
+** Created: Thu 6. May 14:28:40 2010
 **      by: Qt User Interface Compiler version 4.5.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling ui file!
@@ -53,8 +53,9 @@ public:
     QMenu *menuHelp;
     QMenu *menuRun;
     QMenu *menuTools;
-    QStatusBar *statusbar;
+    QToolBar *_fileToolBar;
     QToolBar *toolBar;
+    QStatusBar *statusbar;
 
     void setupUi(QMainWindow *LuaEditorWindow)
     {
@@ -116,12 +117,15 @@ public:
         menuTools = new QMenu(menubar);
         menuTools->setObjectName(QString::fromUtf8("menuTools"));
         LuaEditorWindow->setMenuBar(menubar);
+        _fileToolBar = new QToolBar(LuaEditorWindow);
+        _fileToolBar->setObjectName(QString::fromUtf8("_fileToolBar"));
+        LuaEditorWindow->addToolBar(Qt::TopToolBarArea, _fileToolBar);
+        toolBar = new QToolBar(LuaEditorWindow);
+        toolBar->setObjectName(QString::fromUtf8("toolBar"));
+        LuaEditorWindow->addToolBar(Qt::TopToolBarArea, toolBar);
         statusbar = new QStatusBar(LuaEditorWindow);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         LuaEditorWindow->setStatusBar(statusbar);
-        toolBar = new QToolBar(LuaEditorWindow);
-        toolBar->setObjectName(QString::fromUtf8("toolBar"));
-        LuaEditorWindow->addToolBar(Qt::LeftToolBarArea, toolBar);
 
         menubar->addAction(menuFile->menuAction());
         menubar->addAction(menuEdit->menuAction());
@@ -141,7 +145,6 @@ public:
         menuRun->addAction(actionToggle_Breakpoint);
         menuRun->addAction(actionRemove_all_breakpoints);
         menuRun->addSeparator();
-        menuRun->addAction(actionRestart);
         menuRun->addAction(actionRestart_At_Line);
         menuRun->addAction(actionResume);
         menuRun->addAction(actionSuspend);
@@ -152,7 +155,7 @@ public:
         menuRun->addAction(actionRun);
         menuRun->addAction(actionDebug);
         menuTools->addAction(actionTouch_up);
-        toolBar->addSeparator();
+        _fileToolBar->addSeparator();
 
         retranslateUi(LuaEditorWindow);
 
@@ -176,7 +179,7 @@ public:
         actionSuspend->setText(QApplication::translate("LuaEditorWindow", "Suspend", 0, QApplication::UnicodeUTF8));
         actionTerminate->setText(QApplication::translate("LuaEditorWindow", "Terminate", 0, QApplication::UnicodeUTF8));
         actionStep->setText(QApplication::translate("LuaEditorWindow", "Step", 0, QApplication::UnicodeUTF8));
-        actionStep->setShortcut(QApplication::translate("LuaEditorWindow", "Ctrl+J", 0, QApplication::UnicodeUTF8));
+        actionStep->setShortcut(QApplication::translate("LuaEditorWindow", "Ctrl+Return", 0, QApplication::UnicodeUTF8));
         actionRun_to_line->setText(QApplication::translate("LuaEditorWindow", "Run to line", 0, QApplication::UnicodeUTF8));
         actionRun->setText(QApplication::translate("LuaEditorWindow", "Run", 0, QApplication::UnicodeUTF8));
         actionRun->setShortcut(QApplication::translate("LuaEditorWindow", "Ctrl+F11", "Ctrl+F11", QApplication::UnicodeUTF8));
@@ -194,6 +197,7 @@ public:
         menuHelp->setTitle(QApplication::translate("LuaEditorWindow", "Help", 0, QApplication::UnicodeUTF8));
         menuRun->setTitle(QApplication::translate("LuaEditorWindow", "Run", 0, QApplication::UnicodeUTF8));
         menuTools->setTitle(QApplication::translate("LuaEditorWindow", "Tools", 0, QApplication::UnicodeUTF8));
+        _fileToolBar->setWindowTitle(QApplication::translate("LuaEditorWindow", "toolBar", 0, QApplication::UnicodeUTF8));
         toolBar->setWindowTitle(QApplication::translate("LuaEditorWindow", "toolBar", 0, QApplication::UnicodeUTF8));
     } // retranslateUi
 

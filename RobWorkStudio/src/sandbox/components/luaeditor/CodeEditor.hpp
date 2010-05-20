@@ -11,6 +11,8 @@
  #include <QPlainTextEdit>
  #include <QObject>
 
+#include <iostream>
+
  class QPaintEvent;
  class QResizeEvent;
  class QSize;
@@ -34,6 +36,17 @@
      void setCompleter(QCompleter *c);
      QCompleter *completer() const;
 
+     typedef enum{Nothing, Executed, ExecutedError, HighLighted} LineState;
+     void setLineState(size_t linenr, LineState state){
+    	 std::cout << "setLineState: " << linenr << std::endl;
+    	 if(linenr<0)
+    		 return;
+    	 if(_executedLines.size()<=linenr)
+    		 _executedLines.resize(linenr+100);
+    	 _executedLines[linenr] = state;
+     }
+     CodeEditor::LineState getLineState(int lineNr);
+
  protected:
      void resizeEvent(QResizeEvent *event);
 
@@ -54,6 +67,7 @@
  private:
      QWidget *lineNumberArea;
      QCompleter *_c;
+     std::vector<LineState> _executedLines;
 
  };
 

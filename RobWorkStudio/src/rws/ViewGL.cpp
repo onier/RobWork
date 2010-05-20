@@ -308,6 +308,13 @@ void ViewGL::keyPressEvent(QKeyEvent *e)
     case(Qt::Key_3): camNr = 2; break;
     case(Qt::Key_4): camNr = 3; break;
     case(Qt::Key_5): camNr = 4; break;
+    //case(Qt::Key_F12): this->setWindowState(this->windowState() ^ WindowFullScreen); break;
+    //case(Qt::Key_F12):
+	//		std::cout << "Setting window state" << std::endl;
+    //		this->showFullScreen();
+
+    		//this->setWindowState(this->windowState() ^ Qt::WindowFullScreen);
+	//	break;
     default:
         _rwStudio->keyEvent().fire(e->key(), e->modifiers());
         return;
