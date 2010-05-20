@@ -130,8 +130,8 @@ IF(USE_YAOBI)
     ELSE ()
         SET(RW_ENABLE_INTERNAL_YAOBI_TARGET ON)
         MESSAGE(STATUS "Yaobi ENABLED! NOT FOUND! Using RobWork native Yaobi.")
-        SET(YAOBI_INCLUDE_DIR "${RW_ROOT}/ext/PQP")
-        SET(YAOBI_LIBRARIES "pqp")
+        SET(YAOBI_INCLUDE_DIR "${RW_ROOT}/ext/yaobi")
+        SET(YAOBI_LIBRARIES "yaobi")
         SET(YAOBI_LIBRARY_DIRS ${RW_LIBRARY_OUT_DIR})
         SET(RW_HAVE_YAOBI True)
         
@@ -270,8 +270,13 @@ SET(RW_CXX_FLAGS ${RW_CXX_FLAGS_TMP}
 ADD_DEFINITIONS(${RW_CXX_FLAGS})
 MESSAGE(STATUS "Adding RW CXX flags: ${RW_CXX_FLAGS}") 
 
-
-
+#MESSAGE(" ${Boost_MAJOR_VERSION} ${Boost_MINOR_VERSION} ")
+IF(${Boost_MINOR_VERSION} VERSION_LESS 41 ) 
+    # proerty tree is not included in earlier versions 1.41 of boost
+    # so we include it from our own
+    SET(ADDITIONAL_BOOST_BINDINGS "${RW_ROOT}/ext/deprecated")
+    MESSAGE(STATUS "Boost ${Boost_VERSION} found, no support for property_tree. Adding from ext")   
+ENDIF()
 
 ###########################################################################
 # SETTING UP VARS
@@ -283,6 +288,7 @@ MESSAGE(STATUS "Adding RW CXX flags: ${RW_CXX_FLAGS}")
 #
 SET(ROBWORK_INCLUDE_DIR
     ${RW_ROOT}/ext
+    ${ADDITIONAL_BOOST_BINDINGS}
     ${RW_ROOT}/src
     ${OPENGL_INCLUDE_DIR}   
     ${Boost_INCLUDE_DIR}
