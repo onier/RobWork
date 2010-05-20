@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -240,6 +240,8 @@ namespace
         PlainTriMesh<TriangleN1<float> >& result,
         ParserState &state)
     {
+        setlocale( LC_ALL, "C" );
+
         char *next;
         float r1,r2,r3,r4;
         char  token[LINE_MAX_LENGTH];
@@ -297,9 +299,11 @@ namespace
                 // object_num = object_num + 1;
             } else if ( !strcmp( token, "endsolid" ) ){ // ENDSOLID
             } else { //  Unexpected or unrecognized.
+                setlocale( LC_ALL, "" );
                 RW_THROW( state.errorUnknownString( token ) );
             }
         }
+        setlocale( LC_ALL, "" );
         return;
     }
 
@@ -321,6 +325,30 @@ namespace
             ReadBinarySTL(reader, result);
         }
     }
+
+    /**
+     * @brief outputs a face in STL format given by 3 vertices
+     * and a normal that defines the face.
+     */
+    template <class T>
+    void writeFaceSTL(const rw::math::Vector3D<T>& v1,
+                             const rw::math::Vector3D<T>& v2,
+                             const rw::math::Vector3D<T>& v3,
+                             const rw::math::Vector3D<T>& n,
+                             std::ostream& ostr){
+        ostr << " facet normal "
+            << n[0] << " " << n[1] << " " << n[2] << std::endl;
+        ostr << "  outer loop " << std::endl;
+        ostr << "   vertex "
+            << v1[0] << " " << v1[1] << " " << v1[2] << std::endl;
+        ostr << "   vertex "
+            << v2[0] << " " << v2[1] << " " << v2[2] << std::endl;
+        ostr << "   vertex "
+            << v3[0] << " " << v3[1] << " " << v3[2] << std::endl;
+        ostr << "  endloop " << std::endl;
+        ostr << " endfacet" << std::endl;
+    }
+
 }
 
 PlainTriMesh<TriangleN1<float> >* STLFile::read(const std::string& filename)
@@ -339,3 +367,28 @@ PlainTriMesh<TriangleN1<float> >* STLFile::read(const std::string& filename)
     streamIn.close();
     return trimesh;
 }
+
+void STLFile::writeSTL(const TriMesh& mesh, const std::string& filename){
+    setlocale( LC_ALL, "C" );
+    using namespace rw::geometry;
+    std::ofstream ostr;
+    ostr.open( filename.c_str() );
+    while( !ostr.is_open() ){
+        RW_WARN("Openning file \"" << filename << "\" failed: " << ostr.rdstate() << ". Trying again!");
+        ostr.clear();
+        ostr.open( filename.c_str() );
+        rw::common::TimerUtil::sleepMs(1000);
+    }
+    RW_ASSERT( ostr.is_open() );
+
+    ostr << "solid ascii" << std::endl;
+    for(size_t i = 0; i<mesh.getSize(); i++){
+        TriangleN0<double> tri = mesh.getTriangle(i);
+        writeFaceSTL(tri[0],tri[1],tri[2],tri.calcFaceNormal(), ostr);
+    }
+    ostr << "endsolid" << std::endl;
+    ostr.flush();
+    ostr.close();
+    setlocale( LC_ALL, "" );
+}
+

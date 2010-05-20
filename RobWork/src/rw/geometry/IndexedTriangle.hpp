@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -133,8 +133,7 @@ namespace geometry {
     class IndexedTriangleN1 : public IndexedTriangle<T> {
     protected:
         IndexedTriangleN0<T> _triN0;
-        rw::math::Vector3D<T> _faceNormal;
-
+        int _normalIdx;
     public:
         //@brief default constructor
 
@@ -143,8 +142,8 @@ namespace geometry {
         /**
          * @brief
          */
-        IndexedTriangleN1(int p1, int p2, int p3):
-            _triN0(p1,p2,p3)
+        IndexedTriangleN1(int p1, int p2, int p3, int n):
+            _triN0(p1,p2,p3),_normalIdx(n)
         {
         };
 
@@ -155,7 +154,7 @@ namespace geometry {
          */
         IndexedTriangleN1(const IndexedTriangleN1& f):
             _triN0(f),
-            _faceNormal(f.getFaceNormal())
+            _normalIdx(f.getNormalIdx())
         {
         };
 
@@ -174,29 +173,49 @@ namespace geometry {
         }
 
         /**
+         * @brief returns the index of vertex i of the triangle
+         */
+        int& getNormalIdx() {
+            return _normalIdx;
+        }
+
+        /**
+         * @brief returns the index of vertex i of the triangle
+         */
+        const int& getNormalIdx() const  {
+            return _normalIdx;
+        }
+
+
+        /**
          * @brief tests wheather the point x is inside the triangle
          */
         bool isInside(const rw::math::Vector3D<T>& x, const std::vector<rw::math::Vector3D<T> >& verts){
             return _triN0.isInside(x,verts);
         }
+
+
     };
 
     template<class T>
      class IndexedTriangleN3 : public IndexedTriangle<T> {
      protected:
          IndexedTriangleN0<T> _triN0;
-
+         int _normals[3];
      public:
          //@brief default constructor
-
          IndexedTriangleN3(){};
 
          /**
           * @brief
           */
-         IndexedTriangleN3(int p1, int p2, int p3):
+         IndexedTriangleN3(int p1, int p2, int p3,
+                           int n1, int n2, int n3):
              _triN0(p1,p2,p3)
          {
+             _normals[0] = n1;
+             _normals[1] = n2;
+             _normals[2] = n3;
          };
 
          /**
@@ -220,6 +239,17 @@ namespace geometry {
           * @brief returns the index of vertex i of the triangle
           */
          const int& getVertexIdx(int i) const  {
+             return _triN0.getVertexIdx(i);
+         }
+
+         int& getNormalIdx(int i) {
+             return _triN0.getVertexIdx(i);
+         }
+
+         /**
+          * @brief returns the index of vertex i of the triangle
+          */
+         const int& getNormalIdx(int i) const  {
              return _triN0.getVertexIdx(i);
          }
 
