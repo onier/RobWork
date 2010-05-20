@@ -20,8 +20,8 @@
 #include "../TestSuiteConfig.hpp"
 
 #include <rwlibs/drawable/Drawable.hpp>
-#include <rwlibs/drawable/RenderSTL.hpp>
-#include <rwlibs/drawable/RenderAC3D.hpp>
+//#include <rwlibs/drawable/RenderSTL.hpp>
+#include <rwlibs/drawable/ac3d/LoaderAC3D.hpp>
 #include <rwlibs/drawable/DrawableFactory.hpp>
 #include <rwlibs/drawable/WorkCellGLDrawer.hpp>
 
@@ -48,18 +48,21 @@ using namespace rw::kinematics;
 
 BOOST_AUTO_TEST_CASE( testLoading ){
     BOOST_MESSAGE("- testing loading");
-    RenderSTL stlaObject(testFilePath() + "chair.stla");
-    RenderSTL stlbObject(testFilePath() + "cube.stlb");
+    Drawable *stlaObject =
+    		DrawableFactory::loadDrawableFile( testFilePath() + "chair.stla" );
+    Drawable *stlbObject =
+    		DrawableFactory::loadDrawableFile( testFilePath() + "cube.stlb" );
 
     // test loading AC3D file
-    RenderAC3D ac3dObject(testFilePath() + "Environment.ac");
+    Drawable *ac3dObject =
+    		DrawableFactory::loadDrawableFile(testFilePath() + "Environment.ac");
 
     // test loading from input stream
     std::string infile(testFilePath() + "Environment.ac");
     std::ifstream in(infile.c_str());
     BOOST_REQUIRE(in.is_open());
 
-    RenderAC3D ac3dObject2(in);
+    //RenderAC3D ac3dObject2(in);
 }
 
 BOOST_AUTO_TEST_CASE(testDrawableFactory)
