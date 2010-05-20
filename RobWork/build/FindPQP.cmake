@@ -1,13 +1,13 @@
-# - Find Xerces-C
-# Find the Xerces-C includes and library
+# - Find PQP
+# Find the PQP includes and library
 # if you want to specify the location of xerces then set PQP_ROOT or PQP_INCLUDE_DIR and
-# XERCES_LIB_DIR. If they are not set then they will try to be resolved automaticaly
+# PQP_LIBRARY_DIR. If they are not set then they will try to be resolved automaticaly
 #  
 #  PQP_ROOT        - Hint as to where to find include and lib dirs (Not supported yet)
 #  PQP_INCLUDE_DIR - Where to find PQP include sub-directory.
-#  PQP_LIBRARY_DIR     - Where to find PQP lib sub-directory.
+#  PQP_LIBRARY_DIR - Where to find PQP lib sub-directory.
 #  PQP_LIBRARIES   - List of libraries when using Xerces-C.
-#  PQP_FOUND       - True if Xerces-C found.
+#  PQP_FOUND       - True if PQP found.
 
 IF (PQP_INCLUDE_DIR)
   # Already in cache, be silent.

@@ -51,7 +51,7 @@ SET(RW_ROOT ${ROBWORK_ROOT})
 MESSAGE(STATUS "RobWork Path: ${ROBWORK_ROOT}")
 
 ENABLE_LANGUAGE(CXX)
-ENABLE_LANGUAGE(Fortran)
+#ENABLE_LANGUAGE(Fortran)
 
 # get the build configuration of the requested built type
 INCLUDE(${RW_ROOT}/build/RobWorkBuildConfig${CMAKE_BUILD_TYPE}.cmake)
@@ -90,7 +90,8 @@ IF(NOT DEFINED WIN32)
 ENDIF()
 #SET(BLA_STATIC ON) # for some reason this creates an error in the system and find_library will not function correctly after this
 #FIND_PACKAGE(BLAS REQUIRED)
-FIND_PACKAGE(LAPACK REQUIRED) # automatically detects BLAS
+#FIND_PACKAGE(LAPACK REQUIRED) # automatically detects BLAS
+FIND_PACKAGE(BLASLAPACK REQUIRED)
 #MESSAGE("LAPACK LIBRARIES: ${LAPACK_LIBRARIES} ${BLAS_LIBRARIES}") 
 
 ####################################################################

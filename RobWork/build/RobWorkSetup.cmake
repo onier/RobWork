@@ -62,13 +62,14 @@ FIND_PACKAGE(Boost COMPONENTS thread filesystem system regex REQUIRED)
 # We depend on BLAS and Lapack. These depend on FORTRAN, so we enable that
 #
 ENABLE_LANGUAGE(CXX)
-ENABLE_LANGUAGE(Fortran)
+#ENABLE_LANGUAGE(Fortran)
 
 IF(NOT DEFINED WIN32)
   SET(BLA_STATIC ON)
 ENDIF()
 #FIND_PACKAGE(BLAS REQUIRED)
-FIND_PACKAGE(LAPACK REQUIRED)
+#FIND_PACKAGE(LAPACK REQUIRED)
+FIND_PACKAGE(BLASLAPACK REQUIRED)
 
 SET(LAPACK_BLAS_LIBRARY_DIRS )
 #get_filename_component(BLAS_LIBRARY_DIRS ${BLAS_LIBRARIES} PATH)
@@ -253,9 +254,6 @@ IF(NOT DEFINED RW_CXX_FLAGS)
             "-DNOMINMAX" 
             # Without this define for boost-bindings we can't link with lapack.
             "-DBIND_FORTRAN_LOWERCASE_UNDERSCORE"
-            "-D_HAS_ITERATOR_DEBUGGING=0"
-            "-D_HAS_ITERATOR_DEBUGGING=0"
-            "-D_SECURE_SCL=0"
             "-D_SCL_SECURE_NO_WARNINGS"
             "-D_CRT_SECURE_NO_WARNINGS"
             "-D_CRT_SECURE_NO_DEPRECATE"
@@ -337,4 +335,6 @@ SET(ROBWORK_LIBRARIES
   ${Boost_LIBRARIES}
   ${LAPACK_LIBRARIES} 
   ${BLAS_LIBRARIES}
+  lapack
+  blas
 )
