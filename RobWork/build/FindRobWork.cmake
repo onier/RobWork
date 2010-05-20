@@ -258,7 +258,7 @@ IF(${Boost_MINOR_VERSION} VERSION_LESS 41 )
     # proerty tree is not included in earlier versions 1.41 of boost
     # so we include it from our own
     SET(ADDITIONAL_BOOST_BINDINGS "${RW_ROOT}/ext/deprecated")
-    MESSAGE(STATUS "Boost ${Boost_VERSION} found, no support for property_tree. Adding from ext")   
+    MESSAGE(STATUS "Boost ${Boost_VERSION_MAJOR}.${Boost_VERSION_MINOR} found, no support for property_tree. Adding from ext!")   
 ENDIF()
 
 
