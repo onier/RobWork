@@ -55,7 +55,7 @@ BOOST_AUTO_TEST_CASE( testLoading ){
 
     // test loading AC3D file
     Drawable *ac3dObject =
-    		DrawableFactory::loadDrawableFile(testFilePath() + "Environment.ac");
+    		DrawableFactory::loadDrawableFile(testFilePath() + "MultiRobotDemo/Geometry/Gantry0.ac");
 
     // test loading from input stream
     std::string infile(testFilePath() + "Environment.ac");
