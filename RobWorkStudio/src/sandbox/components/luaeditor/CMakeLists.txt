@@ -15,7 +15,7 @@ SET(SrcFiles LuaEditorWindow.cpp LuaHighlighter.cpp CodeEditor.cpp
     ${UIS_OUT_H})
 
 QT4_WRAP_CPP(MocSrcFiles LuaEditorWindow.hpp LuaHighlighter.hpp CodeEditor.hpp 
-    TreeModelCompleter.hpp)
+    TreeModelCompleter.hpp )
 
 # Rcc the files:
 QT4_ADD_RESOURCES(RccSrcFiles luaresources.qrc)

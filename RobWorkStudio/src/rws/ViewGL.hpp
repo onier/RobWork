@@ -392,7 +392,7 @@ private:
     rwlibs::drawable::WorkCellGLDrawer* _workcellGLDrawer;
     int _cameraNr;
     QFont _logoFont;
-    const QString _viewLogo;
+    QString _viewLogo;
     bool _cameraViewChanged;
 };
 
