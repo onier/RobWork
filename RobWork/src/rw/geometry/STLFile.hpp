@@ -47,7 +47,7 @@ public:
 	 * @param mesh [in] the mesh that should be written to the STL file.
 	 * @param filename [in] the name of the file for which to write to.
 	 */
-	static void write(const TriMesh& mesh, const std::string& filename);
+	static void save(const TriMesh& mesh, const std::string& filename);
 
 	/**
 	 * @brief reads a STL file with name \b filename into a plain
@@ -55,7 +55,7 @@ public:
 	 * @param filename [in] the name of the file
 	 * @return triangle mesh if successfull, NULL otherwise.
 	 */
-    static PlainTriMesh<TriangleN1<float> >* read(const std::string& filename);
+    static PlainTriMesh<TriangleN1<float> >* load(const std::string& filename);
 
 };
 

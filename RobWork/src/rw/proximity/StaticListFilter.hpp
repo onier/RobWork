@@ -27,7 +27,7 @@ namespace rw { namespace proximity {
  */
 class StaticListFilter: public BroadPhaseStrategy {
 public:
-
+	StaticListFilter();
 	StaticListFilter(kinematics::FramePairSet includeset);
 
 	/**

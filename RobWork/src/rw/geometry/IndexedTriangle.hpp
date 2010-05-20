@@ -153,7 +153,7 @@ namespace geometry {
          * @param f [in] - The face that is to be copied.
          */
         IndexedTriangleN1(const IndexedTriangleN1& f):
-            _triN0(f),
+            _triN0(f._triN0),
             _normalIdx(f.getNormalIdx())
         {
         };
@@ -224,8 +224,11 @@ namespace geometry {
           * @param f [in] - The face that is to be copied.
           */
          IndexedTriangleN3(const IndexedTriangleN3& f):
-             _triN0(f)
+             _triN0(f._triN0)
          {
+             _normals[0] = f._normals[0];
+             _normals[1] = f._normals[0];
+             _normals[2] = f._normals[0];
          };
 
          /**

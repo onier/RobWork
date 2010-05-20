@@ -32,6 +32,11 @@ using namespace rw::proximity;
 using namespace rw::common;
 using namespace rw::models;
 
+StaticListFilter::StaticListFilter()
+{
+	_pos = _collisionPairs.begin();
+}
+
 StaticListFilter::StaticListFilter(kinematics::FramePairSet includeset):
 		_collisionPairs(includeset)
 {

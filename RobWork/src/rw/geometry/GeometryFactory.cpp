@@ -124,7 +124,7 @@ Geometry* GeometryFactory::getGeometry(const std::string& raw_filename, bool use
     if( raw_filename[0] != '#' ){
 		// else check if the file has been loaded before
 		if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
-			GeometryData* data = STLFile::read(filename);
+			GeometryData* data = STLFile::load(filename);
 			if( data == NULL )
 				RW_THROW("Reading of geometry failed!");
 			getCache().add(filename, data);

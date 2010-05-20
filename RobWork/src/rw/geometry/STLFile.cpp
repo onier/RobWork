@@ -351,7 +351,7 @@ namespace
 
 }
 
-PlainTriMesh<TriangleN1<float> >* STLFile::read(const std::string& filename)
+PlainTriMesh<TriangleN1<float> >* STLFile::load(const std::string& filename)
 {
 
     std::ifstream streamIn(filename.c_str(), std::ios::binary);
@@ -368,7 +368,7 @@ PlainTriMesh<TriangleN1<float> >* STLFile::read(const std::string& filename)
     return trimesh;
 }
 
-void STLFile::writeSTL(const TriMesh& mesh, const std::string& filename){
+void STLFile::save(const TriMesh& mesh, const std::string& filename){
     setlocale( LC_ALL, "C" );
     using namespace rw::geometry;
     std::ofstream ostr;
