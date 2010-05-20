@@ -49,6 +49,14 @@ public:
     // Holds the material info
     // TODO: add color support for non textured polys
     struct Material {
+        Material(const std::string& nam, float r, float g, float b, float a=1.0):
+            name(nam), simplergb(true), textured(false)
+        {
+            rgb[0] = r;
+            rgb[1] = g;
+            rgb[2] = b;
+            rgb[3] = a;
+        }
         std::string name;	// The material's name
         short int texId;	// The texture (this is the only outside reference in this class)
         bool textured;	// whether or not it is textured
@@ -79,13 +87,17 @@ public:
     };
 
 	struct Object3D {
+	    Object3D(const std::string& name):
+	        _name(name),parentObj(-1),_texture(-1){};
+
 		std::string _name;
 		//rw::geometry::IndexedTriMeshN0<float> *_mesh;
 
 		std::vector<rw::math::Vector3D<float> > _vertices;
         std::vector<rw::math::Vector3D<float> > _normals;
         std::vector<rw::math::Vector2D<float> > _texCoords;
-        std::vector<rw::geometry::IndexedTriangleN0<float> > _faces;
+        std::vector<rw::geometry::IndexedTriangleN1<float> > _faces;
+        std::vector<rw::geometry::IndexedTriangleN3<float> > _faces3;
 
 		// todo: perhaps a list of polytopes also
 		// std::vector<Polytope>
@@ -100,8 +112,8 @@ public:
 	};
 
 public:
-	void addObject(Object3D* obj);
-	void addMaterial(Material* mat);
+	int addObject(Object3D* obj);
+	int addMaterial(const Material& mat);
 	void removeObject(const std::string& name);
 
 	std::vector<Material>& getMaterials();

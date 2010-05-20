@@ -15,15 +15,20 @@
  * limitations under the License.
  ********************************************************************************/
 
-/*
- * Model3D.hpp
- *
- *  Created on: 02-07-2009
- *      Author: jimali
- */
+#include "Model3D.hpp"
 
-#ifndef MODEL3D_HPP_
-#define MODEL3D_HPP_
+using namespace rwlibs::drawable;
 
+int Model3D::addObject(Object3D* obj){
+    _objects.push_back(obj);
+    return _objects.size()-1;
+}
 
-#endif /* MODEL3D_HPP_ */
+int Model3D::addMaterial(const Material& mat){
+    _materials.push_back(mat);
+    return _materials.size()-1;
+}
+
+void Model3D::removeObject(const std::string& name){
+
+}

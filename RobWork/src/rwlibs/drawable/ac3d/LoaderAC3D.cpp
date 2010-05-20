@@ -120,7 +120,7 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
         Model3D::Object3D* parent  = mobjects.top().second;
         mobjects.pop();
 
-        Model3D::Object3D *rwobj = new Model3D::Object3D();
+        Model3D::Object3D *rwobj = new Model3D::Object3D(obj->name);
         rwobj->_transform = Transform3D<float>(obj->loc,obj->rot);
 
         rwobj->_texOffset(0) = obj->texture_offset_x;
@@ -135,7 +135,7 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
 
         rwobj->_faces.resize(nrFaces);
         rwobj->_vertices.resize( obj->vertices.size() );
-        rwobj->_normals.resize( obj->vertices.size() ); // we use one normal per face vertice
+        //rwobj->_normals.resize( obj->vertices.size() ); // we use one normal per face vertice
 
         if(obj->texture!=-1)
             rwobj->_texCoords.resize( obj->vertices.size() );
@@ -148,16 +148,18 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
             if(s.vertrefs.size()!=3)
                 RW_THROW("Only trimesh is currently supported! nr verts: " << s.vertrefs.size());
             // copy the vertice references
-            rwobj->_faces[i] = IndexedTriangleN0<float>(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2]);
             // copy the normals
             if(s.normals.size()!=3){
-                rwobj->_normals[ s.vertrefs[0] ] += s.normal.toV3D();
-                rwobj->_normals[ s.vertrefs[1] ] += s.normal.toV3D();
-                rwobj->_normals[ s.vertrefs[2] ] += s.normal.toV3D();
+                rwobj->_normals.push_back(s.normal.toV3D());
+                rwobj->_faces[i] = IndexedTriangleN1<float>(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2],rwobj->_normals.size()-1);
             } else {
-                rwobj->_normals[ s.vertrefs[0] ] += s.normals[0].toV3D();
-                rwobj->_normals[ s.vertrefs[1] ] += s.normals[1].toV3D();
-                rwobj->_normals[ s.vertrefs[2] ] += s.normals[2].toV3D();
+
+                rwobj->_normals.push_back( s.normals[0].toV3D() );
+                rwobj->_normals.push_back( s.normals[1].toV3D() );
+                rwobj->_normals.push_back( s.normals[2].toV3D() );
+                size_t nidx = rwobj->_normals.size();
+                rwobj->_faces3.push_back( IndexedTriangleN3<float>(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2],
+                                            nidx-4,nidx-3,nidx-2 ) );
             }
             // copy texture coords if enabled
             if(obj->texture!=-1){
