@@ -34,6 +34,7 @@ namespace rwlibs { namespace drawable {
     public:
 
         // constructors
+    	RWGLTexture(){};
         /**
          * @brief
          * @param img

@@ -3,17 +3,24 @@
 
 #include <cmath>                       // Header file for the math library
 #include <iostream>
+#include <fstream>
 
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>
+
 using namespace rw::common;
 using namespace rwlibs::drawable;
+using namespace rwlibs::drawable;
+using namespace rw::geometry;
+using namespace rw::math;
+
+#define LINE_MAX_LENGTH 100
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-Model3DPtr LoaderTRI::load(const std::string& name)
+Model3DPtr LoaderTRI::load(const std::string& filename)
 {
 
     std::ifstream input_stream(filename.c_str());
@@ -67,7 +74,7 @@ Model3DPtr LoaderTRI::load(const std::string& name)
             obj->_normals.push_back(n);
             nb_points++;
             if(nb_points%3==0){
-                obj->_face3.push_back(IndexedTriangleN3<float>(nb_points-3,nb_points-2,nb_points-1,
+                obj->_faces3.push_back(IndexedTriangleN3<float>(nb_points-3,nb_points-2,nb_points-1,
                                                                 nb_points-3,nb_points-2,nb_points-1));
             }
         } else {

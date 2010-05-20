@@ -78,10 +78,10 @@
 //#pragma warn( You need to uncomment this if you are using MFC )
 //#include "stdafx.h"
 
-#include "Model3DS.h"
+#include "Model3DS.hpp"
 
 #include <rwlibs/os/rwgl.hpp>
-
+#include <rw/loaders/ImageFactory.hpp>
 #include <cmath>                       // Header file for the math library
 
 #include <iostream>
@@ -89,7 +89,7 @@
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>
 using namespace rw::common;
-using namespace rw::drawable;
+using namespace rwlibs::drawable;
 
 // The chunk's id numbers
 #define MAIN3DS                         0x4D4D
@@ -248,12 +248,12 @@ void Model3DS::Load(const std::string& name)
             unsigned char r = Materials.at(j).color.r;
             unsigned char g = Materials.at(j).color.g;
             unsigned char b = Materials.at(j).color.b;
-            Materials.at(j).tex.BuildColorTexture(r, g, b);
+            Materials.at(j).tex = RWGLTexture(r, g, b);
             Materials.at(j).textured = true;
         }
     }
 }
-
+/*
 void Model3DS::Draw()
 {
     if (visible)
@@ -363,6 +363,7 @@ void Model3DS::Draw()
         glPopMatrix();
     }
 }
+*/
 
 void Model3DS::CalculateNormals()
 {
@@ -763,7 +764,8 @@ void Model3DS::MapNameChunkProcessor(long length, long findex, int matindex)
     // Load the name and indicate that the material has a texture
     char fullname[80];
     sprintf(fullname, "%s%s", &path.at(0), name);
-    Materials.at(matindex).tex.Load(fullname);
+    rw::sensor::ImagePtr img = rw::loaders::ImageFactory::load(fullname);
+    Materials.at(matindex).tex = RWGLTexture(*img);
     Materials.at(matindex).textured = true;
 
     // move the file pointer back to where we got it so

@@ -49,6 +49,7 @@ public:
     // Holds the material info
     // TODO: add color support for non textured polys
     struct Material {
+    	Material(){};
         Material(const std::string& nam, float r, float g, float b, float a=1.0):
             name(nam), simplergb(true), textured(false)
         {

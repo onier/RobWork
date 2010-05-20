@@ -15,8 +15,10 @@ SET(SRC_FILES
   ./TactileArrayRender.cpp
   ./ac3d/LoaderAC3D.cpp
   ./3ds/Loader3DS.cpp
+  ./3ds/Model3DS.cpp
   ./ivg/LoaderIVG.cpp
-  
+  ./obj/LoaderOBJ.cpp
+  ./tri/LoaderTRI.cpp
   RWGLTexture.cpp
   RenderImage.cpp
   
