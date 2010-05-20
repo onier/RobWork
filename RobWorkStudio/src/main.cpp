@@ -105,19 +105,28 @@ int exp_handle()
 }
 */
 
-
 #ifndef _MSC_VER
 
 
 #include "ProgramOptions.hpp"
+namespace po=boost::program_options;
 po::options_description desc("Options");
 int opt;
 
+void initOptions(po::options_description& desc){
+    desc.add_options()
+        ("help", "produce help message")
+        ("version,v", "print version string")
+		("ini-file", po::value< std::string >()->default_value("RobWorkStudio.ini"), "RobWorkStudio ini-file")
+        ("intproperty,i", po::value< IntOptionList >()->composing(),"Add a int property, name=2")
+        ("doubleproperty,d", po::value< DoubleOptionList >()->composing(),"Add a double property, name=2.3")
+        ("qproperty,q", po::value< QOptionList >()->composing(),"Add a Q property, name=(1.0,2,32.1,2)")
+        ("property,P", po::value< StringOptionList >()->composing(),"Add a string property, name=pstring")
+        ("input-file", po::value< std::string >(), "Project/Workcell/Device input file")
+    ;
+}
+
 #endif //#ifndef _MSC_VER
-
-
-
-
 
 #include <fstream>
 int main(int argc, char** argv) 
@@ -153,12 +162,12 @@ int main(int argc, char** argv)
                       << "\tRobWorkStudio [options] <workcell-file> \n"
                       << "\tRobWorkStudio [options] <device-file> \n"
                       << "\n";
-            cout << desc << "\n";
+            std::cout << desc << "\n";
             return 1;
         }
 
         if (vm.count("version") ){
-            cout << "\n\tRobWorkStudio version " << RW_VERSION << std::endl;
+        	std::cout << "\n\tRobWorkStudio version " << RW_VERSION << std::endl;
             return 1;
         }
 
@@ -167,37 +176,37 @@ int main(int argc, char** argv)
         }
 
         if( vm.count("property") ){
-            vector<MyProperty<string> > vals = vm["property"].as< vector<MyProperty<string> > >();
-            BOOST_FOREACH(MyProperty<string>& prop, vals){
+            StringOptionList vals = vm["property"].as< StringOptionList >();
+            BOOST_FOREACH(Option<std::string>& prop, vals){
                 map.add(prop.name,"",prop.value);
             }
         }
         if( vm.count("intproperty") ){
-            vector<MyProperty<int> > vals = vm["intproperty"].as< vector<MyProperty<int> > >();
-            BOOST_FOREACH(MyProperty<int>& prop, vals){
+            IntOptionList vals = vm["intproperty"].as< IntOptionList >();
+            BOOST_FOREACH(Option<int>& prop, vals){
                 map.add(prop.name,"",prop.value);
             }
         }
         if( vm.count("doubleproperty") ){
-            vector<MyProperty<double> > vals = vm["doubleproperty"].as< vector<MyProperty<double> > >();
-            BOOST_FOREACH(MyProperty<double>& prop, vals){
+            DoubleOptionList vals = vm["doubleproperty"].as< DoubleOptionList >();
+            BOOST_FOREACH(Option<double>& prop, vals){
                 map.add(prop.name,"",prop.value);
             }
         }
         if( vm.count("qproperty") ){
-            vector<MyProperty<Q> > vals = vm["qproperty"].as< vector<MyProperty<Q> > >();
-            BOOST_FOREACH(MyProperty<Q>& prop, vals){
+            QOptionList vals = vm["qproperty"].as< QOptionList >();
+            BOOST_FOREACH(Option<rw::math::Q>& prop, vals){
                 map.add(prop.name,"",prop.value);
             }
         }
 
         if( vm.count("input-file") ){
-            std::cout << "input-file: " << vm["input-file"].as<string>() << std::endl;
-            inputfile = vm["input-file"].as<string>();
+            //std::cout << "input-file: " << vm["input-file"].as<std::string>() << std::endl;
+            inputfile = vm["input-file"].as<std::string>();
         }
-    } catch (exception &e){
-        cout << "RobWorkStudio Error: " << e.what() << "\n";
-        cout << "Specify --help for usage. \n";
+    } catch (std::exception &e){
+    	Log().info() << "Command line input error:\n\t " << e.what() << "\n";
+    	Log().info() << "Specify --help for usage. \n";
         return 0;
     }
 #endif //#ifdef MSVS #else

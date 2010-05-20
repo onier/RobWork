@@ -27,6 +27,7 @@ ELSE ()
   ADD_LIBRARY(${TargetName} SHARED ${SrcFiles} ${MocSrcFiles} ${RccSrcFiles})
   TARGET_LINK_LIBRARIES(${TargetName} ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES})
 ENDIF ()
+ADD_DEPENDENCIES(${TargetName} rwstudio)
 
 # Link the standard static libraries with with the shared library:
 INSTALL(TARGETS ${TargetName} DESTINATION bin)

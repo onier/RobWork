@@ -19,6 +19,7 @@ IF (RWS_USE_STATIC_LINK_PLUGINS)
 ELSE ()
   ADD_LIBRARY(rwstudio_jog SHARED ${SrcFiles} ${MocSrcFiles} ${RccSrcFiles})
 ENDIF ()
+ADD_DEPENDENCIES(rwstudio_jog rwstudio)
 
 # Link the standard static libraries with with the shared library:
 target_link_libraries(${TargetName} ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES})
