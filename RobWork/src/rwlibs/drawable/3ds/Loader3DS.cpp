@@ -18,7 +18,9 @@ Model3DPtr Loader3DS::load(const std::string& name)
 {
 
 	Model3DS model3ds;
+	setlocale(LC_ALL, "C");
 	model3ds.Load(name);
+	setlocale(LC_ALL, "");
 
 	// TODO: convert 3ds model into rw model
 

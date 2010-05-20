@@ -716,7 +716,9 @@ void OBJReader::calcVertexNormals()
 }
 
 Model3DPtr LoaderOBJ::load(const std::string& name){
+	setlocale(LC_ALL, "C");
 	OBJReader reader;
 	reader.load(name);
+	setlocale(LC_ALL, "");
 }
 

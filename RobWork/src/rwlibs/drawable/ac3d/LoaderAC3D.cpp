@@ -73,12 +73,15 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
     //    in.rdbuf()->pubsetbuf(mybuffer,BUFF_SIZE);
 
 
+
     std::string line;
     in >> line;
 
     if (line != "AC3Db") {
         RW_THROW("Data stream does not contain a valid AC3D file.");
     }
+
+    setlocale(LC_ALL, "C");
 
     ModelAC3D *model = new ModelAC3D();
     model->_currentDir = StringUtil::getDirectoryName(filename);
@@ -182,7 +185,7 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
             mobjects.push( std::make_pair(obj->kids[i],rwobj) );
         }
     }
-
+    setlocale(LC_ALL, "");
     return ownedPtr(rwmodel);
 }
 

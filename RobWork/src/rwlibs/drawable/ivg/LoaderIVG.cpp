@@ -641,6 +641,7 @@ Model3DPtr LoaderIVG::load(const std::string &filename)
 	{
 		RW_THROW("Couldn't open '" << filename << "'");
 	}
+	setlocale(LC_ALL, "C");
 	long lnStartPos = ftell(fp);
 	fseek(fp, 0, SEEK_END);
 	long lnEndPos = ftell(fp);
@@ -713,7 +714,7 @@ Model3DPtr LoaderIVG::load(const std::string &filename)
 		}
 	}
 	*/
-
+	setlocale(LC_ALL, "");
 	return model;
 }
 
