@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -46,23 +46,45 @@ using namespace rwlibs::drawable;
 using namespace rw::math;
 using namespace rw::kinematics;
 
-BOOST_AUTO_TEST_CASE( testLoading ){
+BOOST_AUTO_TEST_CASE( testSTLLoading ){
     BOOST_MESSAGE("- testing loading");
+    // test loading stl file
     Drawable *stlaObject =
-    		DrawableFactory::loadDrawableFile( testFilePath() + "chair.stla" );
+    		DrawableFactory::loadDrawableFile( testFilePath() + "geoms/chair.stla" );
     Drawable *stlbObject =
-    		DrawableFactory::loadDrawableFile( testFilePath() + "cube.stlb" );
+    		DrawableFactory::loadDrawableFile( testFilePath() + "geoms/cube.stlb" );
+}
 
+BOOST_AUTO_TEST_CASE( testAC3DLoading ){
     // test loading AC3D file
     Drawable *ac3dObject =
-    		DrawableFactory::loadDrawableFile(testFilePath() + "MultiRobotDemo/Geometry/Gantry0.ac");
+    		DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Gantry0.ac");
+    Drawable *ac3dObject1 =
+            DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Gantry0.ac3d");
+}
 
-    // test loading from input stream
-    std::string infile(testFilePath() + "Environment.ac");
-    std::ifstream in(infile.c_str());
-    BOOST_REQUIRE(in.is_open());
+BOOST_AUTO_TEST_CASE( testOBJLoading ){
+    // test loading OBJ file
+    Drawable *objObject =
+            DrawableFactory::loadDrawableFile(testFilePath() + "geoms/fod1.obj");
+}
 
-    //RenderAC3D ac3dObject2(in);
+BOOST_AUTO_TEST_CASE( testTRILoading ){
+    // test loading TRI file
+    Drawable *objObject =
+            DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Rob-0.tri");
+}
+
+BOOST_AUTO_TEST_CASE( test3DSLoading ){
+    // test loading 3ds file
+    Drawable *objObject =
+            DrawableFactory::loadDrawableFile(testFilePath() + "geoms/motor.3ds");
+}
+
+BOOST_AUTO_TEST_CASE( testIVGLoading ){
+    // test loading 3ds file
+    Drawable *objObject =
+            DrawableFactory::loadDrawableFile(testFilePath() + "geoms/staubli0.ivg");
 }
 
 BOOST_AUTO_TEST_CASE(testDrawableFactory)
