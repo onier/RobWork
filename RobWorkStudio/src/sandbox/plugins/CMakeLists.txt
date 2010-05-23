@@ -1,2 +1,3 @@
 
 ADD_SUBDIRECTORY(lua)
+ADD_SUBDIRECTORY(sensors)

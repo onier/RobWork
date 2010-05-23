@@ -58,12 +58,12 @@ using namespace rw::common;
 #include <plugins/jog2/Jog.hpp>
 #include <plugins/treeview/TreeView.hpp>
 #include <plugins/playback/PlayBack.hpp>
-
 #include <plugins/planning/Planning.hpp>
 #include <plugins/propertyview/PropertyView.hpp>
 
 #ifdef RWS_HAVE_SANDBOX
 	#include <sandbox/plugins/lua/Lua.hpp>
+	#include <sandbox/plugins/sensors/Sensors.hpp>
 #endif
 
 
@@ -82,6 +82,7 @@ std::vector<rws::RobWorkStudio::PluginSetup> getPlugins()
 
 #if RWS_HAVE_SANDBOX
     plugins.push_back(Pl(new rws::Lua(), false, Qt::LeftDockWidgetArea));
+    plugins.push_back(Pl(new rws::Sensors(), false, Qt::RightDockWidgetArea));
 #endif
 
     return plugins;

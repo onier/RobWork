@@ -301,7 +301,9 @@ ViewGL::~ViewGL()
 
 void ViewGL::keyPressEvent(QKeyEvent *e)
 {
-  /*  6/5/2010 size_t camNr=0;
+  //  6/5/2010 
+    
+    size_t camNr=0;
     switch(e->key()){
     case(Qt::Key_1): camNr = 0; break;
     case(Qt::Key_2): camNr = 1; break;
@@ -329,7 +331,7 @@ void ViewGL::keyPressEvent(QKeyEvent *e)
         updateGL();
     }
 
-    _rwStudio->keyEvent().fire(e->key(), e->modifiers());*/
+    _rwStudio->keyEvent().fire(e->key(), e->modifiers());
 }
 
 void ViewGL::setupToolBar(QToolBar* toolbar)
@@ -819,7 +821,8 @@ rw::kinematics::Frame* ViewGL::pickFrame(int cursorX, int cursorY){
 
 void ViewGL::mouseDoubleClickEvent(QMouseEvent* event)
 {
-   /* 6/5/2010 if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
+   // 6/5/2010
+    if (event->button() == Qt::LeftButton && event->modifiers() == Qt::ControlModifier) {
 
         int winx = event->x();
         int winy = height()-event->y();
@@ -843,7 +846,7 @@ void ViewGL::mouseDoubleClickEvent(QMouseEvent* event)
         glGetIntegerv(GL_VIEWPORT, viewport);
         GLdouble objx, objy, objz;
         gluUnProject(winx, winy, depth, modelMatrix, projMatrix, viewport, &objx, &objy, &objz);
-
+        std::cout << "unproject: " << winx << "," << winy << "," <<  depth << std::endl;
         // TODO: fire an event that sends the 3d position
         if (depth != 1) {
             if (event->modifiers() == Qt::ShiftModifier) {
@@ -861,12 +864,12 @@ void ViewGL::mouseDoubleClickEvent(QMouseEvent* event)
             }
         }
 
-    }*/
+    }
 }
 
 void ViewGL::mousePressEvent(QMouseEvent* event)
 {
-	/* 6/5/2010
+	// 6/5/2010
     _lastPos(0) = event->x();
     _lastPos(1) = event->y();
     _cameraCtrl->click( _lastPos(0), _lastPos(1));
@@ -878,7 +881,7 @@ void ViewGL::mousePressEvent(QMouseEvent* event)
     }
 
     _rwStudio->mousePressedEvent().fire(event);
-	*/
+	
 }
 
 void ViewGL::mouseMoveEvent(QMouseEvent* event)
@@ -889,14 +892,6 @@ void ViewGL::mouseMoveEvent(QMouseEvent* event)
         if (event->modifiers() == Qt::ControlModifier) {
             _viewPos(2) -= (event->y()-_lastPos(1))/_height*10;
         } else { // The mouse is being dragged
-            /*
-              float ry = (event->x()-_lastPos(0))*2*M_PI/_width;
-              float rx = (event->y()-_lastPos(1))*2*M_PI/_height;
-              RPY<float> rpyrot(0.0f, ry, rx);
-              Rotation3D<float> rot;
-              rpyrot.toRotation3D(rot);
-              _viewRotation = rot*_viewRotation;
-            */
             float rx = (event->x());
             float ry = (event->y());
 

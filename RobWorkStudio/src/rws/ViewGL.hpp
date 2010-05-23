@@ -72,7 +72,7 @@ public:
      */
 	struct GLCameraView {
 		GLCameraView(double fov, int w, int h, rw::kinematics::Frame* f):
-			fovy(fov),height(h),width(w),vnear(0.1),vfar(100),frame(f)
+			fovy(fov),height(h),width(w),vnear(0.1),vfar(30),frame(f)
 		{}
 		double fovy; // in degree
 		int height; // in pixels

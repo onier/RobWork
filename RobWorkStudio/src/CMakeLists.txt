@@ -68,7 +68,7 @@ IF( prereq_result )
             "MSVCRT.dll;GLU32.dll"
         )
         IF(USE_XERCES)
-        	LIST(APPEND RW_DEPENDENCIES libxerces-c2_8_0.dll)
+        	#LIST(APPEND RW_DEPENDENCIES libxerces-c2_8_0.dll)
         	MESSAGE("Xerces libraries: ${XERCESC_LIBRARY}")
         ENDIF()
         
