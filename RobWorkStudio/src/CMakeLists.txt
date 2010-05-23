@@ -52,13 +52,27 @@ SET(DEPENDS_DIRS
 SET(target "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RobWorkStudio.exe")
 SET(EXEPATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
+include(InstallRequiredSystemLibraries)
 INCLUDE(GetPrerequisites OPTIONAL RESULT_VARIABLE prereq_result)
+
+#set(TARGET_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
+set(PREREQ "")
+get_prerequisites("${target}" PREREQ 0 1 ${EXEPATH} "")
+message(STATUS "PREREQ=${PREREQ}")
+
+
 IF( prereq_result ) 
     IF(WIN32)
         SET(RWS_DEPENDENCIES 
             "QtCore4.dll;QtGui4.dll;QtOpenGL4.dll;MINGWM10.dll"
-            "MSVCRT.dll;GLU32.dll;libxerces-c2_8_0.dll"
+            "MSVCRT.dll;GLU32.dll"
         )
+        IF(USE_XERCES)
+        	LIST(APPEND RW_DEPENDENCIES libxerces-c2_8_0.dll)
+        	MESSAGE("Xerces libraries: ${XERCESC_LIBRARY}")
+        ENDIF()
+        
+        
         
         FOREACH(item ${RWS_DEPENDENCIES})
             gp_resolve_item("${target}" "${item}" "${EXEPATH}" "${DEPENDS_DIRS}" resolved_item)
