@@ -95,9 +95,13 @@ namespace rwlibs { namespace simulation {
         virtual void grab(rw::kinematics::Frame *frame,
                           const rw::kinematics::State& state) = 0;
 
+        virtual double getMaxDepth() = 0;
+        virtual double getMinDepth() = 0;
+
     protected:
         //! @brief The image
         rw::sensor::Image25D *_img;
+
     };
 
     typedef rw::common::Ptr<FrameGrabber25D> FrameGrabber25DPtr;

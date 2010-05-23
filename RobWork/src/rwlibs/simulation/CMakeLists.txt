@@ -15,6 +15,7 @@ SET(SRC_FILES
   SimulatedController.cpp
   SimulatedSensor.cpp
   Simulator.cpp
+  SimulatedScanner25D.cpp
 )
 
 SET(SRC_FILES_HPP
@@ -28,6 +29,7 @@ SET(SRC_FILES_HPP
   SimulatedController.hpp
   SimulatedSensor.hpp
   Simulator.hpp
+  SimulatedScanner25D.hpp
 )
 
 ADD_LIBRARY(rw_simulation ${SRC_FILES} ${SRC_FILES_HPP})

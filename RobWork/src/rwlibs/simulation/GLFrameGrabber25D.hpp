@@ -62,13 +62,7 @@ namespace rwlibs { namespace simulation {
          */
         GLFrameGrabber25D(
             int width, int height, double fov,
-            rwlibs::drawable::WorkCellGLDrawer *drawer,
-            rw::kinematics::State &state)
-            :
-            FrameGrabber25D(width,height),
-            _fieldOfView(fov),_drawer(drawer),
-            _perspTrans(rw::math::Transform3D<double>::identity())
-        {}
+            rwlibs::drawable::WorkCellGLDrawer *drawer);
 
         /**
          * @brief destructor
@@ -80,10 +74,18 @@ namespace rwlibs { namespace simulation {
          */
         void grab(rw::kinematics::Frame* frame, const rw::kinematics::State& state);
 
+        double getMaxDepth(){return _maxDepth;};
+        double getMinDepth(){return _minDepth;};
+
+        void setMaxDepth(double depth);
+        void setMinDepth(double depth);
+
+
     private:
         double _fieldOfView; // in the y-axis
         rwlibs::drawable::WorkCellGLDrawer *_drawer;
         rw::math::Transform3D<double> _perspTrans;
+        double _minDepth, _maxDepth;
     };
 
     /* @} */
