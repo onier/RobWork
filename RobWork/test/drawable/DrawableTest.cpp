@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE(testDrawableFactory)
 {
     BOOST_MESSAGE("- testing DrawableFactory");
     // test ascii stl format load
-    Drawable* stlaObject = DrawableFactory::loadDrawableFile(testFilePath() + "chair");
-    Drawable* stlbObject = DrawableFactory::loadDrawableFile(testFilePath() + "cube");
+    Drawable* stlaObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/chair");
+    Drawable* stlbObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/cube");
     //Drawable* p3dsObject = DrawableFactory::loadDrawableFile("exam");
-    Drawable* ac3dObject = DrawableFactory::loadDrawableFile(testFilePath() + "Environment");
+    Drawable* ac3dObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Environment");
 
     stlaObject->setHighlighted(true);
     stlbObject->setHighlighted(true);
