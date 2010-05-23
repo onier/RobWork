@@ -99,8 +99,11 @@ IF( prereq )
     )
     
     IF( MINGW )
-        SET(RW_DEPENDENCIES "MINGWM10.dll;MSVCRT.dll;GLU32.dll;libxerces-c2_8_0.dll")
-        
+        SET(RW_DEPENDENCIES "MINGWM10.dll;MSVCRT.dll;GLU32.dll")
+        #IF(USE_XERCES)
+        	#LIST(APPEND RW_DEPENDENCIES libxerces-c2_8_0.dll)
+        #ENDIF()
+        #MESSAGE("Xerces libraries: ${XERCESC_LIBRARY}")
         FOREACH(item ${RW_DEPENDENCIES})
             gp_resolve_item("" "${item}" "${EXEPATH}" "${DEPENDS_DIRS}" resolved_item)
             INSTALL(FILES "${resolved_item}" DESTINATION ${RW_BIN_INSTALL_DIR})
