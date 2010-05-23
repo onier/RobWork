@@ -69,6 +69,10 @@ void LuaEditorWindow::newFile(){
 
 }
 
+void LuaEditorWindow::closeFile(){
+
+}
+
 void LuaEditorWindow::openFile(const QString &path){
     QString fileName = path;
 
