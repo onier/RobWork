@@ -40,7 +40,7 @@ void RenderModel3D::draw(DrawType type, double alpha) const{
 
 void RenderModel3D::drawUsingArrays(DrawType type, double alpha) const {
 	glPushMatrix();
-	std::cout << "draw arrays" << std::endl;
+	//std::cout << "draw arrays" << std::endl;
 	// Move the model
 	DrawableUtil::multGLTransform( _model->getTransform() );
 	//glScalef(scale, scale, scale);
