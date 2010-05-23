@@ -44,23 +44,16 @@ namespace rw { namespace sensor {
     protected:
         /**
          * @brief constructor
-         *
-         * @param frame [in] Positioning of the frame in space.
+         * @param name [in] the name of this sensor
+         */
+    	Sensor(const std::string& name);
+
+        /**
+         * @brief constructor
          * @param name [in] the name of this sensor
          * @param description [in] description of the sensor
-         * @param identifier [in] the identifier of the this sensor (type)
-         *
          */
-        Sensor(
-            kinematics::Frame* frame,
-            const std::string& name,
-            const std::string& description,
-            int identifier);
-
-        Sensor(
-            kinematics::Frame* frame,
-            const std::string& name);
-
+        Sensor(const std::string& name, const std::string& description);
 
         /**
          * @brief sets the name of this sensor
@@ -85,12 +78,6 @@ namespace rw { namespace sensor {
         const std::string& getName() const { return _name; }
 
         /**
-         * @brief returns the identifier of this sensor
-         * @return identifier of this sensor
-         */
-        int getIdentifier() const { return _identifier; }
-
-        /**
          * @brief returns a description of this sensor
          * @return reference to this sensors description
          */
@@ -108,7 +95,7 @@ namespace rw { namespace sensor {
          *
          * @param frame The frame, which can be NULL
          */
-        void setFrame(kinematics::Frame* frame) { _frame = frame; }
+        void attachTo(kinematics::Frame* frame) { _frame = frame; }
 
         /**
          * @brief gets the propertymap of this sensor
@@ -119,11 +106,9 @@ namespace rw { namespace sensor {
 
     private:
         Sensor(){};
-
-        kinematics::Frame* _frame;
         std::string _name;
         std::string _description;
-        int _identifier;
+        kinematics::Frame* _frame;
         rw::common::PropertyMap _propertyMap;
     };
 

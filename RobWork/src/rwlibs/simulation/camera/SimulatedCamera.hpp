@@ -57,8 +57,7 @@ namespace rwlibs { namespace simulation {
          */
         SimulatedCamera(
             const std::string& name,
-            FrameGrabberPtr frameGrabber,
-            rw::kinematics::Frame *frame);
+            FrameGrabberPtr frameGrabber);
 
         /**
          * @brief destructor

@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef RWLIBS_SIMULATION_CAMERA_FRAMEGRAPPER_HPP
-#define RWLIBS_SIMULATION_CAMERA_FRAMEGRAPPER_HPP
+#ifndef RWLIBS_SIMULATION_FRAMEGRAPPER25D_HPP
+#define RWLIBS_SIMULATION_FRAMEGRAPPER25D_HPP
 
 /**
  * @file FrameGrabber.hpp

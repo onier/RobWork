@@ -138,7 +138,7 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
         rwobj->_vertices.resize( obj->vertices.size() );
         for(size_t i=0; i<obj->vertices.size();i++)
             rwobj->_vertices[i] = obj->vertices[i].toV3D();
-        std::cout << "4" << std::endl;
+
         // we use one normal per vertice
         rwobj->_normals.resize( obj->normals.size() );
         for(size_t i=0; i<obj->normals.size();i++)
@@ -148,7 +148,7 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
         std::vector<Model3D::MaterialPolys*> matPolys( model->_materials.size(), NULL );
         size_t nrMatFaces=0, nrMatPolys=0;
         // for now we only support triangle meshes
-        std::cout << "5" << std::endl;
+
         size_t nrFaces = obj->surfaces.size();
         // rwobj->_faces.resize(nrFaces); // we don't know if its triangles or polys
         for(size_t i=0; i<nrFaces;i++){

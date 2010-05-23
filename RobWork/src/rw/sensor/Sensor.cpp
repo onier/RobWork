@@ -18,31 +18,21 @@
 
 #include "Sensor.hpp"
 
-#include <rw/common/macros.hpp>
 #include <rw/kinematics/Frame.hpp>
+
 using namespace rw::sensor;
 using namespace rw::kinematics;
 
-Sensor::Sensor(
-    Frame* frame,
-    const std::string& name,
-    const std::string& description,
-    int identifier)
+Sensor::Sensor(const std::string& name, const std::string& description)
     :
-    _frame(frame),
     _name(name),
     _description(description),
-    _identifier(identifier)
+	_frame(NULL)
 {
-    //RW_ASSERT(_frame);
 }
 
-Sensor::Sensor(
-    Frame* frame,
-    const std::string& name)
-    :
-    _frame(frame),
-    _name(name)
+Sensor::Sensor(const std::string& name):
+    _name(name),
+	_frame(NULL)
 {
-    //RW_ASSERT(_frame);
 }

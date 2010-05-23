@@ -29,7 +29,7 @@ public:
 	 * @param far [in] far clipping plane
 	 * @return render that renders the camera view with lines
 	 */
-	rw::common::Ptr<RenderLines> makeCameraViewRender(
+	static rw::common::Ptr<RenderLines> makeCameraViewRender(
 			double w, double h, double fovy,
 			double near=0, double far=2.0);
 
@@ -41,7 +41,7 @@ public:
 	 * @param resolution
 	 * @return render that renders a rectangular grid
 	 */
-	rw::common::Ptr<RenderLines> makeWorldGridRender(
+	static rw::common::Ptr<RenderLines> makeWorldGridRender(
 			float size, float resolution);
 
 };

@@ -39,7 +39,7 @@ namespace geometry {
 	 * In the IndexedTriMesh classes the indice list is hidden under a list
 	 * of IndexedTriangle.
 	 */
-    template <class T = double>
+    template <class T = double, class TRI=uint16_t>
     class IndexedTriMesh: public TriMesh {
     public:
     	//! the basic value type of this mesh
@@ -72,12 +72,12 @@ namespace geometry {
         /**
          * @brief get vertex at index i
          */
-        virtual IndexedTriangle<T>& operator[](int i) = 0;
+        //virtual IndexedTriangle<S>& operator[](int i) = 0;
 
         /**
          * @brief get vertex at index i
          */
-        virtual const IndexedTriangle<T>& operator[](int i) const = 0;
+        //virtual const IndexedTriangle<S>& operator[](int i) const = 0;
 
         virtual int getNrTris() const = 0 ;
 
@@ -92,12 +92,12 @@ namespace geometry {
 	 * @brief an Indexed Triangle mesh
 	 *
 	 */
-	template <class S=uint16_t, class T=double>
+	template <class T=double, class TRI=IndexedTriangleN0<> >
 	class IndexedTriMeshN0: public IndexedTriMesh<T> {
 	public:
 	    typedef T value_type;
-	    typedef IndexedTriangleN0<S> tri_type;
-	    typedef IndexedTriangleN0<S> TRI;
+	    typedef TRI tri_type;
+	    //typedef IndexedTriangleN0<S> TRI;
 	    typedef std::vector<rw::math::Vector3D<value_type> > VertexArray;
 		typedef std::vector<TRI> TriangleArray;
 

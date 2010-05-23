@@ -59,6 +59,8 @@ namespace drawable {
         rw::sensor::Image25D _img;
         float _minDepth,_maxDepth;
 	};
+
+	typedef rw::common::Ptr<RenderScan> RenderScanPtr;
 }
 }
 #endif /* RENDERSCAN_HPP_ */

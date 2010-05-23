@@ -63,7 +63,6 @@ namespace rw { namespace sensor {
          * @param modelInfo [in] info string
          */
         Camera(
-            kinematics::Frame* frame,
             const std::string& name,
             const std::string& modelInfo);
 

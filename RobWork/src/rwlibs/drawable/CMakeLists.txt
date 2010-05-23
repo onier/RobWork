@@ -23,6 +23,8 @@ SET(SRC_FILES
   RenderImage.cpp
   RenderModel3D.cpp
   Model3D.cpp
+  RenderUtil.cpp
+  RenderScan.cpp
     #./Render3DS.cpp
   #./RenderAC3D.cpp
   #./RenderSTL.cpp
@@ -55,8 +57,9 @@ SET(SRC_FILES_HPP
   ./WorkCellGLDrawer.hpp
   RWGLTexture.hpp
   ./TactileArrayRender.hpp
-  
+  RenderUtil.hpp
   RenderImage.hpp
+  RenderScan.hpp
 )
 
 ADD_LIBRARY(rw_drawable ${SRC_FILES} ${SRC_FILES_HPP})

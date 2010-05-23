@@ -44,8 +44,8 @@ protected:
      * @param frame [in] the frame that the scanner is attached to
      * @param name [in] name of scanner sensor
      */
-    Scanner25D(rw::kinematics::Frame* frame, const std::string& name):
-        Scanner(frame, name)
+    Scanner25D(const std::string& name, const std::string& desc=""):
+        Scanner(name, desc)
     {
     }
 
@@ -60,7 +60,6 @@ public:
      * @return the image that was last acquired.
      */
     virtual const Image25D& getImage() = 0;
-
 
 };
 /*@}*/

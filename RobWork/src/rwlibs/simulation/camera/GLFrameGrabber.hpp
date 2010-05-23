@@ -62,8 +62,7 @@ namespace rwlibs { namespace simulation {
          */
         GLFrameGrabber(
             int width, int height, double fov,
-            rwlibs::drawable::WorkCellGLDrawer *drawer,
-            rw::kinematics::State &state)
+            rwlibs::drawable::WorkCellGLDrawer *drawer)
             :
             FrameGrabber(width,height,rw::sensor::Image::RGB),
             _fieldOfView(fov),_drawer(drawer),

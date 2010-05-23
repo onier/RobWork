@@ -26,11 +26,12 @@ namespace rw {
 namespace geometry {
 
 /**
- * @brief a line sigment in 3d. described by two points
+ * @brief a line segment in 3d. described by two points
  */
 class Line: public Primitive {
 public:
 	Line(const rw::math::Q& params);
+	Line(const rw::math::Vector3D<>& p1, const rw::math::Vector3D<>& p2);
 	virtual ~Line();
 
 	inline rw::math::Vector3D<>& p1(){ return _p1;};
@@ -39,11 +40,11 @@ public:
 	inline const rw::math::Vector3D<>& p2() const { return _p2;};
 
 	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution);
+	TriMeshPtr createMesh(int resolution){ return NULL;};
 
-	rw::math::Q getParameters() const;
+	rw::math::Q getParameters() const{ return rw::math::Q(2);};
 
-	GeometryType getType(){ return LinePrim; };
+	GeometryType getType() const { return LinePrim; };
 
 private:
 	rw::math::Vector3D<> _p1,_p2;

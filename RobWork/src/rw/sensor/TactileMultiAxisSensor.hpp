@@ -44,8 +44,8 @@ public:
      * @param frame
      * @return
      */
-    TactileMultiAxisSensor(const std::string& name, rw::kinematics::Frame* frame):
-        Sensor(frame, name)
+    TactileMultiAxisSensor(const std::string& name):
+        Sensor(name)
     {
 
     }

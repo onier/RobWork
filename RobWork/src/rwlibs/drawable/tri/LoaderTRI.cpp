@@ -78,14 +78,17 @@ Model3DPtr LoaderTRI::load(const std::string& filename)
             obj->_normals.push_back(n);
             nb_points++;
             if(nb_points%3==0){
-                //obj->_faces3.push_back(IndexedTriangleN3<float>(nb_points-3,nb_points-2,nb_points-1,
-                //                                                nb_points-3,nb_points-2,nb_points-1));
+            	// TODO: this generates a plain trimesh. It would be better to make an indexed trimesh
+            	// use TriangleUtil toIndexedTriMesh, though remember the normals
+                obj->_faces.push_back( IndexedTriangleN0<>(nb_points-3,nb_points-2,nb_points-1) );
             }
         } else {
             setlocale(LC_ALL, "");
             RW_THROW("unrecognized keyword " << StringUtil::quote(token));
         }
     }
+
+
     setlocale(LC_ALL, "");
 	return model;
 }

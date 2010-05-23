@@ -5,8 +5,10 @@
  *      Author: jimali
  */
 #include "RenderScan.hpp"
+#include <rw/math/Math.hpp>
 
 using namespace rwlibs::drawable;
+using namespace rw::math;
 
 RenderScan::RenderScan():
 		_minDepth(0),
@@ -26,7 +28,7 @@ void RenderScan::setScan(const rw::sensor::Scan2D& img){
 
 void RenderScan::setScan(float dist){
 	_img.resize(1,1);
-	_img.getImageData()[0] = dist;
+	_img.getImageData()[0] = Vector3D<float>(0,0,dist);
 }
 
 void RenderScan::draw(DrawType type, double alpha) const
@@ -37,7 +39,7 @@ void RenderScan::draw(DrawType type, double alpha) const
     for(int y=0; y<_img.getHeight(); y++){
     	glBegin(GL_LINE_STRIP);
         for(int x=0; x<_img.getWidth(); x++){
-        	Vector3D<float> &v = _img.getImageData()[x+y*_img.getWidth()];
+        	const Vector3D<float> &v = _img.getImageData()[x+y*_img.getWidth()];
         	float col = Math::clamp( (v[2]-_minDepth)/dist, 0, 1);
             glColor3f(col, 0.0, 1-col);
             glVertex3d(v(0), v(1), v(2));    // Bottom Left

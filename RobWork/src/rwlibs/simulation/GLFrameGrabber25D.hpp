@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef RWLIBS_SIMULATION_CAMERA_GLFRAMEGRAPPER25D_HPP
-#define RWLIBS_SIMULATION_CAMERA_GLFRAMEGRAPPER25D_HPP
+#ifndef RWLIBS_SIMULATION_GLFRAMEGRAPPER25D_HPP
+#define RWLIBS_SIMULATION_GLFRAMEGRAPPER25D_HPP
 
 /**
  * @file GLFrameGrabber.hpp
@@ -86,6 +86,8 @@ namespace rwlibs { namespace simulation {
         rwlibs::drawable::WorkCellGLDrawer *_drawer;
         rw::math::Transform3D<double> _perspTrans;
         double _minDepth, _maxDepth;
+
+        std::vector<float> _depthData;
     };
 
     /* @} */

@@ -40,14 +40,18 @@ namespace rw { namespace geometry {
         struct VertexCmp {
         public:
             VertexCmp():vertIdx(-1){}
-            //VertexCmp(int *axisPtr):_axisPtr(axisPtr){}
+            VertexCmp(const rw::math::Vector3D<T>& val, int tidx, int vidx, int *axisp):
+            	n(val), triIdx(tidx), vertIdx(vidx),_axisPtr(axisp)
+            { }
+
             bool operator<(VertexCmp<T> const &other) const {
                 return n[*_axisPtr] < other.n[*_axisPtr];
             }
-            int triIdx;
             rw::math::Vector3D<T> n;
-            int *_axisPtr;
+            int triIdx;
             int vertIdx;
+            int *_axisPtr;
+
         };
 
         struct SortJob {
@@ -59,58 +63,30 @@ namespace rw { namespace geometry {
             void print(){ std::cout << "Job: " << axis << " " << from << "-->" << to << std::endl;}
         };
 
-	public:
 		/**
-		 * @brief takes a general triangle mesh and creates an indexed
-		 * triangle mesh. All data is copied.
-		 * @param triMesh [in] the tri mesh that is to be converted
-		 * @param epsilon [in] if two vertices are closer than epsilon they
-		 * are considered the equal.
+		 * @brief creates a sorted indexed verticelist. The vertice list is
+		 * indexed into the triangle mesh so that each vertice "knows" the triangle
+		 * that its comming from.
 		 */
-		template <class TRILIST>
-		static TRILIST* toIndexedTriMesh(const TriMesh/*<typename TRILIST::value_type>*/& triMesh,
-										 double epsilon=0.00001)
-		{
-		    typedef typename TRILIST::value_type T;
-		    typedef typename TRILIST::tri_type TRI;
-		    using namespace rw::math;
-		    int axis = 0;
-
-            std::vector<VertexCmp<T> > *verticesIdx =
+		template <class T>
+		static std::vector<VertexCmp<T> >* createSortedVerticeIdxList(
+				const TriMesh& triMesh, double epsilon){
+			using namespace rw::math;
+			std::vector<VertexCmp<T> > *verticesIdx =
                 new std::vector<VertexCmp<T> >(triMesh.getSize()*3);
-            std::vector<Vector3D<T> > *vertices =
-                new std::vector<Vector3D<T> >(triMesh.getSize()*3);
-
+			int axis = 0;
+            // now copy all relevant info into the compare list
             for(size_t i = 0; i<triMesh.getSize(); i++){
                 int vIdx = i*3;
                 TriangleN0<double> tri = triMesh.getTriangle(i);
-                (*verticesIdx)[vIdx].n = cast<T,double>(tri[0]);
-                (*verticesIdx)[vIdx].triIdx = i;
-                (*verticesIdx)[vIdx].vertIdx = 0;
-                (*verticesIdx)[vIdx]._axisPtr = &axis;
-                (*verticesIdx)[vIdx+1].n = cast<T>(tri[1]);
-                (*verticesIdx)[vIdx+1].triIdx = i;
-                (*verticesIdx)[vIdx+1].vertIdx = 1;
-                (*verticesIdx)[vIdx+1]._axisPtr = &axis;
-                (*verticesIdx)[vIdx+2].n = cast<T>(tri[2]);
-                (*verticesIdx)[vIdx+2].triIdx = i;
-                (*verticesIdx)[vIdx+2].vertIdx = 2;
-                (*verticesIdx)[vIdx+2]._axisPtr = &axis;
+                (*verticesIdx)[vIdx+0] = VertexCmp<T>(cast<T,double>(tri[0]), i, 0, &axis);
+                (*verticesIdx)[vIdx+1] = VertexCmp<T>(cast<T,double>(tri[1]), i, 1, &axis);
+                (*verticesIdx)[vIdx+2] = VertexCmp<T>(cast<T,double>(tri[2]), i, 2, &axis);
             }
 
             // first sort all vertices into one large array
             axis = 0;
             std::sort(verticesIdx->begin(),verticesIdx->end());
-            /*
-            for(int i=0;i<verticesIdx->size();i++){
-            	std::cout << (*verticesIdx)[i].n << " " << std::endl;;
-            }
-			*/
-
-
-            // allocate enough memory
-            std::vector<TRI> *triangles =
-                new std::vector<TRI>(triMesh.getSize());
 
             // run through the semi sorted list and merge vertices that are alike
             //std::stack<VertexCmp<T>*>
@@ -144,27 +120,45 @@ namespace rw { namespace geometry {
                 }
                  */
             }
+            return verticesIdx;
+		}
 
-            /*Vector3D<> curr = (*verticesIdx)[0].n;
-            for(int i=0;i<verticesIdx->size();i++){
-            	std::cout << (*verticesIdx)[i].n << std::endl;
-            	if(curr(0)>(*verticesIdx)[i].n(0))
-            		std::cout << "Err0: " << i << std::endl;
-            	if(curr(1)>(*verticesIdx)[i].n(1))
-            		std::cout << "Err1: " << i << std::endl;
-            	if(curr(2)>(*verticesIdx)[i].n(2))
-            		std::cout << "Err2: " << i << std::endl;
 
-            	curr = (*verticesIdx)[i].n;
-            }*/
+	public:
+		/**
+		 * @brief takes a general triangle mesh and creates an indexed
+		 * triangle mesh. All data is copied.
+		 * @param triMesh [in] the tri mesh that is to be converted
+		 * @param epsilon [in] if two vertices are closer than epsilon they
+		 * are considered the equal.
+		 */
+		template <class TRILIST>
+		static TRILIST* toIndexedTriMesh(const TriMesh& triMesh,
+										 double epsilon=0.00001)
+		{
+		    typedef typename TRILIST::value_type T;
+		    typedef typename TRILIST::tri_type TRI;
+		    using namespace rw::math;
 
-            //std::cout << "Finished jobs.... " << std::endl;
+		    // create a sorted vertice list with backreference to the triangle list
+		    std::vector<VertexCmp<T> >* verticesIdx =
+		    		createSortedVerticeIdxList<T>(triMesh, epsilon);
+
+            // Now copy all sorted vertices into the vertice array
+            // and make sure vertices that are close to each other are discarded
+            std::vector<Vector3D<T> > *vertices =
+                new std::vector<Vector3D<T> >(triMesh.getSize()*3);
+		    // allocate enough memory
+            std::vector<TRI> *triangles =
+                new std::vector<TRI>(triMesh.getSize());
+
             int vertCnt = 0;
             Vector3D<T> lastVert = (*verticesIdx)[0].n;
             (*vertices)[vertCnt] = lastVert;
             TRI &itri = (*triangles)[ (*verticesIdx)[0].triIdx ];
             itri[(*verticesIdx)[0].vertIdx] = vertCnt;
             for(size_t i=1;i<verticesIdx->size(); i++){
+            	// check if vertices are too close
                 if( MetricUtil::dist2(lastVert, (*verticesIdx)[i].n)>epsilon ){
                     lastVert = (*verticesIdx)[i].n;
                     vertCnt++;
@@ -178,65 +172,7 @@ namespace rw { namespace geometry {
                 //std::cout << (*verticesIdx)[i].n << std::endl;
             }
             vertices->resize(vertCnt+1);
-/*
-            for(size_t i = 0; i<triangles->size(); i++){
-                std::cout << "Triangle ("
-                          << ((*triangles)[i])[0] << ","
-                          << ((*triangles)[i])[1] << ","
-                          << ((*triangles)[i])[2] << ")" << std::endl;
 
-            }
-*/
-
-
-/*
-			// for each triangle check if any of the triangle vertices are allready in vertices array
-			int vSize = 0;
-			for(size_t i = 0; i<triMesh.getSize(); i++){
-
-				int v0=-1,v1=-1,v2=-1;
-				Triangle<T,N0> tri = triMesh.getTriangle(i);
-				bool v0found=false, v1found=false, v2found=false;
-				for(size_t j=0; j<vSize; j++){
-					Vector3D<T> &v = (*vertices)[j];
-					if( MetricUtil::dist2<T>(v, tri.getVertex(0))<epsilon ){
-						v0 = j;
-						break;
-					}
-					if( MetricUtil::dist2<T>(v, tri.getVertex(1))<epsilon ){
-						v1 = j;
-						break;
-					}
-					if( v2<0 && MetricUtil::dist2<T>(v, tri.getVertex(2))<epsilon ){
-						v2 = j;
-						break;
-					}
-				}
-				if( v0<0 ){
-					v0 = vSize;
-					(*vertices)[vSize] = tri.getVertex(0);
-					vSize++;
-				}
-				if( v1<0 ){
-                    v1 = vSize;
-                    (*vertices)[vSize] = tri.getVertex(1);
-                    vSize++;
-				}
-				if( v2<0 ){
-                    v2 = vSize;
-                    (*vertices)[vSize] = tri.getVertex(2);
-                    vSize++;
-				}
-				(*triangles)[i] = IndexedTriangle(v0,v1,v2);
-			}
-			vertices->resize(vSize);
-            std::cout << "Indexed triangle mesh created: " << vertices->size()
-                      << " " << triangles->size() << std::endl;
-			std::cout << "BB" << std::endl;
-			//for(size_t i=0; i<vertices->size(); i++)
-			//	std::cout << (*vertices)[i] << std::endl;
-
-			*/
             delete verticesIdx;
 			return new TRILIST(vertices, triangles);
 		}
@@ -296,7 +232,17 @@ namespace rw { namespace geometry {
 		        trimesh[i].getFaceNormal() = normal;
 		    }
 		}
-	};
+	private:
+
+
+
+
+
+
+    };
+
+
+
 }
 } // end namespaces
 

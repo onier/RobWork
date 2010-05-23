@@ -41,7 +41,7 @@ namespace rwlibs { namespace drawable {
     /*@{*/
 
     /**
-     * @brief This class loads in and displays AC3D geometry
+     * @brief This class loads AC3D geometry into a Model3D object
      */
     class LoaderAC3D: public Model3DLoader {
     public:
@@ -51,10 +51,13 @@ namespace rwlibs { namespace drawable {
         LoaderAC3D();
 
         /**
-         * Destroys RenderAC3D object
+         * @brief Destroys RenderAC3D object
          */
         virtual ~LoaderAC3D();
 
+        /**
+         * @copydoc Model3DLoader::load
+         */
         Model3DPtr load(const std::string& filename);
 
         //void save(Model3DPtr model, const std::string& filename);

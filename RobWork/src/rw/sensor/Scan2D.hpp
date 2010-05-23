@@ -20,7 +20,7 @@
 #define RW_SENSOR_SCAN2D_HPP
 
 #include "SensorData.hpp"
-
+#include <rw/math/Vector3D.hpp>
 #include <vector>
 
 namespace rw {
@@ -37,8 +37,40 @@ public:
 	Scan2D();
 	virtual ~Scan2D();
 
-    std::vector<float> _angle;
-    std::vector<float> _depth;
+    /**
+     * @brief resizes the current scan.
+     * @param width
+     */
+    void resize(int width){
+        _width = width;
+        _data.resize(_width);
+    }
+
+    /**
+     * @brief returns a char pointer to the image data
+     * @return char pointer to the image data
+     */
+    std::vector<rw::math::Vector3D<float> >& getImageData(){ return _data; };
+
+    /**
+     * @brief returns a char pointer to the image data
+     * @return const char pointer to the image data
+     */
+    const std::vector<rw::math::Vector3D<float> >& getImageData() const{ return _data; };
+
+    /**
+     * @brief returns the width of this image
+     * @return image width
+     */
+    unsigned int getWidth() const { return _width;};
+
+
+private:
+    size_t _width;
+	std::vector<rw::math::Vector3D<float> > _data;
+
+	//std::vector<float> _angle;
+    //std::vector<float> _depth;
 };
 
 /*@}*/

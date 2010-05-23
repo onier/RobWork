@@ -35,7 +35,7 @@ GLFrameGrabber25D::GLFrameGrabber25D(
     FrameGrabber25D(width,height),
     _fieldOfView(fov),_drawer(drawer),
     _perspTrans(rw::math::Transform3D<double>::identity()),
-    _maxDepth(1000),_minDepth(0)
+    _maxDepth(15),_minDepth(0.5)
 {}
 
 void GLFrameGrabber25D::setMaxDepth(double depth){
@@ -61,12 +61,15 @@ void GLFrameGrabber25D::grab(rw::kinematics::Frame *frame,
     // set camera perspective in relation to a camera model
 
 
+    if( _depthData.size()!=_img->getWidth()*_img->getHeight() )
+    	_depthData.resize(_img->getWidth()*_img->getHeight());
+
     glMatrixMode(GL_PROJECTION);
     {
         glPushMatrix();
         glLoadIdentity();
         GLdouble aspect = (GLdouble)_img->getWidth() / (GLdouble)_img->getHeight();
-        gluPerspective((GLdouble)_fieldOfView, aspect, (GLdouble)0.1, (GLdouble)100);
+        gluPerspective((GLdouble)_fieldOfView, aspect, (GLdouble)_minDepth, (GLdouble)_maxDepth);
     }
 
     glMatrixMode(GL_MODELVIEW);
@@ -76,11 +79,36 @@ void GLFrameGrabber25D::grab(rw::kinematics::Frame *frame,
     // render scene
     _drawer->drawCameraView(state, frame);
     // copy rendered scene to image
-    std::vector<float>& imgData = _img->getImageData();
+
+
     glReadPixels(
         0, 0,
         _img->getWidth(), _img->getHeight(),
-        GL_DEPTH_COMPONENT, GL_FLOAT, &imgData[0]);
+        GL_DEPTH_COMPONENT, GL_FLOAT, &_depthData[0]);
+
+    GLdouble modelview[16];
+    GLdouble projection[16];
+    GLint viewport[4];
+
+	glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+	glGetDoublev( GL_PROJECTION_MATRIX, projection );
+	glGetIntegerv( GL_VIEWPORT, viewport );
+	std::vector<Vector3D<float> >& points = _img->getImageData();
+	// now unproject all pixel values
+	for(size_t y=0;y<_img->getHeight();y++){
+		for(size_t x=0;x<_img->getWidth();x++){
+			Vector3D<float> &p = points[x+y*_img->getWidth()];
+			double winX=x,winY=y,winZ=_depthData[x+y*_img->getWidth()];
+			double posX, posY, posZ;
+			gluUnProject( winX, winY, winZ,
+					modelview, projection, viewport,
+					&posX, &posY, &posZ);
+			p(0) = posX;
+			p(1) = posY;
+			p(2) = posZ;
+			//std::cout << p << " <---- (" << winX << "," << winY << "," << winZ << "\n";
+		}
+	}
 
     // change viewport settings back
     glViewport(oldDim[0],oldDim[1],oldDim[2],oldDim[3]); // set camera view port
@@ -92,10 +120,15 @@ void GLFrameGrabber25D::grab(rw::kinematics::Frame *frame,
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
-    // adjust the image values according to min and max
+    /*for(size_t )
+
+    // now unproject all pixel values
     BOOST_FOREACH(float &val, imgData){
+
+    	double z = (far+near)/(far-near) + (1/val)*( (-2*far*near)/(far-near) );
+
     	val = Math::clamp(val, _minDepth, _maxDepth);
-    }
+    }*/
 
 
 }

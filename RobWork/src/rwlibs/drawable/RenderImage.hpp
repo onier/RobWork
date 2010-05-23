@@ -25,6 +25,7 @@
 
 #include <rwlibs/os/rwgl.hpp>
 #include <rw/sensor/Image.hpp>
+#include <rw/common/Ptr.hpp>
 #include "RWGLTexture.hpp"
 #include "Render.hpp"
 
@@ -40,7 +41,7 @@ namespace rwlibs { namespace drawable {
     class RenderImage : public Render
     {
     public:
-
+    	RenderImage(float scale=1.0/1000.0);
         /**
          * @brief Constructs a RenderFrame
          * @param size [in] size of the frame coordinate system
@@ -54,6 +55,8 @@ namespace rwlibs { namespace drawable {
 
     	/* Functions inherited from Render */
 
+        void setImage(const rw::sensor::Image& img);
+
         /**
          * @copydoc Render::draw
          */
@@ -64,6 +67,8 @@ namespace rwlibs { namespace drawable {
         float _scale;
         RWGLTexture _tex;
     };
+
+    typedef rw::common::Ptr<RenderImage> RenderImagePtr;
 
     /*@}*/
 }} // end namespaces

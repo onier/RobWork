@@ -21,14 +21,28 @@
 
 using namespace rwlibs::drawable;
 
-RenderImage::RenderImage(const rw::sensor::Image& img, float scale):
-    _w(img.getWidth()),_h(img.getHeight()),_scale(1.0f),_tex(img)
+RenderImage::RenderImage(float scale):
+    _w(0),_h(0),_scale(scale)
 {
 
 }
 
+RenderImage::RenderImage(const rw::sensor::Image& img, float scale):
+    _w(img.getWidth()),_h(img.getHeight()),_scale(scale),_tex(img)
+{
+
+}
+
+void RenderImage::setImage(const rw::sensor::Image& img){
+	_w = img.getWidth();
+	_h = img.getHeight();
+	_tex.init(img);
+}
+
 void RenderImage::draw(DrawType type, double alpha) const
 {
+	if(_w==0 || _h==0)
+		return;
     glEnable(GL_TEXTURE_2D);
     glColor4f(1.0f, 1.0f, 1.0f, (float)alpha);
 

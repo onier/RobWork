@@ -14,7 +14,8 @@ SimulatedScanner25D::SimulatedScanner25D(
 		const std::string& name,
 		FrameGrabber25DPtr framegrabber):
 		Scanner25D(name, "Simulated Scanner25D"),
-		_framegrabber(framegrabber)
+		_framegrabber(framegrabber),
+		_frameRate(30)
 {}
 
 SimulatedScanner25D::SimulatedScanner25D(const std::string& name,

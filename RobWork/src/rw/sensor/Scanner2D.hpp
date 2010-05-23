@@ -50,8 +50,8 @@ protected:
      * @param frame [in] the frame that the scanner is attached to
      * @param name [in] name of scanner sensor
      */
-    Scanner2D(rw::kinematics::Frame* frame, const std::string& name):
-        Scanner(frame, name)
+    Scanner2D(const std::string& name):
+        Scanner(name)
     {
     }
 

@@ -16,3 +16,20 @@
  ********************************************************************************/
 
 #include "Line.hpp"
+
+using namespace rw::geometry;
+using namespace rw::math;
+
+Line::Line(const rw::math::Q& p){
+	RW_ASSERT(p.size()==6);
+	_p1 = Vector3D<>(p[0],p[1],p[2]);
+	_p2 = Vector3D<>(p[3],p[4],p[5]);
+}
+
+Line::Line(const rw::math::Vector3D<>& p1, const rw::math::Vector3D<>& p2):
+		_p1(p1),_p2(p2)
+{
+
+}
+
+Line::~Line(){}
