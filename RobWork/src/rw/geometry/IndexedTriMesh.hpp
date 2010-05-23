@@ -92,12 +92,12 @@ namespace geometry {
 	 * @brief an Indexed Triangle mesh
 	 *
 	 */
-	template <class T=double>
+	template <class S=uint16_t, class T=double>
 	class IndexedTriMeshN0: public IndexedTriMesh<T> {
 	public:
 	    typedef T value_type;
-	    typedef IndexedTriangleN0<T> tri_type;
-	    typedef IndexedTriangleN0<T> TRI;
+	    typedef IndexedTriangleN0<S> tri_type;
+	    typedef IndexedTriangleN0<S> TRI;
 	    typedef std::vector<rw::math::Vector3D<value_type> > VertexArray;
 		typedef std::vector<TRI> TriangleArray;
 

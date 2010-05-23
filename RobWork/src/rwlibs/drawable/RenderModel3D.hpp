@@ -64,6 +64,11 @@ namespace rwlibs { namespace drawable {
          */
         void draw(DrawType type, double alpha) const;
 
+        void drawUsingArrays(DrawType type, double alpha) const;
+        void drawUsingArrays(const Model3D::Object3D& obj, DrawType type, double alpha) const;
+
+    private:
+        void useMaterial(const Model3D::Material& mat, DrawType type, double alpha) const;
     };
 
     /*@}*/

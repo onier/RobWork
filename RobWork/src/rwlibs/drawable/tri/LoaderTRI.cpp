@@ -78,8 +78,8 @@ Model3DPtr LoaderTRI::load(const std::string& filename)
             obj->_normals.push_back(n);
             nb_points++;
             if(nb_points%3==0){
-                obj->_faces3.push_back(IndexedTriangleN3<float>(nb_points-3,nb_points-2,nb_points-1,
-                                                                nb_points-3,nb_points-2,nb_points-1));
+                //obj->_faces3.push_back(IndexedTriangleN3<float>(nb_points-3,nb_points-2,nb_points-1,
+                //                                                nb_points-3,nb_points-2,nb_points-1));
             }
         } else {
             setlocale(LC_ALL, "");

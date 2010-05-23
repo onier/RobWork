@@ -1,5 +1,5 @@
 FILE(GLOB SRC_FILES_HPP robwork.hpp use_robwork_namespace.hpp)
-set(ENV{RW_LIB_FILES_CPP} ${RW_USER_FILES})
+set(ENV{RW_LIB_FILES_CPP} "RobWork.cpp;${RW_USER_FILES}")
 set(ENV{RW_LIB_FILES_HPP} "${SRC_FILES_HPP};${RW_USER_FILES_HPP};")
  
 ADD_SUBDIRECTORY(common)

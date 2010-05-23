@@ -106,7 +106,7 @@ namespace rwlibs { namespace drawable {
             std::vector<int> vertrefs;
 
             /** Array with vertex normals **/
-            std::vector<Vector3f> normals;
+            //std::vector<Vector3f> normals;
 
             /** Length of vertrefs array */
             int vertref_cnt;
@@ -154,8 +154,9 @@ namespace rwlibs { namespace drawable {
             /** url */
             std::string url;
 
-            /** Array with vertices */
+            /** Array with vertices and normals, each vertex has a normal */
             std::vector<Vector3f> vertices;
+            std::vector<Vector3f> normals;
 
             /** Length of vertices array */
             int vertex_cnt;
@@ -164,7 +165,7 @@ namespace rwlibs { namespace drawable {
             std::vector<AC3DSurface> surfaces;
 
             /** Array mapping vertices to neighboring surfaces **/
-            std::vector<std::vector<AC3DSurface*> > _vertSurfMap;
+            //std::vector<std::vector<AC3DSurface*> > _vertSurfMap;
 
             /** Array mapping mat to surface index */
             //typedef std::map<std::pair<int,int>,std::vector<int> > MatSurfMap;

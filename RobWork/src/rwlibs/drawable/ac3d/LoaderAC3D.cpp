@@ -99,7 +99,7 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
         AC3DMaterial &ac3m = model->_materials[i];
         m.name = ac3m.name;
         // texture is in the AC3D an object property. for now we set it to null
-        m.texId = 0;
+        m.texId = -1;
         m.textured = false;
 
         //
@@ -111,7 +111,6 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
         m.shininess = ac3m.shininess;
         m.transparency = ac3m.transparency;
     }
-
 
     // next we
     std::vector<Model3D::Object3D*> &objects = rwmodel->getObjects();
@@ -130,48 +129,84 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
         rwobj->_texOffset(1) = obj->texture_offset_y;
         rwobj->_texRepeat(0) = obj->texture_repeat_x;
         rwobj->_texRepeat(1) = obj->texture_repeat_y;
+
         rwobj->_texture = obj->texture;
-
-        // todo: copy vertex data
-        // for now we only support triangle meshes
-        size_t nrFaces = obj->surfaces.size();
-
-        rwobj->_faces.resize(nrFaces);
-        rwobj->_vertices.resize( obj->vertices.size() );
-        //rwobj->_normals.resize( obj->vertices.size() ); // we use one normal per face vertice
 
         if(obj->texture!=-1)
             rwobj->_texCoords.resize( obj->vertices.size() );
 
+        rwobj->_vertices.resize( obj->vertices.size() );
         for(size_t i=0; i<obj->vertices.size();i++)
             rwobj->_vertices[i] = obj->vertices[i].toV3D();
+        std::cout << "4" << std::endl;
+        // we use one normal per vertice
+        rwobj->_normals.resize( obj->normals.size() );
+        for(size_t i=0; i<obj->normals.size();i++)
+            rwobj->_normals[i] = obj->normals[i].toV3D();
 
+        std::vector<Model3D::MaterialFaces*> matFaces( model->_materials.size(), NULL );
+        std::vector<Model3D::MaterialPolys*> matPolys( model->_materials.size(), NULL );
+        size_t nrMatFaces=0, nrMatPolys=0;
+        // for now we only support triangle meshes
+        std::cout << "5" << std::endl;
+        size_t nrFaces = obj->surfaces.size();
+        // rwobj->_faces.resize(nrFaces); // we don't know if its triangles or polys
         for(size_t i=0; i<nrFaces;i++){
             AC3DSurface &s = obj->surfaces[i];
-            if(s.vertrefs.size()!=3)
-                RW_THROW("Only trimesh is currently supported! nr verts: " << s.vertrefs.size());
-            // copy the vertice references
-            // copy the normals
-            if(s.normals.size()!=3){
-                rwobj->_normals.push_back(s.normal.toV3D());
-                rwobj->_faces[i] = IndexedTriangleN1<float>(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2],rwobj->_normals.size()-1);
+
+            if(s.vertrefs.size()==3){
+            	IndexedTriangleN0<> tri(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2]);
+				rwobj->_faces.push_back(tri);
+
+            	if(matFaces[s.mat]==NULL){
+            		matFaces[s.mat] = new Model3D::MaterialFaces();
+            		matFaces[s.mat]->_matIndex = s.mat;
+            		nrMatFaces++;
+            	}
+            	matFaces[s.mat]->_subFaces.push_back(tri);
+
             } else {
-                rwobj->_normals.push_back( s.normals[0].toV3D() );
-                rwobj->_normals.push_back( s.normals[1].toV3D() );
-                rwobj->_normals.push_back( s.normals[2].toV3D() );
-                size_t nidx = rwobj->_normals.size();
-                rwobj->_faces3.push_back( IndexedTriangleN3<float>(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2],
-                                            nidx-4,nidx-3,nidx-2 ) );
+            	// its a polygon, handle it.
+            	IndexedPolygonN<> poly(s.vertrefs.size());
+            	for(size_t j=0; j<s.vertrefs.size();j++)
+            		poly[j] = s.vertrefs[j];
+
+            	rwobj->_polys.push_back(poly);
+
+            	if(matPolys[s.mat]==NULL){
+            		matPolys[s.mat] = new Model3D::MaterialPolys();
+            		matPolys[s.mat]->_matIndex = s.mat;
+            		nrMatPolys++;
+            	}
+            	matPolys[s.mat]->_subPolys.push_back(poly);
             }
+
             // copy texture coords if enabled
             if(obj->texture!=-1){
                 if(s.uvs.size()!=3)
                     RW_THROW("Not enough texture coordinates. uvs.size: " << s.uvs.size());
-                for(int j = 0;j<3;j++){
+                for(size_t j = 0;j<s.vertrefs.size();j++){
                     rwobj->_texCoords[s.vertrefs[j]](0) = s.uvs[j](0);
                     rwobj->_texCoords[s.vertrefs[j]](1) = s.uvs[j](1);
                 }
             }
+        }
+
+        // now trasfer all matFaces
+        rwobj->_matFaces.resize(nrMatFaces);
+        BOOST_FOREACH(Model3D::MaterialFaces* faces, matFaces){
+        	if(faces!=NULL){
+        		nrMatFaces--;
+        		rwobj->_matFaces[nrMatFaces] = faces;
+        	}
+        }
+
+        rwobj->_matPolys.resize(nrMatPolys);
+        BOOST_FOREACH(Model3D::MaterialPolys* polys, matPolys){
+        	if(polys!=NULL){
+        		nrMatPolys--;
+        		rwobj->_matPolys[nrMatPolys] = polys;
+        	}
         }
 
         if(parent!=NULL)
@@ -185,6 +220,9 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
         }
     }
     setlocale(LC_ALL, "");
+
+    delete model;
+
     return ownedPtr(rwmodel);
 }
 
@@ -378,7 +416,7 @@ void LoaderAC3D::read_surface(std::istream& in, AC3DSurface& surf, AC3DObject* o
             //in >> surf.vertref_cnt;
             sscanf(value,"%d",&surf.vertref_cnt);
             surf.vertrefs.resize(surf.vertref_cnt);
-            surf.normals.resize(surf.vertref_cnt);
+            //surf.normals.resize(surf.vertref_cnt);
             surf.uvs.resize(surf.vertref_cnt);
 
             for (int i = 0; i < surf.vertref_cnt; i++) {
@@ -478,6 +516,7 @@ LoaderAC3D::AC3DObject* LoaderAC3D::load_object(
             } else if (token == "numvert") {
                 in >> ob->vertex_cnt;
                 ob->vertices.resize(ob->vertex_cnt);
+                ob->normals.resize(ob->vertex_cnt);
                 // std::cout << "- Reading vertices: " << ob->surf_cnt << std::endl;
                 // long time = TimerUtil::currentTimeMs();
                 char buff[1024];
@@ -565,12 +604,32 @@ LoaderAC3D::AC3DObject* LoaderAC3D::load_object(
 
 void LoaderAC3D::calc_vertex_normals(AC3DObject *ob)
 {
-    // std::cout << "---------------- calc_vertex_normals: " << std::endl;
+
+
+	for(size_t i=0; i<ob->surfaces.size();i++){
+		// for each surface add the surface normal to
+		AC3DSurface &surf = ob->surfaces[i];
+		BOOST_FOREACH(int ref, surf.vertrefs){
+			ob->normals[ref].val[0] += surf.normal.val[0];
+			ob->normals[ref].val[1] += surf.normal.val[1];
+			ob->normals[ref].val[2] += surf.normal.val[2];
+		}
+	}
+
+	BOOST_FOREACH(Vector3f &normal, ob->normals){
+		Vector3D<float> v3d = normalize(normal.toV3D());
+		normal = Vector3f(v3d);
+	}
+
+
+
+	// std::cout << "---------------- calc_vertex_normals: " << std::endl;
     // std::cout << "- vertex cnt: " << ob->vertex_cnt << std::endl;
     // std::cout << "- surface cnt: " << ob->surf_cnt << std::endl;
     /// long time = TimerUtil::currentTimeMs();
 	// create vertexSurfaceNeigh map and matToSurfArray
 	// run through all surfaces and add them to the vertex index
+	/*
 	ob->_vertSurfMap.resize( ob->vertex_cnt );
 	for (int sIdx = 0; sIdx < ob->surf_cnt; sIdx++) {
 		AC3DSurface *surf = &(ob->surfaces[sIdx]);
@@ -614,7 +673,7 @@ void LoaderAC3D::calc_vertex_normals(AC3DObject *ob)
     }
     // long timel = TimerUtil::currentTimeMs();
     // std::cout << "- time: " << timel-time << "ms" << std::endl;
-
+*/
 }
 
 int LoaderAC3D::loadTexture(const std::string& filename, ModelAC3D* model){

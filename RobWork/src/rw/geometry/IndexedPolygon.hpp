@@ -19,14 +19,13 @@
 #ifndef RW_GEOMETRY_INDEXEDPOLYGON_HPP_
 #define RW_GEOMETRY_INDEXEDPOLYGON_HPP_
 
+#include <rw/common/macros.hpp>
 #include <rw/math/Vector3D.hpp>
-
-#include "Triangle.hpp"
-
+#include <stdint.h>
 namespace rw {
 namespace geometry {
 
-    template <class T>
+    template <class T=uint16_t>
     class IndexedPolygon {
     public:
         typedef T value_type;
@@ -34,36 +33,36 @@ namespace geometry {
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        virtual int& getVertexIdx(int i) = 0;
+        virtual T& getVertexIdx(size_t i) = 0;
 
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        virtual const int& getVertexIdx(int i) const = 0;
+        virtual const T& getVertexIdx(size_t i) const = 0;
 
         /**
          * @brief get vertex at index i
          */
-        int& operator[](int i){
+        T& operator[](size_t i){
             return getVertexIdx(i);
         }
 
         /**
          * @brief get vertex at index i
          */
-        const int& operator[](int i) const {
+        const T& operator[](size_t i) const {
             return getVertexIdx(i);
         }
 
-        virtual void size() const = 0;
+        virtual size_t size() const = 0;
 
         //virtual rw::math::Vector3D<T> calcFaceNormal()
     };
 
-	template<class T>
+	template<class T=uint16_t>
 	class IndexedPolygonN : public IndexedPolygon<T> {
 	protected:
-		boost::numeric::ublas::vector<int> _vertices;
+		boost::numeric::ublas::vector<T> _vertices;
 
 	public:
 	    //@brief default constructor
@@ -75,20 +74,20 @@ namespace geometry {
 	    /**
 	     * @brief returns the index of vertex i of the triangle
 	     */
-	    int& getVertexIdx(int i) {
-	    	RW_ASSERT(i<_vertizes.size());
+	    T& getVertexIdx(size_t i) {
+	    	RW_ASSERT(i<_vertices.size());
 			return _vertices[i];
 		}
 
 	    /**
          * @brief returns the index of vertex i of the triangle
          */
-        const int& getVertexIdx(int i) const  {
-        	RW_ASSERT(i<_vertizes.size());
+        const T& getVertexIdx(size_t i) const  {
+        	RW_ASSERT(i<_vertices.size());
             return _vertices[i];
         }
 
-        void size() const{ return _vertices.size(); };
+        size_t size() const{ return _vertices.size(); };
 
 	};
 
@@ -99,7 +98,7 @@ namespace geometry {
     class IndexedPolygonNN : public IndexedPolygon<T> {
     protected:
     	IndexedPolygonN<T> _polyN;
-    	boost::numeric::ublas::vector<int> _normals;
+    	boost::numeric::ublas::vector<T> _normals;
     public:
         //@brief default constructor
 
@@ -111,29 +110,29 @@ namespace geometry {
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        int& getVertexIdx(int i) {
+        T& getVertexIdx(size_t i) {
             return _polyN.getVertexIdx(i);
         }
 
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        const int& getVertexIdx(int i) const  {
+        const T& getVertexIdx(size_t i) const  {
             return _polyN.getVertexIdx(i);
         }
 
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        int& getNormalIdx(size_t i) {
-            return _normalIdx[i];
+        T& getNormalIdx(size_t i) {
+            return _normals[i];
         }
 
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        const int& getNormalIdx(size_t i) const  {
-            return _normalIdx[i];
+        const T& getNormalIdx(size_t i) const  {
+            return _normals[i];
         }
 
     };

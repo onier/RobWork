@@ -20,7 +20,7 @@
 #define RW_GEOMETRY_INDEXEDTRIANGLE_HPP_
 
 #include <rw/math/Vector3D.hpp>
-
+#include <stdint.h>
 #include "Triangle.hpp"
 
 namespace rw {
@@ -34,34 +34,24 @@ namespace geometry {
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        virtual int& getVertexIdx(int i) = 0;
+        virtual T& getVertexIdx(size_t i) = 0;
 
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        virtual const int& getVertexIdx(int i) const = 0;
+        virtual const T& getVertexIdx(size_t i) const = 0;
 
-        /**
-         * @brief get vertex at index i
-         */
-        int& operator[](int i){
-            return getVertexIdx(i);
-        }
+        virtual T& operator[](size_t i) = 0;
 
-        /**
-         * @brief get vertex at index i
-         */
-        const int& operator[](int i) const {
-            return getVertexIdx(i);
-        }
+        virtual const T& operator[](size_t i) const = 0;
 
         //virtual rw::math::Vector3D<T> calcFaceNormal()
     };
 
-	template<class T>
-	class IndexedTriangleN0 : public IndexedTriangle<T> {
+	template<class T = uint16_t>
+	class IndexedTriangleN0 {
 	protected:
-		int _vertices[3];
+		T _vertices[3];
 
 	public:
 	    //@brief default constructor
@@ -71,7 +61,7 @@ namespace geometry {
 	    /**
 	     * @brief
 	     */
-	    IndexedTriangleN0(int p1, int p2, int p3)
+	    IndexedTriangleN0(T p1, T p2, T p3)
 	    {
 	    	_vertices[0] = p1;
 	    	_vertices[1] = p2;
@@ -92,48 +82,64 @@ namespace geometry {
 	    /**
 	     * @brief returns the index of vertex i of the triangle
 	     */
-	    int& getVertexIdx(int i) {
+	    T& getVertexIdx(size_t i) {
 			return _vertices[i];
 		}
 
 	    /**
          * @brief returns the index of vertex i of the triangle
          */
-        const int& getVertexIdx(int i) const  {
+        const T& getVertexIdx(size_t i) const  {
             return _vertices[i];
         }
 
 		/**
 		 * @brief tests wheather the point x is inside the triangle
 		 */
-		bool isInside(const rw::math::Vector3D<T>& x, const std::vector<rw::math::Vector3D<T> >& verts){
+        template<class R>
+		bool isInside(const rw::math::Vector3D<R>& x, const std::vector<rw::math::Vector3D<R> >& verts){
 			using namespace rw::math;
 			// calc vectors
-			Vector3D<T> v0 = verts[_vertices[2]] - verts[_vertices[0]];
-			Vector3D<T> v1 = verts[_vertices[1]] - verts[_vertices[0]];
-			Vector3D<T> v2 = x - verts[_vertices[0]];
+			Vector3D<R> v0 = verts[_vertices[2]] - verts[_vertices[0]];
+			Vector3D<R> v1 = verts[_vertices[1]] - verts[_vertices[0]];
+			Vector3D<R> v2 = x - verts[_vertices[0]];
 			// calc dot products
-			T dot00 = dot(v0, v0);
-			T dot01 = dot(v0, v1);
-			T dot02 = dot(v0, v2);
-			T dot11 = dot(v1, v1);
-			T dot12 = dot(v1, v2);
+			R dot00 = dot(v0, v0);
+			R dot01 = dot(v0, v1);
+			R dot02 = dot(v0, v2);
+			R dot11 = dot(v1, v1);
+			R dot12 = dot(v1, v2);
 			// calc barycentric coordinates
-			T invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
-			T u = (dot11 * dot02 - dot01 * dot12) * invDenom;
-			T v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+			R invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+			R u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+			R v = (dot00 * dot12 - dot01 * dot02) * invDenom;
 
 			// Check if point is in triangle
 			return (u > 0) && (v > 0) && (u + v < 1);
 		}
 
+
+        /**
+         * @brief get vertex at index i
+         */
+        T& operator[](size_t i){
+            return getVertexIdx(i);
+        }
+
+        /**
+         * @brief get vertex at index i
+         */
+        const T& operator[](size_t i) const {
+            return getVertexIdx(i);
+        }
+
 	};
 
    template<class T>
-    class IndexedTriangleN1 : public IndexedTriangle<T> {
+    class IndexedTriangleN1 {
     protected:
         IndexedTriangleN0<T> _triN0;
-        int _normalIdx;
+        T _normalIdx;
     public:
         //@brief default constructor
 
@@ -142,7 +148,7 @@ namespace geometry {
         /**
          * @brief
          */
-        IndexedTriangleN1(int p1, int p2, int p3, int n):
+        IndexedTriangleN1(T p1, T p2, T p3, T n):
             _triN0(p1,p2,p3),_normalIdx(n)
         {
         };
@@ -161,28 +167,28 @@ namespace geometry {
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        int& getVertexIdx(int i) {
+        T& getVertexIdx(size_t i) {
             return _triN0.getVertexIdx(i);
         }
 
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        const int& getVertexIdx(int i) const  {
+        const T& getVertexIdx(size_t i) const  {
             return _triN0.getVertexIdx(i);
         }
 
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        int& getNormalIdx() {
+        T& getNormalIdx() {
             return _normalIdx;
         }
 
         /**
          * @brief returns the index of vertex i of the triangle
          */
-        const int& getNormalIdx() const  {
+        const T& getNormalIdx() const  {
             return _normalIdx;
         }
 
@@ -190,18 +196,32 @@ namespace geometry {
         /**
          * @brief tests wheather the point x is inside the triangle
          */
-        bool isInside(const rw::math::Vector3D<T>& x, const std::vector<rw::math::Vector3D<T> >& verts){
-            return _triN0.isInside(x,verts);
+        template<class R>
+        bool isInside(const rw::math::Vector3D<R>& x, const std::vector<rw::math::Vector3D<R> >& verts){
+            return _triN0.isInside<R>(x,verts);
         }
 
+        /**
+         * @brief get vertex at index i
+         */
+        T& operator[](size_t i){
+            return getVertexIdx(i);
+        }
+
+        /**
+         * @brief get vertex at index i
+         */
+        const T& operator[](size_t i) const {
+            return getVertexIdx(i);
+        }
 
     };
 
     template<class T>
-     class IndexedTriangleN3 : public IndexedTriangle<T> {
+     class IndexedTriangleN3  {
      protected:
          IndexedTriangleN0<T> _triN0;
-         int _normals[3];
+         T _normals[3];
      public:
          //@brief default constructor
          IndexedTriangleN3(){};
@@ -209,8 +229,8 @@ namespace geometry {
          /**
           * @brief
           */
-         IndexedTriangleN3(int p1, int p2, int p3,
-                           int n1, int n2, int n3):
+         IndexedTriangleN3(T p1, T p2, T p3,
+                           T n1, T n2, T n3):
              _triN0(p1,p2,p3)
          {
              _normals[0] = n1;
@@ -234,34 +254,50 @@ namespace geometry {
          /**
           * @brief returns the index of vertex i of the triangle
           */
-         int& getVertexIdx(int i) {
+         T& getVertexIdx(size_t i) {
              return _triN0.getVertexIdx(i);
          }
 
          /**
           * @brief returns the index of vertex i of the triangle
           */
-         const int& getVertexIdx(int i) const  {
+         const T& getVertexIdx(size_t i) const  {
              return _triN0.getVertexIdx(i);
          }
 
-         int& getNormalIdx(int i) {
+         T& getNormalIdx(size_t i) {
              return _triN0.getVertexIdx(i);
          }
 
          /**
           * @brief returns the index of vertex i of the triangle
           */
-         const int& getNormalIdx(int i) const  {
+         const T& getNormalIdx(size_t i) const  {
              return _triN0.getVertexIdx(i);
          }
 
          /**
           * @brief tests wheather the point x is inside the triangle
           */
-         bool isInside(const rw::math::Vector3D<T>& x, const std::vector<rw::math::Vector3D<T> >& verts){
-             return _triN0.isInside(x,verts);
+         template<class R>
+         bool isInside(const rw::math::Vector3D<R>& x, const std::vector<rw::math::Vector3D<R> >& verts){
+             return _triN0.isInside<R>(x,verts);
          }
+
+         /**
+          * @brief get vertex at index i
+          */
+         T& operator[](size_t i){
+             return getVertexIdx(i);
+         }
+
+         /**
+          * @brief get vertex at index i
+          */
+         const T& operator[](size_t i) const {
+             return getVertexIdx(i);
+         }
+
      };
 
 } // geometry
