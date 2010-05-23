@@ -7,7 +7,7 @@ SET(SRC_FILES
   ${CameraFile}
   ./camera/FrameGrabber.cpp
   ./camera/GLFrameGrabber.cpp
-  ./camera/VirtualCamera.cpp
+  ./camera/SimulatedCamera.cpp
   
   FrameGrabber25D.cpp
   GLFrameGrabber25D.cpp
@@ -20,7 +20,7 @@ SET(SRC_FILES
 SET(SRC_FILES_HPP
   ./camera/FrameGrabber.hpp
   ./camera/GLFrameGrabber.hpp
-  ./camera/VirtualCamera.hpp
+  ./camera/SimulatedCamera.hpp
 
   FrameGrabber25D.hpp
   GLFrameGrabber25D.hpp

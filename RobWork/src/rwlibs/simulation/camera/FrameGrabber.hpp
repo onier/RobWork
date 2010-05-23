@@ -118,6 +118,8 @@ namespace rwlibs { namespace simulation {
         rw::sensor::Image::ColorCode _colorCode;
     };
 
+    typedef rw::common::Ptr<FrameGrabber> FrameGrabberPtr;
+
     /* @} */
 }} // end namespaces
 

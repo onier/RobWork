@@ -100,6 +100,8 @@ namespace rwlibs { namespace simulation {
         rw::sensor::Image25D *_img;
     };
 
+    typedef rw::common::Ptr<FrameGrabber25D> FrameGrabber25DPtr;
+
     /* @} */
 }} // end namespaces
 

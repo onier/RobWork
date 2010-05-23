@@ -16,7 +16,7 @@
  ********************************************************************************/
 
 
-#include "VirtualCamera.hpp"
+#include "SimulatedCamera.hpp"
 
 #include <rw/kinematics/Frame.hpp>
 #include <rw/sensor/Image.hpp>
@@ -28,28 +28,26 @@ using namespace rw::sensor;
 using namespace rw::kinematics;
 using namespace rwlibs::simulation;
 
-VirtualCamera::VirtualCamera(
+SimulatedCamera::SimulatedCamera(
     const std::string& name,
-    FrameGrabber& frameGrabber,
+    FrameGrabberPtr frameGrabber,
     Frame *frame)
     :
-    Camera(frame,name,"Virtual Camera"),
+    Camera(name,"Simulated Camera"),
     _dtSum(0.0),
-    _frameGrabber(&frameGrabber),
+    _frameGrabber(frameGrabber),
     _isAcquired(false)
-
 {
-    std::cout << "virtual cam:";
-    std::cout << " initialized" << std::endl;
+	this->attachTo(frame);
 }
 
-VirtualCamera::~VirtualCamera()
+SimulatedCamera::~SimulatedCamera()
 {
     if (_started)
         stop();
 }
 
-bool VirtualCamera::initialize()
+bool SimulatedCamera::initialize()
 {
     if (_started)
         stop();
@@ -62,7 +60,7 @@ bool VirtualCamera::initialize()
     return true;
 }
 
-void VirtualCamera::stop()
+void SimulatedCamera::stop()
 {
     if (!_initialized){
     	RW_THROW("Camera was not initialized!");
@@ -74,7 +72,7 @@ void VirtualCamera::stop()
     _started = false;
 }
 
-bool VirtualCamera::start()
+bool SimulatedCamera::start()
 {
     if (_initialized == false)
         initialize();
@@ -84,12 +82,12 @@ bool VirtualCamera::start()
     return true;
 }
 
-void VirtualCamera::acquire()
+void SimulatedCamera::acquire()
 {
     _isAcquired = false;
 }
 
-void VirtualCamera::update(double dt, const rw::kinematics::State& state){
+void SimulatedCamera::update(double dt, rw::kinematics::State& state){
     if(!_started || _isAcquired)
         return;
     if( _frameRate<0.00001 )
@@ -104,22 +102,22 @@ void VirtualCamera::update(double dt, const rw::kinematics::State& state){
     }
 }
 
-bool VirtualCamera::isImageReady()
+bool SimulatedCamera::isImageReady()
 {
     return _isAcquired;
 }
 
-const Image* VirtualCamera::getImage()
+const Image* SimulatedCamera::getImage()
 {
     return &( _frameGrabber->getImage() );
 }
 
-double VirtualCamera::getFrameRate()
+double SimulatedCamera::getFrameRate()
 {
     return _frameRate;
 }
 
-void VirtualCamera::setFrameRate(double framerate)
+void SimulatedCamera::setFrameRate(double framerate)
 {
     _frameRate = framerate;
 }

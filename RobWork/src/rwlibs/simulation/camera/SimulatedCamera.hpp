@@ -16,15 +16,17 @@
  ********************************************************************************/
 
 
-#ifndef RWLIBS_SIMULATION_CAMERA_VIRTUALCAMERA_HPP
-#define RWLIBS_SIMULATION_CAMERA_VIRTUALCAMERA_HPP
+#ifndef RWLIBS_SIMULATION_SIMULATEDCAMERA_HPP
+#define RWLIBS_SIMULATION_SIMULATEDCAMERA_HPP
 
 /**
-   @file VirtualCamera.hpp
+   @file SimulatedCamera.hpp
 */
 
 #include <rw/sensor/Camera.hpp>
 #include <rw/sensor/Image.hpp>
+
+#include <rwlibs/simulation/SimulatedSensor.hpp>
 
 #include "FrameGrabber.hpp"
 
@@ -36,14 +38,14 @@ namespace rwlibs { namespace simulation {
     /* @{ */
 
     /**
-       @brief The VirtualCamera class makes it posible to use virtual camera
+       @brief The SimulatedCamera class makes it posible to use virtual camera
        sensors by using different framegrapper implementations.
 
-       The VirtualCamera implements the camera interface though the setting of
+       The SimulatedCamera implements the camera interface though the setting of
        framerate has no meaning to the virtual camera since no timing is done in
        this implementation.
     */
-    class VirtualCamera : public rw::sensor::Camera
+    class SimulatedCamera : public rw::sensor::Camera, public virtual SimulatedSensor
     {
     public:
         /**
@@ -53,15 +55,15 @@ namespace rwlibs { namespace simulation {
          * @param frame [in] frame associated with the camera
          * images.
          */
-        VirtualCamera(
+        SimulatedCamera(
             const std::string& name,
-            FrameGrabber &frameGrabber,
+            FrameGrabberPtr frameGrabber,
             rw::kinematics::Frame *frame);
 
         /**
          * @brief destructor
          */
-        virtual ~VirtualCamera();
+        virtual ~SimulatedCamera();
 
         /**
          * @copydoc rw::sensor::Camera::initialize
@@ -113,7 +115,20 @@ namespace rwlibs { namespace simulation {
          */
         virtual unsigned int getHeight(){return _frameGrabber->getHeight();};
 
-        void update(double dt, const rw::kinematics::State& state);
+        /**
+         * @copydoc SimulatedSensor::update
+         */
+        void update(double dt, rw::kinematics::State& state);
+
+        /**
+         * @copydoc SimulatedSensor::reset
+         */
+        void reset(const rw::kinematics::State& state){};
+
+        /**
+         * @copydoc SimulatedSensor::getSensor
+         */
+        rw::sensor::Sensor* getSensor(){return this;};
 
     private:
         void acquire(char *imgData);
@@ -122,7 +137,7 @@ namespace rwlibs { namespace simulation {
         std::string _name;
         double _frameRate;
         double _dtSum;
-        FrameGrabber *_frameGrabber;
+        FrameGrabberPtr _frameGrabber;
         bool _isAcquired;
     };
 
