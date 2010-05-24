@@ -62,6 +62,6 @@ namespace rw { namespace proximity { namespace sandbox {
     typedef std::vector<ProximityPair> ProximityPairList;
 
 	/*@}*/
-}} // end namespaces
+}}} // end namespaces
 
 #endif // end include guard
