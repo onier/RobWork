@@ -53,6 +53,11 @@ TARGET_LINK_LIBRARIES( common-test ${TEST_LIBRARIES} )
 ADD_TEST( common-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/common-test )
 ADD_DEPENDENCIES(common-test ${TEST_DEPENDENCIES})
 
+ADD_EXECUTABLE( geometry-test ${DO_EXCLUDE} test-main.cpp geometry/GeometryTest.cpp)       
+TARGET_LINK_LIBRARIES( geometry-test ${TEST_LIBRARIES} )
+ADD_TEST( geometry-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/geometry-test )
+ADD_DEPENDENCIES(geometry-test ${TEST_DEPENDENCIES})
+
 ADD_EXECUTABLE( models-test ${DO_EXCLUDE} test-main.cpp models/SerialDeviceTest.cpp)       
 TARGET_LINK_LIBRARIES( models-test ${TEST_LIBRARIES} )
 ADD_TEST( models-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/models-test )
@@ -96,13 +101,13 @@ ADD_TEST( planner-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/planner-test )
 ADD_DEPENDENCIES(planner-test ${TEST_DEPENDENCIES})
 
 ADD_CUSTOM_TARGET(tests ctest -V 
-  DEPENDS math-test common-test models-test invkin-test loader-test kinematics-test 
+  DEPENDS math-test common-test geometry-test models-test invkin-test loader-test kinematics-test 
           trajectory-test collision-test drawables-test planner-test ${RW_EXTRA_TESTS}
           ${TEST_DEPENDENCIES}
     WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
 INSTALL(TARGETS 
-            math-test common-test models-test 
+            math-test common-test models-test geometry-test 
             invkin-test loader-test kinematics-test 
             trajectory-test collision-test 
             drawables-test planner-test 
