@@ -653,6 +653,7 @@ Model3DPtr LoaderIVG::load(const std::string &filename)
 	if (fread(pc_Buf, lnArraySize, 1, fp) == 0) {
 	    fclose(fp);
 	    RW_THROW("Failed to read bytes from file "<<filename);
+	    return;
 	}
 	fclose(fp);
 
@@ -660,7 +661,7 @@ Model3DPtr LoaderIVG::load(const std::string &filename)
 	std::list<CIvgEntity> scene;
 
 	/*int n_Ent = */reader.ParseIVGGeometry(pc_Buf, scene);
-	delete pc_Buf;
+	delete[] pc_Buf;
 
 	// TODO: convert the below stuff to a model3d format and return it
 
