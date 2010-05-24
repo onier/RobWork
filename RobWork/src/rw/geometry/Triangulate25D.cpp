@@ -105,6 +105,7 @@ bool Triangulate::Process(const Vector2DVector &contour,Vector2DVector &result)
         if (0 >= (count--))
         {
             //** Triangulate: ERROR - probable bad polygon!
+        	delete[] V;
             return false;
         }
 
@@ -135,7 +136,7 @@ bool Triangulate::Process(const Vector2DVector &contour,Vector2DVector &result)
         }
     }
 
-    delete V;
+    delete[] V;
 
     return true;
 }
