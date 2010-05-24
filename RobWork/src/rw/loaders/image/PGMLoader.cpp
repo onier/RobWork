@@ -100,7 +100,12 @@ namespace {
 	    mutable int width, height, maxgrayval;
 
 
-	    PGMParser(std::vector<char> &data):_data(data){}
+	    PGMParser(std::vector<char> &data):
+	    	_data(data),
+	    	width(0),
+	    	height(0),
+	    	maxgrayval(0)
+	    {}
 
 	    template <typename ScannerT>
 	    struct definition {

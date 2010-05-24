@@ -155,7 +155,7 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
             AC3DSurface &s = obj->surfaces[i];
 
             if(s.vertrefs.size()==3){
-            	IndexedTriangleN0<> tri(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2]);
+            	IndexedTriangle<> tri(s.vertrefs[0],s.vertrefs[1],s.vertrefs[2]);
 				rwobj->_faces.push_back(tri);
 
             	if(matFaces[s.mat]==NULL){

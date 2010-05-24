@@ -92,7 +92,7 @@ Model3DPtr Loader3DS::load(const std::string& name)
 		obj_dst._faces.resize(obj_src.Faces.size()/3);
 		// now comes the copying of faces
 		for(size_t j=0; j<obj_dst._faces.size(); j++){
-			IndexedTriangleN0<>& face = obj_dst._faces[j];
+			IndexedTriangle<>& face = obj_dst._faces[j];
 			size_t j3tmp = j*3;
 			face[0] = obj_src.Faces[j3tmp+0];
 			face[1] = obj_src.Faces[j3tmp+1];
@@ -112,7 +112,7 @@ Model3DPtr Loader3DS::load(const std::string& name)
 			faces->_subFaces.resize(mat.subFaces.size()/3);
 			// now comes the copying of faces
 			for(size_t jj=0; jj<faces->_subFaces.size(); jj++){
-				IndexedTriangleN0<>& face = faces->_subFaces.at(jj);
+				IndexedTriangle<>& face = faces->_subFaces.at(jj);
 				size_t jj3tmp = jj*3;
 				face[0] = mat.subFaces[jj3tmp+0];
 				face[1] = mat.subFaces[jj3tmp+1];

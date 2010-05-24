@@ -26,42 +26,20 @@
 namespace rw {
 namespace geometry {
 
-    template <class T>
-    class IndexedTriangle {
-    public:
-        typedef T value_type;
-
-        /**
-         * @brief returns the index of vertex i of the triangle
-         */
-        virtual T& getVertexIdx(size_t i) = 0;
-
-        /**
-         * @brief returns the index of vertex i of the triangle
-         */
-        virtual const T& getVertexIdx(size_t i) const = 0;
-
-        virtual T& operator[](size_t i) = 0;
-
-        virtual const T& operator[](size_t i) const = 0;
-
-        //virtual rw::math::Vector3D<T> calcFaceNormal()
-    };
-
 	template<class T = uint16_t>
-	class IndexedTriangleN0 {
+	class IndexedTriangle {
 	protected:
 		T _vertices[3];
 
 	public:
 	    //@brief default constructor
 
-	    IndexedTriangleN0(){};
+	    IndexedTriangle(){};
 
 	    /**
 	     * @brief
 	     */
-	    IndexedTriangleN0(T p1, T p2, T p3)
+	    IndexedTriangle(T p1, T p2, T p3)
 	    {
 	    	_vertices[0] = p1;
 	    	_vertices[1] = p2;
@@ -73,7 +51,7 @@ namespace geometry {
 	     *
 	     * @param f [in] - The face that is to be copied.
 	     */
-	    IndexedTriangleN0(const IndexedTriangleN0& f){
+	    IndexedTriangle(const IndexedTriangle& f){
 	        _vertices[0] = f[0];
 	        _vertices[1] = f[1];
 	        _vertices[2] = f[2];
@@ -138,7 +116,7 @@ namespace geometry {
    template<class T>
     class IndexedTriangleN1 {
     protected:
-        IndexedTriangleN0<T> _triN0;
+        IndexedTriangle<T> _triN0;
         T _normalIdx;
     public:
         //@brief default constructor
@@ -220,7 +198,7 @@ namespace geometry {
     template<class T>
      class IndexedTriangleN3  {
      protected:
-         IndexedTriangleN0<T> _triN0;
+         IndexedTriangle<T> _triN0;
          T _normals[3];
      public:
          //@brief default constructor

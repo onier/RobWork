@@ -58,7 +58,8 @@ namespace rw { namespace common {
     	/**
     	 * @brief Predefined types
     	 */
-        enum {  Unknown = -1,    /** Unknown type */
+        typedef enum {
+        		Unknown = -1,    /** Unknown type */
                 PropertyMap = 0,/** PropertyMap */
                 String,         /** std::string */
                 Float,          /** float */
@@ -126,9 +127,6 @@ namespace rw { namespace common {
         static PropertyType getType(const rw::math::VelocityScrew6D<>&) { return PropertyType(VelocityScrew6D); }
         static PropertyType getType(const rw::trajectory::QPath&) { return PropertyType(QPath); }
         static PropertyType getType(const rw::trajectory::Transform3DPath&) { return PropertyType(Transform3DPath); }
-
-
-
 
         template <class T>
         static PropertyType getType(const T&) { return PropertyType(Unknown); }

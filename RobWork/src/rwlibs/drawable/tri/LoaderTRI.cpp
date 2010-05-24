@@ -80,7 +80,7 @@ Model3DPtr LoaderTRI::load(const std::string& filename)
             if(nb_points%3==0){
             	// TODO: this generates a plain trimesh. It would be better to make an indexed trimesh
             	// use TriangleUtil toIndexedTriMesh, though remember the normals
-                obj->_faces.push_back( IndexedTriangleN0<>(nb_points-3,nb_points-2,nb_points-1) );
+                obj->_faces.push_back( IndexedTriangle<>(nb_points-3,nb_points-2,nb_points-1) );
             }
         } else {
             setlocale(LC_ALL, "");

@@ -83,7 +83,7 @@ public:
     // I sort the mesh by material so that I won't have to switch textures a great deal
     struct MaterialFaces {
         // Index to our vertex array of all the faces that use this material
-        std::vector<rw::geometry::IndexedTriangleN0<> > _subFaces;
+        std::vector<rw::geometry::IndexedTriangle<> > _subFaces;
         //int numSubFaces;            // The number of faces
         int _matIndex;               // An index to our materials
     };
@@ -114,7 +114,7 @@ public:
 
         // the normal is implicit and defined as the a vertex normal with
         // index as its vertex
-        std::vector<rw::geometry::IndexedTriangleN0<> > _faces;
+        std::vector<rw::geometry::IndexedTriangle<> > _faces;
         // the normal is explicit and only defined for the Face
         //std::vector<rw::geometry::IndexedTriangleN1<float> > _faces1;
         // the normal is explicit and defined for each vertex
