@@ -68,6 +68,7 @@ namespace boost { namespace property_tree
         iterator not_found(){ return end(); }; // for forward compatibility: ROBWORK
         const_iterator not_found() const { return end(); }; // for forward compatibility: ROBWORK
         const_iterator end() const;
+        const_iterator not_found() const { return end(); }; // for forward compatibility: ROBWORK
         reverse_iterator rbegin();
         const_reverse_iterator rbegin() const;
         reverse_iterator rend();
