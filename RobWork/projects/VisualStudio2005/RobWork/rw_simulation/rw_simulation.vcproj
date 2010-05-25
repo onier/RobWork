@@ -165,14 +165,78 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\simulation\camera\VirtualCamera.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\simulation\camera\SimulatedCamera.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\simulation\camera\VirtualCamera.hpp"
+				RelativePath="..\..\..\..\src\rwlibs\simulation\camera\SimulatedCamera.hpp"
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\FrameGrabber25D.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\FrameGrabber25D.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\GLFrameGrabber25D.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\GLFrameGrabber25D.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\KinematicSimulator.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\KinematicSimulator.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\SimulatedController.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\SimulatedController.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\SimulatedScanner1D.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\SimulatedScanner25D.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\SimulatedScanner25D.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\SimulatedScanner2D.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\SimulatedSensor.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\SimulatedSensor.hpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\Simulator.cpp"
+			>
+		</File>
+		<File
+			RelativePath="..\..\..\..\src\rwlibs\simulation\Simulator.hpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

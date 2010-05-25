@@ -20,7 +20,8 @@
 #define RW_GEOMETRY_INDEXEDTRIANGLE_HPP_
 
 #include <rw/math/Vector3D.hpp>
-#include <stdint.h>
+#include <rw/common/types.hpp>
+#include <boost/cstdint.hpp>
 #include "Triangle.hpp"
 
 namespace rw {

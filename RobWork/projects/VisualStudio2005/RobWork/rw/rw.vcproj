@@ -780,6 +780,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\..\..\src\rw\common\types.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\..\..\..\src\rw\common\VectorIterator.cpp"
 				>
 			</File>

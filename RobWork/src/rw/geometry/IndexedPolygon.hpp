@@ -20,8 +20,9 @@
 #define RW_GEOMETRY_INDEXEDPOLYGON_HPP_
 
 #include <rw/common/macros.hpp>
+#include <rw/common/types.hpp>
 #include <rw/math/Vector3D.hpp>
-#include <stdint.h>
+
 namespace rw {
 namespace geometry {
 

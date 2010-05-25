@@ -159,27 +159,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\GLTexture.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\DrawableUtil.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\IVGReader.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\Model3D.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\Model_3DS.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\Model3DLoader.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\OBJReader.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\Render3DS.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderAC3D.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\Render.cpp"
 				>
 			</File>
 			<File
@@ -191,7 +183,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderIVG.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderImage.cpp"
 				>
 			</File>
 			<File
@@ -203,15 +195,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderOBJ.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderModel3D.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderSTL.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderScan.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderTriSoup.cpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderUtil.cpp"
 				>
 			</File>
 			<File
@@ -245,31 +237,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\GLTexture.h"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\Model3D.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\IVGReader.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\Model_3DS.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\OBJReader.hpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\Model3DLoader.hpp"
 				>
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rwlibs\drawable\Render.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\Render3DS.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderAC3D.hpp"
 				>
 			</File>
 			<File
@@ -281,7 +257,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderIVG.hpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderImage.hpp"
 				>
 			</File>
 			<File
@@ -293,15 +269,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderOBJ.hpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderModel3D.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderSTL.hpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderScan.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderTriSoup.hpp"
+				RelativePath="..\..\..\..\src\rwlibs\drawable\RenderUtil.hpp"
 				>
 			</File>
 			<File
@@ -322,6 +298,74 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="3ds"
+			>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\3ds\Loader3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\3ds\Loader3DS.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\3ds\Model3DS.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\3ds\Model3DS.hpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="ac3d"
+			>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\ac3d\LoaderAC3D.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\ac3d\LoaderAC3D.hpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="ivg"
+			>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\ivg\LoaderIVG.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\ivg\LoaderIVG.hpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="obj"
+			>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\obj\LoaderOBJ.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\obj\LoaderOBJ.hpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="tri"
+			>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\tri\LoaderTRI.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rwlibs\drawable\tri\LoaderTRI.hpp"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"

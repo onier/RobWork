@@ -24,6 +24,8 @@
 #include "Triangle.hpp"
 #include "IndexedTriangle.hpp"
 
+
+
 namespace rw {
 namespace geometry {
 	typedef enum {V1=0,V2,V3} VertexIdx;
