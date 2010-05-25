@@ -57,7 +57,8 @@ namespace geometry {
     					_idxsize(idxsize)
 		{
     		for(uint8_t i=0;i<idxsize;i++)
-    			_mask |= 0xFF<(i*8);
+    			_mask |= 0xFF<<(i*8);
+    		//std::cout << "MASK: " << std::hex << _mask << std::endl;
 		}
 
     public:
@@ -69,10 +70,16 @@ namespace geometry {
         std::vector<rw::math::Vector3D<T> >& getNormals(){return *_normals;};
 
         //! @brief get array of vertices
-        const std::vector<rw::math::Vector3D<T> >& getVertices() const{ *_vertices;};
+        const std::vector<rw::math::Vector3D<T> >& getVertices() const{
+        	RW_ASSERT(_vertices);
+        	return *_vertices;
+        };
 
         //! @brief get array of vertices
-        std::vector<rw::math::Vector3D<T> >& getVertices(){ *_vertices;};
+        std::vector<rw::math::Vector3D<T> >& getVertices(){
+			RW_ASSERT(_vertices);
+        	return *_vertices;
+        };
 
         //! @brief the stride of a triangle
         uint8_t getTriangleStride(){ return _stride;};
@@ -159,6 +166,7 @@ namespace geometry {
 	class IndexedTriMeshN0: public IndexedTriMesh<T> {
 	public:
 	    typedef T value_type;
+	    typedef S index_type;
 	    typedef IndexedTriangle<S> tri_type;
 	    typedef IndexedTriangle<S> TRI;
 		typedef std::vector<TRI> TriangleArray;

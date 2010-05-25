@@ -16,31 +16,33 @@
  ********************************************************************************/
 
 
-#ifndef BOX_HPP_
-#define BOX_HPP_
+#ifndef RW_GEOMETRY_BOXPRIMITIVE_HPP_
+#define RW_GEOMETRY_BOXPRIMITIVE_HPP_
 
 #include "Primitive.hpp"
 
 namespace rw {
 namespace geometry {
+	/**
+	 * @brief a box primitive
+	 */
+	class Box: public Primitive {
+	public:
+		Box():_dx(1),_dy(1),_dz(1){};
+		Box(double x, double y, double z);
+		Box(const rw::math::Q& initQ);
+		virtual ~Box();
 
-class Box: public Primitive {
-public:
-	Box():_dx(1),_dy(1),_dz(1){};
-	Box(double x, double y, double z);
-	Box(const rw::math::Q& initQ);
-	virtual ~Box();
+		// inherited from Primitive
+		TriMeshPtr createMesh(int resolution);
 
-	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution);
+		rw::math::Q getParameters() const;
 
-	rw::math::Q getParameters() const;
+		GeometryType getType() const { return BoxPrim; };
 
-	GeometryType getType() const { return BoxPrim; };
-
-private:
-	double _dx,_dy,_dz;
-};
+	private:
+		double _dx,_dy,_dz;
+	};
 
 } // geometry
 } // rw

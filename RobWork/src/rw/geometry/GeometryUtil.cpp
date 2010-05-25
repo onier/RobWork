@@ -279,6 +279,7 @@ GeometryUtil::estimateInertia(
     Ixx *= ptMass;
     Iyy *= ptMass;
     Izz *= ptMass;
+
     double Iyx = Ixy = -ptMass*Ixy;
     double Izx = Ixz = -ptMass*Ixz;
     double Izy = Iyz = -ptMass*Iyz;

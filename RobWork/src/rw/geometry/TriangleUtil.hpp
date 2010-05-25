@@ -138,6 +138,7 @@ namespace rw { namespace geometry {
 		{
 		    typedef typename TRILIST::value_type T;
 		    typedef typename TRILIST::tri_type TRI;
+		    typedef typename TRILIST::index_type S;
 		    using namespace rw::math;
 
 		    // create a sorted vertice list with backreference to the triangle list
@@ -152,7 +153,7 @@ namespace rw { namespace geometry {
             std::vector<TRI> *triangles =
                 new std::vector<TRI>(triMesh.getSize());
 
-            int vertCnt = 0;
+            S vertCnt = 0;
             Vector3D<T> lastVert = (*verticesIdx)[0].n;
             (*vertices)[vertCnt] = lastVert;
             TRI &itri = (*triangles)[ (*verticesIdx)[0].triIdx ];
@@ -164,8 +165,8 @@ namespace rw { namespace geometry {
                     vertCnt++;
                     (*vertices)[vertCnt] = lastVert;
                 }
-                int triIdx = (*verticesIdx)[i].triIdx;
-                int vertTriIdx = (*verticesIdx)[i].vertIdx;
+                S triIdx = (*verticesIdx)[i].triIdx;
+                S vertTriIdx = (*verticesIdx)[i].vertIdx;
                 // update the triangle index for this vertice
                 //std::cout <<  "vertIdx: " << (*verticesIdx)[i].vertIdx << std::endl;
                 ((*triangles)[ triIdx ])[vertTriIdx] = vertCnt;
