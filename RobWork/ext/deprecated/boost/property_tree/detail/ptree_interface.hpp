@@ -1,8 +1,8 @@
 // ----------------------------------------------------------------------------
 // Copyright (C) 2002-2005 Marcin Kalicinski
 //
-// Distributed under the Boost Software License, Version 1.0. 
-// (See accompanying file LICENSE_1_0.txt or copy at 
+// Distributed under the Boost Software License, Version 1.0.
+// (See accompanying file LICENSE_1_0.txt or copy at
 // http://www.boost.org/LICENSE_1_0.txt)
 //
 // For more information, see www.boost.org
@@ -41,7 +41,7 @@ namespace boost { namespace property_tree
         typedef typename traits_type::char_type char_type;
         typedef typename traits_type::key_type key_type;
         typedef typename traits_type::data_type data_type;
-        
+
         // Container-related types
         typedef std::pair<key_type, basic_ptree<Tr> > value_type;
         typedef std::list<value_type> container_type;
@@ -50,7 +50,7 @@ namespace boost { namespace property_tree
         typedef typename container_type::const_iterator const_iterator;
         typedef typename container_type::reverse_iterator reverse_iterator;
         typedef typename container_type::const_reverse_iterator const_reverse_iterator;
-        
+
         ///////////////////////////////////////////////////////////////////////////
         // Construction & destruction
 
@@ -66,18 +66,19 @@ namespace boost { namespace property_tree
         const_iterator begin() const;
         iterator end();
         iterator not_found(){ return end(); }; // for forward compatibility: ROBWORK
+        const_iterator not_found() const { return end(); }; // for forward compatibility: ROBWORK
         const_iterator end() const;
         reverse_iterator rbegin();
         const_reverse_iterator rbegin() const;
         reverse_iterator rend();
         const_reverse_iterator rend() const;
-        
+
         ///////////////////////////////////////////////////////////////////////////
         // Data access
 
         size_type size() const;
         bool empty() const;
-        
+
         data_type &data();
         const data_type &data() const;
 
@@ -147,8 +148,8 @@ namespace boost { namespace property_tree
         // Put child ptree with default separator
         basic_ptree<Tr> &put_child(const key_type &path, const basic_ptree<Tr> &value, bool do_not_replace = false);
 
-        template<class Type> Type get_value(const std::locale &loc = std::locale()) const{ return get_own(loc); };
-        template<class Type> Type get_value(const Type &default_value, const std::locale &loc = std::locale()) const{ return get_own(loc); };
+        template<class Type> Type get_value(const std::locale &loc = std::locale()) const{ return get_own<Type>(loc); };
+        template<class Type> Type get_value(const Type &default_value, const std::locale &loc = std::locale()) const{ return get_own<Type>(default_value, loc); };
 
         // Get value from data of ptree
         template<class Type> Type get_own(const std::locale &loc = std::locale()) const;
@@ -180,7 +181,7 @@ namespace boost { namespace property_tree
     private:
 
         typedef std::multimap<key_type, iterator, Tr> index_type;
-        
+
         struct impl;
         impl *m_impl;
 

@@ -16,11 +16,28 @@ ADD_SUBDIRECTORY(sensor)
 ADD_SUBDIRECTORY(trajectory)
 ADD_SUBDIRECTORY(plugin)
 
+
+#Add the RobWork files
+SET(FILES_CPP
+    RobWork.cpp
+)
+
+SET(FILES_HPP
+	RobWork.hpp
+)
+
+FILE(GLOB SRC_FILES_CPP ${FILES_CPP})
+FILE(GLOB SRC_FILES_HPP ${FILES_HPP})
+
+SET(ENV{RW_LIB_FILES_CPP} "$ENV{RW_LIB_FILES_CPP}${SRC_FILES_CPP};")
+SET(ENV{RW_LIB_FILES_HPP} "$ENV{RW_LIB_FILES_HPP}${SRC_FILES_HPP};")
+
+
 ADD_LIBRARY(rw $ENV{RW_LIB_FILES_CPP} $ENV{RW_LIB_FILES_HPP})
 
 INSTALL(TARGETS rw DESTINATION ${RW_LIB_INSTALL_DIR})
 INSTALL(FILES 
-    robwork.hpp 
+    rw.hpp 
     use_robwork_namespace.hpp 
     common.hpp
     geometry.hpp

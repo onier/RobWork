@@ -8,7 +8,7 @@
 SET(RW_ENABLE_ASSERT ON)
 
 # Enable building tests, examples and sandbox
-SET(RW_BUILD_TESTS OFF)
+SET(RW_BUILD_TESTS ON)
 SET(RW_BUILD_SANDBOX ON)
 
 # BLAS and LAPACK - RobWork has prebuilt libraries for lapack and blas
