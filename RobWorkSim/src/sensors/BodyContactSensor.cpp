@@ -9,7 +9,7 @@ using namespace rw::kinematics;
 using namespace rw::math;
 
 BodyContactSensor::BodyContactSensor(const std::string& name,rw::kinematics::Frame* frame):
-    Sensor(frame,name)
+    Sensor(name,"BodyContactSensor")
 {
 
 }

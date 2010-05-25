@@ -97,7 +97,7 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
     const rw::math::Transform3D<>& fThmap,
     const ValueMatrix& heightMap,
     const rw::math::Vector2D<>& texelSize):
-        TactileArray(name, frame),
+        TactileArray(name),
         _centerMatrix(getShape(heightMap,-1,-1)),
         _normalMatrix(getShape(heightMap,-1,-1)),
         _contactMatrix(getShape(heightMap,-1,-1)),
@@ -121,7 +121,7 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
         _elasticity(700),// KPa ~ 0.0008 GPa
         _tau(0.1)
 {
-
+	this->attachTo(frame);
     // calculate the normals and centers of all texels
     // first calculate the 3D vertexes of the grid from the heightmap specification
     double tw = _texelSize(0), th = _texelSize(1);

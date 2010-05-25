@@ -60,8 +60,8 @@ using namespace rwlibs::proximitystrategies;
 
 #define INITIAL_MAX_CONTACTS 500
 
-//#define RW_DEBUGS( str ) std::cout << str  << std::endl;
-#define RW_DEBUGS( str )
+#define RW_DEBUGS( str ) std::cout << str  << std::endl;
+//#define RW_DEBUGS( str )
 /*
 #define TIMING( str, func ) \
     { long start = rw::common::TimerUtil::currentTimeMs(); \
@@ -107,7 +107,7 @@ namespace {
 	    std::cout  << "- Center  : " << printArray(&(dmass.c[0]), 3) << std::endl;
 	    std::cout  << "- Inertia : " << printArray(&dmass.I[0], 3) << std::endl;
 	    std::cout  << "-           " << printArray(&dmass.I[3], 3) <<  std::endl;
-	    std::cout  << "-           " <<  printArray(&dmass.I[6], 3) << std::endl;
+	    std::cout  << "-           " << printArray(&dmass.I[6], 3) << std::endl;
 	    std::cout  << "----------------------------------------------------" << std::endl;
 	}
 
@@ -128,38 +128,44 @@ namespace {
 		if( !dynamic_cast<TriMesh*>(gdata.get()) )
 			return NULL;
 		bool ownedData = false;
+		RW_DEBUGS("indexed stuff");
 		IndexedTriMesh<float> *imesh = NULL;
 		if( !dynamic_cast< IndexedTriMesh<float>* >(gdata.get()) ){
 			// convert the trimesh to an indexed trimesh
+			RW_DEBUGS("to indexed tri mesh");
 			imesh = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<float> >(*((TriMesh*)gdata.get()),0.00001);
 			ownedData = true;
 		} else {
+
 			imesh = static_cast< IndexedTriMesh<float>* >(gdata.get());
 		}
-
+		RW_DEBUGS("done casting");
 		int nrOfVerts = imesh->getVertices().size();
+		RW_DEBUGS("nr tris");
 		int nrOfTris = imesh->getSize();
 
 		// std::cout  << "- NR of faces: " << nrOfTris << std::endl;
 		// std::cout  << "- NR of verts: " << nrOfVerts << std::endl;
-
+		RW_DEBUGS("new ode trimesh");
 		ODESimulator::TriMeshData *data =
 			new ODESimulator::TriMeshData(nrOfTris*3, nrOfVerts*3);
+		RW_DEBUGS("trimeshid");
 		dTriMeshDataID triMeshDataId = dGeomTriMeshDataCreate();
 
 		data->triMeshID = triMeshDataId;
 		int vertIdx = 0;
+		RW_DEBUGS("for each vertice");
 		BOOST_FOREACH(const Vector3D<float>& v, imesh->getVertices()){
 			data->vertices[vertIdx+0] = v(0);
 			data->vertices[vertIdx+1] = v(1);
 			data->vertices[vertIdx+2] = v(2);
 			vertIdx+=3;
 		}
-
+		RW_DEBUGS("for each triangle");
 		int indiIdx = 0;
 		//BOOST_FOREACH(, imesh->getTriangles()){
 		for(size_t i=0;i<imesh->getSize();i++){
-			const IndexedTriangle<float>& tri = (*imesh)[i];
+			const IndexedTriangle<uint32_t> tri = imesh->getIndexedTriangle(i);
 			if(invert){
 				data->indices[indiIdx+0] = tri.getVertexIdx(2);
 				data->indices[indiIdx+1] = tri.getVertexIdx(1);
@@ -169,18 +175,24 @@ namespace {
 				data->indices[indiIdx+1] = tri.getVertexIdx(1);
 				data->indices[indiIdx+2] = tri.getVertexIdx(2);
 			}
+			if(data->indices[indiIdx+0]>=nrOfVerts)
+				std::cout << data->indices[indiIdx+0] << "<" << nrOfVerts << std::endl;
 			RW_ASSERT( data->indices[indiIdx+0]<nrOfVerts );
+			if(data->indices[indiIdx+1]>=nrOfVerts)
+				std::cout << data->indices[indiIdx+1] << "<" << nrOfVerts << std::endl;
 			RW_ASSERT( data->indices[indiIdx+1]<nrOfVerts );
+			if(data->indices[indiIdx+2]>=nrOfVerts)
+				std::cout << data->indices[indiIdx+2] << "<" << nrOfVerts << std::endl;
 			RW_ASSERT( data->indices[indiIdx+2]<nrOfVerts );
 
 			indiIdx+=3;
 		}
-
+		RW_DEBUGS("build ode trimesh");
 		dGeomTriMeshDataBuildSingle(triMeshDataId,
 				&data->vertices[0], 3*sizeof(dReal), nrOfVerts,
 				(dTriIndex*)&data->indices[0], nrOfTris*3, 3*sizeof(dTriIndex));
 
-
+		RW_DEBUGS("DONE tristuff");
 		// write all data to the disc
 		/*
 		std::ofstream fstr;
@@ -519,7 +531,8 @@ dBodyID ODESimulator::createRigidBody(Body* rwbody,
     Vector3D<> mc = info.masscenter;
     dMass m;
     setODEBodyMass(&m, info.mass, Vector3D<>(0,0,0), info.inertia);
-    //printMassInfo(m, rwbody->getBodyFrame() );
+    std::cout << "RW inertia: " << info.inertia << std::endl;
+    printMassInfo(m, rwbody->getBodyFrame() );
     dMassCheck(&m);
 
     // create the body and initialize mass, inertia and stuff

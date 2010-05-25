@@ -180,7 +180,7 @@ DynamicUtil::estimateInertia(
 	return std::make_pair(center, itotal);
 }
 #endif
-
+/*
 rw::math::Vector3D<>
 DynamicUtil::estimateCOG(
      double mass,
@@ -217,8 +217,8 @@ DynamicUtil::estimateCOG(
     center /= totalArea;
     return cast<double>(center);
 }
-
-
+*/
+/*
 std::pair<Vector3D<>, InertiaMatrix<> >
 DynamicUtil::estimateInertiaCOG(
     double mass,
@@ -290,6 +290,7 @@ DynamicUtil::estimateInertia(
                             Izx, Izy, Izz);
     return inertia;
 }
+*/
 #ifdef OLDOLD
 InertiaMatrix<>
     DynamicUtil::estimateInertia(

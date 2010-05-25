@@ -51,15 +51,15 @@ void ODEDebugRender::draw(DrawType draw, double alpha) const {
       glBegin(GL_TRIANGLES);
 
       for (size_t i = 0; i < trimesh->indices.size()/3; i++){
-        const float *p;
+        const dReal *p;
         p = &trimesh->vertices[ trimesh->indices[i * 3 + 0]*3 ];
-        glVertex3fv(p);
+        glVertex3f((float)p[0],(float)p[1],(float)p[2]);
 
         p = &trimesh->vertices[ trimesh->indices[i * 3 + 1]*3 ];
-        glVertex3fv(p);
+        glVertex3f((float)p[0],(float)p[1],(float)p[2]);
 
         p = &trimesh->vertices[ trimesh->indices[i * 3 + 2]*3 ];
-        glVertex3fv(p);
+        glVertex3f((float)p[0],(float)p[1],(float)p[2]);
       }
 
       // draw all contacts

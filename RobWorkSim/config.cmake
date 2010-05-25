@@ -23,10 +23,10 @@ SET(USE_LUA ON)
 # 
 
 SET(USE_ODE ON)
-SET(ODE_INCLUDE_DIR	"C:/jimalilocal/ode-0.11.1/include")
-SET(ODE_LIBRARY_DIRS "C:/jimalilocal/ode-0.11.1/lib/ReleaseSingleDll")
-SET(ODE_LIBRARIES "ode_single.lib")
-ADD_DEFINITIONS(-DdSINGLE)
+SET(ODE_INCLUDE_DIR	"C:/jimali/opende/include")
+SET(ODE_LIBRARY_DIRS "C:/jimali/opende/lib/ReleaseDoubleLib")
+SET(ODE_LIBRARIES "ode_double.lib")
+ADD_DEFINITIONS(-DdDOUBLE)
 
 SET(USE_BULLET OFF)
 SET(BULLET_INCLUDE_DIR 

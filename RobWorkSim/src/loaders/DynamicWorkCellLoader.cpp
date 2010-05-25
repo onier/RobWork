@@ -60,7 +60,7 @@
 #include <dynamics/MaterialDataMap.hpp>
 #include <dynamics/ContactDataMap.hpp>
 #include <dynamics/DynamicUtil.hpp>
-//#include <dynamics/Geometry.hpp>
+#include <rw/geometry/GeometryUtil.hpp>
 
 #include <sensors/TactileArraySensor.hpp>
 
@@ -248,8 +248,8 @@ namespace
     }
 */
     std::vector<double> readArray(PTree& tree){
-        RW_DEBUGS( "ReadArray: " << tree.get_own<string>() );
-        istringstream buf(tree.get_own<string>());
+        RW_DEBUGS( "ReadArray: " << tree.get_value<string>() );
+        istringstream buf(tree.get_value<string>());
         std::vector<double> values;
 
         std::string str;
@@ -347,7 +347,7 @@ namespace
 
         // time to load the geometry
         Log::debugLog()<< "load geom" << std::endl;
-        info.frames = DynamicUtil::getAnchoredFrames( *mframe, state.rwstate);
+        info.frames = GeometryUtil::getAnchoredFrames( *mframe, state.rwstate);
         std::vector<Geometry*> geometry = loadGeometry(mframe, info.frames, state.rwstate);
 
         boost::optional<string> def = tree.get_optional<string>("EstimateInertia");
@@ -356,13 +356,13 @@ namespace
             info.inertia = readInertia( tree.get_child("Inertia") );
         } else {
             // calculate the inertia from the triangle mesh
-            info.masscenter = DynamicUtil::estimateCOG(info.mass, geometry);
-            info.inertia = DynamicUtil::estimateInertia(info.mass, geometry);
+            info.masscenter = GeometryUtil::estimateCOG(geometry);
+            info.inertia = GeometryUtil::estimateInertia(info.mass, geometry);
 
             Log::debugLog()<< "---- EstimatedInertia for: " << mframe->getName() << std::endl;
             Log::debugLog()<< "- COG: " << info.masscenter << std::endl;
             Log::debugLog()<< "- Inertia: " << info.inertia << std::endl;
-            info.inertia = DynamicUtil::estimateInertiaCOG(info.mass, geometry).second;
+            info.inertia = GeometryUtil::estimateInertiaCOG(info.mass, geometry).second;
             Log::debugLog()<< "- Inertia: " << info.inertia << std::endl;
         }
         Log::debugLog()<< "Creating rigid body" << std::endl;
@@ -477,8 +477,8 @@ namespace
             info.inertia = readInertia( tree.get_child("Inertia") );
         } else {
             // calculate the inertia from the triangle mesh
-            info.masscenter = DynamicUtil::estimateCOG(info.mass, geometry);
-            info.inertia =  DynamicUtil::estimateInertia(info.mass, geometry);
+            info.masscenter = GeometryUtil::estimateCOG(geometry);
+            info.inertia =  GeometryUtil::estimateInertia(info.mass, geometry);
             Log::debugLog()<< "---- EstimatedInertia for: " << joint->getName() << std::endl;
             Log::debugLog()<< "- COG: " << info.masscenter << std::endl;
             Log::debugLog()<< "- Inertia: " << info.inertia << std::endl;
@@ -533,7 +533,7 @@ namespace
             if (p->first == "ForceLimit") {
                 string refjoint = p->second.get_child("<xmlattr>").get<std::string>("joint");
                 //int jIdx = getJointIdx(refjoint,device);
-                maxForce.push_back( p->second.get_own<double>() );
+                maxForce.push_back( p->second.get_value<double>() );
                 //jointForceLimits.push_back(std::make_pair())
             } else if( p->first == "FixedBase" ){
             	base = readFixedBase(p->second, state, device);
@@ -636,7 +636,7 @@ namespace
                 string desc = p->second.get("Description","");
                 state.materialData.add(id, desc);
             } else if(p->first == "Default"){
-                string defMaterial = p->second.get_own<string>();
+                string defMaterial = p->second.get_value<string>();
                 state.defaultMaterial = defMaterial;
             } else {
                 RW_THROW("Unknown element");
@@ -684,7 +684,7 @@ namespace
                 string desc = p->second.get("Description","");
                 state.contactData.add(id, desc);
             } else if(p->first == "Default"){
-                string defObjectType = p->second.get_own<string>();
+                string defObjectType = p->second.get_value<string>();
                 state.defaultObjectType = defObjectType;
             } else {
                 RW_THROW("Unknown element");
@@ -735,13 +735,13 @@ namespace
         		//std::string desc = p->second.get_child_optional("Description").get<std::string>("desc","");
         		std::string type = p->second.get_child("<xmlattr>").get<std::string>("type","string");
         		if( type=="string" ){
-        			std::string value = p->second.get_own<std::string>();
+        			std::string value = p->second.get_value<std::string>();
         			state.engineProps.add<std::string>(name, "", value);
         		} else if( type=="int" ){
-        			int value = p->second.get_own<int>();
+        			int value = p->second.get_value<int>();
         			state.engineProps.add<int>(name, "", value);
         		} else if( type=="float" ){
-        			double value = p->second.get_own<double>();
+        			double value = p->second.get_value<double>();
         			state.engineProps.add<double>(name, "", value);
         		} else {
         			RW_THROW("DynamicWorkCellLoader: Unknown engine property type: " << StringUtil::quote(type) );
