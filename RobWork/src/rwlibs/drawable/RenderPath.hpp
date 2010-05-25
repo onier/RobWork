@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,26 +15,42 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #ifndef RWLIBS_DRAWABLE_RENDERPATH_HPP
 #define RWLIBS_DRAWABLE_RENDERPATH_HPP
+
+//! @file RenderPath.hpp
 
 #include "Render.hpp"
 
 namespace rwlibs {
 namespace drawable {
+    //! @addtogroup drawable @{
+    /**
+     * @brief loads a path from file and renders it.
+     *
+     * TODO: file loading should be seperated from render. The rendering can be done using
+     * RenderLines and a PathLoader should be constructed instead.
+     */
+    class RenderPath : public Render
+    {
+    public:
+        /**
+         * @brief constructor
+         * @param filename [in] filename of path file
+         */
+        RenderPath(const std::string& filename);
 
-class RenderPath : public Render
-{
-public:
-	RenderPath(const std::string& filename);
-	virtual ~RenderPath();
+        /**
+         * @brief destructor
+         * @return
+         */
+        virtual ~RenderPath();
 
-protected:
-    virtual void update(UpdateType type);
+    protected:
+        virtual void update(UpdateType type);
 
-};
-
+    };
+    //! @}
 } //end namespace drawable
 } //end namespace rwlibs
 

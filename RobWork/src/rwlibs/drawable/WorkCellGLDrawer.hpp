@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -14,7 +14,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ********************************************************************************/
-
 
 #ifndef RWLIBS_DRAWABLE_WORKCELLGLDRAWER_HPP
 #define RWLIBS_DRAWABLE_WORKCELLGLDRAWER_HPP
@@ -140,10 +139,16 @@ namespace rwlibs { namespace drawable {
             const rw::kinematics::State& state,
             rw::kinematics::Frame* camera);
 
-
+        /**
+         * @brief draws the scene as \b draw but for each frame it draws it pushes
+         * its name on the gl name stack.
+         *
+         * usefull for picking/selecting frames in the scene
+         * @param state [in] state that is to be drawn
+         * @param workcell [in] the workcell
+         */
         void drawAndSelect(const rw::kinematics::State& state,
                            rw::models::WorkCell* workcell);
-
 
     private:
         /**

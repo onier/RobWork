@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -19,32 +19,36 @@
 #ifndef RWLIBS_DRAWABLE_RENDERIMAGE_HPP
 #define RWLIBS_DRAWABLE_RENDERIMAGE_HPP
 
-/**
- * @file RenderFrame.hpp
- */
+//! @file Rendermage.hpp
 
-#include <rwlibs/os/rwgl.hpp>
 #include <rw/sensor/Image.hpp>
 #include <rw/common/Ptr.hpp>
+#include <rwlibs/os/rwgl.hpp>
 #include "RWGLTexture.hpp"
 #include "Render.hpp"
 
 namespace rwlibs { namespace drawable {
 
-    /** @addtogroup drawable */
-    /*@{*/
+    //! @addtogroup drawable @{
 
     /**
      * @brief RenderImage renders a image in a plane defined by
-     * [-w/2;h/2][w/2;-h/2]. The image can be scaled
+     * [-w/2;h/2][w/2;-h/2]. The image need to be scaled into metric
+     * units. This can be done using a scaling parameter.
      */
     class RenderImage : public Render
     {
     public:
-    	RenderImage(float scale=1.0/1000.0);
         /**
-         * @brief Constructs a RenderFrame
-         * @param size [in] size of the frame coordinate system
+         * @brief constructor
+         * @param scale [in] scale from image coordinates to meters.
+         */
+    	RenderImage(float scale=1.0/1000.0);
+
+        /**
+         * @brief Constructs
+         * @param img [in} the image that is to be rendered
+         * @param scale [in] scale from image coordinates to meters.
          */
         RenderImage(const rw::sensor::Image& img, float scale=1.0/1000.0);
 
@@ -53,10 +57,13 @@ namespace rwlibs { namespace drawable {
          */
         virtual ~RenderImage(){};
 
-    	/* Functions inherited from Render */
-
+        /**
+         * @brief set the image that is to be rendered.
+         * @param img [in] image to render
+         */
         void setImage(const rw::sensor::Image& img);
 
+    	/* Functions inherited from Render */
         /**
          * @copydoc Render::draw
          */

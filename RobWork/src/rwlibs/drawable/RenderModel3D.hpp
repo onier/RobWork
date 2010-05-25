@@ -16,30 +16,24 @@
  ********************************************************************************/
 
 
-#ifndef rwlibs_drawable_RenderModel3D_HPP
-#define rwlibs_drawable_RenderModel3D_HPP
+#ifndef RWLIBS_DRAWABLE_RENDERMODEL3D_HPP
+#define RWLIBS_DRAWABLE_RENDERMODEL3D_HPP
 
-/**
- * @file Render3DS.hpp
- */
+//! @file RenderModel3D.hpp
 
 #include "Model3D.hpp"
 #include "Render.hpp"
 
 #include <rwlibs/os/rwgl.hpp>
-
 #include <cstring>
 #include <iostream>
 
 namespace rwlibs { namespace drawable {
 
-    /** @addtogroup drawable */
-    /*@{*/
+    //! @addtogroup drawable @{
 
     /**
-     * @brief This class loads 3d scenes or objects from a 3ds file
-     * format.
-     *
+     * @brief render for the Model3D class.
      */
     class RenderModel3D : public Render {
     private:
@@ -47,8 +41,8 @@ namespace rwlibs { namespace drawable {
 
     public:
         /**
-         * @brief creates a Render3DS given a 3DS file.
-         * @param filename [in] - the path and name of the 3DS file
+         * @brief constructor.
+         * @param model [in] the model that is to be rendered
          */
         RenderModel3D(Model3DPtr model);
 
@@ -57,17 +51,28 @@ namespace rwlibs { namespace drawable {
          */
     	virtual ~RenderModel3D();
 
-    	// Functions inherited from Render
+    	/**
+    	 * @brief get the model that is being rendered
+    	 */
+    	Model3DPtr getModel(){return _model;};
 
+
+
+    	// Functions inherited from Render
         /**
          * @copydoc Render::draw
          */
         void draw(DrawType type, double alpha) const;
 
+        /**
+         * @brief draws the model using drawelements array.
+         * @param type [in]
+         * @param alpha [in]
+         */
         void drawUsingArrays(DrawType type, double alpha) const;
-        void drawUsingArrays(const Model3D::Object3D& obj, DrawType type, double alpha) const;
 
     private:
+        void drawUsingArrays(const Model3D::Object3D& obj, DrawType type, double alpha) const;
         void useMaterial(const Model3D::Material& mat, DrawType type, double alpha) const;
     };
 

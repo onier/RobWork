@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -27,15 +27,12 @@
 
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Transform3D.hpp>
-
-#include <rwlibs/os/rwgl.hpp>
-
 #include <rw/common/Ptr.hpp>
+#include <rwlibs/os/rwgl.hpp>
 
 namespace rwlibs { namespace drawable {
 
-    /** @addtogroup drawable */
-    /*@{*/
+    //! @addtogroup drawable @{
 
     /**
      * @brief Abstract base class for all drawable classes
@@ -192,7 +189,6 @@ namespace rwlibs { namespace drawable {
         rw::math::Transform3D<> _t3d;
 
     private:
-
     	GLfloat gltrans[16];
 
         Drawable(const Drawable&);

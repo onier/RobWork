@@ -15,15 +15,10 @@
  * limitations under the License.
  ********************************************************************************/
 
-/*
- * Model3D.hpp
- *
- *  Created on: 02-07-2009
- *      Author: jimali
- */
+#ifndef RWLIBS_DRAWABLE_MODEL3D_HPP_
+#define RWLIBS_DRAWABLE_MODEL3D_HPP_
 
-#ifndef MODEL3D_HPP_
-#define MODEL3D_HPP_
+//! @file Model3D.hpp
 
 #include "RWGLTexture.hpp"
 
@@ -37,124 +32,167 @@
 namespace rwlibs {
 namespace drawable {
 
-/**
- * @brief a 3d model that has geometry but also material, color and texture information.
- * the model can be composed of multiple objects
- */
-class Model3D {
-public:
-	Model3D();
-	virtual ~Model3D();
+    //! @addtogroup drawable @{
 
-public:
-    // Holds the material info
-    // TODO: add color support for non textured polys
-    struct Material {
-    	Material():name(""), textured(false), simplergb(true){};
-        Material(const std::string& nam, float r, float g, float b, float a=1.0):
-            name(nam), textured(false), simplergb(true)
-        {
-            rgb[0] = r;
-            rgb[1] = g;
-            rgb[2] = b;
-            rgb[3] = a;
-        }
-        std::string name;	// The material's name
-        short int texId;	// The texture (this is the only outside reference in this class)
-        bool textured;	// whether or not it is textured
-        bool simplergb;
+    /**
+     * @brief a 3d model that has geometry but also material, color and texture information.
+     * the model can be composed of multiple objects that are connected in a hierarchical manner.
+     * The model is designed for efficient drawing and as such special structures are used
+     * to order the indexes such that efficient drawing is possible.
+     */
+    class Model3D {
+    public:
 
-        /** Red, Green, Blue color components */
-        float rgb[4];
-        /** Ambient color as RGB */
-        float ambient[4];
-        /** Emissive color as RGB */
-        float emissive[4];
-        /** Specular color as RGB */
-        float specular[4];
+        //! @brief constructor
+        Model3D();
 
-        /** The shininess \f$\in [0,128] \f$ */
-        float shininess;
-        /** Transparency \f$ in [0, 1]\f$ */
-        float transparency;
+        //! @brief destructor
+        virtual ~Model3D();
 
+        /**
+         * @brief describes material properties. A material can be either simple or "advanced"
+         * and in both cases it can be textured.
+         * A simple material is described by a 4-tuple of RGBA values. The advanced material
+         * defines multiple properties: diffuse, ambient, emissive, specular, shininess and transparency
+         */
+        struct Material {
+            //! @brief default constructor
+            Material():name(""), textured(false), simplergb(true){};
+            //! @brief constructor for simple material
+            Material(const std::string& nam, float r, float g, float b, float a=1.0):
+                name(nam), textured(false), simplergb(true)
+            {
+                rgb[0] = r;
+                rgb[1] = g;
+                rgb[2] = b;
+                rgb[3] = a;
+            }
+            //! @brief material name, not necesarily unique
+            std::string name;
+            //! @brief index to a texture which is stored in Model3D, -1 if not used
+            short int texId;
+            //! @brief true is the material is textured
+            bool textured;	// whether or not it is textured
+            //! @brief true if this material is a simple material
+            bool simplergb;
+            //! @brief Red, Green, Blue and alpha color (simple) or diffues color(advanced)
+            float rgb[4];
+            //! @brief Ambient color as RGBA
+            float ambient[4];
+            //! @brief Emissive color as RGBA
+            float emissive[4];
+            //! @brief Specular color as RGB
+            float specular[4];
+
+            //! @brief The shininess \f$\in [0,128] \f$
+            float shininess;
+            //! @brief Transparency \f$ in [0, 1]\f$
+            float transparency;
+        };
+
+        /**
+         * @brief ordering triangles by material consumes more memmory but reduce switches between
+         * textures. All indices \b _subFaces share material \b _matIndex.
+         */
+        struct MaterialFaces {
+            /**
+             *  @brief  Index into the vertice array of the Object3D.
+             *  The _subFaces is a subset of _indices from Object3D
+             */
+            std::vector<rw::geometry::IndexedTriangle<> > _subFaces;
+            //! @brief the material index shared by all triangles \b _subFaces
+            int _matIndex;
+        };
+
+        /**
+         * @brief ordering polygons by material consumes more memmory but reduce switches between
+         * textures. All indices \b _subFaces share material \b _matIndex.
+         */
+        struct MaterialPolys {
+            /**
+             *  @brief  Index into the vertice array of the Object3D.
+             *  The _subFaces is a subset of _indices from Object3D
+             */
+            std::vector<rw::geometry::IndexedPolygonN<> > _subPolys;
+            //! @brief the material index shared by all polygons \b _subPolys
+            int _matIndex;
+        };
+
+        /**
+         * @brief
+         */
+        struct Object3D {
+            /**
+             * @brief constructor
+             * @param name [in] name of object
+             */
+            Object3D(const std::string& name):
+                _name(name),
+                parentObj(-1),
+                _texture(-1),
+                _texOffset(0,0),
+                _texRepeat(0,0)
+            {};
+
+            //! @brief test if this object is textured
+            bool hasTexture() const{ return _texture>=0;};
+
+            //! @brief name/id of object
+            std::string _name;
+
+            std::vector<rw::math::Vector3D<float> > _vertices;
+            std::vector<rw::math::Vector3D<float> > _normals;
+            std::vector<rw::math::Vector2D<float> > _texCoords;
+
+            /**
+             * @brief list containing indexed polygons. The polygons index into the
+             * \b _vertices array and the \b _normals array
+             * The normal is implicitly indexed and defined as same index as the
+             * vertex.
+             */
+            std::vector<rw::geometry::IndexedTriangle<> > _faces;
+
+            /**
+             * @brief list containing indexed polygons. The polygons index into the
+             * \b _vertices array and the \b _normals array
+             * The normal is implicitly indexed and defined as same index as the
+             * vertex.
+             */
+            std::vector<rw::geometry::IndexedPolygonN<> > _polys;
+
+            int _texture;
+            std::vector<MaterialFaces*> _matFaces;
+            std::vector<MaterialPolys*> _matPolys;
+            rw::math::Transform3D<float> _transform;
+            int parentObj;
+            std::vector<Object3D*> _kids;
+            rw::math::Vector2D<float> _texOffset, _texRepeat;
+        };
+
+    public:
+
+        int addObject(Object3D* obj);
+        int addMaterial(const Material& mat);
+        void removeObject(const std::string& name);
+
+        std::vector<Material>& getMaterials(){ return _materials; };
+        std::vector<Object3D*>& getObjects(){ return _objects; };
+
+        const rw::math::Transform3D<>& getTransform(){ return _transform;};
+        void setTransform(const rw::math::Transform3D<>& t3d){ _transform = t3d;};
+    //private:
+        rw::math::Transform3D<> _transform;
+        std::vector<Material> _materials; // The array of materials
+        std::vector<Object3D*> _objects; // The array of objects in the model
+        std::vector<RWGLTexture*> _textures;
+
+        int totalVerts;			// Total number of vertices in the model
+        int totalFaces;			// Total number of faces in the model
     };
 
-    // I sort the mesh by material so that I won't have to switch textures a great deal
-    struct MaterialFaces {
-        // Index to our vertex array of all the faces that use this material
-        std::vector<rw::geometry::IndexedTriangle<> > _subFaces;
-        //int numSubFaces;            // The number of faces
-        int _matIndex;               // An index to our materials
-    };
-
-    struct MaterialPolys {
-        // Index to our vertex array of all the faces that use this material
-        std::vector<rw::geometry::IndexedPolygonN<> > _subPolys;
-        //int numSubFaces;            // The number of faces
-        int _matIndex;               // An index to our materials
-    };
-
-	struct Object3D {
-	    Object3D(const std::string& name):
-	        _name(name),
-	        parentObj(-1),
-	        _texture(-1),
-	        _texOffset(0,0),
-	        _texRepeat(0,0){};
-
-	    bool hasTexture() const{ return _texture>=0;};
-
-		std::string _name;
-		//rw::geometry::IndexedTriMeshN0<float> *_mesh;
-
-		std::vector<rw::math::Vector3D<float> > _vertices;
-        std::vector<rw::math::Vector3D<float> > _normals;
-        std::vector<rw::math::Vector2D<float> > _texCoords;
-
-        // the normal is implicit and defined as the a vertex normal with
-        // index as its vertex
-        std::vector<rw::geometry::IndexedTriangle<> > _faces;
-        // the normal is explicit and only defined for the Face
-        //std::vector<rw::geometry::IndexedTriangleN1<float> > _faces1;
-        // the normal is explicit and defined for each vertex
-        //std::vector<rw::geometry::IndexedTriangleN3<float> > _faces3;
-		// todo: perhaps a list of polytopes also
-		std::vector<rw::geometry::IndexedPolygonN<> > _polys;
-
-		int _texture;
-		std::vector<MaterialFaces*> _matFaces;
-		std::vector<MaterialPolys*> _matPolys;
-		rw::math::Transform3D<float> _transform;
-		int parentObj;
-		std::vector<Object3D*> _kids;
-		rw::math::Vector2D<float> _texOffset, _texRepeat;
-
-	};
-
-public:
-	int addObject(Object3D* obj);
-	int addMaterial(const Material& mat);
-	void removeObject(const std::string& name);
-
-	std::vector<Material>& getMaterials(){ return _materials; };
-	std::vector<Object3D*>& getObjects(){ return _objects; };
-
-	const rw::math::Transform3D<>& getTransform(){ return _transform;};
-	void setTransform(const rw::math::Transform3D<>& t3d){ _transform = t3d;};
-//private:
-	rw::math::Transform3D<> _transform;
-    std::vector<Material> _materials; // The array of materials
-    std::vector<Object3D*> _objects; // The array of objects in the model
-    std::vector<RWGLTexture*> _textures;
-
-    int totalVerts;			// Total number of vertices in the model
-    int totalFaces;			// Total number of faces in the model
-};
-
-
-typedef rw::common::Ptr<Model3D> Model3DPtr;
-
+    typedef rw::common::Ptr<Model3D> Model3DPtr;
+    //! @}
 }
 }
+
 #endif /* MODEL3D_HPP_ */

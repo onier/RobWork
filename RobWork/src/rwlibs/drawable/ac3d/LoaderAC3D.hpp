@@ -15,13 +15,10 @@
  * limitations under the License.
  ********************************************************************************/
 
+#ifndef RWLIBS_DRAWABLE_LOADERAC3D_HPP
+#define RWLIBS_DRAWABLE_LOADERAC3D_HPP
 
-#ifndef RWLIBS_DRAWABLE_RENDERAC3D_HPP
-#define RWLIBS_DRAWABLE_RENDERAC3D_HPP
-
-/**
- * @file RenderAC3D.hpp
- */
+//! @file LoaderAC3D.hpp
 
 #include <rwlibs/os/rwgl.hpp>
 

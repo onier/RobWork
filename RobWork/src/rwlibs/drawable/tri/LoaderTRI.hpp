@@ -11,6 +11,7 @@
 
 namespace rwlibs {
 namespace drawable {
+    //! @addtogroup drawable @{
 
 	/**
 	 * @brief loader for a simple ASCI based triangle format. The format is NOT
@@ -50,9 +51,11 @@ namespace drawable {
 		/**
 		 * @copydoc Model3DLoader::load
 		 */
-		Model3DPtr load(const std::string& name); // Loads a model
+		Model3DPtr load(const std::string& name);
 
 	};
+
+	//! @}
 }
 }
 #endif // RW_DRAWABLE_LOADER_3DS_H

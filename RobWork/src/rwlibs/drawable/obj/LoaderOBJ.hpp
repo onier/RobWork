@@ -15,8 +15,10 @@
  * limitations under the License.
  ********************************************************************************/
 
-#ifndef RWLIBS_DRAWABLE_OBJREADER
-#define RWLIBS_DRAWABLE_OBJREADER
+#ifndef RWLIBS_DRAWABLE_LOADEROBJ_
+#define RWLIBS_DRAWABLE_LOADEROBJ_
+
+//! @file LoaderOBJ.hpp
 
 #include <string>
 #include <vector>
@@ -29,20 +31,31 @@
 
 namespace rwlibs { namespace drawable {
 
+    //! @addtogroup drawable @{
+
 	/**
-	 * @brief Class for loading in IVG files
+	 * @brief Class for loading in IVG files.
+	 * TODO: add documentation on IVG format
 	 */
 	class LoaderOBJ: public Model3DLoader
 	{
 	public:
+	    /**
+	     * @brief constructor
+	     */
 		LoaderOBJ(){};
+
+		/**
+		 * @brief destructor
+		 */
 		virtual ~LoaderOBJ(){};
 
-		Model3DPtr load(const std::string& name); // Loads a model
+		//! @copydoc Model3DLoader::load
+		Model3DPtr load(const std::string& name);
 
 	};
 
-
+	//! @}
 
 }}
 
