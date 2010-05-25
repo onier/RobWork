@@ -59,6 +59,9 @@ namespace simulation {
          */
         void addSimulator(Simulator *sim);
 
+    	//! @copydoc Simulator::step
+    	void step(double dt, rw::kinematics::State &state);
+
     };
     //! @}
 }}
