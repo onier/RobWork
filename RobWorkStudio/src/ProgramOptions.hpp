@@ -75,9 +75,10 @@ void handleResult(bool success, boost::any& v, const std::string& name, const TY
 			v = boost::any( values );
 		}
 	} else {
-		throw boost::program_options::validation_error(
-				boost::program_options::validation_error::invalid_option_value,
-				"invalid property value, use syntax: <name>=<value>");
+		//throw boost::program_options::validation_error(
+		//		boost::program_options::validation_error::invalid_option_value,
+		//		"invalid property value, use syntax: <name>=<value>");
+	    RW_THROW("invalid property value, use syntax: <name>=<value>");
 	}
 }
 

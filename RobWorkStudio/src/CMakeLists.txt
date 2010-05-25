@@ -29,8 +29,8 @@ ADD_EXECUTABLE(RobWorkStudio main.cpp ProgramOptions.cpp)
 SET(LIBS_TMP ${RWS_PLUGIN_LIBRARIES} ${RWS_COMPONENT_LIBRARIES} ${ROBWORKSTUDIO_LIBRARIES})
 TARGET_LINK_LIBRARIES(RobWorkStudio ${LIBS_TMP})
 MESSAGE(" ${LIBS_TMP} ")
-MESSAGE(" ${RWS_PLUGIN_LIBRARIES} ")
-# 
+#MESSAGE(" ${RWS_PLUGIN_LIBRARIES} ")
+
 # Some install stuff
 INSTALL(TARGETS RobWorkStudio DESTINATION bin)
 INSTALL(FILES "${RWSTUDIO_ROOT}/bin/RobWorkStudio.ini_template" 
@@ -38,46 +38,14 @@ INSTALL(FILES "${RWSTUDIO_ROOT}/bin/RobWorkStudio.ini_template"
         RENAME "RobWorkStudio.ini"
 )
 
-# -------------------------------------------------------------------------
-# this is used to set up installation of dlls/so's that RobWorkStudio 
-# depends on
-SET(DEPENDS_DIRS 
-    "${CMAKE_LIBRARY_OUTPUT_DIRECTORY}" 
-    "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" 
-#    ${QT_LIBRARIES} 
-     ${QT_BINARY_DIR}
-     ${QT_PLUGINS_DIR}
+# this will configure the dependency file that will be used if install is invoked
+GET_TARGET_PROPERTY(rwstudio_executable_name RobWorkStudio LOCATION)
+CONFIGURE_FILE(
+   "${RWSTUDIO_ROOT}/build/dependencies.cmake.in"
+   "${RWSTUDIO_ROOT}/build/dependencies.cmake"
+   @ONLY
 )
+INSTALL(SCRIPT "${RWSTUDIO_ROOT}/build/dependencies.cmake")
 
-SET(target "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/RobWorkStudio.exe")
-SET(EXEPATH "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
+#include(${RWSTUDIO_ROOT}/build/dependencies.cmake)
 
-include(InstallRequiredSystemLibraries)
-INCLUDE(GetPrerequisites OPTIONAL RESULT_VARIABLE prereq_result)
-
-#set(TARGET_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug)
-set(PREREQ "")
-get_prerequisites("${target}" PREREQ 0 1 ${EXEPATH} "")
-message(STATUS "PREREQ=${PREREQ}")
-
-
-IF( prereq_result ) 
-    IF(WIN32)
-        SET(RWS_DEPENDENCIES 
-            "QtCore4.dll;QtGui4.dll;QtOpenGL4.dll;MINGWM10.dll"
-            "MSVCRT.dll;GLU32.dll"
-        )
-        IF(USE_XERCES)
-        	#LIST(APPEND RW_DEPENDENCIES libxerces-c2_8_0.dll)
-        	MESSAGE("Xerces libraries: ${XERCESC_LIBRARY}")
-        ENDIF()
-        
-        
-        
-        FOREACH(item ${RWS_DEPENDENCIES})
-            gp_resolve_item("${target}" "${item}" "${EXEPATH}" "${DEPENDS_DIRS}" resolved_item)
-            INSTALL(FILES "${resolved_item}" DESTINATION bin)
-            #MESSAGE("${resolved_item}")
-        ENDFOREACH()
-    ENDIF ()
-ENDIF()
