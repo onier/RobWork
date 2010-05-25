@@ -129,5 +129,19 @@ BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
 		}
 	std::cout << "toIdxMesh float uint16 get direct3 time: " << timer.getTime() << std::endl;
 
+	// now test if the indexed data is the same as the plain
+	const double epsilon = 1e-6;
+	timer.resetAndResume();
+	for(size_t i=0; i<mesh->getSize(); i++){
+		//std::cout << MetricUtil::dist2(imeshf16->getVertex(i, V1), ((*mesh)[i])[0]) << "<" << epsilon << std::endl;
+		BOOST_CHECK(imeshf16->getIndexedTriangle(i)[0]<imeshf16->getVertices().size());
+		BOOST_CHECK(MetricUtil::dist2(imeshf16->getVertex(i, V1), ((*mesh)[i])[0])<epsilon);
+		BOOST_CHECK(imeshf16->getIndexedTriangle(i)[1]<imeshf16->getVertices().size());
+		BOOST_CHECK(MetricUtil::dist2(imeshf16->getVertex(i, V2), ((*mesh)[i])[1])<epsilon);
+		BOOST_CHECK(imeshf16->getIndexedTriangle(i)[2]<imeshf16->getVertices().size());
+		BOOST_CHECK(MetricUtil::dist2(imeshf16->getVertex(i, V3), ((*mesh)[i])[2])<epsilon);
+	}
+
+
 }
 
