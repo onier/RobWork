@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -15,13 +15,10 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #ifndef RWLIBS_SIMULATION_GLFRAMEGRAPPER25D_HPP
 #define RWLIBS_SIMULATION_GLFRAMEGRAPPER25D_HPP
 
-/**
- * @file GLFrameGrabber.hpp
- */
+//! @file GLFrameGrabber25D.hpp
 
 #include "FrameGrabber25D.hpp"
 
@@ -32,8 +29,7 @@
 #include <rw/kinematics/State.hpp>
 
 namespace rwlibs { namespace simulation {
-    /** @addtogroup simulation */
-    /* @{ */
+    //! @addtogroup simulation @{
 
     /**
      * @brief An implementation of the FrameGrabber interface. The GLFrameGrabber25D
@@ -41,7 +37,7 @@ namespace rwlibs { namespace simulation {
      *
      * a framethe opengl rendering to
      * take pictures of the scene.
-
+     *
      * The most basic parameter of a camera is its Field of view. This
      * can be used as an initial camera model. Field of view can be
      * calculated from the focal length and the size of the CCD
@@ -58,7 +54,6 @@ namespace rwlibs { namespace simulation {
          * @param height [in] height of image
          * @param fov [in] the vertical field of view angle in degree
          * @param drawer [in] the WorkCellGLDrawer that draws the OpenGL scene
-         * @param state [in] the state of the workcell
          */
         GLFrameGrabber25D(
             int width, int height, double fov,
@@ -70,16 +65,29 @@ namespace rwlibs { namespace simulation {
         virtual ~GLFrameGrabber25D(){};
 
         /**
-         * @copydoc FrameGrabber::grab
+         * @brief set the maximum depth that is percieved by this frame grabber.
+         * If min and max depth are too far apart the resolution of the depth
+         * perception will become bad. Hence keep the range realistic.
+         * @param depth [in] max depth
          */
-        void grab(rw::kinematics::Frame* frame, const rw::kinematics::State& state);
-
-        double getMaxDepth(){return _maxDepth;};
-        double getMinDepth(){return _minDepth;};
-
         void setMaxDepth(double depth);
+
+        /**
+         * @brief set the minimum depth that is percieved by this frame grabber.
+         * If min and max depth are too far apart the resolution of the depth
+         * perception will become bad. Hence keep the range realistic.
+         * @param depth [in] min depth
+         */
         void setMinDepth(double depth);
 
+        //! @copydoc FrameGrabber::grab
+        void grab(rw::kinematics::Frame* frame, const rw::kinematics::State& state);
+
+        //! @copydoc FrameGrabber::getMacDepth
+        double getMaxDepth(){return _maxDepth;};
+
+        //! @copydoc FrameGrabber::getMacDepth
+        double getMinDepth(){return _minDepth;};
 
     private:
         double _fieldOfView; // in the y-axis

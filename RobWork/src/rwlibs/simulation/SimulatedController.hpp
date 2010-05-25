@@ -15,42 +15,45 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #ifndef RWLIBS_SIMULATION_CONTROLLER_HPP_
 #define RWLIBS_SIMULATION_CONTROLLER_HPP_
+
+//! @file SimulatedController.hpp
 
 #include <rw/kinematics/State.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rwlibs/control/Controller.hpp>
 
-
 namespace rwlibs {
 namespace simulation {
-
-/**
- * @brief inter
- */
-class SimulatedController /*: public rwlibs::control::Controller*/ {
-
-public:
-
+    //! @addtogroup simulation @{
     /**
-     * @brief updates/steps the controller
+     * @brief interface of a simulated controller
      */
-    virtual void update(double dt, rw::kinematics::State& state) = 0;
+    class SimulatedController {
 
-    /**
-     * @brief reset the controller to the applied state
-     * @param state
-     */
-    virtual void reset(const rw::kinematics::State& state) = 0;
+    public:
 
+        /**
+         * @brief updates/steps the controller
+         */
+        virtual void update(double dt, rw::kinematics::State& state) = 0;
 
-    virtual Controller* getController() = 0;
-};
+        /**
+         * @brief reset the controller to the applied state
+         * @param state
+         */
+        virtual void reset(const rw::kinematics::State& state) = 0;
 
-typedef rw::common::Ptr<SimulatedController> SimulatedControllerPtr;
+        /**
+         * @brief get the controller associated with this simulated controller
+         * @return
+         */
+        virtual Controller* getController() = 0;
+    };
 
+    typedef rw::common::Ptr<SimulatedController> SimulatedControllerPtr;
+    //! @}
 }
 }
 

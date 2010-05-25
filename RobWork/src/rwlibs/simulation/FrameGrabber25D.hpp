@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -95,7 +95,16 @@ namespace rwlibs { namespace simulation {
         virtual void grab(rw::kinematics::Frame *frame,
                           const rw::kinematics::State& state) = 0;
 
+        /**
+         * @brief maximum depth that this framegrabber can handle
+         * @return maximum depth in meter
+         */
         virtual double getMaxDepth() = 0;
+
+        /**
+         * @brief minimum depth that this framegrabber can handle
+         * @return minimum depth in meter
+         */
         virtual double getMinDepth() = 0;
 
     protected:

@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -16,8 +16,10 @@
  ********************************************************************************/
 
 
-#ifndef KINEMATICSIMULATOR_HPP_
-#define KINEMATICSIMULATOR_HPP_
+#ifndef RWLIBS_SIMULATION_KINEMATICSIMULATOR_HPP_
+#define RWLIBS_SIMULATION_KINEMATICSIMULATOR_HPP_
+
+//! @file KinematicSimulator.hpp
 
 #include "Simulator.hpp"
 #include "SimulatedSensor.hpp"
@@ -26,22 +28,39 @@
 
 namespace rwlibs {
 namespace simulation {
+    //! @addtogroup simulation @{
+    /**
+     * @brief interface of a kinematic simulator
+     */
+    class KinematicSimulator: public Simulator {
+    private:
 
-class KinematicSimulator: public Simulator {
-private:
+        /**
+         * @brief add a simulated controller to the simulator
+         * @param controller [in] the controller to be simulated
+         */
+        void addController(SimulatedController *controller);
 
-    void step(double dt, rw::kinematics::State &state);
+        /**
+         * @brief add a simulated sensor to the simulator
+         * @param sensor [in] the sensor
+         */
+        void addSensor(SimulatedSensor *sensor);
 
-    void addController(SimulatedController *controller);
+        /**
+         * @brief remove a sensor from simulation
+         * @param sensor [in] sensor that is to be removed
+         */
+        void removeSensor(SimulatedSensor *sensor);
 
-    void addSensor(SimulatedSensor *sensor);
+        /**
+         * @brief add a simulator that is to be controlled by this simulator
+         * @param sim
+         */
+        void addSimulator(Simulator *sim);
 
-    void removeSensor(SimulatedSensor *sensor);
-
-    void addSimulator(Simulator *sim);
-
-};
-
+    };
+    //! @}
 }}
 
 #endif /* KINEMATICSIMULATOR_HPP_ */
