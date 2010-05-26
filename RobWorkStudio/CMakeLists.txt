@@ -81,7 +81,7 @@ CONFIGURE_FILE(
 #ENDIF( )
 
 # Try to find the current revision 
-FIND_PACKAGE(Subversion)
+FIND_PACKAGE(Subversion QUIET)
 IF(Subversion_FOUND)
     #Subversion_WC_INFO(${RW_ROOT} RobWork)
     MESSAGE("Current revision is ${RobWork_WC_REVISION}")
