@@ -3,6 +3,7 @@
 # ODE_LIBRARY
 # ODE_FOUND, if false, do not try to link to ode 
 # ODE_INCLUDE_DIR, where to find the headers
+# ODE_BUILD_WITH, set to DOUBLE or SINGLE
 #
 # this module optionally use followin vars to guide the search for ODE:
 # ODE_DIR - path to ODE root dir
@@ -76,32 +77,59 @@ ENDMACRO(FIND_ODE_LIBRARY MYLIBRARY MYLIBRARYNAME)
 
 IF(ODE_USE_DEBUG)
     IF(ODE_USE_SINGLE)
-        SET(DEBUG_LIST ode_singled oded )    
+        SET(DEBUG_LIST ode_singled oded )
+        FIND_ODE_LIBRARY(ODE_LIBRARY "${DEBUG_LIST}")
+        SET(ODE_BUILD_WITH "SINGLE")    
     ELSEIF(ODE_USE_DOUBLE)
         SET(DEBUG_LIST ode_doubled oded )
+        FIND_ODE_LIBRARY(ODE_LIBRARY "${DEBUG_LIST}")
+        SET(ODE_BUILD_WITH "DOUBLE")
     ELSE()
-        SET(DEBUG_LIST oded ode_singled ode_doubled)
+        # else try first with single then with double
+        SET(DEBUG_LIST ode_singled oded )
+        FIND_ODE_LIBRARY(ODE_LIBRARY "${DEBUG_LIST}")
+        SET(ODE_BUILD_WITH "SINGLE")
+        IF(NOT ODE_LIBARY)
+            SET(DEBUG_LIST ode_doubled oded )
+            FIND_ODE_LIBRARY(ODE_LIBRARY "${DEBUG_LIST}")
+            SET(ODE_BUILD_WITH "DOUBLE")
+        ENDIF()
     ENDIF()    
-    FIND_ODE_LIBRARY(ODE_LIBRARY "${DEBUG_LIST}")
     
 ELSE()
     
     IF(ODE_USE_SINGLE)
         SET(RELEASE_LIST ode_single ode )
         SET(DEBUG_LIST ode_singled oded )
+        FIND_ODE_LIBRARY(ODE_LIBRARY "${RELEASE_LIST}")
+        SET(ODE_BUILD_WITH "SINGLE")
     ELSEIF(ODE_USE_DOUBLE)
         SET(RELEASE_LIST ode_double ode )
         SET(DEBUG_LIST ode_doubled oded )
+        FIND_ODE_LIBRARY(ODE_LIBRARY "${RELEASE_LIST}")
+        SET(ODE_BUILD_WITH "DOUBLE")
     ELSE()
-        SET(RELEASE_LIST ode ode_single ode_double)
-        SET(DEBUG_LIST oded ode_singled ode_doubled)
+        # first try release
+        SET(RELEASE_LIST ode_single ode )
+        FIND_ODE_LIBRARY(ODE_LIBRARY "${RELEASE_LIST}")
+        SET(ODE_BUILD_WITH "SINGLE")
+        IF(NOT ODE_LIBRARY)
+            SET(RELEASE_LIST ode_double ode )
+            FIND_ODE_LIBRARY(ODE_LIBRARY "${RELEASE_LIST}")
+            SET(ODE_BUILD_WITH "DOUBLE")
+        ENDIF()
+        # try debug
+        IF(NOT ODE_LIBRARY)
+            SET(DEBUG_LIST ode_singled oded )
+            FIND_ODE_LIBRARY(ODE_LIBRARY "${DEBUG_LIST}")
+            SET(ODE_BUILD_WITH "SINGLE")
+        ENDIF()
+        IF(NOT ODE_LIBRARY)
+            SET(DEBUG_LIST ode_doubled oded )
+            FIND_ODE_LIBRARY(ODE_LIBRARY "${DEBUG_LIST}")
+            SET(ODE_BUILD_WITH "DOUBLE")
+        ENDIF()        
     ENDIF()        
-    
-    FIND_ODE_LIBRARY(ODE_LIBRARY "${RELEASE_LIST}")
-    
-    IF( NOT ODE_LIBRARY )
-        FIND_ODE_LIBRARY(ODE_LIBRARY "${DEBUG_LIST}")
-    ENDIF()
 ENDIF()
 
 #MESSAGE("${ODE_INCLUDE_DIR}")
@@ -110,6 +138,9 @@ ENDIF()
 SET(ODE_FOUND NO)
 IF(ODE_LIBRARY AND ODE_INCLUDE_DIR)
     SET(ODE_FOUND YES)
+    IF( ${ODE_BUILD_WITH} STREQUAL "DOUBLE" )
+        ADD_DEFINITIONS(-DdDOUBLE)
+    ENDIF()
 ENDIF(ODE_LIBRARY AND ODE_INCLUDE_DIR)
 
 

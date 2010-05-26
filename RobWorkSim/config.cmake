@@ -4,45 +4,27 @@
 set(RW_ROOT ${ROOT}/../RobWork_branch/)
 set(RWSTUDIO_ROOT ${ROOT}/../RobWorkStudio)
 
-set(RWSIM_HAVE_RWPHYS TRUE)
+set(RWSIM_USE_RWPHYS ON)
+SET(RWSIM_USE_LUA ON)
 
-#SET(USE_XERCES ON)
-#SET(XERCESC_INCLUDE_DIR "$ENV{XERCES_ROOT}/include")
-#SET(XERCESC_LIB_DIR "$ENV{XERCES_ROOT}/lib")
+SET(RWSIM_USE_ODE ON)
+SET(ODE_DIR "C:/jimali/opende/")
 
-SET(USE_LUA ON)
-#SET(ENV{LUA_DIR} "${RW_ROOT}/libs/release/")
-#SET(LUA_INCLUDE_DIR "${RW_ROOT}/ext/lua/src/")
-#SET(LUA_LIBRARY_DIR "${RW_ROOT}/libs/release/")
-#SET(TOLUA_CMD "${RW_ROOT}/bin/release/tolua")
-#SET(TOLUA_INCLUDE_DIR "${RW_ROOT}/ext/tolua/include/")
-#SET(TOLUA_LIBRARY_DIR "${RW_ROOT}/libs/release/")
+SET(ODE_USE_DOUBLE ON)
+#SET(ODE_USE_DEBUG ON)
+#SET(ODE_USE_SINGLE ON)
+#SET(ODE_LIBRARY_NAME ) # suggest specific library name
+#SET(ODE_LIBRARY_DIR ) # suggest library location
+#SET(ODE_LIBRARY_DIRS "C:/jimali/opende/lib/ReleaseDoubleLib")
+#SET(ODE_LIBRARIES "ode_double.lib")
+#ADD_DEFINITIONS(-DdDOUBLE)
 
-#
-# Bullet and Ode include,link and libs
-# 
+SET(RWSIM_USE_BULLET OFF)
+SET(BULLET_ROOT "c:/Program files/BULLET_PHYSICS/") 
 
-SET(USE_ODE ON)
-SET(ODE_INCLUDE_DIR	"C:/jimali/opende/include")
-SET(ODE_LIBRARY_DIRS "C:/jimali/opende/lib/ReleaseDoubleLib")
-SET(ODE_LIBRARIES "ode_double.lib")
-ADD_DEFINITIONS(-DdDOUBLE)
-
-SET(USE_BULLET OFF)
-SET(BULLET_INCLUDE_DIR 
-	"c:/Program files/BULLET_PHYSICS/include"
-	${RWAPP_ROOT}/ext/bullet/Extras/GIMPACT/include
-	${RWAPP_ROOT}/ext/bullet/Extras
-	${RWAPP_ROOT}/ext/bullet/Demos
-)	
-SET(BULLET_LIBRARY_DIRS "c:/Program files/BULLET_PHYSICS/lib")
-SET(BULLET_LIBRARIES 	
-    LibGIMPACTUtils 
-	LibGIMPACT
-	LibConvexDecomposition  
-	LibOpenGLSupport 
-	LibBulletDynamics 
-	LibBulletCollision 
-	LibLinearMath
-)
-
+#SET(BULLET_INCLUDE_DIR 
+#	"c:/Program files/BULLET_PHYSICS/include"
+#	${RWAPP_ROOT}/ext/bullet/Extras/GIMPACT/include
+#	${RWAPP_ROOT}/ext/bullet/Extras
+#	${RWAPP_ROOT}/ext/bullet/Demos
+#)

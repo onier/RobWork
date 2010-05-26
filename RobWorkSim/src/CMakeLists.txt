@@ -1,6 +1,5 @@
 
 if (RWSIM_HAVE_BULLET)
-    MESSAGE(STATUS "Enabling Bullet")
   set(BulletFilesCPP 	
   		simulator/bullet/BtSimulator.cpp
 		simulator/bullet/BtDebugRender.cpp
@@ -8,7 +7,6 @@ if (RWSIM_HAVE_BULLET)
 endif ()
 
 if (RWSIM_HAVE_ODE )
-    MESSAGE(STATUS "Enabling ODE")
   set(OdeFilesCPP
 	simulator/ode/ODESimulator.cpp
 	simulator/ode/ODEVelocityDevice.cpp
@@ -23,7 +21,6 @@ if (RWSIM_HAVE_ODE )
 endif ()
 
 IF (RWSIM_HAVE_RWPHYS )
-    MESSAGE(STATUS "Enabling RWPHYS")
   set(RWPhysFilesCPP
 	simulator/rwphysics/RWSimulator.cpp
 	simulator/rwphysics/RWDebugRender.cpp

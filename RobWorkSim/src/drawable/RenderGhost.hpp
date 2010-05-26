@@ -77,7 +77,6 @@ private:
 	rwlibs::drawable::RenderFrame *_drawFrame;
 	
 	boost::circular_buffer<rw::kinematics::State> _states;
-
 };
 
 

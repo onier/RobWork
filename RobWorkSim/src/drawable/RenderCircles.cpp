@@ -12,8 +12,11 @@ using namespace rwlibs::drawable;
 RenderCircles::RenderCircles(){}
 RenderCircles::~RenderCircles(){}
 
+void RenderCircles::setCircles(const std::vector<CircleModel>& circles){
+	_circles = circles;
+}
+
 void RenderCircles::addCircles(const std::vector<CircleModel>& circles) {
-	std::cout << "ADDING CIRCLES: " << circles.size() << std::endl;
 	int origSize = _circles.size();
 	_circles.resize(_circles.size()+circles.size());
 	// add the remaining points
@@ -41,7 +44,7 @@ void RenderCircles::draw(DrawType type, double alpha) const {
 		//std::cout << "N: " << n << std::endl;
 		Vector3D<> c = circle._center;
 		//std::cout << "C: " << c << std::endl;
-		Rotation3D<> rot = EAA<>(n, 10*Deg2Rad).toRotation3D();
+		Rotation3D<> rot = EAA<>(n, _stepSize).toRotation3D();
 		//std::cout << "Rot: " << rot << std::endl;
 		Vector3D<> nn( n(2), n(0), n(1));
 		double r = circle._r+0.05;

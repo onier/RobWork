@@ -18,28 +18,50 @@ LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 # if we have any exe files or plugins that depend on the libraries
 INCLUDE_DIRECTORIES( src )
 
+SET(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${ROOT}/build/")
+
 # test if Bullet exists
-IF(USE_BULLET)
-	#todo: call FindPackage(Bullet)
-	set(RWSIM_HAVE_BULLET TRUE)
-	INCLUDE_DIRECTORIES( ${BULLET_INCLUDE_DIR} )
-    LINK_DIRECTORIES( ${BULLET_LIBRARY_DIRS} )
-endif()
+SET(RWSIM_HAVE_BULLET False)
+OPTION(RWSIM_USE_BULLET "Set to ON if Bullet should be use. you may need to set BULLET_ROOT")
+IF(RWSIM_USE_BULLET)
+    FIND_PACKAGE(Bullet)
+    IF(BULLET_FOUND)
+    	SET(RWSIM_HAVE_BULLET TRUE)
+    	INCLUDE_DIRECTORIES( ${BULLET_INCLUDE_DIR} )
+        # BULLET_LIBRARIES
+        MESSAGE(STATUS "RobWorkSim: Bullet enabled and found.")
+    ELSE()
+        SET(RWSIM_HAVE_BULLET FALSE)
+        MESSAGE(SEND_ERROR "RobWorkSim: Bullet enabled but not found. Please setup BULLET_ROOT." ${RWSIM_USE_ODE})
+    ENDIF()
+ELSE()
+    MESSAGE(STATUS "RobWorkSim: Bullet disabled.")
+ENDIF()
 
 # test if ODE exists
-IF( USE_ODE )
-    # todo: call FindPackage(ODE)
-	SET(RWSIM_HAVE_ODE TRUE)
-	INCLUDE_DIRECTORIES( ${ODE_INCLUDE_DIR} )
-    LINK_DIRECTORIES( ${ODE_LIBRARY_DIRS} )
+SET(RWSIM_HAVE_ODE False)
+OPTION(RWSIM_USE_ODE "Set to ON if ODE should be use. you may need to set ODE_ROOT" ${RWSIM_USE_ODE})
+IF(RWSIM_USE_ODE)
+    FIND_PACKAGE(ODE)
+    IF(ODE_FOUND)
+    	SET(RWSIM_HAVE_ODE TRUE)
+    	INCLUDE_DIRECTORIES( ${ODE_INCLUDE_DIR} )
+    	# ODE_LIBRARIES
+        MESSAGE(STATUS "RobWorkSim: ODE enabled and found. Using ${ODE_BUILD_WITH}")
+    ELSE()
+        SET(RWSIM_HAVE_ODE FALSE)
+        MESSAGE(SEND_ERROR "RobWorkSim: ODE enabled but not found. Please setup ODE_ROOT.")
+    ENDIF()
+ELSE()
+    MESSAGE(STATUS "RobWorkSim: ODE disabled.")
 ENDIF()
 
 # Store the test results in a RWSimConfig.hpp file.
-configure_file(
+CONFIGURE_FILE(
   ${ROOT}/src/RWSimConfig.hpp.in
   ${ROOT}/src/RWSimConfig.hpp)
 
-configure_file(
+CONFIGURE_FILE(
   ${ROOT}/plugin/RWSimGuiConfig.hpp.in
   ${ROOT}/plugin/RWSimGuiConfig.hpp)
 
