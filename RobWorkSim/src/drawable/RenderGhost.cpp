@@ -26,15 +26,18 @@ namespace
     }
 }
 
-RenderGhost::RenderGhost(rw::kinematics::Frame *frame, WorkCellGLDrawer *drawer):
-	_drawer(drawer)
+RenderGhost::RenderGhost(rw::kinematics::Frame *frame,
+		WorkCellGLDrawer *drawer,
+		size_t N):
+	_drawer(drawer),
+	_states(N)
 {
 	_frames.push_back(frame);
 	_drawFrame = new RenderFrame(0.2);
 }
 
-RenderGhost::RenderGhost(std::list<rw::kinematics::Frame*> frames, WorkCellGLDrawer *drawer):
-	_frames(frames), _drawer(drawer)
+RenderGhost::RenderGhost(std::list<rw::kinematics::Frame*> frames, WorkCellGLDrawer *drawer, size_t N):
+	_frames(frames), _drawer(drawer), _states(N)
 {
 	_drawFrame = new RenderFrame(0.2);
 }
@@ -42,8 +45,12 @@ RenderGhost::RenderGhost(std::list<rw::kinematics::Frame*> frames, WorkCellGLDra
 
 RenderGhost::~RenderGhost(){}
 
-void RenderGhost::addState(rw::kinematics::State& state){
+void RenderGhost::addState(const rw::kinematics::State& state){
 	_states.push_back(state);
+}
+
+void RenderGhost::setMaxBufferSize(size_t size){
+	_states.set_capacity(size);
 }
 
 void RenderGhost::draw(DrawType type, double alpha) const {
@@ -69,3 +76,5 @@ void RenderGhost::draw(DrawType type, double alpha) const {
 		}
 	}
 }
+
+

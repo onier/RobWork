@@ -192,7 +192,7 @@ public:
         }
 
         std::vector<dTriIndex> indices;
-        std::vector<dReal> vertices;
+        std::vector<float> vertices;
         dTriMeshDataID triMeshID;
     };
     typedef rw::common::Ptr<TriMeshData> TriMeshDataPtr;

@@ -51,7 +51,7 @@ void ODEDebugRender::draw(DrawType draw, double alpha) const {
       glBegin(GL_TRIANGLES);
 
       for (size_t i = 0; i < trimesh->indices.size()/3; i++){
-        const dReal *p;
+        const float *p;
         p = &trimesh->vertices[ trimesh->indices[i * 3 + 0]*3 ];
         glVertex3f((float)p[0],(float)p[1],(float)p[2]);
 

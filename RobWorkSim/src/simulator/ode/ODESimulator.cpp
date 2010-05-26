@@ -176,7 +176,7 @@ namespace {
 				data->indices[indiIdx+2] = tri.getVertexIdx(2);
 			}
 			if(data->indices[indiIdx+0]>=nrOfVerts)
-				std::cout << data->indices[indiIdx+0] << "<" << nrOfVerts << std::endl;
+				std::cout << indiIdx+0 << " " << data->indices[indiIdx+0] << "<" << nrOfVerts << std::endl;
 			RW_ASSERT( data->indices[indiIdx+0]<nrOfVerts );
 			if(data->indices[indiIdx+1]>=nrOfVerts)
 				std::cout << data->indices[indiIdx+1] << "<" << nrOfVerts << std::endl;
@@ -189,7 +189,7 @@ namespace {
 		}
 		RW_DEBUGS("build ode trimesh");
 		dGeomTriMeshDataBuildSingle(triMeshDataId,
-				&data->vertices[0], 3*sizeof(dReal), nrOfVerts,
+				&data->vertices[0], 3*sizeof(float), nrOfVerts,
 				(dTriIndex*)&data->indices[0], nrOfTris*3, 3*sizeof(dTriIndex));
 
 		RW_DEBUGS("DONE tristuff");
