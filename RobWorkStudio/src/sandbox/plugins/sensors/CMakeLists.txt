@@ -1,5 +1,4 @@
 
-IF( RW_BUILD_WITH_LUA )
 
 #----------------------------------------------------------------------
 # Define the following variables:
@@ -35,4 +34,3 @@ ADD_DEPENDENCIES(${TargetName} rwstudio)
 INSTALL(TARGETS ${TargetName} DESTINATION bin)
 SET(ENV{RWS_PLUGIN_LIBRARIES} "$ENV{RWS_PLUGIN_LIBRARIES}${TargetName};")
 #MESSAGE("$ENV{RWS_PLUGIN_LIBRARIES}${TargetName};")
-ENDIF()

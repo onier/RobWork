@@ -1,4 +1,4 @@
-IF( RW_BUILD_WITH_LUA )
+IF( RWS_HAVE_LUA )
 
 #----------------------------------------------------------------------
 # Define the following variables:
