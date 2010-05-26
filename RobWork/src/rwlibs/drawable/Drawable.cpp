@@ -24,22 +24,22 @@ using namespace rwlibs::drawable;
 Drawable::~Drawable() {}
 
 Drawable::Drawable(rw::common::Ptr<Render> render,
-                   Render::DrawType drawType,
-                   float alpha)
+                   unsigned int dmask)
     :
     _render(render),
-    _drawType(drawType),
-    _alpha(alpha),
+    _drawType(Render::SOLID),
+    _alpha(1.0f),
     _highlighted(false),
     _scale(1.0),
-    _enable(true)
+    _enable(true),
+    _dmask(dmask)
 {
 	setTransform(rw::math::Transform3D<>::identity() );
 }
 
-void Drawable::draw() const
+void Drawable::draw(unsigned int mask) const
 {
-	if (!_enable) return;
+	if (!_enable || !(mask&_dmask) ) return;
 
 	bool highlight = _highlighted;
 

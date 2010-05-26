@@ -22,6 +22,8 @@
  * @file WorkCellGLDrawer.hpp
  */
 
+#include "Drawable.hpp"
+
 #include <vector>
 #include <map>
 
@@ -29,8 +31,6 @@ namespace rw { namespace models { class WorkCell; }}
 namespace rw { namespace kinematics { class Frame; class State; }}
 
 namespace rwlibs { namespace drawable {
-
-    class Drawable;
 
     /** @addtogroup drawable */
     /*@{*/
@@ -57,7 +57,34 @@ namespace rwlibs { namespace drawable {
          */
         void draw(
             const rw::kinematics::State& state,
-            rw::models::WorkCell* workcell);
+            rw::models::WorkCell* workcell,
+            unsigned int dmask=Drawable::ALL);
+
+        /**
+         * @brief Draws camera view
+         * @param state [in] State for which to draw the view
+         * @param camera [in] pointer to a camera frame
+         * @param dmask [in]
+         *
+         * This method draws a frame tree as seen from the given camera frame.
+         * As default only physical objects in the scene is drawn
+         */
+        void drawCameraView(
+            const rw::kinematics::State& state,
+            rw::kinematics::Frame* camera,
+            unsigned int dmask=Drawable::Physical);
+
+        /**
+         * @brief draws the scene as \b draw but for each frame it draws it pushes
+         * its name on the gl name stack.
+         *
+         * usefull for picking/selecting frames in the scene
+         * @param state [in] state that is to be drawn
+         * @param workcell [in] the workcell
+         */
+        void drawAndSelect(const rw::kinematics::State& state,
+                           rw::models::WorkCell* workcell,
+                           unsigned int dmask=Drawable::ALL);
 
         /**
          * @brief All drawables of the workcell.
@@ -128,28 +155,6 @@ namespace rwlibs { namespace drawable {
          */
         void clearCache();
 
-        /**
-         * @brief Draws camera view
-         * @param state [in] State for which to draw the view
-         * @param camera [in] pointer to a camera frame
-         *
-         * This method draws a frame tree as seen from the given camera frame.
-         */
-        void drawCameraView(
-            const rw::kinematics::State& state,
-            rw::kinematics::Frame* camera);
-
-        /**
-         * @brief draws the scene as \b draw but for each frame it draws it pushes
-         * its name on the gl name stack.
-         *
-         * usefull for picking/selecting frames in the scene
-         * @param state [in] state that is to be drawn
-         * @param workcell [in] the workcell
-         */
-        void drawAndSelect(const rw::kinematics::State& state,
-                           rw::models::WorkCell* workcell);
-
     private:
         /**
          * @brief Draws frame and calls recursive to draw all child frames
@@ -157,11 +162,13 @@ namespace rwlibs { namespace drawable {
          */
         void draw(
             const rw::kinematics::State& state,
-            const rw::kinematics::Frame* frame);
+            const rw::kinematics::Frame* frame,
+            unsigned int dmask);
 
         void drawAndSelect(
             const rw::kinematics::State& state,
-            const rw::kinematics::Frame* frame);
+            const rw::kinematics::Frame* frame,
+            unsigned int dmask);
 
         typedef std::vector<Drawable*> DrawableList;
 
