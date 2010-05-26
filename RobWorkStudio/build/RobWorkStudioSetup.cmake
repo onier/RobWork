@@ -20,9 +20,9 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS 1)
 # Check if RWstudio_ROOT path are setup correctly
 FIND_FILE(ROBWORKSTUDIO_FOUND RobWorkStudioSetup.cmake ${RWSTUDIO_ROOT}/build NO_DEFAULT_PATH)
 IF(NOT ROBWORKSTUDIO_FOUND)
- MESSAGE(SEND_ERROR "Path to RobWorkStudio root (RWSTUDIO_ROOT) is incorrectly setup! \nRWSTUDIO_ROOT == ${RWSTUDIO_ROOT}")
+ MESSAGE(SEND_ERROR "RobWorkStudio: Path to RobWorkStudio root (RWSTUDIO_ROOT) is incorrectly setup! \nRWSTUDIO_ROOT == ${RWSTUDIO_ROOT}")
 ENDIF()
-MESSAGE(STATUS "RobWorkStudio ROOT dir: ${RWSTUDIO_ROOT}")
+MESSAGE(STATUS "RobWorkStudio: ROOT dir: ${RWSTUDIO_ROOT}")
 
 #
 # Setup the default include and library dirs for RobWorkStudio
@@ -43,7 +43,7 @@ FIND_PACKAGE(RobWork)
 
 STRING(COMPARE EQUAL "${ROBWORKSTUDIO_VERSION}" "${ROBWORK_VERSION}" COMPATIBLE_VERSION)
 IF( NOT COMPATIBLE_VERSION )
-    MESSAGE(SEND_ERROR "Version of RobWork ${ROBWORK_VERSION} is incompatible with version of RobWorkStudio ${ROBWORKSTUDIO_VERSION}")
+    MESSAGE(SEND_ERROR "RobWorkStudio: Version of RobWork ${ROBWORK_VERSION} is incompatible with version of RobWorkStudio ${ROBWORKSTUDIO_VERSION}")
 ENDIF()
 
 # Find and setup OpenGL.
@@ -67,21 +67,29 @@ INCLUDE(${QT_USE_FILE})
   
 # optional compilation of sandbox
 IF (RWS_BUILD_SANDBOX)
-    MESSAGE(STATUS "RobWorkStudio Sandbox ENABLED!")
+    MESSAGE(STATUS "RobWorkStudio: Sandbox ENABLED!")
     SET(SANDBOX_LIB "rwstudio_sandbox")
     SET(RWS_HAVE_SANDBOX true)
 ELSE ()
-    MESSAGE(STATUS "RobWorkStudio Sandbox DISABLED!")    
+    MESSAGE(STATUS "RobWorkStudio: Sandbox DISABLED!")    
 ENDIF ()
 
 
 # optional compilation of sandbox
-IF (RW_BUILD_WITH_LUA)
-    MESSAGE(STATUS "RobWorkStudio Lua ENABLED!")
-    SET(RWS_LUA "rwstudio_lua")
+SET(RWS_HAVE_LUA False)
+OPTION(RWS_USE_LUA "Set when you want to use lua!" ${RWS_USE_LUA})
+IF( RWS_USE_LUA )
+    IF (RW_BUILD_WITH_LUA)
+        MESSAGE(STATUS "RobWorkStudio: Lua ENABLED!")
+        SET(RWS_LUA "rwstudio_lua")
+        SET(RWS_HAVE_LUA True)
+    ELSE ()
+        MESSAGE(STATUS "RobWorkStudio: Lua DISABLED! - RobWork is NOT compiled with Lua support!")
+        SET(RWS_HAVE_LUA False)    
+    ENDIF ()
 ELSE ()
-    MESSAGE(STATUS "RobWorkStudio Lua DISABLED!")    
-ENDIF ()
+    MESSAGE(STATUS "RobWorkStudio: Lua DISABLED!")
+ENDIF()
 
 #######################################################################
 # COMPILER FLAGS AND MACRO SETUP
@@ -109,7 +117,7 @@ SET(RWS_CXX_FLAGS ${RWS_CXX_FLAGS_TMP}
                   flags and not those of RobWorkSutdio"
 )
 ADD_DEFINITIONS(${RWS_CXX_FLAGS})
-MESSAGE(STATUS "Adding RWS CXX flags: ${RWS_CXX_FLAGS}") 
+MESSAGE(STATUS "RobWorkStudio: Adding RWS CXX flags: ${RWS_CXX_FLAGS}") 
  
 
 # If we are using static linking then remember to 
