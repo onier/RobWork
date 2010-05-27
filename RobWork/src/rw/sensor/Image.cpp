@@ -41,6 +41,46 @@ namespace {
             RW_THROW(0);
         }
     }
+
+    size_t getStride(Image::PixelDepth depth){
+        switch(depth){
+        case(Image::Depth8U):
+        case(Image::Depth8S):
+            return 1;
+        break;
+        case(Image::Depth16U):
+        case(Image::Depth16S):
+        	return 2;
+        break;
+        case(Image::Depth32S):
+        case(Image::Depth32F):
+        	return 4;
+        break;
+        default:
+            RW_WARN("Unsupported pixel depth!");
+            RW_ASSERT(0);
+        }
+    }
+
+    unsigned int calcMask(Image::PixelDepth depth){
+        switch(depth){
+        case(Image::Depth8U):
+        case(Image::Depth8S):
+            return 0xFF;
+        break;
+        case(Image::Depth16U):
+        case(Image::Depth16S):
+        	return 0xFFFF;
+        break;
+        case(Image::Depth32S):
+        case(Image::Depth32F):
+        	return 0xFFFFFFFF;
+        break;
+        default:
+            RW_WARN("Unsupported pixel depth!");
+            RW_ASSERT(0);
+        }
+    }
 }
 
 Image::Image():
@@ -51,7 +91,9 @@ Image::Image():
     _nrChannels(toNrOfChannels(_colorCode)),
     _widthStep(_width*_nrChannels),
     _arrSize(0),
-    _imageData(NULL)
+    _imageData(NULL),
+    _stride(getStride(Depth8U)),
+    _valueMask(calcMask(Depth8U))
 {};
 
 
@@ -68,7 +110,9 @@ Image::Image(
     _nrChannels(toNrOfChannels(colorCode)),
     _widthStep(width*_nrChannels),
     _arrSize(_width * _height * _nrChannels * getBitsPerPixel() / 8),
-    _imageData(new char[_arrSize])
+    _imageData(new char[_arrSize]),
+    _stride(getStride(depth)),
+    _valueMask(calcMask(depth))
 {}
 
 Image::Image(
@@ -85,13 +129,50 @@ Image::Image(
     _nrChannels(toNrOfChannels(colorCode)),
     _widthStep(width*_nrChannels),
     _arrSize(_width * _height * _nrChannels * getBitsPerPixel() / 8),
-    _imageData(imageData)
-
+    _imageData(imageData),
+    _stride(getStride(depth)),
+    _valueMask(calcMask(depth))
 {}
 
 size_t Image::getDataSize() const
 {
     return _arrSize;
+}
+
+Pixel4f Image::getPixel(size_t x, size_t y){
+	const size_t idx = y*_widthStep + x*_nrChannels;
+
+	// convert idx to point into char array
+	const size_t cidx = idx*_stride;
+	RW_ASSERT(cidx<_arrSize);
+
+	// now if representation is float then we can set it directly
+	if(_depth == Image::Depth32F){
+		Pixel4f p((float)_imageData[cidx], 0, 0, 0);
+		for(size_t i=1;i<_nrChannels;i++)
+			p.ch[i] = (float)_imageData[cidx+i*_stride];
+		return p;
+	}
+	// is in int so we need to convert it to float
+	Pixel4f p((float)(_imageData[cidx]&_valueMask), 0, 0, 0);
+	for(size_t i=1;i<_nrChannels;i++)
+		p.ch[i] = (float)(_imageData[cidx+i*_stride]&_valueMask);
+	return p;
+}
+
+float Image::getPixelValue(size_t x, size_t y, size_t channel){
+	const size_t idx = y*_widthStep + x*_nrChannels;
+
+	// convert idx to point into char array
+	const size_t cidx = idx*_stride;
+	RW_ASSERT(cidx<_arrSize);
+
+	if(_depth == Image::Depth32F){
+		return (float)_imageData[cidx+channel*_stride];
+	} else {
+		// is in int so we need to convert it to float
+		return (float)(_imageData[cidx+channel*_stride]&_valueMask);
+	}
 }
 
 void Image::safeDeleteData(){
