@@ -60,8 +60,8 @@ using namespace rwlibs::proximitystrategies;
 
 #define INITIAL_MAX_CONTACTS 500
 
-#define RW_DEBUGS( str ) std::cout << str  << std::endl;
-//#define RW_DEBUGS( str )
+//#define RW_DEBUGS( str ) std::cout << str  << std::endl;
+#define RW_DEBUGS( str )
 /*
 #define TIMING( str, func ) \
     { long start = rw::common::TimerUtil::currentTimeMs(); \
