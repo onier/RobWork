@@ -64,7 +64,22 @@ namespace dynamics {
     class Body
     {
     protected:
-        Body(const BodyInfo& info,
+        /**
+         * @brief A Body with \b ssize of room in state vector
+         *
+         * \b ssize must be non-negative.
+         *
+         * A newly created body can be added to the StateStructure
+         *
+         * The size allocate in the state vector is constant throughout
+         * the lifetime of the body.
+         *
+         * @param dof [in] The number of degrees of freedom of the frame.
+         * @param info [in] general information of this body
+         * @param bodyframe [in]
+         */
+        Body(size_t ssize,
+             const BodyInfo& info,
         	 rw::kinematics::Frame *bodyframe,
              const std::vector<rw::geometry::Geometry*>& geometry):
                 _bodyframe(*bodyframe),
@@ -77,7 +92,6 @@ namespace dynamics {
                }
            }*/
         };
-
     public:
     	/**
     	 * @brief destructor
@@ -96,35 +110,31 @@ namespace dynamics {
             return _geometry;
         }
 
-        //void setAssociatedFrames(const std::vector<rw::kinematics::Frame*>& frames){
-        //
-        //}
-
         /**
          * @brief saves the current state in the rollback variables.
          */
-        virtual void saveState(double h, rw::kinematics::State& state)= 0;
+        //virtual void saveState(double h, rw::kinematics::State& state)= 0;
 
         /**
          * @brief rolls back to the last saved state
          */
-        virtual void rollBack(rw::kinematics::State& state)= 0;
+        //virtual void rollBack(rw::kinematics::State& state)= 0;
 
         /**
          * @brief integrates forces over timestep h to update the velocity of the body
          */
-        virtual void updateVelocity(double h, rw::kinematics::State& state)= 0;
+        //virtual void updateVelocity(double h, rw::kinematics::State& state)= 0;
 
         /**
          * @brief integrates velocity over timestep h to update the position of the body
          */
-        virtual void updatePosition(double h, rw::kinematics::State& state) = 0;
+        //virtual void updatePosition(double h, rw::kinematics::State& state) = 0;
 
         /**
          * @brief updates the velocity of this body with the accumulated linear impulse
          * and angular impulse
          */
-        virtual void updateImpulse() = 0;
+        //virtual void updateImpulse() = 0;
 
         /**
          * @brief calculates the relative velocity of a point p on the body
@@ -152,7 +162,7 @@ namespace dynamics {
         /**
          *
          */
-        virtual void reset() = 0;
+        //virtual void reset() = 0;
 
         virtual void resetState(rw::kinematics::State &state) = 0;
 
@@ -166,7 +176,7 @@ namespace dynamics {
          * @brief this is called to precalculate all auxiliary
          * variables.
          */
-        virtual void calcAuxVarialbles(rw::kinematics::State& state) = 0;
+        //virtual void calcAuxVarialbles(rw::kinematics::State& state) = 0;
 
         /**
          * @brief calculates and returns the total energy of this body

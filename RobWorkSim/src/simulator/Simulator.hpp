@@ -11,7 +11,7 @@
 
 /**
  * @brief A general physics engine interface for simulating dynamics
- * of objects and robot devices. All device types
+ * of objects and robot devices.
  *
  * The general step looks like this:;
  *

@@ -15,9 +15,6 @@ void TrajectoryController::setTargetVel(const rw::math::Q& vals){};
 
 void TrajectoryController::setTargetAcc(const rw::math::Q& vals){};
 
-/**
- * @brief updates the state of the dynamicdevice
- */
 void TrajectoryController::update(double dt, rw::kinematics::State& state) {
     const double P = 4;
     const double D = 0.3;

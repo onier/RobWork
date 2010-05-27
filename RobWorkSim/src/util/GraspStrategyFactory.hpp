@@ -16,13 +16,13 @@ public:
 	/**
 	 * @brief a list of available strategies.
 	 */
-	std::vector<std::string> getAvailableStrategies();
+	static std::vector<std::string> getAvailableStrategies();
 
 	/**
 	 * @brief instantiate a strategy with ID \b id.
 	 * @param id [in] id of strategy
 	 */
-	GraspStrategyPtr makeStrategy(const std::string& id);
+	static GraspStrategyPtr makeStrategy(const std::string& id);
 
 };
 
