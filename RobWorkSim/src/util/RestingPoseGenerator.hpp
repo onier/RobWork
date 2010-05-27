@@ -22,11 +22,16 @@
 
 
 /**
- * @brief finds resting poses of a dynamic scene and performs
+ * @brief finds resting poses of a dynamic scene.
  *
+ * This generator relies on
+ *  - a state sampler for providing an initial state of the system
+ *  - a resting pose constraint for determining when the system is at rest
+ *
+ *  for each simulation step taken an update event callback a
+ *  is triggered.
  */
 class RestingPoseGenerator {
-
 public:
     typedef boost::function<void(const rw::kinematics::State&)> RestingPoseCallback;
     typedef boost::function<void(const rw::kinematics::State&)> UpdateEventCallback;
@@ -34,42 +39,89 @@ public:
     //typedef Event<StateChangedListener, StateChangedListener> StateChangedEvent;
 
 public:
-    RestingPoseGenerator(SimulatorPtr sim, const rw::kinematics::State& initState, SimStateConstraintPtr restConstraint);
+    /**
+     *
+     * @param sim
+     * @param initState
+     * @param restConstraint
+     */
+    RestingPoseGenerator(SimulatorPtr sim,
+    		const rw::kinematics::State& initState,
+    		SimStateConstraintPtr restConstraint);
 
-    RestingPoseGenerator(SimulatorPtr sim, const rw::kinematics::State& initState, StateSamplerPtr sampler, SimStateConstraintPtr restConstraint);
+    /**
+     *
+     * @param sim
+     * @param initState
+     * @param sampler
+     * @param restConstraint
+     * @return
+     */
+    RestingPoseGenerator(SimulatorPtr sim,
+    		const rw::kinematics::State& initState,
+    		StateSamplerPtr sampler,
+    		SimStateConstraintPtr restConstraint);
 
+    /**
+     * @brief destructor
+     */
     virtual ~RestingPoseGenerator();
 
+    /**
+     * @brief set the sampler used for initial state
+     * @param sampler [in] state sampler
+     */
     void setInitStateSample(StateSamplerPtr sampler){
         _sampler = sampler;
     }
 
+    /**
+     * @brief resting state contraint
+     * @param restconstraint [in] constraint
+     */
     void setRestingCriteria(SimStateConstraintPtr restconstraint){
         _restConstraint = restconstraint;
     }
 
     /**
-     *
+     * @brief set the callback for when a resting pose is found.
+     * @param callback [in] callback funtion
      */
     void setResultCallback(RestingPoseCallback callback){
         _restCallback = callback;
     }
 
+    /**
+     * @brief set the callback for when a simulation step has been carried out.
+     * @param callback [in] callback funtion
+     */
     void setUpdateEventCallback(UpdateEventCallback callback){
         _updateCallback = callback;
     }
 
     /**
      * @brief start resting pose generation
-     * @param nrOfTests [in]
+     * @param nrOfTests [in] number of resting poses to find.
      */
     void start(int nrOfTests);
 
+    /**
+     * @brief pause the execution
+     */
     void proceed();
 
+    /**
+     * @brief stop the execution
+     */
     void stop();
 
+    /**
+     * @brief the generator is finished if the specified nr of resting
+     * poses has been generated.
+     * @return true if all rest poses has been generated, false otherwise
+     */
     bool isFinished();
+
     /**
      * @brief returns the number of samples that has been simulated.
      */
@@ -80,6 +132,10 @@ public:
      */
     int getNrOfSamplesLeft();
 
+    /**
+     * @brief a simple status.
+     * @return
+     */
     std::string getStatusString();
 
 protected:

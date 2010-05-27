@@ -1,17 +1,23 @@
 #include "FiniteStateSampler.hpp"
 
-using namespace rw::kinematics;
+#include <boost/foreach.hpp>
+#include <rw/math/Math.hpp>
 
-FiniteStateSampler::FiniteStateSampler(const State& state, int n):
-    _type(FiniteStateSampler::SINGLE_STATE),
-    _n(n),
+using namespace rw::kinematics;
+using namespace rw::math;
+
+FiniteStateSampler::FiniteStateSampler(
+		const State& state, int n, FiniteStateSampler::SamplerType type):
+    _type(type),
+    _n(n), _cidx(0),
     _states(1,state),
     _empty( n>0 )
 {}
 
-FiniteStateSampler::FiniteStateSampler(const std::vector<State>& states, int n):
-    _type(FiniteStateSampler::MULTIPLE_STATE),
-    _n(n),
+FiniteStateSampler::FiniteStateSampler(
+		const std::vector<State>& states, int n, FiniteStateSampler::SamplerType type):
+    _type(type),
+    _n(n),_cidx(0),
     _states(states),
     _empty( n>0 && states.size()>0)
 {
@@ -26,28 +32,51 @@ bool FiniteStateSampler::sample(rw::kinematics::State& state){
         return false;
     }
 
-    switch(_type){
-    case(SINGLE_STATE):
+    if(_states.size()==1){
         state = _states[0];
         _n--;
-        break;
-    case(MULTIPLE_STATE):
-        state = _states[_cidx];
-        _cidx++;
-        if(_states.size()==_cidx){
-            _cidx=0;
-            _n--;
-        }
-        break;
-    default: RW_THROW("UNSUPPORTED TYPE");
+    } else {
+		switch(_type){
+			case(ORDERED_SAMPLING):{
+				state = _states[_cidx];
+				_n--;
+				if(_states.size()==_cidx){
+					_cidx=0;
+				}
+				break;
+			}
+			case(RANDOM_SAMPLING):{
+				int idx = Math::ranI(0,_states.size());
+				state = _states[idx];
+				_n--;
+				break;
+			}
+			default: RW_THROW("UNSUPPORTED TYPE");
+		}
     }
     if( _n==0 )
         _empty=true;
-
+    if( _n<0 )
+    	_n=-1;
     return true;
 }
 
 bool FiniteStateSampler::empty() const{
     return _empty;
 }
+
+void FiniteStateSampler::addState(const rw::kinematics::State& state){
+	_states.push_back(state);
+}
+
+void FiniteStateSampler::addStates(const std::vector<rw::kinematics::State>& states){
+	BOOST_FOREACH(const State& state, states){
+		_states.push_back(state);
+	}
+}
+
+void FiniteStateSampler::setStates(const std::vector<rw::kinematics::State>& states){
+	_states = states;
+}
+
 

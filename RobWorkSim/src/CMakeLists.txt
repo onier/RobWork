@@ -83,17 +83,22 @@ add_library(rwsim
 	util/SupportPose.cpp
 	#util/LineFit.cpp
 	#util/LinePolar.cpp
+	
 	util/HughLineExtractor.cpp
+	
 	util/RestingPoseGenerator.cpp
+	
 	util/CollisionFreeSampler.cpp
 	util/FiniteStateSampler.cpp
 	util/SpherePoseSampler.cpp
 	util/StateSampler.cpp
+	util/PreshapeSampler.cpp
 	
 	drawable/RenderGhost.cpp
 	drawable/RenderPoints.cpp
 	drawable/RenderPlanes.cpp
 	drawable/RenderCircles.cpp
+	drawable/RenderContacts.cpp
 	
  	control/PDController.cpp
  	control/SyncPDController.cpp

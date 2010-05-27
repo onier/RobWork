@@ -27,6 +27,8 @@
 
 #include <rw/geometry/GiftWrapHull3D.hpp>
 
+#include <boost/foreach.hpp>
+
 using namespace rw::math;
 using namespace boost::numeric;
 using namespace rw::math;
@@ -68,7 +70,7 @@ int main(int argc, char** argv)
 	std::cout << "- Calculating invariant axes: \n";
 
 	// now create the convex hull of the geometry
-	TriMesh *mesh = GeometryUtil::toTriMesh(geo);
+	TriMeshPtr mesh = GeometryUtil::toTriMesh(geo);
 	//IndexedTriMesh<float> *idxMesh = dynamic_cast<IndexedTriMesh<float>* >(mesh);
 	IndexedTriMesh<> *idxMesh = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<> >(*mesh,0.00001);
 	RW_ASSERT(idxMesh);

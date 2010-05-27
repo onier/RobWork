@@ -11,12 +11,11 @@
 #include "StateSampler.hpp"
 
 #include <rw/math/Vector3D.hpp>
-#include <rw/kinematics/MovableFrame.hpp>
+#include <rw/models/Device.hpp>
+#include <rw/pathplanning/QSampler.hpp>
 
 /**
- * @brief samples poses of a movable frame, such that the frame is always
- * positioned on a sphere around some specified center. Random deviations
- * to the position of the frame can be added.
+ * @brief
  *
  * This StateSampler will never become empty
  *
@@ -26,25 +25,31 @@ class PreshapeSampler: public StateSampler
 public:
 
     /**
-     * @brief
-     *
-     * @param mframe
-     * @param wPc
+     * @brief create a preshape sampler based on a QSampler
+     * @param dev [in] the device for which configurations are sampled
+     * @param qsampler [in] the configuration sampler
      * @param initState [in] the initial state
-     * @return
      */
-    PreshapeSampler(rw::models::Device* dev, QSampler qsampler, rw::kinematics::State& initState);
+    PreshapeSampler(rw::models::Device* dev,
+    				rw::pathplanning::QSamplerPtr qsampler,
+    				rw::kinematics::State& initState);
 
-    virtual ~SpherePoseSampler();
+    /**
+     * @brief destructor
+     */
+    virtual ~PreshapeSampler();
 
+
+
+    //! @copydoc StateSampler::sample
     bool sample(rw::kinematics::State& state);
 
+    //! @copydoc StateSampler::sample
     bool empty() const{ return false; };
 
-
 private:
-    rw::kinematics::MovableFrame* _mframe;
-    rw::math::Vector3D<> _wPc;
+    rw::models::Device* _dev;
+    rw::pathplanning::QSamplerPtr _qsampler;
     rw::kinematics::State _initState;
 };
 

@@ -9,9 +9,7 @@ CollisionFreeSampler::CollisionFreeSampler(StateSamplerPtr sampler,
 
 }
 
-
 CollisionFreeSampler::~CollisionFreeSampler(){}
-
 
 bool CollisionFreeSampler::sample(rw::kinematics::State& state){
     bool colfree = false;

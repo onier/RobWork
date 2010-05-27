@@ -41,13 +41,15 @@
 #include <QTimer>
 
 #include "ThreadSafeStack.hpp"
-        struct RestingConfig {
-            RestingConfig(const rw::kinematics::State& state, const std::string& str):
-                _state(state),_desc(str){}
-            RestingConfig(){};
-            rw::kinematics::State _state;
-            std::string _desc;
-        };
+
+
+struct RestingConfig {
+	RestingConfig(const rw::kinematics::State& state, const std::string& str):
+		_state(state),_desc(str){}
+	RestingConfig(){};
+	rw::kinematics::State _state;
+	std::string _desc;
+};
 /**
  * @brief a grphical interface for calculating resting configurations of
  * rigid bodies using rigid body physics simulation.
@@ -62,35 +64,17 @@ class GraspTableGeneratorDialog : public rws::RobWorkStudioPlugin, private Ui::G
     public:
         typedef std::vector<boost::numeric::ublas::matrix<float> > TactileSensorData;
 
+        /**
+         * @brief constructor
+         */
         GraspTableGeneratorDialog();
 
         /**
-         * @copydoc RobWorkStudioPlugin::open
+         * @brief destructor
          */
-        void open(rw::models::WorkCell* workcell);
+        virtual ~GraspTableGeneratorDialog();
 
-        /**
-         * @copydoc RobWorkStudioPlugin::close
-         */
-        void close();
-
-        /**
-         * @copydoc RobWorkStudioPlugin::initialize
-         */
-        void initialize();
-
-        /**
-         * @brief for state changes of RWS
-         */
-        void stateChangedListener(const rw::kinematics::State& state);
-
-        /**
-         * @brief we listen for events regarding opening and closing of dynamic
-         * workcell
-         */
-        void genericEventListener(const std::string& event);
-
-
+        /*
         const rw::kinematics::State& getState(){ return _state; };
 
         std::vector<dynamics::RigidBody*>& getBodies(){ return _bodies; };
@@ -104,58 +88,49 @@ class GraspTableGeneratorDialog : public rws::RobWorkStudioPlugin, private Ui::G
         }
 
         void startAuto();
+         */
 
         void stepCallBack(int i, const rw::kinematics::State& state);
 
-
-    signals:
         /**
-         * @brief The state of one simulation thread can be actively monitored
-         * through this signal.
-         * @param state
+         * @brief for state changes of RWS
          */
-        void stateChanged(const rw::kinematics::State& state);
+        void stateChangedListener(const rw::kinematics::State& state);
 
         /**
-         * @brief An event that is fired when a resting pose has been calculated.
+         * @brief we listen for events regarding opening and closing of dynamic
+         * workcell
          */
-        void restingPoseEvent(const RestingConfig& restcfg);
+        void genericEventListener(const std::string& event);
+
+        ////// inherited from RobWorkStudioPlugin
+
+        //! @copydoc RobWorkStudioPlugin::open
+        void open(rw::models::WorkCell* workcell);
+
+        //! @copydoc RobWorkStudioPlugin::close
+        void close();
+
+        //! @copydoc RobWorkStudioPlugin::initialize
+        void initialize();
 
     private slots:
         void btnPressed();
         void changedEvent();
 
     private:
-    	void initializeStart();
+        /*
+        void initializeStart();
         void updateStatus();
-        void cleanup();
-
-        /**
-         * @brief calculates a random configuration of
-         * all bodies
-         * @param state
-         */
-        void calcRandomCfg(rw::kinematics::State& state);
-
-        /**
-         * @brief Calculate random configuration for \b bodies
-         * @param bodies
-         * @param state
-         */
-        void calcRandomCfg(std::vector<dynamics::RigidBody*> &bodies,
-                           rw::kinematics::State& state);
-
-        /**
-         * @brief calculates a collision free random configuration of
-         * all bodies
-         * @param state
-         */
-        void calcColFreeRandomCfg(rw::kinematics::State& state);
 
         bool isSimulationFinished( SimulatorPtr sim, const rw::kinematics::State& state );
-
         bool saveRestingState( int simidx, SimulatorPtr sim , const rw::kinematics::State& state );
+         */
 
+        void cleanup();
+        void loadConfiguration(const std::string& filename);
+        void saveConfiguration(const std::string& filename);
+        void applyConfiguration();
 
     private:
         rw::common::PropertyMap _settings;
@@ -175,6 +150,7 @@ class GraspTableGeneratorDialog : public rws::RobWorkStudioPlugin, private Ui::G
         std::vector<RestingPoseGenerator*> _generators;
 
         Ui::GraspTableGeneratorPlugin _ui;
+
         rw::kinematics::State _defstate;
         rw::kinematics::State _state;
         QTimer *_timer;
@@ -227,9 +203,13 @@ class GraspTableGeneratorDialog : public rws::RobWorkStudioPlugin, private Ui::G
         rw::math::Q _target,_preshape;
         rw::math::Transform3D<> _objTransform;
 
-        rw::graspplanning::GraspTable *_gtable;
         int _nrOfGraspsInGroup, _lastTableBackupCnt;
         int _tactileDataOnAllCnt;
+
+
+        rw::graspplanning::GraspTable *_gtable;
+        std::string _configFile; // loadet on initialization
+        rw::common::PropertyMap _config;
 
 };
 

@@ -9,7 +9,7 @@ using namespace rw::kinematics;
 using namespace rw::math;
 using namespace rwlibs::drawable;
 
-RenderPlanes::RenderPlanes(){}
+RenderPlanes::RenderPlanes(float planesize):_planesize(planesize){}
 RenderPlanes::~RenderPlanes(){}
 
 void RenderPlanes::addPlanes(const std::vector<PlaneModel >& planes){
@@ -32,6 +32,16 @@ void RenderPlanes::clear(){
 }
 
 void RenderPlanes::draw(DrawType type, double alpha) const {
+    switch (type) {
+    case Render::SOLID:
+    	glPolygonMode(GL_FRONT, GL_FILL);
+     	break;
+    case Render::OUTLINE: // Draw nice frame
+    	glPolygonMode(GL_FRONT, GL_FILL);
+     case Render::WIRE:
+    	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    	break;
+    }
 
 	glColor3fv(_color);
 	glBegin(GL_TRIANGLES);
@@ -40,8 +50,8 @@ void RenderPlanes::draw(DrawType type, double alpha) const {
 		Vector3D<> n = p.getNormal();
 		Vector3D<> nd( n(2),n(0),n(1) );
 
-		Vector3D<> nd1 = normalize( cross(nd,n) );
-		Vector3D<> nd2 = normalize( cross(nd1,n) );
+		Vector3D<> nd1 = normalize( cross(nd,n) )*_planesize;
+		Vector3D<> nd2 = normalize( cross(nd1,n) )*_planesize;
 
 		Vector3D<> p1,p2,p3,p4;
 		p1 = d*n + nd1 + nd2;

@@ -11,7 +11,7 @@ IF(Boost_FOUND)
 ENDIF ()
 
 LINK_DIRECTORIES( 
-    ${ROBWORKSTUDIO_LIBRARY_DIRS} ${GRASPING_LIBRARY_DIRS} ${BulletLinkDir} ${ODE_LIBRARY_DIRS} )
+    ${ROBWORKSTUDIO_LIBRARY_DIRS} ${GRASPING_LIBRARY_DIRS} )
 
 INCLUDE_DIRECTORIES( 
     ${ROBWORKSTUDIO_INCLUDE_DIR} ${BULLET_INCLUDE_DIR} ${ODE_INCLUDE_DIR} )
@@ -84,6 +84,8 @@ IF( RWSIM_HAVE_ODE )
     SET(ODE_LIBRARIES_TMP ${ODE_LIBRARIES})
 ENDIF()
 
+
+MESSAGE("${ODE_LIBRARIES_TMP}")
 # Additional libraries
 SET(LibraryList RWSimGui 
     rwsim 
@@ -150,11 +152,11 @@ SET(MocSrcFiles )
 QT4_WRAP_CPP(MocSrcFiles GraspTableGeneratorDialog.hpp)
 # Rcc the files:
 SET(RccSrcFiles )
-#QT4_ADD_RESOURCES(RccSrcFiles resources.qrc)
+QT4_ADD_RESOURCES(RccSrcFiles resources.qrc)
 
 # The shared library to build:
-#ADD_LIBRARY(GraspTableGeneratorDialog MODULE ${SrcFiles} ${MocSrcFiles}  ${RccSrcFiles})
-#TARGET_LINK_LIBRARIES(GraspTableGeneratorDialog ${LibraryList})
+ADD_LIBRARY(GraspTableGeneratorDialog MODULE ${SrcFiles} ${MocSrcFiles}  ${RccSrcFiles})
+TARGET_LINK_LIBRARIES(GraspTableGeneratorDialog ${LibraryList})
 ###### The RW Simulation 
 
 RWS_QT4_WRAP_UI(UIS_OUT_H RWSimPlugin.ui)

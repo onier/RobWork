@@ -32,24 +32,17 @@ namespace {
 	}
 }
 
-CircleModel::CircleModel(std::vector<Vector3D<> >& points){
-	// first find the normal that the points yield
-/*	PlaneModel plane(points);
-	_n = plane.getNormal();
-	// calculate the center of the 2d circle
-	Vector3D<> center(0,0,0);
-	BOOST_FOREACH(Vector3D<> &p, points){
-		center += p;
-	}
-	_center = center/points.size();
-	// and last calculate the radius
-	double radius= 0;
-	BOOST_FOREACH(Vector3D<> &p, points){
-		radius += MetricUtil::dist2(_center,p);
-	}
-	_r = radius/points.size();
-*/
-	refit(points);
+CircleModel CircleModel::fitTo(const std::vector<rw::math::Vector3D<> >& points){
+	CircleModel model;
+	model.refit(points);
+	return model;
+}
+
+
+CircleModel::CircleModel(const rw::math::Vector3D<>& c, const rw::math::Vector3D<>& n, double radi):
+	_center(c),_n(n),_r(radi)
+{
+
 }
 
 CircleModel::CircleModel(Vector3D<>& p1, Vector3D<>& p2, Vector3D<>& p3){
@@ -94,14 +87,14 @@ namespace {
 
 }
 
-void CircleModel::refit(std::vector<Vector3D<> >& data){
+void CircleModel::refit(const std::vector<Vector3D<> >& data){
 
     using namespace boost::numeric;
     using namespace rw::math;
 
     ublas::matrix<double> covar( ublas::zero_matrix<double>(3, 3) );
     Vector3D<> centroid(0,0,0);
-    BOOST_FOREACH(Vector3D<> &v, data){
+    BOOST_FOREACH(const Vector3D<> &v, data){
         centroid += v;
         for(size_t j=0;j<3;j++)
             for(size_t k=0;k<3;k++)
@@ -210,9 +203,5 @@ bool CircleModel::isClose(const CircleModel& circ, double epsilon) const {
 bool CircleModel::isClose(const Vector3D<>& p, double epsilon) const {
 	double d = -_n(0)*_center(0) -_n(1)*_center(1) -_n(2)*_center(2);
 	return fabs( _n(0)*p(0)+_n(1)*p(1)+_n(2)*p(2) + d )<epsilon;
-}
-
-void CircleModel::print() const{
-	std::cout << "Circle ["<< _center << ","<< _n << "," << _r << "]" << std::endl;
 }
 

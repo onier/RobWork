@@ -9,87 +9,126 @@
 /**
  * @brief a JointController that use a PD loop on each joint
  * to control the velocity such that the position target is
- * reached
- *
+ * reached.
  */
-
 class PDController: public JointController, public rwlibs::simulation::SimulatedController {
-
 public:
+	//! @brief struct for holding PD parameters
+	struct PDParam {
+		PDParam():P(10),D(0.3){}
+		PDParam(double p, double d):P(p),D(d){};
+		double P; //! the proportional parameter
+		double D; //! the derivative parameter
+	};
 
-    PDController(RigidDevice* rdev, const rw::kinematics::State& state):
-        JointController(&rdev->getModel()),
-        _ddev(rdev),
-        _lastError(rw::math::Q::zero(rdev->getModel().getDOF())),
-        _target(rdev->getModel().getQ(state)),
-        _currentQ(_target),_currentVel(rw::math::Q::zero(_target.size())),
-        _targetVel(rw::math::Q::zero(_target.size()))
-    {}
+	/**
+	 * @brief constructor
+	 * @param rdev [in] device that is to be controlled
+	 * @param state [in] target state
+	 * @param cmode [in] the control mode used
+	 * @param pdparams [in] list of pd parameters. must be same length as number of joints.
+	 * @param dt [in] the sampletime (time between samples in seconds) used in the control
+	 * loop, this should be larger than the expected update sample time.
+	 */
+    PDController(RigidDevice* rdev, const rw::kinematics::State& state,
+    		ControlMode cmode,
+    		const std::vector<PDParam>& pdparams,
+    		double dt
+    		);
 
-    virtual ~PDController(){};
-
-    unsigned int getControlModes(){
-        return POSITION || VELOCITY;
-    }
-
-    void setControlMode(ControlMode mode){
-        if(mode!=POSITION || mode !=VELOCITY )
-            RW_THROW("Unsupported control mode!");
-        _mode = mode;
-    }
-
-    void setTargetPos(const rw::math::Q& target){
-        _target = target;
-    }
-
-    void setTargetVel(const rw::math::Q& vals){
-        _targetVel = vals;
-    }
-
-    void setTargetAcc(const rw::math::Q& vals){};
+	/**
+	 * @brief constructor
+	 * @param rdev [in] device that is to be controlled
+	 * @param state [in] target state
+	 * @param cmode [in] the control mode used
+	 * @param pdparam [in] pd parameter - used for all joints
+	 * @param dt [in] the sampletime (time between samples in seconds) used in the control
+	 * loop, this should be larger than the expected update sample time.
+	 */
+    PDController(RigidDevice* rdev, const rw::kinematics::State& state,
+    		ControlMode cmode,
+    		const PDParam& pdparam,
+    		double dt
+    		);
 
     /**
-     * @brief updates the state of the dynamicdevice
+     * @brief destructor
      */
-    void update(double dt, rw::kinematics::State& state) {
-        const double P = 10;
-        const double D = 0.3;
-        rw::math::Q q = _ddev->getModel().getQ(state);
-        rw::math::Q error = _target-q;
-        // std::cout  << "PD TARGET: " << _target << std::endl;
-        // std::cout  << "PD ERROR: " << error << std::endl;
-        rw::math::Q nvel = P*error + (error-_lastError)*D;
-        _lastError = error;
+    virtual ~PDController(){};
 
-        _ddev->setVelocity(_targetVel + nvel, state);
+    /**
+     * @brief the PD parameters
+     * @return list of PD parameters
+     */
+    std::vector<PDParam> getParameters();
 
-        _currentVel = (q - _currentQ)/dt;
-        _currentQ = q;
-    }
+    /**
+     * @brief set the PD parameters
+     * @param params [in] list of parameters. must be same length as DOF
+     * of controlling device
+     */
+    void setParameters(const std::vector<PDParam>& params);
 
-    rw::math::Q getQ(){
-        return _currentQ;
-    }
+    /**
+     * @brief the time between samples
+     * @return the sample time in seconds
+     */
+    double getSampleTime();
 
-    rw::math::Q getQd(){
-        return _currentVel;
-    }
+    /**
+     * @brief set the time between samples in seconds
+     * @param stime [in] sample time
+     */
+    void setSampleTime(double stime);
 
-    void reset(const rw::kinematics::State& state){
-        _currentQ = _ddev->getModel().getQ(state);
-        _target = _currentQ;
-        _targetVel = rw::math::Q::zero(_currentQ.size());
-        //_time = 0;
-    }
+    //! @copydoc SimulatedController::update
+    void update(double dt, rw::kinematics::State& state);
 
-    Controller* getController(){ return this;};
+    //! @copydoc SimulatedController::reset
+    void reset(const rw::kinematics::State& state);
+
+    //! @copydoc SimulatedController::getController
+    Controller* getController(){ return this; };
+
+
+    ////// inherited from JointController
+
+    /**
+     * @copydoc JointController::getControlModes
+     *
+     * This controller supports both position and velocity control.
+     */
+    unsigned int getControlModes(){return _mode;}
+
+    //! @copydoc JointController::setControlModes
+    void setControlMode(ControlMode mode);
+
+    //! @copydoc JointController::setTargetPos
+    void setTargetPos(const rw::math::Q& target){_target = target; }
+
+    //! @copydoc JointController::setTargetVel
+    void setTargetVel(const rw::math::Q& vals){_targetVel = vals; }
+
+    //! @copydoc JointController::setTargetAcc
+    void setTargetAcc(const rw::math::Q& vals){};
+
+    //! @copydoc JointController::getQ
+    rw::math::Q getQ(){ return _currentQ;}
+
+    //! @copydoc JointController::getQd
+    rw::math::Q getQd(){ return _currentVel;}
+
+private:
+    PDController();
 
 private:
     RigidDevice *_ddev;
     rw::math::Q _maxVel;
     rw::math::Q _lastError, _target, _currentQ, _currentVel;
     rw::math::Q _targetVel;
-    int _mode;
+    std::vector<PDParam> _pdparams;
+    ControlMode _mode;
+    double _stime;
 };
 
 typedef rw::common::Ptr<PDController> PDControllerPtr;

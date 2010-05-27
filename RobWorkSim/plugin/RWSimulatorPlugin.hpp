@@ -17,8 +17,8 @@
  * license. For more information goto your RobWork directory and read license.txt.
  ************************************************************************/
 
-#ifndef RWSIMULATORPLUGIN_HPP
-#define RWSIMULATORPLUGIN_HPP
+#ifndef RWSIM_RWSIMULATORPLUGIN_HPP
+#define RWSIM_RWSIMULATORPLUGIN_HPP
 
 
 #ifdef __WIN32
@@ -40,7 +40,7 @@
 #include <simulator/Simulator.hpp>
 #include <simulator/rwphysics/ConstantForceManipulator.hpp>
 
-#include <drawable/RenderForce.hpp>
+#include <drawable/RenderContacts.hpp>
 #include <drawable/RenderGhost.hpp>
 
 #include <rwlibs/control/JointController.hpp>
@@ -98,8 +98,8 @@ private:
     ConstantForceManipulator *_gravity;
     QTimer *_timer;
 
-    std::vector<RenderForce*> _miscForces;
-    std::vector<RenderForce*> _bodyForces;
+    RenderContacts _miscForces;
+    RenderContacts _bodyForces;
 
     double _timeStep;
     double _nextTime;

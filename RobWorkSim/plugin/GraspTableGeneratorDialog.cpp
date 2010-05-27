@@ -2,38 +2,32 @@
 
 #include <iostream>
 #include <fstream>
+#include<string>
+
 #include <boost/foreach.hpp>
+#include<boost/filesystem/operations.hpp>
 
-#include <rw/math/RPY.hpp>
-#include <rw/math/Math.hpp>
-#include <rw/math/Constants.hpp>
-#include <rw/math/Pose6D.hpp>
-#include <rw/math/Transform3D.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/kinematics/Kinematics.hpp>
+#include <rw/math.hpp>
+#include <rw/kinematics.hpp>
+#include <rw/loaders.hpp>
+#include <rw/common.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <rw/math/MetricUtil.hpp>
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rw/models/Accessor.hpp>
 
-#include <rw/common/TimerUtil.hpp>
-#include <rw/common/Ptr.hpp>
+#include <rw/geometry/GiftWrapHull3D.hpp>
+
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rw/proximity/Proximity.hpp>
-#include <rw/loaders/path/PathLoader.hpp>
-#include <loaders/ScapePoseFormat.hpp>
-#include <rw/models/Accessor.hpp>
-#include <sensors/TactileArraySensor.hpp>
-
 
 #include <rw/graspplanning/WrenchMeasure3D.hpp>
 #include <rw/graspplanning/CMDistCCPMeasure3D.hpp>
 
-#include <rw/geometry/GiftWrapHull3D.hpp>
 #include <rws/RobWorkStudio.hpp>
-#include<boost/filesystem/operations.hpp>
-#include<iostream>
-#include<string>
+
+#include <dynamics/RigidBody.hpp>
+#include <simulator/PhysicsEngineFactory.hpp>
+#include <loaders/ScapePoseFormat.hpp>
+#include <sensors/TactileArraySensor.hpp>
 
 using namespace dynamics;
 using namespace rw::math;
@@ -43,10 +37,10 @@ using namespace rw::proximity;
 using namespace rw::loaders;
 using namespace rw::sensor;
 using namespace rw::trajectory;
-using namespace rwlibs::simulation;
 using namespace rw::models;
 using namespace rw::geometry;
 using namespace rw::graspplanning;
+using namespace rwlibs::simulation;
 
 namespace bfs=boost::filesystem;
 
@@ -95,7 +89,6 @@ GraspTableGeneratorDialog::GraspTableGeneratorDialog():
     RobWorkStudioPlugin("GTableGen", QIcon(":/SimulationIcon.png")),
     _avgSimTime(10),_avgTime(10)
 {
-	RW_ASSERT( _dwc );
     setupUi( this );
 
     Math::seed( TimerUtil::currentTimeMs() );
@@ -103,8 +96,9 @@ GraspTableGeneratorDialog::GraspTableGeneratorDialog():
     _gStrategyBox->addItem("Preshape");
     _gStrategyBox->addItem("Preshape - Random");
 
-    _gPolicyBox->addItem("Position");
-    _gPolicyBox->addItem("Velocity");
+    _gPolicyBox->addItem("Position");// close to predefined position
+    _gPolicyBox->addItem("Fixed Velocity");// close with constant velocity
+    _gPolicyBox->addItem("Fixed Force");// close with constant velocity
 
     RW_DEBUGS("- Setting connections ");
     connect(_saveBtn1    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
@@ -121,6 +115,10 @@ GraspTableGeneratorDialog::GraspTableGeneratorDialog():
     _timer = new QTimer( NULL );
     _timer->setInterval( _updateRateSpin->value() );
     connect( _timer, SIGNAL(timeout()), this, SLOT(changedEvent()) );
+}
+
+GraspTableGeneratorDialog::~GraspTableGeneratorDialog(){
+
 }
 
 void GraspTableGeneratorDialog::cleanup(){
@@ -162,6 +160,144 @@ void GraspTableGeneratorDialog::open(rw::models::WorkCell* workcell){
 }
 
 
+void GraspTableGeneratorDialog::loadConfiguration(const std::string& file){
+	std::string configFile;
+	if( file.empty() ){
+	    QString selectedFilter;
+	    std::string dirname =
+	    		getRobWorkStudio()->getPropertyMap().get<std::string>("PreviousDirectory","");
+	    const QString dir(dirname.c_str());
+
+	    QString filename = QFileDialog::getOpenFileName(
+	        this,
+	        "Open Drawable", // Title
+	        dir, // Directory
+	        "All supported ( *.xml )"
+	        " \nRW XML files ( *.xml )"
+	        " \n All ( *.* )",
+	        &selectedFilter);
+
+	    configFile = filename.toStdString();
+	} else {
+		configFile = file;
+	}
+	if (configFile.empty()){
+		return;
+	}
+
+	getRobWorkStudio()->getPropertyMap().set<std::string>(
+			"PreviousDirectory",
+			rw::common::StringUtil::getDirectoryName(configFile));
+
+
+
+    PropertyMap map;
+    try {
+        map = XMLPropertyLoader::load(configFile);
+    } catch (const Exception& exp) {
+        QMessageBox::information(
+            NULL,
+            "Error loading propertymap!",
+            exp.getMessage().getText().c_str(),
+            QMessageBox::Ok);
+        return;
+    }
+
+    _config = map;
+
+    // apply configuration
+    applyConfiguration();
+}
+
+void GraspTableGeneratorDialog::btnPressed(){
+    QObject *obj = sender();
+    if( obj == _saveBtn1 ){
+    }
+}
+
+void GraspTableGeneratorDialog::changedEvent(){
+
+}
+
+void GraspTableGeneratorDialog::stepCallBack(int i, const rw::kinematics::State& state){
+
+}
+
+namespace {
+	void setComboBox(const std::string& name, QComboBox *box, LogWriter& log, const std::string& errmsg){
+		if(!name.empty()){
+			int hidx = box->findText(name.c_str());
+			if(hidx<0){
+				log << errmsg << "\"" << name << "\" not found!";
+			} else {
+				box->setCurrentIndex(hidx);
+			}
+		}
+	}
+}
+
+void GraspTableGeneratorDialog::applyConfiguration(){
+	std::string nameHand = _config.get<std::string>("HandName", "");
+	std::string nameObject = _config.get<std::string>("ObjectName", "");
+
+	std::string nameGraspPolicy = _config.get<std::string>("GraspPolicy", "");
+	std::string nameGraspStrategy = _config.get<std::string>("GraspStrategy", "");
+
+	std::string nameQMetric = _config.get<std::string>("QualityMetric", "");
+	std::string nameQMetric1 = _config.get<std::string>("QualityMetric1", "");
+	std::string nameQMetric2 = _config.get<std::string>("QualityMetric2", "");
+	std::string nameQMetric3 = _config.get<std::string>("QualityMetric3", "");
+	std::string nameQMetric4 = _config.get<std::string>("QualityMetric4", "");
+
+	int table_size = _config.get<int>("TableSize", 1000);
+	int group_size = _config.get<int>("GroupSize", 1);
+	bool use_fixed_step = _config.get<bool>("FixedStep", false);
+	bool use_continues_logging = _config.get<bool>("ContinuesTactileLogging", false);
+	bool use_dynamic_simulation = _config.get<bool>("DynamicSimulation", true);
+	bool use_colfree_initstate = _config.get<bool>("CollisionFreeInitState", true);
+
+	// now set all values in the gui
+
+	std::string output_file = _config.get<std::string>("OutputFile", "grasp_table_output.gdata");
+
+	setComboBox(nameHand, _deviceBox, log().error(), "Hand ");
+	setComboBox(nameObject, _objectBox, log().error(), "Object ");
+	setComboBox(nameGraspPolicy, _gPolicyBox, log().error(), "Grasp Policy ");
+	setComboBox(nameGraspStrategy, _gStrategyBox, log().error(), "Grasp Strategy ");
+
+	_collisionFreeInitBox->setChecked(use_colfree_initstate);
+	_dynamicSimulationBox->setChecked(use_dynamic_simulation);
+	_continuesLoggingBox->setChecked(use_continues_logging);
+	_fixedGroupBox->setChecked(use_fixed_step);
+
+	_groupSizeSpin->setValue( group_size );
+	_tableSizeSpin->setValue( table_size );
+
+	_outputFileEdit->setText(output_file.c_str());
+}
+
+
+void GraspTableGeneratorDialog::saveConfiguration(const std::string& filename){
+
+}
+
+void GraspTableGeneratorDialog::close(){
+
+}
+
+void GraspTableGeneratorDialog::initialize(){
+    getRobWorkStudio()->stateChangedEvent().add(
+    		boost::bind(&GraspTableGeneratorDialog::stateChangedListener, this, _1), this);
+
+    _configFile = getRobWorkStudio()->getPropertyMap().get<std::string>("GraspTableConfigFile","");
+
+}
+
+void GraspTableGeneratorDialog::stateChangedListener(const rw::kinematics::State& state){
+
+}
+
+#if 0
 namespace {
 
 	std::vector<matrix<float> > getTactileData(const std::vector<SimulatedSensorPtr>& sensors){
@@ -829,3 +965,8 @@ void GraspTableGeneratorDialog::genericEventListener(const std::string& event){
         _dwc = dwc;
     }
 }
+
+#endif
+
+
+Q_EXPORT_PLUGIN(GraspTableGeneratorDialog);

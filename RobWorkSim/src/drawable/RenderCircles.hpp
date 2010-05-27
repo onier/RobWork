@@ -1,5 +1,5 @@
-#ifndef RENDERCIRCLES_HPP_
-#define RENDERCIRCLES_HPP_
+#ifndef RWSIM_DRAWABLE_RENDERCIRCLES_HPP_
+#define RWSIM_DRAWABLE_RENDERCIRCLES_HPP_
 
 #include <list>
 #include <vector>
@@ -21,7 +21,7 @@ public:
 	 * @param angleResolution [in] the resolution of the circle line segments
 	 * in degree. The circle is approximated using line segments.
 	 */
-	RenderCircles(float angleResolution=10);
+	RenderCircles(float angleResolution=10.0);
 
 	/**
 	 * @brief destructor
@@ -39,13 +39,27 @@ public:
 	 */
 	void addCircles(const std::vector<CircleModel>& circles);
 
+	/**
+	 * @brief set the circles that is to be rendered
+	 * @param circles [in] the vector of circles
+	 */
 	void setCircles(const std::vector<CircleModel>& circles);
 
+	/**
+	 * @brief set the color used for the model
+	 * @param r [in] red color value
+	 * @param g [in] green color value
+	 * @param b [in] blue color value
+	 */
 	void setColor(double r, double g, double b);
 
+	/**
+	 * @brief clear the list of circles
+	 */
 	void clear();
 
-	virtual void draw(DrawType type, double alpha) const;
+	//! Render::draw
+	void draw(DrawType type, double alpha) const;
 private:
 	float _stepSize;
 	std::vector<CircleModel> _circles;

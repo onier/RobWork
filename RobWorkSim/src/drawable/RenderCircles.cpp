@@ -9,7 +9,9 @@ using namespace rw::kinematics;
 using namespace rw::math;
 using namespace rwlibs::drawable;
 
-RenderCircles::RenderCircles(){}
+RenderCircles::RenderCircles(float angleres):_stepSize(angleres*Deg2Rad)
+{}
+
 RenderCircles::~RenderCircles(){}
 
 void RenderCircles::setCircles(const std::vector<CircleModel>& circles){

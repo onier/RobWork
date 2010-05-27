@@ -207,7 +207,10 @@ void RWSimPlugin::btnPressed(){
             jctrl = vctrl;
         } else if ( dynamic_cast<RigidDevice*>(ddev) ){
             RigidDevice *rdev = dynamic_cast<RigidDevice*>(ddev);
-            PDControllerPtr pdctrl = ownedPtr(new PDController(rdev,state));
+            PDControllerPtr pdctrl =
+					ownedPtr(new PDController(rdev, state, PDController::POSITION,
+											  PDController::PDParam(10,0.3), 0.1));
+
             _sim->getSimulator()->addController(pdctrl);
             jctrl = pdctrl;
         }

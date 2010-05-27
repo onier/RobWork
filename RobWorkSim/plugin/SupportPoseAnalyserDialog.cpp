@@ -451,7 +451,7 @@ namespace {
 				continue;
 
 			// refit the circle using the complete dataset
-			CircleModel ncirc( circPoints );
+			CircleModel ncirc = CircleModel::fitTo( circPoints );
 
 			// Last we test if any of the newly created circles are close enough to be equal
 			bool merged = false;

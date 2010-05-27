@@ -124,7 +124,7 @@ namespace
 
 RWSimulatorPlugin::RWSimulatorPlugin():
     RobWorkStudioPlugin("RWSimulatorPlugin", QIcon(":/SimulationIcon.png")),
-    _miscForces(40),
+    //_miscForces(40),
     _timeStep(0.03),
     _nextTime(0.0),
     _save(true),
@@ -538,7 +538,10 @@ void RWSimulatorPlugin::open(const std::string& file)
                 _dworkcell->addController( vctrl );
             } else if ( dynamic_cast<RigidDevice*>(ddev) ){
                 RigidDevice *rdev = dynamic_cast<RigidDevice*>(ddev);
-                PDController *pdctrl = new PDController(rdev,_dState);
+                PDController *pdctrl =
+							new PDController(rdev, _dState, PDController::POSITION,
+													  PDController::PDParam(10,0.3), 0.1);
+
                 _controllers.push_back( pdctrl );
                 _dworkcell->addController( pdctrl );
             }

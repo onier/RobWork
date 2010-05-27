@@ -502,7 +502,9 @@ void GraspRestingPoseDialog::initializeStart(){
         sim->initPhysics(state);
 
         // create a controller
-        PDControllerPtr pdctrl = ownedPtr(new PDController(_hand, state));
+        PDControllerPtr pdctrl =
+        		ownedPtr(new PDController(_hand, state, PDController::POSITION,
+        								  PDController::PDParam(10,0.3), 0.1));
         sim->addController(pdctrl);
         _controllers.push_back(pdctrl);
         pdctrl->setTargetPos(_targetQ[0] );

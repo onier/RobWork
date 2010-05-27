@@ -15,8 +15,19 @@ SpherePoseSampler::~SpherePoseSampler()
 {
 }
 
+void SpherePoseSampler::setRPYNoiseBound(const rw::math::RPY<>& low, const rw::math::RPY<>& upper){
+
+}
+
+void SpherePoseSampler::setPosNoiseBound(const rw::math::Vector3D<>& low, const rw::math::Vector3D<>& upper){
+
+}
+
+
 bool SpherePoseSampler::sample(State& state)
 {
     return true;
 }
 
+
+bool SpherePoseSampler::empty() const{ return false; };
