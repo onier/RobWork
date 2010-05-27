@@ -28,54 +28,107 @@
 
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/State.hpp>
+#include <rw/kinematics/MovableFrame.hpp>
 #include <rwlibs/drawable/WorkCellGLDrawer.hpp>
 #include <rw/use_robwork_namespace.hpp>
 
-#include <rws/RobWorkStudioPlugin.hpp>
-#include "DeviceTab.hpp"
+#include <rw/kinematics/FrameMap.hpp>
 
+#include <rws/RobWorkStudioPlugin.hpp>
+
+#include "SliderTab.hpp"
+
+namespace rws {
+
+/**
+ * @brief The Jog plugin enables cartesean and joint level jogging of MovableFrames
+ * and Devices. Reference frame can freely be choosen and the devices are jogged using
+ * general inverse kinematic solvers
+ */
 class Jog: public RobWorkStudioPlugin
 {
     Q_OBJECT
-    Q_INTERFACES(RobWorkStudioPlugin)
-
+#ifndef RWS_USE_STATIC_LINK_PLUGINS
+    Q_INTERFACES(rws::RobWorkStudioPlugin)
+#endif
 public:
-    Jog();
+	/**
+	 * @brief Constructor
+	 */
+	Jog();
 
+	/**
+	 * @brief Destructor
+	 */
     virtual ~Jog();
 
+	/**
+	 * @copydoc RobWorkStudioPlugin::initialize
+	 */
     virtual void initialize();
 
+	/**
+	 * @copydoc RobWorkStudioPlugin::open
+	 */
     virtual void open(robwork::WorkCell* workcell);
 
+	/**
+	 * @copydoc RobWorkStudioPlugin::close
+	 */
     virtual void close();
 
-protected:
-//	virtual void stateChangedHandler(RobWorkStudioPlugin* sender);
+	/**
+	 * @copydoc RobWorkStudioPlugin::frameSelectedListener
+	 */
+    void frameSelectedListener(rw::kinematics::Frame* frame);
 
+protected:
     void showEvent ( QShowEvent * event );
 
 private slots:
-    void stateChangedSlot();
+    void cmbChanged ( int index );
 
+    void stateChanged(const rw::kinematics::State& state);
 
+    void deviceConfigChanged(const rw::math::Q& q);
+    void frameConfigChanged(const rw::math::Transform3D<>& transform);
 
 private:
+
     robwork::WorkCell* _workcell;
     robwork::State _state;
-    rw::kinematics::Frame* _selectedFrame;
+    rw::models::Device* _selectedDevice;
+    JointSliderWidget* _jointSliderWidget;
 
-    std::vector<DeviceTab*> _deviceTabs;
+    rw::kinematics::MovableFrame* _selectedFrame;
+    MovableFrameTab* _cartesianTab;
+    CartesianDeviceTab* _cartesianDeviceTab;
+    bool _updating;
+
+    QComboBox* _cmbDevices;
     QTabWidget* _tabWidget;
+    std::vector<std::pair<rw::models::Device*, rw::kinematics::MovableFrame*> > _items;
+
+    std::pair<rw::math::Q, rw::math::Q> _cartesianBounds;
+    //std::vector<JointTab*> _sliders;
+
+    /*std::vector<DeviceTab*> _deviceTabs;
+    QTabWidget* _tabWidget;
+*/
+    void removeTabs();
+    void constructTabs(rw::models::Device* device);
+    void constructCartTab(rw::kinematics::MovableFrame* device);
 
     void stateChangedListener(const rw::kinematics::State& state);
     void keyListener(int key, Qt::KeyboardModifiers modifiers);
-    double _keyStepSize;
-    void frameSelectedListener(rw::kinematics::Frame* frame);
     //RobWorkStudio::StateChangedListener
 
     QIcon getIcon();
     void updateValues();
+
+    rw::kinematics::FrameMap<int> _frameToIndex;
 };
+
+}
 
 #endif //#ifndef JOGMODULE

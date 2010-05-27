@@ -10,8 +10,7 @@ else ()
 endif ()
 
 # The plugins:
-#add_subdirectory(jog)
-add_subdirectory(jog2)
+add_subdirectory(jog)
 add_subdirectory(log)
 add_subdirectory(playback)
 add_subdirectory(propertyview) 
