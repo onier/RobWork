@@ -115,30 +115,30 @@ public:
 		getAnchoredChildFrames(rw::kinematics::Frame *parent, const rw::kinematics::State &state);
 
 
-	static TriMesh* toTriMesh(Geometry *geom){
+	static TriMeshPtr toTriMesh(Geometry *geom){
 		GeometryDataPtr gdata = geom->getGeometryData();
 
         // check if type of geom is really a trimesh
         if( !dynamic_cast<TriMesh*>(gdata.get()) ){
             return NULL;
         }
-        TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata.get());
+        TriMeshPtr trimesh = gdata.cast<TriMesh>();
         return trimesh;
 	};
 
-	static TriMeshPtr toTriMesh(GeometryData *gdata){
+	static TriMesh* toTriMesh(GeometryData *gdata){
         // check if type of geom is really a trimesh
         if( !dynamic_cast<TriMesh*>(gdata) ){
         	return NULL;
         }
         TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata);
-        return TriMeshPtr(trimesh);
+        return trimesh;
 	};
 
 	static TriMeshPtr toTriMesh(GeometryDataPtr gdata){
         // check if type of geom is really a trimesh
         if( dynamic_cast<TriMesh*>(gdata.get()) ){
-        	return *((TriMeshPtr*)&gdata);
+        	return gdata.cast<TriMesh>();
         } else if(Primitive *prim = dynamic_cast<Primitive*>(gdata.get())){
         	return prim->createMesh(-1); // use default resolution
         }
