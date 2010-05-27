@@ -29,6 +29,9 @@
 #include <loaders/ScapePoseFormat.hpp>
 #include <sensors/TactileArraySensor.hpp>
 
+#include <util/GraspPolicyFactory.hpp>
+#include <util/GraspStrategyFactory.hpp>
+
 using namespace dynamics;
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -93,12 +96,23 @@ GraspTableGeneratorDialog::GraspTableGeneratorDialog():
 
     Math::seed( TimerUtil::currentTimeMs() );
 
-    _gStrategyBox->addItem("Preshape");
-    _gStrategyBox->addItem("Preshape - Random");
+    std::vector<std::string> policies = GraspPolicyFactory::getAvailablePolicies();
+    BOOST_FOREACH(const std::string& id, policies){
+        _gPolicyBox->addItem(id);
+    }
 
-    _gPolicyBox->addItem("Position");// close to predefined position
-    _gPolicyBox->addItem("Fixed Velocity");// close with constant velocity
-    _gPolicyBox->addItem("Fixed Force");// close with constant velocity
+
+    std::vector<std::string> strategies = GraspPolicyFactory::getAvailableStrategies();
+    BOOST_FOREACH(const std::string& id, strategies){
+        _gStrategyBox->addItem(id);
+    }
+
+    //_gStrategyBox->addItem("Preshape");
+    //_gStrategyBox->addItem("Preshape - Random");
+
+    //_gPolicyBox->addItem("Position");// close to predefined position
+    //_gPolicyBox->addItem("Fixed Velocity");// close with constant velocity
+    //_gPolicyBox->addItem("Fixed Force");// close with constant velocity
 
     _qAvailMetricsBox->addItem("CM-CCP");
     _qMetricsBox->addItem("Force closure (LEB)");
