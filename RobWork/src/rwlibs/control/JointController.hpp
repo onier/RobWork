@@ -66,6 +66,8 @@ public:
      * @brief sets the target joint value for the current control mode.
      */
     virtual void setTargetPos(const rw::math::Q& vals) = 0;
+
+
     virtual void setTargetVel(const rw::math::Q& vals) = 0;
     virtual void setTargetAcc(const rw::math::Q& vals) = 0;
 
