@@ -100,6 +100,10 @@ GraspTableGeneratorDialog::GraspTableGeneratorDialog():
     _gPolicyBox->addItem("Fixed Velocity");// close with constant velocity
     _gPolicyBox->addItem("Fixed Force");// close with constant velocity
 
+    _qAvailMetricsBox->addItem("CM-CCP");
+    _qMetricsBox->addItem("Force closure (LEB)");
+
+
     RW_DEBUGS("- Setting connections ");
     connect(_saveBtn1    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_genTableBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
@@ -108,8 +112,16 @@ GraspTableGeneratorDialog::GraspTableGeneratorDialog():
     connect(_simulatorBtn,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_scapeBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
 
-    connect(_updateRateSpin,SIGNAL(valueChanged(int)), this, SLOT(changedEvent()) );
-    connect(_fixedGroupBox, SIGNAL(stateChanged(int)), this, SLOT(changedEvent()) );
+    connect(_loadGTableConfig    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_saveGTableConfig    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_addBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_removeBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_browseOutputBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_genTableBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_stopBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+
+    //connect(_updateRateSpin,SIGNAL(valueChanged(int)), this, SLOT(changedEvent()) );
+    //connect(_fixedGroupBox, SIGNAL(stateChanged(int)), this, SLOT(changedEvent()) );
 
     RW_DEBUGS("- Setting timer ");
     _timer = new QTimer( NULL );
@@ -170,7 +182,7 @@ void GraspTableGeneratorDialog::loadConfiguration(const std::string& file){
 
 	    QString filename = QFileDialog::getOpenFileName(
 	        this,
-	        "Open Drawable", // Title
+	        "Open GTable config file", // Title
 	        dir, // Directory
 	        "All supported ( *.xml )"
 	        " \nRW XML files ( *.xml )"
@@ -188,8 +200,6 @@ void GraspTableGeneratorDialog::loadConfiguration(const std::string& file){
 	getRobWorkStudio()->getPropertyMap().set<std::string>(
 			"PreviousDirectory",
 			rw::common::StringUtil::getDirectoryName(configFile));
-
-
 
     PropertyMap map;
     try {
@@ -211,7 +221,44 @@ void GraspTableGeneratorDialog::loadConfiguration(const std::string& file){
 
 void GraspTableGeneratorDialog::btnPressed(){
     QObject *obj = sender();
-    if( obj == _saveBtn1 ){
+
+    if( obj == _loadGTableConfig ){loadConfiguration("");}
+    else if(obj == _saveGTableConfig){saveConfiguration("");}
+    //else if(){ }
+    else if(obj == _genTableBtn){startTableGeneration();}
+    else if(obj == _stopBtn){
+    	if(_stopBtn->text()=="Pause"){
+    		_stopBtn->setText("Continue");
+    		// todo stop execution
+    	} else {
+    		_stopBtn->setText("Pause");
+    	}
+    }
+    else if(obj == _addBtn){
+    	QString txt = _qAvailMetricsBox->currentText();
+    	if(txt.isEmpty()) return;
+    	_qMetricsBox->addItem(txt);
+    	_qAvailMetricsBox->removeItem(_qAvailMetricsBox->currentIndex());
+    } else if(obj == _removeBtn){
+    	QString txt = _qMetricsBox->currentText();
+    	if(txt.isEmpty()) return;
+    	_qAvailMetricsBox->addItem(txt);
+    	_qMetricsBox->removeItem(_qMetricsBox->currentIndex());
+    } else if(obj == _browseOutputBtn){
+    	QString selectedFilter;
+        std::string dirname =
+        		getRobWorkStudio()->getPropertyMap().get<std::string>("PreviousDirectory","");
+        const QString dir(dirname.c_str());
+        QString filename = QFileDialog::getSaveFileName(
+			this,
+			"Name of Grasp Table data file", // Title
+			dir, // Directory
+			"All supported ( *.gdata )"
+			" \nRW Grasp Data files ( *.gdata )"
+			" \n All ( *.* )",
+			&selectedFilter);
+
+        _outputFileEdit->setText(filename);
     }
 }
 
@@ -276,9 +323,54 @@ void GraspTableGeneratorDialog::applyConfiguration(){
 	_outputFileEdit->setText(output_file.c_str());
 }
 
+void GraspTableGeneratorDialog::readConfiguration(){
 
-void GraspTableGeneratorDialog::saveConfiguration(const std::string& filename){
+	_config.set<std::string>("HandName", _deviceBox->currentText().toStdString());
+	_config.set<std::string>("ObjectName", _objectBox->currentText().toStdString());
 
+	_config.set<std::string>("GraspPolicy", _gPolicyBox->currentText().toStdString());
+	_config.set<std::string>("GraspStrategy", _gStrategyBox->currentText().toStdString());
+
+
+	std::string nameQMetric = _config.get<std::string>("QualityMetric", "");
+	std::string nameQMetric1 = _config.get<std::string>("QualityMetric1", "");
+	std::string nameQMetric2 = _config.get<std::string>("QualityMetric2", "");
+	std::string nameQMetric3 = _config.get<std::string>("QualityMetric3", "");
+	std::string nameQMetric4 = _config.get<std::string>("QualityMetric4", "");
+
+	_config.set<int>("TableSize", _tableSizeSpin->value());
+	_config.set<int>("GroupSize", _groupSizeSpin->value());
+	_config.set<bool>("FixedStep", _fixedGroupBox->isChecked());
+	_config.set<bool>("ContinuesTactileLogging", _continuesLoggingBox->isChecked());
+	_config.set<bool>("DynamicSimulation", _dynamicSimulationBox->isChecked());
+	_config.set<bool>("CollisionFreeInitState", _collisionFreeInitBox->isChecked());
+
+	// now set all values in the gui
+	_config.set<std::string>("OutputFile", _outputFileEdit->text().toStdString());
+}
+
+
+void GraspTableGeneratorDialog::saveConfiguration(const std::string& file){
+	readConfiguration();
+	QString selectedFilter;
+    std::string dirname =
+    		getRobWorkStudio()->getPropertyMap().get<std::string>("PreviousDirectory","");
+    const QString dir(dirname.c_str());
+    QString filename(file.c_str());
+    if(file.empty()){
+		filename = QFileDialog::getSaveFileName(
+			this,
+			"Name of GTable config file", // Title
+			dir, // Directory
+			"All supported ( *.xml )"
+			" \nRW XML files ( *.xml )"
+			" \n All ( *.* )",
+			&selectedFilter);
+    }
+
+    if(!filename.isEmpty()){
+    	XMLPropertySaver::save(_config, filename.toStdString());
+    }
 }
 
 void GraspTableGeneratorDialog::close(){
@@ -290,7 +382,6 @@ void GraspTableGeneratorDialog::initialize(){
     		boost::bind(&GraspTableGeneratorDialog::stateChangedListener, this, _1), this);
 
     _configFile = getRobWorkStudio()->getPropertyMap().get<std::string>("GraspTableConfigFile","");
-
 }
 
 void GraspTableGeneratorDialog::stateChangedListener(const rw::kinematics::State& state){

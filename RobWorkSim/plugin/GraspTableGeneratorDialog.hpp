@@ -21,20 +21,17 @@
 #include <simulator/ThreadSimulator.hpp>
 #include <control/PDController.hpp>
 #include <rw/kinematics/FrameMap.hpp>
-
 #include <rw/graspplanning/GraspTable.hpp>
 #include <util/MovingAverage.hpp>
-
 #include <boost/numeric/ublas/matrix.hpp>
-
 #include <rw/proximity/CollisionDetector.hpp>
 #include <dynamics/RigidDevice.hpp>
-
 #include <sensors/BodyContactSensor.hpp>
-
 #include <rws/RobWorkStudioPlugin.hpp>
-
 #include <util/RestingPoseGenerator.hpp>
+
+#include <util/GraspStrategy.hpp>
+#include <util/GraspPolicy.hpp>
 
 #include <QObject>
 #include <QtGui>
@@ -90,6 +87,8 @@ class GraspTableGeneratorDialog : public rws::RobWorkStudioPlugin, private Ui::G
         void startAuto();
          */
 
+        void startTableGeneration();
+
         void stepCallBack(int i, const rw::kinematics::State& state);
 
         /**
@@ -131,6 +130,7 @@ class GraspTableGeneratorDialog : public rws::RobWorkStudioPlugin, private Ui::G
         void loadConfiguration(const std::string& filename);
         void saveConfiguration(const std::string& filename);
         void applyConfiguration();
+        void readConfiguration();
 
     private:
         rw::common::PropertyMap _settings;
@@ -199,6 +199,7 @@ class GraspTableGeneratorDialog : public rws::RobWorkStudioPlugin, private Ui::G
         ThreadSafeStack<RestingConfig> _restingConfigs;
 
         //QSampler *_handQSampler;
+
         std::vector<int> _currentPreshapeIDX;
         rw::math::Q _target,_preshape;
         rw::math::Transform3D<> _objTransform;
