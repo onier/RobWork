@@ -78,7 +78,15 @@ namespace dynamics {
          * @param info [in] general information of this body
          * @param bodyframe [in]
          */
-        Body(size_t ssize,
+        /*Body(size_t ssize,
+             const BodyInfo& info,
+        	 rw::kinematics::Frame *bodyframe,
+             const std::vector<rw::geometry::Geometry*>& geometry):
+                _bodyframe(*bodyframe),
+                _geometry(geometry),
+                _info(info)
+        */
+        Body(
              const BodyInfo& info,
         	 rw::kinematics::Frame *bodyframe,
              const std::vector<rw::geometry::Geometry*>& geometry):
@@ -113,28 +121,28 @@ namespace dynamics {
         /**
          * @brief saves the current state in the rollback variables.
          */
-        //virtual void saveState(double h, rw::kinematics::State& state)= 0;
+        virtual void saveState(double h, rw::kinematics::State& state)= 0;
 
         /**
          * @brief rolls back to the last saved state
          */
-        //virtual void rollBack(rw::kinematics::State& state)= 0;
+        virtual void rollBack(rw::kinematics::State& state)= 0;
 
         /**
          * @brief integrates forces over timestep h to update the velocity of the body
          */
-        //virtual void updateVelocity(double h, rw::kinematics::State& state)= 0;
+        virtual void updateVelocity(double h, rw::kinematics::State& state)= 0;
 
         /**
          * @brief integrates velocity over timestep h to update the position of the body
          */
-        //virtual void updatePosition(double h, rw::kinematics::State& state) = 0;
+        virtual void updatePosition(double h, rw::kinematics::State& state) = 0;
 
         /**
          * @brief updates the velocity of this body with the accumulated linear impulse
          * and angular impulse
          */
-        //virtual void updateImpulse() = 0;
+        virtual void updateImpulse() = 0;
 
         /**
          * @brief calculates the relative velocity of a point p on the body
