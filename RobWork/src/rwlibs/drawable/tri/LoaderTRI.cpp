@@ -41,7 +41,8 @@ Model3DPtr LoaderTRI::load(const std::string& filename)
     Model3D::Object3D *obj = new Model3D::Object3D("TRIModel");
 
     int currentMatIdx = model->addMaterial(Model3D::Material("defcol",0.5,0.5,0.5));
-
+    Model3D::MaterialFaces *mface = new Model3D::MaterialFaces();
+    mface->_matIndex = currentMatIdx;
     // while characters still exists and no errors occour
     while (  input_stream.fail()==0 && input_stream.eof()==0 ){
         //  Read the next line of the file into INPUT.
@@ -61,6 +62,10 @@ Model3DPtr LoaderTRI::load(const std::string& filename)
         next = next + width;
 
         if ( !strcmp( token, "color" ) ){
+        	if(mface->_subFaces.size()>0){
+        		obj->_matFaces.push_back(mface);
+        		mface = new Model3D::MaterialFaces();
+        	}
             float r,g,b;
             sscanf ( next, "%e %e %e", &r, &g, &b );
             // create material in object
@@ -68,6 +73,7 @@ Model3DPtr LoaderTRI::load(const std::string& filename)
             sstr << r <<"_"<< g << "_" << b;
             Model3D::Material mat(sstr.str(), r, g, b);
             currentMatIdx = model->addMaterial(mat);
+            mface->_matIndex = currentMatIdx;
         } else if( !strcmp( token, "point" ) ){
             float x,y,z,nx,ny,nz;
             sscanf ( next, "%e %e %e %e %e %e", &x, &y, &z, &nx, &ny, &nz );
@@ -81,13 +87,18 @@ Model3DPtr LoaderTRI::load(const std::string& filename)
             	// TODO: this generates a plain trimesh. It would be better to make an indexed trimesh
             	// use TriangleUtil toIndexedTriMesh, though remember the normals
                 obj->_faces.push_back( IndexedTriangle<>(nb_points-3,nb_points-2,nb_points-1) );
+                mface->_subFaces.push_back(obj->_faces.back());
             }
         } else {
             setlocale(LC_ALL, "");
             RW_THROW("unrecognized keyword " << StringUtil::quote(token));
         }
     }
+    obj->_matFaces.push_back(mface);
 
+    // order stuff in matrial faces
+
+    model->addObject(obj);
 
     setlocale(LC_ALL, "");
 	return model;
