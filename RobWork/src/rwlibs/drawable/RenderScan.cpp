@@ -50,7 +50,7 @@ void RenderScan::draw(DrawType type, double alpha) const
             	x = j;
             	if(fabs(v[2])>_maxDepth || fabs(v[2])<_minDepth)
             		break;
-            	float col = Math::clamp( (fabs(v[2])-_minDepth)/dist, 0, 1);
+            	float col = Math::clamp( (fabs(v[2])-_minDepth)/dist, 0.0, 1.0);
 				glColor3f(col, 0.0, 1.0f-col);
 				glVertex3d(v(0), v(1), v(2));    // Bottom Left
             }
