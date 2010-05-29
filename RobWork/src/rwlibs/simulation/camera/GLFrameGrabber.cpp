@@ -102,7 +102,7 @@ void GLFrameGrabber::grab(rw::kinematics::Frame *frame,
 #else
 
 
-
+#if defined(RW_WIN32)
 // Framebuffer object
 PFNGLGENFRAMEBUFFERSEXTPROC 					pglGenFramebuffersEXT = 0;                      // FBO name generation procedure
 PFNGLDELETEFRAMEBUFFERSEXTPROC                  pglDeleteFramebuffersEXT = 0;                   // FBO deletion procedure
@@ -135,7 +135,7 @@ PFNGLISRENDERBUFFEREXTPROC                      pglIsRenderbufferEXT = 0;       
 #define glRenderbufferStorageEXT                    pglRenderbufferStorageEXT
 #define glGetRenderbufferParameterivEXT             pglGetRenderbufferParameterivEXT
 #define glIsRenderbufferEXT                         pglIsRenderbufferEXT
-
+#endif
 bool fboSupported = false;
 bool fboUsed = false;
 
@@ -143,6 +143,8 @@ void initExtensions(){
 	// check if FBO is supported by your video card
 	//if(glInfo.isExtensionSupported("GL_EXT_framebuffer_object"))
 	{
+#if defined(RW_WIN32)
+
 		// get pointers to GL functions
 		glGenFramebuffersEXT                     = (PFNGLGENFRAMEBUFFERSEXTPROC)wglGetProcAddress("glGenFramebuffersEXT");
 		glDeleteFramebuffersEXT                  = (PFNGLDELETEFRAMEBUFFERSEXTPROC)wglGetProcAddress("glDeleteFramebuffersEXT");
@@ -158,7 +160,7 @@ void initExtensions(){
 		glRenderbufferStorageEXT                 = (PFNGLRENDERBUFFERSTORAGEEXTPROC)wglGetProcAddress("glRenderbufferStorageEXT");
 		glGetRenderbufferParameterivEXT          = (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)wglGetProcAddress("glGetRenderbufferParameterivEXT");
 		glIsRenderbufferEXT                      = (PFNGLISRENDERBUFFEREXTPROC)wglGetProcAddress("glIsRenderbufferEXT");
-
+#endif
 		// check once again FBO extension
 		if(glGenFramebuffersEXT && glDeleteFramebuffersEXT && glBindFramebufferEXT && glCheckFramebufferStatusEXT &&
 		   glGetFramebufferAttachmentParameterivEXT && glGenerateMipmapEXT && glFramebufferTexture2DEXT && glFramebufferRenderbufferEXT &&
