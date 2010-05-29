@@ -102,7 +102,6 @@ void GLFrameGrabber::grab(rw::kinematics::Frame *frame,
 #else
 
 
-#if defined(RW_WIN32)
 // Framebuffer object
 PFNGLGENFRAMEBUFFERSEXTPROC 					pglGenFramebuffersEXT = 0;                      // FBO name generation procedure
 PFNGLDELETEFRAMEBUFFERSEXTPROC                  pglDeleteFramebuffersEXT = 0;                   // FBO deletion procedure
@@ -135,7 +134,7 @@ PFNGLISRENDERBUFFEREXTPROC                      pglIsRenderbufferEXT = 0;       
 #define glRenderbufferStorageEXT                    pglRenderbufferStorageEXT
 #define glGetRenderbufferParameterivEXT             pglGetRenderbufferParameterivEXT
 #define glIsRenderbufferEXT                         pglIsRenderbufferEXT
-#endif
+
 bool fboSupported = false;
 bool fboUsed = false;
 
@@ -160,6 +159,23 @@ void initExtensions(){
 		glRenderbufferStorageEXT                 = (PFNGLRENDERBUFFERSTORAGEEXTPROC)wglGetProcAddress("glRenderbufferStorageEXT");
 		glGetRenderbufferParameterivEXT          = (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)wglGetProcAddress("glGetRenderbufferParameterivEXT");
 		glIsRenderbufferEXT                      = (PFNGLISRENDERBUFFEREXTPROC)wglGetProcAddress("glIsRenderbufferEXT");
+#else
+		// get pointers to GL functions
+		glGenFramebuffersEXT                     = (PFNGLGENFRAMEBUFFERSEXTPROC)glXGetProcAddress("glGenFramebuffersEXT");
+		glDeleteFramebuffersEXT                  = (PFNGLDELETEFRAMEBUFFERSEXTPROC)glXGetProcAddress("glDeleteFramebuffersEXT");
+		glBindFramebufferEXT                     = (PFNGLBINDFRAMEBUFFEREXTPROC)glXGetProcAddress("glBindFramebufferEXT");
+		glCheckFramebufferStatusEXT              = (PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC)glXGetProcAddress("glCheckFramebufferStatusEXT");
+		glGetFramebufferAttachmentParameterivEXT = (PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC)glXGetProcAddress("glGetFramebufferAttachmentParameterivEXT");
+		glGenerateMipmapEXT                      = (PFNGLGENERATEMIPMAPEXTPROC)glXGetProcAddress("glGenerateMipmapEXT");
+		glFramebufferTexture2DEXT                = (PFNGLFRAMEBUFFERTEXTURE2DEXTPROC)glXGetProcAddress("glFramebufferTexture2DEXT");
+		glFramebufferRenderbufferEXT             = (PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC)glXGetProcAddress("glFramebufferRenderbufferEXT");
+		glGenRenderbuffersEXT                    = (PFNGLGENRENDERBUFFERSEXTPROC)glXGetProcAddress("glGenRenderbuffersEXT");
+		glDeleteRenderbuffersEXT                 = (PFNGLDELETERENDERBUFFERSEXTPROC)glXGetProcAddress("glDeleteRenderbuffersEXT");
+		glBindRenderbufferEXT                    = (PFNGLBINDRENDERBUFFEREXTPROC)glXGetProcAddress("glBindRenderbufferEXT");
+		glRenderbufferStorageEXT                 = (PFNGLRENDERBUFFERSTORAGEEXTPROC)glXGetProcAddress("glRenderbufferStorageEXT");
+		glGetRenderbufferParameterivEXT          = (PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC)glXGetProcAddress("glGetRenderbufferParameterivEXT");
+		glIsRenderbufferEXT                      = (PFNGLISRENDERBUFFEREXTPROC)glXGetProcAddress("glIsRenderbufferEXT");
+
 #endif
 		// check once again FBO extension
 		if(glGenFramebuffersEXT && glDeleteFramebuffersEXT && glBindFramebufferEXT && glCheckFramebufferStatusEXT &&
