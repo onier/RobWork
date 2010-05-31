@@ -193,22 +193,18 @@ void Model3DS::Load(const std::string& name)
             "Can't open file "
             << StringUtil::quote(name));
 
+
     // Make sure we are at the beginning
     fseek(bin3ds, 0, SEEK_SET);
-
     // Load the Main Chunk's header
     fread(&main.id,sizeof(main.id),1,bin3ds);
     fread(&main.len,sizeof(main.len),1,bin3ds);
-
     // Start Processing
     MainChunkProcessor(main.len, ftell(bin3ds));
-
     // Don't need the file anymore so close it
     fclose(bin3ds);
-
     // Calculate the vertex normals
     CalculateNormals();
-
     // Find the total number of faces and vertices
     totalFaces = 0;
     totalVerts = 0;
@@ -240,6 +236,7 @@ void Model3DS::Load(const std::string& name)
         }
     }
 
+    std::cout<<"Number of Materials = "<<numMaterials<<std::endl;
     // Let's build simple colored textures for the materials w/o a texture
     for (int j = 0; j < numMaterials; j++)
     {
@@ -406,6 +403,7 @@ void Model3DS::MainChunkProcessor(long length, long findex)
 
     while (ftell(bin3ds) < (findex + length - 6))
     {
+       // std::cout<<"ftell = "<<ftell(bin3ds)<<std::endl;
         fread(&h.id,sizeof(h.id),1,bin3ds);
         fread(&h.len,sizeof(h.len),1,bin3ds);
 

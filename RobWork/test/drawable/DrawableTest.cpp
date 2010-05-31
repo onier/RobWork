@@ -49,41 +49,41 @@ using namespace rw::kinematics;
 BOOST_AUTO_TEST_CASE( testSTLLoading ){
     BOOST_MESSAGE("- testing loading");
     // test loading stl file
-    Drawable *stlaObject =
+    rwlibs::drawable::Drawable *stlaObject =
     		DrawableFactory::loadDrawableFile( testFilePath() + "geoms/chair.stla" );
-    Drawable *stlbObject =
+    rwlibs::drawable::Drawable *stlbObject =
     		DrawableFactory::loadDrawableFile( testFilePath() + "geoms/cube.stlb" );
 }
 
 BOOST_AUTO_TEST_CASE( testAC3DLoading ){
     // test loading AC3D file
-    Drawable *ac3dObject =
+    rwlibs::drawable::Drawable *ac3dObject =
     		DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Gantry0.ac");
-    Drawable *ac3dObject1 =
+    rwlibs::drawable::Drawable *ac3dObject1 =
             DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Gantry0.ac3d");
 }
 
 BOOST_AUTO_TEST_CASE( testOBJLoading ){
     // test loading OBJ file
-    Drawable *objObject =
+    rwlibs::drawable::Drawable *objObject =
             DrawableFactory::loadDrawableFile(testFilePath() + "geoms/fod1.obj");
 }
 
 BOOST_AUTO_TEST_CASE( testTRILoading ){
     // test loading TRI file
-    Drawable *objObject =
+    rwlibs::drawable::Drawable *objObject =
             DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Rob-0.tri");
 }
 
 BOOST_AUTO_TEST_CASE( test3DSLoading ){
     // test loading 3ds file
-    Drawable *objObject =
+    rwlibs::drawable::Drawable *objObject =
             DrawableFactory::loadDrawableFile(testFilePath() + "geoms/motor.3ds");
 }
 
 BOOST_AUTO_TEST_CASE( testIVGLoading ){
     // test loading 3ds file
-    Drawable *objObject =
+    rwlibs::drawable::Drawable *objObject =
             DrawableFactory::loadDrawableFile(testFilePath() + "geoms/staubli0.ivg");
 }
 
@@ -91,10 +91,10 @@ BOOST_AUTO_TEST_CASE(testDrawableFactory)
 {
     BOOST_MESSAGE("- testing DrawableFactory");
     // test ascii stl format load
-    Drawable* stlaObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/chair");
-    Drawable* stlbObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/cube");
+    rwlibs::drawable::Drawable* stlaObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/chair");
+    rwlibs::drawable::Drawable* stlbObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/cube");
     //Drawable* p3dsObject = DrawableFactory::loadDrawableFile("exam");
-    Drawable* ac3dObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Environment");
+    rwlibs::drawable::Drawable* ac3dObject = DrawableFactory::loadDrawableFile(testFilePath() + "geoms/Environment");
 
     stlaObject->setHighlighted(true);
     stlbObject->setHighlighted(true);
@@ -140,10 +140,10 @@ BOOST_AUTO_TEST_CASE(testWorkCellGLDrawer){
     drawer.addDrawableToFrame(&object2, drawable2);
     */
 
-    std::vector<Drawable*> copy1 = workCellGLDrawer.getDrawablesForFrame(object1);
+    std::vector<rwlibs::drawable::Drawable*> copy1 = workCellGLDrawer.getDrawablesForFrame(object1);
     BOOST_CHECK(copy1.size() == 1);
 
-    std::vector<Drawable*> copy2 = workCellGLDrawer.getDrawablesForFrame(object2);
+    std::vector<rwlibs::drawable::Drawable*> copy2 = workCellGLDrawer.getDrawablesForFrame(object2);
     BOOST_CHECK(copy2.size() == 1);
 
 

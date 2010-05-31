@@ -16,7 +16,7 @@
  ********************************************************************************/
 
 
-#include "GLFrameGrabber25D.hpp"
+#include "GLFrameGrabber2D.hpp"
 #include "RWGLFrameBuffer.hpp"
 
 #include <rw/common/Log.hpp>
@@ -32,10 +32,10 @@ using namespace rw::common;
 using namespace rwlibs::simulation;
 using namespace rwlibs::drawable;
 
-GLFrameGrabber25D::GLFrameGrabber25D(int width,
-                                     int height,
-                                     double fov,
-                                     rwlibs::drawable::WorkCellGLDrawer *drawer):
+GLFrameGrabber2D::GLFrameGrabber2D(int width,
+                                   int height,
+                                   double fov,
+                                   rwlibs::drawable::WorkCellGLDrawer *drawer):
     FrameGrabber25D(width, height),
     _fieldOfView(fov),
     _drawer(drawer),
@@ -44,6 +44,8 @@ GLFrameGrabber25D::GLFrameGrabber25D(int width,
     _maxDepth(15)
 
 {
+
+
     RWGLFrameBuffer::initialize();
 
     _fbId = 0;
@@ -103,12 +105,11 @@ void GLFrameGrabber25D::setMinDepth(double depth){
 
 
 void GLFrameGrabber25D::grab(rw::kinematics::Frame *frame,
-                             const rw::kinematics::State& state,
-                             std::vector<rw::math::Vector3D<float> >* result){
+                             const rw::kinematics::State& state){
 
     glPushMatrix();
 
-    if(_depthData.size() != getWidth()*getHeight() )
+    if( _depthData.size()!= getWidth()*getHeight() )
             _depthData.resize(getWidth()*getHeight());
 
 
@@ -151,25 +152,19 @@ void GLFrameGrabber25D::grab(rw::kinematics::Frame *frame,
     glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
     glGetDoublev( GL_PROJECTION_MATRIX, projection );
     glGetIntegerv( GL_VIEWPORT, viewport );
-
-
+    //std::vector<Vector3D<float> >& points = _img->getImageData();
     // now unproject all pixel values
-    if (result != NULL && result->size() != getHeight()*getWidth())
-        result->resize(getHeight()*getWidth());
-
-    for(size_t y=0;y<getHeight();y++){
-        for(size_t x=0;x<getWidth();x++){
-            double winX=x,winY=y,winZ=_depthData[x+y*getWidth()];
+    for(size_t y=0;y<_img->getHeight();y++){
+        for(size_t x=0;x<_img->getWidth();x++){
+            Vector3D<float> &p = points[x+y*_img->getWidth()];
+            double winX=x,winY=y,winZ=_depthData[x+y*_img->getWidth()];
             double posX, posY, posZ;
             gluUnProject( winX, winY, winZ,
                     modelview, projection, viewport,
                     &posX, &posY, &posZ);
-            if (result != NULL) {
-                Vector3D<float>& q = (*result)[x+y*getWidth()];
-                q(0) = posX;
-                q(1) = posY;
-                q(2) = posZ;
-            }
+            p(0) = posX;
+            p(1) = posY;
+            p(2) = posZ;
         }
     }
 

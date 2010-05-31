@@ -128,11 +128,11 @@ namespace drawable {
              */
             Object3D(const std::string& name):
                 _name(name),
-                parentObj(-1),
                 _texture(-1),
                 _texOffset(0,0),
-                _texRepeat(0,0)
-            {};
+                _texRepeat(0,0),
+                _parentObj(-1)
+                {};
 
             //! @brief test if this object is textured
             bool hasTexture() const{ return _texture>=0;};
@@ -164,9 +164,9 @@ namespace drawable {
             std::vector<MaterialFaces*> _matFaces;
             std::vector<MaterialPolys*> _matPolys;
             rw::math::Transform3D<float> _transform;
-            int parentObj;
             std::vector<Object3D*> _kids;
             rw::math::Vector2D<float> _texOffset, _texRepeat;
+            int _parentObj;
         };
 
     public:

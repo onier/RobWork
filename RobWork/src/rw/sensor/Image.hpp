@@ -129,7 +129,7 @@ namespace rw { namespace sensor {
          * @param y
          * @return
          */
-        Pixel4f getPixel(size_t x, size_t y);
+        Pixel4f getPixel(size_t x, size_t y) const;
 
         /**
          * @brief generic but inefficient access to a specific channel of
@@ -138,7 +138,7 @@ namespace rw { namespace sensor {
          * @param y [in]
          * @return
          */
-        float getPixelValue(size_t x, size_t y, size_t channel);
+        float getPixelValue(size_t x, size_t y, size_t channel) const;
 
         /**
          * @brief resizes the current image.

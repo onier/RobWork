@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -39,7 +39,7 @@
 	#include <OpenGL/glu.h>
 #elif defined(RW_LINUX)
     #include <GL/gl.h>
-	#include <GL/glext.h>
+    #include <GL/glext.h>
     #include <GL/glu.h> // Header File For The GLu32 Library
 #else
     #include <GL/gl.h>

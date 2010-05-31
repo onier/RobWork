@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -43,7 +43,7 @@ using namespace rwlibs::drawable;
 using namespace rw::models;
 using namespace rw::kinematics;
 
-typedef std::vector<Drawable*> DrawableList;
+typedef std::vector<rwlibs::drawable::Drawable*> DrawableList;
 
 WorkCellGLDrawer::~WorkCellGLDrawer()
 {
@@ -53,7 +53,7 @@ WorkCellGLDrawer::~WorkCellGLDrawer()
 void WorkCellGLDrawer::clearCache()
 {
     BOOST_FOREACH(FrameMap::const_reference entry, _frameMap) {
-        BOOST_FOREACH(Drawable* da, entry.second) {
+        BOOST_FOREACH(rwlibs::drawable::Drawable* da, entry.second) {
             delete da;
         }
     }
@@ -158,7 +158,7 @@ namespace
 
         	BOOST_FOREACH(const DrawableModelInfo &info, infos) {
 	            // TODO: handle multiple drawables
-	            Drawable* drawable = DrawableFactory::getDrawable(info.getId());
+        	    rwlibs::drawable::Drawable* drawable = DrawableFactory::getDrawable(info.getId());
 
 	            if (drawable) {
 	                // Set various properties for the drawable:

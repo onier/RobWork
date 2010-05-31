@@ -50,11 +50,11 @@ namespace simulation {
         virtual void reset(const rw::kinematics::State& state) = 0;
 
         /**
-         * @brief If the simulated sensor has a real sensor attached then it should
-         * be returned here.
-         * @return a sensor if the simulatedsensor is attached to a real sensor.
+         * @brief Returns the rw::kinematics::Frame associated to the sensor. The frame may be NULL
+         *
+         * @return the rw::kinematics::Frame associated to the sensor
          */
-        virtual rw::sensor::Sensor* getSensor() = 0;
+        //virtual rw::kinematics::Frame* getFrame() = 0;
 
     };
 

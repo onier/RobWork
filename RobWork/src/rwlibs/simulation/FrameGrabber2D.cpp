@@ -16,23 +16,4 @@
  ********************************************************************************/
 
 
-#include "Sensor.hpp"
-
-#include <rw/kinematics/Frame.hpp>
-
-using namespace rw::sensor;
-using namespace rw::kinematics;
-
-Sensor::Sensor(const std::string& name, const std::string& description)
-    :
-    _name(name),
-    _description(description),
-	_frame(NULL)
-{
-}
-
-Sensor::Sensor(const std::string& name):
-    _name(name),
-	_frame(NULL)
-{
-}
+#include "FrameGrabber2D.hpp"

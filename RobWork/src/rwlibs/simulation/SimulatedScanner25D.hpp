@@ -20,6 +20,7 @@
 
 //! @file SimulatedScanner25D.hpp
 
+#include <rw/common/Ptr.hpp>
 #include <rw/sensor/Scanner25D.hpp>
 #include "FrameGrabber25D.hpp"
 #include "SimulatedSensor.hpp"
@@ -101,7 +102,14 @@ namespace rwlibs { namespace simulation {
         FrameGrabber25DPtr _framegrabber;
         double _frameRate, _dtsum;
         bool _isAcquired,_isOpenned;
+
+        rw::sensor::Image25D _image;
     };
+
+    /**
+     * @brief Definition of pointer to SimulatedScanner25D
+     */
+    typedef rw::common::Ptr<SimulatedScanner25D> SimulatedScanner25DPtr;
 
     //! @}
 }

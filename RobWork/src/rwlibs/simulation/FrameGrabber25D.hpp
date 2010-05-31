@@ -43,9 +43,9 @@ namespace rwlibs { namespace simulation {
          * @param height [in] height of the image that this FrameGrabber25D uses.
          * @param encoding [in] color encoding of the image that this FrameGrabber25D uses.
          */
-        FrameGrabber25D(int width, int height)
+        FrameGrabber25D(size_t width, size_t height)
         {
-            _img = new rw::sensor::Image25D( width, height );
+            //_img = new rw::sensor::Image25D( width, height );
         }
 
         /**
@@ -53,20 +53,27 @@ namespace rwlibs { namespace simulation {
          */
         virtual ~FrameGrabber25D()
         {
-            delete _img;
+            //delete _img;
         }
 
         /**
          * @brief returns the width of the image
          * @return the height of the image
          */
-        int getWidth() { return _img->getWidth(); }
+        size_t getWidth() { return _width; /* _img->getWidth(); */}
 
         /**
          * @brief returns the height of the image
          * @return the height of the image
          */
-        int getHeight() { return _img->getHeight(); }
+        size_t getHeight() { return _height; /*_img->getHeight(); */}
+
+
+        /**
+         * @brief Returns the field of view measured around the y-axis.
+         * @return Field of view measured around y-axis
+         */
+        virtual double getFieldOfViewY() = 0;
 
         /**
          * @brief resizes the image that this frameGrabber use. The colorcode will
@@ -74,26 +81,31 @@ namespace rwlibs { namespace simulation {
          * @param width [in] width of image
          * @param height [in] height of image
          */
-        void resize(int width, int height) {
+        void resize(size_t width, size_t height) {
             //delete _img;
-            _img = new rw::sensor::Image25D(width, height);
+            _width = width;
+            _height = height;
+            //_img = new rw::sensor::Image25D(width, height);
         };
 
         /**
          * @brief returns the image
          * @return the image
          */
-        virtual rw::sensor::Image25D& getImage()
+        /*virtual rw::sensor::Image25D& getImage()
         {
             return *_img;
         }
+        */
 
         /**
          * @brief this function grabs a image from the specialized source and
          * copies it to the FrameGrabber25D image.
          */
         virtual void grab(rw::kinematics::Frame *frame,
-                          const rw::kinematics::State& state) = 0;
+                          const rw::kinematics::State& state,
+                          std::vector<rw::math::Vector3D<float> >* result) = 0;
+
 
         /**
          * @brief maximum depth that this framegrabber can handle
@@ -109,7 +121,9 @@ namespace rwlibs { namespace simulation {
 
     protected:
         //! @brief The image
-        rw::sensor::Image25D *_img;
+        //rw::sensor::Image25D *_img;
+        size_t _width;
+        size_t _height;
 
     };
 

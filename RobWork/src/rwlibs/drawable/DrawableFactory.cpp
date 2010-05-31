@@ -53,6 +53,9 @@ using namespace rwlibs::drawable;
 using namespace rw::common;
 using namespace rw::geometry;
 
+//Due to a name conflict between our Drawable and a Drawable in X11/X.h on Linux, we need a small workaround.
+typedef rwlibs::drawable::Drawable RWDrawable;
+
 namespace
 {
     const std::string extensionsArray[] = {
@@ -74,7 +77,7 @@ namespace
     }
 }
 
-Drawable* DrawableFactory::getDrawable(const std::string& str)
+RWDrawable* DrawableFactory::getDrawable(const std::string& str)
 {
     if (getCache().isInCache(str,"")) {
     	return new Drawable(getCache().get(str));
@@ -87,7 +90,7 @@ Drawable* DrawableFactory::getDrawable(const std::string& str)
     }
 }
 
-Drawable* DrawableFactory::constructFromGeometry(const std::string& str, bool useCache)
+RWDrawable* DrawableFactory::constructFromGeometry(const std::string& str, bool useCache)
 {
     if( useCache ){
     	if (getCache().isInCache(str,""))
@@ -110,7 +113,7 @@ DrawableFactory::FactoryCache& DrawableFactory::getCache()
 	return cache;
 }
 
-Drawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
+RWDrawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
 {
     const std::string& filename = IOUtil::resolveFileName(raw_filename, extensions);
     const std::string& filetype =

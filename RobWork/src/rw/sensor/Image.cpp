@@ -139,7 +139,7 @@ size_t Image::getDataSize() const
     return _arrSize;
 }
 
-Pixel4f Image::getPixel(size_t x, size_t y){
+Pixel4f Image::getPixel(size_t x, size_t y) const {
 	const size_t idx = y*_widthStep + x*_nrChannels;
 
 	// convert idx to point into char array
@@ -153,14 +153,14 @@ Pixel4f Image::getPixel(size_t x, size_t y){
 			p.ch[i] = (float)_imageData[cidx+i*_stride];
 		return p;
 	}
-	// is in int so we need to convert it to float
+	// is an int so we need to convert it to float
 	Pixel4f p((float)(_imageData[cidx]&_valueMask), 0, 0, 0);
 	for(size_t i=1;i<_nrChannels;i++)
 		p.ch[i] = (float)(_imageData[cidx+i*_stride]&_valueMask);
 	return p;
 }
 
-float Image::getPixelValue(size_t x, size_t y, size_t channel){
+float Image::getPixelValue(size_t x, size_t y, size_t channel) const {
 	const size_t idx = y*_widthStep + x*_nrChannels;
 
 	// convert idx to point into char array
@@ -182,7 +182,7 @@ void Image::safeDeleteData(){
     _widthStep = 0;
     _width = 0;
     _height = 0;
-    delete _imageData;
+    delete[] _imageData;
 }
 
 void Image::resize(int width, int height){

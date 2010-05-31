@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -50,8 +50,8 @@ protected:
      * @param frame [in] the frame that the scanner is attached to
      * @param name [in] name of scanner sensor
      */
-    Scanner2D(const std::string& name):
-        Scanner(name)
+    Scanner2D(const std::string& name, const std::string& description = ""):
+        Scanner(name, description)
     {
     }
 
@@ -73,6 +73,12 @@ public:
      */
     virtual double getResolution() = 0;
 };
+
+
+/**
+ * @brief Smart pointer to Scanner2D
+ */
+typedef rw::common::Ptr<Scanner2D> Scanner2DPtr;
 
 /*@}*/
 

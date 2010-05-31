@@ -15,67 +15,70 @@
  * limitations under the License.
  ********************************************************************************/
 
-#include "SimulatedScanner25D.hpp"
+#include "SimulatedScanner2D.hpp"
 
 using namespace rwlibs::simulation;
 using namespace rw::sensor;
 
-SimulatedScanner25D::SimulatedScanner25D(const std::string& name,
-                                         FrameGrabber25DPtr framegrabber):
-		Scanner25D(name, "Simulated Scanner25D"),
+SimulatedScanner2D::SimulatedScanner2D(const std::string& name,
+                                       FrameGrabber25DPtr framegrabber):
+   Scanner2D(name),
+   _framegrabber(framegrabber),
+    _frameRate(30),
+    _image(framegrabber->getWidth(), framegrabber->getHeight())
+{
+    _scan.resize(_framegrabber->getHeight()*_framegrabber->getWidth());
+}
+
+SimulatedScanner2D::SimulatedScanner2D(const std::string& name,
+                                       const std::string& desc,
+                                       FrameGrabber25DPtr framegrabber):
+		Scanner2D(name),
 		_framegrabber(framegrabber),
 		_frameRate(30),
 		_image(framegrabber->getWidth(), framegrabber->getHeight())
-{}
+{
+    _scan.resize(_framegrabber->getHeight());
+}
 
-SimulatedScanner25D::SimulatedScanner25D(const std::string& name,
-		const std::string& desc,
-		FrameGrabber25DPtr framegrabber):
-		Scanner25D(name,desc),
-		_framegrabber(framegrabber),
-		_frameRate(30),
-		_image(framegrabber->getWidth(), framegrabber->getHeight())
-{}
-
-SimulatedScanner25D::~SimulatedScanner25D(){}
+SimulatedScanner2D::~SimulatedScanner2D(){}
 
 
-void SimulatedScanner25D::open(){
+void SimulatedScanner2D::open(){
 	_isOpenned = true;
 }
 
-bool SimulatedScanner25D::isOpen(){
+bool SimulatedScanner2D::isOpen(){
 	return _isOpenned;
 }
 
-void SimulatedScanner25D::close(){
+void SimulatedScanner2D::close(){
 	_isOpenned = false;
 }
 
-void SimulatedScanner25D::acquire(){
+void SimulatedScanner2D::acquire(){
 	if(!_isOpenned)
 		RW_THROW("Scanner has not been openned yet!");
 	_isAcquired = false;
 }
 
-bool SimulatedScanner25D::isScanReady(){
+bool SimulatedScanner2D::isScanReady(){
 	return _isAcquired;
 }
 
-std::pair<double,double> SimulatedScanner25D::getRange(){
+std::pair<double,double> SimulatedScanner2D::getRange(){
 	return std::make_pair(_framegrabber->getMinDepth(),_framegrabber->getMaxDepth());
 }
 
-double SimulatedScanner25D::getFrameRate(){
+double SimulatedScanner2D::getFrameRate(){
 	return _frameRate;
 }
 
-const Image25D& SimulatedScanner25D::getImage(){
-//	return _framegrabber->getImage();
-    return _image;
+const Scan2D& SimulatedScanner2D::getImage() {
+	return _scan;
 }
 
-void SimulatedScanner25D::update(double dt, rw::kinematics::State& state){
+void SimulatedScanner2D::update(double dt, rw::kinematics::State& state){
     if(!_isOpenned || _isAcquired)
         return;
     if( _frameRate<0.00001 )
@@ -85,16 +88,17 @@ void SimulatedScanner25D::update(double dt, rw::kinematics::State& state){
 
     if( _dtsum>1.0/_frameRate ){
     	_dtsum = 0;
-    	//_framegrabber->grab(getFrame(), state, &_framegrabber->getImage().getImageData());
-    	_framegrabber->grab(getFrame(), state, &_image.getImageData());
+         //std::cout<<"Image Data Size "<<_scan.getImageData().size()<<std::endl;
+         //std::cout<<"Image Data Size "<<_image.getImageData().size()<<std::endl;
 
+    	_framegrabber->grab(getFrame(), state, &_scan.getImageData());
     	_isAcquired = true;
     }
 
 }
 
-void SimulatedScanner25D::reset(const rw::kinematics::State& state){
+void SimulatedScanner2D::reset(const rw::kinematics::State& state){
 
 }
 
-rw::sensor::Sensor* SimulatedScanner25D::getSensor(){return this;};
+rw::sensor::Sensor* SimulatedScanner2D::getSensor(){return this;};

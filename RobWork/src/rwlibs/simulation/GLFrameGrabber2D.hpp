@@ -15,12 +15,12 @@
  * limitations under the License.
  ********************************************************************************/
 
-#ifndef RWLIBS_SIMULATION_GLFRAMEGRAPPER25D_HPP
-#define RWLIBS_SIMULATION_GLFRAMEGRAPPER25D_HPP
+#ifndef RWLIBS_SIMULATION_GLFRAMEGRAPPER2D_HPP
+#define RWLIBS_SIMULATION_GLFRAMEGRAPPER2D_HPP
 
-//! @file GLFrameGrabber25D.hpp
+//! @file GLFrameGrabber2D.hpp
 
-#include "FrameGrabber25D.hpp"
+#include "FrameGrabber2D.hpp"
 
 #include <rwlibs/drawable/WorkCellGLDrawer.hpp>
 #include <rw/math/Transform3D.hpp>
@@ -32,36 +32,30 @@ namespace rwlibs { namespace simulation {
     //! @addtogroup simulation @{
 
     /**
-     * @brief An implementation of the FrameGrabber interface. The GLFrameGrabber25D
-     * grabs images from a OpenGL scene using a simple pinhole camera model.
+     * @brief An implementation of the FrameGrabber interface. The GLFrameGrabber2D
+     * grabs images from a OpenGL scene using a simple pinhole camera model with a
+     * height of 1-pixel.
      *
      * a framethe opengl rendering to
      * take pictures of the scene.
      *
-     * The most basic parameter of a camera is its Field of view. This
-     * can be used as an initial camera model. Field of view can be
-     * calculated from the focal length and the size of the CCD
-     * typically (1/2, 1/3, 1/4) inch.
-     * If a more realistic camera model is
-     * required the perspective transform of a specific camera can be added
      */
-    class GLFrameGrabber25D : public FrameGrabber25D
+    class GLFrameGrabber2D : public FrameGrabber2D
     {
     public:
         /**
          * @brief constructor
          * @param width [in] width of image
-         * @param height [in] height of image
          * @param fov [in] the vertical field of view angle in degree
          * @param drawer [in] the WorkCellGLDrawer that draws the OpenGL scene
          */
-        GLFrameGrabber25D(int width, int height, double fov,
+        GLFrameGrabber2D(int width, double fov,
                           rwlibs::drawable::WorkCellGLDrawer *drawer);
 
         /**
          * @brief destructor
          */
-        virtual ~GLFrameGrabber25D();
+        virtual ~GLFrameGrabber2D();
 
         /**
          * @brief set the maximum depth that is percieved by this frame grabber.
@@ -80,20 +74,13 @@ namespace rwlibs { namespace simulation {
         void setMinDepth(double depth);
 
         //! @copydoc FrameGrabber::grab
-        void grab(rw::kinematics::Frame* frame, const rw::kinematics::State& state, std::vector<rw::math::Vector3D<float> >* result);
+        void grab(rw::kinematics::Frame* frame, const rw::kinematics::State& state);
 
         //! @copydoc FrameGrabber::getMacDepth
         double getMaxDepth(){return _maxDepth;};
 
         //! @copydoc FrameGrabber::getMacDepth
         double getMinDepth(){return _minDepth;};
-
-        /**
-         * @copydoc FrameGrapper25D::getFieldOfViewY
-         */
-        virtual double getFieldOfViewY() {
-            return _fieldOfView;
-        }
 
     private:
         double _fieldOfView; // in the y-axis

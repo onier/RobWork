@@ -36,16 +36,16 @@ void RenderScan::draw(DrawType type, double alpha) const
 	// ignores drawstate
 	glPushMatrix();
 	float dist = _maxDepth-_minDepth;
-    for(int y=0; y<_img.getHeight(); y++){
+    for(size_t y=0; y<_img.getHeight(); y++){
     	// we only draw stuff that is within range
 
-        for(int x=0; x<_img.getWidth(); x++){
+        for(size_t x=0; x<_img.getWidth(); x++){
         	const Vector3D<float> &v1 = _img.getImageData()[x+y*_img.getWidth()];
         	if(fabs(v1[2])>_maxDepth || fabs(v1[2])<_minDepth)
         		continue;
 
             glBegin(GL_LINE_STRIP);
-            for(int j=x; j<_img.getWidth(); j++){
+            for(size_t j=x; j<_img.getWidth(); j++){
             	const Vector3D<float> &v = _img.getImageData()[x+y*_img.getWidth()];
             	x = j;
             	if(fabs(v[2])>_maxDepth || fabs(v[2])<_minDepth)

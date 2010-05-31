@@ -27,6 +27,7 @@
 #include "Sensor.hpp"
 #include "CameraListener.hpp"
 
+#include <rw/common/Ptr.hpp>
 #include <rw/kinematics/State.hpp>
 
 #include <vector>
@@ -257,6 +258,11 @@ namespace rw { namespace sensor {
     };
 
     /* @} */
+
+    /**
+     * @brief Smart pointer to Camera
+     */
+    typedef rw::common::Ptr<Camera> CameraPtr;
 
 }} // end namespaces
 

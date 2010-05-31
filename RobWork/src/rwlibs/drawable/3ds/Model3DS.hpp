@@ -104,6 +104,8 @@
 
 #include <string>
 
+#include <rw/common/types.hpp>
+
 namespace rwlibs{
 namespace drawable {
 
@@ -145,8 +147,8 @@ public:
 
     // Every chunk in the 3ds file starts with this struct
     struct ChunkHeader {
-        unsigned short id;	// The chunk's id
-        unsigned long  len;	// The lenght of the chunk
+        uint16_t id;	// The chunk's id
+        uint32_t  len;	// The lenght of the chunk
     };
 
     // I sort the mesh by material so that I won't have to switch textures a great deal
