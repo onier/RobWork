@@ -16,4 +16,5 @@ add_subdirectory(playback)
 add_subdirectory(propertyview) 
 add_subdirectory(treeview)
 add_subdirectory(planning)
+add_subdirectory(sensors)
 
