@@ -77,7 +77,7 @@ RobWorkStudio::RobWorkStudio(RobWorkPtr robwork,
                              const std::vector<PluginSetup>& plugins,
                              const PropertyMap& map,
                              const std::string& inifile)
-    :    
+    :
     _stateChangedEvent(boost::bind(&RobWorkStudio::fireStateChangedEvent, this, _1)),
     _frameSelectedEvent(boost::bind(&RobWorkStudio::fireFrameSelectedEvent, this, _1)),
     _genericEvent(boost::bind(&RobWorkStudio::fireGenericEvent, this, _1)),
@@ -150,7 +150,7 @@ RobWorkStudio::RobWorkStudio(RobWorkPtr robwork,
 
 RobWorkStudio::~RobWorkStudio()
 {
-	
+	std::cout<<"RobWorkStudio Destructor start"<<std::endl;
     close();
 
     _settingsMap->set<int>("WindowPosX", this->pos().x());
@@ -162,11 +162,12 @@ RobWorkStudio::~RobWorkStudio()
     _settingsMap->set<bool>("CheckForCollision", _view->isCheckForCollisionEnabled() );
 
     XMLPropertySaver::save(*_settingsMap, "rwsettings.xml");
-
+    std::cout<<"Ready to delete plugins"<<std::endl;
     typedef std::vector<RobWorkStudioPlugin*>::iterator I;
     for (I it = _plugins.begin(); it != _plugins.end(); ++it) {
         delete *it;
     }
+    std::cout<<"RobWorkStudio Destructor"<<std::endl;
 }
 
 
@@ -190,7 +191,8 @@ void RobWorkStudio::closeEvent( QCloseEvent * e ){
 
 
 rw::common::Log& RobWorkStudio::log(){
-    return rw::common::Log::log();
+    return _robwork->getLog();
+    //return rw::common::Log::log();
 }
 
 void RobWorkStudio::setupFileActions()

@@ -10,6 +10,8 @@
 #include <rw/math/Q.hpp>
 #include <boost/foreach.hpp>
 
+
+
 template<class TYPE>
 struct Option {
 public:

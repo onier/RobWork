@@ -60,7 +60,7 @@ using namespace rw::common;
 #include <plugins/playback/PlayBack.hpp>
 #include <plugins/planning/Planning.hpp>
 #include <plugins/propertyview/PropertyView.hpp>
-
+#include <plugins/sensors/Sensors.hpp>
 #ifdef RWS_HAVE_SANDBOX
 	#include <sandbox/plugins/lua/Lua.hpp>
 	#include <sandbox/plugins/sensors/Sensors.hpp>
@@ -80,9 +80,11 @@ std::vector<rws::RobWorkStudio::PluginSetup> getPlugins()
     plugins.push_back(Pl(new rws::ShowLog(), false, Qt::BottomDockWidgetArea));
     plugins.push_back(Pl(new rws::Planning(), false, Qt::LeftDockWidgetArea));
 
+    plugins.push_back(Pl(new rws::Sensors(), false, Qt::RightDockWidgetArea));
+
 #if RWS_HAVE_SANDBOX
     plugins.push_back(Pl(new rws::Lua(), false, Qt::LeftDockWidgetArea));
-    plugins.push_back(Pl(new rws::Sensors(), false, Qt::RightDockWidgetArea));
+
 #endif
 
     return plugins;
@@ -130,7 +132,7 @@ void initOptions(po::options_description& desc){
 #endif //#ifndef _MSC_VER
 
 #include <fstream>
-int main(int argc, char** argv) 
+int main(int argc, char** argv)
 {
 	/*std::ofstream file("file.txt");
 	std::streambuf * old = std::cout.rdbuf(file.rdbuf());
@@ -141,7 +143,7 @@ int main(int argc, char** argv)
     int res = 0;
     PropertyMap map;
     std::string inifile, inputfile;
-	
+
 #ifdef _MSC_VER
 	if (argc > 1)
 		inputfile = argv[1];
@@ -235,16 +237,16 @@ int main(int argc, char** argv)
         // Establishing connections
         splash.showMessage("Loading dynamic plugins");
 		inifile="./RobWorkStudio.ini";
-        
-        
 
 
-      
+
+
+
         RobWork robwork;
         std::string pluginFolder = "./plugins/";
 
       /*  try {
-                                                            
+
             robwork.getPluginRepository().loadFilesInFolder(pluginFolder);
 
             std::vector<rw::common::Ptr<rw::plugin::PluginFactory<rw::trajectory::QTrajectory> > > factories;
@@ -264,7 +266,7 @@ int main(int argc, char** argv)
         if(!inputfile.empty()){
             rwstudio.openFile(inputfile);
         }
-		
+
         // load configuration into RobWorkStudio
         // Todo: check that the config file exists
         splash.showMessage("Loading settings");
@@ -272,6 +274,7 @@ int main(int argc, char** argv)
         rwstudio.show();
         splash.finish(&rwstudio);
         res = app.exec();
+        std::cout<<"Application Ready to Terminate"<<std::endl;
     } catch (const Exception& e) {
         std::cout << e.what() << std::endl;
         QMessageBox::critical(NULL, "RW Exception", e.what().c_str());

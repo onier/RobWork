@@ -17,7 +17,7 @@ OPTION(RWS_BUILD_SANDBOX "Set when you want to build the sandbox library" ${RWS_
 IF ( RWS_BUILD_SANDBOX )
     ADD_SUBDIRECTORY(sandbox)
 ENDIF ()
-
+	
 SET(RWS_PLUGIN_LIBRARIES $ENV{RWS_PLUGIN_LIBRARIES} CACHE string "plugin libs")
 SET(RWS_COMPONENT_LIBRARIES $ENV{RWS_COMPONENT_LIBRARIES} CACHE string "component libs")
 
@@ -26,6 +26,7 @@ SET(RWS_COMPONENT_LIBRARIES $ENV{RWS_COMPONENT_LIBRARIES} CACHE string "componen
 # Now the RobWorkStudio executable need to be build:
 ADD_EXECUTABLE(RobWorkStudio main.cpp ProgramOptions.cpp)
 SET(LIBS_TMP ${RWS_PLUGIN_LIBRARIES} ${RWS_COMPONENT_LIBRARIES} ${ROBWORKSTUDIO_LIBRARIES})
+MESSAGE("LIBS_TMP = ${LIBS_TMP}")
 TARGET_LINK_LIBRARIES(RobWorkStudio ${LIBS_TMP})
 #MESSAGE(" ${LIBS_TMP} ")
 #MESSAGE(" ${RWS_PLUGIN_LIBRARIES} ")
@@ -44,7 +45,7 @@ CONFIGURE_FILE(
    "${RWSTUDIO_ROOT}/build/dependencies.cmake"
    @ONLY
 )
-INSTALL(SCRIPT "${RWSTUDIO_ROOT}/build/dependencies.cmake")
+#INSTALL(SCRIPT "${RWSTUDIO_ROOT}/build/dependencies.cmake")
 
 #include(${RWSTUDIO_ROOT}/build/dependencies.cmake)
 

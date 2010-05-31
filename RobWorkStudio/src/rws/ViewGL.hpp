@@ -285,7 +285,7 @@ public:
      * @brief set the logo that is displayed in the 3d scene
      * @param string
      */
-    void setLogo(QString string){
+    void setLogo(QString string) {
     	_viewLogo = string;
     }
 

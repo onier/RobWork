@@ -301,8 +301,8 @@ ViewGL::~ViewGL()
 
 void ViewGL::keyPressEvent(QKeyEvent *e)
 {
-  //  6/5/2010 
-    
+  //  6/5/2010
+
     size_t camNr=0;
     switch(e->key()){
     case(Qt::Key_1): camNr = 0; break;
@@ -640,7 +640,6 @@ void ViewGL::paintGL()
 	if( _cameraNr==0 ){
 		drawRWLogo();
 	}
-
 }
 
 
@@ -881,7 +880,7 @@ void ViewGL::mousePressEvent(QMouseEvent* event)
     }
 
     _rwStudio->mousePressedEvent().fire(event);
-	
+
 }
 
 void ViewGL::mouseMoveEvent(QMouseEvent* event)
