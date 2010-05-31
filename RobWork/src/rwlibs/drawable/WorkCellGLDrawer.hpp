@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <map>
+#include <boost/thread/mutex.hpp>
 
 namespace rw { namespace models { class WorkCell; }}
 namespace rw { namespace kinematics { class Frame; class State; }}
@@ -155,6 +156,10 @@ namespace rwlibs { namespace drawable {
          */
         void clearCache();
 
+        void lock();
+
+        void unlock();
+
     private:
         /**
          * @brief Draws frame and calls recursive to draw all child frames
@@ -176,6 +181,7 @@ namespace rwlibs { namespace drawable {
 
         FrameMap _frameMap;
 
+        boost::mutex _mutex;
     private:
         WorkCellGLDrawer(const WorkCellGLDrawer&);
         WorkCellGLDrawer& operator=(const WorkCellGLDrawer&);

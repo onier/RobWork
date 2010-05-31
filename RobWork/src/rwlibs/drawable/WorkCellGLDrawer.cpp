@@ -209,3 +209,12 @@ void WorkCellGLDrawer::removeDrawableFromFrame(Frame* frame, Drawable* drawable)
         std::remove(seq.begin(), seq.end(), drawable),
         seq.end());
 }
+
+void WorkCellGLDrawer::lock(){
+	_mutex.lock();
+}
+
+void WorkCellGLDrawer::unlock(){
+	_mutex.unlock();
+}
+
