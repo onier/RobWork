@@ -11,7 +11,7 @@ using namespace rw::math;
 BodyContactSensor::BodyContactSensor(const std::string& name,rw::kinematics::Frame* frame):
     Sensor(name,"BodyContactSensor")
 {
-
+	this->attachTo(frame);
 }
 
 BodyContactSensor::~BodyContactSensor(){}
