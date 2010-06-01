@@ -48,8 +48,12 @@ INCLUDE_DIRECTORIES( ${ROBWORKSTUDIO_INCLUDE_DIR} )
 LINK_DIRECTORIES( ${ROBWORKSTUDIO_LIBRARY_DIRS} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 #MESSAGE("${ROBWORKSTUDIO_LIBRARY_DIRS}")
 
-# Store the test results in a RobWorkConfig.hpp file.
+# linking options
 SET(RW_STATIC_LINK_PLUGINS ${RWS_USE_STATIC_LINK_PLUGINS})
+# linking options
+OPTION(RWS_USE_STATIC_LINK_COMPONENTS "Set to false if dynamic link libraries of components is needed" ON)
+
+# Store the test results in a RobWorkConfig.hpp file.
 CONFIGURE_FILE(
   ${RWS_ROOT}/src/RobWorkStudioConfig.hpp.in
   ${RWS_ROOT}/src/RobWorkStudioConfig.hpp)
