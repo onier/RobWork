@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <fstream>
-#include<string>
+#include <string>
 
 #include <boost/foreach.hpp>
 #include<boost/filesystem/operations.hpp>
@@ -98,13 +98,13 @@ GraspTableGeneratorDialog::GraspTableGeneratorDialog():
 
     std::vector<std::string> policies = GraspPolicyFactory::getAvailablePolicies();
     BOOST_FOREACH(const std::string& id, policies){
-        _gPolicyBox->addItem(id);
+        _gPolicyBox->addItem(id.c_str());
     }
 
 
-    std::vector<std::string> strategies = GraspPolicyFactory::getAvailableStrategies();
+    std::vector<std::string> strategies = GraspStrategyFactory::getAvailableStrategies();
     BOOST_FOREACH(const std::string& id, strategies){
-        _gStrategyBox->addItem(id);
+        _gStrategyBox->addItem(id.c_str());
     }
 
     //_gStrategyBox->addItem("Preshape");
@@ -401,6 +401,12 @@ void GraspTableGeneratorDialog::initialize(){
 void GraspTableGeneratorDialog::stateChangedListener(const rw::kinematics::State& state){
 
 }
+
+
+void GraspTableGeneratorDialog::startTableGeneration(){
+	std::cout << "Start table generation! " << std::endl;
+}
+
 
 #if 0
 namespace {
