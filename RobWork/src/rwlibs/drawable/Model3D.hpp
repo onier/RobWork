@@ -139,6 +139,10 @@ namespace drawable {
 
             //! @brief name/id of object
             std::string _name;
+            //! @brief index of parent object
+            int _parentObj;
+            //! @brief texture id
+            int _texture;
 
             std::vector<rw::math::Vector3D<float> > _vertices;
             std::vector<rw::math::Vector3D<float> > _normals;
@@ -160,7 +164,7 @@ namespace drawable {
              */
             std::vector<rw::geometry::IndexedPolygonN<> > _polys;
 
-            int _texture;
+
             std::vector<MaterialFaces*> _matFaces;
             std::vector<MaterialPolys*> _matPolys;
             rw::math::Transform3D<float> _transform;
