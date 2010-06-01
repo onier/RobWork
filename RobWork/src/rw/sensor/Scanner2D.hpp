@@ -64,14 +64,21 @@ public:
     /**
      * @brief gets the last acquired scan
      */
-    virtual const Scan2D& getData() = 0;
+    virtual const Scan2D& getScan() const = 0;
+
 
     /**
-     * @brief gets the scanning resolution in radians. The resolution
-     * is the distance in radians between two consecutive data pixels.
-     * @return the resolution of the scan.
+     * @brief Returns the angular range of the scanner.
+     *
+     * @return Angular range in radians
      */
-    virtual double getResolution() = 0;
+    virtual double getAngularRange() = 0;
+
+    /**
+     * @brief Returns the number of scan points
+     */
+    virtual size_t getMeasurementCount() const = 0;
+
 };
 
 

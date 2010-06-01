@@ -33,7 +33,7 @@ namespace rwlibs { namespace simulation {
     /**
      * @brief
      */
-    class SimulatedScanner2D : public rw::sensor::Scanner2D, public virtual SimulatedSensor
+    class SimulatedScanner1D : public rw::sensor::Scanner1D, public virtual SimulatedSensor
     {
     public:
         /**
@@ -41,7 +41,7 @@ namespace rwlibs { namespace simulation {
          * @param name [in] name of this simulated scanner
          * @param framegrabber [in] the framegrabber used for grabbing 2.5D images
          */
-        SimulatedScanner2D(const std::string& name,
+        SimulatedScanner1D(const std::string& name,
                 FrameGrabber25DPtr framegrabber);
 
         /**
@@ -50,14 +50,14 @@ namespace rwlibs { namespace simulation {
          * @param desc [in] description of this scanner
          * @param framegrabber [in] the framegrabber used for grabbing 2.5D images
          */
-        SimulatedScanner2D(const std::string& name,
+        SimulatedScanner1D(const std::string& name,
                 const std::string& desc,
                 FrameGrabber25DPtr framegrabber);
 
         /**
          * @brief destructor
          */
-        virtual ~SimulatedScanner2D();
+        virtual ~SimulatedScanner1D();
 
         /**
          * @brief set the framerate in frames per sec.
@@ -67,28 +67,28 @@ namespace rwlibs { namespace simulation {
 
         ///////////// below is inheritet functions form Scanner25D and Sensor
 
-        //! @copydoc Scanner2D::open
+        //! @copydoc Scanner1D::open
         void open();
 
-        //! @copydoc Scanner2D::isOpen
+        //! @copydoc Scanner1D::isOpen
         bool isOpen();
 
-        //! @copydoc Scanner2D::close
+        //! @copydoc Scanner1D::close
         void close();
 
-        //! @copydoc Scanner2D::acquire
+        //! @copydoc Scanner1D::acquire
         void acquire();
 
-        //! @copydoc Scanner2D::isScanReady
+        //! @copydoc Scanner1D::isScanReady
         bool isScanReady();
 
-        //! @copydoc Scanner2D::getRange
+        //! @copydoc Scanner1D::getRange
         std::pair<double,double> getRange();
 
-        //! @copydoc Scanner2D::getFrameRate
+        //! @copydoc Scanner1D::getFrameRate
         double getFrameRate();
 
-        //! @copydoc Scanner25D::getImage
+        //! @copydoc Scanner1D::getImage
         const rw::sensor::Scan2D& getImage();
 
         //! @copydoc SimulatedSensor::update

@@ -74,13 +74,13 @@ public:
      * @brief returns a char pointer to the image data
      * @return char pointer to the image data
      */
-    std::vector<rw::math::Vector3D<float> >& getImageData() { return _data; };
+    std::vector<rw::math::Vector3D<float> >& getData() { return _data; };
 
     /**
      * @brief returns a char pointer to the image data
      * @return const char pointer to the image data
      */
-    const std::vector<rw::math::Vector3D<float> >& getImageData() const{ return _data; };
+    const std::vector<rw::math::Vector3D<float> >& getData() const{ return _data; };
 
     /**
      * @brief returns the width of this image

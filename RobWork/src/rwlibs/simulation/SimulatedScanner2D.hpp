@@ -87,8 +87,9 @@ namespace rwlibs { namespace simulation {
         //! @copydoc Scanner2D::getFrameRate
         double getFrameRate();
 
-        //! @copydoc Scanner25D::getImage
-        const rw::sensor::Scan2D& getImage();
+        //! @copydoc SimulatedSensor::getScan
+        const rw::sensor::Scan2D& getScan() const;
+
 
         //! @copydoc SimulatedSensor::update
         void update(double dt, rw::kinematics::State& state);
@@ -100,18 +101,17 @@ namespace rwlibs { namespace simulation {
         rw::sensor::Sensor* getSensor();
 
 
-        //! @copydoc SimulatedSensor::getData
-        virtual const rw::sensor::Scan2D& getData() {
-            return _scan;
+
+        //! @copydoc SimulatedSensor::getAngularRange
+        virtual double getAngularRange() {
+            return _framegrabber->getFieldOfViewY();
         }
 
-        rw::sensor::Image25D& getImage25D() {
-            return _image;
+        //! @copydoc SimulatedSensor::getWidth
+        virtual size_t getMeasurementCount() const {
+            return _framegrabber->getWidth()*_framegrabber->getHeight();
         }
-        //! @copydoc SimulatedSensor::getResolution
-        virtual double getResolution() {
-            return _framegrabber->getFieldOfViewY()*rw::math::Deg2Rad/_scan.getWidth();
-        }
+
 
 
     private:
@@ -119,7 +119,6 @@ namespace rwlibs { namespace simulation {
         double _frameRate, _dtsum;
         bool _isAcquired,_isOpenned;
         rw::sensor::Scan2D _scan;
-        rw::sensor::Image25D _image;
     };
 
     /**

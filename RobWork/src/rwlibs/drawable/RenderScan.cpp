@@ -21,14 +21,14 @@ void RenderScan::setScan(const rw::sensor::Image25D& img){
 	_img = img;
 }
 
-void RenderScan::setScan(const rw::sensor::Scan2D& img){
-	_img.resize(img.getWidth(),1);
-	_img.getImageData() = img.getImageData();
+void RenderScan::setScan(const rw::sensor::Scan2D& scan){
+	_img.resize(scan.getMeasurementCount(),1);
+	_img.getData() = scan.getData();
 }
 
 void RenderScan::setScan(float dist){
 	_img.resize(1,1);
-	_img.getImageData()[0] = Vector3D<float>(0,0,dist);
+	_img.getData()[0] = Vector3D<float>(0,0,dist);
 }
 
 void RenderScan::draw(DrawType type, double alpha) const
@@ -40,13 +40,13 @@ void RenderScan::draw(DrawType type, double alpha) const
     	// we only draw stuff that is within range
 
         for(size_t x=0; x<_img.getWidth(); x++){
-        	const Vector3D<float> &v1 = _img.getImageData()[x+y*_img.getWidth()];
+        	const Vector3D<float> &v1 = _img.getData()[x+y*_img.getWidth()];
         	if(fabs(v1[2])>_maxDepth || fabs(v1[2])<_minDepth)
         		continue;
 
             glBegin(GL_LINE_STRIP);
             for(size_t j=x; j<_img.getWidth(); j++){
-            	const Vector3D<float> &v = _img.getImageData()[x+y*_img.getWidth()];
+            	const Vector3D<float> &v = _img.getData()[x+y*_img.getWidth()];
             	x = j;
             	if(fabs(v[2])>_maxDepth || fabs(v[2])<_minDepth)
             		break;

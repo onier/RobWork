@@ -44,8 +44,8 @@ namespace rwlibs { namespace simulation {
          * @param encoding [in] color encoding of the image that this FrameGrabber25D uses.
          */
         FrameGrabber25D(size_t width, size_t height):
-          _width(width),
-          _height(height)
+            _width(width),
+            _height(height)
         {
             //_img = new rw::sensor::Image25D( width, height );
         }
@@ -73,7 +73,7 @@ namespace rwlibs { namespace simulation {
 
         /**
          * @brief Returns the field of view measured around the y-axis.
-         * @return Field of view measured around y-axis
+         * @return Field of view measured around y-axis in radians
          */
         virtual double getFieldOfViewY() = 0;
 

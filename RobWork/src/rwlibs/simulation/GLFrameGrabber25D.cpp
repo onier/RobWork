@@ -105,7 +105,6 @@ void GLFrameGrabber25D::setMinDepth(double depth){
 void GLFrameGrabber25D::grab(rw::kinematics::Frame *frame,
                              const rw::kinematics::State& state,
                              std::vector<rw::math::Vector3D<float> >* result){
-
     glPushMatrix();
 
     if(_depthData.size() != getWidth()*getHeight() )

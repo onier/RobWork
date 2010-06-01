@@ -66,7 +66,7 @@ bool SimulatedScanner25D::isScanReady(){
 }
 
 std::pair<double,double> SimulatedScanner25D::getRange(){
-	return std::make_pair(_framegrabber->getMinDepth(),_framegrabber->getMaxDepth());
+	return std::make_pair(_framegrabber->getMinDepth(), _framegrabber->getMaxDepth());
 }
 
 double SimulatedScanner25D::getFrameRate(){
@@ -74,7 +74,6 @@ double SimulatedScanner25D::getFrameRate(){
 }
 
 const Image25D& SimulatedScanner25D::getImage(){
-//	return _framegrabber->getImage();
     return _image;
 }
 
@@ -88,9 +87,7 @@ void SimulatedScanner25D::update(double dt, rw::kinematics::State& state){
 
     if( _dtsum>1.0/_frameRate ){
     	_dtsum = 0;
-    	//_framegrabber->grab(getFrame(), state, &_framegrabber->getImage().getImageData());
-    	_framegrabber->grab(getFrame(), state, &_image.getImageData());
-
+    	_framegrabber->grab(getFrame(), state, &_image.getData());
     	_isAcquired = true;
     }
 

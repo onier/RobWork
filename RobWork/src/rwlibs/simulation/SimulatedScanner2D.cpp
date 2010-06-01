@@ -25,8 +25,7 @@ SimulatedScanner2D::SimulatedScanner2D(const std::string& name,
    Scanner2D(name),
    _framegrabber(framegrabber),
     _frameRate(30),
-    _dtsum(0),
-    _image(framegrabber->getWidth(), framegrabber->getHeight())
+    _dtsum(0)
 {
     _scan.resize(_framegrabber->getHeight()*_framegrabber->getWidth());
 }
@@ -37,10 +36,9 @@ SimulatedScanner2D::SimulatedScanner2D(const std::string& name,
 		Scanner2D(name),
 		_framegrabber(framegrabber),
 		_frameRate(30),
-        _dtsum(0),
-		_image(framegrabber->getWidth(), framegrabber->getHeight())
+        _dtsum(0)
 {
-    _scan.resize(_framegrabber->getHeight());
+    _scan.resize(_framegrabber->getWidth()*_framegrabber->getHeight());
 }
 
 SimulatedScanner2D::~SimulatedScanner2D(){}
@@ -58,6 +56,13 @@ bool SimulatedScanner2D::isOpen(){
 void SimulatedScanner2D::close(){
 	_isOpenned = false;
 }
+
+
+
+const Scan2D& SimulatedScanner2D::getScan() const {
+    return _scan;
+}
+
 
 void SimulatedScanner2D::acquire(){
 	if(!_isOpenned)
@@ -77,9 +82,6 @@ double SimulatedScanner2D::getFrameRate(){
 	return _frameRate;
 }
 
-const Scan2D& SimulatedScanner2D::getImage() {
-	return _scan;
-}
 
 void SimulatedScanner2D::update(double dt, rw::kinematics::State& state){
     if(!_isOpenned || _isAcquired)
@@ -91,10 +93,7 @@ void SimulatedScanner2D::update(double dt, rw::kinematics::State& state){
 
     if( _dtsum>1.0/_frameRate ){
     	_dtsum = 0;
-         //std::cout<<"Image Data Size "<<_scan.getImageData().size()<<std::endl;
-         //std::cout<<"Image Data Size "<<_image.getImageData().size()<<std::endl;
-
-    	_framegrabber->grab(getFrame(), state, &_scan.getImageData());
+    	_framegrabber->grab(getFrame(), state, &_scan.getData());
     	_isAcquired = true;
     }
 

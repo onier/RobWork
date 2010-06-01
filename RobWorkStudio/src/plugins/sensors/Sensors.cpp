@@ -271,15 +271,15 @@ void Sensors::on_btnDisplay_clicked(bool checked) {
 
     else if (sensorName == "Scanner2D" && frame->getPropertyMap().has("Scanner2D")) {
         double fovy;
-        int width;
+        int cnt;
         std::string camId("Scanner2D");
         std::string camParam = frame->getPropertyMap().get<std::string>(camId);
         std::istringstream iss (camParam, std::istringstream::in);
-        iss >> fovy >> width;
+        iss >> fovy >> cnt;
 
         Scan2DView* scanview = new Scan2DView();
         scanview->makeCurrent();
-        FrameGrabber25DPtr framegrabber25d = ownedPtr( new GLFrameGrabber25D(1, width,fovy,gldrawer) );
+        FrameGrabber25DPtr framegrabber25d = ownedPtr( new GLFrameGrabber25D(1, cnt,fovy,gldrawer) );
         SimulatedScanner2D* simscan2D = new SimulatedScanner2D("SimulatedScanner2D", framegrabber25d);
         sensor = simscan2D;
         simscan2D->attachTo(frame);

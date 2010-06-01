@@ -124,7 +124,7 @@ void Scan2DView::makeCurrent() {
 void Scan2DView::update() {
 
     if(_scanner != NULL && _scanner->isScanReady() ){
-        const Scan2D& scan = _scanner->getData();
+        const Scan2D& scan = _scanner->getScan();
         _scanRender->setScan(scan);
     }
 

@@ -23,6 +23,7 @@
 #include "FrameGrabber25D.hpp"
 
 #include <rwlibs/drawable/WorkCellGLDrawer.hpp>
+#include <rw/math/Constants.hpp>
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/PerspectiveTransform3D.hpp>
 #include <rw/kinematics/Frame.hpp>
@@ -92,7 +93,7 @@ namespace rwlibs { namespace simulation {
          * @copydoc FrameGrapper25D::getFieldOfViewY
          */
         virtual double getFieldOfViewY() {
-            return _fieldOfView;
+            return _fieldOfView * rw::math::Deg2Rad;
         }
 
     private:

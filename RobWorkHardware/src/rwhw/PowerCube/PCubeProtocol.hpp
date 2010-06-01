@@ -262,18 +262,19 @@
                                        // service partner. Available from version 3.5.14
 
 
+namespace rwhw {
+    struct Cmd
+    {
+        typedef enum{GET,PUT,ACK,ALL} CMDType;
+        CMDType cmdType;
+        std::vector<unsigned char> data;
 
-struct Cmd
-{
-    typedef enum{GET,PUT,ACK,ALL} CMDType;
-    CMDType cmdType;
-    std::vector<unsigned char> data;
-
-    Cmd( CMDType cmd_Type, std::vector<unsigned char> data) :
-        cmdType(cmd_Type),
-        data(data)
-    {}
-};
+        Cmd( CMDType cmd_Type, std::vector<unsigned char> data) :
+            cmdType(cmd_Type),
+            data(data)
+        {}
+    };
+}
 
 
 /**
