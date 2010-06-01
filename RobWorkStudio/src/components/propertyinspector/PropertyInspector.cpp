@@ -188,3 +188,4 @@ void PropertyInspector::propertyChanged(QTableWidgetItem* item) {
 	propertyChanged(identifier);
 }
 
+
