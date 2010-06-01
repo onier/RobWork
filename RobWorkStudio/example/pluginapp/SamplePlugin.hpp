@@ -1,7 +1,7 @@
 #ifndef SAMPLEPLUGIN_HPP
 #define SAMPLEPLUGIN_HPP
 
-#include <RobWorkStudioPlugin.hpp>
+#include <rws/RobWorkStudioPlugin.hpp>
 
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/State.hpp>
