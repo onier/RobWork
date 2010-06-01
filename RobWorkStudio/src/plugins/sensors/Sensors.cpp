@@ -111,8 +111,9 @@ void Sensors::initialize()
 
 
 void Sensors::updateSim(){
-
+    
     BOOST_FOREACH(SensorSet& set, _sensors) {
+        getRobWorkStudio()->getView()->makeCurrent();
         set.view->makeCurrent();
         set.sensor->update(0.001*spnUpdateTime->value(), _state);
         set.view->update();
@@ -234,7 +235,7 @@ void Sensors::on_btnDisplay_clicked(bool checked) {
         std::string camParam = frame->getPropertyMap().get<std::string>(camId);
         std::istringstream iss (camParam, std::istringstream::in);
         iss >> fovy >> width >> height;
-
+        getRobWorkStudio()->getView()->makeCurrent();
         FrameGrabberPtr framegrabber = ownedPtr( new GLFrameGrabber(width,height,fovy,gldrawer) );
         SimulatedCamera *simcam = new SimulatedCamera("SimulatedCamera", framegrabber);
         sensor = simcam;

@@ -55,7 +55,7 @@ using namespace rw::common;
 
 
 #include <plugins/log/ShowLog.hpp>
-#include <plugins/jog2/Jog.hpp>
+#include <plugins/jog/Jog.hpp>
 #include <plugins/treeview/TreeView.hpp>
 #include <plugins/playback/PlayBack.hpp>
 #include <plugins/planning/Planning.hpp>

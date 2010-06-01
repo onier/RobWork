@@ -72,7 +72,7 @@ public:
 
 private:
     rw::sensor::CameraPtr _camera;
-    ImageView* _pImageView;
+    ImageView* _pImageView;    
 };
 
 

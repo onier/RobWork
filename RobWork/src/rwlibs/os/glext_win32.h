@@ -1,6 +1,8 @@
 #ifndef __glext_h_
 #define __glext_h_
 
+#include <rw/common/types.hpp>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -3444,9 +3446,9 @@ typedef unsigned long long int uint64_t;
 #elif defined(_WIN32) && defined(__GNUC__)
 #include <stdint.h>
 #elif defined(_WIN32)
-typedef __int32 int32_t;
-typedef __int64 int64_t;
-typedef unsigned __int64 uint64_t;
+//typedef __int32 int32_t;
+//typedef __int64 int64_t;
+//typedef unsigned __int64 uint64_t;
 #else
 #include <inttypes.h>     /* Fallback option */
 #endif

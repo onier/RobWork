@@ -25,6 +25,7 @@ SimulatedScanner25D::SimulatedScanner25D(const std::string& name,
 		Scanner25D(name, "Simulated Scanner25D"),
 		_framegrabber(framegrabber),
 		_frameRate(30),
+        _dtsum(0),
 		_image(framegrabber->getWidth(), framegrabber->getHeight())
 {}
 
@@ -34,7 +35,8 @@ SimulatedScanner25D::SimulatedScanner25D(const std::string& name,
 		Scanner25D(name,desc),
 		_framegrabber(framegrabber),
 		_frameRate(30),
-		_image(framegrabber->getWidth(), framegrabber->getHeight())
+		_dtsum(0),
+        _image(framegrabber->getWidth(), framegrabber->getHeight())
 {}
 
 SimulatedScanner25D::~SimulatedScanner25D(){}
@@ -42,6 +44,7 @@ SimulatedScanner25D::~SimulatedScanner25D(){}
 
 void SimulatedScanner25D::open(){
 	_isOpenned = true;
+    _dtsum = 0;
 }
 
 bool SimulatedScanner25D::isOpen(){

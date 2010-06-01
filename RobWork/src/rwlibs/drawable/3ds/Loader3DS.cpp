@@ -87,9 +87,9 @@ Model3DPtr Loader3DS::load(const std::string& name)
 		objects[i] = new Model3D::Object3D(obj_src.name);
 		Model3D::Object3D& obj_dst = *objects[i];
 		// copy transformation
-		RPY<float> rpyX(0,0,obj_src.rot.x*Deg2Rad);
-		RPY<float> rpyY(0,obj_src.rot.y*Deg2Rad,0);
-		RPY<float> rpyZ(obj_src.rot.z*Deg2Rad,0,0);
+		RPY<float> rpyX(0,0,(float)(obj_src.rot.x*Deg2Rad));
+		RPY<float> rpyY(0,(float)(obj_src.rot.y*Deg2Rad),0);
+		RPY<float> rpyZ((float)(obj_src.rot.z*Deg2Rad),0,0);
 		// TODO: perhaps the order that they multiply is wrong
 		Rotation3D<float> rot = rpyZ.toRotation3D()*rpyY.toRotation3D()*rpyX.toRotation3D();
 		Vector3D<float> pos(obj_src.pos.x,obj_src.pos.y,obj_src.pos.z);

@@ -52,13 +52,13 @@ void RenderImage::draw(DrawType type, double alpha) const
     glBindTexture(GL_TEXTURE_2D, _tex.getTextureID() );
 
     glTexCoord2f(0, 0);
-    glVertex3f(-_w/2*_scale, _h/2, 0);
+    glVertex3f(-_w/2.0f*_scale, _h/2.0f, 0);
 
     glTexCoord2f(1, 0);
-    glVertex3f(-_w/2*_scale, _h/2, 0);
+    glVertex3f(-_w/2.0f*_scale, _h/2.0f, 0);
 
-    float w = _w/2*_scale;
-    float h = _h/2*_scale;
+    float w = _w/2.0f*_scale;
+    float h = _h/2.0f*_scale;
 
     glBegin(GL_QUADS);
 

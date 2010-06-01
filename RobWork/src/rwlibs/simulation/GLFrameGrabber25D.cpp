@@ -166,9 +166,9 @@ void GLFrameGrabber25D::grab(rw::kinematics::Frame *frame,
                     &posX, &posY, &posZ);
             if (result != NULL) {
                 Vector3D<float>& q = (*result)[x+y*getWidth()];
-                q(0) = posX;
-                q(1) = posY;
-                q(2) = posZ;
+                q(0) = (float)posX;
+                q(1) = (float)posY;
+                q(2) = (float)posZ;
             }
         }
     }

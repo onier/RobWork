@@ -8,14 +8,11 @@
 #ifndef RWLIBS_SIMULATION_RWGLFRAMEBUFFER_HPP
 #define RWLIBS_SIMULATION_RWGLFRAMEBUFFER_HPP
 
-
-#include <rw/common/LogWriter.hpp>
 #include <rwlibs/os/rwgl.hpp>
-
 #if defined(RW_CYGWIN)
     #include <GL/glext.h>
 #elif defined(RW_WIN32)
-    #include "glext_win32.h"
+    #include <rwlibs/os/glext_win32.h>
 #elif defined(RW_MACOS)
     #include <OpenGL/glext.h>
 #elif defined(RW_LINUX)
@@ -25,6 +22,9 @@
 #else
     #include <GL/glext.h>
 #endif
+
+#include <rw/common/LogWriter.hpp>
+
 
 
 

@@ -43,7 +43,9 @@ namespace rwlibs { namespace simulation {
          * @param height [in] height of the image that this FrameGrabber25D uses.
          * @param encoding [in] color encoding of the image that this FrameGrabber25D uses.
          */
-        FrameGrabber25D(size_t width, size_t height)
+        FrameGrabber25D(size_t width, size_t height):
+          _width(width),
+          _height(height)
         {
             //_img = new rw::sensor::Image25D( width, height );
         }

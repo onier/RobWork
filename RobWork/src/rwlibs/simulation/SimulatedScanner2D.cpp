@@ -25,6 +25,7 @@ SimulatedScanner2D::SimulatedScanner2D(const std::string& name,
    Scanner2D(name),
    _framegrabber(framegrabber),
     _frameRate(30),
+    _dtsum(0),
     _image(framegrabber->getWidth(), framegrabber->getHeight())
 {
     _scan.resize(_framegrabber->getHeight()*_framegrabber->getWidth());
@@ -36,6 +37,7 @@ SimulatedScanner2D::SimulatedScanner2D(const std::string& name,
 		Scanner2D(name),
 		_framegrabber(framegrabber),
 		_frameRate(30),
+        _dtsum(0),
 		_image(framegrabber->getWidth(), framegrabber->getHeight())
 {
     _scan.resize(_framegrabber->getHeight());
@@ -46,6 +48,7 @@ SimulatedScanner2D::~SimulatedScanner2D(){}
 
 void SimulatedScanner2D::open(){
 	_isOpenned = true;
+    _dtsum = 0;
 }
 
 bool SimulatedScanner2D::isOpen(){

@@ -11,7 +11,7 @@
 	/>
 	<Tool
 		Name="VCLinkerTool"
-		AdditionalLibraryDirectories="&quot;$(BOOST_ROOT)/stage/lib&quot;;&quot;$(XERCES_VS_ROOT)/lib&quot;"
+		AdditionalLibraryDirectories="&quot;$(BOOST_ROOT)/lib&quot;;&quot;$(BOOST_ROOT)/stage/lib&quot;;&quot;$(XERCES_VS_ROOT)/lib&quot;"
 	/>
 	<UserMacro
 		Name="RWS_ROOT"
