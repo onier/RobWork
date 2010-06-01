@@ -8,14 +8,19 @@
 #ifndef GRASPPOLICYFACTORY_HPP_
 #define GRASPPOLICYFACTORY_HPP_
 
+#include <dynamics/DynamicWorkcell.hpp>
+#include <rw/models/JointDevice.hpp>
 #include "GraspPolicy.hpp"
 
 class GraspPolicyFactory {
 public:
 
-	std::vector<std::string> getAvailablePolicies();
+	static std::vector<std::string> getAvailablePolicies();
 
-	GraspPolicyPtr makePolicy(const std::string& id);
+	static GraspPolicyPtr makePolicy(
+			const std::string& id,
+			dynamics::DynamicWorkcell* dwc,
+			rw::models::JointDevice* dev);
 
 };
 

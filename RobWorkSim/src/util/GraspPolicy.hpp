@@ -8,6 +8,11 @@
 #ifndef GRASPPOLICY_HPP_
 #define GRASPPOLICY_HPP_
 
+#include <rw/common/PropertyMap.hpp>
+#include <rw/common/Ptr.hpp>
+#include <rwlibs/simulation/SimulatedController.hpp>
+
+
 /**
  * @brief a grasp policy defines how a grasp is executed from
  * some initial configuration.

@@ -15,7 +15,7 @@ class PDController: public JointController, public rwlibs::simulation::Simulated
 public:
 	//! @brief struct for holding PD parameters
 	struct PDParam {
-		PDParam():P(10),D(0.3){}
+		PDParam():P(10),D(0.003){}
 		PDParam(double p, double d):P(p),D(d){};
 		double P; //! the proportional parameter
 		double D; //! the derivative parameter
@@ -128,7 +128,7 @@ private:
     rw::math::Q _targetVel;
     std::vector<PDParam> _pdparams;
     ControlMode _mode;
-    double _stime;
+    double _stime, _accTime; // sample time
 };
 
 typedef rw::common::Ptr<PDController> PDControllerPtr;

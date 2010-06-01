@@ -8,6 +8,10 @@
 #ifndef GRASPSTRATEGY_HPP_
 #define GRASPSTRATEGY_HPP_
 
+#include <rw/common/PropertyMap.hpp>
+#include <rw/common/Ptr.hpp>
+#include "StateSampler.hpp"
+
 class GraspStrategy {
 public:
 
@@ -18,7 +22,8 @@ public:
 	virtual rw::common::PropertyMap& getSettings() = 0;
 
 	virtual void applySettings() = 0;
-
 };
+
+typedef rw::common::Ptr<GraspStrategy> GraspStrategyPtr;
 
 #endif /* GRASPSTRATEGY_HPP_ */
