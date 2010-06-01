@@ -1,4 +1,4 @@
-
+MESSAGE(status "LUA_STUFF ${RWS_HAVE_LUA}")
 IF( RWS_HAVE_LUA )
 
 #----------------------------------------------------------------------
