@@ -25,7 +25,7 @@
 
 #include <boost/foreach.hpp>
 
-#include <sandbox/kinematics/FramePairMap.hpp>
+#include <rw/kinematics/FramePairMap.hpp>
 
 #include <rw/models/DependentRevoluteJoint.hpp>
 #include <rw/models/DependentPrismaticJoint.hpp>

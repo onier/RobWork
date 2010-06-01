@@ -16,7 +16,7 @@
 #include <dynamics/MaterialDataMap.hpp>
 #include <dynamics/ContactPoint.hpp>
 #include <dynamics/ContactManifold.hpp>
-#include <sandbox/kinematics/FramePairMap.hpp>
+#include <rw/kinematics/FramePairMap.hpp>
 
 #include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
 
