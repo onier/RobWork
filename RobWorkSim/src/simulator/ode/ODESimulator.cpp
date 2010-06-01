@@ -293,7 +293,8 @@ ODESimulator::ODESimulator(dynamics::DynamicWorkcell *dwc):
     _contactMap(dwc->getContactData()),
     _narrowStrategy(new ProximityStrategyPQP()),
     _sensorFeedbacks(5000),
-    _nextFeedbackIdx(0)
+    _nextFeedbackIdx(0),
+    _excludeMap(0,100)
 {
 
 
