@@ -32,13 +32,13 @@ public:
 
 	rwlibs::drawable::WorkCellGLDrawer* getWorkCellGLDrawer();
 
-	const rwlibs::lua::trajectory::TimedStatePath& getTimedStatePath();
+	const rwlibs::lua::trajectory::TimedStatePath getTimedStatePath();
 
 	void setTimedStatePath(const rwlibs::lua::trajectory::TimedStatePath& path);
 
 	void setState(const rwlibs::lua::kinematics::State& state);
 
-	const rwlibs::lua::kinematics::State& getState();
+	const rwlibs::lua::kinematics::State getState();
 
 	rw::common::Log& log();
 

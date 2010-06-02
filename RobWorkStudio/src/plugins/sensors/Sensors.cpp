@@ -118,18 +118,11 @@ void Sensors::updateSim(){
         set.sensor->update(0.001*spnUpdateTime->value(), _state);
         set.view->update();
     }
-
-
 }
 
 void Sensors::stateChangedListener(const State& state)
 {
-    //std::cout<<"New State "<<std::endl;
     _state = state;
-
-    // take image with camera
-    //if(_camera)
-    //  _camera->
 }
 
 
@@ -137,24 +130,7 @@ void Sensors::open(WorkCell* workcell)
 {
     _workcell = workcell;
 
-/*    BOOST_FOREACH(SensorSet& set, _sensors) {
-        delete set.sensor;
-        delete set.view;
-    }
-    */
     _sensors.clear();
-
-//    _simSensors.clear();
-    /*
-    //if(_camera!=NULL)
-    //    delete _camera;
-    if(_scanner25d!=NULL)
-        delete _scanner25d;
-    if(_scanner2d!=NULL)
-        delete _scanner2d;
-    if(_scanner1d!=NULL)
-        delete _scanner1d;
-        */
 
     State state = getRobWorkStudio()->getState();
     std::vector<Frame*> frames = Kinematics::findAllFrames(workcell->getWorldFrame(), workcell->getDefaultState());
@@ -170,45 +146,18 @@ void Sensors::open(WorkCell* workcell)
         if (frame->getPropertyMap().has("Scanner2D")) {
             cmbSensors->addItem(QString("%1:%2").arg("Scanner2D").arg(frame->getName().c_str()),  QVariant(frame->getName().c_str()));
         }
-
-
     }
-
-
-
-    // first we do the camera
-
-    // then we do the scanner25d
-
-    // and drawables.
-
-//    _cameraViewRender = RenderUtil::makeCameraViewRender(640, 480, 50);
-//    _scanViewRender = RenderUtil::makeCameraViewRender(640, 480, 50);
-
-//    gldrawer->addDrawableToFrame(_camera->getFrame(), new Drawable(_cameraViewRender));
-//    gldrawer->addDrawableToFrame(_scanner25d->getFrame(), new Drawable(_scanViewRender));
-
- /*   frame = workcell->findFrame("ScanScreen");
-    if(!frame) frame = world;
-    _scanRender = ownedPtr( new RenderScan() );
-    gldrawer->addDrawableToFrame(frame, new Drawable(_scanRender));
-
-    frame = workcell->findFrame("Screen");
-    if(!frame) frame = world;
-*/
-
-/*    // remember to initialize camera and scanners
-    _camera->initialize();
-    _camera->start();
-    _scanner25d->open();
-
-*/
 
     stateChangedListener(getRobWorkStudio()->getState());
 }
 
 void Sensors::close()
 {}
+
+#include <rw/math/Rotation3D.hpp>
+#include <rw/math/Quaternion.hpp>
+
+using namespace rw::math;
 
 void Sensors::on_btnDisplay_clicked(bool checked) {
     std::string frameName = cmbSensors->itemData(cmbSensors->currentIndex()).toString().toStdString();
@@ -290,9 +239,6 @@ void Sensors::on_btnDisplay_clicked(bool checked) {
         view->resize(512,512);
     }
 
-
-
-
     if (sensor != NULL && view != NULL) {
         _sensors.push_back(SensorSet(sensor, view));
         connect(view, SIGNAL(viewClosed(SensorView*)), this, SLOT(viewClosed(SensorView*)));
@@ -313,15 +259,13 @@ void Sensors::on_spnUpdateTime_valudChanged(int value) {
     _timer->setInterval(spnUpdateTime->value());
 }
 
-void Sensors::viewClosed(SensorView* view) {
-    std::cout<<"View Closed"<<std::endl;
+void Sensors::viewClosed(SensorView* view) {    
     for (std::vector<SensorSet>::iterator it = _sensors.begin(); it != _sensors.end(); ++it) {
         if ((*it).view == view) {
             _sensors.erase(it); //The smart pointers makes sure we delete the view and the sensor
             return;
         }
     }
-
 }
 
 //----------------------------------------------------------------------

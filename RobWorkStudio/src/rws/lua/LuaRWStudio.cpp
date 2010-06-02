@@ -50,7 +50,7 @@ rwlibs::drawable::WorkCellGLDrawer* RobWorkStudio::getWorkCellGLDrawer(){
 	return _rws->getWorkCellGLDrawer();
 }
 
-const rwlibs::lua::trajectory::TimedStatePath& RobWorkStudio::getTimedStatePath(){
+const rwlibs::lua::trajectory::TimedStatePath RobWorkStudio::getTimedStatePath(){
 	return _rws->getTimedStatePath();
 }
 
@@ -62,12 +62,12 @@ void RobWorkStudio::setState(const rwlibs::lua::kinematics::State& state){
 	_rws->setState(state);
 }
 
-const rwlibs::lua::kinematics::State& RobWorkStudio::getState(){
+const rwlibs::lua::kinematics::State RobWorkStudio::getState(){
 	return _rws->getState();
 }
 
 rw::common::Log& RobWorkStudio::log(){
-	_rws->log();
+	return _rws->log();
 }
 
 void RobWorkStudio::saveViewGL(const std::string& filename){

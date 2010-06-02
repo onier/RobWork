@@ -57,36 +57,6 @@ namespace
             lua_pop(lua, 1);
         }
     }
-/*
-    class PluginOutput
-    {
-    public:
-        PluginOutput(QTextEdit* output) : _output(output) {}
-
-        void write(const std::string& str)
-        {
-            append(_output, str);
-        }
-
-    private:
-        QTextEdit* _output;
-    };
-*/
-    /*
-    class PluginToLogOutput
-    {
-    public:
-    	PluginToLogOutput(rw::common::LogPtr log) : _output(log) {}
-
-        void write(const std::string& str)
-        {
-        	rw::common::Log::info() << str;
-        }
-
-    private:
-        rw::common::LogPtr _output;
-    };
-    */
 
 }
 
@@ -96,7 +66,7 @@ Lua::Lua()
     _editor(NULL)
 {
     // Misc.
-    QWidget *widget = new QWidget(this);
+  /*  QWidget *widget = new QWidget(this);
     QVBoxLayout *lay = new QVBoxLayout(widget);
     widget->setLayout(lay);
     this->setWidget(widget);
@@ -146,7 +116,7 @@ Lua::Lua()
         lay->addWidget(button); // Own button.
         connect(button, SIGNAL(pressed()), this, SLOT(startEditor()));
     }
-
+*/
     // remove the native use of showAction
     _showAction.disconnect();
     connect(&_showAction, SIGNAL(triggered()), this, SLOT(startEditor()));
@@ -186,7 +156,6 @@ void Lua::initialize()
 void Lua::stateChangedListener(const State& state)
 {
     _state = state;
-    //RobWork::setState(_lua, &_state);
 }
 
 void Lua::luaStateChangedListener(const State& state)
@@ -197,12 +166,13 @@ void Lua::luaStateChangedListener(const State& state)
 
 void Lua::luaPathChangedListener(const StatePath& path)
 {
-    // getRobWorkStudio()->setTimedStatePath(path);
+
 }
 
 void Lua::open(WorkCell* workcell)
 {
-    if (_lua) lua_close(_lua);
+    if (_lua) 
+        lua_close(_lua);
 
     // Open the Lua state.
     _lua = lua_open();
@@ -212,44 +182,12 @@ void Lua::open(WorkCell* workcell)
     rws::lua::rwstudio::setRobWorkStudio( getRobWorkStudio() );
 
 
-    //rwlibs::lua::RobWork::setOutput(_lua, new PluginToLogOutput( _log ));
-    //rwlibs::lua::RobWork::setCollisionDetector(_lua,
-    //    getRobWorkStudio()->getCollisionDetector());
-    //RobWork::setWorkCell(_lua, workcell);
-
-    //RobWork::setStateChangedListener(
-    //    boost::bind(
-    //       &Lua::luaStateChangedListener,
-    //        this,
-    //        _1));
-
     stateChangedListener(getRobWorkStudio()->getState());
 }
 
 void Lua::close()
 {}
 
-void Lua::loadFile()
-{
-    const QString dir(_previousOpenDirectory.c_str());
-
-    QString selectedFilter;
-    const QString filename = QFileDialog::getOpenFileName(
-        this,
-        "Run Lua script",
-        dir, // Directory
-        "All supported ( *.lua *.luac )"
-        " \n All ( *.* )",
-        &selectedFilter);
-
-    const std::string file = filename.toStdString();
-    if (!file.empty()) {
-        _previousOpenDirectory = StringUtil::getDirectoryName(file);
-        append(_output, "--\n");
-        const int error = luaL_dofile(_lua, file.c_str());
-        processError(error, _lua, _output);
-    }
-}
 
 void Lua::startEditor(){
 	if(_editor==NULL){
@@ -264,24 +202,8 @@ void Lua::startEditor(){
 
 }
 
-void Lua::runChunk()
-{
-    const std::string cmd =
-        _input->textCursor().block().text().toStdString();
 
-    append(_output, "--\n");
-    const int error = // The string "" is part of the error message.
-        luaL_loadbuffer(_lua, cmd.data(), cmd.size(), "") ||
-        lua_pcall(_lua, 0, 0, 0);
 
-    processError(error, _lua, _output);
-}
-/*
-void Lua::setupToolBar(QToolBar* toolbar)
-{
-    /toolbar->addAction(&_showAction);
-}
-*/
 
 //----------------------------------------------------------------------
 #ifndef RW_STATIC_LINK_PLUGINS

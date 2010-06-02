@@ -26,7 +26,7 @@
 #include <rw/common/Message.hpp>
 #include <rw/trajectory/Path.hpp>
 
-#include <sandbox/components/luaeditor/LuaEditorWindow.hpp>
+#include <components/luaeditor/LuaEditorWindow.hpp>
 
 struct lua_State;
 
@@ -61,14 +61,12 @@ private:
     void luaPathChangedListener(const rw::trajectory::StatePath& path);
 
 private slots:
-    void runChunk();
-    void loadFile();
     void startEditor();
 
 private:
-    QTextEdit* _input;
+/*    QTextEdit* _input;
     QTextEdit* _output;
-
+*/
     lua_State* _lua;
     rw::kinematics::State _state;
     std::string _previousOpenDirectory;

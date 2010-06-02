@@ -19,7 +19,6 @@
 #include "CodeEditor.hpp"
 
  #include <QMainWindow>
- #include <QFile>
 
 
  class TreeModelCompleter;
@@ -42,14 +41,21 @@ public:
 	LuaEditorWindow(lua_State* lua, rw::common::LogPtr output, QWidget *parent);
 	virtual ~LuaEditorWindow();
 
-public slots:
-	void about();
-	void newFile();
-	void saveFile();
-	void openFile(const QString &path = QString());
-	void closeFile();
-	void runChunk();
-	void run();
+public slots:	
+	//void newFile();
+	//void openFile(const QString &path = QString());
+	//void closeFile();
+	//void runChunk();
+	//void run();
+
+    void on_actionNew_triggered(bool);
+    void on_actionOpen_triggered(bool);
+    void on_actionSave_triggered(bool);
+    void on_actionRun_triggered(bool);
+    void on_actionStop_triggered(bool);
+    void on_actionReload_triggered(bool);
+    
+    void textChanged();
 
 private:
     QAbstractItemModel *modelFromFile(const QString& fileName);
@@ -62,15 +68,18 @@ private:
     LuaHighlighter *_highlighter;
     lua_State *_lua;
     rw::common::LogPtr _output;
-
+    rw::common::PropertyMap _pmap;
     //QCompleter *_completer;
     TreeModelCompleter *_completer;
 
+    //bool _modified;
     bool _isRunning;
 
-    rw::common::PropertyMap _pmap;
-    QFile _file;
-    bool _changedContent;
+    bool save();
+    bool saveAs();
+    bool save(const std::string& filename);
+
+
 
 };
 

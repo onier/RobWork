@@ -46,7 +46,7 @@ public:
     }
 
     ~SensorView() {
-        std::cout<<"SensorView destroyed"<<std::endl;
+        
     }
 
     virtual void update() = 0;
