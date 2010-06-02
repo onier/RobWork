@@ -27,15 +27,23 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rw_sandbox", "rw_sandbox\rw
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lua", "..\..\..\ext\lua\VisualStudio2005\lua.vcproj", "{52A4D050-5888-451F-A062-72A902C1B9B3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "toluaapp", "..\..\..\ext\tolua\win32\vc8\toluaapp\toluaapp.vcproj", "{0AA71909-BFE5-4A5C-BC30-88B63794EF32}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tolua", "..\..\..\ext\tolua\win32\vc8\toluaapp\toluaapp.vcproj", "{0AA71909-BFE5-4A5C-BC30-88B63794EF32}"
 	ProjectSection(ProjectDependencies) = postProject
 		{39FB8748-618E-4BD7-8E42-549537AD2B4B} = {39FB8748-618E-4BD7-8E42-549537AD2B4B}
 		{52A4D050-5888-451F-A062-72A902C1B9B3} = {52A4D050-5888-451F-A062-72A902C1B9B3}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "tolualib", "..\..\..\ext\tolua\win32\vc8\tolualib\tolualib.vcproj", "{39FB8748-618E-4BD7-8E42-549537AD2B4B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{52A4D050-5888-451F-A062-72A902C1B9B3} = {52A4D050-5888-451F-A062-72A902C1B9B3}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rw_lua", "rw_lua\rw_lua.vcproj", "{C293A7AB-95F6-495D-9C92-67FDBB978A51}"
+	ProjectSection(ProjectDependencies) = postProject
+		{52A4D050-5888-451F-A062-72A902C1B9B3} = {52A4D050-5888-451F-A062-72A902C1B9B3}
+		{39FB8748-618E-4BD7-8E42-549537AD2B4B} = {39FB8748-618E-4BD7-8E42-549537AD2B4B}
+		{0AA71909-BFE5-4A5C-BC30-88B63794EF32} = {0AA71909-BFE5-4A5C-BC30-88B63794EF32}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
