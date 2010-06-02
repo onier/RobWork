@@ -12,12 +12,14 @@
 #include <QModelIndex>
 
 #include <rw/common/Log.hpp>
+#include <rw/common/PropertyMap.hpp>
 
 #include "ui_LuaEditorWindow.h"
 #include "LuaHighlighter.hpp"
 #include "CodeEditor.hpp"
 
  #include <QMainWindow>
+ #include <QFile>
 
 
  class TreeModelCompleter;
@@ -43,6 +45,7 @@ public:
 public slots:
 	void about();
 	void newFile();
+	void saveFile();
 	void openFile(const QString &path = QString());
 	void closeFile();
 	void runChunk();
@@ -65,6 +68,9 @@ private:
 
     bool _isRunning;
 
+    rw::common::PropertyMap _pmap;
+    QFile _file;
+    bool _changedContent;
 
 };
 
