@@ -130,7 +130,7 @@ namespace rwlibs { namespace lua { namespace kinematics {
 	math::Transform3D worldTframe(const Frame* to, const State& state);
 
 	// Function: worldFrame(Frame,State)
-	Frame& worldFrame(Frame& frame, const State& state);
+	Frame worldFrame(Frame& frame, const State& state);
 	// Function: gripFrame(State,Frame,Frame)
 	void gripFrame(State& state, Frame& item, Frame& gripper);
 	// Function: isDAF(Frame)

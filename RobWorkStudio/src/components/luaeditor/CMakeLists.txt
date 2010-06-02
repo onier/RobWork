@@ -10,6 +10,8 @@ set(TargetName LuaEditorWindow)
 SET(UIS_FILES LuaEditorWindow.ui )
 RWS_QT4_WRAP_UI(UIS_OUT_H ${UIS_FILES})
 
+MESSAGE("LUA UI FILES ${UIS_OUT_H}")
+
 SET(SrcFiles LuaEditorWindow.cpp LuaHighlighter.cpp CodeEditor.cpp 
     TreeModelCompleter.cpp 
     ${UIS_OUT_H})
@@ -31,9 +33,12 @@ ELSE ()
   # Link the standard static libraries with with the shared library:
   TARGET_LINK_LIBRARIES(${TargetName} ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES})
 ENDIF ()
+
 ADD_DEPENDENCIES(${TargetName} rwstudio)
 
 INSTALL(TARGETS ${TargetName} DESTINATION libs)
 SET(ENV{RWS_COMPONENT_LIBRARIES} "$ENV{RWS_COMPONENT_LIBRARIES}${TargetName};")
 
 ENDIF()
+
+

@@ -75,8 +75,7 @@ namespace kinematics {
 		rw::kinematics::MovableFrame* _mframe;
 	};
 
-	math::Transform3D frameTframe(
-		const Frame* from, const Frame* to, const State& state);
+	math::Transform3D frameTframe(const Frame* from, const Frame* to, const State& state);
 
 	math::Transform3D worldTframe(const Frame* to, const State& state);
 

@@ -30,8 +30,9 @@ ELSE ()
   # Link the standard static libraries with with the shared library:
   TARGET_LINK_LIBRARIES(${TargetName} ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES})
 ENDIF ()
-#ADD_DEPENDENCIES(${TargetName} rwstudio)
-#ADD_DEPENDENCIES(${TargetName} LuaEditorWindow)
+
+ADD_DEPENDENCIES(${TargetName} rwstudio)
+ADD_DEPENDENCIES(${TargetName} LuaEditorWindow)
 
 INSTALL(TARGETS ${TargetName} DESTINATION bin)
 SET(ENV{RWS_PLUGIN_LIBRARIES} "$ENV{RWS_PLUGIN_LIBRARIES}${TargetName};")

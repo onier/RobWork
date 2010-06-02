@@ -39,7 +39,7 @@
         <file alias="propertyview.png" >../plugins/propertyview/propertyview.png</file>
         <file alias="treeview.png" >../plugins/treeview/treeview.png</file>
         <file alias="planning.png" >../plugins/planning/planning.png</file>
-        <file alias="lua.png">../sandbox/plugins/lua/lua.png</file>
-		<file alias="wordlist.txt">../sandbox/components/luaeditor/wordlist.txt</file>
+        <file alias="lua.png">../plugins/lua/lua.png</file>
+		<file alias="wordlist.txt">../components/luaeditor/wordlist.txt</file>
     </qresource>
 </RCC>

@@ -79,74 +79,12 @@ void LuaEditorWindow::setupEditor(){
     _editor->setCompleter(_completer);
 
     _highlighter = new LuaHighlighter(_editor->document());
-    
+
     connect(_editor, SIGNAL(modificationChanged(bool)), this, SLOT(textChanged()));
 
 }
 
 
-/*
-void LuaEditorWindow::newFile(){
-	if(_file.isOpen()){
-		closeFile();
-	}
-	//openFile("new_lua_file.lua");
-	for(int i=0;i<100;i++){
-		std::stringstream sstr;
-		sstr <<"new_lua_file"<<i<<".lua";
-		if(!QFile::exists( sstr.str().c_str() )){
-			openFile(sstr.str().c_str());
-			_editor->setPlainText("");
-			_changedContent = true;
-			return;
-		}
-	}
-}
-*/
-
-/*
-void LuaEditorWindow::closeFile(){
-	if(_file.isOpen()){
-		if(_changedContent){
-		     QMessageBox::StandardButton reply;
-		     reply = QMessageBox::question(this, tr("QMessageBox::question()"),
-		                                     "Contents have been changed, save these to file?",
-		                                     QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
-		     if (reply == QMessageBox::Yes){
-		         saveFile();
-		     } else if (reply == QMessageBox::No){
-                
-		     } else {
-		         return;
-		     }
-		}
-		_file.close();
-	}
-}
-*/
-/*
-void LuaEditorWindow::openFile(const QString &path){
-    QString fileName = path;
-
-    if (fileName.isNull()){
-    	fileName = _pmap.get<std::string>("PreviousOpenDirectory", ".").c_str();
-
-        fileName = QFileDialog::getOpenFileName(this,
-            tr("Open File"), fileName,
-            "Supported (*.lua *.txt)"
-            "\nLua Files (*.lua)"
-            "\nAll (*.*)");
-    }
-
-    if (!fileName.isEmpty()) {
-    	_pmap.set<std::string>("PreviousOpenDirectory", StringUtil::getDirectoryName(fileName.toStdString()));
-        QFile file;
-        file.setFileName(fileName);
-        if (file.open(QFile::ReadWrite | QFile::Text))
-            _editor->setPlainText(file.readAll());
-        file.close();
-    }
-}*/
 
 void LuaEditorWindow::textChanged() {
     //_modified = _editor->document()->isModified();
@@ -167,7 +105,7 @@ void LuaEditorWindow::on_actionNew_triggered(bool) {
                 break;
             case QMessageBox::Cancel:
                 return;
-        }   
+        }
     }
     _editor->clear();
     _editor->document()->setModified(false);
@@ -182,7 +120,7 @@ void LuaEditorWindow::on_actionOpen_triggered(bool) {
                                                     "Supported (*.lua *.txt)"
                                                     "\nLua Files (*.lua)"
                                                     "\nAll (*.*)");
-    
+
     if (!fileName.isEmpty()) {
     	_pmap.set<std::string>("PreviousOpenDirectory", StringUtil::getDirectoryName(fileName.toStdString()));
         _pmap.set<std::string>("LuaFile", fileName.toStdString());
@@ -190,7 +128,7 @@ void LuaEditorWindow::on_actionOpen_triggered(bool) {
         file.setFileName(fileName);
         if (file.open(QFile::ReadWrite | QFile::Text)) {
             _editor->setPlainText(file.readAll());
-        } 
+        }
         file.close();
         _editor->document()->setModified(false);
     }
@@ -213,8 +151,8 @@ bool LuaEditorWindow::save() {
 
 bool LuaEditorWindow::saveAs() {
     std::string defaultName = _pmap.get<std::string>("LuaFile","");
-    QString filename = QFileDialog::getSaveFileName(this, 
-                                                    "Save as", 
+    QString filename = QFileDialog::getSaveFileName(this,
+                                                    "Save as",
                                                     defaultName.c_str(),
                                                     "Supported (*.lua *.txt)");
 
@@ -229,7 +167,7 @@ bool LuaEditorWindow::save(const std::string& filename) {
     file.setFileName(filename.c_str());
     if (file.open(QFile::ReadWrite | QFile::Text)) {
         file.write(_editor->toPlainText().toAscii());
-        file.close();        
+        file.close();
         _pmap.set<std::string>("LuaFile", filename);
         _editor->document()->setModified(false);
         return true;
@@ -240,16 +178,20 @@ bool LuaEditorWindow::save(const std::string& filename) {
 }
 
 void LuaEditorWindow::on_actionRun_triggered(bool) {
-    const std::string cmd = _editor->toPlainText().toStdString();    
-    //const std::string cmd = _editor->textCursor().block().text().toStdString();
-    int error = luaL_loadbuffer(_lua, cmd.data(), cmd.size(), "");
-    if (!error)        
-        error = lua_pcall(_lua, 0, 0, 0);
+    try {
+        const std::string cmd = _editor->toPlainText().toStdString();
+        //const std::string cmd = _editor->textCursor().block().text().toStdString();
+        int error = luaL_loadbuffer(_lua, cmd.data(), cmd.size(), "");
+        if (!error)
+            error = lua_pcall(_lua, 0, 0, 0);
 
-    if(error){
-    	//_editor->setLineState(number, CodeEditor::ExecutedError);
-    	processError(error, _lua, _output);
-    } 
+        if(error){
+            //_editor->setLineState(number, CodeEditor::ExecutedError);
+            processError(error, _lua, _output);
+        }
+    } catch (const Exception& exp) {
+        QMessageBox::critical(this, "Lua Editor", tr("Failed to execute script with message '%1'").arg(exp.what().c_str()));
+    }
 }
 
 void LuaEditorWindow::on_actionReload_triggered(bool) {
@@ -261,7 +203,7 @@ void LuaEditorWindow::on_actionReload_triggered(bool) {
     file.setFileName(fileName.c_str());
     if (file.open(QFile::ReadWrite | QFile::Text)) {
         _editor->setPlainText(file.readAll());
-    } 
+    }
     file.close();
 
 }
@@ -282,7 +224,7 @@ void LuaEditorWindow::runChunk()
     _output->info() << "--\n";
     // The string "" is part of the error message.
     int error = luaL_loadbuffer(_lua, cmd.data(), cmd.size(), "");
-    if (!error)        
+    if (!error)
         error = lua_pcall(_lua, 0, 0, 0);
 
     if(error){

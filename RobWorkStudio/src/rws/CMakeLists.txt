@@ -35,7 +35,7 @@ QT4_WRAP_CPP(MocSrcFiles ${MocHeaderFiles})
 
 # Resource files to rcc and compile:
 IF(RWS_BUILD_SANDBOX)
-    SET(SandboxResourceFiles rwstudio_sandbox_resources.qrc)
+    #SET(SandboxResourceFiles rwstudio_sandbox_resources.qrc)
 ENDIF ()
 QT4_ADD_RESOURCES(ResourceFiles rwstudio_resources.qrc)
 
