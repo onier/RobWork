@@ -51,7 +51,8 @@ public:
      * @param str [in] message to write
      */
     virtual void write(const std::string& str){
-    	std::stringstream buf;
+    	/*    	std::stringstream buf;
+
 
         if(_isNewLine){
             buf	<< "["<<_id<<"] : ";
@@ -64,7 +65,10 @@ public:
         	pos = str.find("\n", pos+1);
         }
         buf << str.substr(lpos) << "\n";
+
         _slog->write(buf.str(),_color);
+        */
+    	_slog->write(str,_color);
         _isNewLine = false;
     }
 
