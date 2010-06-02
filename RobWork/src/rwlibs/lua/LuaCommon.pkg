@@ -48,10 +48,10 @@ $[
     function print(...)
         if print_to_log then
 	        for i, v in ipairs{...} do
-	            if i > 1 then rwlibs.lua.common:info('\t') end
-	            rwlibs.lua.common:info(tostring(v))
+	            if i > 1 then rwlibs.lua.common.info("\t") end
+	            rwlibs.lua.common.info(tostring(v))
 	        end
-	        rwlibs.lua.common:info('\n')
+	        rwlibs.lua.common.info('\n')
         else
             global_print(...)
         end
