@@ -80,7 +80,7 @@ namespace kinematics {
 
 	math::Transform3D worldTframe(const Frame* to, const State& state);
 
-	Frame& worldFrame(Frame& frame, const State& state);
+	Frame worldFrame(Frame& frame, const State& state);
 
 	void gripFrame(State& state, Frame& item, Frame& gripper);
 

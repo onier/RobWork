@@ -147,12 +147,12 @@ void RenderModel3D::drawUsingArrays(const Model3D::Object3D &obj, DrawType type,
 
 void RenderModel3D::useMaterial(const Model3D::Material& mat, DrawType type, double alpha) const {
 	if(mat.simplergb){
-		float a = Math::clamp(mat.rgb[3]+alpha,0.f, 1.0f);
+		float a = (float)Math::clamp(mat.rgb[3]+alpha,0.f, 1.0f);
 		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], a );
 	} else {
 		float diffuse[4];
 		std::memcpy(diffuse,mat.rgb,4);
-		diffuse[3] = Math::clamp(mat.rgb[3]+alpha,0.f, 1.0f);
+		diffuse[3] = (float)Math::clamp(mat.rgb[3]+alpha,0.f, 1.0f);
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat.ambient);
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat.specular);

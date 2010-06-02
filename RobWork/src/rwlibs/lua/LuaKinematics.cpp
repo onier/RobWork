@@ -122,25 +122,23 @@ std::string rwkin::MovableFrame::__tostring() const{return toString(*_mframe);}
 
 
 
-math::Transform3D rwkin::frameTframe(
-	const rwkin::Frame* from, const rwkin::Frame* to, const rwkin::State& state){
-	rw::kinematics::Kinematics::frameTframe(
-			from->get(), to->get(), state );
+math::Transform3D rwkin::frameTframe(const rwkin::Frame* from, const rwkin::Frame* to, const rwkin::State& state){
+	return rw::kinematics::Kinematics::frameTframe(from->get(), to->get(), state );
 }
 
 math::Transform3D rwkin::worldTframe(const rwkin::Frame* to, const rwkin::State& state){
-	rw::kinematics::Kinematics::worldTframe( to->get(),  state);
+	return rw::kinematics::Kinematics::worldTframe( to->get(),  state);
 }
 
-rwkin::Frame& rwkin::worldFrame(rwkin::Frame& frame, const rwkin::State& state){
-	rw::kinematics::Kinematics::worldFrame( *frame.get(), state );
+rwkin::Frame rwkin::worldFrame(rwkin::Frame& frame, const rwkin::State& state){
+    return rwkin::Frame(&rw::kinematics::Kinematics::worldFrame( *frame.get(), state ));
 }
 
 void rwkin::gripFrame(rwkin::State& state, rwkin::Frame& item, rwkin::Frame& gripper){
-	rw::kinematics::Kinematics::gripFrame( state, *item.get(), *gripper.get() );
+	return rw::kinematics::Kinematics::gripFrame( state, *item.get(), *gripper.get() );
 }
 
 bool rwkin::isDAF(const rwkin::Frame& frame){
-	rw::kinematics::Kinematics::isDAF( *frame.get() );
+	return rw::kinematics::Kinematics::isDAF( *frame.get() );
 }
 

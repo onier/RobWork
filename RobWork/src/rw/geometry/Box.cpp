@@ -50,7 +50,7 @@ Box::~Box() {
 }
 
 TriMeshPtr Box::createMesh(int resolution){
-	PlainTriMeshN0d *mesh = new PlainTriMeshN0d(12);
+	PlainTriMeshd *mesh = new PlainTriMeshd(12);
 
 	double x = _dx/2;
     double y = _dy/2;

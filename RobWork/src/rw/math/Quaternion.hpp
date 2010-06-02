@@ -327,7 +327,7 @@ namespace rw { namespace math {
         {
             const T tr = static_cast<T>(rot(0, 0) + rot(1, 1) + rot(2, 2) + 1);
 
-            if (tr > 1e-6) {
+            if (tr > 1e-5) {
                 const T s = static_cast<T>(0.5) / static_cast<T>(sqrt(tr));
                 this->d = static_cast<T>(0.25) / s;
                 this->a = static_cast<T>(rot(2, 1) - rot(1, 2)) * s;

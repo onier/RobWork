@@ -127,6 +127,7 @@ namespace geometry {
 	typedef PlainTriMesh<TriangleN0<double> > PlainTriMeshd;
 	typedef PlainTriMesh<TriangleN0<float> > PlainTriMeshf;
 
+    typedef PlainTriMeshd PlainTriMeshN0d;
 	//! @}
 
 } // geometry
