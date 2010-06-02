@@ -12,25 +12,29 @@
 #include "TriMesh.hpp"
 #include <rw/math/Q.hpp>
 
+//! @file Box.hpp
+
 namespace rw {
 namespace geometry {
 
-/**
- * @brief defines an interface for a geometric shape that is defined
- * by a set of parameters.
- */
-class Primitive: public GeometryData {
-public:
+    //! @addtogroup geometry @{
 
-	virtual TriMeshPtr createMesh(int resolution) = 0;
+    /**
+     * @brief defines an interface for a geometric shape that is defined
+     * by a set of parameters.
+     */
+    class Primitive: public GeometryData {
+    public:
 
-	/**
-	 * @brief the set of parameters that defines this primitive
-	 */
-	virtual rw::math::Q getParameters() const = 0;
+        virtual TriMeshPtr createMesh(int resolution) = 0;
 
-};
+        /**
+         * @brief the set of parameters that defines this primitive
+         */
+        virtual rw::math::Q getParameters() const = 0;
 
+    };
+    //! @}
 }
 }
 

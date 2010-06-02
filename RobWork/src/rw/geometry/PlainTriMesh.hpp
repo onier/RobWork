@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -21,21 +21,35 @@
 
 #include "TriMesh.hpp"
 
-        template<class Q, class P>
-        rw::math::Vector3D<Q> cast2(const rw::math::Vector3D<P>& v)
-        {
-            return rw::math::Vector3D<Q>(
-                static_cast<Q>(v(0)),
-                static_cast<Q>(v(1)),
-                static_cast<Q>(v(2)));
-        }
+//! @file PlainTriMesh.hpp
 
 
 namespace rw {
 namespace geometry {
-
+    //! @addtogroup geometry @{
 	/**
-	 * @brief
+	 * @brief a triangle mesh representation that maintains a list of simple triangles.
+	 *
+	 * This class is templated and can be setup with different types of triangle storage.
+	 * Mainly this concerns single or double precision but also number of normals in each Triangle.
+	 * Check out Triangle.hpp to get an idea of the different types.
+	 *
+	 * The PlainTriMesh can be used as follows
+	 * \code
+	 * // create trimesh
+	 * PlainTriMesh<TriangleN1<float> > mesh;
+	 * // add data
+	 * mesh.add( TriangleN1<float>(v1,v2,v3) );
+     * mesh.add( TriangleN1<float>(v1,v2,v3) );
+     * mesh.add( TriangleN1<float>(v1,v2,v3) );
+     *  // and access the mesh
+     * TriangleN1<float> tri_index1 = mesh[1];
+     * Vector3D<float> normal = mesh[2].getFaceNormal();
+	 * \endcode
+	 *
+	 * To convert the plain trimesh to a more efficient mesh representation take a look at
+	 * TriangleUtil::toIndexedTriMesh().
+	 *
 	 */
 	template <class TRI>
 	class PlainTriMesh: public TriMesh/*<typename TRI::value_type>*/ {
@@ -43,7 +57,7 @@ namespace geometry {
 		std::vector<TRI> _triangles;
 
 	public:
-
+	    //! the triangle type
 	    typedef typename TRI::value_type value_type;
 		/**
 		 * @brief constructor
@@ -110,8 +124,10 @@ namespace geometry {
 
 	};
 
-	typedef PlainTriMesh<TriangleN0<double> > PlainTriMeshN0d;
-	typedef PlainTriMesh<TriangleN0<float> > PlainTriMeshN0f;
+	typedef PlainTriMesh<TriangleN0<double> > PlainTriMeshd;
+	typedef PlainTriMesh<TriangleN0<float> > PlainTriMeshf;
+
+	//! @}
 
 } // geometry
 } // rw
