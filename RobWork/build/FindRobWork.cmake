@@ -125,13 +125,13 @@ IF(RW_BUILD_WITH_XERCES)
     #MESSAGE(status "Xerces: ${XERCESC_LIB_DIR} ${XERCESC_INCLUDE_DIR}")
     FIND_PACKAGE(XercesC REQUIRED)
     IF( XERCESC_FOUND )
-        MESSAGE(STATUS "Xerces REQUIRED! FOUND!")
+        MESSAGE(STATUS "RobWork: Xerces REQUIRED! FOUND!")
         SET(RW_HAVE_XERCES True)
     ELSE ()
-        MESSAGE(SEND_ERROR "Xerces REQUIRED! NOT FOUND! Check if XERCESC_INCLUDE_DIR and XERCESC_LIB_DIR is set correctly!")
+        MESSAGE(SEND_ERROR "RobWork: Xerces REQUIRED! NOT FOUND! Check if XERCESC_INCLUDE_DIR and XERCESC_LIB_DIR is set correctly!")
     ENDIF ()
 ELSE()
-    MESSAGE(STATUS "Xerces DISABLED!")
+    MESSAGE(STATUS "RobWork: Xerces DISABLED! Not build into RobWork!")
 ENDIF()
 
 
@@ -145,12 +145,12 @@ IF(RW_BUILD_WITH_YAOBI)
 
     FIND_PACKAGE(Yaobi REQUIRED)
     IF( YAOBI_FOUND )
-        MESSAGE(STATUS "Yaobi REQUIRED! FOUND!")
+        MESSAGE(STATUS "RobWork: Yaobi REQUIRED! FOUND!")
     ELSE ()
-        MESSAGE(SEND_ERROR "Yaobi REQUIRED! NOT FOUND! Try setting YAOBI_INCLUDE_DIR and YAOBI_LIB_DIR.")
+        MESSAGE(SEND_ERROR "RobWork: Yaobi REQUIRED! NOT FOUND! Try setting YAOBI_INCLUDE_DIR and YAOBI_LIB_DIR.")
     ENDIF ()
 ELSE ()
-    MESSAGE(STATUS "Yaobi DISABLED!")
+    MESSAGE(STATUS "RobWork: Yaobi DISABLED! Not build into RobWork!")
     SET(YAOBI_INCLUDE_DIR "")
 ENDIF()
 
@@ -166,12 +166,12 @@ IF(RW_BUILD_WITH_PQP)
 
     FIND_PACKAGE(PQP REQUIRED)
     IF( PQP_FOUND )
-        MESSAGE(STATUS "PQP REQUIRED! FOUND!")
+        MESSAGE(STATUS "RobWork: PQP REQUIRED! FOUND!")
     ELSE ()
-        MESSAGE(SEND_ERROR "PQP REQUIRED! NOT FOUND! Try setting PQP_INCLUDE_DIR and PQP_LIB_DIR.")
+        MESSAGE(SEND_ERROR "RobWork: PQP REQUIRED! NOT FOUND! Try setting PQP_INCLUDE_DIR and PQP_LIB_DIR.")
     ENDIF ()
 ELSE ()
-    MESSAGE(STATUS "PQP DISABLED!")   
+    MESSAGE(STATUS "RobWork: PQP DISABLED! Not build into RobWork!")   
     SET(PQP_INCLUDE_DIR "")
 ENDIF()
 
@@ -186,7 +186,7 @@ IF(RW_BUILD_WITH_LUA)
         SET(LUA_INCLUDE_DIR ${RW_BUILD_WITH_LUA_INCLUDE_DIR})
     ENDIF()
     
-    MESSAGE(STATUS "LUA ENABLED!")
+    MESSAGE(STATUS "RobWork: LUA ENABLED!")
     FIND_PACKAGE(Lua51 QUIET)
     IF( LUA51_FOUND )
         MESSAGE(STATUS "    FOUND Lua!")
@@ -210,7 +210,7 @@ IF(RW_BUILD_WITH_LUA)
         MESSAGE(STATUS "    Tolua NOT FOUND! Disabling use of rw_lua.")
     ENDIF ()
 ELSE ()
-    MESSAGE(STATUS "LUA DISABLED!")   
+    MESSAGE(STATUS "RobWork: LUA DISABLED! Not build into RobWork!")   
     SET(LUA_INCLUDE_DIR "")
     SET(TOLUA_INCLUDE_DIR "")
     SET(RW_USE_RW_LUA False)
@@ -222,10 +222,10 @@ ENDIF()
 
 
 IF (RW_BUILD_WITH_SANDBOX)
-    MESSAGE(STATUS "RobWork Sandbox ENABLED!")
+    MESSAGE(STATUS "RobWork: Sandbox ENABLED!")
     SET(SANDBOX_LIB "rw_sandbox")
 ELSE ()
-    MESSAGE(STATUS "RobWork Sandbox DISABLED!")    
+    MESSAGE(STATUS "RobWork: Sandbox DISABLED! Not build into RobWork!")    
 ENDIF ()
 
 
@@ -237,10 +237,10 @@ ENDIF ()
 # Enable the RW_ASSERT() macro.
 #
 IF( RW_BUILD_WITH_RW_ASSERT )
-    MESSAGE(STATUS "RW_ASSERT enabled.")
+    MESSAGE(STATUS "RobWork: RW_ASSERT enabled.")
     ADD_DEFINITIONS(-DRW_ENABLE_ASSERT)
 ELSE ()
-    MESSAGE(STATUS "RW_ASSERT disabled.")
+    MESSAGE(STATUS "RobWork: RW_ASSERT disabled.")
 ENDIF ()
 
 #
@@ -251,14 +251,14 @@ SET(RW_CXX_FLAGS ${RW_BUILD_WITH_CXX_FLAGS}
                   flags and not those of RobWork"
 )
 ADD_DEFINITIONS(${RW_CXX_FLAGS})
-MESSAGE(STATUS "Using CXX flags: ${RW_CXX_FLAGS}") 
+MESSAGE(STATUS "RobWork: Using CXX flags: ${RW_CXX_FLAGS}") 
 
 #MESSAGE(" ${Boost_MAJOR_VERSION} ${Boost_MINOR_VERSION} ")
 IF(${Boost_MINOR_VERSION} VERSION_LESS 41 ) 
     # proerty tree is not included in earlier versions 1.41 of boost
     # so we include it from our own
     SET(ADDITIONAL_BOOST_BINDINGS "${RW_ROOT}/ext/deprecated")
-    MESSAGE(STATUS "Boost ${Boost_VERSION_MAJOR}.${Boost_VERSION_MINOR} found, no support for property_tree. Adding from ext!")   
+    MESSAGE(STATUS "RobWork: Boost ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION} found, no support for property_tree. Adding from ext!")   
 ENDIF()
 
 
