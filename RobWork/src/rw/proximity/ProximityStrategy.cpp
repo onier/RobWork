@@ -85,22 +85,6 @@ bool ProximityStrategy::addModel(const Frame* frame)
     }
     return true;
 }
-#ifdef OLD_FACE_STUFF
-namespace {
-    class GeometryFaceWrap: public rw::geometry::Geometry {
-      public:
-
-          GeometryFaceWrap(const std::string& id, const std::vector<Face<float> > &faces):
-              rw::geometry::Geometry(id),_faces(faces){}
-
-          virtual ~GeometryFaceWrap(){}
-
-          virtual const std::vector<Face<float> >& getFaces() const{ return _faces;};
-      private:
-          const std::vector<Face<float> > &_faces;
-      };
-}
-#endif
 
 bool ProximityStrategy::addModel(const Frame* frame, const rw::geometry::Geometry& geom)
 {
@@ -110,6 +94,9 @@ bool ProximityStrategy::addModel(const Frame* frame, const rw::geometry::Geometr
     }
 
     bool res = addGeometry(model.get(), geom);
+    if(res){
+        _frameToModel[*frame] = model;
+    }
     return res;
 }
 
