@@ -99,6 +99,8 @@ using namespace rw::kinematics; //Namespace for Frame included by #include <rw/k
 
 \endcode
 
+All classes related to the RobWorkStudio package are placed in a namespace rws. All classes related to RobWorkHardware are in the namespace rwhw;
+
 \section sec_libraries Libraries
 
 All classes of the \b rw directory are provided in a single library
@@ -156,7 +158,9 @@ Each frame has a transformation (see rw::math::Transform3D) relative
 to its parent frame and this transformation may change in response to
 values assigned for the frame. A revolute joint of a device (see
 rw::models::RevoluteJoint) is for example implemented as a frame that
-has a single value that rotates the frame relative to its parent.
+has a single value that rotates the frame relative to its parent. 
+Besides revolute joints RobWork also supports prismatic joints and dependent
+joints for which the value may depend on other joints.
 
 It is important in RobWork to note that the values for the frames are
 not stored \e within the frames, but are instead stored explicitly in
@@ -177,7 +181,9 @@ rw::kinematics::Frame::getChildren().
 
 Because the values of the frames and the attachments of DAFs are
 stored outside of the workcell, we say that the workcell is \e
-stateless.
+stateless. This enables a workcell and the associated data to be used 
+concurrently in multiple threads as well as to easily communicate the 
+entire state of a workcell.
 
 To illustrate these important ideas, this example shows how to print
 the structure of the kinematic tree of the workcell and for each frame
@@ -186,14 +192,14 @@ print also the position of the frame in space:
 \include ex-print-kinematic-tree.cpp
 
 Here is the output produced by the printDefaultWorkCellStructure()
-function for workcell \b workcell.wu :
+function for workcell \b workcell.xml :
 
 \include ex-print-kinematic-tree.txt
 
 We see from this example that given a state, it is straight-forward to
 compute the transform of every single frame in the workcell. RobWork
 has some utilities to make calculation of forward kinematics
-convenient in the day to day work.
+convenient in the day to day work, such a rw::kinematics::FKTable and rw::kinematics::FKRange described below.
 
 \subsection sec_rw_manual_FKTable World transforms for a set of frames
 
@@ -394,7 +400,8 @@ The general interface for a discrete constraint on states
 method to call to check if a constraint is satisfied for a state is
 rw::pathplanning::StateConstraint::inCollision(). The naming of the
 method is only a convention. The constraint need not not be concerned
-with actual collisions of the workcell.
+with actual collisions of the workcell. A user may inherit from the interface 
+and implement any kind of constraint they desire.
 
 Path planners and other planners often operate on configurations
 (rw::math::Q) rather than workcell states (rw::kinematics::State). The
@@ -437,7 +444,7 @@ upper corner of the configuration space can be traversed:
 
 \include ex-constraints.cpp
 
-The output for workcell \b workcell.wu is:
+The output from the method is
 
 \include ex-constraints.txt
 
@@ -542,7 +549,14 @@ the iterative search. Depending on the start configuration and other
 constraints, the IK solver may fail or succeed in finding a valid
 configuration.
 
-The IK sampler interface (rw::pathplanning::QIKSampler) hides details
+\include ex-ik.cpp
+
+The solution of an iterative solver may depend on the starting configuration, provided in the
+state given in the solve method. To search for all solution an iterative ik solver may 
+be wrapped in the rw::invkin::IKMetaSolver which calls it a specified number of times with random 
+start configurations. Many robots have ambiguities which can be resolved using the rw::invkin::AmbiguityResolver.
+
+For use in planning the IK sampler interface (rw::pathplanning::QIKSampler) hides details
 of selection of IK solver and start configurations for the solver. The
 program below tests the default iterative IK solver for a device. The
 program selects 10 random base to end transforms for a device using

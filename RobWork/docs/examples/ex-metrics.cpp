@@ -1,7 +1,7 @@
 #include <rw/math/MetricFactory.hpp>
 #include <rw/math/Vector3D.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::math;
 
 void metricExample()
 {

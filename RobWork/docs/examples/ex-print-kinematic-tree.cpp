@@ -1,10 +1,12 @@
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/Frame.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
 
 #include <string>
 #include <boost/foreach.hpp>
+
+using namespace rw::kinematics;
+using namespace rw::models;
+
 
 void printKinematicTree(
     Frame& frame,

@@ -8,7 +8,14 @@
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rwlibs/use_robwork_namespace.hpp>
 #include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::math;
+using namespace rw::models;
+using namespace rw::kinematics;
+using namespace rw::loaders;
+using namespace rw::proximity;
+using namespace rw::
+using namespace rwlibs::proximitystrategies;
 
 #include <boost/foreach.hpp>
 

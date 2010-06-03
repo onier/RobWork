@@ -1,6 +1,7 @@
 #include <rw/kinematics/FKRange.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::math;
+using namespace rw::kinematics;
 
 Transform3D<> frameToFrameTransform(
     const Frame& a, const Frame& b, const State& state)

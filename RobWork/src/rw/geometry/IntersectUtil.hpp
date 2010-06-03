@@ -40,29 +40,25 @@ namespace geometry {
 		/**
 		 * @brief finds the point on a line which is closest to the point \b point
 		 */
-		static
-		rw::math::Vector3D<> closestPtPointRay(const rw::math::Vector3D<>& point,
-										       const rw::math::Vector3D<>& ray);
-
+		/*static rw::math::Vector3D<> closestPtPointRay(const rw::math::Vector3D<>& point,
+			      							          const rw::math::Vector3D<>& ray);
+*/
 		/// closest point pair tests
 
 		/**
 		 * @brief finds the closest points between two line segments
 		 */
-		static
-		PointPair closestPts(const Line& lineA, const Line& lineB);
+		//static PointPair closestPts(const Line& lineA, const Line& lineB);
 
 		/**
 		 * @brief finds the closest points between a line segment and a triangle
 		 */
-		static
-		PointPair closestPts(const Line& line, const Triangle<>& tri);
+		//static PointPair closestPts(const Line& line, const Triangle<>& tri);
 
 		/**
 		 * @brief finds the closest points between a ray and a triangle
 		 */
-		static
-		PointPair closestPtsRayTraingle(const rw::math::Vector3D<>& ray, const Triangle<>& tri);
+		//static PointPair closestPtsRayTraingle(const rw::math::Vector3D<>& ray, const Triangle<>& tri);
 
 
 		/// intersection tests

@@ -1,6 +1,6 @@
 #include <rw/kinematics/Frame.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::kinematics;
 
 bool isDaf(const Frame& frame)
 {

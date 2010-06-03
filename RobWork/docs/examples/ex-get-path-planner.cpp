@@ -1,9 +1,10 @@
 #include <rwlibs/pathplanners/sbl/SBLPlanner.hpp>
 #include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
 #include <rwlibs/pathplanners/arw/ARWPlanner.hpp>
-#include <rw/use_robwork_namespace.hpp>
-#include <rwlibs/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::models;
+using namespace rw::pathplanning;
+using namespace rwlibs::pathplanners;
 
 QToQPlannerPtr getQToQPlanner(
     DevicePtr device,

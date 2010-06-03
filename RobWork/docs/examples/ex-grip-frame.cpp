@@ -3,8 +3,9 @@
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/FKRange.hpp>
 #include <rw/math/Transform3D.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::math;
+using namespace rw::kinematics;
 
 void gripMovableFrame(
     MovableFrame& item, Frame& gripper, State& state)

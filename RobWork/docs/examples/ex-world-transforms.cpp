@@ -1,9 +1,11 @@
 #include <rw/kinematics/FKTable.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
 
 #include <vector>
 #include <boost/foreach.hpp>
+
+using namespace rw::math;
+using namespace rw::kinematics;
+
 
 std::vector<Transform3D<> > worldTransforms(
     const std::vector<Frame*>& frames, const State& state)

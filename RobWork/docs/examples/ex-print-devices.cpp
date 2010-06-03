@@ -1,7 +1,7 @@
 #include <rw/models/WorkCell.hpp>
 #include <rw/models/Device.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::models;
 
 #include <boost/foreach.hpp>
 

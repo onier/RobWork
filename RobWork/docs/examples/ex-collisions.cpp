@@ -1,8 +1,8 @@
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyYaobi.hpp>
-#include <rw/use_robwork_namespace.hpp>
-#include <rwlibs/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::proximity;
+using namespace rwlibs::proximitystrategies;
 
 void collisionExample(WorkCell& workcell)
 {

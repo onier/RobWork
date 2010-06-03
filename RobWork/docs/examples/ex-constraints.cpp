@@ -4,9 +4,12 @@
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rw/pathplanning/PlannerConstraint.hpp>
 #include <rw/math/Q.hpp>
-#include <rw/use_robwork_namespace.hpp>
-#include <rwlibs/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::math;
+using namespace rw::models;
+using namespace rw::proximity;
+using namespace rw::pathplanning;
+using namespace rwlibs::proximitystrategies;
 
 void constraintExample(WorkCell& workcell)
 {

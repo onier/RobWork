@@ -15,6 +15,7 @@ rw::math::Vector3D<> IntersectUtil::closestPt(const Vector3D<>& point, const Lin
 }
 
 
+/*
 rw::math::Vector3D<> IntersectUtil::closestPtPointRay(const Vector3D<>& point, const Vector3D<>& ray)
 {
 	
@@ -27,7 +28,7 @@ IntersectUtil::PointPair IntersectUtil::closestPts(const Line& lineA, const Line
 IntersectUtil::PointPair IntersectUtil::closestPts(const Line& line, const Triangle<>& tri){
 
 }
-
+*/
 rw::math::Vector3D<> IntersectUtil::closestPtPointLine(const rw::math::Vector3D<>& point,
 										    const rw::math::Vector3D<>& p1,
 											const rw::math::Vector3D<>& p2)
@@ -42,13 +43,13 @@ rw::math::Vector3D<> IntersectUtil::closestPtPointLine(const rw::math::Vector3D<
 }
 
 
-IntersectUtil::PointPair IntersectUtil::closestPtsRayTraingle(
+/*IntersectUtil::PointPair IntersectUtil::closestPtsRayTraingle(
 		const rw::math::Vector3D<>& ray,
 		const Triangle<>& tri)
 {
 	// for each segment in the triangle we do a closest point calculation
 
-}
+}*/
 
 bool IntersectUtil::intersetPtRayPlane(
 		const rw::math::Vector3D<> &p1,

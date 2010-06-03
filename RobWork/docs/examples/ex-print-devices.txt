@@ -1,2 +1,2 @@
-Workcell WorkCell[workcell.wu] contains devices:
-- Device
+Workcell WorkCell[workcell.xml] contains devices:
+- PA10

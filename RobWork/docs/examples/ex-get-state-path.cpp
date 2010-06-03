@@ -1,11 +1,14 @@
 #include <rw/models/Device.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/kinematics/State.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
 
 #include <boost/foreach.hpp>
 #include <vector>
+
+using namespace rw::math;
+using namespace rw::models;
+using namespace rw::kinematics;
+
 
 std::vector<State> getStatePath(
     const Device& device,

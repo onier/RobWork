@@ -6,9 +6,15 @@
 #include <rw/pathplanning/QToQPlanner.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyYaobi.hpp>
 #include <rwlibs/pathplanners/sbl/SBLPlanner.hpp>
-#include <rw/use_robwork_namespace.hpp>
-#include <rwlibs/use_robwork_namespace.hpp>
-using namespace robwork;
+
+using namespace rw::math;
+using namespace rw::models;
+using namespace rw::kinematics;
+using namespace rw::pathplannning;
+using namespace rw::proximity;
+using namespace rw::loaders;
+using namespace rwlibs::proximitystrategies;
+using namespace rwlibs::pathplanners;
 
 void plannerExample(WorkCell& workcell)
 {

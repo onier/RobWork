@@ -1,9 +1,10 @@
 #include <rw/kinematics/FKRange.hpp>
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
 
 #include <boost/foreach.hpp>
 #include <vector>
+
+using namespace rw::math;
+using namespace rw::kinematics;
 
 std::vector<Transform3D<> > frameToFrameTransforms(
     const Frame& a,
