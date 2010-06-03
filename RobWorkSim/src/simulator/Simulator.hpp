@@ -103,6 +103,10 @@ public:
      */
     virtual void removeSensor(rwlibs::simulation::SimulatedSensorPtr sensor) = 0;
 
+    /**
+     * @brief get the list of simulated sensors
+     * @return
+     */
     virtual std::vector<rwlibs::simulation::SimulatedSensorPtr> getSensors() = 0;
 };
 
