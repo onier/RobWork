@@ -554,6 +554,9 @@ void ViewGL::initializeGL()
     glMaterialfv(matRendering, GL_SPECULAR, specularReflection);
     glMateriali(matRendering, GL_SHININESS, 128);
 
+    //glEnable(GL_COLOR_MATERIAL);
+    //glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
+
     glEnable(GL_LINE_SMOOTH);
     glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
     //glEnable(GL_POINT_SMOOTH);
@@ -563,12 +566,13 @@ void ViewGL::initializeGL()
     //glEnable(GL_PERSPECTIVE_CORRECTION);
     //glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glBlendFunc(GL_ONE_MINUS_DST_ALPHA,GL_DST_ALPHA);
     //glBlendFunc(GL_SRC_ALPHA_SATURATE, GL_ONE);
 
-    glAlphaFunc(GL_GREATER, 0.1f); // sets aplha function
-    glEnable(GL_ALPHA_TEST); // allows alpha channels or transperancy
+    //glAlphaFunc(GL_GREATER, 0.1f); // sets aplha function
+    //glEnable(GL_ALPHA_TEST); // allows alpha channels or transperancy
 
 }
 
