@@ -42,8 +42,8 @@ const int TRI_MESH_SIZE=10000;
 		<< typeid(arg).name() << ") = " << sizeof(arg) << std::endl
 
 BOOST_AUTO_TEST_CASE( TriangleTypeSize ){
-	PRINT_TYPE_SIZE(TriangleN0<float>);
-	PRINT_TYPE_SIZE(TriangleN0<double>);
+	PRINT_TYPE_SIZE(Triangle<float>);
+	PRINT_TYPE_SIZE(Triangle<double>);
 	PRINT_TYPE_SIZE(TriangleN1<float>);
 	PRINT_TYPE_SIZE(TriangleN1<double>);
 	PRINT_TYPE_SIZE(TriangleN3<float>);
@@ -59,7 +59,7 @@ BOOST_AUTO_TEST_CASE( TriangleTypeSize ){
 
 BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
     // first we load a TriangleMesh
-	PlainTriMesh<TriangleN1<float> > *mesh;
+	PlainTriMeshN1FPtr mesh;
 	Timer timer;
 	timer.resetAndResume();
 	mesh = STLFile::load( testFilePath() + "geoms/FingerMid.stl" );
