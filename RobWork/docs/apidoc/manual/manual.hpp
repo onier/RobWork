@@ -38,8 +38,7 @@ All code examples of this manual are self-contained in the sense that
 they will compile if placed in a C++ file of their own. The examples
 are found in the \c RobWork/docs directory. 
 
-The workcell \b workcell.xml described in section \ref sec_tul_workcell
-will be used for examples throughout the manual.
+The workcell \b workcell.xml described 
 
 \subsection sec_rw_manual_notation Notation
 
