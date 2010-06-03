@@ -3,8 +3,32 @@
 /**
 \page page_release_notes Release Notes of RobWork
 
+\section sec_release_notes_05 Major Changes 0.5
 
-\section sec_release_notes_04 Major Changes
+- New structure for rw::geometry package in RobWork. 
+
+- Updated rwlibs::drawable to use rw::geometry and share a common representation.
+
+- New structure for collision detection.
+
+- The lua script interface has been updated
+
+- Enhancement to cmake structure to enable maintaining both a debug and a release version simultanously
+
+- Support Visual Studio 2005 and 2008 and MinGW 4.4
+
+- Introduction of rwlibs::simulation for simulation sensors
+
+- Plugin structure for RobWork.
+
+\section sec_release_notes_05_dependencies Dependencies
+
+- XercesC are now required.
+
+
+
+
+\section sec_release_notes_04 Major Changes 0.4
 
 - Distributed under the Apache License Version 2.0
 
@@ -36,7 +60,7 @@ replaced by JacobianCalculator which combines the contributions of the individua
 - Boost in no longer included in ext.
 
 
-\section sec_release_notes_03_major Major Changes
+\section sec_release_notes_03_major Major Changes 0.3
 
 
 - All static methods start with lower-case. Most of the old methods are still available but are

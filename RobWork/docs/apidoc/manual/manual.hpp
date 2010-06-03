@@ -23,13 +23,9 @@
 - \ref sec_rw_manual_pathplanning
 - \ref sec_rw_manual_invkin
 - \ref sec_rw_manual_pointer_conventions
+- \ref sec_rw_manual_task
 
-- \subpage page_rw_installation
-- WorkCell scene formats
--- \subpage page_tul
--- \subpage page_xml_workcell_format
-- \subpage page_lua
-- \subpage page_task
+- \subpage page_xml_workcell_format
 
 
 \section sec_rw_manual_intro Introduction
@@ -129,10 +125,6 @@ and the program will abort with an error message.
 
 \include ex-load-workcell.cpp
 
-The output for workcell \b workcell.xml is:
-
-\include ex-load-workcell.txt
-
 \subsection sec_rw_manual_traverse_devices Traversing the devices of a workcell
 
 A workcell contains a number of devices (rw::models::Device). You can
@@ -140,10 +132,6 @@ for example traverse the devices stored in a workcell and print their
 names like this:
 
 \include ex-print-devices.cpp
-
-Here is an example of output from the function:
-
-\include ex-print-devices.txt
 
 A device of a specific name can be retrieved from a workcell with
 rw::models::WorkCell::findDevice().
@@ -189,11 +177,6 @@ the structure of the kinematic tree of the workcell and for each frame
 print also the position of the frame in space:
 
 \include ex-print-kinematic-tree.cpp
-
-Here is the output produced by the printDefaultWorkCellStructure()
-function for workcell \b workcell.xml :
-
-\include ex-print-kinematic-tree.txt
 
 We see from this example that given a state, it is straight-forward to
 compute the transform of every single frame in the workcell. RobWork
@@ -344,9 +327,6 @@ std::vector<double>. This program shows instantiation and expected output for
 
 \include ex-metrics.cpp
 
-As expected the function prints:
-
-\include ex-metrics.txt
 
 \section sec_rw_manual_collisions Collision checking
 
@@ -382,9 +362,6 @@ initial state:
 
 \include ex-collisions.cpp
 
-For workcell \b workcell.wu, the function prints:
-
-\include ex-collisions.txt
 
 \section sec_rw_manual_constraints Workcell and configuration space constraints
 
@@ -443,10 +420,6 @@ upper corner of the configuration space can be traversed:
 
 \include ex-constraints.cpp
 
-The output from the method is
-
-\include ex-constraints.txt
-
 \section sec_rw_manual_sampling Configuration space sampling
 
 Configuration space sampling is a useful tool for path planners and
@@ -472,9 +445,6 @@ the constraint that the configurations should be collision free.
 
 \include ex-qsampler.cpp
 
-As expected, none of the configurations are found to collide:
-
-\include ex-qsampler.txt
 
 \section sec_rw_manual_pathplanning Path planning
 
@@ -569,10 +539,6 @@ solutions for only a subset of the target transforms are found.
 
 \include ex-ik-reachable.cpp
 
-Here is an example of output for workcell \b workcell.wu:
-
-\include ex-ik-reachable.txt
-
 \section sec_rw_manual_pointer_conventions C++ shared pointer conventions
 
 The \b RobWork libraries make extensive use of non-copyable objects
@@ -621,155 +587,28 @@ managed by the constructor functions for the various objects. Only if
 you write your own extensions for interfaces in \b RobWork will you
 need to explicitly call rw::common::ownedPtr().
 
-*/
 
-/*
+\section sec_rw_manual_task RobWork Task Format
+RobWork includes an abstract task format which can be used to represent, save and 
+load tasks. The basic rwlibs::task::Task is templated and can either store 
+rw::math::Q or rw::math::Transform3D as targets. 
 
-- rw::models::DeviceJacobianPtr
-
-----------------------------------------------------------------------
-Dead text
-
-The work cell state contains for each frame a number of joint values
-for the frame. You can read or write the joint values that belong to a
-frame to or from a state with Frame::getQ() and Frame::setQ().
-
-The work cell state contains also information about the structure of
-the tree. By changing the work cell state one can release a frame from
-the tree and attach it to a new parent frame. We give examples of
-this in Section \ref sec_frame_attachments.
-
-*/
-
-/*
-
-Here is how you can include example code in the manual:
-
-\include ex-load-workcell.cpp
-
-This is equivalent to the following:
-
+A task in RobWork is basically a 2-tuple which can be described as
 \code
-#include <string>
-
-#include <rw/models/WorkCell.hpp>
-#include <rw/loaders/WorkCellLoader.hpp>
-
-#include <rw/use_robwork_namespace.hpp>
-using namespace robwork;
-
-... and so on ...
+Task={(Target)*, (Motion|Action|Task)*}
 \endcode
 
+The elements in a task are
+- \b Target: Typically representing either a Cartesian pose or a robot configuration using rw::math::Transform3D and rw::math::Q, respectively.
+- \b Motion: Describes a motion/transition between targets. A target may be shared among any number of motions.
+- \b Action: Has no fixed interpretation and can be used to specify events such as open/close gripper, acquire image or as synchronization point.
+- \b Task: Tasks are recursive. Subtasks may be shared among multiple tasks.
+
+
+The example below illustrated how to construct a small task, prints out the task, saves it to file, reloads it and prints it once again.
+
+\include ex-task.cpp
+
 */
 
-/* Manual meta-comments go here:
 
-----------------------------------------------------------------------
-Todo for rw:
-
-- Exception conventions.
-
-general:
-
-common:
-
-- Finalize the log, assertion, warning, exception interface and show
-  how to intercept those messages.
-
-models:
-
-- the most essential parts we have briefly discussed.
-
-invkin:
-
-- These solvers are not very robust, but we will show an example of
-  something that mostly works and maybe IKMetaSolver also.
-
-- Maybe we should discuss IK mainly in the context of section
-  pathplanning.
-
-pathplanning:
-
-- We don't have much within RobWork as such. Perhaps we should just
-  finalize a simple interface, show the processing of a simple task,
-  and show how a planner can be plugged into that interface.
-
-- More on the different types of path planners, e.g. verification if
-  paths to a sequence of targets can all be found from a given start
-  configuration.
-
-proximity:
-
-- Show how to construct a collision checker and what libraries to link
-  to etc.
-
-geometry:
-
-- nothing to do here.
-
-trajectory:
-
-- ...
-
-loaders:
-
-- We should show loading and storing of trajectories or paths that we
-  can display in RobWorkStudio.
-
-- tul format:
-
-    - Finalize the interface for how to use user defined attributes
-     with TUL files.
-
-- xml format:
-
-    - ...
-
-sensor:
-
-- nothing to do here.
-
-task:
-
-- The code needs to mature and integrate better with e.g. the
-  interpolator classes and path planners.
-
-----------------------------------------------------------------------
-Todo for rwlibs:
-
-algorithms:
-
-- nothing to do here.
-
-proximitystrategies:
-
-- Done.
-
-drawable:
-
-- Skip this. Not important for plain RobWorkStudio users.
-
-lua:
-
-- When the task data structures are mature, then show how to write
-  task descriptions and more in Lua.
-
-- Show how to call a path planner from Lua. This is actually nice.
-
-os:
-
-- Nothing here.
-
-pathplanners:
-
-- planning in the time domain, other sorts of planners than just
-  QToQPlanner, ...
-
-pathoptimization:
-
-- How well do these implementations work? We should be sure that they
-  are clean, and give an example of their use.
-
-----------------------------------------------------------------------
-*/

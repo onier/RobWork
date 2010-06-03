@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -175,7 +175,7 @@ namespace rw { namespace math {
          *    \end{array}
          *  \right]
          * @f$
-         * @todo beskriv konvertering
+         * @todo describe
          */
         const Rotation3D<T> toRotation3D() const
         {
@@ -320,7 +320,7 @@ namespace rw { namespace math {
          *    \end{array}
          *  \right]
          * @f$
-         * @todo beskriv konvertering
+         * @todo describe
          */
         template <class R>
         void setRotation(const Rotation3D<R>& rot)
