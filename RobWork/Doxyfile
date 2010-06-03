@@ -436,7 +436,7 @@ WARN_IF_DOC_ERROR = YES
 # wrong or incomplete parameter documentation, but not about the absence of
 # documentation.
 
-WARN_NO_PARAMDOC = YES
+WARN_NO_PARAMDOC = NO
 
 # The WARN_FORMAT tag determines the format of the warning messages that
 # doxygen can produce. The string should contain the $file, $line, and $text
@@ -574,7 +574,7 @@ FILTER_SOURCE_FILES = NO
 # Note: To get rid of all source code in the generated output, make sure also
 # VERBATIM_HEADERS is set to NO.
 
-SOURCE_BROWSER = YES
+SOURCE_BROWSER = NO
 
 # Setting the INLINE_SOURCES tag to YES will include the body
 # of functions and classes directly in the documentation.
@@ -661,13 +661,13 @@ HTML_FILE_EXTENSION = .html
 # each generated HTML page. If it is left blank doxygen will generate a
 # standard header.
 
-HTML_HEADER = ./docs/doxygen_header_wiki.html
+HTML_HEADER = 
 
 # The HTML_FOOTER tag can be used to specify a personal HTML footer for
 # each generated HTML page. If it is left blank doxygen will generate a
 # standard footer.
 
-HTML_FOOTER = ./docs/doxygen_footer_wiki.html
+HTML_FOOTER = 
 
 # The HTML_STYLESHEET tag can be used to specify a user-defined cascading
 # style sheet that is used by each HTML page. It can be used to
@@ -676,7 +676,7 @@ HTML_FOOTER = ./docs/doxygen_footer_wiki.html
 # the style sheet file to the HTML output directory, so don't put your own
 # stylesheet in the HTML output directory as well, or it will be erased!
 
-HTML_STYLESHEET = ./docs/doxygen_monobook.css
+HTML_STYLESHEET = stylesheet.css
 
 # If the HTML_ALIGN_MEMBERS tag is set to YES, the members of classes,
 # files or namespaces will be aligned in HTML using tables. If set to
@@ -1255,6 +1255,3 @@ DOT_CLEANUP = YES
 # used. If set to NO the values of all tags below this one will be ignored.
 
 SEARCHENGINE = YES
-
-
-LAYOUT_FILE = ./docs/doxygenlayout.xml
