@@ -26,16 +26,13 @@
 
 namespace rw {
 namespace geometry {
-
+	//! @addtogroup geometry @{
 	/**
 	 * @brief interface of a triangle mesh. The interface defines a way to get
 	 * triangles from a triangle array/mesh.
 	 */
-	//template <class T=double>
 	class TriMesh: public GeometryData {
 	public:
-		//typedef T value_type;
-
 		/**
 		 * @brief destructor
 		 */
@@ -44,20 +41,28 @@ namespace geometry {
 		/**
 		 * @brief gets the triangle at index idx.
 		 */
-		virtual TriangleN0<double> getTriangle(size_t idx) const = 0;
+		virtual Triangle<> getTriangle(size_t idx) const = 0;
 
 		/**
 		 * @brief gets the number of triangles in the triangle array.
 		 */
 		virtual size_t getSize() const = 0;
 
-		virtual size_t size() const{
-		    return getSize();
-		}
+		/**
+		 * @brief make a clone of this triangle mesh
+		 * @return clone of this trimesh
+		 */
+		virtual rw::common::Ptr<TriMesh> clone() const = 0;
+
+		//! @copydoc GeometryData::getTriMesh
+		rw::common::Ptr<TriMesh> getTriMesh(bool forceCopy=true);
+
+		//! @copydoc getTriMesh
+		rw::common::Ptr<const TriMesh> getTriMesh(bool forceCopy=true) const;
 	};
 
 	typedef rw::common::Ptr<TriMesh> TriMeshPtr;
-
+	//! @}
 } // geometry
 } // rw
 

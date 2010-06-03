@@ -37,13 +37,6 @@ public:
 
 	rw::math::Vector3D<>& dir();
 
-	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution);
-
-	const rw::math::Q& getParameters();
-
-	GeometryType getType(){ return LinePrim; };
-
 private:
 	rw::math::Vector3D<> _p1,_p2;
 	//rw::math::Q _param;

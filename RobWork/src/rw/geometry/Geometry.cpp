@@ -17,3 +17,43 @@
 
 
 #include "Geometry.hpp"
+
+#include <rw/math/Math.hpp>
+
+
+using namespace rw::geometry;
+using namespace rw::math;
+
+namespace {
+
+	std::string makeName(GeometryData::GeometryType gtype){
+		int ri = Math::ranI(0xFF,0xFFFFFF);
+		std::stringstream sstr;
+		sstr << GeometryData::toString(gtype) << "_" << ri;
+		return sstr.str();
+	}
+
+}
+
+Geometry::Geometry(GeometryDataPtr data, double scale):
+	_data(data),
+	_transform(rw::math::Transform3D<>::identity() ),
+	_scale(scale),
+	_id(makeName(data->getType()))
+{
+
+};
+
+Geometry::Geometry(GeometryDataPtr data,
+		 const rw::math::Transform3D<>& t3d,
+		 double scale):
+
+	_data(data),
+	_transform(t3d),
+	_scale(scale),
+	_id(makeName(data->getType()))
+{
+};
+
+Geometry::~Geometry(){};
+

@@ -34,7 +34,13 @@ GraspTable* GraspTable::load(const std::string& filename){
 	if( !istr.is_open() )
 		RW_THROW("Could not open file: "<< filename);
 
-	unsigned int tablesize, handdof, nrquality;
+	unsigned int tablesize, handdof, nrquality,version;
+	istr.getline(line, linesize);
+	sscanf (line,"%s %i",chunk, version);
+	std::cout << "GraspTableVersion: " << version << "\n";
+	if(version!=GTABLE_VERSION)
+		RW_THROW("VERSION incompatibility, version of file is: "<<version<<", version of loader is: "<< GTABLE_VERSION);
+
 	istr.getline(line, linesize);
 	sscanf (line,"%s %s",chunk, handname);
 	istr.getline(line, linesize);
@@ -58,8 +64,10 @@ GraspTable* GraspTable::load(const std::string& filename){
 	sscanf (line,"%s %i",chunk,&nrquality);
     std::cout << "HandDOF: " << handdof << "\n";
     std::cout << "NrOfQualityMeasures: " << nrquality << "\n";
-
-
+    int calibForceIndex;
+    sscanf (line,"%s %i",chunk,&calibForceIndex);
+    std::cout << "CalibrationForceIndex: " << calibForceIndex << "\n";
+    gtable->setCalibForceIndex(calibForceIndex);
     char tmpC;
 
     for(size_t i=0;i<tablesize;i++){
@@ -171,7 +179,7 @@ GraspTable* GraspTable::load(const std::string& filename){
 void GraspTable::save(const std::string& filename){
     std::ofstream fstr(filename.c_str());
     //std::cout << "saving grasp stuff" << std::endl;
-
+    fstr << "GraspTableVersion: " << GTABLE_VERSION << "\n";
     fstr << "hand: " << _handName << "\n";
     //std::cout << "hand: " << _handName << "\n";
     fstr << "object: " << _objectId << "\n";
@@ -186,6 +194,7 @@ void GraspTable::save(const std::string& filename){
     //std::cout << "HandDOF: " << _graspData[0].pq.size() << "\n";
     fstr << "NrOfQualityMeasures: " << _graspData[0].quality.size() << "\n";
     //std::cout << "NrOfQualityMeasures: " << _graspData[0].quality.size() << "\n";
+    fstr << "CalibrationForceIndex: " << _calibForceIndex << "\n";
 
     // each data entry is printed on a line
     for(size_t i=0;i<_graspData.size();i++){
@@ -278,6 +287,31 @@ void GraspTable::save(const std::string& filename){
     }
 
     fstr.close();
+}
+
+
+int GraspTable::nrTactileArrayGrasp(){
+	if(_graspData.size()==0)
+		return 0;
+	return _graspData[0]._tactiledata.size();
+}
+
+std::pair<int,int> GraspTable::getTactileArrayDim(int i){
+	if(_graspData.size()==0)
+		return std::pair<int,int>(0,0);
+	if( i>=_graspData[0]._tactiledata.size() )
+		RW_THROW("Index i out of range! " << i << ">=" << _graspData[0]._tactiledata.size());
+	int s1 = _graspData[0]._tactiledata[i].size1();
+	int s2 = _graspData[0]._tactiledata[i].size2();
+	return std::make_pair(s1,s2);
+}
+
+bool GraspTable::hasCalibForce(){
+	return _calibForceIndex!=-1;
+}
+
+int GraspTable::getCalibForceIndex(){
+	return _calibForceIndex;
 }
 
 

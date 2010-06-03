@@ -156,7 +156,8 @@ void IOUtil::rwAssert(const char* expression, const char* file, int line)
 {
     Message msg(file, line, expression);
     Log::errorLog().write(msg);
-    exit(-1);
+    //exit(-1);
+    abort();
 }
 
 std::string IOUtil::getAbsoluteFileName(const std::string& file){

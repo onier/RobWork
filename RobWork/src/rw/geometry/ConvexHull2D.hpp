@@ -1,12 +1,24 @@
-/*
- * Hull3D.hpp
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
  *
- *  Created on: 30-03-2009
- *      Author: jimali
- */
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
 
-#ifndef HULL3D_HPP_
-#define HULL3D_HPP_
+#ifndef RW_GEOMETRY_CONVEXHULL2D_HPP_
+#define RW_GEOMETRY_CONVEXHULL2D_HPP_
+
+//! @file ConvexHull2D.hpp
 
 #include "Triangle.hpp"
 #include "IndexedTriangle.hpp"
@@ -17,38 +29,42 @@
 
 namespace rw {
 namespace geometry {
-
-class ConvexHull2D {
-public:
+	//! @addtogroup geometry @{
 
 	/**
-	 * @brief rebuilts the hull
-	 * @param vertices
+	 * @brief interface for convexhull calculators on 2d point sets
 	 */
-	virtual void rebuild(const std::vector<rw::math::Vector2D<> >& vertices) = 0;
+	class ConvexHull2D {
+	public:
 
-	/**
-	 * @brief test if the given vertex is inside the convex hull
-	 */
-	virtual bool isInside(const rw::math::Vector2D<>& vertex) = 0;
+		/**
+		 * @brief rebuilts the hull
+		 * @param vertices
+		 */
+		virtual void rebuild(const std::vector<rw::math::Vector2D<> >& vertices) = 0;
 
-	/**
-	 * @brief if the vertex is inside the convex hull the minimum distance
-	 * to any of the half-spaces of the hull is returned. If its not inside
-	 * 0 is returned.
-	 * @param vertex
-	 * @return
-	 */
-	virtual double getMinDist(const rw::math::Vector2D<>& vertex) = 0;
+		/**
+		 * @brief test if the given vertex is inside the convex hull
+		 */
+		virtual bool isInside(const rw::math::Vector2D<>& vertex) = 0;
 
-	/**
-	 * @brief create a plain trimesh from the hull facets
-	 * @return the hull facets as a plain triangle mesh with normal information
-	 */
-	virtual std::vector<rw::math::Vector2D<> >* toContour() = 0;
+		/**
+		 * @brief if the vertex is inside the convex hull the minimum distance
+		 * to any of the half-spaces of the hull is returned. If its not inside
+		 * 0 is returned.
+		 * @param vertex
+		 * @return
+		 */
+		virtual double getMinDist(const rw::math::Vector2D<>& vertex) = 0;
 
-};
+		/**
+		 * @brief create a plain trimesh from the hull facets
+		 * @return the hull facets as a plain triangle mesh with normal information
+		 */
+		virtual std::vector<rw::math::Vector2D<> >* toContour() = 0;
 
+	};
+	//! @}
 }
 }
 

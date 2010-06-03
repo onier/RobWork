@@ -20,7 +20,7 @@
 
 using namespace rw::geometry;
 
-//template class IndexedTriMeshN0<float>;
+template class IndexedTriMeshN0<float>;
 //template class IndexedTriMeshN1<float>;
 //template class IndexedTriMeshN3<float>;
 

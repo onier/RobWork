@@ -17,9 +17,8 @@ SET(FILES_CPP
     Sphere.cpp
     Pyramid.cpp
     Cone.cpp
-    AABB.cpp
+    #AABB.cpp
     
-    Point.cpp
     Line.cpp
     Plane.cpp
     
@@ -27,9 +26,10 @@ SET(FILES_CPP
     ConvexHull3D.cpp
     #GiftWrapHull2D.cpp
     GiftWrapHull3D.cpp
-    triangulate.cpp
+    IncrementalHull3D.cpp
+    #triangulate.cpp
     Contour2D.cpp
-    Contour2Dto3D.cpp
+    #Contour2Dto3D.cpp
     Contour2DUtil.cpp
     IndexedPolygon.cpp
     IntersectUtil.cpp
@@ -54,19 +54,19 @@ SET(FILES_HPP
     Sphere.hpp
     Pyramid.hpp
     Cone.hpp
-    AABB.hpp
-    
-    Point.hpp 
+    #AABB.hpp
+     
     Line.hpp
     Plane.hpp
     
     ConvexHull2D.hpp
     ConvexHull3D.hpp
     #GiftWrapHull2D.hpp
+    IncrementalHull3D.hpp
     GiftWrapHull3D.hpp
-    triangulate.hpp
+    #triangulate.hpp
     Contour2D.hpp
-    Contour2Dto3D.hpp
+    #Contour2Dto3D.hpp
     Contour2DUtil.hpp
 )
 

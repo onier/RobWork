@@ -55,7 +55,7 @@ public:
 	 * @param filename [in] the name of the file
 	 * @return triangle mesh if successfull, NULL otherwise.
 	 */
-    static PlainTriMesh<TriangleN1<float> >* load(const std::string& filename);
+    static PlainTriMeshN1FPtr load(const std::string& filename);
 
 };
 

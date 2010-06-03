@@ -16,12 +16,14 @@
  ********************************************************************************/
 
 
-#ifndef GEOMETRYFACTORY_HPP_
-#define GEOMETRYFACTORY_HPP_
+#ifndef RW_GEOMETRY_GEOMETRYFACTORY_HPP_
+#define RW_GEOMETRY_GEOMETRYFACTORY_HPP_
 
 #include <rw/common/Cache.hpp>
 #include "Geometry.hpp"
 #include "GeometryData.hpp"
+
+//! @file GeometryFactory.hpp
 
 namespace rw { namespace geometry {
 
@@ -34,15 +36,21 @@ namespace rw { namespace geometry {
      *
      * The following primitives are supported
      *
-     * GeometryBox:
+     * Box:
      * Syntax: "#Box dx dy dz"
      * where "dx, dy, dz" are floats specifying the dimensions
      *
-     * GeometryCylinder:
+     * Cylinder:
      * Syntax: "#Cylinder radius height level"
      * where "radius" and "height" are float specifying radius and
      * height and "level" is a non-negative integer specifying the
      * discretization level.
+     *
+     * Sphere:
+     * Syntax: "#Sphere radi"
+     * where radi is the radius of the sphere
+     *
+     *
      */
     class GeometryFactory
     {
@@ -58,10 +66,20 @@ namespace rw { namespace geometry {
          * @param str [in] string to parse
          * @return Pointer to a new geometry object
          */
-        static Geometry* getGeometry(const std::string& str, bool useCache=true);
+    	static GeometryPtr load(const std::string& str, bool useCache=true);
 
+    	//! @copydoc load
+    	static GeometryPtr getGeometry(const std::string& str, bool useCache=true);
 
-        static std::vector<Geometry*> loadCollisionGeometry(const rw::kinematics::Frame &f);
+        /**
+         * @brief loads collision geometry as specified by properties on the frame.
+         *
+         * Each CollisionModelInfo that is in the PropertyMap of the frame \b f is
+         * loaded and returned.
+         * @param f [in] the frame where the properties are specified
+         * @return a vector of all geometries that was successfully loaded
+         */
+        static std::vector<GeometryPtr> loadCollisionGeometry(const rw::kinematics::Frame &f);
 
     private:
         typedef rw::common::Cache<std::string, GeometryData> Cache;

@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef CYLINDER_HPP_
-#define CYLINDER_HPP_
+#ifndef RW_GEOMETRY_CYLINDER_HPP_
+#define RW_GEOMETRY_CYLINDER_HPP_
 
 #include "Primitive.hpp"
 
@@ -43,7 +43,7 @@ public:
 	virtual ~Cylinder();
 
 	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution);
+	TriMeshPtr createMesh(int resolution) const;
 
 	rw::math::Q getParameters() const;
 

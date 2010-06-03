@@ -40,7 +40,7 @@ public:
 	inline const rw::math::Vector3D<>& p2() const { return _p2;};
 
 	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution){ return NULL;};
+	TriMeshPtr createMesh(int resolution) const { return NULL;};
 
 	rw::math::Q getParameters() const{ return rw::math::Q(2);};
 

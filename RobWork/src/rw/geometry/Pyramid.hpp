@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef PYRAMID_HPP_
-#define PYRAMID_HPP_
+#ifndef RW_GEOMETRY_PYRAMID_HPP_
+#define RW_GEOMETRY_PYRAMID_HPP_
 
 
 #include "Primitive.hpp"
@@ -35,7 +35,7 @@ public:
 
 	rw::math::Q getParameters() const;
 private:
-	rw::math::Q _param;
+	double _height, _widthX, _widthY;
 };
 
 } // geometry

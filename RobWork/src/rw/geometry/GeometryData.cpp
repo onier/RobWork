@@ -17,3 +17,30 @@
 
 
 #include "GeometryData.hpp"
+
+#include <string>
+
+using namespace rw::geometry;
+
+std::string GeometryData::toString(GeometryData::GeometryType type){
+	switch(type){
+	case(PlainTriMesh): return "PlainTriMesh";
+	case(IdxTriMesh): return "IdxTriMesh";
+	case(SpherePrim): return "SpherePrim";
+	case(BoxPrim): return "BoxPrim";
+	case(OBBPrim): return "OBBPrim";
+	case(AABBPrim): return "AABBPrim";
+	case(LinePrim): return "LinePrim";
+	case(PointPrim): return "PointPrim";
+	case(PyramidPrim): return "PyramidPrim";
+	case(ConePrim): return "ConePrim";
+	case(TrianglePrim): return "TrianglePrim";
+	case(CylinderPrim): return "CylinderPrim";
+	case(PlanePrim): return "PlanePrim";
+	case(RayPrim): return "RayPrim";
+	case(UserType): return "UserType";
+	default:
+		return "Not Supported!";
+	}
+	return "Not Supported!";
+}

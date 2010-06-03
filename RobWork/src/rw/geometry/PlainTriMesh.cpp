@@ -17,3 +17,13 @@
 
 
 #include "PlainTriMesh.hpp"
+
+using namespace rw::geometry;
+
+template class PlainTriMesh<Triangle<double> >;
+template class PlainTriMesh<TriangleN1<double> >;
+template class PlainTriMesh<TriangleN3<double> >;
+
+template class PlainTriMesh<Triangle<float> >;
+template class PlainTriMesh<TriangleN1<float> >;
+template class PlainTriMesh<TriangleN3<float> >;

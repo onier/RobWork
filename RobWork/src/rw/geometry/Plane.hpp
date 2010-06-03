@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef PLANE_HPP_
-#define PLANE_HPP_
+#ifndef RW_GEOMETRY_PLANE_HPP_
+#define RW_GEOMETRY_PLANE_HPP_
 
 
 #include "Primitive.hpp"
@@ -48,12 +48,17 @@ public:
 	inline const rw::math::Vector3D<>& normal() const {return _normal;};
 
 	inline double& d(){return _d;};
+
 	inline double d() const {return _d;};
 
 
 
+	double refit( std::vector<rw::math::Vector3D<> >& data ){}
+
+	//static Plane fitFrom(const std::vector<rw::math::Vector3D<> >& data){ return };
+
 	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution){ return NULL;};
+	TriMeshPtr createMesh(int resolution) const { return NULL;} ;
 
 	rw::math::Q getParameters() const;
 

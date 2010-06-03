@@ -54,7 +54,7 @@ namespace {
 
         bool query(std::vector<Joint*>& frames, int startIdx, State& state){
             Transform3D<> wTobj = Kinematics::worldTframe(_obj, state);
-            for(int i=startIdx;i<frames.size();i++){
+            for(size_t i=startIdx;i<frames.size();i++){
                 Joint *frame = frames[i];
                 Transform3D<> wTf = Kinematics::worldTframe(frame,state);
 
@@ -141,16 +141,12 @@ void SBGraspPlanner3D::reset(rw::kinematics::MovableFrame* obj,const rw::kinemat
     RW_ASSERT(obj);
 
     _obj = obj;
-    std::vector<Geometry*> geoms = GeometryFactory::loadCollisionGeometry(*_obj);
+    std::vector<GeometryPtr> geoms = GeometryFactory::loadCollisionGeometry(*_obj);
 
     if(geoms.size()==0)
         RW_THROW("No geometry associated with frame: " << _obj->getName());
 
-    TriMesh *objTriMesh = dynamic_cast<TriMesh*>(geoms[0]->getGeometryData().get());
-    if(!objTriMesh)
-        RW_THROW("No trimesh associated with frame: " << _obj->getName());
-
-    float mu = _obj->getPropertyMap().get<float>("ColoumbFrictionMU",0.5);
+    //float mu = _obj->getPropertyMap().get<float>("ColoumbFrictionMU",0.5);
     // for now we assume that all contacts are described relative to world.
     Transform3D<> wTo = Kinematics::worldTframe(_obj, state);
 
@@ -159,10 +155,6 @@ void SBGraspPlanner3D::reset(rw::kinematics::MovableFrame* obj,const rw::kinemat
     _objRadii = GeometryUtil::calcMaxDist(geoms, _objCM);
     std::cout << "cm: " << _objCM << std::endl;
     std::cout << "objRadi: " << _objRadii << std::endl;
-
-    BOOST_FOREACH(Geometry* geom, geoms){
-        delete geom;
-    }
 }
 
 std::vector<SBGraspPlanner3D::GraspResult> SBGraspPlanner3D::query(const rw::kinematics::State& initstate, int maxNrOfQs){
@@ -242,15 +234,16 @@ std::vector<SBGraspPlanner3D::GraspResult> SBGraspPlanner3D::query(const rw::kin
         }
         std::cout << "coldect" << std::endl;
 
-        int nrOfCloseJoints=0, outOfBounds=0;
+        //int nrOfCloseJoints=0;
+        int outOfBounds=0;
         const double smallAngle = 0.1;
         // for each finger close it around the object
-        for(int fingerIdx=0;fingerIdx<_fingers.size();fingerIdx++){
+        for(size_t fingerIdx=0;fingerIdx<_fingers.size();fingerIdx++){
             std::vector<Joint*>& finger = _fingers[fingerIdx];
             // we change only one joint at the time
             double jointRes = 1.0;
             do {
-                for(int jointIdx=0;jointIdx<finger.size();jointIdx++){
+                for(size_t jointIdx=0;jointIdx<finger.size();jointIdx++){
                     Joint *joint = finger[jointIdx];
                     double q = *(joint->getQ(state));
                     q += stepVel * jointRes;

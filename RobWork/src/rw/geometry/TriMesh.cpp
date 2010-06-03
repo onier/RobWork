@@ -18,3 +18,12 @@
 
 #include "TriMesh.hpp"
 
+using namespace rw::geometry;
+
+rw::common::Ptr<TriMesh> TriMesh::getTriMesh(bool forceCopy){
+	if(forceCopy){
+		return clone();
+	}
+	return TriMeshPtr(this);
+}
+

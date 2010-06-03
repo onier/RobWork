@@ -49,50 +49,49 @@ Box::Box(double dx, double dy, double dz):
 Box::~Box() {
 }
 
-TriMeshPtr Box::createMesh(int resolution){
-	PlainTriMeshd *mesh = new PlainTriMeshd(12);
+
+TriMeshPtr Box::createMesh(int resolution) const{
+	PlainTriMeshF *mesh = new PlainTriMeshF(12);
 
 	double x = _dx/2;
     double y = _dy/2;
     double z = _dz/2;
 
-    Vector3D<> p1(x, y, z);
-    Vector3D<> p2(x, y, -z);
-    Vector3D<> p3(-x, y, -z);
-    Vector3D<> p4(-x, y, z);
+    Vector3D<float> p1(x, y, z);
+    Vector3D<float> p2(x, y, -z);
+    Vector3D<float> p3(-x, y, -z);
+    Vector3D<float> p4(-x, y, z);
 
-    Vector3D<> p5(x, -y, z);
-    Vector3D<> p6(x, -y, -z);
-    Vector3D<> p7(-x, -y, -z);
-    Vector3D<> p8(-x, -y, z);
+    Vector3D<float> p5(x, -y, z);
+    Vector3D<float> p6(x, -y, -z);
+    Vector3D<float> p7(-x, -y, -z);
+    Vector3D<float> p8(-x, -y, z);
 
-	(*mesh)[0] = TriangleN0<>(p1,p2,p3);
-	(*mesh)[1] = TriangleN0<>(p3,p4,p1);
-    //_faces.push_back(Face<float>(p1, p2, p3));
-    //_faces.push_back(Face<float>(p3, p4, p1));
+	(*mesh)[0] = Triangle<float>(p1,p2,p3);
+	(*mesh)[1] = Triangle<float>(p3,p4,p1);
 
-	(*mesh)[2] = TriangleN0<>(p1,p5,p6);
-	(*mesh)[3] = TriangleN0<>(p6,p2,p1);
+	(*mesh)[2] = Triangle<float>(p1,p5,p6);
+	(*mesh)[3] = Triangle<float>(p6,p2,p1);
     //_faces.push_back(Face<float>(p1, p5, p6));
     //_faces.push_back(Face<float>(p6, p2, p1));
 
-	(*mesh)[4] = TriangleN0<>(p3,p2,p6);
-	(*mesh)[5] = TriangleN0<>(p6,p7,p3);
+	(*mesh)[4] = Triangle<float>(p3,p2,p6);
+	(*mesh)[5] = Triangle<float>(p6,p7,p3);
     //_faces.push_back(Face<float>(p3, p2, p6));
     //_faces.push_back(Face<float>(p6, p7, p3));
 
-	(*mesh)[6] = TriangleN0<>(p5,p8,p7);
-	(*mesh)[7] = TriangleN0<>(p7,p6,p5);
+	(*mesh)[6] = Triangle<float>(p5,p8,p7);
+	(*mesh)[7] = Triangle<float>(p7,p6,p5);
     //_faces.push_back(Face<float>(p5, p8, p7));
     //_faces.push_back(Face<float>(p7, p6, p5));
 
-	(*mesh)[8] = TriangleN0<>(p1,p4,p8);
-	(*mesh)[9] = TriangleN0<>(p8,p5,p1);
+	(*mesh)[8] = Triangle<float>(p1,p4,p8);
+	(*mesh)[9] = Triangle<float>(p8,p5,p1);
     //_faces.push_back(Face<float>(p1, p4, p8));
     //_faces.push_back(Face<float>(p8, p5, p1));
 
-	(*mesh)[10] = TriangleN0<>(p4,p3,p7);
-	(*mesh)[11] = TriangleN0<>(p7,p8,p4);
+	(*mesh)[10] = Triangle<float>(p4,p3,p7);
+	(*mesh)[11] = Triangle<float>(p7,p8,p4);
     //_faces.push_back(Face<float>(p4, p3, p7));
     //_faces.push_back(Face<float>(p7, p8, p4));
 	return ownedPtr( mesh );

@@ -94,8 +94,9 @@ DistanceCalculator::DistanceCalculator(Frame* root,
 
 DistanceCalculator::DistanceCalculator(FramePairList pairs,
                                        DistanceStrategyPtr strategy):
-    _distancePairs(pairs),
-    _strategy(strategy)
+                                       _strategy(strategy),
+                                       _distancePairs(pairs)
+
 {
     RW_ASSERT(strategy);
 }

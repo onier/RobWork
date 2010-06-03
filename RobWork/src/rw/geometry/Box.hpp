@@ -34,7 +34,7 @@ namespace geometry {
 		virtual ~Box();
 
 		// inherited from Primitive
-		TriMeshPtr createMesh(int resolution);
+		TriMeshPtr createMesh(int resolution) const;
 
 		rw::math::Q getParameters() const;
 

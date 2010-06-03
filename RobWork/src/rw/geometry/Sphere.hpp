@@ -16,27 +16,44 @@
  ********************************************************************************/
 
 
-#ifndef SPHERE_HPP_
-#define SPHERE_HPP_
+#ifndef RW_GEOMETRY_SPHERE_HPP_
+#define RW_GEOMETRY_SPHERE_HPP_
 
+//! @file Sphere.hpp
 
 #include "Primitive.hpp"
 
 namespace rw {
 namespace geometry {
+	//! @addtogroup geometry @{
+	/**
+	 * @brief a sphere primitive. centr in (0,0,0) and a radius.
+	 */
+	class Sphere: public Primitive {
+	public:
+		//! constructor
+		Sphere(const rw::math::Q& initQ):_radius(initQ(0)){};
 
-class Sphere: public Primitive {
-public:
-	Sphere(const rw::math::Q& initQ);
-	virtual ~Sphere();
+		//! @brief constructor
+		Sphere(double radi):_radius(radi){};
 
-	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution);
+		//! @brief destructor
+		virtual ~Sphere();
 
-	rw::math::Q getParameters() const;
-private:
-	rw::math::Q _param;
-};
+		// inherited from Primitive
+		//! @copydoc Primitive::createMesh
+		TriMeshPtr createMesh(int resolution) const;
+
+		//! @copydoc Primitive::getParameters
+		rw::math::Q getParameters() const{ return rw::math::Q(1,_radius);};
+
+		//! @copydoc GeometryData::getType
+		GeometryData::GeometryType getType() const { return GeometryData::SpherePrim; };
+
+	private:
+		double _radius;
+	};
+	//! @}
 
 } // geometry
 } // rw

@@ -26,75 +26,25 @@
 namespace rw {
 namespace geometry {
 
-	//typedef enum {N0,N1,N3,N4} TriType;
-
-    template <class T=double>
-    class Triangle : public GeometryData {
-    //private:
-    //    Triangle(){};
-
-    public:
-        typedef T value_type;
-
-        /**
-         * @brief get vertex at index i
-         */
-        virtual rw::math::Vector3D<T>& getVertex(size_t i) = 0;
-
-        /**
-         * @brief get vertex at index i
-         */
-        virtual const rw::math::Vector3D<T>& getVertex(size_t i) const = 0;
-
-        /**
-         * @brief get vertex at index i
-         */
-        const rw::math::Vector3D<T>& operator[](size_t i) const{ return getVertex(i);};
-
-        /**
-         * @brief get vertex at index i
-         */
-        rw::math::Vector3D<T>& operator[](size_t i) { return getVertex(i);};
-
-        /**
-         * @brief calculates the face normal of this triangle. It is assumed
-         * that the triangle vertices are arranged counter lock wise.
-         */
-        virtual rw::math::Vector3D<T> calcFaceNormal() const = 0;
-
-        double calcArea(){
-            rw::math::Vector3D<T> ab = getVertex(1)-getVertex(0);
-            rw::math::Vector3D<T> ac = getVertex(2)-getVertex(0);
-            return rw::math::MetricUtil::norm2( cross(ab,ac) )/2;
-        }
-
-        GeometryData::GeometryType getType() const{
-            return GeometryData::TrianglePrim;
-        };
-
-        //virtual TriType getType() = 0;
-    };
-
 	/**
 	 * @brief plain triangle class. The second template argument specify
 	 * the number of normals associated with the triangle.
 	 *  The triangle vertices should be arranged counter clock whise.
 	 */
 	template <class T=double>
-	class TriangleN0: public Triangle<T> {
+	class Triangle {
 	protected:
 	    rw::math::Vector3D<T> _vertices[3];
-
 	public:
-
+	    typedef T value_type;
 	    //@brief default constructor
-	    TriangleN0(){};
+	    Triangle(){};
 
 	    /**
 	     * @brief constructor
 	     * @param
 	     */
-	    TriangleN0(const rw::math::Vector3D<T>& p1,
+	    Triangle(const rw::math::Vector3D<T>& p1,
                    const rw::math::Vector3D<T>& p2,
                    const rw::math::Vector3D<T>& p3)
 	    {
@@ -108,7 +58,7 @@ namespace geometry {
 	     *
 	     * @param f [in] - The face that is to be copied.
 	     */
-	    TriangleN0(const Triangle<T>& f)
+	    Triangle(const Triangle<T>& f)
 	    {
 	        _vertices[0] = f.getVertex(0);
 	        _vertices[1] = f.getVertex(1);
@@ -118,7 +68,7 @@ namespace geometry {
 	    /**
 	     * @brief destructor
 	     */
-	    virtual ~TriangleN0(){};
+	    virtual ~Triangle(){};
 
 	    /**
 	     * @brief get vertex at index i
@@ -133,6 +83,21 @@ namespace geometry {
 		const rw::math::Vector3D<T>& getVertex(size_t i) const{
 			return _vertices[i];
 		}
+
+        /**
+         * @brief get vertex at index i
+         */
+        const rw::math::Vector3D<T>& operator[](size_t i) const{ return getVertex(i);};
+
+        /**
+         * @brief get vertex at index i
+         */
+        rw::math::Vector3D<T>& operator[](size_t i) { return getVertex(i);};
+
+
+        GeometryData::GeometryType getType() const{
+            return GeometryData::TrianglePrim;
+        };
 
 		//TriType getType(){ return N0; };
 
@@ -171,6 +136,12 @@ namespace geometry {
 			return (u > 0) && (v > 0) && (u + v < 1);
 		}
 
+        double calcArea(){
+            rw::math::Vector3D<T> ab = getVertex(1)-getVertex(0);
+            rw::math::Vector3D<T> ac = getVertex(2)-getVertex(0);
+            return rw::math::MetricUtil::norm2( cross(ab,ac) )/2;
+        }
+
 	};
 
 	/**
@@ -179,13 +150,14 @@ namespace geometry {
 	 * with the facenormal.
 	 */
 	template <class T=double>
-	class TriangleN1 : public Triangle<T>
+	class TriangleN1
 	{
 	protected:
-	    TriangleN0<T> _triN0;
+	    Triangle<T> _triN0;
 		rw::math::Vector3D<T> _faceNormal;
 
 	public:
+		typedef T value_type;
 
 	    //@brief default constructor
 	    TriangleN1(){};
@@ -211,14 +183,6 @@ namespace geometry {
 	    			   _faceNormal(n)
 	    {}
 
-       /**
-         * @brief Copy constructor
-         */
-        TriangleN1(const Triangle<T>& t):
-            _triN0(t),
-            _faceNormal(_triN0.calcFaceNormal())
-        {}
-
         /**
          * @brief constructor
          */
@@ -226,16 +190,6 @@ namespace geometry {
                    const rw::math::Vector3D<T>& n):
                        _triN0(t),
                        _faceNormal(n)
-        {}
-
-        /**
-         * @brief copy constructor
-         *
-         * @param f [in] - The face that is to be copied.
-         */
-        TriangleN1(const TriangleN1<T>& f):
-            _triN0(f),
-            _faceNormal(f.getFaceNormal())
         {}
 
 	    /**
@@ -275,6 +229,16 @@ namespace geometry {
             return _triN0.calcFaceNormal();
         };
 
+        /**
+         * @brief get vertex at index i
+         */
+        const rw::math::Vector3D<T>& operator[](size_t i) const{ return getVertex(i);};
+
+        /**
+         * @brief get vertex at index i
+         */
+        rw::math::Vector3D<T>& operator[](size_t i) { return getVertex(i);};
+
 
         /**
          * @brief tests wheather the point x is inside the triangle
@@ -285,13 +249,14 @@ namespace geometry {
 	};
 
 	template <class T=double>
-	class TriangleN3 : public Triangle<T>
+	class TriangleN3
 	{
 	protected:
-	    TriangleN0<T> _triN0;
+	    Triangle<T> _triN0;
 		rw::math::Vector3D<T> _vertexNormals[3];
 
 	public:
+		typedef T value_type;
 
 	    //@brief default constructor
 	    TriangleN3(){};
@@ -327,19 +292,6 @@ namespace geometry {
 	 		   _vertexNormals[1]=n2;
 	 		   _vertexNormals[2]=n3;
 	    }
-
-	    /**
-	     * @brief copy constructor
-	     *
-	     * @param f [in] - The face that is to be copied.
-	     */
-	    TriangleN3(const TriangleN3<T>& f):
-	        _triN0(f)
-	    {
-	        _vertexNormals[0] = f.getNormal(0);
-	        _vertexNormals[1] = f.getNormal(1);
-	        _vertexNormals[2] = f.getNormal(2);
-	    };
 
 		rw::math::Vector3D<T>& getNormal(size_t i){
 			return _vertexNormals[i];

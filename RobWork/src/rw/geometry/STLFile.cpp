@@ -351,7 +351,7 @@ namespace
 
 }
 
-PlainTriMesh<TriangleN1<float> >* STLFile::load(const std::string& filename)
+PlainTriMeshN1FPtr STLFile::load(const std::string& filename)
 {
 
     std::ifstream streamIn(filename.c_str(), std::ios::binary);
@@ -365,7 +365,7 @@ PlainTriMesh<TriangleN1<float> >* STLFile::load(const std::string& filename)
     ReadSTLHelper(streamIn, *trimesh, state);
     TriangleUtil::recalcNormals(*trimesh);
     streamIn.close();
-    return trimesh;
+    return ownedPtr(trimesh);
 }
 
 void STLFile::save(const TriMesh& mesh, const std::string& filename){
@@ -383,7 +383,7 @@ void STLFile::save(const TriMesh& mesh, const std::string& filename){
 
     ostr << "solid ascii" << std::endl;
     for(size_t i = 0; i<mesh.getSize(); i++){
-        TriangleN0<double> tri = mesh.getTriangle(i);
+        Triangle<double> tri = mesh.getTriangle(i);
         writeFaceSTL(tri[0],tri[1],tri[2],tri.calcFaceNormal(), ostr);
     }
     ostr << "endsolid" << std::endl;

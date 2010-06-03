@@ -78,7 +78,7 @@ namespace rw { namespace geometry {
             // now copy all relevant info into the compare list
             for(size_t i = 0; i<triMesh.getSize(); i++){
                 int vIdx = i*3;
-                TriangleN0<double> tri = triMesh.getTriangle(i);
+                Triangle<double> tri = triMesh.getTriangle(i);
                 (*verticesIdx)[vIdx+0] = VertexCmp<T>(cast<T,double>(tri[0]), i, 0, &axis);
                 (*verticesIdx)[vIdx+1] = VertexCmp<T>(cast<T,double>(tri[1]), i, 1, &axis);
                 (*verticesIdx)[vIdx+2] = VertexCmp<T>(cast<T,double>(tri[2]), i, 2, &axis);
@@ -228,7 +228,7 @@ namespace rw { namespace geometry {
 		template <class T>
 		static void recalcNormals(PlainTriMesh<TriangleN1<T> >& trimesh){
 		    using namespace rw::math;
-		    for(size_t i=0; i<trimesh.size(); i++){
+		    for(size_t i=0; i<trimesh.getSize(); i++){
 		        Vector3D<T> normal = trimesh[i].calcFaceNormal();
 		        trimesh[i].getFaceNormal() = normal;
 		    }

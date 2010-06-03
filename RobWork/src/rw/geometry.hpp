@@ -41,9 +41,9 @@
 #include "./geometry/Sphere.hpp"
 #include "./geometry/Pyramid.hpp"
 #include "./geometry/Cone.hpp"
-#include "./geometry/AABB.hpp"
+//#include "./geometry/AABB.hpp"
 
-#include "./geometry/Point.hpp"
+//#include "./geometry/Point.hpp"
 #include "./geometry/Line.hpp"
 #include "./geometry/Plane.hpp"
 
@@ -51,9 +51,9 @@
 #include "./geometry/ConvexHull3D.hpp"
 //#GiftWrapHull2D.hpp
 #include "./geometry/GiftWrapHull3D.hpp"
-#include "./geometry/triangulate.hpp"
+//#include "./geometry/triangulate.hpp"
 #include "./geometry/Contour2D.hpp"
-#include "./geometry/Contour2Dto3D.hpp"
+//#include "./geometry/Contour2Dto3D.hpp"
 #include "./geometry/Contour2DUtil.hpp"
 #include "./geometry/IntersectUtil.hpp"
 

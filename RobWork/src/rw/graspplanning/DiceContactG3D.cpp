@@ -41,9 +41,9 @@ void DiceContactG3D::initialize(const TriMesh& obj, int nrOfContacts, double mu)
 	_nrOfContacts = nrOfContacts;
 	_mu = mu;
 	_obj = &obj;
-	_surfNormals.resize( obj.size() );
+	_surfNormals.resize( obj.getSize() );
 	// TODO: create the vector of surface normals
-	for(size_t i=0;i<obj.size();i++){
+	for(size_t i=0;i<obj.getSize();i++){
 		_surfNormals[i] = obj.getTriangle(i).calcFaceNormal();
 		//std::cout << "Surf normal: " << _surfNormals[i] << std::endl;
 	}

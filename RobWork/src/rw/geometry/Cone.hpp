@@ -16,29 +16,65 @@
  ********************************************************************************/
 
 
-#ifndef CONE_HPP_
-#define CONE_HPP_
+#ifndef RW_GEOMETRY_CONE_HPP_
+#define RW_GEOMETRY_CONE_HPP_
 
 #include "Primitive.hpp"
 
+//! @file Cone.hpp
+
 namespace rw {
 namespace geometry {
+	//! @addtogroup @{
+	/**
+	 * @brief cone primitive. Like a cylinder though where a radius can be
+	 * specified for both ends.
+	 *
+	 * The cone is aligned with the z-axis such that top is in the positive z-axis
+	 * and the bottom is in the negative z-axis. The center of the cone will be
+	 * in (0,0,0)
+	 *
+	 */
+	class Cone: public Primitive {
+	public:
+		//! @brief constructor
+		Cone(const rw::math::Q& initQ);
 
-class Cone: public Primitive {
-public:
-	Cone(const rw::math::Q& initQ);
-	virtual ~Cone();
+		/**
+		 * @brief constructor
+		 * @param height [in] height of cone
+		 * @param radiusTop [in] radius of the top end
+		 * @param radiusBot [in] radius of the bottom end
+		 */
+		Cone(double height, double radiusTop, double radiusBot);
 
-	// inherited from Primitive
-	TriMeshPtr createMesh(int resolution);
+		//! @brief the height
+		double getHeight(){ return _height;}
 
-	rw::math::Q getParameters() const;
+		//! @brief the top radius
+		double getTopRadius(){ return _radiusTop;};
 
-	GeometryType getType(){ return ConePrim; };
+		//! @brief the bottom radius
+		double getBottomRadius(){ return _radiusBottom;};
 
-private:
-	rw::math::Q _param;
-};
+		//! @brief destructor
+		virtual ~Cone();
+
+		// inherited from Primitive
+		//! @copydoc GeometryData::createMesh
+		TriMeshPtr createMesh(int resolution) const;
+
+		//! @copydoc GeometryData::getParameters
+		rw::math::Q getParameters() const;
+
+		//! @copydoc GeometryData::getType
+		GeometryType getType(){ return ConePrim; };
+
+	private:
+		double _radiusTop, _radiusBottom, _height;
+	};
+
+	//! @}
 
 } // geometry
 } // rw

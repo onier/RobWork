@@ -366,18 +366,23 @@ namespace geometry {
 
 		// Inherited from TriMesh
         //! @copydoc IndexedTriMesh::getTriangle
-		TriangleN0<double> getTriangle(size_t idx) const {
+		Triangle<double> getTriangle(size_t idx) const {
 			using namespace rw::math;
 			const TRI& tri = (*_triangles)[idx];
 			const Vector3D<T> &v0( (*this->_vertices)[tri.getVertexIdx(0) ] );
 			const Vector3D<T> &v1( (*this->_vertices)[tri.getVertexIdx(1) ] );
 			const Vector3D<T> &v2( (*this->_vertices)[tri.getVertexIdx(2) ] );
 
-			return TriangleN0<double>(cast<double>(v0),cast<double>(v1),cast<double>(v2));
+			return Triangle<double>(cast<double>(v0),cast<double>(v1),cast<double>(v2));
 		}
 
 		//! @copydoc TriMesh::getSize
 		size_t getSize() const {return _triangles->size(); }
+
+		//! @copydoc TriMesh::clone
+		TriMeshPtr clone() const {
+			return rw::common::ownedPtr( new IndexedTriMeshN0(*this) );
+		}
 
 	};
 }

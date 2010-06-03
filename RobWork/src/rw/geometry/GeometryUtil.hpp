@@ -70,7 +70,7 @@ public:
    static rw::math::InertiaMatrix<>
         estimateInertia(
             double mass,
-             const std::vector<Geometry*> &geoms,
+             const std::vector<GeometryPtr> &geoms,
             const rw::math::Transform3D<>& ref = rw::math::Transform3D<>::identity() );
 
    /**
@@ -82,20 +82,20 @@ public:
    static std::pair<rw::math::Vector3D<>, rw::math::InertiaMatrix<> >
         estimateInertiaCOG(
             double mass,
-            const std::vector<Geometry*> &geoms,
+            const std::vector<GeometryPtr> &geoms,
             const rw::math::Transform3D<>& ref = rw::math::Transform3D<>::identity() );
 
    /**
      * @brief estimates the center of gravity (COG) of a list of geometries.
      */
    static rw::math::Vector3D<>
-        estimateCOG(const std::vector<Geometry*> &geoms);
+        estimateCOG(const std::vector<GeometryPtr> &geoms);
 
     /**
       * @brief estimates the center of gravity (COG) of a list of geometries.
       */
     static double
-         calcMaxDist(const std::vector<Geometry*> &geoms, const rw::math::Vector3D<> center);
+         calcMaxDist(const std::vector<GeometryPtr> &geoms, const rw::math::Vector3D<> center);
 
 
 
@@ -113,37 +113,6 @@ public:
 	 */
 	static std::vector<rw::kinematics::Frame*>
 		getAnchoredChildFrames(rw::kinematics::Frame *parent, const rw::kinematics::State &state);
-
-
-	static TriMeshPtr toTriMesh(Geometry *geom){
-		GeometryDataPtr gdata = geom->getGeometryData();
-
-        // check if type of geom is really a trimesh
-        if( !dynamic_cast<TriMesh*>(gdata.get()) ){
-            return NULL;
-        }
-        TriMeshPtr trimesh = gdata.cast<TriMesh>();
-        return trimesh;
-	};
-
-	static TriMesh* toTriMesh(GeometryData *gdata){
-        // check if type of geom is really a trimesh
-        if( !dynamic_cast<TriMesh*>(gdata) ){
-        	return NULL;
-        }
-        TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata);
-        return trimesh;
-	};
-
-	static TriMeshPtr toTriMesh(GeometryDataPtr gdata){
-        // check if type of geom is really a trimesh
-        if( dynamic_cast<TriMesh*>(gdata.get()) ){
-        	return gdata.cast<TriMesh>();
-        } else if(Primitive *prim = dynamic_cast<Primitive*>(gdata.get())){
-        	return prim->createMesh(-1); // use default resolution
-        }
-        return TriMeshPtr(NULL);
-	};
 
 };
 

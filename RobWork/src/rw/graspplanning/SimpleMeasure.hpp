@@ -82,8 +82,9 @@ public:
         return (approachAngleQuality+curvatureQuality+forceClosureQuality+centerQuality );
     }
 private:
-    rw::math::Vector2D<> _objCenter;
     double _maxDist;
+    rw::math::Vector2D<> _objCenter;
+
 };
 
 }

@@ -89,7 +89,7 @@ std::vector<Frame*> GeometryUtil::getAnchoredChildFrames(Frame *parent, const St
                  type = rw::models::Accessor::frameType().get(*f);
 
             // also check if frame has geometric properties attached
-            bool hasGeo = rw::models::Accessor::collisionModelInfo().has(*f);
+            //bool hasGeo = rw::models::Accessor::collisionModelInfo().has(*f);
 
             if( type.get() == kinematics::FrameType::FixedFrame ){
                 fstack.push(f);
@@ -154,12 +154,12 @@ GeometryUtil::estimateInertia(
 #endif
 
 rw::math::Vector3D<>
-GeometryUtil::estimateCOG(const std::vector<Geometry*> &geoms)
+GeometryUtil::estimateCOG(const std::vector<GeometryPtr> &geoms)
 {
     // first find center mass
     double totalArea(0);
     Vector3D<> center(0.f,0.f,0.f);
-    BOOST_FOREACH(Geometry *geom, geoms){
+    BOOST_FOREACH(GeometryPtr geom, geoms){
         GeometryDataPtr gdata = geom->getGeometryData();
         // check if type of geom is really a trimesh
         if( !dynamic_cast<TriMesh*>(gdata.get()) ){
@@ -168,8 +168,8 @@ GeometryUtil::estimateCOG(const std::vector<Geometry*> &geoms)
         TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata.get());
 
         Transform3D<> t3d = geom->getTransform();
-        for(size_t i=0; i<trimesh->size(); i++){
-            TriangleN0<double> tri = trimesh->getTriangle(i);
+        for(size_t i=0; i<trimesh->getSize(); i++){
+            Triangle<double> tri = trimesh->getTriangle(i);
             const Vector3D<>& p = t3d* (tri[0]);
             const Vector3D<>& q = t3d* (tri[1]);
             const Vector3D<>& r = t3d* (tri[2]);
@@ -188,13 +188,13 @@ GeometryUtil::estimateCOG(const std::vector<Geometry*> &geoms)
     return cast<double>(center);
 }
 
-double GeometryUtil::calcMaxDist(const std::vector<Geometry*> &geoms,
+double GeometryUtil::calcMaxDist(const std::vector<GeometryPtr> &geoms,
                                  const rw::math::Vector3D<> center)
 {
     double maxDist = 0;
 
     // first find center mass
-    BOOST_FOREACH(Geometry *geom, geoms){
+    BOOST_FOREACH(GeometryPtr geom, geoms){
         GeometryDataPtr gdata = geom->getGeometryData();
         // check if type of geom is really a trimesh
         if( !dynamic_cast<TriMesh*>(gdata.get()) ){
@@ -203,8 +203,8 @@ double GeometryUtil::calcMaxDist(const std::vector<Geometry*> &geoms,
         TriMesh *trimesh = dynamic_cast<TriMesh*>(gdata.get());
 
         Transform3D<> t3d = geom->getTransform();
-        for(size_t i=0; i<trimesh->size(); i++){
-            TriangleN0<double> tri = trimesh->getTriangle(i);
+        for(size_t i=0; i<trimesh->getSize(); i++){
+            Triangle<double> tri = trimesh->getTriangle(i);
             const Vector3D<>& p = t3d* (tri[0]);
             const Vector3D<>& q = t3d* (tri[1]);
             const Vector3D<>& r = t3d* (tri[2]);
@@ -220,7 +220,7 @@ double GeometryUtil::calcMaxDist(const std::vector<Geometry*> &geoms,
 std::pair<Vector3D<>, InertiaMatrix<> >
 GeometryUtil::estimateInertiaCOG(
     double mass,
-    const std::vector<Geometry*>& geoms,
+    const std::vector<GeometryPtr>& geoms,
     const Transform3D<>& ref)
 {
     Vector3D<float> center = cast<float>( ref * estimateCOG( geoms ) );
@@ -233,13 +233,13 @@ GeometryUtil::estimateInertiaCOG(
 rw::math::InertiaMatrix<>
 GeometryUtil::estimateInertia(
     double mass,
-    const std::vector<Geometry*>& geoms,
+    const std::vector<GeometryPtr>& geoms,
     const Transform3D<>& ref)
 {
     double Ixx = 0, Iyy=0, Izz = 0; // the diagonal elements
     double Ixy = 0, Ixz=0, Iyz = 0; // the off diagonal elements
     int triCnt = 0;
-    BOOST_FOREACH(Geometry *geom, geoms){
+    BOOST_FOREACH(GeometryPtr geom, geoms){
         GeometryDataPtr gdata = geom->getGeometryData();
         // check if type of geom is really a trimesh
         if( !dynamic_cast<TriMesh*>(gdata.get()) ){
@@ -249,15 +249,15 @@ GeometryUtil::estimateInertia(
 
         Transform3D<> t3d = ref*geom->getTransform();
 
-        triCnt += trimesh->size();
-        for(size_t i=0; i<trimesh->size(); i++){
-            TriangleN0<double> tri = trimesh->getTriangle(i);
+        triCnt += trimesh->getSize();
+        for(size_t i=0; i<trimesh->getSize(); i++){
+            Triangle<double> tri = trimesh->getTriangle(i);
             const Vector3D<>& p = t3d* (tri[0]);
             const Vector3D<>& q = t3d* (tri[1]);
             const Vector3D<>& r = t3d* (tri[2]);
 
             // calc triangle area
-            double a = (cross( p-q , p-r )).norm2()/2;
+            //double a = (cross( p-q , p-r )).norm2()/2;
 
             // calc triangle centroid
             Vector3D<> c = (p+q+r)/3;
