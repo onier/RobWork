@@ -446,7 +446,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\plugins\jog\jog.png"
+				RelativePath="..\..\..\..\src\images\jog.png"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -466,7 +466,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\images\jog.png"
+				RelativePath="..\..\..\..\src\plugins\jog\jog.png"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -666,7 +666,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\plugins\planning\planning.png"
+				RelativePath=".\Resources\planning.png"
 				>
 				<FileConfiguration
 					Name="Release|Win32"
@@ -686,7 +686,7 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\Resources\planning.png"
+				RelativePath="..\..\..\..\src\plugins\planning\planning.png"
 				>
 				<FileConfiguration
 					Name="Release|Win32"

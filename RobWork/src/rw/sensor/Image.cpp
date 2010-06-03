@@ -57,9 +57,9 @@ namespace {
         	return 4;
         break;
         default:
-            RW_WARN("Unsupported pixel depth!");
-            RW_ASSERT(0);
+            RW_THROW("Unsupported pixel depth!");
         }
+        
     }
 
     unsigned int calcMask(Image::PixelDepth depth){
@@ -77,9 +77,8 @@ namespace {
         	return 0xFFFFFFFF;
         break;
         default:
-            RW_WARN("Unsupported pixel depth!");
-            RW_ASSERT(0);
-        }
+            RW_THROW("Unsupported pixel depth!");
+        }        
     }
 }
 
