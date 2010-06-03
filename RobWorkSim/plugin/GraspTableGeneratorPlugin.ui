@@ -29,6 +29,95 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_9">
         <item>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="0">
+           <widget class="QLabel" name="label_62">
+            <property name="text">
+             <string>Table size</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QSpinBox" name="_tableSizeSpin">
+            <property name="maximum">
+             <number>100000</number>
+            </property>
+            <property name="value">
+             <number>10000</number>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <widget class="QLabel" name="label_63">
+            <property name="text">
+             <string>Group size</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QSpinBox" name="_groupSizeSpin">
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="_collisionFreeInitBox">
+            <property name="text">
+             <string>Collision free</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QCheckBox" name="_dynamicSimulationBox">
+            <property name="text">
+             <string>Dynamic simulation</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QCheckBox" name="_continuesLoggingBox">
+            <property name="text">
+             <string>Continues data</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="label_65">
+            <property name="text">
+             <string>Device</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QComboBox" name="_deviceBox"/>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="label_66">
+            <property name="text">
+             <string>Object</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="3">
+           <widget class="QComboBox" name="_objectBox"/>
+          </item>
+          <item row="2" column="3">
+           <widget class="QCheckBox" name="_fixedGroupBox">
+            <property name="text">
+             <string>Use fixed step</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
          <layout class="QHBoxLayout" name="horizontalLayout_4">
           <item>
            <widget class="QLabel" name="label_29">
@@ -207,95 +296,6 @@
            <enum>Qt::Horizontal</enum>
           </property>
          </widget>
-        </item>
-        <item>
-         <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_62">
-            <property name="text">
-             <string>Table size</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QSpinBox" name="_tableSizeSpin">
-            <property name="maximum">
-             <number>100000</number>
-            </property>
-            <property name="value">
-             <number>10000</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="2">
-           <widget class="QLabel" name="label_63">
-            <property name="text">
-             <string>Group size</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3">
-           <widget class="QSpinBox" name="_groupSizeSpin">
-            <property name="value">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="_collisionFreeInitBox">
-            <property name="text">
-             <string>Collision free</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QCheckBox" name="_dynamicSimulationBox">
-            <property name="text">
-             <string>Dynamic simulation</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QCheckBox" name="_continuesLoggingBox">
-            <property name="text">
-             <string>Continues data</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="label_65">
-            <property name="text">
-             <string>Device</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="_deviceBox"/>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="label_66">
-            <property name="text">
-             <string>Object</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="3">
-           <widget class="QComboBox" name="_objectBox"/>
-          </item>
-          <item row="2" column="3">
-           <widget class="QCheckBox" name="_fixedGroupBox">
-            <property name="text">
-             <string>Use fixed step</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
         <item>
          <widget class="QGroupBox" name="groupBox_8">

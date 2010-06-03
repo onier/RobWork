@@ -207,6 +207,9 @@ class GraspTableGeneratorDialog : public rws::RobWorkStudioPlugin, private Ui::G
         int _nrOfGraspsInGroup, _lastTableBackupCnt;
         int _tactileDataOnAllCnt;
 
+        GraspStrategyPtr _gstrategy;
+        GraspPolicyPtr _gpolicy;
+        SimulatorPtr _simulator;
 
         rw::graspplanning::GraspTable *_gtable;
         std::string _configFile; // loadet on initialization

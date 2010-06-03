@@ -405,6 +405,30 @@ void GraspTableGeneratorDialog::stateChangedListener(const rw::kinematics::State
 
 void GraspTableGeneratorDialog::startTableGeneration(){
 	std::cout << "Start table generation! " << std::endl;
+	//
+	JointDevice *hand = _dwc->getWorkcell()->findDevice<JointDevice>( _deviceBox->currentText().toStdString() );
+	MovableFrame *object = _dwc->getWorkcell()->findFrame<MovableFrame>( _objectBox->currentText().toStdString() );
+
+	if( (hand==NULL) | (object==NULL) ){
+		log().error() << "hand or object not found!" << std::endl;
+		return;
+	}
+
+	std::string policyId = _gPolicyBox->currentText().toStdString();
+	std::string strategyId = _gStrategyBox->currentText().toStdString();
+
+	if(_gstrategy==NULL){
+		_gstrategy = GraspStrategyFactory::makeStrategy(strategyId);
+	}
+	if(_gpolicy==NULL){
+		_gpolicy = GraspPolicyFactory::makePolicy(policyId, _dwc.get(), hand);
+	}
+
+	// now create the simulations
+	if(_dynamicSimulationBox->isChecked()){
+
+	}
+
 }
 
 
