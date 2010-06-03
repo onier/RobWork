@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="8,00"
 	Name="rwstudio"
 	ProjectGUID="{70FCE4CD-289F-4BA6-972B-5DD9F9174D47}"
 	RootNamespace="rwstudio"
 	Keyword="Qt4VSv1.0"
-	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform

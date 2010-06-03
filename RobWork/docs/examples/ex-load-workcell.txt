@@ -1,1 +1,1 @@
-Workcell WorkCell[workcell.wu] successfully loaded.
+Workcell WorkCell[workcell.xml] successfully loaded.

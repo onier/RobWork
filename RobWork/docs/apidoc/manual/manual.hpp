@@ -36,11 +36,9 @@
 
 All code examples of this manual are self-contained in the sense that
 they will compile if placed in a C++ file of their own. The examples
-are found in the \c RobWork/docs directory. See also the \c
-CMakeLists.txt file of the \c RobWork/docs directory for the setup of
-the compiler and linker flags.
+are found in the \c RobWork/docs directory. 
 
-The workcell \b workcell.wu described in section \ref sec_tul_workcell
+The workcell \b workcell.xml described in section \ref sec_tul_workcell
 will be used for examples throughout the manual.
 
 \subsection sec_rw_manual_notation Notation
@@ -89,46 +87,16 @@ and so on.
 \section sec_namespaces Namespaces
 
 The header files of RobWork are distributed across a number of
-directories each having its own namespace. You can import the
-namespaces of the header files into a common namespace called
-::robwork as follows:
+directories each having its own namespace. The structure of namespaces reflects the directory containing the code. For example
 
 \code
 // Include header files:
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/Frame.hpp>
-// ...
 
-// Use the robwork namespace:
-#include <rw/use_robwork_namespace.hpp>
-\endcode
+using namespace rw::models; //Namespace for WorkCell included by #include<rw/models/WorkCell.hpp>
+using namespace rw::kinematics; //Namespace for Frame included by #include <rw/kinematics/Frame.hpp>
 
-You can then use <code>robwork::Frame</code> as an alias for
-rw::kinematics::Frame, or you can open the entire ::robwork namespace
-with
-
-\code
-using namespace robwork;
-\endcode
-
-We use this idiom throughout the manual: It is mightily convenient
-compared to having to type in and remember the complete namespace
-names.
-
-Beware that you can not forward declare entities of ::robwork using the ::robwork
-abbreviation, i.e. the following \e does \e not work:
-\code
-namespace robwork { class WorkCell; }
-void f(const robwork::WorkCell& workcell);
-\endcode
-
-whereas this \e does work:
-
-\code
-#include <rw/models/WorkCell.hpp>
-#include <rw/use_robwork_namespace.hpp>
-
-void f(const robwork::WorkCell& workcell);
 \endcode
 
 \section sec_libraries Libraries
@@ -138,7 +106,7 @@ named \b rw.
 
 The subdirectories of the \b rwlibs directory each correspond to a
 different library. The subdirectory \b rwlibs/xyz corresponds to the
-library named \b rw_xyz. For example, suppose your program contains
+library named \b rw_xyz and contains the objects in the namespace rwlibs::xyz. For example, suppose your program contains
 the following include statement:
 
 \code
@@ -151,8 +119,7 @@ To build this program, you should link with \b rw_pathplanners.
 
 \subsection sec_rw_manual_load_workcell Loading a workcell
 
-RobWork support workcells described in an XML format as well as in the
-\ref page_tul ".wu and .dev tag file format" used by the TUL program.
+RobWork support workcells described in an XML format.
 
 The below program loads a workcell from the file named on the command
 line. If the loading of the workcell fails, the
@@ -161,7 +128,7 @@ and the program will abort with an error message.
 
 \include ex-load-workcell.cpp
 
-The output for workcell \b workcell.wu is:
+The output for workcell \b workcell.xml is:
 
 \include ex-load-workcell.txt
 
