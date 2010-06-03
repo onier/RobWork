@@ -14,9 +14,10 @@ rw::math::Vector3D<> IntersectUtil::closestPt(const Vector3D<>& point, const Lin
 	return closestPtPointLine(point, line.p1(), line.p2());
 }
 
-rw::math::Vector3D<> closestPtPointRay(const Vector3D<>& point, const Vector3D<>& ray)
-{
 
+rw::math::Vector3D<> IntersectUtil::closestPtPointRay(const Vector3D<>& point, const Vector3D<>& ray)
+{
+	
 }
 
 IntersectUtil::PointPair IntersectUtil::closestPts(const Line& lineA, const Line& lineB){

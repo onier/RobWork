@@ -6,11 +6,11 @@
 #include <list>
 #include <stack>
 
-#include <rw/geometry/Face.hpp>
-#include <sandbox/geometry/Triangle.hpp>
-#include <sandbox/geometry/IndexedTriangle.hpp>
-#include <sandbox/geometry/IndexedTriMesh.hpp>
-#include <sandbox/geometry/PlainTriMesh.hpp>
+
+#include "Triangle.hpp"
+#include "IndexedTriangle.hpp"
+#include "IndexedTriMesh.hpp"
+#include "PlainTriMesh.hpp"
 
 #include <boost/dynamic_bitset.hpp>
 #include <boost/foreach.hpp>
@@ -20,7 +20,7 @@ class IncrementalHull {
 private:
 	//const static double EPSILON = 0.0000001;
     typedef rw::geometry::IndexedTriangleN1<T> IdxTriN1;
-    typedef rw::geometry::IndexedTriangleN0<T> IdxTriN0;
+    typedef rw::geometry::IndexedTriangle<T> IdxTriN0;
 	typedef rw::geometry::IndexedTriMesh<IdxTriN1 > IdxTriMeshN1;
 
 	typedef std::vector<rw::math::Vector3D<T> > VertexArray;

@@ -152,14 +152,6 @@
 			Name="geometry"
 			>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\AABB.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\AABB.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\..\src\rw\geometry\Box.cpp"
 				>
 			</File>
@@ -181,14 +173,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rw\geometry\Contour2D.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\Contour2Dto3D.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\Contour2Dto3D.hpp"
 				>
 			</File>
 			<File
@@ -256,14 +240,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GiftWrapHull2D.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\GiftWrapHull2D.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\..\src\rw\geometry\GiftWrapHull3D.cpp"
 				>
 			</File>
@@ -272,7 +248,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\IncrementalHull.hpp"
+				RelativePath="..\..\..\..\src\rw\geometry\IndexedPolygon.hpp"
 				>
 			</File>
 			<File
@@ -300,18 +276,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\OBB.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\OBB.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\OBBFrameMap.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\..\src\rw\geometry\PlainTriMesh.cpp"
 				>
 			</File>
@@ -328,14 +292,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\..\..\..\src\rw\geometry\Point.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\Point.hpp"
-				>
-			</File>
-			<File
 				RelativePath="..\..\..\..\src\rw\geometry\Primitive.cpp"
 				>
 			</File>
@@ -349,6 +305,10 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rw\geometry\Pyramid.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\..\..\src\rw\geometry\Ray.hpp"
 				>
 			</File>
 			<File
@@ -381,14 +341,6 @@
 			</File>
 			<File
 				RelativePath="..\..\..\..\src\rw\geometry\TriangleUtil.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\triangulate.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\..\..\..\src\rw\geometry\triangulate.hpp"
 				>
 			</File>
 			<File

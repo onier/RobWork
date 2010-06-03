@@ -21,6 +21,7 @@
 
 #include <rw/common/Ptr.hpp>
 
+#include <string>
 //! @file GeometryData.hpp
 
 namespace rw { namespace geometry {
