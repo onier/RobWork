@@ -31,8 +31,8 @@
 
 
 
-#include <components/imageview/ImageView.hpp>
-#include <components/glview/GLView.hpp>
+#include <rws/components/imageview/ImageView.hpp>
+#include <rws/components/glview/GLView.hpp>
 
 namespace rws {
 

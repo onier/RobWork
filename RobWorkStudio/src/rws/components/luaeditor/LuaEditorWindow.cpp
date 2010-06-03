@@ -145,7 +145,7 @@ bool LuaEditorWindow::save() {
     if (filename == "") {
         return saveAs();
     } else {
-        save(filename);
+        return save(filename);
     }
 }
 
