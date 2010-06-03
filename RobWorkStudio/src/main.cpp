@@ -61,14 +61,10 @@ using namespace rw::common;
 #include <plugins/planning/Planning.hpp>
 #include <plugins/propertyview/PropertyView.hpp>
 //#include <plugins/sensors/Sensors.hpp>
-#include <plugins/lua/Lua.hpp>
+//#include <plugins/lua/Lua.hpp>
 
 #ifdef RWS_HAVE_SANDBOX
-<<<<<<< .mine
 //Plugins which are available in the sandbox
-=======
-	#include <sandbox/plugins/lua/Lua.hpp>
->>>>>>> .theirs
 #endif
 
 
@@ -86,7 +82,7 @@ std::vector<rws::RobWorkStudio::PluginSetup> getPlugins()
     plugins.push_back(Pl(new rws::Planning(), false, Qt::LeftDockWidgetArea));
 
     //plugins.push_back(Pl(new rws::Sensors(), false, Qt::RightDockWidgetArea));
-    plugins.push_back(Pl(new rws::Lua(), false, Qt::LeftDockWidgetArea));
+    //plugins.push_back(Pl(new rws::Lua(), false, Qt::LeftDockWidgetArea));
 #if RWS_HAVE_SANDBOX
     //Plugins which are avaible in the sandbox
 

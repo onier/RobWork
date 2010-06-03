@@ -38,7 +38,7 @@ namespace geometry {
 		Sphere(double radi):_radius(radi){};
 
 		//! @brief destructor
-		virtual ~Sphere();
+		virtual ~Sphere() {}
 
 		// inherited from Primitive
 		//! @copydoc Primitive::createMesh
