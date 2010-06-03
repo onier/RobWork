@@ -54,14 +54,14 @@ using namespace rw::common;
 
 
 
-#include <plugins/log/ShowLog.hpp>
-#include <plugins/jog/Jog.hpp>
-#include <plugins/treeview/TreeView.hpp>
-#include <plugins/playback/PlayBack.hpp>
-#include <plugins/planning/Planning.hpp>
-#include <plugins/propertyview/PropertyView.hpp>
-#include <plugins/sensors/Sensors.hpp>
-#include <plugins/lua/Lua.hpp>
+#include <rws/plugins/log/ShowLog.hpp>
+#include <rws/plugins/jog/Jog.hpp>
+#include <rws/plugins/treeview/TreeView.hpp>
+#include <rws/plugins/playback/PlayBack.hpp>
+#include <rws/plugins/planning/Planning.hpp>
+#include <rws/plugins/propertyview/PropertyView.hpp>
+#include <rws/plugins/sensors/Sensors.hpp>
+#include <rws/plugins/lua/Lua.hpp>
 
 #ifdef RWS_HAVE_SANDBOX
 //Plugins which are available in the sandbox
