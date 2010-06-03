@@ -62,11 +62,12 @@ CONFIGURE_FILE(
   ${ROOT}/src/RWSimConfig.hpp)
 
 CONFIGURE_FILE(
-  ${ROOT}/plugin/RWSimGuiConfig.hpp.in
-  ${ROOT}/plugin/RWSimGuiConfig.hpp)
+  ${ROOT}/src/rwsim/plugin/RWSimGuiConfig.hpp.in
+  ${ROOT}/src/rwsim/plugin/RWSimGuiConfig.hpp)
 
 
 # process sub directories
 add_subdirectory(src)
-add_subdirectory(plugin)
 add_subdirectory(test)
+
+
