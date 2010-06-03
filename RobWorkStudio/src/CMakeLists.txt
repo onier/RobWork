@@ -4,13 +4,6 @@
 # First we compile the robworkstudio library
 ADD_SUBDIRECTORY(rws)
 
-# then the components 
-SET(ENV{RWS_COMPONENT_LIBRARIES} "")
-ADD_SUBDIRECTORY(components)
-
-# then the plugins 
-SET(ENV{RWS_PLUGIN_LIBRARIES} "")
-ADD_SUBDIRECTORY(plugins)
 
 # Then sandbox if choosen
 OPTION(RWS_BUILD_SANDBOX "Set when you want to build the sandbox library" ${RWS_BUILD_SANDBOX})
