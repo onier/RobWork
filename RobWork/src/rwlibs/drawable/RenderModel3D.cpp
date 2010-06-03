@@ -22,6 +22,7 @@ RenderModel3D::~RenderModel3D(){}
 
 
 void RenderModel3D::draw(DrawType type, double alpha) const{
+
     switch (type) {
     case Render::SOLID:
     	glPolygonMode(GL_FRONT, GL_FILL);
@@ -78,14 +79,12 @@ void RenderModel3D::drawUsingArrays(const Model3D::Object3D &obj, DrawType type,
 		glNormalPointer(GL_FLOAT, sizeof(Vector3D<float>), &(obj._normals.at(0)[0]));
 		glVertexPointer(3, GL_FLOAT, sizeof(Vector3D<float>), &(obj._vertices.at(0)[0]));
 
-
 		// Loop through the faces as sorted by material and draw them
 		BOOST_FOREACH(const Model3D::MaterialFaces* facesptr, obj._matFaces){
 			const Model3D::MaterialFaces& faces = *facesptr;
 			// Use the material's texture
 			//RW_ASSERT(faces._matIndex<_model->_materials.size());
 			useMaterial( _model->_materials[faces._matIndex], type, alpha);
-
 
 			// Draw the faces using an index to the vertex array
 			//std::cout << "faces._subFaces.size()" << faces._subFaces.size() << std::endl;
@@ -147,16 +146,19 @@ void RenderModel3D::drawUsingArrays(const Model3D::Object3D &obj, DrawType type,
 
 void RenderModel3D::useMaterial(const Model3D::Material& mat, DrawType type, double alpha) const {
 	if(mat.simplergb){
-		float a = (float)Math::clamp(mat.rgb[3]+alpha,0.f, 1.0f);
-		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], a );
+
+		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], mat.rgb[3]*alpha );
 	} else {
 		float diffuse[4];
-		std::memcpy(diffuse,mat.rgb,4);
-		diffuse[3] = (float)Math::clamp(mat.rgb[3]+alpha,0.f, 1.0f);
+		diffuse[0] = mat.rgb[0];
+		diffuse[1] = mat.rgb[1];
+		diffuse[2] = mat.rgb[2];
+		diffuse[3] = mat.rgb[3]*alpha;
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat.ambient);
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat.specular);
 		glMaterialfv(GL_FRONT, GL_SHININESS, &mat.shininess);
 		glMaterialfv(GL_FRONT, GL_EMISSION, mat.emissive);
+		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], mat.rgb[3]*alpha );
 	}
 }

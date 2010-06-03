@@ -137,8 +137,8 @@ RWDrawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
     // else check if the file has been loaded before
     if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
     	// create a geometry
-    	Geometry* geom = GeometryFactory::getGeometry(filename);
-    	RenderGeometry *render = new RenderGeometry( ownedPtr(geom) );
+    	GeometryPtr geom = GeometryFactory::getGeometry(filename);
+    	RenderGeometry *render = new RenderGeometry( geom );
         getCache().add(filename, render, moddate);
         return new Drawable(getCache().get(filename));
     } else if (filetype == ".3DS") {

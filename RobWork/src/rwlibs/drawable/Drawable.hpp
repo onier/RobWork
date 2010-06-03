@@ -57,7 +57,9 @@ namespace rwlibs { namespace drawable {
     	 */
     	typedef enum{Physical=1, //! A physical object in the scene
     				 Virtual=2,  //! A virtual object, e.g. lines showing camera view angle
-    		    	 User1=1024, //! User derfined group 1...
+    				 DrawableObject=4,//! An object that is "just" a drawable
+    				 CollisionObject=8,  //! An object that is also a CollisionObject
+    				 User1=1024, //! User defined group 1...
     		    	 User2=2048,//!< User2
     		    	 User3=4096,//!< User3
     		    	 User4=8096, //!< User4

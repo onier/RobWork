@@ -104,7 +104,13 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
 
         //
         m.simplergb = false;
-        std::copy(ac3m.rgb,ac3m.rgb+4,m.rgb);
+        for(int j=0;j<4;j++){
+        	m.rgb[j] = ac3m.rgb[j];
+        	std::cout << m.rgb[j]<< ", ";
+        }
+        std::cout << std::endl;
+
+        //std::copy(ac3m.rgb,ac3m.rgb+4,m.rgb);
         std::copy(ac3m.ambient,ac3m.ambient+4,m.ambient);
         std::copy(ac3m.emissive,ac3m.emissive+4,m.emissive);
         std::copy(ac3m.specular,ac3m.specular+4,m.specular);
@@ -194,11 +200,14 @@ Model3DPtr LoaderAC3D::load(const std::string& filename){
 
         // now trasfer all matFaces
         rwobj->_matFaces.resize(nrMatFaces);
+        int matIdx =0;
         BOOST_FOREACH(Model3D::MaterialFaces* faces, matFaces){
         	if(faces!=NULL){
+        		faces->_matIndex = matIdx;
         		nrMatFaces--;
         		rwobj->_matFaces[nrMatFaces] = faces;
         	}
+        	matIdx++;
         }
 
         rwobj->_matPolys.resize(nrMatPolys);

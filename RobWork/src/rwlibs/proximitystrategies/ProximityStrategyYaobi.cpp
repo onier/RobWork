@@ -46,10 +46,10 @@ using namespace rwlibs::proximitystrategies;
 
 namespace
 {
-    Ptr<yaobi::CollModel> makeModelFromSoup(TriMeshPtr mesh)
+    Ptr<yaobi::CollModel> makeModelFromSoup(TriMeshPtr mesh, const double scale)
     {
         unsigned char tri_stride(3);
-        unsigned num_tris(mesh->size());
+        unsigned num_tris(mesh->getSize());
         unsigned num_verts(num_tris*3);
         yaobi::AppRealT *vertices = new yaobi::AppRealT[num_verts*3];
         int *tris = new int[num_tris*3];
@@ -58,11 +58,11 @@ namespace
             triIdx < num_tris;
             triIdx++, vertIdx += 3)
         {
-            const TriangleN0<double> face = mesh->getTriangle(triIdx);
+            const Triangle<double> face = mesh->getTriangle(triIdx);
 
-        	Vector3D<yaobi::Real> v0 = cast<yaobi::Real>(face[0]);
-        	Vector3D<yaobi::Real> v1 = cast<yaobi::Real>(face[1]);
-        	Vector3D<yaobi::Real> v2 = cast<yaobi::Real>(face[2]);
+        	Vector3D<yaobi::Real> v0 = cast<yaobi::Real>(face[0]*scale);
+        	Vector3D<yaobi::Real> v1 = cast<yaobi::Real>(face[1]*scale);
+        	Vector3D<yaobi::Real> v2 = cast<yaobi::Real>(face[2]*scale);
 
             for (size_t j=0; j < 3; j++) {
                 vertices[vertIdx*3+0+j] = v0[j];
@@ -95,6 +95,7 @@ namespace
         for (int i = 0; i < 3; i++)
             for (int j = 0; j < 4; j++)
                 T[i][j] = static_cast<yaobi::Real>(tr(i, j));
+
     }
 
     void collide(
@@ -140,11 +141,11 @@ bool ProximityStrategyYaobi::addGeometry(rw::proximity::ProximityModel* model, c
     if( _modelCache.has(geom.getId()) ){
         yaobimodel = _modelCache.get(geom.getId());
     } else {
-    	TriMeshPtr mesh = GeometryUtil::toTriMesh( gdata.get() );
-        if(mesh->size()==0)
+    	TriMeshPtr mesh = gdata->getTriMesh(false);
+        if(mesh->getSize()==0)
             return false;
 
-        yaobimodel = makeModelFromSoup( mesh );
+        yaobimodel = makeModelFromSoup( mesh, geom.getScale());
     }
     pmodel->models.push_back( RWYaobiModel(geom.getTransform(), yaobimodel) );
 
