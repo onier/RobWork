@@ -14,8 +14,8 @@ INCLUDE(InstallRequiredSystemLibraries)
 # option as well, set both if necessary !
 
 # Create .tar.gz and .tar.tbz2 files:
-SET(CPACK_GENERATOR "ZIP;NSIS;TGZ;TZ")
-SET(CPACK_SOURCE_GENERATOR "ZIP;NSIS;TGZ;TZ")
+SET(CPACK_GENERATOR "ZIP")
+SET(CPACK_SOURCE_GENERATOR "ZIP")
 
 # The plain 'package' target works correctly.
 SET(CPACK_IGNORE_FILES        "/CVS/;/.svn/;.swp$;.#;/#;/build/")
@@ -31,8 +31,19 @@ SET(CPACK_SOURCE_IGNORE_FILES
     "/CVS/;/.svn/;.swp$;.#;/#;/build/(.)+/;~"
     "/[^tolua](/src/)*/bin/;/libs/"
     "/apidocs/html/"
-    "config.cmake$;/.cproject$;/.project$"
+    "/apidocs/(.)+/"
+    "/CMakeFiles/"
+    "CMakeCache.txt"
+    "Makefile"
+    "cmake_install.cmake"
+    "config.cmake$;/.cproject$;/.project$;/.settings"
+    "/Release;/release"
+    "/Debug;/debug"
 )
+
+SET(CPACK_PACKAGE_NAME "RobWork-${ROBWORK_VERSION}-${CMAKE_SYSTEM}")
+SET(CPACK_PACKAGE_FILE_NAME "RobWork-${ROBWORK_VERSION}-${CMAKE_SYSTEM}")
+SET(CPACK_SOURCE_PACKAGE_FILE_NAME "RobWork")
 
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "RobWork")
 SET(CPACK_PACKAGE_VENDOR "The RobWork Community")
@@ -43,7 +54,7 @@ SET(CPACK_RESOURCE_FILE_NOTICE "${RW_ROOT}/NOTICE.txt")
 SET(CPACK_PACKAGE_VERSION_MAJOR ${ROBWORK_VERSION_MAJOR})
 SET(CPACK_PACKAGE_VERSION_MINOR ${ROBWORK_VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${ROBWORK_VERSION_PATCH})
-SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMAKE ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}")
+SET(CPACK_PACKAGE_INSTALL_DIRECTORY "RobWork")
 SET(CPACK_STRIP_FILES TRUE)
 
 IF(WIN32 AND NOT UNIX)
