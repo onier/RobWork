@@ -26,9 +26,9 @@ SET(CMAKE_ALLOW_LOOSE_LOOP_CONSTRUCTS 1)
 #
 FIND_FILE(RW_ROOT_PATH_TEST RobWorkSetup.cmake ${RW_ROOT}/build NO_DEFAULT_PATH)
 IF(NOT RW_ROOT_PATH_TEST)
-    MESSAGE(SEND_ERROR "Path to RobWork root (RW_ROOT) is incorrectly setup! \nRW_ROOT == ${RW_ROOT}")
+    MESSAGE(SEND_ERROR "RobWork: Path to RobWork root (RW_ROOT) is incorrectly setup! \nRW_ROOT == ${RW_ROOT}")
 ENDIF()
-MESSAGE(STATUS "RobWork ROOT dir: ${RW_ROOT}")
+MESSAGE(STATUS "RobWork: ROOT - ${RW_ROOT}")
 
 #
 # Setup the default include and library dirs for robwork
@@ -104,13 +104,13 @@ OPTION(USE_XERCES "Set when you want to use xerces for xml loading" ${USE_XERCES
 IF(USE_XERCES)
     FIND_PACKAGE(XercesC REQUIRED)
     IF( XERCESC_FOUND )
-        MESSAGE(STATUS "Xerces ENABLED! FOUND!")
+        MESSAGE(STATUS "RobWork: Xerces ENABLED! FOUND!")
         SET(RW_HAVE_XERCES True)
     ELSE ()
-        MESSAGE(STATUS "Xerces ENABLED! NOT FOUND! Check if XERCESC_INCLUDE_DIR and XERCESC_LIB_DIR is set correctly!")
+        MESSAGE(SEND_ERROR "RobWork: Xerces ENABLED! NOT FOUND! Check if XERCESC_INCLUDE_DIR and XERCESC_LIB_DIR is set correctly!")
     ENDIF ()
 ELSE ()
-    MESSAGE(STATUS "Xerces DISABLED!")
+    MESSAGE(STATUS "RobWork: Xerces DISABLED!")
 ENDIF ()
 
 #
@@ -126,11 +126,11 @@ OPTION(USE_YAOBI "Set to ON to include Yaobi support.
 IF(USE_YAOBI)   
     FIND_PACKAGE(Yaobi QUIET)
     IF( YAOBI_FOUND )
-        MESSAGE(STATUS "Yaobi ENABLED! FOUND!")
+        MESSAGE(STATUS "RobWork: Yaobi ENABLED! FOUND!")
         SET(RW_HAVE_YAOBI True)
     ELSE ()
         SET(RW_ENABLE_INTERNAL_YAOBI_TARGET ON)
-        MESSAGE(STATUS "Yaobi ENABLED! NOT FOUND! Using RobWork native Yaobi.")
+        MESSAGE(STATUS "RobWork: Yaobi ENABLED! NOT FOUND! Using RobWork native Yaobi.")
         SET(YAOBI_INCLUDE_DIR "${RW_ROOT}/ext/yaobi")
         SET(YAOBI_LIBRARIES "yaobi")
         SET(YAOBI_LIBRARY_DIRS ${RW_LIBRARY_OUT_DIR})
@@ -138,7 +138,7 @@ IF(USE_YAOBI)
         
     ENDIF ()
 ELSE ()
-    MESSAGE(STATUS "Yaobi DISABLED!")
+    MESSAGE(STATUS "RobWork: Yaobi DISABLED!")
     SET(YAOBI_INCLUDE_DIR "")
 ENDIF()
 
@@ -155,18 +155,18 @@ OPTION(USE_PQP "Set to ON to include PQP support.
 IF(USE_PQP)
     FIND_PACKAGE(PQP QUIET)
     IF( PQP_FOUND )
-        MESSAGE(STATUS "PQP ENABLED! FOUND!")
+        MESSAGE(STATUS "RobWork: PQP ENABLED! FOUND!")
         SET(RW_HAVE_PQP True)
     ELSE ()
         SET(RW_ENABLE_INTERNAL_PQP_TARGET ON)
-        MESSAGE(STATUS "PQP ENABLED! NOT FOUND! Using RobWork native PQP.")
+        MESSAGE(STATUS "RobWork: PQP ENABLED! NOT FOUND! Using RobWork native PQP.")
         SET(PQP_INCLUDE_DIR "${RW_ROOT}/ext/PQP")
         SET(PQP_LIBRARIES "pqp")
         SET(PQP_LIBRARY_DIRS ${RW_LIBRARY_OUT_DIR})
         SET(RW_HAVE_PQP True)
     ENDIF ()
 ELSE ()
-    MESSAGE(STATUS "PQP DISABLED!")   
+    MESSAGE(STATUS "RobWork: PQP DISABLED!")   
     SET(PQP_INCLUDE_DIR "")
 ENDIF()
 
@@ -184,7 +184,7 @@ OPTION(USE_LUA "Set to ON to include PQP support.
 )
 IF(USE_LUA)
     SET(RW_HAVE_LUA True)
-    MESSAGE(STATUS "LUA ENABLED!")
+    MESSAGE(STATUS "RobWork: LUA ENABLED!")
     FIND_PACKAGE(Lua51 QUIET)
     IF( LUA51_FOUND )
         MESSAGE(STATUS "    FOUND Lua!")
@@ -209,13 +209,13 @@ IF(USE_LUA)
         SET(TOLUA_LIBRARY_DIRS ${RW_LIBRARY_OUT_DIR})
     ENDIF ()
 ELSE ()
-    MESSAGE(STATUS "LUA DISABLED!")   
+    MESSAGE(STATUS "RobWork: LUA DISABLED!")   
     SET(LUA_INCLUDE_DIR "")
     SET(TOLUA_INCLUDE_DIR "")
 ENDIF()
   
 IF (RW_BUILD_SANDBOX)
-    MESSAGE(STATUS "RobWork Sandbox ENABLED!")
+    MESSAGE(STATUS "RobWork: RobWork Sandbox ENABLED!")
     SET(SANDBOX_LIB "rw_sandbox")
 ELSE ()
     MESSAGE(STATUS "RobWork Sandbox DISABLED!")    
@@ -231,10 +231,10 @@ ENDIF ()
 #
 OPTION(RW_ENABLE_ASSERT "Enables RW_ASSERT macro: on|off" ${RW_ENABLE_ASSERT})
 IF( RW_ENABLE_ASSERT )
-    MESSAGE(STATUS "RW_ASSERT enabled.")
+    MESSAGE(STATUS "RobWork: RW_ASSERT enabled.")
     ADD_DEFINITIONS(-DRW_ENABLE_ASSERT)
 ELSE ()
-    MESSAGE(STATUS "RW_ASSERT disabled.")
+    MESSAGE(STATUS "RobWork: RW_ASSERT disabled.")
 ENDIF ()
 
 #
@@ -266,14 +266,14 @@ SET(RW_CXX_FLAGS ${RW_CXX_FLAGS_TMP}
                   flags and not those of RobWork"
 )
 ADD_DEFINITIONS(${RW_CXX_FLAGS})
-MESSAGE(STATUS "Adding RW CXX flags: ${RW_CXX_FLAGS}") 
+MESSAGE(STATUS "RobWork: RW CXX flags: ${RW_CXX_FLAGS}") 
 
 #MESSAGE(" ${Boost_MAJOR_VERSION} ${Boost_MINOR_VERSION} ")
 IF(${Boost_MINOR_VERSION} VERSION_LESS 41 ) 
     # proerty tree is not included in earlier versions 1.41 of boost
     # so we include it from our own
     SET(ADDITIONAL_BOOST_BINDINGS "${RW_ROOT}/ext/deprecated")
-    MESSAGE(STATUS "Boost ${Boost_VERSION_MAJOR}.${Boost_VERSION_MINOR} found, no support for property_tree. Adding from ext!")   
+    MESSAGE(STATUS "RobWork: Boost ${Boost_VERSION_MAJOR}.${Boost_VERSION_MINOR} found, no support for property_tree. Adding from ext!")   
 ENDIF()
 
 ###########################################################################
@@ -335,6 +335,4 @@ SET(ROBWORK_LIBRARIES
   ${Boost_LIBRARIES}
   ${LAPACK_LIBRARIES} 
   ${BLAS_LIBRARIES}
-  lapack
-  blas
 )

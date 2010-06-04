@@ -14,8 +14,8 @@ INCLUDE(InstallRequiredSystemLibraries)
 # option as well, set both if necessary !
 
 # Create .tar.gz and .tar.tbz2 files:
-SET(CPACK_GENERATOR "ZIP")
-SET(CPACK_SOURCE_GENERATOR "ZIP")
+SET(CPACK_GENERATOR "ZIP;NSIS;TGZ;TZ")
+SET(CPACK_SOURCE_GENERATOR "ZIP;NSIS;TGZ;TZ")
 
 # The plain 'package' target works correctly.
 SET(CPACK_IGNORE_FILES        "/CVS/;/.svn/;.swp$;.#;/#;/build/")
@@ -45,6 +45,22 @@ SET(CPACK_PACKAGE_VERSION_MINOR ${ROBWORK_VERSION_MINOR})
 SET(CPACK_PACKAGE_VERSION_PATCH ${ROBWORK_VERSION_PATCH})
 SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CMAKE ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION}")
 SET(CPACK_STRIP_FILES TRUE)
+
+IF(WIN32 AND NOT UNIX)
+  # There is a bug in NSI that does not handle full unix paths properly. Make
+  # sure there is at least one set of four (4) backlasshes.
+  SET(CPACK_PACKAGE_ICON "${RW_ROOT}/build/rw_logo_64x64.png")
+  SET(CPACK_NSIS_INSTALLED_ICON_NAME "bin\\\\RobWork.exe")
+  SET(CPACK_NSIS_DISPLAY_NAME "RobWork ${ROBWORK_VERSION}")
+  SET(CPACK_NSIS_HELP_LINK "http://groups.google.com/group/robwork")
+  SET(CPACK_NSIS_URL_INFO_ABOUT "http://www.robwork.org")
+  SET(CPACK_NSIS_CONTACT "robwork@googlegroups.com")
+  SET(CPACK_NSIS_MODIFY_PATH ON)
+ELSE(WIN32 AND NOT UNIX)
+  SET(CPACK_STRIP_FILES "bin/MyExecutable")
+  SET(CPACK_SOURCE_STRIP_FILES "")
+ENDIF(WIN32 AND NOT UNIX)
+
 SET(CPACK_PACKAGE_EXECUTABLES "RobWorkExec" "RobWork Executable")
 INCLUDE(CPack)
 ENDIF (CPACK_PACKAGES)
