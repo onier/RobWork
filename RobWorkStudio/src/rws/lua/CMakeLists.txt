@@ -5,6 +5,6 @@ IF( RWS_HAVE_LUA )
     ADD_TOLUA_PACKAGE("LuaRWStudio" "LuaRWStudioStub")
     ADD_LIBRARY(rwstudio_lua ${SRC_FILES} ${SRC_FILES_HPP})
 
-    #INSTALL(TARGETS rwstudio_lua DESTINATION lib)
+    INSTALL(TARGETS rwstudio_lua DESTINATION ${RWS_LIB_INSTALL_DIR})
     #INSTALL(FILES ${SRC_FILES} DESTINATION include/rwlibs/lua)
 ENDIF()
