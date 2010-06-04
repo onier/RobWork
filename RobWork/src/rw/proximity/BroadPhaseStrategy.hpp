@@ -1,12 +1,22 @@
-/*
- * BroadPhaseDetector.hpp
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
+ * Faculty of Engineering, University of Southern Denmark 
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *  Created on: 24-03-2009
- *      Author: jimali
- */
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
 
-#ifndef BROADPHASEDETECTOR_HPP_
-#define BROADPHASEDETECTOR_HPP_
+#ifndef RW_PROXIMITY_BROADPHASEDETECTOR_HPP
+#define RW_PROXIMITY_BROADPHASEDETECTOR_HPP
 
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Frame.hpp>
@@ -56,4 +66,4 @@ typedef rw::common::Ptr<BroadPhaseStrategy> BroadPhaseStrategyPtr;
 }
 }
 
-#endif /* BROADPHASEDETECTOR_HPP_ */
+#endif /* RW_PROXIMITY_BROADPHASEDETECTOR_HPP */

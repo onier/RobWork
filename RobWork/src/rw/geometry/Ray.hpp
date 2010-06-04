@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#ifndef LINE_HPP_
-#define LINE_HPP_
+#ifndef RW_GEOMETRY_RAY_HPP
+#define RW_GEOMETRY_RAY_HPP
 
 
 #include "Primitive.hpp"
@@ -46,4 +46,4 @@ private:
 } // rw
 
 
-#endif /* LINE_HPP_ */
+#endif /* RW_GEOMETRY_RAY_HPP*/
