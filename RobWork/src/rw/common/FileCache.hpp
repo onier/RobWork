@@ -14,8 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ********************************************************************************/
-#ifndef FILECACHE_HPP_
-#define FILECACHE_HPP_
+#ifndef RW_COMMON_FILECACHE_HPP_
+#define RW_COMMON_FILECACHE_HPP_
 
 
 #include <boost/shared_ptr.hpp>
