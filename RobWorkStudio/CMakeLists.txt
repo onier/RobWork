@@ -93,6 +93,18 @@ IF(Subversion_FOUND)
     #MESSAGE("Last changed log is ${Project_LAST_CHANGED_LOG}")
 ENDIF(Subversion_FOUND)
 
+
+# this will configure the dependency file that will be used if install is invoked
+GET_TARGET_PROPERTY(rwstudio_executable_name RobWorkStudio LOCATION)
+CONFIGURE_FILE(
+   "${RWSTUDIO_ROOT}/build/dependencies.cmake.in"
+   "${RWSTUDIO_ROOT}/build/dependencies.cmake"
+   @ONLY
+)
+
+INSTALL(SCRIPT "${RWSTUDIO_ROOT}/build/dependencies.cmake")
+include(${RWSTUDIO_ROOT}/build/dependencies.cmake)
+
 # Packaging
 INCLUDE(build/packing.cmake)
 

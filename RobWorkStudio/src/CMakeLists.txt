@@ -25,9 +25,9 @@ TARGET_LINK_LIBRARIES(RobWorkStudio ${LIBS_TMP})
 #MESSAGE(" ${RWS_PLUGIN_LIBRARIES} ")
 
 # Some install stuff
-INSTALL(TARGETS RobWorkStudio DESTINATION bin)
+INSTALL(TARGETS RobWorkStudio DESTINATION ${RWS_BIN_INSTALL_DIR})
 INSTALL(FILES "${RWSTUDIO_ROOT}/bin/RobWorkStudio.ini_template" 
-        DESTINATION bin
+        DESTINATION ${RWS_BIN_INSTALL_DIR}
         RENAME "RobWorkStudio.ini"
 )
 
