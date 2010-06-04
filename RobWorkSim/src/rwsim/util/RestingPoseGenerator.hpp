@@ -1,12 +1,22 @@
-/*
- * SupportPoseGenerator.hpp
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
  *
- *  Created on: 01-12-2008
- *      Author: jimali
- */
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
 
-#ifndef RESTINGPOSEGENERATOR_HPP_
-#define RESTINGPOSEGENERATOR_HPP_
+#ifndef RWSIM_UTIL_RESTINGPOSEGENERATOR_HPP_
+#define RWSIM_UTIL_RESTINGPOSEGENERATOR_HPP_
 
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
@@ -14,166 +24,172 @@
 
 #include <rw/kinematics/State.hpp>
 #include <rw/trajectory/Path.hpp>
-#include <simulator/Simulator.hpp>
-#include <simulator/ThreadSimulator.hpp>
+#include <rwsim/simulator/Simulator.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
 
 #include "StateSampler.hpp"
 #include "SimStateConstraint.hpp"
 
 
-/**
- * @brief finds resting poses of a dynamic scene.
- *
- * This generator relies on
- *  - a state sampler for providing an initial state of the system
- *  - a resting pose constraint for determining when the system is at rest
- *
- *  for each simulation step taken an update event callback a
- *  is triggered.
- */
-class RestingPoseGenerator {
-public:
-    typedef boost::function<void(const rw::kinematics::State&)> RestingPoseCallback;
-    typedef boost::function<void(const rw::kinematics::State&)> UpdateEventCallback;
+namespace rwsim {
+namespace util {
 
-    //typedef Event<StateChangedListener, StateChangedListener> StateChangedEvent;
 
-public:
-    /**
-     *
-     * @param sim
-     * @param initState
-     * @param restConstraint
-     */
-    RestingPoseGenerator(SimulatorPtr sim,
-    		const rw::kinematics::State& initState,
-    		SimStateConstraintPtr restConstraint);
+	/**
+	 * @brief finds resting poses of a dynamic scene.
+	 *
+	 * This generator relies on
+	 *  - a state sampler for providing an initial state of the system
+	 *  - a resting pose constraint for determining when the system is at rest
+	 *
+	 *  for each simulation step taken an update event callback a
+	 *  is triggered.
+	 */
+	class RestingPoseGenerator {
+	public:
+		typedef boost::function<void(const rw::kinematics::State&)> RestingPoseCallback;
+		typedef boost::function<void(const rw::kinematics::State&)> UpdateEventCallback;
 
-    /**
-     *
-     * @param sim
-     * @param initState
-     * @param sampler
-     * @param restConstraint
-     * @return
-     */
-    RestingPoseGenerator(SimulatorPtr sim,
-    		const rw::kinematics::State& initState,
-    		StateSamplerPtr sampler,
-    		SimStateConstraintPtr restConstraint);
+		//typedef Event<StateChangedListener, StateChangedListener> StateChangedEvent;
 
-    /**
-     * @brief destructor
-     */
-    virtual ~RestingPoseGenerator();
+	public:
+		/**
+		 *
+		 * @param sim
+		 * @param initState
+		 * @param restConstraint
+		 */
+		RestingPoseGenerator(simulator::SimulatorPtr sim,
+				const rw::kinematics::State& initState,
+				SimStateConstraintPtr restConstraint);
 
-    /**
-     * @brief set the sampler used for initial state
-     * @param sampler [in] state sampler
-     */
-    void setInitStateSample(StateSamplerPtr sampler){
-        _sampler = sampler;
-    }
+		/**
+		 *
+		 * @param sim
+		 * @param initState
+		 * @param sampler
+		 * @param restConstraint
+		 * @return
+		 */
+		RestingPoseGenerator(simulator::SimulatorPtr sim,
+				const rw::kinematics::State& initState,
+				StateSamplerPtr sampler,
+				SimStateConstraintPtr restConstraint);
 
-    /**
-     * @brief resting state contraint
-     * @param restconstraint [in] constraint
-     */
-    void setRestingCriteria(SimStateConstraintPtr restconstraint){
-        _restConstraint = restconstraint;
-    }
+		/**
+		 * @brief destructor
+		 */
+		virtual ~RestingPoseGenerator();
 
-    /**
-     * @brief set the callback for when a resting pose is found.
-     * @param callback [in] callback funtion
-     */
-    void setResultCallback(RestingPoseCallback callback){
-        _restCallback = callback;
-    }
+		/**
+		 * @brief set the sampler used for initial state
+		 * @param sampler [in] state sampler
+		 */
+		void setInitStateSample(StateSamplerPtr sampler){
+			_sampler = sampler;
+		}
 
-    /**
-     * @brief set the callback for when a simulation step has been carried out.
-     * @param callback [in] callback funtion
-     */
-    void setUpdateEventCallback(UpdateEventCallback callback){
-        _updateCallback = callback;
-    }
+		/**
+		 * @brief resting state contraint
+		 * @param restconstraint [in] constraint
+		 */
+		void setRestingCriteria(SimStateConstraintPtr restconstraint){
+			_restConstraint = restconstraint;
+		}
 
-    /**
-     * @brief start resting pose generation
-     * @param nrOfTests [in] number of resting poses to find.
-     */
-    void start(int nrOfTests);
+		/**
+		 * @brief set the callback for when a resting pose is found.
+		 * @param callback [in] callback funtion
+		 */
+		void setResultCallback(RestingPoseCallback callback){
+			_restCallback = callback;
+		}
 
-    /**
-     * @brief pause the execution
-     */
-    void proceed();
+		/**
+		 * @brief set the callback for when a simulation step has been carried out.
+		 * @param callback [in] callback funtion
+		 */
+		void setUpdateEventCallback(UpdateEventCallback callback){
+			_updateCallback = callback;
+		}
 
-    /**
-     * @brief stop the execution
-     */
-    void stop();
+		/**
+		 * @brief start resting pose generation
+		 * @param nrOfTests [in] number of resting poses to find.
+		 */
+		void start(int nrOfTests);
 
-    /**
-     * @brief the generator is finished if the specified nr of resting
-     * poses has been generated.
-     * @return true if all rest poses has been generated, false otherwise
-     */
-    bool isFinished();
+		/**
+		 * @brief pause the execution
+		 */
+		void proceed();
 
-    /**
-     * @brief returns the number of samples that has been simulated.
-     */
-    int getNrOfSamplesDone();
+		/**
+		 * @brief stop the execution
+		 */
+		void stop();
 
-    /**
-     * @brief returns the number of samples that has yet to be simulated.
-     */
-    int getNrOfSamplesLeft();
+		/**
+		 * @brief the generator is finished if the specified nr of resting
+		 * poses has been generated.
+		 * @return true if all rest poses has been generated, false otherwise
+		 */
+		bool isFinished();
 
-    /**
-     * @brief a simple status.
-     * @return
-     */
-    std::string getStatusString();
+		/**
+		 * @brief returns the number of samples that has been simulated.
+		 */
+		int getNrOfSamplesDone();
 
-protected:
-    void stepperLoop();
-private:
-    ThreadSimulatorPtr _sim;
+		/**
+		 * @brief returns the number of samples that has yet to be simulated.
+		 */
+		int getNrOfSamplesLeft();
 
-    StateSamplerPtr _sampler;
-    SimStateConstraintPtr _restConstraint;
+		/**
+		 * @brief a simple status.
+		 * @return
+		 */
+		std::string getStatusString();
 
-    bool _running, _stopRunning;
+	protected:
+		void stepperLoop();
+	private:
+		simulator::ThreadSimulatorPtr _sim;
 
-    int _nrOfTries, _nrOfTests, _maxNrOfTests;
+		StateSamplerPtr _sampler;
+		SimStateConstraintPtr _restConstraint;
 
-    bool _recordStatePath, _wasInRestingState;
+		bool _running, _stopRunning;
 
-    rw::trajectory::TimedStatePath _statePath;
+		int _nrOfTries, _nrOfTests, _maxNrOfTests;
 
-    long _updatePeriod;
+		bool _recordStatePath, _wasInRestingState;
 
-    // the simulated time where resting state started
-    double _timeEnteringRestingState;
+		rw::trajectory::TimedStatePath _statePath;
 
-    // the minimum and maximum time to simulate in
-    double _minSimTime, _maxSimTime, _simStartTime;
+		long _updatePeriod;
 
-    // the minimum time to stay in rest before valid
-    double _minTimeInRest;
+		// the simulated time where resting state started
+		double _timeEnteringRestingState;
 
-    boost::thread *_thread;
-    boost::mutex _simMutex;
+		// the minimum and maximum time to simulate in
+		double _minSimTime, _maxSimTime, _simStartTime;
 
-    RestingPoseCallback _restCallback;
-    UpdateEventCallback _updateCallback;
+		// the minimum time to stay in rest before valid
+		double _minTimeInRest;
 
-    rw::kinematics::State _initState;
+		boost::thread *_thread;
+		boost::mutex _simMutex;
 
-    std::vector<rw::kinematics::State> _initStates, _resultStates;
-};
+		RestingPoseCallback _restCallback;
+		UpdateEventCallback _updateCallback;
+
+		rw::kinematics::State _initState;
+
+		std::vector<rw::kinematics::State> _initStates, _resultStates;
+	};
+}
+}
 
 #endif /* SUPPORTPOSEGENERATOR_HPP_ */

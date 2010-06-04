@@ -5,6 +5,7 @@
 #include <rw/common/macros.hpp>
 
 using namespace rw::math;
+using namespace rwsim::util;
 
 double DistModel::refit( std::vector<rw::math::Vector3D<> >& data ){
 	if( data.size()==0 )

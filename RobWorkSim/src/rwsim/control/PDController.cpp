@@ -2,6 +2,9 @@
 
 #include <rw/common/macros.hpp>
 
+using namespace rwsim::control;
+using namespace rwsim::dynamics;
+
 PDController::PDController(
 		RigidDevice* rdev, const rw::kinematics::State& state,
 		ControlMode cmode,
@@ -38,7 +41,7 @@ PDController::PDController(
 {
 }
 
-std::vector<PDController::PDParam> PDController::getParameters(){
+std::vector<PDParam> PDController::getParameters(){
 	return _pdparams;
 }
 

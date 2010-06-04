@@ -1,12 +1,22 @@
-/*
- * PlaneModel.hpp
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
  *
- *  Created on: Dec 17, 2008
- *      Author: jimali
- */
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
 
-#ifndef PLANEMODEL_HPP_
-#define PLANEMODEL_HPP_
+#ifndef RWSIM_UTIL_PLANEMODEL_HPP_
+#define RWSIM_UTIL_PLANEMODEL_HPP_
 
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Rotation3D.hpp>
@@ -17,53 +27,58 @@
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/MetricUtil.hpp>
 
-class PlaneModel {
-public:
-	PlaneModel( ):_d(0),_n(0,0,1){
+namespace rwsim {
+namespace util {
 
-	}
 
-	PlaneModel( std::vector<rw::math::Vector3D<> >& data ){
-		refit(data);
-	}
+	class PlaneModel {
+	public:
+		PlaneModel( ):_d(0),_n(0,0,1){
 
-	double refit( std::vector<rw::math::Vector3D<> >& data );
+		}
 
-	bool invalid(){ return _n.norm2()<0.9; }; // the normal must be unt length
+		PlaneModel( std::vector<rw::math::Vector3D<> >& data ){
+			refit(data);
+		}
 
-	/**
-	 * @brief the
-	 */
-	double fitError( rw::math::Vector3D<>& p ){
-		return fabs( _n(0)*p(0)+_n(1)*p(1)+_n(2)*p(2) + _d );
-	}
+		double refit( std::vector<rw::math::Vector3D<> >& data );
 
-	void print(){
-		std::cout << " " << _d << "  " << _n << " " << std::endl;
-	}
+		bool invalid(){ return _n.norm2()<0.9; }; // the normal must be unt length
 
-	const rw::math::Vector3D<>& getNormal()const { return _n; };
-	const double& getD()const { return _d; };
+		/**
+		 * @brief the
+		 */
+		double fitError( rw::math::Vector3D<>& p ){
+			return fabs( _n(0)*p(0)+_n(1)*p(1)+_n(2)*p(2) + _d );
+		}
 
-	bool same( PlaneModel& model, double thres){
-		if( (rw::math::MetricUtil::dist2(_n, model.getNormal()) > thres))
-			return false;
+		void print(){
+			std::cout << " " << _d << "  " << _n << " " << std::endl;
+		}
 
-		if( fabs(_d-model.getD())> 0.1 )
-			return false;
+		const rw::math::Vector3D<>& getNormal()const { return _n; };
+		const double& getD()const { return _d; };
 
-		return true;
-	}
+		bool same( PlaneModel& model, double thres){
+			if( (rw::math::MetricUtil::dist2(_n, model.getNormal()) > thres))
+				return false;
 
-	static int getMinReqData(){ return 3;};
+			if( fabs(_d-model.getD())> 0.1 )
+				return false;
 
-private:
+			return true;
+		}
 
-	double _d;
-	rw::math::Vector3D<> _n; // unit vector of the plane
+		static int getMinReqData(){ return 3;};
 
-	// aux variables
-	double _nNorm2;
-};
+	private:
 
+		double _d;
+		rw::math::Vector3D<> _n; // unit vector of the plane
+
+		// aux variables
+		double _nNorm2;
+	};
+}
+}
 #endif /* PLANEMODEL_HPP_ */

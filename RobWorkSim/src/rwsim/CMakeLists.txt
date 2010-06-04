@@ -67,10 +67,10 @@ add_library(rwsim
 	dynamics/MaterialDataMap.cpp 
 	dynamics/DynamicUtil.cpp
 
-	sensors/SimulatedTactileSensor.cpp 	 
-	sensors/TactileArraySensor.cpp 
-	sensors/BodyContactSensor.cpp 
-    sensors/TactileMultiAxisSimSensor.cpp 
+	sensor/SimulatedTactileSensor.cpp 	 
+	sensor/TactileArraySensor.cpp 
+	sensor/BodyContactSensor.cpp 
+    sensor/TactileMultiAxisSimSensor.cpp 
 	
 	loaders/DynamicWorkCellLoader.cpp
 	loaders/ScapePoseFormat.cpp

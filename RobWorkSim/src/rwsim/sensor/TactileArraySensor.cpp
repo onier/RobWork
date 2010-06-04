@@ -1,3 +1,20 @@
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
+
 #include "TactileArraySensor.hpp"
 
 #include <rw/math/Vector2D.hpp>
@@ -21,7 +38,9 @@ using namespace boost::numeric;
 using namespace rw::proximity;
 using namespace rw::geometry;
 using namespace rw::common;
-using namespace dynamics;
+using namespace rwsim::dynamics;
+using namespace rwsim::sensor;
+
 #define MIN_CONTACT_FORCE 0.1
 
 namespace {
@@ -183,7 +202,7 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
     Vector3D<> offsetDir = (centers[1][0]-centers[0][0])/5;
     //std::cout << "offesetDir: " << offsetDir << std::endl;
 
-    PlainTriMesh<TriangleN0<> > *trimesh = new PlainTriMesh<TriangleN0<> >(_h*_w);
+    PlainTriMesh<Triangle<> > *trimesh = new PlainTriMesh<Triangle<> >(_h*_w);
     for(int x=0;x<_w;x++){
     	for(int y=0;y<_h;y++){
     		int i=x*_h+y;
@@ -221,12 +240,12 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
 				std::pair<int,int> &pids = data._collidePairs[0]._geomPrimIds[i];
 				//std::cout << "Colliding pairs: " << pids.first << " <---> " << pids.second << std::endl;
 				RW_ASSERT(0<=pids.first);
-				RW_ASSERT(pids.first<_ntrimesh->size());
+				RW_ASSERT(pids.first<_ntrimesh->getSize());
 
 				// for each colliding pair we find the closest intersection
 				// get the triangle
-				TriangleN0<> triA = _ntrimesh->getTriangle(pids.first);
-				TriangleN0<> tri = mesh->getTriangle(pids.second);
+				Triangle<> triA = _ntrimesh->getTriangle(pids.first);
+				Triangle<> tri = mesh->getTriangle(pids.second);
 /*
 				std::cout << "POINTS1:"
 						  << "\n  " <<  triA[0]
@@ -594,12 +613,12 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
 					std::pair<int,int> &pids = data._collidePairs[0]._geomPrimIds[i];
 					//std::cout << "Colliding pairs: " << pids.first << " <---> " << pids.second << std::endl;
 					RW_ASSERT(0<=pids.first);
-					RW_ASSERT(pids.first<_ntrimesh->size());
+					RW_ASSERT(pids.first<_ntrimesh->getSize());
 
 					// for each colliding pair we find the closest intersection
 					// get the triangle
-					TriangleN0<> tri = mesh->getTriangle(pids.second);
-					TriangleN0<> triA = _ntrimesh->getTriangle(pids.first);
+					Triangle<> tri = mesh->getTriangle(pids.second);
+					Triangle<> triA = _ntrimesh->getTriangle(pids.first);
 
 					Vector3D<> point;
 					if( !IntersectUtil::intersetPtRayPlane(triA[0], triA[2], data._aTb*tri[0], data._aTb*tri[1], data._aTb*tri[2], point) )

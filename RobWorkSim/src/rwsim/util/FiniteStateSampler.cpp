@@ -5,6 +5,7 @@
 
 using namespace rw::kinematics;
 using namespace rw::math;
+using namespace rwsim::util;
 
 FiniteStateSampler::FiniteStateSampler(
 		const State& state, int n, FiniteStateSampler::SamplerType type):

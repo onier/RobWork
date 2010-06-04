@@ -18,6 +18,7 @@
 
 using namespace rw::common;
 using namespace rw::kinematics;
+using namespace rwsim::simulator;
 
 namespace {
 

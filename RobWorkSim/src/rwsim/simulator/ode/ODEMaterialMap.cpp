@@ -1,16 +1,35 @@
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
 
 #include "ODEMaterialMap.hpp"
 
 #include "ODEBody.hpp"
 
-#include <dynamics/MaterialDataMap.hpp>
-#include <dynamics/ContactDataMap.hpp>
+#include <rwsim/dynamics/MaterialDataMap.hpp>
+#include <rwsim/dynamics/ContactDataMap.hpp>
 
 #include <ode/ode.h>
 #include <vector>
 
-ODEMaterialMap::ODEMaterialMap(dynamics::MaterialDataMap& map,
-                               dynamics::ContactDataMap& cmap, std::vector<
+using namespace rwsim::dynamics;
+using namespace rwsim::simulator;
+
+ODEMaterialMap::ODEMaterialMap(MaterialDataMap& map,
+                               ContactDataMap& cmap, std::vector<
                                        ODEBody*> odeBodies) :
     _map(map), _cmap(cmap)
 {
@@ -37,7 +56,7 @@ void ODEMaterialMap::setContactProperties(dContact &con, ODEBody *b1,
     int cid1 = b1->getContactID();
     int cid2 = b2->getContactID();
 
-    const dynamics::FrictionData& data = _map.getFrictionData(mid1, mid2);
+    const FrictionData& data = _map.getFrictionData(mid1, mid2);
 
     double restitutionThres = 0.0001;
     double cfm = 0.0001;
@@ -51,7 +70,7 @@ void ODEMaterialMap::setContactProperties(dContact &con, ODEBody *b1,
     con.surface.bounce = cdata.cr;
     con.surface.bounce_vel = restitutionThres;
 
-    //if(data.type == dynamics::Coulomb){
+    //if(data.type == Coulomb){
     con.surface.mu = data.parameters[0].second(0);
     con.surface.soft_cfm = cfm;
     con.surface.soft_erp = erp;

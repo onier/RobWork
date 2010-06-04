@@ -1,5 +1,24 @@
-#ifndef DYNAMICDEVICE_HPP_
-#define DYNAMICDEVICE_HPP_
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
+
+#ifndef RWSIM_DYNAMICS_DYNAMICDEVICE_HPP_
+#define RWSIM_DYNAMICS_DYNAMICDEVICE_HPP_
+
+//! @file DynamicDevice.hpp
 
 #include <rw/math/Q.hpp>
 #include <rw/kinematics/State.hpp>
@@ -8,58 +27,59 @@
 
 #include "Body.hpp"
 
-/**
- * @brief base class for dynamic devices that has dynamic state values
- * such as velocity and acceleration.
- */
-class DynamicDevice {
-
-public:
+namespace rwsim {
+namespace dynamics {
+	//! @addtogroup dynamics @{
 	/**
-	 * @brief destructor
+	 * @brief base class for dynamic devices that has dynamic state values
+	 * such as velocity and acceleration.
 	 */
-    virtual ~DynamicDevice(){};
+	class DynamicDevice {
 
-    /**
-     * @brief gets the position
-     */
-    rw::math::Q getQ(const rw::kinematics::State& state){
-        return _dev->getQ(state);
-    }
+	public:
+		/**
+		 * @brief destructor
+		 */
+		virtual ~DynamicDevice(){};
 
-    /**
-     * @brief gets the kinematic model of the DynamicDevice.
-     */
-    rw::models::Device& getModel(){
-        return *_dev;
-    }
+		/**
+		 * @brief gets the position
+		 */
+		rw::math::Q getQ(const rw::kinematics::State& state){
+			return _dev->getQ(state);
+		}
 
-    /*rw::models::Device* getModel(){
-        return _dev;
-    }*/
+		/**
+		 * @brief gets the kinematic model of the DynamicDevice.
+		 */
+		rw::models::Device& getModel(){
+			return *_dev;
+		}
 
-    // Joint acceleration
-    //void setQdd(const rw::kinematics::Q& qdd, const rw::kinematics::State& state);
-    //rw::math::Q getQdd(const rw::kinematics::State& state);
+		// Joint acceleration
+		//void setQdd(const rw::kinematics::Q& qdd, const rw::kinematics::State& state);
+		//rw::math::Q getQdd(const rw::kinematics::State& state);
 
-    dynamics::Body* getBase(){ return _base;};
+		dynamics::Body* getBase(){ return _base;};
 
-protected:
+	protected:
 
-    DynamicDevice(dynamics::Body* base, rw::models::Device* dev, rw::models::WorkCell* wc):
-        _dev(dev),
-        _wc(wc),
-        _base(base)
-    {}
+		DynamicDevice(dynamics::Body* base, rw::models::Device* dev, rw::models::WorkCell* wc):
+			_dev(dev),
+			_wc(wc),
+			_base(base)
+		{}
 
 
-    rw::models::Device *_dev;
-    rw::models::WorkCell *_wc;
-    dynamics::Body* _base;
-private:
-	DynamicDevice();
+		rw::models::Device *_dev;
+		rw::models::WorkCell *_wc;
+		dynamics::Body* _base;
+	private:
+		DynamicDevice();
 
-};
-
+	};
+	//! @}
+}
+}
 
 #endif /*DYNAMICDEVICE_HPP_*/

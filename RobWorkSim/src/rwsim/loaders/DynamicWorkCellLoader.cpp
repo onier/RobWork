@@ -1,19 +1,20 @@
-/*********************************************************************
- * RobWork Version 0.2
- * Copyright (C) Robotics Group, Maersk Institute, University of Southern
- * Denmark.
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
  *
- * RobWork can be used, modified and redistributed freely.
- * RobWork is distributed WITHOUT ANY WARRANTY; including the implied
- * warranty of merchantability, fitness for a particular purpose and
- * guarantee of future releases, maintenance and bug fixes. The authors
- * has no responsibility of continuous development, maintenance, support
- * and insurance of backwards capability in the future.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- * Notice that RobWork uses 3rd party software for which the RobWork
- * license does not apply. Consult the packages in the ext/ directory
- * for detailed information about these packages.
- *********************************************************************/
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
+
 
 #include "DynamicWorkCellLoader.hpp"
 
@@ -48,21 +49,22 @@
 #include <rw/math/Constants.hpp>
 #include <rw/models/Accessor.hpp>
 
-#include <dynamics/Body.hpp>
-#include <dynamics/FixedBody.hpp>
-#include <dynamics/KinematicBody.hpp>
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/RigidJoint.hpp>
+#include <rwsim/dynamics/Body.hpp>
+#include <rwsim/dynamics/FixedBody.hpp>
+#include <rwsim/dynamics/KinematicBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/RigidJoint.hpp>
 
-#include <dynamics/KinematicDevice.hpp>
-#include <dynamics/RigidDevice.hpp>
+#include <rwsim/dynamics/KinematicDevice.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
 
-#include <dynamics/MaterialDataMap.hpp>
-#include <dynamics/ContactDataMap.hpp>
-#include <dynamics/DynamicUtil.hpp>
+#include <rwsim/dynamics/MaterialDataMap.hpp>
+#include <rwsim/dynamics/ContactDataMap.hpp>
+#include <rwsim/dynamics/DynamicUtil.hpp>
+
+#include <rwsim/sensor/TactileArraySensor.hpp>
+
 #include <rw/geometry/GeometryUtil.hpp>
-
-#include <sensors/TactileArraySensor.hpp>
 
 #include <rw/common/PropertyMap.hpp>
 #include <rw/common/StringUtil.hpp>
@@ -81,8 +83,10 @@
 typedef boost::property_tree::ptree PTree;
 
 using namespace std;
-using namespace loaders;
-using namespace dynamics;
+using namespace rwsim::loaders;
+using namespace rwsim::dynamics;
+using namespace rwsim::sensor;
+
 using namespace rw::loaders;
 
 using namespace rw::math;
@@ -164,8 +168,8 @@ namespace
 
 
 
-    std::vector<Geometry*> loadGeometrySingle(Frame &f, const State& rwstate){
-        std::vector<Geometry*> geoms;
+    std::vector<GeometryPtr> loadGeometrySingle(Frame &f, const State& rwstate){
+        std::vector<GeometryPtr> geoms;
         Frame *frame = &f;
         // std::vector<Face<float> > faces;
         Log::debugLog()<< "- for all nodes: " << std::endl;
@@ -178,14 +182,14 @@ namespace
         std::string geofile = Accessor::collisionModelInfo().get(*frame)[0].getId();
         Transform3D<> fTgeo = Accessor::collisionModelInfo().get(*frame)[0].getTransform();
 
-        Geometry *geo = GeometryFactory::getGeometry(geofile);
+        GeometryPtr geo = GeometryFactory::getGeometry(geofile);
         geo->setTransform(fTgeo);
         geoms.push_back(geo);
         return geoms;
     }
 
-    std::vector<Geometry*> loadGeometry(Frame *bodyFrame, std::vector<Frame*> frames, const State& rwstate){
-        std::vector<Geometry*> geoms;
+    std::vector<GeometryPtr> loadGeometry(Frame *bodyFrame, std::vector<Frame*> frames, const State& rwstate){
+        std::vector<GeometryPtr> geoms;
         BOOST_FOREACH(const Frame *frame, frames){
             if( frame==NULL )
                 continue;
@@ -197,7 +201,7 @@ namespace
             std::string geofile = Accessor::collisionModelInfo().get(*frame)[0].getId();
             Transform3D<> geomt3d = Accessor::collisionModelInfo().get(*frame)[0].getTransform();
             Transform3D<> fTgeo = pTf * Accessor::collisionModelInfo().get(*frame)[0].getTransform();
-            Geometry *geo = GeometryFactory::getGeometry(geofile);
+            GeometryPtr geo = GeometryFactory::getGeometry(geofile);
             geo->setTransform(fTgeo);
             geoms.push_back(geo);
         }
@@ -348,7 +352,7 @@ namespace
         // time to load the geometry
         Log::debugLog()<< "load geom" << std::endl;
         info.frames = GeometryUtil::getAnchoredFrames( *mframe, state.rwstate);
-        std::vector<Geometry*> geometry = loadGeometry(mframe, info.frames, state.rwstate);
+        std::vector<GeometryPtr> geometry = loadGeometry(mframe, info.frames, state.rwstate);
 
         boost::optional<string> def = tree.get_optional<string>("EstimateInertia");
         if(!def){
@@ -381,7 +385,7 @@ namespace
 
         BodyInfo info;
         info.material = tree.get<string>("MaterialID");
-        std::vector<Geometry*> geoms = loadGeometrySingle(*refframe, state.rwstate);
+        std::vector<GeometryPtr> geoms = loadGeometrySingle(*refframe, state.rwstate);
         FixedBody *body = new FixedBody(info, refframe, geoms);
         Log::infoLog() << "ReadFixedBody end" << std::endl;
         state.allbodies.push_back(body);
@@ -395,7 +399,7 @@ namespace
         BodyInfo info;
         info.material = tree.get<string>("MaterialID");
         info.frames = DynamicUtil::getAnchoredChildFrames( refframe, state.rwstate, state.deviceBases);
-        std::vector<Geometry*> geoms = loadGeometry(refframe, info.frames, state.rwstate);
+        std::vector<GeometryPtr> geoms = loadGeometry(refframe, info.frames, state.rwstate);
 
         RW_DEBUGS("Nr of geoms loaded: " << geoms.size());
         FixedBody *body = new FixedBody(info, refframe, geoms);
@@ -438,7 +442,7 @@ namespace
         BodyInfo info;
         info.material = tree.get<string>("MaterialID");
         info.frames = DynamicUtil::getAnchoredChildFrames( refframe, state.rwstate, state.deviceBases);
-        std::vector<Geometry*> geoms = loadGeometry(refframe, info.frames, state.rwstate);
+        std::vector<GeometryPtr> geoms = loadGeometry(refframe, info.frames, state.rwstate);
         KinematicBody *body = new KinematicBody(info, *refframe, geoms, state.rwstate);
         state.allbodies.push_back(body);
         info.print();
@@ -469,7 +473,7 @@ namespace
 
         Log::debugLog()<< "load geom" << std::endl;
         info.frames = DynamicUtil::getAnchoredFrames( *frame, state.rwstate);
-        std::vector<Geometry*> geometry = loadGeometry(frame, info.frames, state.rwstate);
+        std::vector<GeometryPtr> geometry = loadGeometry(frame, info.frames, state.rwstate);
 
         boost::optional<string> def = tree.get_optional<string>("EstimateInertia");
         if(!def){
@@ -493,7 +497,7 @@ namespace
         JointDevice *device = getDeviceFromAttr(tree, state);
         std::vector<double> maxForce;
         std::vector<KinematicBody*> bodies;
-        dynamics::Body *base = NULL;
+        Body *base = NULL;
         int jIdx = 0;
         std::string framePrefix = device->getName() + ".";
         for (CI p = tree.begin(); p != tree.end(); ++p) {
@@ -526,7 +530,7 @@ namespace
         //Q maxForce(device->getDOF());
         std::vector<double> maxForce;
         std::vector<RigidJoint*> bodies;
-        dynamics::Body* base = NULL;
+        Body* base = NULL;
         int jIdx = 0;
         std::string framePrefix = device->getName() + ".";
         for (CI p = tree.begin(); p != tree.end(); ++p) {
@@ -599,7 +603,7 @@ namespace
             if (p->first == "FrictionData") {
                 Log::debugLog()<< "FrictionData" << std::endl;
                 std::string typestr = p->second.get_child("<xmlattr>").get<std::string>("type");
-                dataTmp.data.type = dynamics::Coulomb; //matMap.getDataID(typestr);
+                dataTmp.data.type = Coulomb; //matMap.getDataID(typestr);
                 // all elements of FrictionData must be param arrays
                 for (CI d = p->second.begin(); d != p->second.end(); ++d) {
                     if( d->first != "<xmlattr>" && d->first != "<xmlcomment>"){
@@ -878,7 +882,7 @@ namespace
     }
 }
 
-rw::common::Ptr<dynamics::DynamicWorkcell> DynamicWorkCellLoader::load(const string& filename)
+rw::common::Ptr<DynamicWorkcell> DynamicWorkCellLoader::load(const string& filename)
 {
 	std::string file = IOUtil::getAbsoluteFileName(filename);
 

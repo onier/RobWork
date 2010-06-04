@@ -1,5 +1,7 @@
 #include "TrajectoryController.hpp"
 
+using namespace rwsim::control;
+
 void TrajectoryController::setControlMode(ControlMode mode){
     if(mode!=POSITION || mode !=VELOCITY )
         RW_THROW("Unsupported control mode!");

@@ -1,5 +1,24 @@
-#ifndef DYNAMICS_BODY_HPP_
-#define DYNAMICS_BODY_HPP_
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
+
+#ifndef RWSIM_DYNAMICS_BODY_HPP_
+#define RWSIM_DYNAMICS_BODY_HPP_
+
+//! @file.hpp
 
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Frame.hpp>
@@ -9,9 +28,10 @@
 
 #include <boost/foreach.hpp>
 #include <rw/geometry/Geometry.hpp>
-//#include "Geometry.hpp"
 
+namespace rwsim {
 namespace dynamics {
+	//! @addtogroup dynamics @{
 
     struct BodyInfo {
     public:
@@ -89,7 +109,7 @@ namespace dynamics {
         Body(
              const BodyInfo& info,
         	 rw::kinematics::Frame *bodyframe,
-             const std::vector<rw::geometry::Geometry*>& geometry):
+             const std::vector<rw::geometry::GeometryPtr>& geometry):
                 _bodyframe(*bodyframe),
                 _geometry(geometry),
                 _info(info)
@@ -114,7 +134,7 @@ namespace dynamics {
             return _bodyframe;
         }
 
-        const std::vector<rw::geometry::Geometry*>& getGeometry(){
+        const std::vector<rw::geometry::GeometryPtr>& getGeometry(){
             return _geometry;
         }
 
@@ -201,12 +221,13 @@ namespace dynamics {
     private:
         rw::kinematics::Frame &_bodyframe;
 
-        std::vector<rw::geometry::Geometry*> _geometry;
+        std::vector<rw::geometry::GeometryPtr> _geometry;
     protected:
     	BodyInfo _info;
 
     };
-
+    //! @}
+}
 }
 
 #endif /*BODY_HPP_*/

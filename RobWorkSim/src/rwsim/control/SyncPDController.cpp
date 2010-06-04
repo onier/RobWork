@@ -1,5 +1,7 @@
 #include "SyncPDController.hpp"
 
+using namespace rwsim::control;
+
 void SyncPDController::setControlMode(ControlMode mode){
     if(mode!=POSITION || mode !=VELOCITY )
         RW_THROW("Unsupported control mode!");
@@ -11,7 +13,9 @@ void SyncPDController::setTargetPos(const rw::math::Q& target){
     _target = target;
 }
 
-void SyncPDController::setTargetVel(const rw::math::Q& vals){};
+void SyncPDController::setTargetVel(const rw::math::Q& vals){
+	_targetVel = vals;
+}
 
 void SyncPDController::setTargetAcc(const rw::math::Q& vals){};
 
