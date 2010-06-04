@@ -31,14 +31,3 @@ INSTALL(FILES "${RWSTUDIO_ROOT}/bin/RobWorkStudio.ini_template"
         RENAME "RobWorkStudio.ini"
 )
 
-# this will configure the dependency file that will be used if install is invoked
-GET_TARGET_PROPERTY(rwstudio_executable_name RobWorkStudio LOCATION)
-CONFIGURE_FILE(
-   "${RWSTUDIO_ROOT}/build/dependencies.cmake.in"
-   "${RWSTUDIO_ROOT}/build/dependencies.cmake"
-   @ONLY
-)
-#INSTALL(SCRIPT "${RWSTUDIO_ROOT}/build/dependencies.cmake")
-
-#include(${RWSTUDIO_ROOT}/build/dependencies.cmake)
-
