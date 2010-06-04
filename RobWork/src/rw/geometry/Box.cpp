@@ -53,9 +53,9 @@ Box::~Box() {
 TriMeshPtr Box::createMesh(int resolution) const{
 	PlainTriMeshF *mesh = new PlainTriMeshF(12);
 
-	double x = _dx/2;
-    double y = _dy/2;
-    double z = _dz/2;
+	float x = (float)(_dx/2.0);
+    float y = (float)(_dy/2.0);
+    float z = (float)(_dz/2.0);
 
     Vector3D<float> p1(x, y, z);
     Vector3D<float> p2(x, y, -z);

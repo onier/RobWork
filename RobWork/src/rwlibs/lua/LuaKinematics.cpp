@@ -38,14 +38,14 @@ rwkin::State rwkin::State::copy(){
 }
 
 unsigned int rwkin::State::size() const{
-	return this->size();
+	return ((rw::kinematics::State*)(this))->size();
 }
 
 std::string rwkin::State::__tostring() const{
 	// TODO: write something usefull here
 	std::stringstream sstr;
 	sstr << "State(" << this->size() ;
-	for(int i=0;i<this->size();i++)
+	for(size_t i=0;i<this->size();i++)
 		sstr << ", " << (*this)[i];
 	sstr << ")";
 	return sstr.str();

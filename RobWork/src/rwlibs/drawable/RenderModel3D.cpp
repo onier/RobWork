@@ -147,18 +147,18 @@ void RenderModel3D::drawUsingArrays(const Model3D::Object3D &obj, DrawType type,
 void RenderModel3D::useMaterial(const Model3D::Material& mat, DrawType type, double alpha) const {
 	if(mat.simplergb){
 
-		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], mat.rgb[3]*alpha );
+		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], (float)(mat.rgb[3]*alpha) );
 	} else {
 		float diffuse[4];
 		diffuse[0] = mat.rgb[0];
 		diffuse[1] = mat.rgb[1];
 		diffuse[2] = mat.rgb[2];
-		diffuse[3] = mat.rgb[3]*alpha;
+		diffuse[3] = (float)(mat.rgb[3]*alpha);
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat.ambient);
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse);
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat.specular);
 		glMaterialfv(GL_FRONT, GL_SHININESS, &mat.shininess);
 		glMaterialfv(GL_FRONT, GL_EMISSION, mat.emissive);
-		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], mat.rgb[3]*alpha );
+		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], (float)(mat.rgb[3]*alpha) );
 	}
 }

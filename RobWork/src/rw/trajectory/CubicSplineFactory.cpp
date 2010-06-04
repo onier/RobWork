@@ -60,7 +60,7 @@ InterpolatorTrajectory<Q>*
 
     for (j=0; j<dim; j++) {
     	for (i=0; i<N+2; i++) {
-    		Y[i] = ((*qpath)[i])[j];
+    		Y[i] = (T)((*qpath)[i])[j];
     	}
 
         for (i=0; i<N; i++) {
@@ -136,9 +136,9 @@ InterpolatorTrajectory<rw::math::Q>*
     std::vector<T> d(dim*N-1);
 
     int i, j;
-    H[0] = (*tqpath)[0].getTime();
+    H[0] = (T)(*tqpath)[0].getTime();
     for(i=1;i<N;i++){
-    	H[i] = (*tqpath)[i].getTime()-(*tqpath)[i-1].getTime();
+    	H[i] = (T)((*tqpath)[i].getTime()-(*tqpath)[i-1].getTime());
     }
     for (j=0; j<dim; j++) {
         for (i=1; i<N-1; i++) {
@@ -150,17 +150,17 @@ InterpolatorTrajectory<rw::math::Q>*
 
         for (i=1; i<N-1; i++) {
         	// 3/hi
-            B[i] = 3/H[i] * (((*tqpath)[i+1].getValue()[j] - (*tqpath)[i].getValue()[j])) -
-            		3/H[i-1]* (((*tqpath)[i].getValue()[j] - (*tqpath)[i-1].getValue()[j]));
+            B[i] = (T)(3/H[i] * (((*tqpath)[i+1].getValue()[j] - (*tqpath)[i].getValue()[j])) -
+            		   3/H[i-1]* (((*tqpath)[i].getValue()[j] - (*tqpath)[i-1].getValue()[j])));
         }
 
-        B[0] = 3/H[0]*((*tqpath)[1].getValue()[j]-(*tqpath)[0].getValue()[j]);
-        B[N-1] = 3/H[N-1]*((*tqpath)[N-1].getValue()[j]-(*tqpath)[N-2].getValue()[j]);
+        B[0] = (T)(3/H[0]*((*tqpath)[1].getValue()[j]-(*tqpath)[0].getValue()[j]));
+        B[N-1] = (T)(3/H[N-1]*((*tqpath)[N-1].getValue()[j]-(*tqpath)[N-2].getValue()[j]));
 
         sptsv_(&N, &NRHS, &D.at(0), &E.at(0), &B.at(0), &LDB, &info);
 
         for (i=0; i<N; i++) {
-            a[j+i*dim] = (*tqpath)[i].getValue()[j];
+            a[j+i*dim] = (T)(*tqpath)[i].getValue()[j];
         }
 
         for (i=0; i<N-1; i++) {
@@ -225,22 +225,22 @@ InterpolatorTrajectory<Q>*
         D[N-1] = 2;
 
         for (i=1; i<N-1; i++) {
-            B[i] = (3 * (((*qpath)[i+1])[j] - ((*qpath)[i-1])[j]));
+            B[i] = (T)(3 * (((*qpath)[i+1])[j] - ((*qpath)[i-1])[j]));
         }
 
-        B[0] = 3*(((*qpath)[1])[j]-((*qpath)[0])[j]) - 3*dqStart[j];
-        B[N-1] = 3*dqEnd[j] - 3*(((*qpath)[N-1])[j]-((*qpath)[N-2])[j]);
+        B[0] = (T)(3*(((*qpath)[1])[j]-((*qpath)[0])[j]) - 3*dqStart[j]);
+        B[N-1] = (T)(3*dqEnd[j] - 3*(((*qpath)[N-1])[j]-((*qpath)[N-2])[j]));
 
         sptsv_(&N, &NRHS, &D.at(0), &E.at(0), &B.at(0), &LDB, &info);
 
         for (i=0; i<N; i++) {
-            a[j+i*dim] = ((*qpath)[i])[j];
+            a[j+i*dim] = (T)((*qpath)[i])[j];
         }
 
         for (i=0; i<N-1; i++) {
-            b[j+i*dim] = B[i];
-            c[j+i*dim] = 3*(a[j+(i+1)*dim]-a[j+i*dim])-2*B[i]-B[i+1];
-            d[j+i*dim] = 2*(a[j+i*dim]-a[j+(i+1)*dim])+B[i]+B[i+1];
+            b[j+i*dim] = (T)B[i];
+            c[j+i*dim] = (T)(3*(a[j+(i+1)*dim]-a[j+i*dim])-2*B[i]-B[i+1]);
+            d[j+i*dim] = (T)(2*(a[j+i*dim]-a[j+(i+1)*dim])+B[i]+B[i+1]);
         }
     }
 
@@ -292,9 +292,9 @@ InterpolatorTrajectory<rw::math::Q>*
     std::vector<T> d(dim*N-1);
 
     int i, j;
-    H[0] = (*tqpath)[0].getTime();
+    H[0] = (T)(*tqpath)[0].getTime();
     for(i=1;i<N;i++){
-    	H[i] = (*tqpath)[i].getTime()-(*tqpath)[i-1].getTime();
+    	H[i] = (T)((*tqpath)[i].getTime()-(*tqpath)[i-1].getTime());
     }
     for (j=0; j<dim; j++) {
         for (i=1; i<N-1; i++) {
@@ -306,17 +306,17 @@ InterpolatorTrajectory<rw::math::Q>*
 
         for (i=1; i<N-1; i++) {
         	// 3/hi
-            B[i] = 3/H[i] * (((*tqpath)[i+1].getValue()[j] - (*tqpath)[i].getValue()[j])) -
-            		3/H[i-1]* (((*tqpath)[i].getValue()[j] - (*tqpath)[i-1].getValue()[j]));
+            B[i] = (T)(3/H[i] * (((*tqpath)[i+1].getValue()[j] - (*tqpath)[i].getValue()[j])) -
+            		3/H[i-1]* (((*tqpath)[i].getValue()[j] - (*tqpath)[i-1].getValue()[j])));
         }
 
-        B[0] = 3/H[0]*((*tqpath)[1].getValue()[j]-(*tqpath)[0].getValue()[j]) - 3*dqStart[j];
-        B[N-1] = 3*dqEnd[j] - 3/H[N-1]*((*tqpath)[N-1].getValue()[j]-(*tqpath)[N-2].getValue()[j]);
+        B[0] = (T)(3/H[0]*((*tqpath)[1].getValue()[j]-(*tqpath)[0].getValue()[j]) - 3*dqStart[j]);
+        B[N-1] = (T)(3*dqEnd[j] - 3/H[N-1]*((*tqpath)[N-1].getValue()[j]-(*tqpath)[N-2].getValue()[j]));
 
         sptsv_(&N, &NRHS, &D.at(0), &E.at(0), &B.at(0), &LDB, &info);
 
         for (i=0; i<N; i++) {
-            a[j+i*dim] = (*tqpath)[i].getValue()[j];
+            a[j+i*dim] = (T)((*tqpath)[i].getValue()[j]);
         }
 
         for (i=0; i<N-1; i++) {

@@ -93,7 +93,7 @@ void RenderGeometry::draw(DrawType type, double alpha) const{
 
 	glPushMatrix();
 
-	float scale = _geometry->getScale();
+	float scale = (float)_geometry->getScale();
 	if (scale != 1.0)
 		glScalef(scale, scale, scale);
 

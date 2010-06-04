@@ -80,7 +80,6 @@ namespace
 
 	GeometryPtr constructSphere(std::stringstream& sstr){
 		float radius;
-		int divisions;
 		if (sstr >> radius) {
 			return ownedPtr(new Geometry(ownedPtr(new Sphere(radius))));
 		} else {
