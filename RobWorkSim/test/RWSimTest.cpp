@@ -8,16 +8,16 @@
 #include <rw/geometry/TriangleUtil.hpp>
 #include <rw/geometry/GeometryFactory.hpp>
 
-#include <dynamics/ContactPoint.hpp>
-#include <dynamics/ContactCluster.hpp>
+#include <rwsim/dynamics/ContactPoint.hpp>
+#include <rwsim/dynamics/ContactCluster.hpp>
 
 #include <rw/math/Vector3D.hpp>
 
-#include <dynamics/ContactManifold.hpp>
+#include <rwsim/dynamics/ContactManifold.hpp>
 
 using namespace rw::math;
 using namespace boost::numeric;
-//using namespace dynamics;
+using namespace rwsim::dynamics;
 
 ContactPoint makeContact(double x,double y,double z,double pen){
     ContactPoint point;

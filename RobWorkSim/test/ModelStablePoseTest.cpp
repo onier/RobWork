@@ -14,15 +14,15 @@
 #include <rw/geometry/GeometryFactory.hpp>
 #include <rw/geometry/IndexedTriMesh.hpp>
 
-#include <dynamics/ContactPoint.hpp>
-#include <dynamics/ContactCluster.hpp>
+#include <rwsim/dynamics/ContactPoint.hpp>
+#include <rwsim/dynamics/ContactCluster.hpp>
 
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 
 #include <rw/geometry/GeometryUtil.hpp>
 
-#include <dynamics/ContactManifold.hpp>
+#include <rwsim/dynamics/ContactManifold.hpp>
 #include <rw/geometry/GeometryFactory.hpp>
 
 #include <rw/geometry/GiftWrapHull3D.hpp>
@@ -49,8 +49,8 @@ int main(int argc, char** argv)
 	if(argc>2)
 	    mass = std::atof(argv[2]);
 
-	Geometry *geo = GeometryFactory::getGeometry(filename);
-	std::vector<Geometry*> geoms;
+	GeometryPtr geo = GeometryFactory::getGeometry(filename);
+	std::vector<GeometryPtr> geoms;
 	geoms.push_back(geo);
 
 	Vector3D<> masscenter = GeometryUtil::estimateCOG(geoms);
@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 	std::cout << "- Calculating invariant axes: \n";
 
 	// now create the convex hull of the geometry
-	TriMeshPtr mesh = GeometryUtil::toTriMesh(geo);
+	TriMeshPtr mesh = geo->getGeometryData()->getTriMesh();
 	//IndexedTriMesh<float> *idxMesh = dynamic_cast<IndexedTriMesh<float>* >(mesh);
 	IndexedTriMesh<> *idxMesh = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<> >(*mesh,0.00001);
 	RW_ASSERT(idxMesh);
@@ -81,7 +81,7 @@ int main(int argc, char** argv)
     // now project the center of mass onto all triangles in the trimesh
     // If it is inside a triangle then the triangle is a stable pose
     std::vector<TriangleN1<> > result;
-    for(size_t i=0;i<fmesh->size();i++){
+    for(size_t i=0;i<fmesh->getSize();i++){
         if( (*fmesh)[i].isInside(masscenter) )
             result.push_back((*fmesh)[i]);
     }

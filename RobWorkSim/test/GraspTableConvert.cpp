@@ -14,17 +14,15 @@
 #include <rw/geometry/GeometryFactory.hpp>
 #include <rw/geometry/IndexedTriMesh.hpp>
 
-#include <dynamics/ContactPoint.hpp>
-#include <dynamics/ContactCluster.hpp>
+#include <rwsim/dynamics/ContactPoint.hpp>
+#include <rwsim/dynamics/ContactCluster.hpp>
+#include <rwsim/dynamics/ContactManifold.hpp>
 
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 
 #include <rw/geometry/GeometryUtil.hpp>
-
-#include <dynamics/ContactManifold.hpp>
 #include <rw/geometry/GeometryFactory.hpp>
-
 #include <rw/geometry/GiftWrapHull3D.hpp>
 
 #include <rw/graspplanning/GraspTable.hpp>
@@ -35,6 +33,8 @@ using namespace rw::math;
 using namespace rw::geometry;
 using namespace rw::common;
 using namespace rw::graspplanning;
+
+using namespace rwsim::dynamics;
 
 using namespace boost::numeric::ublas;
 

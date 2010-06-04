@@ -14,15 +14,15 @@
 #include <rw/geometry/GeometryFactory.hpp>
 #include <rw/geometry/IndexedTriMesh.hpp>
 
-#include <dynamics/ContactPoint.hpp>
-#include <dynamics/ContactCluster.hpp>
+#include <rwsim/dynamics/ContactPoint.hpp>
+#include <rwsim/dynamics/ContactCluster.hpp>
 
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 
 #include <rw/geometry/GeometryUtil.hpp>
 
-#include <dynamics/ContactManifold.hpp>
+#include <rwsim/dynamics/ContactManifold.hpp>
 #include <rw/geometry/GeometryFactory.hpp>
 
 #include <rw/common/Log.hpp>
