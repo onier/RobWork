@@ -125,3 +125,4 @@ add_library(rwsim
 )
 
 #add_subdirectory(lua)
+add_subdirectory(plugin)
