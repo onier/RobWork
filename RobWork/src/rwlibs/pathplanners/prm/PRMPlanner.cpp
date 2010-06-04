@@ -610,8 +610,8 @@ bool PRMPlanner::searchForShortestPathAstar(const Node& nInit, const Node& nGoal
     std::vector<float> d(num_vertices(_graph));
     try {
 		std::cout<<"A* C"<<std::endl;std::cout.flush();
-		const boost::bundle_property_map<PRM, boost::detail::edge_desc_impl<boost::undirected_tag, void*>, rwlibs::pathplanners::PRMPlanner::EdgeData, double>
-			&pmap = get(&EdgeData::weight, _graph);
+		//const boost::bundle_property_map<PRM, boost::detail::edge_desc_impl<boost::undirected_tag, void*>, rwlibs::pathplanners::PRMPlanner::EdgeData, double>
+		//	&pmap = get(&EdgeData::weight, _graph);
 
 		// call astar named parameter interface
 		// TODO: PRM Planner fails with gcc 4.4  -  astar_search disabled = not working
