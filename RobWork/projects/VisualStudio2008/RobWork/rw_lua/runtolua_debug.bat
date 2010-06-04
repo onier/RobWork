@@ -1,7 +1,6 @@
-tolua hej
-tolua -o ../../../../src/rwlibs/lua/LuaMathStub.cpp -H ../../../../src/rwlibs/lua/LuaMathStub.hpp -n LuaMath ../../../../src/rwlibs/lua/LuaMath.pkg
+..\Debug\tolua -o ../../../../src/rwlibs/lua/LuaMathStub.cpp -H ../../../../src/rwlibs/lua/LuaMathStub.hpp -n LuaMath ../../../../src/rwlibs/lua/LuaMath.pkg
 
-tolua -o ../../../../src/rwlibs/lua/LuaKinematicsStub.cpp -H ../../../../src/rwlibs/lua/LuaKinematicsStub.hpp -n LuaKinematics ../../../../src/rwlibs/lua/LuaKinematics.pkg
+..\Debug\tolua -o ../../../../src/rwlibs/lua/LuaKinematicsStub.cpp -H ../../../../src/rwlibs/lua/LuaKinematicsStub.hpp -n LuaKinematics ../../../../src/rwlibs/lua/LuaKinematics.pkg
 
 ..\Debug\tolua -o ../../../../src/rwlibs/lua/LuaLoadersStub.cpp -H ../../../../src/rwlibs/lua/LuaLoadersStub.hpp -n LuaLoaders ../../../../src/rwlibs/lua/LuaLoaders.pkg
 
