@@ -27,7 +27,7 @@
 
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/State.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
 #include <rw/common/Ptr.hpp>
 #include <RobWorkStudioPlugin.hpp>
 
@@ -97,7 +97,7 @@ private: // qt stuff
 	QPushButton *_restPoseBtn, *_poseAnalyserBtn, *_toolEvalBtn, *_graspSelectBtn;
 
 private:
-    rw::common::Ptr<dynamics::DynamicWorkcell> _dwc;
+    rw::common::Ptr<rwsim::dynamics::DynamicWorkcell> _dwc;
     RestingPoseDialog *_restPoseDialog;
     GraspRestingPoseDialog *_graspRestPoseDialog;
     SupportPoseAnalyserDialog *_poseAnalyserDialog;

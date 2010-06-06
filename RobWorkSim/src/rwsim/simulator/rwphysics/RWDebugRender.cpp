@@ -1,6 +1,8 @@
 #include "RWDebugRender.hpp"
 
-using namespace drawable;
+using namespace rwsim::drawable;
+using namespace rwsim::simulator;
+
 
 namespace {
 

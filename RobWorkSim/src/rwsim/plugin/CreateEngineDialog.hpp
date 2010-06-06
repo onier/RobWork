@@ -16,9 +16,9 @@
 
 #include <rw/kinematics/State.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
-#include <simulator/Simulator.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/simulator/Simulator.hpp>
 #include <rw/common/Ptr.hpp>
 
 #include <QObject>
@@ -30,10 +30,10 @@ class CreateEngineDialog : public QDialog, private Ui::CreateEngineDialog
 	Q_OBJECT
 
 public:
-	CreateEngineDialog(rw::common::Ptr<dynamics::DynamicWorkcell> dwc,
+	CreateEngineDialog(rw::common::Ptr<rwsim::dynamics::DynamicWorkcell> dwc,
 					   QWidget *parent = 0);
 
-	Simulator *getSimulator(){ return _sim; };
+	rwsim::simulator::Simulator *getSimulator(){ return _sim; };
 
 private slots:
 	void btnPressed();
@@ -41,8 +41,8 @@ private slots:
 
 private:
 	Ui::CreateEngineDialog _ui;
-	Simulator *_sim;
-	rw::common::Ptr<dynamics::DynamicWorkcell> _dwc;
+	rwsim::simulator::Simulator *_sim;
+	rw::common::Ptr<rwsim::dynamics::DynamicWorkcell> _dwc;
 };
 
 

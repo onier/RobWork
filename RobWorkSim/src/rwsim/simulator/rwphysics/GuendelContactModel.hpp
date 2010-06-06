@@ -1,6 +1,10 @@
 #ifndef GUENDELCONTACTMODEL_HPP_
 #define GUENDELCONTACTMODEL_HPP_
 
+
+namespace rwsim {
+namespace simulator {
+
 class GuendelContactModel : public dynamics::ContactModel
 {
 public:
@@ -58,5 +62,6 @@ private:
     double _colRestCoeff;
     double _contactRestCoeff;
 };
-
+}
+}
 #endif /*GUENDELCONTACTMODEL_HPP_*/

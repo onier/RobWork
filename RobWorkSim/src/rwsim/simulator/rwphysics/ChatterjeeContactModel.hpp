@@ -1,6 +1,9 @@
 #ifndef CHATTERJEECONTACTMODEL_HPP_
 #define CHATTERJEECONTACTMODEL_HPP_
 
+namespace rwsim {
+namespace simulator {
+
 class ChatterjeeContactModel
 {
 public:
@@ -11,5 +14,7 @@ public:
 	
 	
 };
+}
+}
 
 #endif /*CHATTERJEECONTACTMODEL_HPP_*/

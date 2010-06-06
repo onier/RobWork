@@ -7,6 +7,7 @@
 
 #include "RWBodyPool.hpp"
 
+using namespace rwsim::simulator;
 
 RWBodyPool::RWBodyPool(int nrBodies):_bodies(nrBodies){
 	// add all bodes to the free list

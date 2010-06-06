@@ -8,7 +8,9 @@
 
 #include "RWBody.hpp"
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
+
 
     class ConstraintEdge;
 
@@ -176,6 +178,7 @@ namespace dynamics {
         ConstraintNode* second;
     };
 
+}
 }
 
 #endif /*ConstraintNode_HPP_*/

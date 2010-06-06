@@ -16,21 +16,21 @@
 
 #include <rw/kinematics/State.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
-#include <simulator/ThreadSimulator.hpp>
-#include <control/PDController.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
+#include <rwsim/control/PDController.hpp>
 #include <rw/kinematics/FrameMap.hpp>
 
 #include <rw/graspplanning/GraspTable.hpp>
-#include <util/MovingAverage.hpp>
+#include <rwsim/util/MovingAverage.hpp>
 
 #include <boost/numeric/ublas/matrix.hpp>
 
 #include <rw/proximity/CollisionDetector.hpp>
-#include <dynamics/RigidDevice.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
 
-#include <sensors/BodyContactSensor.hpp>
+#include <rwsim/sensor/BodyContactSensor.hpp>
 
 #include <QObject>
 #include <QtGui>
@@ -58,13 +58,13 @@ class GraspRestingPoseDialog : public QDialog, private Ui::GraspRestingPoseDialo
         typedef std::vector<boost::numeric::ublas::matrix<float> > TactileSensorData;
 
         GraspRestingPoseDialog(const rw::kinematics::State& state,
-                          dynamics::DynamicWorkcell *dwc,
+                          rwsim::dynamics::DynamicWorkcell *dwc,
                           rw::proximity::CollisionDetector *detector,
                           QWidget *parent = 0);
 
         const rw::kinematics::State& getState(){ return _state; };
 
-        std::vector<dynamics::RigidBody*>& getBodies(){ return _bodies; };
+        std::vector<rwsim::dynamics::RigidBody*>& getBodies(){ return _bodies; };
 
         std::vector<rw::kinematics::State>& getStartPoses(){return _startPoses;};
 
@@ -118,7 +118,7 @@ class GraspRestingPoseDialog : public QDialog, private Ui::GraspRestingPoseDialo
          * @param bodies
          * @param state
          */
-        void calcRandomCfg(std::vector<dynamics::RigidBody*> &bodies,
+        void calcRandomCfg(std::vector<rwsim::dynamics::RigidBody*> &bodies,
                            rw::kinematics::State& state);
 
         /**
@@ -128,9 +128,9 @@ class GraspRestingPoseDialog : public QDialog, private Ui::GraspRestingPoseDialo
          */
         void calcColFreeRandomCfg(rw::kinematics::State& state);
 
-        bool isSimulationFinished( SimulatorPtr sim, const rw::kinematics::State& state );
+        bool isSimulationFinished( rwsim::simulator::SimulatorPtr sim, const rw::kinematics::State& state );
 
-        bool saveRestingState( int simidx, SimulatorPtr sim , const rw::kinematics::State& state );
+        bool saveRestingState( int simidx, rwsim::simulator::SimulatorPtr sim , const rw::kinematics::State& state );
 
 
     private:
@@ -150,33 +150,33 @@ class GraspRestingPoseDialog : public QDialog, private Ui::GraspRestingPoseDialo
         rw::kinematics::State _defstate;
         rw::kinematics::State _state;
         QTimer *_timer;
-        std::vector<rw::common::Ptr<ThreadSimulator> > _simulators;
+        std::vector<rw::common::Ptr<rwsim::simulator::ThreadSimulator> > _simulators;
         std::vector<rw::kinematics::State> _initStates;
         std::vector<double> _simStartTimes;
         int _nrOfTests;
         double _totalSimTime;
-        std::vector<dynamics::RigidBody*> _bodies;
+        std::vector<rwsim::dynamics::RigidBody*> _bodies;
 
         long _startTime;
 
         std::vector<rw::kinematics::State> _startPoses;
         std::vector<rw::kinematics::State> _resultPoses;
 
-        rw::kinematics::FrameMap<dynamics::RigidBody*> _frameToBody;
-        dynamics::DynamicWorkcell *_dwc;
+        rw::kinematics::FrameMap<rwsim::dynamics::RigidBody*> _frameToBody;
+        rwsim::dynamics::DynamicWorkcell *_dwc;
         rw::proximity::CollisionDetector *_colDect;
         double _lastTime,_lastBelowThresUpdate;
-        MovingAverage _avgSimTime;
-        MovingAverage _avgTime;
+        rwsim::util::MovingAverage _avgSimTime;
+        rwsim::util::MovingAverage _avgTime;
 
-        std::vector<PDControllerPtr> _controllers;
+        std::vector<rwsim::control::PDControllerPtr> _controllers;
         std::vector<rw::math::Q> _preshapes;
         std::vector<rw::math::Q> _targetQ;
-        dynamics::RigidBody *_body;
-        RigidDevice *_hand;
+        rwsim::dynamics::RigidBody *_body;
+        rwsim::dynamics::RigidDevice *_hand;
         rw::kinematics::MovableFrame *_handBase,*_object;
 
-        BodyContactSensorPtr _bodySensor;
+        rwsim::sensor::BodyContactSensorPtr _bodySensor;
 
         bool _exitHard;
 

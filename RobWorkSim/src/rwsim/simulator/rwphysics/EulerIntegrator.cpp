@@ -1,6 +1,6 @@
 #include "EulerIntegrator.hpp"
 
-using namespace dynamics;
+using namespace rwsim::simulator;
 using namespace rw::math;
 
 EulerIntegrator::EulerIntegrator(RWBody *body):

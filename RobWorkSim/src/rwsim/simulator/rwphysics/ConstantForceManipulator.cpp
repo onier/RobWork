@@ -3,6 +3,7 @@
 #include <boost/foreach.hpp>
 
 using namespace rw::math;
+using namespace rwsim::simulator;
 
 ConstantForceManipulator::ConstantForceManipulator(
 		const Vector3D<>& force, std::vector<RWBody*>& bodies):

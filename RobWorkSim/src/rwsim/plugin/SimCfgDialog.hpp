@@ -16,9 +16,9 @@
 
 #include <rw/kinematics/State.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
-#include <simulator/ThreadSimulator.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/kinematics/FrameMap.hpp>
 
@@ -31,7 +31,7 @@ class SimCfgDialog : public QDialog, private Ui::SimCfgDialog
         Q_OBJECT
 
     public:
-        SimCfgDialog(rw::common::Ptr<Simulator> sim, QWidget *parent = 0);
+        SimCfgDialog(rw::common::Ptr<rwsim::simulator::Simulator> sim, QWidget *parent = 0);
 
     private slots:
         void btnPressed();
@@ -40,7 +40,7 @@ class SimCfgDialog : public QDialog, private Ui::SimCfgDialog
     private:
         Ui::SimCfgDialog _ui;
 
-        rw::common::Ptr<Simulator> _sim;
+        rw::common::Ptr<rwsim::simulator::Simulator> _sim;
 };
 
 

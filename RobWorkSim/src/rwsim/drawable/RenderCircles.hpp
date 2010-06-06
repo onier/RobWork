@@ -54,18 +54,18 @@ namespace drawable {
 		 * @brief adds circle to the circles that are allready drawn
 		 * @param circle [in] circle to draw
 		 */
-		void addCircle(const CircleModel& circle);
+		void addCircle(const util::CircleModel& circle);
 
 		/**
 		 * @brief adds circles to the circles that are allready drawn
 		 */
-		void addCircles(const std::vector<CircleModel>& circles);
+		void addCircles(const std::vector<util::CircleModel>& circles);
 
 		/**
 		 * @brief set the circles that is to be rendered
 		 * @param circles [in] the vector of circles
 		 */
-		void setCircles(const std::vector<CircleModel>& circles);
+		void setCircles(const std::vector<util::CircleModel>& circles);
 
 		/**
 		 * @brief set the color used for the model
@@ -84,7 +84,7 @@ namespace drawable {
 		void draw(DrawType type, double alpha) const;
 	private:
 		float _stepSize;
-		std::vector<CircleModel> _circles;
+		std::vector<util::CircleModel> _circles;
 		float _color[3];
 	};
 

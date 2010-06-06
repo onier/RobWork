@@ -1,13 +1,13 @@
-#ifndef BODYINTEGRATOR_HPP_
-#define BODYINTEGRATOR_HPP_
+#ifndef RWSIM_SIMULATOR_BODYINTEGRATOR_HPP_
+#define RWSIM_SIMULATOR_BODYINTEGRATOR_HPP_
 
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/InertiaMatrix.hpp>
 #include <rw/kinematics/State.hpp>
 
-namespace dynamics {
-
+namespace rwsim {
+namespace simulator {
     class BodyIntegrator
     {
     protected:
@@ -33,5 +33,6 @@ namespace dynamics {
 
     };
 
+}
 }
 #endif /*BODYINTEGRATOR_HPP_*/

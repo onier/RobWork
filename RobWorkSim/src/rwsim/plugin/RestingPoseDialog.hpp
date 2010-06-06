@@ -16,13 +16,13 @@
 
 #include <rw/kinematics/State.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
-#include <simulator/ThreadSimulator.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
 
 #include <rw/kinematics/FrameMap.hpp>
 
-#include <util/MovingAverage.hpp>
+#include <rwsim/util/MovingAverage.hpp>
 
 #include <rw/proximity/CollisionDetector.hpp>
 
@@ -42,13 +42,13 @@ class RestingPoseDialog : public QDialog, private Ui::RestingPoseDialog
 
     public:
         RestingPoseDialog(const rw::kinematics::State& state,
-                          dynamics::DynamicWorkcell *dwc,
+                          rwsim::dynamics::DynamicWorkcell *dwc,
                           rw::proximity::CollisionDetector *detector,
                           QWidget *parent = 0);
 
         const rw::kinematics::State& getState(){ return _state; };
 
-        std::vector<dynamics::RigidBody*>& getBodies(){ return _bodies; };
+        std::vector<rwsim::dynamics::RigidBody*>& getBodies(){ return _bodies; };
 
         std::vector<rw::kinematics::State>& getStartPoses(){return _startPoses;};
 
@@ -88,7 +88,7 @@ class RestingPoseDialog : public QDialog, private Ui::RestingPoseDialog
          * @param bodies
          * @param state
          */
-        void calcRandomCfg(std::vector<dynamics::RigidBody*> &bodies,
+        void calcRandomCfg(std::vector<rwsim::dynamics::RigidBody*> &bodies,
                            rw::kinematics::State& state);
 
         /**
@@ -104,24 +104,24 @@ class RestingPoseDialog : public QDialog, private Ui::RestingPoseDialog
         rw::kinematics::State _defstate;
         rw::kinematics::State _state;
         QTimer *_timer;
-        std::vector<rw::common::Ptr<ThreadSimulator> > _simulators;
+        std::vector<rw::common::Ptr<rwsim::simulator::ThreadSimulator> > _simulators;
         std::vector<rw::kinematics::State> _initStates;
         std::vector<double> _simStartTimes;
         int _nrOfTests;
         double _totalSimTime;
-        std::vector<dynamics::RigidBody*> _bodies;
+        std::vector<rwsim::dynamics::RigidBody*> _bodies;
 
         long _startTime;
 
         std::vector<rw::kinematics::State> _startPoses;
         std::vector<rw::kinematics::State> _resultPoses;
 
-        rw::kinematics::FrameMap<dynamics::RigidBody*> _frameToBody;
-        dynamics::DynamicWorkcell *_dwc;
+        rw::kinematics::FrameMap<rwsim::dynamics::RigidBody*> _frameToBody;
+        rwsim::dynamics::DynamicWorkcell *_dwc;
         rw::proximity::CollisionDetector *_colDect;
         double _lastTime,_lastBelowThresUpdate;
-        MovingAverage _avgSimTime;
-        MovingAverage _avgTime;
+        rwsim::util::MovingAverage _avgSimTime;
+        rwsim::util::MovingAverage _avgTime;
 
 };
 

@@ -16,9 +16,9 @@
 
 #include <rw/kinematics/State.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
-#include <simulator/ThreadSimulator.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/kinematics/FrameMap.hpp>
 
@@ -31,7 +31,7 @@ class ODESimCfgDialog : public QDialog, private Ui::ODESimCfgForm
         Q_OBJECT
 
     public:
-        ODESimCfgDialog(rw::common::Ptr<Simulator> sim, QWidget *parent = 0);
+        ODESimCfgDialog(rw::common::Ptr<rwsim::simulator::Simulator> sim, QWidget *parent = 0);
 
         void initializeStart();
 
@@ -50,7 +50,7 @@ class ODESimCfgDialog : public QDialog, private Ui::ODESimCfgForm
     private:
         Ui::ODESimCfgForm _ui;
 
-        rw::common::Ptr<Simulator> _sim;
+        rw::common::Ptr<rwsim::simulator::Simulator> _sim;
 };
 
 

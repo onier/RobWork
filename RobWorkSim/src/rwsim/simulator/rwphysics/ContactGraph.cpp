@@ -13,7 +13,7 @@ using namespace rw::proximity;
 using namespace rw::kinematics;
 using namespace rw::math;
 
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 typedef CNodePairMap< ConstraintEdge* > EdgeMap;
 typedef FrameMap< ConstraintNode* > FrameNodeMap;

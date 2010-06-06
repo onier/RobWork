@@ -8,7 +8,7 @@
 #include "RK4Integrator.hpp"
 
 
-using namespace dynamics;
+using namespace rwsim::simulator;
 using namespace rw::math;
 
 namespace {

@@ -6,6 +6,10 @@
 
 #include <rw/kinematics/State.hpp>
 
+namespace rwsim {
+namespace simulator {
+
+
 typedef std::vector<dynamics::ConstraintEdge*> CEdgeGroup;
 
 struct SolverInfo {
@@ -50,5 +54,6 @@ public:
 
 };
 
+}}
 
 #endif /*CONSTRAINTSOLVER_HPP_*/

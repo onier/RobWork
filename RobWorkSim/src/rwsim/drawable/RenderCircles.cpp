@@ -26,6 +26,7 @@ using namespace rw::kinematics;
 using namespace rw::math;
 using namespace rwlibs::drawable;
 using namespace rwsim::drawable;
+using namespace rwsim::util;
 
 RenderCircles::RenderCircles(float angleres):_stepSize(angleres*Deg2Rad)
 {}

@@ -7,6 +7,9 @@
 #include "RWBody.hpp"
 #include <dynamics/ContactPoint.hpp>
 
+namespace rwsim {
+namespace simulator {
+
 namespace dynamics {
 	class ContactModel;
 }
@@ -45,5 +48,8 @@ private:
 
 	dynamics::ContactModel *_model;
 };
+
+}
+}
 
 #endif /*CONTACT_HPP_*/

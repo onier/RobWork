@@ -17,7 +17,9 @@
 #include "CNodePool.hpp"
 
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
+
 
     struct FilteredPoint;
 
@@ -122,6 +124,6 @@ namespace dynamics {
         double dist;
         int hits;
     };
-
+}
 }
 #endif /*CONTACTMODELFACTORY_HPP_*/

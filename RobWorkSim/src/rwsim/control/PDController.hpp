@@ -139,6 +139,7 @@ namespace control {
 		std::vector<PDParam> _pdparams;
 		ControlMode _mode;
 		double _stime, _accTime; // sample time
+		rw::math::Q  _P, _D;
 	};
 
 	typedef rw::common::Ptr<PDController> PDControllerPtr;

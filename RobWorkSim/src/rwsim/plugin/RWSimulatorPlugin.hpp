@@ -34,14 +34,14 @@
 
 #include <rwlibs/drawable/WorkCellGLDrawer.hpp>
 
-#include <dynamics/DynamicWorkcell.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
 
-#include <dynamics/FixedDevice.hpp>
-#include <simulator/Simulator.hpp>
-#include <simulator/rwphysics/ConstantForceManipulator.hpp>
+#include <rwsim/dynamics/FixedDevice.hpp>
+#include <rwsim/simulator/Simulator.hpp>
+#include <rwsim/simulator/rwphysics/ConstantForceManipulator.hpp>
 
-#include <drawable/RenderContacts.hpp>
-#include <drawable/RenderGhost.hpp>
+#include <rwsim/drawable/RenderContacts.hpp>
+#include <rwsim/drawable/RenderGhost.hpp>
 
 #include <rwlibs/control/JointController.hpp>
 
@@ -92,25 +92,25 @@ private: // qt stuff
 
 private:
     std::string _previousOpenDirectory;
-    rw::common::Ptr<dynamics::DynamicWorkcell> _dworkcell;
+    rw::common::Ptr<rwsim::dynamics::DynamicWorkcell> _dworkcell;
 //    rw::kinematics::State *_state;
     rw::kinematics::State _dState,_jointState;
-    ConstantForceManipulator *_gravity;
+    rwsim::simulator::ConstantForceManipulator *_gravity;
     QTimer *_timer;
 
-    RenderContacts _miscForces;
-    RenderContacts _bodyForces;
+    rwsim::drawable::RenderContacts _miscForces;
+    rwsim::drawable::RenderContacts _bodyForces;
 
     double _timeStep;
     double _nextTime;
     bool _save;
     JointControlDialog *_jointDialog,*_jointDialog1;
-    RenderGhost *_ghost;
+    rwsim::drawable::RenderGhost *_ghost;
 
-    std::vector<dynamics::FixedDevice*> _fdevs;
+    std::vector<rwsim::dynamics::FixedDevice*> _fdevs;
     QLabel* _timeLabel;
     rw::trajectory::TimedStatePath _statePath;
-    boost::shared_ptr<Simulator> _simulator;
+    boost::shared_ptr<rwsim::simulator::Simulator> _simulator;
 
 
     std::vector<JointController*> _controllers;

@@ -50,17 +50,17 @@
 
 //#include <simulator/rwphysics/RWSimulator.hpp>
 //#include <simulator/ode/ODESimulator.hpp>
-#include <dynamics/KinematicDevice.hpp>
-#include <dynamics/RigidDevice.hpp>
-#include <loaders/DynamicWorkCellLoader.hpp>
-#include <control/VelRampController.hpp>
-#include <control/PDController.hpp>
-#include <control/SyncPDController.hpp>
+#include <rwsim/dynamics/KinematicDevice.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
+#include <rwsim/loaders/DynamicWorkCellLoader.hpp>
+#include <rwsim/control/VelRampController.hpp>
+#include <rwsim/control/PDController.hpp>
+#include <rwsim/control/SyncPDController.hpp>
 #include <rwlibs/drawable/TactileArrayRender.hpp>
 #include <rwlibs/simulation/SimulatedController.hpp>
 #include <rwlibs/simulation/SimulatedSensor.hpp>
 
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
 #include <rw/common/Log.hpp>
 #include <rw/common/Exception.hpp>
@@ -78,9 +78,11 @@ using namespace rw::common;
 using namespace rw::trajectory;
 using namespace rwlibs::drawable;
 using namespace rw::kinematics;
-using namespace dynamics;
-using namespace loaders;
-using namespace drawable;
+using namespace rwsim::dynamics;
+using namespace rwsim::loaders;
+using namespace rwsim::drawable;
+using namespace rwsim::simulator;
+using namespace rwsim::control;
 using namespace rwlibs::simulation;
 
 using namespace rws;
@@ -539,8 +541,7 @@ void RWSimulatorPlugin::open(const std::string& file)
             } else if ( dynamic_cast<RigidDevice*>(ddev) ){
                 RigidDevice *rdev = dynamic_cast<RigidDevice*>(ddev);
                 PDController *pdctrl =
-							new PDController(rdev, _dState, PDController::POSITION,
-													  PDController::PDParam(10,0.3), 0.1);
+							new PDController(rdev, _dState, PDController::POSITION, PDParam(10,0.3), 0.1);
 
                 _controllers.push_back( pdctrl );
                 _dworkcell->addController( pdctrl );

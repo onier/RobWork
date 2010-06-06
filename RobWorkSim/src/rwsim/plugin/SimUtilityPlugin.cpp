@@ -43,15 +43,15 @@
 #include <rw/models/Device.hpp>
 #include <rwlibs/drawable/Drawable.hpp>
 
-#include <dynamics/KinematicDevice.hpp>
-#include <dynamics/RigidDevice.hpp>
-#include <loaders/DynamicWorkCellLoader.hpp>
-#include <control/VelRampController.hpp>
-#include <control/PDController.hpp>
-#include <control/SyncPDController.hpp>
+#include <rwsim/dynamics/KinematicDevice.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
+#include <rwsim/loaders/DynamicWorkCellLoader.hpp>
+#include <rwsim/control/VelRampController.hpp>
+#include <rwsim/control/PDController.hpp>
+#include <rwsim/control/SyncPDController.hpp>
 #include <rwlibs/drawable/TactileArrayRender.hpp>
 
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
 #include <rw/common/Log.hpp>
 #include <rw/common/Exception.hpp>
@@ -75,9 +75,9 @@ using namespace rw::common;
 using namespace rw::trajectory;
 using namespace rwlibs::drawable;
 using namespace rw::kinematics;
-using namespace dynamics;
-using namespace loaders;
-using namespace drawable;
+using namespace rwsim::dynamics;
+using namespace rwsim::loaders;
+using namespace rwsim::drawable;
 
 using namespace rws;
 

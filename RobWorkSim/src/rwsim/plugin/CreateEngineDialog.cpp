@@ -11,9 +11,9 @@
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 
-#include <dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
 
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
@@ -24,11 +24,13 @@
 
 using namespace rw::loaders;
 using namespace rw::trajectory;
-using namespace dynamics;
+using namespace rwsim::dynamics;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;
 using namespace rw::proximity;
+using namespace rwsim::dynamics;
+using namespace rwsim::simulator;
 
 #define RW_DEBUGS( str ) std::cout << str  << std::endl;
 
@@ -37,7 +39,7 @@ namespace {
 
 }
 
-CreateEngineDialog::CreateEngineDialog(Ptr<dynamics::DynamicWorkcell> dwc, QWidget *parent):
+CreateEngineDialog::CreateEngineDialog(Ptr<DynamicWorkcell> dwc, QWidget *parent):
     QDialog(parent),
     _dwc(dwc)
 {

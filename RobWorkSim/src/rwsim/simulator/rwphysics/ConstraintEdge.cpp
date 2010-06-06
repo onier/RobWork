@@ -1,6 +1,6 @@
 #include "ConstraintEdge.hpp"
 
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 ConstraintEdge::ConstraintEdge(
             CNodePair n,

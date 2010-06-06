@@ -18,10 +18,10 @@
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicUtil.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicUtil.hpp>
 
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
@@ -30,19 +30,23 @@
 #include <rw/loaders/path/PathLoader.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
 #include <rwlibs/drawable/Drawable.hpp>
-#include <util/PointRANSACFitting.hpp>
-#include <util/PlaneModel.hpp>
-#include <util/DistModel.hpp>
+#include <rwsim/util/PointRANSACFitting.hpp>
+#include <rwsim/util/PlaneModel.hpp>
+#include <rwsim/util/DistModel.hpp>
 
 #include <rw/sensor/Image.hpp>
 #include <rw/sensor/ImageUtil.hpp>
 #include <rw/math/Constants.hpp>
 #include <rw/math/Line2D.hpp>
 
-#include <util/HughLineExtractor.hpp>
-#include <util/CircleModel.hpp>
+#include <rwsim/util/HughLineExtractor.hpp>
+#include <rwsim/util/CircleModel.hpp>
 
-using namespace dynamics;
+using namespace rwsim::dynamics;
+using namespace rwsim::sensor;
+using namespace rwsim::util;
+using namespace rwsim::drawable;
+
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;
@@ -78,7 +82,7 @@ namespace {
 }
 
 SupportPoseAnalyserDialog::SupportPoseAnalyserDialog(const rw::kinematics::State& state,
-                                    dynamics::DynamicWorkcell *dwc,
+                                    DynamicWorkcell *dwc,
                                     rw::proximity::CollisionDetector *detector,
                                     QWidget *parent):
     QDialog(parent),

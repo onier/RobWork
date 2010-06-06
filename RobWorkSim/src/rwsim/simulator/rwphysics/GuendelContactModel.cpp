@@ -12,7 +12,7 @@
 
 using namespace rw::math;
 
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 namespace {
 

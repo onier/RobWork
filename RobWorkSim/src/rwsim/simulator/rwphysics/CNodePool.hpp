@@ -8,7 +8,9 @@
 #include <list>
 #include <stack>
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
+
 
 /**
  * @brief interface for creating and deleting constraintEdges and ConstraintNodes.
@@ -61,7 +63,7 @@ protected:
     std::stack<int> _freeNodeIDs;
     std::stack<int> _freeEdgeIDs;
 };
-
+}
 }
 
 #endif /*CNODEPOOL_HPP_*/

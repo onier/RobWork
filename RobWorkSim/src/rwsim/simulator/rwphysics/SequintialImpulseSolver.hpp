@@ -10,6 +10,9 @@
 
 #include "ConstraintSolver.hpp"
 
+namespace rwsim {
+namespace simulator {
+
 class SequintialImpulseSolver: public ConstraintSolver {
 public:
 
@@ -28,5 +31,7 @@ public:
 
 };
 
+}
+}
 
 #endif /* SEQUINTIALIMPULSESOLVER_HPP_ */

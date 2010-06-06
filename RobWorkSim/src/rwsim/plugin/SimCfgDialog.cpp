@@ -11,20 +11,21 @@
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 
-#include <dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
 
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rw/proximity/Proximity.hpp>
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 #include <QTabWidget>
 
 #include "ODESimCfgDialog.hpp"
 
-using namespace dynamics;
+using namespace rwsim::dynamics;
+using namespace rwsim::simulator;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;

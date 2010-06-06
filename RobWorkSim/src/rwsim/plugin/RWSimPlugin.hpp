@@ -14,11 +14,11 @@
 
 #include "ui_RWSimPlugin.h"
 
-#include <dynamics/DynamicWorkcell.hpp>
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
-#include <simulator/ThreadSimulator.hpp>
-#include <util/MovingAverage.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
+#include <rwsim/util/MovingAverage.hpp>
 #include "TactileSensorDialog.hpp"
 #include <rw/graspplanning/GraspTable.hpp>
 
@@ -108,8 +108,8 @@ class RWSimPlugin : public rws::RobWorkStudioPlugin, private Ui::RWSimPlugin
 
         QTimer *_timer;
         UserContext _context;
-        rw::common::Ptr<dynamics::DynamicWorkcell> _dwc;
-        rw::common::Ptr<ThreadSimulator> _sim;
+        rw::common::Ptr<rwsim::dynamics::DynamicWorkcell> _dwc;
+        rw::common::Ptr<rwsim::simulator::ThreadSimulator> _sim;
 
         rw::kinematics::State _state;
 
@@ -117,14 +117,14 @@ class RWSimPlugin : public rws::RobWorkStudioPlugin, private Ui::RWSimPlugin
         std::vector<double> _simStartTimes;
         int _nrOfTests;
         double _totalSimTime;
-        std::vector<dynamics::RigidBody*> _bodies;
+        std::vector<rwsim::dynamics::RigidBody*> _bodies;
 
         long _startTime;
 
         std::vector<rw::kinematics::State> _startPoses;
         std::vector<rw::kinematics::State> _resultPoses;
 
-        rw::kinematics::FrameMap<dynamics::RigidBody*> _frameToBody;
+        rw::kinematics::FrameMap<rwsim::dynamics::RigidBody*> _frameToBody;
         rw::proximity::CollisionDetector *_colDect;
         double _lastTime,_lastBelowThresUpdate;
 

@@ -5,63 +5,68 @@
 
 #include <rw/math/Vector3D.hpp>
 
+#include <rwsim/dynamics/BodyController.hpp>
+
 #include "RWBody.hpp"
-#include "dynamics/BodyController.hpp"
 
-/**
- * @brief class for adding a constant force to any body it controls
- */
-class ConstantForceManipulator: public dynamics::BodyController
-{
-public:
+namespace rwsim {
+namespace simulator {
 
 	/**
-	 * @brief constructor
-	 * @param force
-	 * @param bodies
+	 * @brief class for adding a constant force to any body it controls
 	 */
-	ConstantForceManipulator(const rw::math::Vector3D<>& force, std::vector<RWBody*>& bodies);
+	class ConstantForceManipulator: public dynamics::BodyController
+	{
+	public:
 
-	/**
-	 * @brief destructor
-	 */
-	virtual ~ConstantForceManipulator(){};
+		/**
+		 * @brief constructor
+		 * @param force
+		 * @param bodies
+		 */
+		ConstantForceManipulator(const rw::math::Vector3D<>& force, std::vector<RWBody*>& bodies);
 
-	/**
-	 * @copydoc Bodycontroller::addForces
-	 */
-	void addForces(rw::kinematics::State &state, double h);
+		/**
+		 * @brief destructor
+		 */
+		virtual ~ConstantForceManipulator(){};
 
-	/**
-	 * @copydoc Bodycontroller::addForces
-	 */
-	void reset(rw::kinematics::State &state){}
+		/**
+		 * @copydoc Bodycontroller::addForces
+		 */
+		void addForces(rw::kinematics::State &state, double h);
 
-	/**
-	 * @brief returns the list of bodies that are controlled
-	 * @return
-	 */
-	std::vector<RWBody*>& getBodies(){
-	    return _bodies;
-	}
+		/**
+		 * @copydoc Bodycontroller::addForces
+		 */
+		void reset(rw::kinematics::State &state){}
 
-	/**
-	 * @brief sets the force
-	 */
-	void setForce(const rw::math::Vector3D<>& f){
-		_force = f;
-	}
+		/**
+		 * @brief returns the list of bodies that are controlled
+		 * @return
+		 */
+		std::vector<RWBody*>& getBodies(){
+			return _bodies;
+		}
 
-	/**
-	 * @brief gets the force
-	 */
-	const rw::math::Vector3D<>& getForce(){
-		return _force;
-	}
+		/**
+		 * @brief sets the force
+		 */
+		void setForce(const rw::math::Vector3D<>& f){
+			_force = f;
+		}
 
-private:
-	rw::math::Vector3D<> _force;
-	std::vector<RWBody*> _bodies;
-};
+		/**
+		 * @brief gets the force
+		 */
+		const rw::math::Vector3D<>& getForce(){
+			return _force;
+		}
 
+	private:
+		rw::math::Vector3D<> _force;
+		std::vector<RWBody*> _bodies;
+	};
+}
+}
 #endif /*CONSTANTFORCEMANIPULATOR_HPP_*/

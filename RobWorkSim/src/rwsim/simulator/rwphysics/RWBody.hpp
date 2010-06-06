@@ -19,8 +19,11 @@
 
 #include <rw/kinematics/Kinematics.hpp>
 
-#include <dynamics/Body.hpp>
+#include <rwsim/dynamics/Body.hpp>
 
+
+namespace rwsim {
+namespace simulator {
 
 class RWBody;
 
@@ -439,5 +442,7 @@ private:
 
 };
 
+}
+}
 
 #endif /* RBODY_HPP_ */

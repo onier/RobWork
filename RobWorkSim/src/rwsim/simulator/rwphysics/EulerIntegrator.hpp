@@ -7,7 +7,9 @@
 
 #include "RWBody.hpp"
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
+
 
     class EulerIntegrator : public BodyIntegrator
     {
@@ -25,6 +27,7 @@ namespace dynamics {
         RWBody *_body;
     };
 
+}
 }
 
 #endif /*EULERINTEGRATOR_HPP_*/

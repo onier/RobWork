@@ -4,7 +4,9 @@
 #include <dynamics/DynamicWorkcell.hpp>
 #include <simulator/SimulatorDebugRender.hpp>
 
-namespace drawable {
+namespace rwsim {
+namespace simulator {
+
 
 	class RWDebugRender : public SimulatorDebugRender {
 	public:
@@ -22,6 +24,7 @@ namespace drawable {
 		unsigned int _mask;
 	};
 
+}
 }
 
 #endif /*RWDEBUGRENDER_HPP_*/

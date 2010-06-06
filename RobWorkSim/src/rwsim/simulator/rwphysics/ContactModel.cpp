@@ -12,7 +12,7 @@
 #include "ContactModelFactory.hpp"
 
 using namespace rw::math;
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 #define DYNAMIC_TEST
 

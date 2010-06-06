@@ -2,15 +2,15 @@
 
 #include <boost/foreach.hpp>
 
-#include <dynamics/DynamicDevice.hpp>
+#include <rwsim/dynamics/DynamicDevice.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/FixedBody.hpp>
-#include <dynamics/KinematicBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/FixedBody.hpp>
+#include <rwsim/dynamics/KinematicBody.hpp>
 
-#include <dynamics/RigidDevice.hpp>
-#include <dynamics/FixedDevice.hpp>
-#include <dynamics/KinematicDevice.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
+#include <rwsim/dynamics/FixedDevice.hpp>
+#include <rwsim/dynamics/KinematicDevice.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 
@@ -24,8 +24,9 @@
 
 // #define RWSIMULATOR_DEBUG
 
-using namespace dynamics;
-
+using namespace rwsim::simulator;
+using namespace rwsim::sensor;
+using namespace rwsim::control;
 using namespace rw::math;
 using namespace rw::common;
 using namespace rw::kinematics;

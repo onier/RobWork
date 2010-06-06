@@ -14,19 +14,20 @@
 
 #include "ui_SupportPoseAnalyserDialog.h"
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
-#include <simulator/ThreadSimulator.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/FrameMap.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rw/trajectory/Path.hpp>
-#include <util/MovingAverage.hpp>
-#include <util/SupportPose.hpp>
-#include <util/CircleModel.hpp>
-#include <drawable/RenderPoints.hpp>
-#include <drawable/RenderPlanes.hpp>
-#include <drawable/RenderCircles.hpp>
+#include <rw/math/Math.hpp>
+#include <rwsim/util/MovingAverage.hpp>
+#include <rwsim/util/SupportPose.hpp>
+#include <rwsim/util/CircleModel.hpp>
+#include <rwsim/drawable/RenderPoints.hpp>
+#include <rwsim/drawable/RenderPlanes.hpp>
+#include <rwsim/drawable/RenderCircles.hpp>
 
 #include <QObject>
 #include <QtGui>
@@ -48,7 +49,7 @@ class SupportPoseAnalyserDialog : public QDialog, private Ui::SupportPoseAnalyse
     	 * @brief
     	 */
         SupportPoseAnalyserDialog(const rw::kinematics::State& state,
-                          dynamics::DynamicWorkcell *dwc,
+                          rwsim::dynamics::DynamicWorkcell *dwc,
                           rw::proximity::CollisionDetector *detector,
                           QWidget *parent = 0);
 
@@ -85,7 +86,7 @@ class SupportPoseAnalyserDialog : public QDialog, private Ui::SupportPoseAnalyse
         	_thresholdSpin->setValue((int)thres);
         }
 
-        dynamics::RigidBody* getSelectedBody(){
+        rwsim::dynamics::RigidBody* getSelectedBody(){
         	int i = _selectObjBox->currentIndex();
         	return _bodies[i];
         }
@@ -98,31 +99,31 @@ class SupportPoseAnalyserDialog : public QDialog, private Ui::SupportPoseAnalyse
 
         rw::kinematics::State _defaultState;
         rw::models::WorkCell *_wc;
-        dynamics::DynamicWorkcell *_dwc;
+        rwsim::dynamics::DynamicWorkcell *_dwc;
         rw::proximity::CollisionDetector *_detector;
 
         rw::trajectory::TimedStatePathPtr _path, _startPath;
         GLViewRW *_view;
-        rw::common::Ptr<RenderPoints> _xRender,_yRender,_zRender;
+        rw::common::Ptr<rwsim::drawable::RenderPoints> _xRender,_yRender,_zRender;
         rwlibs::drawable::Drawable *_xDraw,*_yDraw,*_zDraw;
 
-        rw::common::Ptr<RenderPoints> _selPosePntRenderX,_selPosePntRenderY,_selPosePntRenderZ;
+        rw::common::Ptr<rwsim::drawable::RenderPoints> _selPosePntRenderX,_selPosePntRenderY,_selPosePntRenderZ;
         rwlibs::drawable::Drawable *_selPoseDrawX,*_selPoseDrawY,*_selPoseDrawZ;
 
-        rw::common::Ptr<RenderPoints> _selxRender,_selyRender,_selzRender;
+        rw::common::Ptr<rwsim::drawable::RenderPoints> _selxRender,_selyRender,_selzRender;
         rwlibs::drawable::Drawable *_selxDraw,*_selyDraw,*_selzDraw;
 
-        rw::common::Ptr<RenderCircles> _xcRender,_ycRender,_zcRender;
+        rw::common::Ptr<rwsim::drawable::RenderCircles> _xcRender,_ycRender,_zcRender;
         rwlibs::drawable::Drawable *_xcDraw,*_ycDraw,*_zcDraw;
 
-        std::vector<dynamics::RigidBody*> _bodies;
+        std::vector<rwsim::dynamics::RigidBody*> _bodies;
         std::vector< std::vector<rw::math::Vector3D<> > > _xaxis,_yaxis,_zaxis;
-        std::map<dynamics::RigidBody*,std::vector<rw::math::Vector3D<> > >
+        std::map<rwsim::dynamics::RigidBody*,std::vector<rw::math::Vector3D<> > >
 			_xaxisS,_yaxisS,_zaxisS;
 
-        std::map<dynamics::RigidBody*,std::vector<SupportPose> > _supportPoses;
-        std::map<dynamics::RigidBody*,std::vector<CircleModel> > _xcircBodyMap, _ycircBodyMap, _zcircBodyMap;
-        std::map<SupportPose*,std::vector<CircleModel> > _xcirclesMap, _ycirclesMap, _zcirclesMap;
+        std::map<rwsim::dynamics::RigidBody*,std::vector<rwsim::util::SupportPose> > _supportPoses;
+        std::map<rwsim::dynamics::RigidBody*,std::vector<rwsim::util::CircleModel> > _xcircBodyMap, _ycircBodyMap, _zcircBodyMap;
+        std::map<rwsim::util::SupportPose*,std::vector<rwsim::util::CircleModel> > _xcirclesMap, _ycirclesMap, _zcirclesMap;
         std::map<std::pair<int,int>,std::vector<int> > _supportToPose;
 
         RestingPoseDialog *_restPoseDialog;

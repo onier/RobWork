@@ -12,6 +12,9 @@
 
 #include <stack>
 
+namespace rwsim {
+namespace simulator {
+
 /**
  * @brief interface for creating and deleting constraintEdges and ConstraintNodes.
  * ConstraintEdges are frequently created and deleted so efficient data structures
@@ -46,5 +49,7 @@ protected:
     std::stack<int> _freeBodyIDs;
 };
 
+}
+}
 
 #endif /* RWBODYPOOL_HPP_ */

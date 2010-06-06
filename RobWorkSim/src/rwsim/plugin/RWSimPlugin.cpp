@@ -24,13 +24,13 @@
 
 #include "JointControlDialog.hpp"
 
-#include <dynamics/RigidBody.hpp>
-#include <loaders/DynamicWorkCellLoader.hpp>
-#include <simulator/SimulatorDebugRender.hpp>
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/loaders/DynamicWorkCellLoader.hpp>
+#include <rwsim/drawable/SimulatorDebugRender.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
-#include <dynamics/KinematicDevice.hpp>
-#include <dynamics/RigidDevice.hpp>
+#include <rwsim/dynamics/KinematicDevice.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
 
 #include <rw/sensor/TactileArray.hpp>
 #include <rwlibs/drawable/TactileArrayRender.hpp>
@@ -39,8 +39,8 @@
 #include <rwlibs/control/JointController.hpp>
 
 
-#include <control/PDController.hpp>
-#include <control/VelRampController.hpp>
+#include <rwsim/control/PDController.hpp>
+#include <rwsim/control/VelRampController.hpp>
 
 #include "SimCfgDialog.hpp"
 #include "CreateEngineDialog.hpp"
@@ -55,9 +55,13 @@ using namespace rw::sensor;
 using namespace rwlibs::drawable;
 using namespace rwlibs::simulation;
 
-using namespace dynamics;
-using namespace drawable;
-using namespace loaders;
+using namespace rwsim::dynamics;
+using namespace rwsim::drawable;
+using namespace rwsim::loaders;
+using namespace rwsim::sensor;
+using namespace rwsim::simulator;
+using namespace rwsim::util;
+using namespace rwsim::control;
 using namespace rws;
 #define RW_DEBUGS( str ) //std::cout << str  << std::endl;
 
@@ -208,8 +212,7 @@ void RWSimPlugin::btnPressed(){
         } else if ( dynamic_cast<RigidDevice*>(ddev) ){
             RigidDevice *rdev = dynamic_cast<RigidDevice*>(ddev);
             PDControllerPtr pdctrl =
-					ownedPtr(new PDController(rdev, state, PDController::POSITION,
-											  PDController::PDParam(10,0.3), 0.1));
+					ownedPtr(new PDController(rdev, state, PDController::POSITION, PDParam(10,0.3), 0.1));
 
             _sim->getSimulator()->addController(pdctrl);
             jctrl = pdctrl;

@@ -11,7 +11,9 @@
 
 #include <rw/math/Transform3D.hpp>
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
+
 
     class ConstraintEdge
     {
@@ -196,4 +198,5 @@ namespace dynamics {
 
     };
 } // namespace dynamics
+}
 #endif /*ConstraintEdge_HPP_*/

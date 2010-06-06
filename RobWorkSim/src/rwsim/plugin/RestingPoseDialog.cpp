@@ -11,20 +11,21 @@
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 
-#include <dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
 
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rw/proximity/Proximity.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
-#include <loaders/ScapePoseFormat.hpp>
+#include <rwsim/loaders/ScapePoseFormat.hpp>
 
 #include <stdio.h>
 
-using namespace dynamics;
+using namespace rwsim::dynamics;
+using namespace rwsim::simulator;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;
@@ -40,7 +41,7 @@ namespace {
 }
 
 RestingPoseDialog::RestingPoseDialog(const rw::kinematics::State& state,
-                                    dynamics::DynamicWorkcell *dwc,
+                                    DynamicWorkcell *dwc,
                                     rw::proximity::CollisionDetector *detector,
                                     QWidget *parent):
     QDialog(parent),

@@ -18,7 +18,7 @@
 using namespace boost::numeric;
 using namespace rw::math;
 using namespace rw::kinematics;
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 #define MIN_MASS_SIZE 0.0000001
 

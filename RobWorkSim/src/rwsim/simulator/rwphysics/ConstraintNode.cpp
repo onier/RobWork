@@ -1,6 +1,6 @@
 #include "ConstraintNode.hpp"
 
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 namespace {
     bool isPhysicalNode(ConstraintNode::NodeType type){

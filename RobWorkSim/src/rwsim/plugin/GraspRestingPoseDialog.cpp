@@ -12,18 +12,18 @@
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 
-#include <dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
 #include <rw/math/MetricUtil.hpp>
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rw/proximity/Proximity.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
-#include <loaders/ScapePoseFormat.hpp>
+#include <rwsim/loaders/ScapePoseFormat.hpp>
 #include <rw/models/Accessor.hpp>
-#include <sensors/TactileArraySensor.hpp>
+#include <rwsim/sensor/TactileArraySensor.hpp>
 
 
 #include <rw/graspplanning/WrenchMeasure3D.hpp>
@@ -35,7 +35,11 @@
 #include<iostream>
 #include<string>
 
-using namespace dynamics;
+using namespace rwsim::dynamics;
+using namespace rwsim::simulator;
+using namespace rwsim::util;
+using namespace rwsim::control;
+using namespace rwsim::sensor;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;
@@ -270,7 +274,7 @@ namespace {
 
 
 GraspRestingPoseDialog::GraspRestingPoseDialog(const rw::kinematics::State& state,
-                                    dynamics::DynamicWorkcell *dwc,
+                                    DynamicWorkcell *dwc,
                                     rw::proximity::CollisionDetector *detector,
                                     QWidget *parent):
     QDialog(parent),
@@ -504,7 +508,7 @@ void GraspRestingPoseDialog::initializeStart(){
         // create a controller
         PDControllerPtr pdctrl =
         		ownedPtr(new PDController(_hand, state, PDController::POSITION,
-        								  PDController::PDParam(10,0.3), 0.1));
+        								  PDParam(10,0.3), 0.1));
         sim->addController(pdctrl);
         _controllers.push_back(pdctrl);
         pdctrl->setTargetPos(_targetQ[0] );

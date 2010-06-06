@@ -1,6 +1,7 @@
 
 #include "ConstraintSolver.hpp"
 
+using namespace rwsim::simulator;
 
 bool ConstraintSolver::solve( std::vector<CEdgeGroup>& groups,
             SolverInfo& info,

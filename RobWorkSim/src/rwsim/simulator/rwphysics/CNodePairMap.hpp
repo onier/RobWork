@@ -5,7 +5,8 @@
 
 #include <vector>
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
 
 /**
  * This implementation is creates a mapping between CNodePair and
@@ -100,5 +101,5 @@ private:
 };
 
 }
-
+}
 #endif /*FRAMEMAP_HPP_*/

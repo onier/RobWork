@@ -13,7 +13,7 @@ using namespace rwlibs::proximitystrategies;
 using namespace rw::math;
 using namespace rw::kinematics;
 
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 namespace {
 

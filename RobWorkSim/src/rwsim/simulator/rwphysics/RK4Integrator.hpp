@@ -14,7 +14,9 @@
 
 #include <dynamics/RigidBody.hpp>
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
+
 
     class RK4Integrator : public BodyIntegrator
     {
@@ -32,6 +34,7 @@ namespace dynamics {
         dynamics::RigidBody *_body;
     };
 
+}
 }
 
 #endif /* RK4INTEGRATOR_HPP_ */

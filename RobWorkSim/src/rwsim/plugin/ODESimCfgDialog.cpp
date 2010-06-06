@@ -10,10 +10,11 @@
 #include <rw/math/Transform3D.hpp>
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Kinematics.hpp>
+#include <rwsim/simulator/ode/ODESimulator.hpp>
 
-#include <dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
 
-#include <simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
@@ -21,7 +22,8 @@
 #include <rw/proximity/Proximity.hpp>
 
 
-using namespace dynamics;
+using namespace rwsim::dynamics;
+using namespace rwsim::simulator;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;
@@ -29,7 +31,7 @@ using namespace rw::proximity;
 
 #define RW_DEBUGS( str ) std::cout << str  << std::endl;
 
-ODESimCfgDialog::ODESimCfgDialog(rw::common::Ptr<Simulator> sim, QWidget *parent):
+ODESimCfgDialog::ODESimCfgDialog(rw::common::Ptr<rwsim::simulator::Simulator> sim, QWidget *parent):
     QDialog(parent),
     _sim(sim)
 {
@@ -115,8 +117,6 @@ void ODESimCfgDialog::applyChanges(){
 	sim->emitPropertyChanged();
 
 }
-
-#include <simulator/ode/ODESimulator.hpp>
 
 void ODESimCfgDialog::updateValues(){
 	ODESimulator *sim = dynamic_cast<ODESimulator*>(_sim.get());

@@ -25,7 +25,9 @@
 #include "CNodePairMap.hpp"
 #include "CNodePool.hpp"
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
+
 
     /**
      * @brief creates a graph where nodes can be physical, logical and
@@ -119,5 +121,6 @@ namespace dynamics {
     };
 
 } // namespace dynamics
+}
 
 #endif /*CONTACTGRAPH_HPP_*/

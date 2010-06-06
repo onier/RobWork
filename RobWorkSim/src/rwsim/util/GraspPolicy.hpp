@@ -22,6 +22,8 @@
 #include <rw/common/Ptr.hpp>
 #include <rwlibs/simulation/SimulatedController.hpp>
 
+namespace rwsim {
+namespace util {
 
 /**
  * @brief a grasp policy defines how a grasp is executed from
@@ -46,6 +48,9 @@ public:
 };
 
 typedef rw::common::Ptr<GraspPolicy> GraspPolicyPtr;
+
+}
+}
 
 
 #endif /* GRASPPOLICY_HPP_ */

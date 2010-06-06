@@ -1,6 +1,6 @@
 #include "CNodePool.hpp"
 
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 CNodePool::CNodePool(int nrNodes, int nrEdges)
 {

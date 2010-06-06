@@ -24,15 +24,20 @@
 
 #include <rws/RobWorkStudio.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <simulator/PhysicsEngineFactory.hpp>
-#include <loaders/ScapePoseFormat.hpp>
-#include <sensors/TactileArraySensor.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/loaders/ScapePoseFormat.hpp>
+#include <rwsim/sensor/TactileArraySensor.hpp>
 
-#include <util/GraspPolicyFactory.hpp>
-#include <util/GraspStrategyFactory.hpp>
+#include <rwsim/util/GraspPolicyFactory.hpp>
+#include <rwsim/util/GraspStrategyFactory.hpp>
 
-using namespace dynamics;
+using namespace rwsim::dynamics;
+using namespace rwsim::simulator;
+using namespace rwsim::sensor;
+using namespace rwsim::control;
+using namespace rwsim::util;
+
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;

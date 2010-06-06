@@ -36,7 +36,7 @@ namespace drawable {
 		/**
 		 * @brief adds planes to the renerer
 		 */
-		void addPlanes(const std::vector<PlaneModel >& planes);
+		void addPlanes(const std::vector<rwsim::util::PlaneModel >& planes);
 
 		/**
 		 * @brief clear the list of planes
@@ -54,7 +54,7 @@ namespace drawable {
 		//! Render::draw
 		virtual void draw(DrawType type, double alpha) const;
 	private:
-		std::vector<PlaneModel> _planes;
+		std::vector<util::PlaneModel> _planes;
 		float _planesize;
 		float _color[3];
 	};

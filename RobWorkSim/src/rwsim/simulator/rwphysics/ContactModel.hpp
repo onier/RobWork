@@ -19,7 +19,9 @@
 
 //#define DYNAMIC_TEST 1
 
-namespace dynamics {
+namespace rwsim {
+namespace simulator {
+
 
 	class ContactModelFactory;
 
@@ -121,5 +123,6 @@ namespace dynamics {
     };
 
 } // namespace dynamics
+}
 
 #endif /*CONTACTMODEL_HPP_*/

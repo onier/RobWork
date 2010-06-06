@@ -16,7 +16,7 @@
 
 using namespace rw::kinematics;
 using namespace rw::math;
-using namespace dynamics;
+using namespace rwsim::simulator;
 
 
 #define RW_DEBUG( str ) std::cout << str  << std::endl;

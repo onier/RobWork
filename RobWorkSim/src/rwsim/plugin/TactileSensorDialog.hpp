@@ -16,13 +16,13 @@
 
 #include <rw/kinematics/State.hpp>
 
-#include <dynamics/RigidBody.hpp>
-#include <dynamics/DynamicWorkcell.hpp>
-#include <simulator/ThreadSimulator.hpp>
-#include <sensors/TactileArraySensor.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/dynamics/DynamicWorkcell.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
+#include <rwsim/sensor/TactileArraySensor.hpp>
 #include <rw/kinematics/FrameMap.hpp>
 #include <rw/math.hpp>
-#include <util/MovingAverage.hpp>
+#include <rwsim/util/MovingAverage.hpp>
 
 #include <rw/proximity/CollisionDetector.hpp>
 
@@ -48,7 +48,7 @@ class TactileSensorDialog : public QDialog, public Ui::TactileSensorDialog
 
     public:
         TactileSensorDialog(
-                          dynamics::DynamicWorkcell *dwc,
+                          rwsim::dynamics::DynamicWorkcell *dwc,
                           QWidget *parent = 0);
 
         void drawTactileInput();
@@ -78,8 +78,8 @@ class TactileSensorDialog : public QDialog, public Ui::TactileSensorDialog
     private:
         Ui::TactileSensorDialog _ui;
 
-        dynamics::DynamicWorkcell *_dwc;
-        std::vector<TactileArraySensor*> _tsensors;
+        rwsim::dynamics::DynamicWorkcell *_dwc;
+        std::vector<rwsim::sensor::TactileArraySensor*> _tsensors;
         std::vector<boost::numeric::ublas::matrix<float> > _values;
         QGraphicsScene *_scene;
 
