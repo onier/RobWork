@@ -253,6 +253,7 @@ namespace sensor {
 
 
 		std::map<rw::kinematics::Frame*, std::vector<rw::geometry::GeometryPtr> > _frameToGeoms;
+		double _accTime, _stime;
 	};
 	//! @}
 }

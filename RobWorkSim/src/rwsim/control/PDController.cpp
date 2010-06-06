@@ -87,27 +87,29 @@ void PDController::setSampleTime(double stime){
 
 void PDController::update(double dt, rw::kinematics::State& state) {
 	_accTime+=dt;
-	if(_accTime>_stime){
-		rw::math::Q q = _ddev->getModel().getQ(state);
-		rw::math::Q error = _target-q;
-		rw::math::Q nvel(error.size());
-		for(int i=0;i<_pdparams.size();i++){
-			const double P = _pdparams[i].P;
-			const double D = _pdparams[i].D;
-			nvel[i] = P*error[i] + ((error[i]-_lastError[i])/_accTime)*D;
-		}
-		// std::cout  << "PD TARGET: " << _target << std::endl;
-		// std::cout  << "PD ERROR: " << error << std::endl;
+	if(_accTime<_stime)
+		return;
+	double rdt = _accTime;
+	_accTime -= _stime;
 
-		_lastError = error;
-
-		_ddev->setVelocity(_targetVel + nvel, state);
-
-		_currentVel = (q - _currentQ)/dt;
-		_currentQ = q;
-
-		_accTime -= _stime;
+	rw::math::Q q = _ddev->getModel().getQ(state);
+	rw::math::Q error = _target-q;
+	rw::math::Q nvel(error.size());
+	for(int i=0;i<_pdparams.size();i++){
+		const double P = _pdparams[i].P;
+		const double D = _pdparams[i].D;
+		nvel[i] = P*error[i] + ((error[i]-_lastError[i])/rdt)*D;
 	}
+	// std::cout  << "PD TARGET: " << _target << std::endl;
+	// std::cout  << "PD ERROR: " << error << std::endl;
+
+	_lastError = error;
+
+	_ddev->setVelocity(_targetVel + nvel, state);
+
+	_currentVel = (q - _currentQ)/rdt;
+	_currentQ = q;
+
 }
 
 void PDController::reset(const rw::kinematics::State& state){

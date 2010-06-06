@@ -429,51 +429,51 @@ void GraspRestingPoseDialog::initializeStart(){
     Q tQ = preQ;
     if( _preshapeStratBox->currentText()=="Parallel"){
         preQ(0) = -1.5; preQ(1) = -1.5;
-        preQ(2) = 1.571; preQ(5) = 1.571;
+        preQ(2) = 1.571;
         preQ(3) = -1.5; preQ(4) = 0;
-        preQ(6) = -1.5; preQ(7) = 0;
+        preQ(5) = -1.5; preQ(6) = 0;
 
         tQ(0) = -1.5; tQ(1) = -1.5;
-        tQ(2) = 1.571; tQ(5) = 1.571;
+        tQ(2) = 1.571;
         tQ(3) = 0.13; tQ(4) = 0.6;
-        tQ(6) = 0.13; tQ(7) = 0.6;
+        tQ(5) = 0.13; tQ(6) = 0.6;
         _preshapes.push_back( preQ );
         _targetQ.push_back( tQ );
     } else if(_preshapeStratBox->currentText()=="Spherical"){
         preQ(0) = -1.5; preQ(1) = 0;
-        preQ(2) = 0.785; preQ(5) = 0.785;
+        preQ(2) = 0.785;
         preQ(3) = -1.5; preQ(4) = 0;
-        preQ(6) = -1.5; preQ(7) = 0;
+        preQ(5) = -1.5; preQ(6) = 0;
 
         tQ(0) = 0.13; tQ(1) = 0.6;
-        tQ(2) = 0.785; tQ(5) = 0.785;
+        tQ(2) = 0.785;
         tQ(3) = 0.13; tQ(4) = 0.6;
-        tQ(6) = 0.13; tQ(7) = 0.6;
+        tQ(5) = 0.13; tQ(6) = 0.6;
         _preshapes.push_back( preQ );
         _targetQ.push_back( tQ );
     }else if(_preshapeStratBox->currentText()=="CylStanding"){
         preQ(0) = -1.5; preQ(1) = 0;
-        preQ(2) = 0; preQ(5) = 0;
+        preQ(2) = 0;
         preQ(3) = -1.5; preQ(4) = 0;
-        preQ(6) = -1.5; preQ(7) = 0;
+        preQ(5) = -1.5; preQ(6) = 0;
 
         tQ(0) = 0.13; tQ(1) = 0.6;
-        tQ(2) = 0; tQ(5) = 0;
+        tQ(2) = 0;
         tQ(3) = 0.13; tQ(4) = 0.6;
-        tQ(6) = 0.13; tQ(7) = 0.6;
+        tQ(5) = 0.13; tQ(6) = 0.6;
         _preshapes.push_back( preQ );
         _targetQ.push_back( tQ );
     } else if(_preshapeStratBox->currentText()=="Multiple10"){
         for(int i=0;i<10;i++){
             preQ(0) = -1.5; preQ(1) = 0;
-            preQ(2) = Pi/20*i; preQ(5) = Pi/20*i;
+            preQ(2) = Pi/20*i;
             preQ(3) = -1.5; preQ(4) = 0;
-            preQ(6) = -1.5; preQ(7) = 0;
+            preQ(5) = -1.5; preQ(6) = 0;
 
             tQ(0) = 0.13; tQ(1) = 0.6;
-            tQ(2) = Pi/20*i; tQ(5) = Pi/20*i;
+            tQ(2) = Pi/20*i;
             tQ(3) = 0.13; tQ(4) = 0.6;
-            tQ(6) = 0.13; tQ(7) = 0.6;
+            tQ(5) = 0.13; tQ(6) = 0.6;
 
             _preshapes.push_back( preQ );
             _targetQ.push_back( tQ );
@@ -507,8 +507,7 @@ void GraspRestingPoseDialog::initializeStart(){
 
         // create a controller
         PDControllerPtr pdctrl =
-        		ownedPtr(new PDController(_hand, state, PDController::POSITION,
-        								  PDParam(10,0.3), 0.1));
+        		ownedPtr(new PDController(_hand, state, PDController::POSITION, PDParam(10,0.03), 0.1));
         sim->addController(pdctrl);
         _controllers.push_back(pdctrl);
         pdctrl->setTargetPos(_targetQ[0] );

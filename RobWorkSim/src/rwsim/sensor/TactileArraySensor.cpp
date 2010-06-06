@@ -138,7 +138,9 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
         _narrowStrategy(new rwlibs::proximitystrategies::ProximityStrategyPQP()),
         _maxPenetration(0.0015),
         _elasticity(700),// KPa ~ 0.0008 GPa
-        _tau(0.1)
+        _tau(0.1),
+        _accTime(0),
+        _stime(0.03)
 {
 	this->attachTo(frame);
     // calculate the normals and centers of all texels
@@ -561,6 +563,18 @@ namespace {
 
 
 void TactileArraySensor::update(double dt, rw::kinematics::State& state){
+	// make sure not to sample more often than absolutely necessary
+	_accTime+=dt;
+	if(_accTime<_stime){
+	    _wTf = Kinematics::worldTframe( getFrame(), state);
+	    _fTw = inverse(_wTf);
+	    _forces.clear();
+	    _allAccForces.clear();
+		return;
+	}
+	double rdt = _accTime;
+	_accTime -= _stime;
+
 	//std::cout << "update!" << std::endl;
     // we have collected all forces that affect the sensor.
     // Now we need to extrapolate the area of the force since the
@@ -703,8 +717,8 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
 				bestScore = fabs(score);
 				bestOffset = offset;
 
-				std::cout << offset << ":" << score << " = " << totalNormalForce/(area*1000)
-						<< "kPa -" << ((volume*_elasticity)/totalVolume) << "kPa" << std::endl;
+				//std::cout << offset << ":" << score << " = " << totalNormalForce/(area*1000)
+				//		<< "kPa -" << ((volume*_elasticity)/totalVolume) << "kPa" << std::endl;
 				//std::cout << offset << ":" << score << " = " << totalNormalForce<< "/" << (area*1000)
 				//		<< "-" << "(" << volume << "*" <<_elasticity << ")"
 				//		<< "/" << totalVolume << std::endl;
@@ -723,7 +737,7 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
 		}
 		//std::cout << "TOTAL DIST: " << totalDist << std::endl;
 		double distToForce = totalNormalForce/totalDist;
-	    std::cout << "BestScore: " << bestScore << std::endl;
+	    //std::cout << "BestScore: " << bestScore << std::endl;
 	    // now we now the actual penetration/position we can apply point force function
 	    // to calculate the pressure on the sensor surface
 		for(size_t y=0; y<_distMatrix.size2(); y++){
@@ -774,11 +788,11 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
 	            totalPressure += pressure(x,y);
 	        }
 	    }
-	    std::cout << "totalPressure: "
-	    		<< totalPressure/(totalNormalForce/(totalArea*1000)) << " --> "
-	    		<< totalPressure << "kPa == "
-	    		<< (totalNormalForce/(totalArea*1000))
-	    		<< "kPa == "<< totalNormalForce << "/" << totalArea << std::endl;
+	    //std::cout << "totalPressure: "
+	    //		<< totalPressure/(totalNormalForce/(totalArea*1000)) << " --> "
+	    //		<< totalPressure << "kPa == "
+	    //		<< (totalNormalForce/(totalArea*1000))
+	    //		<< "kPa == "<< totalNormalForce << "/" << totalArea << std::endl;
 
 	    // the actual pressure should not be more than totForce/(totalArea*1000)
 	    // so we scale it down to fit-....
@@ -794,7 +808,7 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
 	        }
 	    }
 
-	    std::cout << "New total pressure: " << ntotpressure << std::endl;
+	    //std::cout << "New total pressure: " << ntotpressure << std::endl;
 
 	    _accForces = ublas::zero_matrix<double>(_accForces.size1(),_accForces.size2());
 	    _allForces = _allAccForces;
@@ -807,7 +821,7 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
     //    y[i] := y[i-1] + alpha * (x[i] - y[i-1])
     ValueMatrix &ym = _pressure;
     ValueMatrix &xm = pressure;
-    const double alpha = dt/(_tau+dt);
+    const double alpha = rdt/(_tau+rdt);
     for(size_t y=0; y<ym.size2(); y++){
     	for(size_t x=0; x<ym.size1(); x++){
         	ym(x,y) += alpha * (xm(x,y)-ym(x,y));
@@ -820,8 +834,6 @@ void TactileArraySensor::update(double dt, rw::kinematics::State& state){
     // update aux variables
     _wTf = Kinematics::worldTframe( getFrame(), state);
     _fTw = inverse(_wTf);
-
-
 }
 
 #ifdef OLD_STUFF
