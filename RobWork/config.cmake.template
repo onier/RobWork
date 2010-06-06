@@ -19,7 +19,7 @@ IF (DEFINED MINGW OR DEFINED MSVC)
 ENDIF()
 
 # Specify the root dir of your boost installation if it is not autodetected
-IF("$ENV{BOOST_ROOT}")
+IF(DEFINED ENV{BOOST_ROOT})
   FILE(TO_CMAKE_PATH $ENV{BOOST_ROOT} BOOST_ROOT)
   SET(BOOST_LIBRARYDIR "${BOOST_ROOT}/lib/") # if installed in non-standard dir
   SET(BOOST_INCLUDEDIR "${BOOST_ROOT}/include")
@@ -28,7 +28,7 @@ ENDIF()
 # If you want to use the new Xerces based XML loader then set to ON. But make sure that
 # cmake is able to find the xerces include dir and lib dir
 SET(USE_XERCES ON)
-IF("$ENV{XERCES_ROOT}")
+IF(DEFINED ENV{XERCES_ROOT})
   FILE(TO_CMAKE_PATH $ENV{XERCES_ROOT} XERCES_ROOT) # to make sure that we use / instead of \ in path
   SET(XERCESC_INCLUDE_DIR "${XERCES_ROOT}/include")
   SET(XERCESC_LIB_DIR "${XERCES_ROOT}/lib")
