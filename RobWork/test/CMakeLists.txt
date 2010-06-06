@@ -14,7 +14,7 @@ SET(TEST_LIBRARIES
   ${RW_PROXIMITYSTRATEGIES_LIBRARY_LIST}
   ${ROBWORK_LIBRARIES}
 )
-MESSAGE("${TEST_LIBRARIES}")
+#MESSAGE("${TEST_LIBRARIES}")
 
 SET(MATH_TEST_SRC 
   math/EAATest.cpp
@@ -111,4 +111,4 @@ INSTALL(TARGETS
             invkin-test loader-test kinematics-test 
             trajectory-test collision-test 
             drawables-test planner-test 
-        DESTINATION bin)
+        DESTINATION ${RW_BIN_INSTALL_DIR})
