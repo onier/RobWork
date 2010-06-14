@@ -420,6 +420,7 @@ void ODESimulator::restoreODEState(){
 void ODESimulator::step(double dt, rw::kinematics::State& state)
 
 {
+	std::cout << "-------------------------- STEP --------------------------------" << std::endl;
 	//double dt = 0.001;
 	_maxPenetration = 0;
     RW_DEBUGS("-------------------------- STEP --------------------------------");
@@ -533,6 +534,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 	}
 	//std::cout << "e";
 	RW_DEBUGS("----------------------- END STEP --------------------------------");
+	std::cout << "-------------------------- END STEP --------------------------------" << std::endl;
 }
 
 dBodyID ODESimulator::createRigidBody(Body* rwbody,

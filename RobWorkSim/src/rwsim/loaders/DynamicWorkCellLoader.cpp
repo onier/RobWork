@@ -24,6 +24,7 @@
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/optional.hpp>
+#include <boost/foreach.hpp>
 
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Transform3D.hpp>
@@ -904,5 +905,6 @@ rw::common::Ptr<DynamicWorkcell> DynamicWorkCellLoader::load(const string& filen
         RW_THROW(e.what());
     }
 
+    std::cout << "LOADING SUCCES" << std::endl;
     return rw::common::ownedPtr(dwc);
 }
