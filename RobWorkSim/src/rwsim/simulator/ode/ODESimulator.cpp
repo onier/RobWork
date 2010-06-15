@@ -78,7 +78,7 @@ using namespace rw::common;
 using namespace rwlibs::simulation;
 using namespace rwlibs::proximitystrategies;
 
-#define INITIAL_MAX_CONTACTS 500
+#define INITIAL_MAX_CONTACTS 1000
 
 //#define RW_DEBUGS( str ) std::cout << str  << std::endl;
 #define RW_DEBUGS( str )
@@ -195,15 +195,15 @@ namespace {
 				data->indices[indiIdx+1] = tri.getVertexIdx(1);
 				data->indices[indiIdx+2] = tri.getVertexIdx(2);
 			}
-			if(data->indices[indiIdx+0]>=nrOfVerts)
+			if(data->indices[indiIdx+0]>=(size_t)nrOfVerts)
 				std::cout << indiIdx+0 << " " << data->indices[indiIdx+0] << "<" << nrOfVerts << std::endl;
-			RW_ASSERT( data->indices[indiIdx+0]<nrOfVerts );
-			if(data->indices[indiIdx+1]>=nrOfVerts)
+			RW_ASSERT( data->indices[indiIdx+0]< (size_t)nrOfVerts );
+			if(data->indices[indiIdx+1]>=(size_t)nrOfVerts)
 				std::cout << data->indices[indiIdx+1] << "<" << nrOfVerts << std::endl;
-			RW_ASSERT( data->indices[indiIdx+1]<nrOfVerts );
-			if(data->indices[indiIdx+2]>=nrOfVerts)
+			RW_ASSERT( data->indices[indiIdx+1]<(size_t)nrOfVerts );
+			if(data->indices[indiIdx+2]>=(size_t)nrOfVerts)
 				std::cout << data->indices[indiIdx+2] << "<" << nrOfVerts << std::endl;
-			RW_ASSERT( data->indices[indiIdx+2]<nrOfVerts );
+			RW_ASSERT( data->indices[indiIdx+2]<(size_t)nrOfVerts );
 
 			indiIdx+=3;
 		}
@@ -420,26 +420,27 @@ void ODESimulator::restoreODEState(){
 void ODESimulator::step(double dt, rw::kinematics::State& state)
 
 {
-	std::cout << "-------------------------- STEP --------------------------------" << std::endl;
+	//std::cout << "-------------------------- STEP --------------------------------" << std::endl;
 	//double dt = 0.001;
 	_maxPenetration = 0;
     RW_DEBUGS("-------------------------- STEP --------------------------------");
     RW_DEBUGS("------------- Controller update:");
+    //std::cout << "Controller update" << std::endl;
     //// std::cout  << "Controller" << std::endl;
     BOOST_FOREACH(SimulatedControllerPtr controller, _controllers ){
         controller->update(dt, state);
     }
-
+    //std::cout << "Device pre-update" << std::endl;
     RW_DEBUGS("------------- Device pre-update:");
     BOOST_FOREACH(ODEDevice *dev, _odeDevices){
         dev->update(dt, state);
     }
-
+    //std::cout << "Body pre-update" << std::endl;
     RW_DEBUGS("------------- Body pre-update:");
     BOOST_FOREACH(ODEBody *body, _odeBodies){
         body->update(dt, state);
     }
-
+    //std::cout << "Collisions at " << _time << std::endl;
     RW_DEBUGS("------------- Collisions at " << _time << " :");
 	// Detect collision
     _allcontacts.clear();
@@ -449,6 +450,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 
 	// Step world
 	RW_DEBUGS("------------- Step dt=" << dt <<" at " << _time << " :");
+	//std::cout << "------------- Step dt=" << dt <<" at " << _time << " :"<< std::endl;
 	//std::cout << "StepMethod: " << _stepMethod << std::endl;
 	//std::cout << "StepMethod: " << _maxIter << std::endl;
 
@@ -489,16 +491,19 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 
 	_time += dt;
 	RW_DEBUGS("------------- Device post update:");
+	//std::cout << "Device post update:" << std::endl;
 	BOOST_FOREACH(ODEDevice *dev, _odeDevices){
 	    dev->postUpdate(state);
 	}
 	RW_DEBUGS("------------- Update robwork bodies:");
+	//std::cout << "Update robwork bodies:" << std::endl;
     // now copy all state info into state/bodies (transform,vel,force)
     for(size_t i=0; i<_odeBodies.size(); i++){
         _odeBodies[i]->postupdate(state);
     }
 
     RW_DEBUGS("------------- Sensor update :");
+    //std::cout << "Sensor update :" << std::endl;
     // update all sensors with the values of the joints
     BOOST_FOREACH(ODETactileSensor *odesensor, _odeSensors){
         odesensor->update(dt, state);
@@ -534,7 +539,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 	}
 	//std::cout << "e";
 	RW_DEBUGS("----------------------- END STEP --------------------------------");
-	std::cout << "-------------------------- END STEP --------------------------------" << std::endl;
+	//std::cout << "-------------------------- END STEP --------------------------------" << std::endl;
 }
 
 dBodyID ODESimulator::createRigidBody(Body* rwbody,
@@ -764,18 +769,24 @@ namespace {
 	void EmptyMessageFunction(int errnum, const char *msg, va_list ap){
 		//char str[400];
 		//sprintf(str, msg, *ap);
-		Log::infoLog() << "ODE internal msg: errnum=" << errnum << " odemsg=\"" << msg<< "\"\n";
+		std::cout << "ODE internal Message: errnum=" << errnum << " odemsg=\"" <<  msg<< "\"" << std::endl;
+		//Log::infoLog() << "ODE internal msg: errnum=" << errnum << " odemsg=\"" << msg<< "\"\n";
+		RW_WARN("ODE internal msg: errnum=" << errnum << " odemsg=\"" <<  msg<< "\"");
 	}
 
 	void ErrorMessageFunction(int errnum, const char *msg, va_list ap){
 		//char str[400];
 		//sprintf(str, msg, *ap);
+		std::cout << "ODE internal Error: errnum=" << errnum << " odemsg=\"" <<  msg<< "\"" << std::endl;
+
 		RW_THROW("ODE internal Error: errnum=" << errnum << " odemsg=\"" <<  msg<< "\"");
 	}
 
 	void DebugMessageFunction(int errnum, const char *msg, va_list ap){
 		//char str[400];
 		//sprintf(str, msg, *ap);
+		std::cout << "ODE internal Debug: errnum=" << errnum << " odemsg=\"" <<  msg<< "\"" << std::endl;
+
 		RW_THROW("ODE internal Debug: errnum=" << errnum << " odemsg=\"" <<  msg<< "\"");
 	}
 
@@ -1186,7 +1197,7 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
         return;
 
     // update the
-    std::vector<ContactManifold> &manifolds = _manifolds[pair];
+    //std::vector<ContactManifold> &manifolds = _manifolds[pair];
     //BOOST_FOREACH(ContactManifold &manifold, manifolds){
         //manifold.update(); // TODO: use transform between objects to update manifold
     //}
@@ -1330,7 +1341,7 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
         dJointAttach (c,dGeomGetBody (con.geom.g1),dGeomGetBody (con.geom.g2) );
         // We can only have one Joint feedback per joint so the sensors will have to share
         if( enableFeedback ){
-            RW_ASSERT(_nextFeedbackIdx<_sensorFeedbacks.size());
+            RW_ASSERT( ((size_t)_nextFeedbackIdx)<_sensorFeedbacks.size());
             dJointFeedback *feedback = &_sensorFeedbacks[_nextFeedbackIdx];
             _nextFeedbackIdx++;
             feedbacks.push_back(feedback);

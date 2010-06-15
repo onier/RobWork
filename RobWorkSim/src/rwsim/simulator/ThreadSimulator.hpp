@@ -111,6 +111,10 @@ namespace simulator {
 			_stepcb = cb;
 		};
 
+		bool isInError(){
+			return _inError;
+		}
+
 	private:
 		SimulatorPtr _simulator;
 		boost::thread *_thread;
@@ -119,6 +123,7 @@ namespace simulator {
 		rw::kinematics::State _state;
 		bool _running;
 		StepCallback _stepcb;
+		bool _inError;
 	public:
 		boost::mutex _simMutex;
 

@@ -20,6 +20,8 @@
 #include "ODEJoint.hpp"
 #include <ode/ode.h>
 
+#include <rw/math/MetricUtil.hpp>
+
 #include <boost/foreach.hpp>
 
 using namespace rw::math;
@@ -50,16 +52,18 @@ ODEVelocityDevice::~ODEVelocityDevice(){};
 
 void ODEVelocityDevice::reset(rw::kinematics::State& state){
     rw::math::Q q = _rdev->getModel().getQ(state);
+    rw::math::Q flim = _rdev->getForceLimit();
     int qi = 0;
-    for(int i = 0; i<_odeJoints.size(); i++){
+    for(size_t i = 0; i<_odeJoints.size(); i++){
         _odeJoints[i]->setVelocity( 0 );
         if(_odeJoints[i]->getType()==ODEJoint::DEPEND){
             continue;
         }
         _odeJoints[i]->setAngle( q(qi) );
+        _odeJoints[i]->setMaxForce( flim(qi) );
         qi++;
     }
-    for(int i = 0; i<_odeJoints.size(); i++){
+    for(size_t i = 0; i<_odeJoints.size(); i++){
         if(_odeJoints[i]->getType()==ODEJoint::DEPEND){
             double angle = _odeJoints[i]->getOwner()->getAngle();
             _odeJoints[i]->setAngle(angle);
@@ -77,6 +81,13 @@ namespace {
 
 
 void ODEVelocityDevice::update(double dt, rw::kinematics::State& state){
+	rw::math::Q flim = _rdev->getForceLimit();
+	bool fmaxChanged = false;
+	if( MetricUtil::dist2(flim,_maxForce)>0.0001 ){
+		fmaxChanged = true;
+		_maxForce = flim;
+	}
+
     rw::math::Q velQ = _rdev->getVelocity(state);
     rw::math::Q accLim = _rdev->getModel().getAccelerationLimits();
     int qi=0;
@@ -95,9 +106,12 @@ void ODEVelocityDevice::update(double dt, rw::kinematics::State& state){
         vel = acc*dt+avel;
         std::cout << accLim(qi) << ",";*/
         _odeJoints[i]->setVelocity( vel );
+        if(fmaxChanged)
+        	_odeJoints[i]->setMaxForce( _maxForce(qi) );
+
         qi++;
     }
-    std::cout << std::endl;
+    //std::cout << std::endl;
 
     // we now handle the dependent joints
     for(size_t i = 0; i<_odeJoints.size(); i++){

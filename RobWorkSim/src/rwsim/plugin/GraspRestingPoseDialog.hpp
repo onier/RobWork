@@ -195,7 +195,7 @@ class GraspRestingPoseDialog : public QDialog, private Ui::GraspRestingPoseDialo
 
         //QSampler *_handQSampler;
         std::vector<int> _currentPreshapeIDX;
-        rw::math::Q _target,_preshape;
+        rw::math::Q _target,_preshape,_handForceLimitsDefault;
         rw::math::Transform3D<> _objTransform;
 
         rw::graspplanning::GraspTable _gtable;
