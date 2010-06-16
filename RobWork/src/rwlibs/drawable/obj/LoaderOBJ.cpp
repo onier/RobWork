@@ -21,7 +21,7 @@
 #include <rwlibs/os/rwgl.hpp>
 #include <rw/common/StringUtil.hpp>
 #include <rw/common/IOUtil.hpp>
-
+#include <boost/foreach.hpp>
 
 namespace rwlibs {
 namespace drawable {
@@ -31,7 +31,7 @@ namespace drawable {
  */
 class OBJReader
 {
-private:
+public:
 	char* rwStrtok(char *_Str, const char *_Delim, char **_Context)
 	{
 		int numDelim = static_cast<int>(strlen(_Delim));
@@ -156,7 +156,7 @@ private:
 
 	class Face : public RenderItem
 	{
-	private:
+	public:
 		OBJReader *_objReader;
 
 	public:
@@ -190,7 +190,7 @@ private:
 
 	class UseMaterial : public RenderItem
 	{
-	private:
+	public:
 		Mtl *_material;
 
 	public:
@@ -212,7 +212,7 @@ public:
 	void writeFile(const std::string& filename) const;
 	void calcVertexNormals();
 
-private:
+
 	std::string _dirName;
 	std::vector<Vec3> _geoVertices;
 	std::vector<Vec3> _textVertices;
@@ -222,6 +222,7 @@ private:
 
 	std::map<double, std::vector<Vec3*> > _yMap;
 
+private:
 	void parseMtlFile(const std::string& fileName);
 	void writeMtlFile(const std::string& filename) const;
 
@@ -725,6 +726,61 @@ Model3DPtr LoaderOBJ::load(const std::string& name){
 	reader.load(name);
 	//Restore the old locale
 	setlocale(LC_ALL, locale.c_str());
-	return NULL;
+
+	Model3DPtr model( new Model3D() );
+    Model3D::Object3D *obj = new Model3D::Object3D("OBJModel");
+	int currentMatIdx = model->addMaterial(Model3D::Material("defcol",0.5,0.5,0.5));
+    Model3D::MaterialFaces *mface = new Model3D::MaterialFaces();
+    mface->_matIndex = currentMatIdx;
+    size_t nb_points=0;
+	BOOST_FOREACH(OBJReader::RenderItem* item, reader._renderItems){
+		if(OBJReader::UseMaterial* matobj = dynamic_cast<OBJReader::UseMaterial*>(item)){
+        	if(mface->_subFaces.size()>0){
+        		obj->_matFaces.push_back(mface);
+        		mface = new Model3D::MaterialFaces();
+        	}
+
+        	float r = matobj->_material->_Kd._v[0];
+        	float g = matobj->_material->_Kd._v[1];
+        	float b = matobj->_material->_Kd._v[2];
+            Model3D::Material mat(matobj->_material->_name, r, g, b);
+            currentMatIdx = model->addMaterial(mat);
+            mface->_matIndex = currentMatIdx;
+		} else if( OBJReader::Face* face = dynamic_cast<OBJReader::Face*>(item) ){
+
+            RW_ASSERT(face->_element.size()>=2);
+            for(int i=0;i<3;i++){
+            	Vector3D<float> n;
+            	if(face->_element[i]._v[2] != -1){
+            		OBJReader::Vec3 nobj = reader._vertexNormals[face->_element[i]._v[2]-1];
+        			n = rw::math::Vector3D<float>(nobj._v[0],nobj._v[1],nobj._v[2]);
+            	} else {
+            		n = face->_vCommonNorm;
+            	}
+
+            	OBJReader::Vec3 vobj = reader._geoVertices[face->_element[i]._v[0]-1];
+
+                Vector3D<float> v(vobj._v[0],vobj._v[1],vobj._v[2]);
+
+                obj->_vertices.push_back(v);
+                obj->_normals.push_back(n);
+                nb_points++;
+
+            }
+
+			// TODO: this generates a plain trimesh. It would be better to make an indexed trimesh
+			// use TriangleUtil toIndexedTriMesh, though remember the normals
+			obj->_faces.push_back( rw::geometry::IndexedTriangle<>(nb_points-3,nb_points-2,nb_points-1) );
+			mface->_subFaces.push_back(obj->_faces.back());
+
+		}
+	}
+    obj->_matFaces.push_back(mface);
+
+    // order stuff in matrial faces
+
+    model->addObject(obj);
+
+	return model;
 }
 
