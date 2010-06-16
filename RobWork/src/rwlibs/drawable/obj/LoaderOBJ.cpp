@@ -765,16 +765,15 @@ Model3DPtr LoaderOBJ::load(const std::string& name){
                 obj->_vertices.push_back(v);
                 obj->_normals.push_back(n);
                 nb_points++;
-
             }
 
 			// TODO: this generates a plain trimesh. It would be better to make an indexed trimesh
 			// use TriangleUtil toIndexedTriMesh, though remember the normals
 			obj->_faces.push_back( rw::geometry::IndexedTriangle<>(nb_points-3,nb_points-2,nb_points-1) );
 			mface->_subFaces.push_back(obj->_faces.back());
-
 		}
 	}
+	//std::cout << "nr faces: " << obj->_faces.size() << std::endl;
     obj->_matFaces.push_back(mface);
 
     // order stuff in matrial faces
