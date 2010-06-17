@@ -73,15 +73,19 @@ bool ProximityStrategy::addModel(const Frame* frame)
         return false;
     }
 
-    BOOST_FOREACH(CollisionModelInfo &info, modelInfos){
-        GeometryPtr geom = GeometryFactory::getGeometry(info.getId());
-        if(geom==NULL)
-            continue;
+    BOOST_FOREACH(CollisionModelInfo &info, modelInfos) {
+        try {
+            GeometryPtr geom = GeometryFactory::getGeometry(info.getId());
+            if(geom==NULL)
+                continue;
 
-        geom->setTransform( info.getTransform() );
-        geom->setScale( info.getGeoScale() );
+            geom->setTransform( info.getTransform() );
+            geom->setScale( info.getGeoScale() );
 
-        addGeometry(model.get(), *geom);
+            addGeometry(model.get(), *geom);
+        } catch (const rw::common::Exception& exp) {
+            RW_WARN("Unable to load geometry "<<info.getId());
+        }
     }
     return true;
 }

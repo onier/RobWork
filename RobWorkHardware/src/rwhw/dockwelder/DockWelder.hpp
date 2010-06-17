@@ -32,7 +32,6 @@ namespace rwhw {
      * @brief Device for controlling the DockWelder robot.
      * The DockWelder robot is controlled through a ethernet socket connection.
      */
-
     class DockWelder {
     public:
         /**

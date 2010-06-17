@@ -235,9 +235,8 @@ void ProximityStrategyPQP::destroyModel(rw::proximity::ProximityModel* model){
 	// TODO: though the models should probably be removed from cache
 }
 
-bool ProximityStrategyPQP::addGeometry(
-		rw::proximity::ProximityModel* model,
-		const rw::geometry::Geometry& geom){
+bool ProximityStrategyPQP::addGeometry(rw::proximity::ProximityModel* model,
+                                       const rw::geometry::Geometry& geom) {
     PQPProximityModel *pmodel = (PQPProximityModel*) model;
 
     PQPModelPtr pqpmodel;

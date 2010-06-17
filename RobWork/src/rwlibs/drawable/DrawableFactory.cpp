@@ -116,8 +116,7 @@ DrawableFactory::FactoryCache& DrawableFactory::getCache()
 RWDrawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
 {
     const std::string& filename = IOUtil::resolveFileName(raw_filename, extensions);
-    const std::string& filetype =
-        StringUtil::toUpper(StringUtil::getFileExtension(filename));
+    const std::string& filetype = StringUtil::toUpper(StringUtil::getFileExtension(filename));
 
     // if the file does not exist then throw an exception
     if (filetype.empty()) {
@@ -133,7 +132,7 @@ RWDrawable* DrawableFactory::loadDrawableFile(const std::string &raw_filename)
     	return new Drawable(getCache().get(filename));
     }
     // if not in cache then create new render
-
+    std::cout<<"File Type = "<<filetype<<std::endl;
     // else check if the file has been loaded before
     if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
     	// create a geometry

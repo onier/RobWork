@@ -52,6 +52,10 @@ namespace camera {
          * @brief Returns a camera associated to a specific frame and a given index
          */
         DC1394Camera* getCamera(rw::kinematics::Frame* frame, unsigned int index);
+
+        /**
+         * @brief Free the given camera
+         */
         void freeCamera(DC1394Camera* camera);
 
 

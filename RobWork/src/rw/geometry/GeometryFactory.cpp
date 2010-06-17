@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -137,36 +137,32 @@ GeometryPtr GeometryFactory::load(const std::string& raw_filename, bool useCache
 }
 
 GeometryPtr GeometryFactory::getGeometry(const std::string& raw_filename, bool useCache){
-    const std::string& filename = IOUtil::resolveFileName(raw_filename, extensions);
-    const std::string& filetype =
-        StringUtil::toUpper(StringUtil::getFileExtension(filename));
-
-    // if the file does not exist then throw an exception
-    if (filetype.empty()) {
-        RW_THROW(
-            "No file type known for file "
-            << StringUtil::quote(raw_filename)
-            << " that was resolved to file name "
-            << filename);
-    }
-
-    if (useCache && getCache().isInCache(filename)) {
-        //std::cout << "GeometryFactory - CACHE HIT" << std::endl;
-        return new Geometry(getCache().get(filename));
-    }
 
     if( raw_filename[0] != '#' ){
-		// else check if the file has been loaded before
+        const std::string& filename = IOUtil::resolveFileName(raw_filename, extensions);
+        const std::string& filetype = StringUtil::toUpper(StringUtil::getFileExtension(filename));
+
+        // if the file does not exist then throw an exception
+        if (filetype.empty()) {
+            RW_THROW(
+                "No file type known for file "
+                << StringUtil::quote(raw_filename)
+                << " that was resolved to file name "
+                << filename);
+        }
+
+        if (useCache && getCache().isInCache(filename))
+            return new Geometry(getCache().get(filename));
+
+
 		if (filetype == ".STL" || filetype == ".STLA" || filetype == ".STLB") {
 			GeometryDataPtr data = STLFile::load(filename);
 			if( data == NULL )
 				RW_THROW("Reading of geometry failed!");
 			getCache().add(filename, data);
 			return ownedPtr(new Geometry(getCache().get(filename)));
-		//} else if (filetype == ".3DS" || filetype == ".AC" || filetype == ".AC3D" || filetype == ".IVG" || filetype == ".TRI") {
-
 		} else {
-			RW_THROW(
+		    RW_THROW(
 				"Unknown extension "
 				<< StringUtil::quote(StringUtil::getFileExtension(filename))
 				<< " for file "

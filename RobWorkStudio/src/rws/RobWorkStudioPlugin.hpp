@@ -124,8 +124,15 @@ public:
      */
     virtual RobWorkStudio* getRobWorkStudio();
 
+    /**
+     * @brief Sets the RobWork instance to be used by the plugin
+     * @param robwork [in] RobWork instance
+     */
     virtual void setRobWorkInstance(rw::RobWorkPtr robwork);
 
+    /**
+     * @brief Returns RobWork instance used by the plugin
+     */
     virtual rw::RobWorkPtr getRobWorkInstance();
 
     /**
@@ -133,6 +140,10 @@ public:
      */
     virtual rw::common::Log& log();
 
+    /**
+     * @brief Sets the log to use
+     * @param log [in] Pointer to the log to use.
+     */
     virtual void setLog(rw::common::LogPtr log);
 
 public slots:
@@ -144,13 +155,22 @@ public slots:
 private:
 
 protected:
+    ///! @brief The show action
     QAction _showAction;
+
+    ///! @brief Name of plugin
     QString _name;
+
+    ///! @brief Deprecated
     Convert* _convert;
 
     ///! @brief hook back to RobWorkStudio
     RobWorkStudio* _studio;
+
+    ///! @brief The RobWork instance to be used
     rw::RobWorkPtr _robwork;
+
+    ///! @brief The log instance to be used
     rw::common::LogPtr _log;
 };
 
