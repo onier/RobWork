@@ -176,7 +176,7 @@ SupportPoseAnalyserDialog::SupportPoseAnalyserDialog(const rw::kinematics::State
 
 	_resetBtn->setEnabled(false);
 	_processBtn->setEnabled(false);
-	tabWidget->setTabEnabled(1,false);
+	//tabWidget->setTabEnabled(1,false);
 }
 
 void SupportPoseAnalyserDialog::btnPressed(){
@@ -184,7 +184,7 @@ void SupportPoseAnalyserDialog::btnPressed(){
     if( obj == _loadFromFileBtn ){
     	_resetBtn->setEnabled(true);
     	_processBtn->setEnabled(true);
-    	tabWidget->setTabEnabled(1,false);
+    	//tabWidget->setTabEnabled(1,false);
 
     	std::string filename = openFile(_previousOpenDirectory, this);
     	if(filename.empty())
@@ -212,7 +212,7 @@ void SupportPoseAnalyserDialog::btnPressed(){
     	_dataLoadedLbl->setText("State start data loaded!");
     	addStateStartPath(_startPath);
     } else if( obj == _listenForDataBtn ) {
-    	tabWidget->setTabEnabled(1,false);
+    	//tabWidget->setTabEnabled(1,false);
     	// create the resting pose dialog
     	_resetBtn->setEnabled(true);
     	_processBtn->setEnabled(true);
@@ -231,10 +231,10 @@ void SupportPoseAnalyserDialog::btnPressed(){
     } else if( obj == _processBtn ) {
    		process();
    		_resetBtn->setEnabled(true);
-   		tabWidget->setTabEnabled(1,true);
+   		//tabWidget->setTabEnabled(1,true);
     } else if( obj == _resetBtn ) {
     	_processBtn->setEnabled(false);
-    	tabWidget->setTabEnabled(1,false);
+    	//tabWidget->setTabEnabled(1,false);
     	_xaxis.clear();
     	_yaxis.clear();
     	_zaxis.clear();

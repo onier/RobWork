@@ -453,7 +453,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 	//std::cout << "------------- Step dt=" << dt <<" at " << _time << " :"<< std::endl;
 	//std::cout << "StepMethod: " << _stepMethod << std::endl;
 	//std::cout << "StepMethod: " << _maxIter << std::endl;
-
+	std::cout << "[";
 	try {
 		switch(_stepMethod){
 		case(WorldStep): TIMING("Step: ", dWorldStep(_worldId, dt)); break;
@@ -466,7 +466,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 		std::cout << "ERROR";
 		Log::errorLog() << "Caught exeption in step function!" << std::endl;
 	}
-
+	std::cout << "]" << std::endl;
 /*
 	saveODEState();
 	double dttmp = dt;
