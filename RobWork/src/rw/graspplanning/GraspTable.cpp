@@ -12,7 +12,7 @@ using namespace rw::math;
 using namespace rw::graspplanning;
 
 GraspTable::GraspTable(const std::string& handName,  const std::string& objectId):
-    _handName(handName),_objectId(objectId)
+    _handName(handName),_objectId(objectId),_calibForceIndex(-1)
 {
 
 }
@@ -33,11 +33,13 @@ GraspTable* GraspTable::load(const std::string& filename){
 	int res;
 	if( !istr.is_open() )
 		RW_THROW("Could not open file: "<< filename);
-
+	std::cout << "File openned!" << std::endl;
 	unsigned int tablesize, handdof, nrquality,version;
 	istr.getline(line, linesize);
-	sscanf (line,"%s %i",chunk, version);
-	std::cout << "GraspTableVersion: " << version << "\n";
+	std::cout << "Got line!" << std::endl;
+	sscanf (line,"%s %i", chunk, &version);
+	std::cout << "Scanning line!" << std::endl;
+	std::cout << "GraspTableVersion: " << version << std::endl;
 	if(version!=GTABLE_VERSION)
 		RW_THROW("VERSION incompatibility, version of file is: "<<version<<", version of loader is: "<< GTABLE_VERSION);
 
@@ -51,9 +53,9 @@ GraspTable* GraspTable::load(const std::string& filename){
 
     GraspTable *gtable = new GraspTable(handname,objectId);
 
-    std::cout << "hand: " << handname << "\n";
-    std::cout << "object: " << objectId << "\n";
-    std::cout << "TableSize: " << tablesize << "\n";
+    std::cout << "hand: " << handname << std::endl;
+    std::cout << "object: " << objectId << std::endl;
+    std::cout << "TableSize: " << tablesize << std::endl;
 
 	if(tablesize==0)
 		return gtable;
@@ -62,9 +64,12 @@ GraspTable* GraspTable::load(const std::string& filename){
 	sscanf (line,"%s %i",chunk,&handdof);
 	istr.getline(line, linesize);
 	sscanf (line,"%s %i",chunk,&nrquality);
-    std::cout << "HandDOF: " << handdof << "\n";
+
+	std::cout << "HandDOF: " << handdof << "\n";
     std::cout << "NrOfQualityMeasures: " << nrquality << "\n";
+
     int calibForceIndex;
+    istr.getline(line, linesize);
     sscanf (line,"%s %i",chunk,&calibForceIndex);
     std::cout << "CalibrationForceIndex: " << calibForceIndex << "\n";
     gtable->setCalibForceIndex(calibForceIndex);
