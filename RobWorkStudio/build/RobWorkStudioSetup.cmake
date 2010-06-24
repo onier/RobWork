@@ -27,7 +27,7 @@ MESSAGE(STATUS "RobWorkStudio: ROOT dir: ${RWSTUDIO_ROOT}")
 #
 # Setup the default include and library dirs for RobWorkStudio
 #
-INCLUDE("${RWSTUDIO_ROOT}/build/RobWorkStudioBuildConfig${CMAKE_BUILD_TYPE}.cmake")
+#INCLUDE("${RWSTUDIO_ROOT}/build/RobWorkStudioBuildConfig${CMAKE_BUILD_TYPE}.cmake")
 
 
  ####################################################################
