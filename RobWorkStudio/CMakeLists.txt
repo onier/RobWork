@@ -103,7 +103,7 @@ CONFIGURE_FILE(
 )
 
 INSTALL(SCRIPT "${RWSTUDIO_ROOT}/build/dependencies.cmake")
-include(${RWSTUDIO_ROOT}/build/dependencies.cmake)
+#include(${RWSTUDIO_ROOT}/build/dependencies.cmake)
 
 # Packaging
 INCLUDE(build/packing.cmake)
