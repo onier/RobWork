@@ -40,7 +40,7 @@ GLFrameGrabber25D::GLFrameGrabber25D(int width,
     _fieldOfView(fov),
     _drawer(drawer),
     _perspTrans(rw::math::Transform3D<double>::identity()),
-    _minDepth(0.5),
+    _minDepth(0.25),
     _maxDepth(15)
 
 {

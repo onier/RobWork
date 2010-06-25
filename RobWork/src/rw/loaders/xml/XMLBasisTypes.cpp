@@ -19,6 +19,7 @@
 #include "XercesUtils.hpp"
 
 #include <xercesc/util/XMLString.hpp>
+
 #include <xercesc/dom/DOMNodeList.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMText.hpp>
@@ -444,18 +445,35 @@ std::string XMLBasisTypes::readElementText(xercesc::DOMElement* element, bool ex
     return "";
 }
 
+const XMLCh* XMLBasisTypes::readElementTextXMLCh(xercesc::DOMElement* element, bool exceptionOnEmpty) {
+    DOMNodeList* children = element->getChildNodes();
+
+    for (size_t i = 0; i<children->getLength(); i++) {
+        DOMNode* child = children->item(i);
+        //std::cout<<"readElementText Child = "<<XMLStr(child->getNodeName()).str()<<std::endl;
+        if (dynamic_cast<DOMText*>(children->item(0)) != NULL)
+            return child->getNodeValue();
+            //return XMLStr(child->getNodeValue()).str();
+    }
+    if (exceptionOnEmpty)
+        RW_THROW("Unable to find value in Node " + XMLStr(element->getNodeName()).str());
+    return NULL;
+}
+
+#include <xercesc/util/XMLDouble.hpp>
+
 double XMLBasisTypes::readDouble(xercesc::DOMElement* element, bool doCheckHeader) {
     if (doCheckHeader)
         checkHeader(element, DoubleId);
-
-    return std::atof(readElementText(element).c_str());
+    return XMLDouble(readElementTextXMLCh(element)).getValue();
+    //return std::atof(readElementText(element).c_str());
 }
 
 float XMLBasisTypes::readFloat(xercesc::DOMElement* element, bool doCheckHeader) {
     if (doCheckHeader)
         checkHeader(element, FloatId);
-
-    return (float)std::atof(readElementText(element).c_str());
+    return (float)XMLDouble(readElementTextXMLCh(element)).getValue();
+    //return (float)std::atof(readElementText(element).c_str());
 }
 
 int XMLBasisTypes::readInt(xercesc::DOMElement* element, bool doCheckHeader) {

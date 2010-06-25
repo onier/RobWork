@@ -52,8 +52,6 @@ using namespace rw::common;
 #ifdef RWS_USE_STATIC_LINK_PLUGINS
 
 
-
-
 #include <rws/plugins/log/ShowLog.hpp>
 #include <rws/plugins/jog/Jog.hpp>
 #include <rws/plugins/treeview/TreeView.hpp>

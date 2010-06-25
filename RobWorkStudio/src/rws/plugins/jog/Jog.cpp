@@ -44,6 +44,7 @@ QIcon Jog::getIcon() {
 Jog::Jog():
     RobWorkStudioPlugin("Jog", getIcon()),
     _workcell(0),
+    _selectedDevice(0),
     _selectedFrame(0),
     _updating(false),
     _cartesianBounds(Q::zero(6), Q::zero(6))
