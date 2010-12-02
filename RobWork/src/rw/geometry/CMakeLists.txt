@@ -33,6 +33,7 @@ SET(FILES_CPP
     Contour2DUtil.cpp
     IndexedPolygon.cpp
     IntersectUtil.cpp
+    Triangulate.cpp
 )
 
 SET(FILES_HPP
@@ -68,6 +69,7 @@ SET(FILES_HPP
     Contour2D.hpp
     #Contour2Dto3D.hpp
     Contour2DUtil.hpp
+    Triangulate.hpp
 )
 
 SOURCE_GROUP(geometry FILES ${FILES_CPP} ${FILES_HPP})
