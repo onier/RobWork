@@ -19,6 +19,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <typeinfo>
 
 #include <boost/bind.hpp>
 
@@ -29,6 +30,10 @@
 #include <rw/math/RPY.hpp>
 #include <rw/math/Constants.hpp>
 #include <rw/kinematics/Kinematics.hpp>
+#include <rw/models/Joint.hpp>
+#include <rw/models/RevoluteJoint.hpp>
+#include <rw/models/PrismaticJoint.hpp>
+#include <sandbox/models/BeamJoint.hpp>
 
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -77,11 +82,36 @@ namespace {
         const std::pair<std::string, std::string> descs = formatUnitDescriptions(angles, distances, angleUnitConverters, distanceUnitConverters);
         std::vector<std::string> desc;
         std::vector<double> conv;
-        if(selectedDevice) { // Joint type
+        if(selectedDevice) { // Device
+            // TODO: this whole thing --------------------------------------------------
+            // Cast to joint device to get joint info
+            const rw::models::JointDevice* jointDevice = static_cast<const rw::models::JointDevice*>(selectedDevice);
+            if(jointDevice) {
+              // Get joints
+              const std::vector<rw::models::Joint*>& joints = jointDevice->getJoints();
+              // Iterate through
+              for(std::vector<rw::models::Joint*>::const_iterator it = joints.begin(); it != joints.end(); ++it) {
+                if(dynamic_cast<const rw::models::RevoluteJoint*>(*it) ||
+                   dynamic_cast<const rw::models::BeamJoint*>(*it)) { // Revolute joint
+                  // Insert angle converter
+                  desc.insert(desc.end(), descs.first);
+                  const double toUnit = angleUnitConverters.find(descs.first)->second;
+                  conv.insert(conv.end(), toUnit);
+                } else if(dynamic_cast<const rw::models::PrismaticJoint*>(*it)) { // Prismatic joint
+                  // Insert distance converter
+                  desc.insert(desc.end(), descs.second);
+                  const double toUnit = distanceUnitConverters.find(descs.second)->second;
+                  conv.insert(conv.end(), toUnit);                  
+                } else { } // TODO
+              }
+            }
+            // --------------------------------------------------
+            /*
             desc.insert(desc.end(), selectedDevice->getDOF(), descs.first);
             const double toUnit = angleUnitConverters.find(descs.first)->second;
             conv.insert(conv.end(), selectedDevice->getDOF(), toUnit);
-        } else { // Cartesian type
+            */
+        } else { // Cartesian
             desc.insert(desc.end(), 3, descs.first);
             desc.insert(desc.end(), 3, descs.second);
             const double toUnitDistance = distanceUnitConverters.find(descs.second)->second;
@@ -89,7 +119,7 @@ namespace {
             const double toUnitAngle = angleUnitConverters.find(descs.first)->second;
             conv.insert(conv.end(), 3, toUnitAngle);
         }
-
+        
         return std::pair<std::vector<std::string>, std::vector<double> >(desc, conv);
     }
 
@@ -279,6 +309,7 @@ void Jog::cmbChanged ( int index ) {
     }
     _tabWidget->setCurrentIndex(_chosenTabs[index]);
     connect(_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
+    updateUnit(_cmbAngleUnit->currentText().toStdString(), _cmbDistanceUnit->currentText().toStdString());
 }
 
 void Jog::tabChanged(int index) {
