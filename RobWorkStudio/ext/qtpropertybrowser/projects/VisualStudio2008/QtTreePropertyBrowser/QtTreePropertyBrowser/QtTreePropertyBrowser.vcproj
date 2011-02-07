@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="9,00"
 	Name="QtTreePropertyBrowser"
 	ProjectGUID="{61B482DE-A554-44A7-A2C9-EBD6E29C4085}"
 	RootNamespace="QtTreePropertyBrowser"
 	Keyword="Qt4VSv1.0"
+	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
 		<Platform
@@ -20,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\..\..\..\projects\VisualStudio2005\RobWorkStudio\rws_settings_global.vsprops;..\..\..\..\..\..\..\RobWork\projects\VisualStudio2005\RobWork\rw_app_settings_release.vsprops"
+			InheritedPropertySheets="..\..\..\..\..\..\projects\VisualStudio2008\RobWorkStudio\rws_settings_global.vsprops;..\..\..\..\..\..\..\RobWork\projects\VisualStudio2008\RobWork\rw_app_settings_release.vsprops"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -83,7 +84,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\..\..\..\projects\VisualStudio2005\RobWorkStudio\rws_settings_global.vsprops;..\..\..\..\..\..\..\RobWork\projects\VisualStudio2005\RobWork\rw_app_settings_debug.vsprops"
+			InheritedPropertySheets="..\..\..\..\..\..\projects\VisualStudio2008\RobWorkStudio\rws_settings_global.vsprops;..\..\..\..\..\..\..\RobWork\projects\VisualStudio2008\RobWork\rw_app_settings_debug.vsprops"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -146,7 +147,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			InheritedPropertySheets="..\..\..\..\..\..\projects\VisualStudio2005\RobWorkStudio\rws_settings_global.vsprops;..\..\..\..\..\..\..\RobWork\projects\VisualStudio2005\RobWork\rw_app_settings_release.vsprops"
+			InheritedPropertySheets="..\..\..\..\..\..\projects\VisualStudio2008\RobWorkStudio\rws_settings_global.vsprops;..\..\..\..\..\..\..\RobWork\projects\VisualStudio2008\RobWork\rw_app_settings_release.vsprops"
 			WholeProgramOptimization="0"
 			>
 			<Tool
