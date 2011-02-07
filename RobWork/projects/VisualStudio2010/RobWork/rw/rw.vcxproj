@@ -603,12 +603,6 @@
     <ClInclude Include="..\..\..\..\src\rw\sensor.hpp" />
     <ClInclude Include="..\..\..\..\src\rw\trajectory.hpp" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="rw.vcxproj">
-      <Project>{cff5c0cc-cc06-4af0-9118-a4df15c46108}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

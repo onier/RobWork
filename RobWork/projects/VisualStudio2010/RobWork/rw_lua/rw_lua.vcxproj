@@ -154,6 +154,14 @@
   <ItemGroup>
     <None Include="ReadMe.txt" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\ext\lua\VisualStudio2010\lua.vcxproj">
+      <Project>{52a4d050-5888-451f-a062-72a902c1b9b3}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\..\ext\tolua\win32\vc10\toluaapp\toluaapp.vcxproj">
+      <Project>{0aa71909-bfe5-4a5c-bc30-88b63794ef32}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
