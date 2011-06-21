@@ -115,7 +115,10 @@ bool CollisionDetector::inCollision(
 				return true;
         }
 	}
-
+	if(result){
+		if(result->collidingFrames.size()>0)
+			return true;
+	}
     return false;
 }
 
