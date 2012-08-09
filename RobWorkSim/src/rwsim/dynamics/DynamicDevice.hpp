@@ -92,6 +92,8 @@ namespace dynamics {
 		virtual void setVelocity(const rw::math::Q &vel, rw::kinematics::State& state)
 		    { setJointVelocities(vel, state); };
 
+		virtual void setMotorVelocityTargets(const rw::math::Q& vel, rw::kinematics::State& state){ }
+
 		virtual void setForceLimit(const rw::math::Q& force){}
 
         virtual const std::vector<Body::Ptr>& getLinks() = 0;
