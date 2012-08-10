@@ -78,6 +78,10 @@ namespace rwlibs { namespace algorithms {
             double dist;
         };
 
+        typedef KDNode Node;
+        typedef KDResult Result;
+        typedef VALUE_TYPE Value;
+
         /**
         * @brief Constructor
         * @param dim [in] the dimension of the keys in the KDTreeQ
