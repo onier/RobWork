@@ -29,14 +29,14 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 		_encoderDecentralizationCalibrations.append(rw::common::ownedPtr(new EncoderParameterCalibration(serialDevice, *jointIterator)));
 	}
 
-	_calibrations.append(_baseCalibration.cast<PoseCalibration>());
-	_calibrations.append(_endCalibration.cast<PoseCalibration>());
+	_calibrations.append(_baseCalibration.cast<DeviceCalibration>());
+	_calibrations.append(_endCalibration.cast<DeviceCalibration>());
 	QListIterator<DHParameterCalibration::Ptr> dhParameterCalibrationIterator(_dhParameterCalibrations);
 	while (dhParameterCalibrationIterator.hasNext())
-		_calibrations.append(dhParameterCalibrationIterator.next().cast<PoseCalibration>());
+		_calibrations.append(dhParameterCalibrationIterator.next().cast<DeviceCalibration>());
 	QListIterator<EncoderParameterCalibration::Ptr> encoderDecentralizationCalibrationIterator(_encoderDecentralizationCalibrations);
 	while (encoderDecentralizationCalibrationIterator.hasNext())
-		_calibrations.append(encoderDecentralizationCalibrationIterator.next().cast<PoseCalibration>());
+		_calibrations.append(encoderDecentralizationCalibrationIterator.next().cast<DeviceCalibration>());
 }
 
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration,
@@ -44,14 +44,14 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 		const QList<EncoderParameterCalibration::Ptr>& encoderDecentralizationCalibrations) :
 		_isEnabled(true), _isApplied(false), _serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _dhParameterCalibrations(
 				dhParameterCalibrations), _encoderDecentralizationCalibrations(encoderDecentralizationCalibrations) {
-	_calibrations.append(_baseCalibration.cast<PoseCalibration>());
-	_calibrations.append(_endCalibration.cast<PoseCalibration>());
+	_calibrations.append(_baseCalibration.cast<DeviceCalibration>());
+	_calibrations.append(_endCalibration.cast<DeviceCalibration>());
 	QListIterator<DHParameterCalibration::Ptr> dhParameterCalibrationIterator(_dhParameterCalibrations);
 	while (dhParameterCalibrationIterator.hasNext())
-		_calibrations.append(dhParameterCalibrationIterator.next().cast<PoseCalibration>());
+		_calibrations.append(dhParameterCalibrationIterator.next().cast<DeviceCalibration>());
 	QListIterator<EncoderParameterCalibration::Ptr> encoderDecentralizationCalibrationIterator(_encoderDecentralizationCalibrations);
 	while (encoderDecentralizationCalibrationIterator.hasNext())
-		_calibrations.append(encoderDecentralizationCalibrationIterator.next().cast<PoseCalibration>());
+		_calibrations.append(encoderDecentralizationCalibrationIterator.next().cast<DeviceCalibration>());
 }
 
 SerialDeviceCalibration::~SerialDeviceCalibration() {
@@ -68,9 +68,9 @@ void SerialDeviceCalibration::apply() {
 	if (_isApplied)
 		RW_WARN("Already applied.");
 
-	QListIterator<PoseCalibration::Ptr> calibrationIterator(_calibrations);
+	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
 	while (calibrationIterator.hasNext()) {
-		PoseCalibration::Ptr calibration = calibrationIterator.next();
+		DeviceCalibration::Ptr calibration = calibrationIterator.next();
 		if (calibration->isEnabled())
 			calibration->apply();
 	}
@@ -84,9 +84,9 @@ void SerialDeviceCalibration::revert() {
 	if (!_isApplied)
 		RW_WARN("Not applied.");
 
-	QListIterator<PoseCalibration::Ptr> calibrationIterator(_calibrations);
+	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
 	while (calibrationIterator.hasNext()) {
-		PoseCalibration::Ptr calibration = calibrationIterator.next();
+		DeviceCalibration::Ptr calibration = calibrationIterator.next();
 		if (calibration->isEnabled())
 			calibration->revert();
 	}
@@ -100,9 +100,9 @@ void SerialDeviceCalibration::correct(rw::kinematics::State& state) {
 	if (!_isApplied)
 		RW_WARN("Not applied.");
 
-	QListIterator<PoseCalibration::Ptr> calibrationIterator(_calibrations);
+	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
 	while (calibrationIterator.hasNext()) {
-		PoseCalibration::Ptr calibration = calibrationIterator.next();
+		DeviceCalibration::Ptr calibration = calibrationIterator.next();
 		if (calibration->isEnabled())
 			calibration->correct(state);
 	}

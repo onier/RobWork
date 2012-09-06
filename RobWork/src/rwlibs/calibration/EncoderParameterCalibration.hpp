@@ -11,7 +11,7 @@
 #include <rw/math.hpp>
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
-#include "PoseCalibration.hpp"
+#include "DeviceCalibration.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
 #include <QtXml/qdom.h>
@@ -19,7 +19,7 @@
 namespace rwlibs {
 namespace calibration {
 
-class EncoderParameterCalibration: public PoseCalibration {
+class EncoderParameterCalibration: public DeviceCalibration {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

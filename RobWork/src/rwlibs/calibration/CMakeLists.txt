@@ -10,20 +10,35 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 
 	SET(SRC_FILES
 		DHParameterCalibration.cpp
+		DHParameterJacobian.cpp
 		EncoderParameterCalibration.cpp
+		EncoderParameterJacobian.cpp
 		FixedFrameCalibration.cpp
+		FixedFrameJacobian.cpp
 		SerialDeviceCalibration.cpp
+		SerialDeviceCalibrator.cpp
+		SerialDeviceJacobian.cpp
+		SerialDevicePoseMeasurement.cpp
+		SerialDevicePoseMeasurementList.cpp
 	)
     
 	SET(SRC_FILES_HPP
-		Pose6D.hpp
-		RPY.hpp
+		DeviceCalibration.hpp
+		DeviceJacobian.hpp
 		DHParameterCalibration.hpp
+		DHParameterJacobian.hpp
 		EigenTransformAddons.hpp
 		EncoderParameterCalibration.hpp
+		EncoderParameterJacobian.hpp
 		FixedFrameCalibration.hpp
-		PoseCalibration.hpp
+		FixedFrameJacobian.hpp
+		Pose6D.hpp
+		RPY.hpp
 		SerialDeviceCalibration.hpp
+		SerialDeviceCalibrator.hpp
+		SerialDeviceJacobian.hpp
+		SerialDevicePoseMeasurement.hpp
+		SerialDevicePoseMeasurementList.hpp
 	)
     
 	RW_ADD_LIBRARY(${SUBSYS_NAME} calibration ${SRC_FILES} ${SRC_FILES_HPP})

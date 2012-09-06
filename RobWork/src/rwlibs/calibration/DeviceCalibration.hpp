@@ -1,24 +1,23 @@
 /*
- * PoseCalibration.hpp
+ * DeviceCalibration.hpp
  *
  *  Created on: Aug 30, 2012
  *      Author: bing
  */
 
-#ifndef RWLIBS_CALIBRATION_POSECALIBRATION_HPP_
-#define RWLIBS_CALIBRATION_POSECALIBRATION_HPP_
+#ifndef RWLIBS_CALIBRATION_DEVICECALIBRATION_HPP_
+#define RWLIBS_CALIBRATION_DEVICECALIBRATION_HPP_
 
 #include <rw/kinematics.hpp>
 
 namespace rwlibs {
 namespace calibration {
 
-// TODO: Remove apply-concept, replace by enabled/disabled concept?
-class PoseCalibration {
+class DeviceCalibration {
 public:
-	typedef rw::common::Ptr<PoseCalibration> Ptr;
+	typedef rw::common::Ptr<DeviceCalibration> Ptr;
 
-	virtual ~PoseCalibration() {
+	virtual ~DeviceCalibration() {
 	}
 
 	virtual bool isEnabled() const = 0;
@@ -35,4 +34,4 @@ public:
 }
 }
 
-#endif /* RWLIBS_CALIBRATION_POSECALIBRATION_HPP_ */
+#endif /* RWLIBS_CALIBRATION_DEVICECALIBRATION_HPP_ */

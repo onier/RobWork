@@ -24,7 +24,7 @@
 namespace rwlibs {
 namespace calibration {
 
-class SerialDeviceCalibration: public PoseCalibration {
+class SerialDeviceCalibration: public DeviceCalibration {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibration> Ptr;
 
@@ -70,7 +70,7 @@ private:
 	FixedFrameCalibration::Ptr _endCalibration;
 	QList<DHParameterCalibration::Ptr> _dhParameterCalibrations;
 	QList<EncoderParameterCalibration::Ptr> _encoderDecentralizationCalibrations;
-	QList<PoseCalibration::Ptr> _calibrations;
+	QList<DeviceCalibration::Ptr> _calibrations;
 };
 
 }
