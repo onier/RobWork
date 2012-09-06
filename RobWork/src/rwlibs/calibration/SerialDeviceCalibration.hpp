@@ -1,5 +1,5 @@
 /*
- * CalibratedSerialDevice.hpp
+ * SerialDeviceCalibration.hpp
  *
  *  Created on: Jul 4, 2012
  *      Author: bing
@@ -8,78 +8,69 @@
 #ifndef RWLIBS_CALIBRATION_SERIALDEVICECALIBRATION_HPP
 #define RWLIBS_CALIBRATION_SERIALDEVICECALIBRATION_HPP
 
-#include "Pose6D.hpp"
+#include <rw/math.hpp>
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
+#include "DHParameterCalibration.hpp"
+#include "EncoderParameterCalibration.hpp"
+#include "FixedFrameCalibration.hpp"
+#include <Eigen/Geometry>
 #include <rw/models.hpp>
 #include <rw/models/DHParameterSet.hpp>
 #include <rw/kinematics.hpp>
-#include <rw/math.hpp>
-
 #include <QtCore>
+#include <QtXml/qdom.h>
 
 namespace rwlibs {
 namespace calibration {
 
-class SerialDeviceCalibration {
+class SerialDeviceCalibration: public PoseCalibration {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibration> Ptr;
 
 	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice);
 
+	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration, const QList<DHParameterCalibration::Ptr>& dhParameterCalibrations, const QList<EncoderParameterCalibration::Ptr>& encoderDecentralization);
+
 	virtual ~SerialDeviceCalibration();
 
-	void setEnabled(bool baseEnabled, bool endEnabled, bool dhEnabled);
+	virtual bool isEnabled() const;
 
-	Eigen::Affine3d getBaseCorrection() const;
+	virtual void apply();
 
-	void setBaseCorrection(const Eigen::Affine3d& correction);
+	virtual void revert();
 
-	Eigen::Affine3d getEndCorrection() const;
+	virtual void correct(rw::kinematics::State& state);
 
-	void setEndCorrection(const Eigen::Affine3d& correction);
+	virtual bool isApplied() const;
 
-	std::vector<rw::models::DHParameterSet> getDHCorrections() const;
+	rw::models::SerialDevice::Ptr getDevice() const;
 
-	void setDHCorrections(const std::vector<rw::models::DHParameterSet>& corrections);
+	FixedFrameCalibration::Ptr getBaseCalibration() const;
 
-	rw::kinematics::Frame* getBaseFrame();
+	FixedFrameCalibration::Ptr getEndCalibration() const;
 
-	void setBaseFrame(rw::kinematics::Frame* baseFrame);
+	QList<DHParameterCalibration::Ptr> getDHParameterCalibrations() const;
 
-	rw::kinematics::Frame* getEndFrame();
+	QList<EncoderParameterCalibration::Ptr> getEncoderDecentralizationCalibrations() const;
 
-	void setEndFrame(rw::kinematics::Frame* endFrame);
+	void save(std::string fileName);
 
-	void save(QString fileName);
+	static SerialDeviceCalibration::Ptr load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string fileName);
 
-	static SerialDeviceCalibration::Ptr load(rw::models::SerialDevice::Ptr serialDevice, const std::string& fileName);
+	static SerialDeviceCalibration::Ptr get(rw::models::SerialDevice::Ptr serialDevice);
 
-	void apply();
-
-	void revert();
-
-	bool isApplied();
-
-	static SerialDeviceCalibration::Ptr getCalibration(rw::models::SerialDevice::Ptr serialDevice);
-
-	static void setCalibration(SerialDeviceCalibration::Ptr serialDeviceCalibration, rw::models::SerialDevice::Ptr serialDevice);
+	static void set(SerialDeviceCalibration::Ptr serialDeviceCalibration, rw::models::SerialDevice::Ptr serialDevice);
 
 private:
-
-	rw::models::SerialDevice::Ptr _serialDevice;
-
-	Eigen::Affine3d _baseCorrection;
-	Eigen::Affine3d _endCorrection;
-	std::vector<rw::models::DHParameterSet> _dhCorrections;
-
-	bool _baseEnabled;
-	bool _endEnabled;
-	bool _dhEnabled;
-
-	rw::kinematics::Frame* _baseFrame;
-	rw::kinematics::Frame* _endFrame;
-
+	bool _isEnabled;
 	bool _isApplied;
+	rw::models::SerialDevice::Ptr _serialDevice;
+	FixedFrameCalibration::Ptr _baseCalibration;
+	FixedFrameCalibration::Ptr _endCalibration;
+	QList<DHParameterCalibration::Ptr> _dhParameterCalibrations;
+	QList<EncoderParameterCalibration::Ptr> _encoderDecentralizationCalibrations;
+	QList<PoseCalibration::Ptr> _calibrations;
 };
 
 }

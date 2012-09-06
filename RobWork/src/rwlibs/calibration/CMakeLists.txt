@@ -9,13 +9,20 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 	RW_ADD_DOC(${SUBSYS_NAME})
 
 	SET(SRC_FILES
-		Pose6D.cpp
+		DHParameterCalibration.cpp
+		EncoderParameterCalibration.cpp
+		FixedFrameCalibration.cpp
 		SerialDeviceCalibration.cpp
 	)
     
 	SET(SRC_FILES_HPP
 		Pose6D.hpp
 		RPY.hpp
+		DHParameterCalibration.hpp
+		EigenTransformAddons.hpp
+		EncoderParameterCalibration.hpp
+		FixedFrameCalibration.hpp
+		PoseCalibration.hpp
 		SerialDeviceCalibration.hpp
 	)
     

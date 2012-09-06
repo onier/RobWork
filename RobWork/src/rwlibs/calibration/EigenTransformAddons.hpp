@@ -2,7 +2,7 @@
  * EigenTransformAddons.hpp
  *
  *  Created on: Oct 23, 2011
- *      Author: michael
+ *      Author: bing
  */
 
 #ifndef RWLIBS_CALIBRATION_EIGENTRANSFORMADDONS_HPP

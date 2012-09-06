@@ -2,7 +2,7 @@
  * RPY.hpp
  *
  *  Created on: Oct 23, 2011
- *      Author: michael
+ *      Author: bing
  */
 
 #ifndef RWLIBS_CALIBRATION_RPY_HPP
@@ -10,8 +10,8 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-
 #include <Eigen/Geometry>
+
 #include <rw/common.hpp>
 
 // http://stackoverflow.com/questions/652155/invalid-use-of-incomplete-type
@@ -77,7 +77,6 @@ RPY<_Scalar>::RPY(const _Scalar& roll, const _Scalar& pitch, const _Scalar& yaw)
 template<typename _Scalar>
 template <typename Derived>
 RPY<_Scalar>::RPY(const Eigen::MatrixBase<Derived>& matrix, _Scalar epsilon) {
-	// TODO elaborate exceptions
 	if (matrix.rows() != 3 || (matrix.cols() != 1 && matrix.cols() != 3))
 		RW_THROW("RPY must be constructed from a 3x1 vector or 3x3 matrix.");
 
@@ -90,33 +89,6 @@ RPY<_Scalar>::RPY(const Eigen::MatrixBase<Derived>& matrix, _Scalar epsilon) {
 		roll_ = rpy(2);
 		pitch_ = rpy(1);
 		yaw_ = rpy(0);
-		/*
-		_Scalar sum = matrix(0, 0) * matrix(0, 0) + matrix(1, 0) * matrix(1, 0);
-
-		const _Scalar cos_beta = sqrt(sum);
-		const _Scalar sin_beta = -matrix(2, 0);
-
-		// If beta == 90 deg or beta == -90 deg:
-		if (fabs(cos_beta) < epsilon) {
-			// If beta == -90 deg:
-			if (sin_beta < 0) {
-				yaw_ = 0;
-				pitch_ = static_cast<_Scalar>(-M_PI / 2);
-				roll_ = -atan2(matrix(0, 1), matrix(1, 1));
-			}
-
-			// If beta == 90 deg:
-			else {
-				yaw_ = 0;
-				pitch_ = static_cast<_Scalar>(M_PI / 2);
-				roll_ = atan2(matrix(0, 1), matrix(1, 1));
-			}
-
-		} else {
-			pitch_ = static_cast<_Scalar>(atan2(sin_beta, cos_beta));
-			yaw_ = static_cast<_Scalar>(atan2(matrix(1, 0), matrix(0, 0)));
-			roll_ = static_cast<_Scalar>(atan2(matrix(2, 1), matrix(2, 2)));
-		}*/
 	}
 }
 

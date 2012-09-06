@@ -2,19 +2,19 @@
  * Pose6D.hpp
  *
  *  Created on: Oct 28, 2011
- *      Author: michael
+ *      Author: bing
  */
 
 #ifndef RWLIBS_CALIBRATION_POSE_HPP
 #define RWLIBS_CALIBRATION_POSE_HPP
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "EigenTransformAddons.hpp"
 
 #include "RPY.hpp"
 
 #include <Eigen/Core>
-#include <rw/math.hpp>
+
 #include <iostream>
 
 namespace rwlibs {
