@@ -466,7 +466,7 @@ namespace rwlibs { namespace algorithms {
 
 
     template<class T>
-    KDTreeQ<T>* KDTreeQ<T>::buildTree(std::vector<KDTreeQ<T>::KDNode>& nodes){
+    KDTreeQ<T>* KDTreeQ<T>::buildTree(std::vector<typename KDTreeQ<T>::KDNode>& nodes){
         if(nodes.size()==0)
             return NULL;
 
@@ -488,7 +488,7 @@ namespace rwlibs { namespace algorithms {
     }
 
     template<class T>
-    KDTreeQ<T>* KDTreeQ<T>::buildTree(const std::vector<KDTreeQ<T>::KDNode*>& nodes){
+    KDTreeQ<T>* KDTreeQ<T>::buildTree(const std::vector<typename KDTreeQ<T>::KDNode*>& nodes){
         if(nodes.size()==0)
             return NULL;
 
