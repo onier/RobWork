@@ -16,7 +16,7 @@ namespace calibration {
 using namespace rwlibs::calibration;
 
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice) :
-		_isEnabled(true), _isApplied(false), _serialDevice(serialDevice) {
+		_serialDevice(serialDevice) {
 	_baseCalibration = rw::common::ownedPtr(
 			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getBase()).cast<rw::kinematics::FixedFrame>(), true));
 	_endCalibration = rw::common::ownedPtr(
@@ -42,7 +42,7 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration,
 		FixedFrameCalibration::Ptr endCalibration, const QList<DHParameterCalibration::Ptr>& dhParameterCalibrations,
 		const QList<EncoderParameterCalibration::Ptr>& encoderDecentralizationCalibrations) :
-		_isEnabled(true), _isApplied(false), _serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _dhParameterCalibrations(
+		_serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _dhParameterCalibrations(
 				dhParameterCalibrations), _encoderDecentralizationCalibrations(encoderDecentralizationCalibrations) {
 	_calibrations.append(_baseCalibration.cast<DeviceCalibration>());
 	_calibrations.append(_endCalibration.cast<DeviceCalibration>());
@@ -56,60 +56,6 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 
 SerialDeviceCalibration::~SerialDeviceCalibration() {
 
-}
-
-bool SerialDeviceCalibration::isEnabled() const {
-	return _isEnabled;
-}
-
-void SerialDeviceCalibration::apply() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (_isApplied)
-		RW_WARN("Already applied.");
-
-	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
-	while (calibrationIterator.hasNext()) {
-		DeviceCalibration::Ptr calibration = calibrationIterator.next();
-		if (calibration->isEnabled())
-			calibration->apply();
-	}
-
-	_isApplied = true;
-}
-
-void SerialDeviceCalibration::revert() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (!_isApplied)
-		RW_WARN("Not applied.");
-
-	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
-	while (calibrationIterator.hasNext()) {
-		DeviceCalibration::Ptr calibration = calibrationIterator.next();
-		if (calibration->isEnabled())
-			calibration->revert();
-	}
-
-	_isApplied = false;
-}
-
-void SerialDeviceCalibration::correct(rw::kinematics::State& state) {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (!_isApplied)
-		RW_WARN("Not applied.");
-
-	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
-	while (calibrationIterator.hasNext()) {
-		DeviceCalibration::Ptr calibration = calibrationIterator.next();
-		if (calibration->isEnabled())
-			calibration->correct(state);
-	}
-}
-
-bool SerialDeviceCalibration::isApplied() const {
-	return _isApplied;
 }
 
 rw::models::SerialDevice::Ptr SerialDeviceCalibration::getDevice() const {
@@ -256,6 +202,33 @@ void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr serialDeviceCalib
 		propertyMap.erase("Calibration");
 	}
 	propertyMap.add<SerialDeviceCalibration::Ptr>("Calibration", "", serialDeviceCalibration);
+}
+
+void SerialDeviceCalibration::doApply() {
+	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
+	while (calibrationIterator.hasNext()) {
+		DeviceCalibration::Ptr calibration = calibrationIterator.next();
+		if (calibration->isEnabled())
+			calibration->apply();
+	}
+}
+
+void SerialDeviceCalibration::doRevert() {
+	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
+	while (calibrationIterator.hasNext()) {
+		DeviceCalibration::Ptr calibration = calibrationIterator.next();
+		if (calibration->isEnabled())
+			calibration->revert();
+	}
+}
+
+void SerialDeviceCalibration::doCorrect(rw::kinematics::State& state) {
+	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
+	while (calibrationIterator.hasNext()) {
+		DeviceCalibration::Ptr calibration = calibrationIterator.next();
+		if (calibration->isEnabled())
+			calibration->correct(state);
+	}
 }
 
 }

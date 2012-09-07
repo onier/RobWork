@@ -17,6 +17,8 @@ namespace calibration {
 
 class EncoderParameterJacobian: public DeviceJacobian {
 public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 	typedef rw::common::Ptr<EncoderParameterJacobian> Ptr;
 
 	EncoderParameterJacobian(rw::models::SerialDevice::Ptr serialDevice, EncoderParameterCalibration::Ptr calibration);

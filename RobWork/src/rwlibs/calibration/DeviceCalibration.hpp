@@ -20,15 +20,63 @@ public:
 	virtual ~DeviceCalibration() {
 	}
 
-	virtual bool isEnabled() const = 0;
+	bool isEnabled() const {
+		return _isEnabled;
+	}
 
-	virtual void apply() = 0;
+	void setEnabled(bool isEnabled) {
+		_isEnabled = isEnabled;
+	}
 
-	virtual void revert() = 0;
+	bool isApplied() const {
+		return _isApplied;
+	}
 
-	virtual void correct(rw::kinematics::State& state) = 0;
+	void apply() {
+		if (!_isEnabled)
+			RW_THROW("Not enabled.");
+		if (_isApplied)
+			RW_THROW("Already applied.");
 
-	virtual bool isApplied() const = 0;
+		doApply();
+
+		_isApplied = true;
+	}
+
+	virtual void revert() {
+		if (!_isEnabled)
+			RW_THROW("Not enabled.");
+		if (!_isApplied)
+			RW_THROW("Not applied.");
+
+		doRevert();
+
+		_isApplied = false;
+	}
+
+	virtual void correct(rw::kinematics::State& state) {
+		if (!_isEnabled)
+			RW_THROW("Not enabled.");
+		if (!_isApplied)
+			RW_WARN("Not applied.");
+
+		doCorrect(state);
+	}
+
+protected:
+	DeviceCalibration() :
+			_isEnabled(true), _isApplied(false) {
+	}
+
+	virtual void doApply() = 0;
+
+	virtual void doRevert() = 0;
+
+	virtual void doCorrect(rw::kinematics::State& state) = 0;
+
+private:
+	bool _isEnabled;
+	bool _isApplied;
 };
 
 }

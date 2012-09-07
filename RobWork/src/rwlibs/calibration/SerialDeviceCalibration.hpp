@@ -34,16 +34,6 @@ public:
 
 	virtual ~SerialDeviceCalibration();
 
-	virtual bool isEnabled() const;
-
-	virtual void apply();
-
-	virtual void revert();
-
-	virtual void correct(rw::kinematics::State& state);
-
-	virtual bool isApplied() const;
-
 	rw::models::SerialDevice::Ptr getDevice() const;
 
 	FixedFrameCalibration::Ptr getBaseCalibration() const;
@@ -62,9 +52,14 @@ public:
 
 	static void set(SerialDeviceCalibration::Ptr serialDeviceCalibration, rw::models::SerialDevice::Ptr serialDevice);
 
+protected:
+	virtual void doApply();
+
+	virtual void doRevert();
+
+	virtual void doCorrect(rw::kinematics::State& state);
+
 private:
-	bool _isEnabled;
-	bool _isApplied;
 	rw::models::SerialDevice::Ptr _serialDevice;
 	FixedFrameCalibration::Ptr _baseCalibration;
 	FixedFrameCalibration::Ptr _endCalibration;

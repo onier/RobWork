@@ -32,16 +32,6 @@ public:
 
 	virtual ~DHParameterCalibration();
 
-	virtual bool isEnabled() const;
-
-	virtual void apply();
-
-	virtual void revert();
-
-	virtual void correct(rw::kinematics::State& state);
-
-	virtual bool isApplied() const;
-
 	rw::models::Joint::Ptr getJoint() const;
 
 	rw::models::DHParameterSet getCorrection() const;
@@ -52,9 +42,14 @@ public:
 
 	static DHParameterCalibration::Ptr fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure);
 
+protected:
+	virtual void doApply();
+
+	virtual void doRevert();
+
+	virtual void doCorrect(rw::kinematics::State& state);
+
 private:
-	bool _isEnabled;
-	bool _isApplied;
 	rw::models::Joint::Ptr _joint;
 	rw::models::DHParameterSet _correction;
 };

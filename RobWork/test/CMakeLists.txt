@@ -140,6 +140,12 @@ IF ( RW_ENABLE_PERFORMANCE_TESTS )
     SET(PERFORMANCE_TEST rw_performance-test)     
 ENDIF()
 
+IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
+	ADD_EXECUTABLE( rw_calibration-test ${DO_EXCLUDE} test-main.cpp calibration/CalibrationTest.cpp)       
+	TARGET_LINK_LIBRARIES( rw_calibration-test ${TEST_LIBRARIES} )
+	ADD_TEST( rw_calibration-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rw_calibration-test ${DEFAULT_TEST_ARGS})
+	ADD_DEPENDENCIES(rw_calibration-test ${TEST_DEPENDENCIES})
+ENDIF()
 
 ADD_CUSTOM_TARGET(rw_all-tests ctest -V 
   DEPENDS rw_math-test rw_common-test rw_geometry-test rw_models-test rw_invkin-test 

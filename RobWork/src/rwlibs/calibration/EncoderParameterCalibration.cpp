@@ -14,7 +14,7 @@ namespace calibration {
 
 EncoderParameterCalibration::EncoderParameterCalibration(rw::models::JointDevice::Ptr jointDevice, rw::models::Joint::Ptr joint,
 		const Eigen::Vector2d& correction) :
-		_isEnabled(true), _isApplied(false), _jointDevice(jointDevice), _joint(joint), _correction(correction) {
+		_jointDevice(jointDevice), _joint(joint), _correction(correction) {
 	// Find joint number.
 	const std::vector<rw::models::Joint*> joints = jointDevice->getJoints();
 	_jointNo = std::find(joints.begin(), joints.end(), joint.get()) - joints.begin();
@@ -22,45 +22,6 @@ EncoderParameterCalibration::EncoderParameterCalibration(rw::models::JointDevice
 
 EncoderParameterCalibration::~EncoderParameterCalibration() {
 
-}
-
-bool EncoderParameterCalibration::isEnabled() const {
-	return _isEnabled;
-}
-
-void EncoderParameterCalibration::apply() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (_isApplied)
-		RW_THROW("Already applied.");
-
-	_isApplied = true;
-}
-
-void EncoderParameterCalibration::revert() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (!_isApplied)
-		RW_THROW("Not applied.");
-
-	_isApplied = false;
-}
-
-void EncoderParameterCalibration::correct(rw::kinematics::State& state) {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (!_isApplied)
-		RW_WARN("Not applied.");
-
-	rw::math::Q q = _jointDevice->getQ(state);
-	// Implemented directly, so that sandbox is not required.
-//	q[_jointNo] = rw::models::EncoderDecentralization::calcRealAngle(q[_jointNo], _correction(0), _correction(1));
-	q[_jointNo] = q[_jointNo] - (_correction(1) * cos(q[_jointNo]) + _correction(0) * sin(q[_jointNo]));
-	_jointDevice->setQ(q, state);
-}
-
-bool EncoderParameterCalibration::isApplied() const {
-	return _isApplied;
 }
 
 rw::models::Joint::Ptr EncoderParameterCalibration::getJoint() const {
@@ -104,6 +65,22 @@ EncoderParameterCalibration::Ptr EncoderParameterCalibration::fromXml(const QDom
 	double sigma = element.attribute("sigma").toDouble();
 
 	return rw::common::ownedPtr(new EncoderParameterCalibration(jointDevice, joint, Eigen::Vector2d(tau, sigma)));
+}
+
+void EncoderParameterCalibration::doApply() {
+
+}
+
+void EncoderParameterCalibration::doRevert() {
+
+}
+
+void EncoderParameterCalibration::doCorrect(rw::kinematics::State& state) {
+	rw::math::Q q = _jointDevice->getQ(state);
+	// Implemented directly, so that sandbox is not required.
+//	q[_jointNo] = rw::models::EncoderDecentralization::calcRealAngle(q[_jointNo], _correction(0), _correction(1));
+	q[_jointNo] = q[_jointNo] - (_correction(1) * cos(q[_jointNo]) + _correction(0) * sin(q[_jointNo]));
+	_jointDevice->setQ(q, state);
 }
 
 }

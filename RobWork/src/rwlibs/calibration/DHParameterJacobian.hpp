@@ -16,6 +16,8 @@ namespace calibration {
 
 class DHParameterJacobian: public DeviceJacobian {
 public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 	typedef rw::common::Ptr<DHParameterJacobian> Ptr;
 
 	DHParameterJacobian(DHParameterCalibration::Ptr calibration);

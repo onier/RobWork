@@ -22,12 +22,12 @@ DeviceCalibration::Ptr FixedFrameJacobian::getCalibration() const {
 }
 
 int FixedFrameJacobian::getParameterCount() const {
-	return _isEnabled ? _enabledParameters.sum() : 0;
+	return isEnabled() ? _enabledParameters.sum() : 0;
 }
 
 Eigen::MatrixXd FixedFrameJacobian::compute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 		const rw::kinematics::State& state) {
-	if (!_isEnabled)
+	if (!isEnabled())
 		RW_THROW("Not enabled.");
 	if (!_enabledParameters.sum())
 		RW_THROW("No parameters enabled.");
@@ -82,7 +82,7 @@ Eigen::MatrixXd FixedFrameJacobian::compute(rw::kinematics::Frame::Ptr reference
 }
 
 void FixedFrameJacobian::step(const Eigen::VectorXd& step) {
-	if (!_isEnabled)
+	if (!isEnabled())
 		RW_THROW("Not enabled.");
 	if (!_enabledParameters.sum())
 		RW_THROW("No parameters enabled.");

@@ -30,16 +30,6 @@ public:
 
 	virtual ~FixedFrameCalibration();
 
-	virtual bool isEnabled() const;
-
-	virtual void apply();
-
-	virtual void revert();
-
-	virtual void correct(rw::kinematics::State& state);
-
-	virtual bool isApplied() const;
-
 	rw::kinematics::FixedFrame::Ptr getFrame() const;
 
 	bool isPreCorrection() const;
@@ -52,9 +42,14 @@ public:
 
 	static FixedFrameCalibration::Ptr fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure);
 
+protected:
+	virtual void doApply();
+
+	virtual void doRevert();
+
+	virtual void doCorrect(rw::kinematics::State& state);
+
 private:
-	bool _isEnabled;
-	bool _isApplied;
 	rw::kinematics::FixedFrame::Ptr _frame;
 	bool _isPreCorrection;
 	Eigen::Affine3d _correction;

@@ -16,6 +16,8 @@ namespace calibration {
 
 class FixedFrameJacobian: public DeviceJacobian {
 public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
 	typedef rw::common::Ptr<FixedFrameJacobian> Ptr;
 
 	FixedFrameJacobian(FixedFrameCalibration::Ptr calibration);

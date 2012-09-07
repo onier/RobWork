@@ -11,7 +11,7 @@ namespace rwlibs {
 namespace calibration {
 
 DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) :
-		_isEnabled(true), _isApplied(false), _joint(joint), _correction(
+		_joint(joint), _correction(
 				rw::models::DHParameterSet::get(_joint.get())->isParallel() ?
 						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, true) :
 						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, rw::models::DHParameterSet::get(_joint.get())->getType())) {
@@ -19,77 +19,12 @@ DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) :
 }
 
 DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint, const rw::models::DHParameterSet& correction) :
-		_isEnabled(true), _isApplied(false), _joint(joint), _correction(correction) {
+		_joint(joint), _correction(correction) {
 
 }
 
 DHParameterCalibration::~DHParameterCalibration() {
 
-}
-
-bool DHParameterCalibration::isEnabled() const {
-	return _isEnabled;
-}
-
-void DHParameterCalibration::apply() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (_isApplied)
-		RW_THROW("Already applied.");
-
-	rw::models::DHParameterSet current = *rw::models::DHParameterSet::get(_joint.get());
-
-	double alpha = current.alpha() + _correction.alpha();
-	double a = current.a() + _correction.a();
-	if (current.isParallel()) {
-		double beta = current.beta() + _correction.beta();
-		double b = current.b() + _correction.b();
-		rw::models::DHParameterSet dhParameterSet(alpha, a, beta, b, true);
-		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
-		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
-	} else {
-		double d = current.d() + _correction.d();
-		double theta = current.theta() + _correction.theta();
-		rw::models::DHParameterSet dhParameterSet(alpha, a, d, theta, current.getType());
-		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
-		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
-	}
-
-	_isApplied = true;
-}
-
-void DHParameterCalibration::revert() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (!_isApplied)
-		RW_THROW("Not applied.");
-
-	rw::models::DHParameterSet current = *rw::models::DHParameterSet::get(_joint.get());
-	double alpha = current.alpha() - _correction.alpha();
-	double a = current.a() - _correction.a();
-	if (current.isParallel()) {
-		double beta = current.beta() - _correction.beta();
-		double b = current.b() - _correction.b();
-		rw::models::DHParameterSet dhParameterSet(alpha, a, beta, b, true);
-		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
-		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
-	} else {
-		double d = current.d() - _correction.d();
-		double theta = current.theta() - _correction.theta();
-		rw::models::DHParameterSet dhParameterSet(alpha, a, d, theta, current.getType());
-		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
-		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
-	}
-
-	_isApplied = false;
-}
-
-void DHParameterCalibration::correct(rw::kinematics::State& state) {
-
-}
-
-bool DHParameterCalibration::isApplied() const {
-	return _isApplied;
 }
 
 rw::models::Joint::Ptr DHParameterCalibration::getJoint() const {
@@ -101,8 +36,8 @@ rw::models::DHParameterSet DHParameterCalibration::getCorrection() const {
 }
 
 void DHParameterCalibration::correct(const rw::models::DHParameterSet& correction) {
-	bool wasApplied = _isApplied;
-	if (_isEnabled && _isApplied)
+	bool wasApplied = isApplied();
+	if (wasApplied)
 		revert();
 
 	double a = _correction.a() + correction.a(), alpha = _correction.alpha() + correction.alpha();
@@ -114,7 +49,7 @@ void DHParameterCalibration::correct(const rw::models::DHParameterSet& correctio
 		_correction = rw::models::DHParameterSet(alpha, a, d, theta, _correction.getType());
 	}
 
-	if (_isEnabled && wasApplied)
+	if (wasApplied)
 		apply();
 }
 
@@ -173,6 +108,49 @@ DHParameterCalibration::Ptr DHParameterCalibration::fromXml(const QDomElement& e
 	return rw::common::ownedPtr(
 			new DHParameterCalibration(joint,
 					isParallel ? rw::models::DHParameterSet(alpha, a, offset, d, isParallel) : rw::models::DHParameterSet(alpha, a, d, offset)));
+
+}
+
+void DHParameterCalibration::doApply() {
+	rw::models::DHParameterSet current = *rw::models::DHParameterSet::get(_joint.get());
+
+	double alpha = current.alpha() + _correction.alpha();
+	double a = current.a() + _correction.a();
+	if (current.isParallel()) {
+		double beta = current.beta() + _correction.beta();
+		double b = current.b() + _correction.b();
+		rw::models::DHParameterSet dhParameterSet(alpha, a, beta, b, true);
+		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
+		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
+	} else {
+		double d = current.d() + _correction.d();
+		double theta = current.theta() + _correction.theta();
+		rw::models::DHParameterSet dhParameterSet(alpha, a, d, theta, current.getType());
+		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
+		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
+	}
+}
+
+void DHParameterCalibration::doRevert() {
+	rw::models::DHParameterSet current = *rw::models::DHParameterSet::get(_joint.get());
+	double alpha = current.alpha() - _correction.alpha();
+	double a = current.a() - _correction.a();
+	if (current.isParallel()) {
+		double beta = current.beta() - _correction.beta();
+		double b = current.b() - _correction.b();
+		rw::models::DHParameterSet dhParameterSet(alpha, a, beta, b, true);
+		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
+		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
+	} else {
+		double d = current.d() - _correction.d();
+		double theta = current.theta() - _correction.theta();
+		rw::models::DHParameterSet dhParameterSet(alpha, a, d, theta, current.getType());
+		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
+		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
+	}
+}
+
+void DHParameterCalibration::doCorrect(rw::kinematics::State& state) {
 
 }
 

@@ -20,14 +20,13 @@ public:
 	typedef rw::common::Ptr<DeviceJacobian> Ptr;
 
 	virtual ~DeviceJacobian() {
-
 	}
 
-	virtual bool isEnabled() const {
+	bool isEnabled() const {
 		return _isEnabled;
 	}
 
-	virtual void setEnabled(bool isEnabled) {
+	void setEnabled(bool isEnabled) {
 		_isEnabled = isEnabled;
 	}
 
@@ -45,6 +44,7 @@ protected:
 			_isEnabled(true) {
 	}
 
+private:
 	bool _isEnabled;
 };
 

@@ -54,15 +54,14 @@ int SerialDeviceJacobian::getParameterCount() const {
 
 Eigen::MatrixXd SerialDeviceJacobian::compute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 		const rw::kinematics::State& state) {
-	// FIXME: "- 1" hack?!
-	unsigned int parameterNo = -1;
+	unsigned int parameterNo = 0;
 	QListIterator<DeviceJacobian::Ptr> jacobianIterator(_jacobians);
 	Eigen::MatrixXd jacobian(6, getParameterCount());
 	while (jacobianIterator.hasNext()) {
 		DeviceJacobian::Ptr poseJacobian = jacobianIterator.next();
 		unsigned int parameterCount = poseJacobian->getParameterCount();
 		if (parameterCount > 0) {
-			jacobian.block(6, parameterNo, 6, parameterCount) = poseJacobian->compute(referenceFrame, measurementFrame, state);
+			jacobian.block(0, parameterNo, 6, parameterCount) = poseJacobian->compute(referenceFrame, measurementFrame, state);
 			parameterNo += parameterCount;
 		}
 	}

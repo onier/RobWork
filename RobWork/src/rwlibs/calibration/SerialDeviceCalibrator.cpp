@@ -63,8 +63,8 @@ void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
 		while (true) {
 			iterationNo++;
 
-			computeJacobian(jacobian, state, _measurements);
 			computeResiduals(residuals, state, _measurements);
+			computeJacobian(jacobian, state, _measurements);
 
 			Eigen::JacobiSVD<Eigen::MatrixXd> jacobianSvd = jacobian.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
 
@@ -99,8 +99,6 @@ void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
 				RW_THROW("NaN step.");
 			if (isinf(stepNorm))
 				RW_THROW("Infinite step.");
-			if (_maxIterations > 0 && iterationNo >= _maxIterations)
-				RW_THROW("Max iterations reached.");
 
 			_jacobian->step(step);
 
@@ -109,6 +107,9 @@ void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
 				computeResiduals(residuals, state, _measurements);
 				break;
 			}
+
+			if (_maxIterations > 0 && iterationNo > _maxIterations)
+				RW_THROW("Iteration limit exceeded.");
 		}
 	} catch (rw::common::Exception& ex) {
 		if (!wasApplied)
@@ -128,7 +129,6 @@ void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, 
 		const SerialDevicePoseMeasurementList& measurements) {
 	const unsigned int measurementCount = measurements.size();
 	const unsigned int parameterCount = _jacobian->getParameterCount();
-
 	stackedJacobians.resize(6 * measurementCount, parameterCount);
 	for (unsigned int measurementNo = 0; measurementNo < measurementCount; measurementNo++) {
 		rw::math::Q q = measurements[measurementNo].getQ();

@@ -15,51 +15,12 @@ namespace rwlibs {
 namespace calibration {
 
 FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPreCorrection, const Eigen::Affine3d& correction) :
-		_isEnabled(true), _isApplied(false), _frame(frame), _isPreCorrection(isPreCorrection), _correction(correction) {
+		_frame(frame), _isPreCorrection(isPreCorrection), _correction(correction) {
 
 }
 
 FixedFrameCalibration::~FixedFrameCalibration() {
 
-}
-
-bool FixedFrameCalibration::isEnabled() const {
-	return _isEnabled;
-}
-
-void FixedFrameCalibration::apply() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (_isApplied)
-		RW_THROW("Already applied.");
-
-	Eigen::Affine3d correctedBaseTransform =
-			_isPreCorrection ? Eigen::Affine3d(_frame->getFixedTransform()) * _correction : _correction * _frame->getFixedTransform();
-	_frame->setTransform(correctedBaseTransform);
-
-	_isApplied = true;
-}
-
-void FixedFrameCalibration::revert() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (!_isApplied)
-		RW_THROW("Not applied.");
-
-	Eigen::Affine3d correctedBaseTransform =
-			_isPreCorrection ?
-					Eigen::Affine3d(_frame->getFixedTransform()) * _correction.inverse() : _correction.inverse() * _frame->getFixedTransform();
-	_frame->setTransform(correctedBaseTransform);
-
-	_isApplied = false;
-}
-
-void FixedFrameCalibration::correct(rw::kinematics::State& state) {
-
-}
-
-bool FixedFrameCalibration::isApplied() const {
-	return _isApplied;
 }
 
 rw::kinematics::FixedFrame::Ptr FixedFrameCalibration::getFrame() const {
@@ -76,7 +37,7 @@ Eigen::Affine3d FixedFrameCalibration::getCorrection() const {
 
 void FixedFrameCalibration::correct(const Eigen::Affine3d& correction) {
 	_correction = _isPreCorrection ? _correction * correction : correction * _correction;
-	if (_isEnabled && _isApplied) {
+	if (isApplied()) {
 		Eigen::Affine3d correctedBaseTransform =
 				_isPreCorrection ? Eigen::Affine3d(_frame->getFixedTransform()) * correction : correction * _frame->getFixedTransform();
 		_frame->setTransform(correctedBaseTransform);
@@ -117,6 +78,23 @@ FixedFrameCalibration::Ptr FixedFrameCalibration::fromXml(const QDomElement& ele
 			transform(rowNo, colNo) = txtTransformSplitted[4 * rowNo + colNo].toDouble();
 
 	return rw::common::ownedPtr(new FixedFrameCalibration(frame, isPreCorrection, transform));
+}
+
+void FixedFrameCalibration::doApply() {
+	Eigen::Affine3d newTransform =
+			_isPreCorrection ? Eigen::Affine3d(_frame->getFixedTransform()) * _correction : _correction * _frame->getFixedTransform();
+	_frame->setTransform(newTransform);
+}
+
+void FixedFrameCalibration::doRevert() {
+	Eigen::Affine3d newTransform =
+			_isPreCorrection ?
+					Eigen::Affine3d(_frame->getFixedTransform()) * _correction.inverse() : _correction.inverse() * _frame->getFixedTransform();
+	_frame->setTransform(newTransform);
+}
+
+void FixedFrameCalibration::doCorrect(rw::kinematics::State& state) {
+
 }
 
 }

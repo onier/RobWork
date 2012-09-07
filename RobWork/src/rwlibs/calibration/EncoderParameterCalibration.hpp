@@ -29,16 +29,6 @@ public:
 
 	virtual ~EncoderParameterCalibration();
 
-	virtual bool isEnabled() const;
-
-	virtual void apply();
-
-	virtual void revert();
-
-	virtual void correct(rw::kinematics::State& state);
-
-	virtual bool isApplied() const;
-
 	rw::models::Joint::Ptr getJoint() const;
 
 	Eigen::Vector2d getCorrection() const;
@@ -48,6 +38,13 @@ public:
 	QDomElement toXml(QDomDocument& document);
 
 	static EncoderParameterCalibration::Ptr fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure, rw::models::JointDevice::Ptr jointDevice);
+
+protected:
+	virtual void doApply();
+
+	virtual void doRevert();
+
+	virtual void doCorrect(rw::kinematics::State& state);
 
 private:
 	bool _isEnabled;

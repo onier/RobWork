@@ -1,0 +1,91 @@
+	<Frame name="CorrectedBase" refframe="Arm2Base">
+		<Pos> 0 0 0 </Pos> <RPY> 0 0 0 </RPY>
+	</Frame>  
+
+<!-- BumbleBee 1 -->
+  <Frame name="BumbleBee2Top1" refframe="CorrectedBase" type="Movable">
+<!--    <RPY>60 0 55</RPY> -->
+<!--    <Pos>0.7 -0.7 0.7</Pos> -->
+	<RPY> -50.94 0 55 </RPY>
+	<Pos> -1.065 -0.9075 0.5925 </Pos>
+  </Frame>
+    <Frame name="BB1LeftVisu" refframe="BumbleBee2Top1" type="Movable">
+      <RPY>0 0 0</RPY>
+      <Pos>-0.06 0 0</Pos>
+      <Property name="CameraName">BB1Left</Property>
+      <Property name="Camera"> 32.9177 1024 768</Property>
+    </Frame>
+    <Frame name="BB1Left" refframe="BB1LeftVisu" type="Movable">
+      <RPY>0 0 180</RPY>
+      <Pos>0 0 0</Pos>
+    </Frame>
+    <Frame name="BB1RightVisu" refframe="BumbleBee2Top1" type="Movable">
+      <RPY>0 0 0</RPY>
+      <Pos>0.06 0  0</Pos>
+      <Property name="CameraName">BB1Right</Property>
+      <Property name="Camera"> 32.9177 1024 768</Property>
+    </Frame>
+    <Drawable name="BB1Geo" refframe="BumbleBee2Top1" >
+
+      <RPY>90 180 0</RPY>
+      <Pos>0 0 0</Pos>
+      <Polytope file="BumbleBee2" />
+    </Drawable>
+
+<!-- BumbleBee 2 -->
+  <Frame name="BumbleBee2Top2" refframe="CorrectedBase" type="Movable">
+<!-- 	<RPY>-60 0 55</RPY> -->
+<!--	<Pos>-0.7 -0.7 0.7</Pos> -->
+ 	<RPY>-170.774 0 55</RPY>
+	<Pos>-0.566436 0.402268 0.594463</Pos>
+  </Frame>
+    <Frame name="BB2LeftVisu" refframe="BumbleBee2Top2" type="Movable">
+      <RPY>0 0 0</RPY>
+      <Pos>-0.06 0 0</Pos>
+      <Property name="CameraName">BB2Left</Property>
+      <Property name="Camera"> 32.9177 1024 768</Property>
+    </Frame>
+    <Frame name="BB2Left" refframe="BB2LeftVisu" type="Movable">
+      <RPY>0 0 180</RPY>
+      <Pos>0 0 0</Pos>
+    </Frame>
+    <Frame name="BB2RightVisu" refframe="BumbleBee2Top2" type="Movable">
+      <RPY>0 0 0</RPY>
+      <Pos>0.06 0  0</Pos>
+      <Property name="CameraName">BB2Right</Property>
+      <Property name="Camera"> 32.9177 1024 768</Property>
+    </Frame>
+    <Drawable name="BB2Geo" refframe="BumbleBee2Top2">
+      <RPY>90 180 0</RPY>
+      <Pos>0 0 0</Pos>
+      <Polytope file="BumbleBee2" />
+    </Drawable>
+
+<!-- BumbleBee 3 -->
+  <Frame name="BumbleBee2Top3" refframe="CorrectedBase" type="Movable">
+<!--  	<RPY>-180 0 60</RPY> -->
+<!--	<Pos>0 0.7 0.7</Pos> -->
+  	<RPY>69.226 0 60</RPY>
+	<Pos>0.494274 -0.748772 0.594211</Pos>
+  </Frame>
+    <Frame name="BB3LeftVisu" refframe="BumbleBee2Top3" type="Fixed">
+      <RPY>0 0 0</RPY>
+      <Pos>-0.06 0 0</Pos>
+      <Property name="CameraName">BB3Left</Property>
+      <Property name="Camera">32.9177 1024 768</Property>
+    </Frame>
+	<Frame name="BB3Left" refframe="BB3LeftVisu" type="Movable">
+      <RPY>0 0 180</RPY>
+      <Pos>0 0 0</Pos>
+    </Frame>
+    <Frame name="BB3RightVisu" refframe="BumbleBee2Top3" type="Fixed">
+      <RPY>0 0 0</RPY>
+      <Pos>0.06 0  0</Pos>
+      <Property name="CameraName">BB3Right</Property>
+      <Property name="Camera">32.9177 1024 768</Property>
+    </Frame>
+    <Drawable name="BB3Geo" refframe="BumbleBee2Top3">
+      <RPY>90 180 0</RPY>
+      <Pos>0 0 0</Pos>
+      <Polytope file="BumbleBee2" />
+    </Drawable>

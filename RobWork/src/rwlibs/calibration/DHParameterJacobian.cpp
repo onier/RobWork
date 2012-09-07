@@ -20,12 +20,12 @@ DeviceCalibration::Ptr DHParameterJacobian::getCalibration() const {
 }
 
 int DHParameterJacobian::getParameterCount() const {
-	return _isEnabled ? _enabledParameters.sum() : 0;
+	return isEnabled() ? _enabledParameters.sum() : 0;
 }
 
 Eigen::MatrixXd DHParameterJacobian::compute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 		const rw::kinematics::State& state) {
-	if (!_isEnabled)
+	if (!isEnabled())
 		RW_THROW("Not enabled.");
 	if (!_enabledParameters.sum())
 		RW_THROW("No parameters enabled.");
@@ -76,7 +76,7 @@ Eigen::MatrixXd DHParameterJacobian::compute(rw::kinematics::Frame::Ptr referenc
 }
 
 void DHParameterJacobian::step(const Eigen::VectorXd& step) {
-	if (!_isEnabled)
+	if (!isEnabled())
 		RW_THROW("Not enabled.");
 	if (!_enabledParameters.sum())
 		RW_THROW("No parameters enabled.");

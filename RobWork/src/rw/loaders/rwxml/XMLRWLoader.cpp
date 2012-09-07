@@ -530,7 +530,8 @@ namespace {
                 std::string prefix = createScopedName("", calibration._scope);
                 std::string filename = StringUtil::getDirectoryName(calibration._pos.file);
                 filename += "/" + calibration._filename;
-            	deviceCalibration = rwlibs::calibration::SerialDeviceCalibration::load(model.cast<SerialDevice>(), filename);
+//            	deviceCalibration = rwlibs::calibration::SerialDeviceCalibration::load(model.cast<SerialDevice>(), filename);
+            	deviceCalibration = rwlibs::calibration::SerialDeviceCalibration::load(setup.tree, model.cast<SerialDevice>(), filename);
             	deviceCalibration->apply();
 
                 Property<rwlibs::calibration::SerialDeviceCalibration::Ptr>::Ptr calibrationProperty = ownedPtr(new Property<rwlibs::calibration::SerialDeviceCalibration::Ptr>("Device calibration", "", deviceCalibration));

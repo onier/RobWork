@@ -8,8 +8,8 @@
 #ifndef RWLIBS_CALIBRATION_SERIALDEVICEPOSEMEASUREMENT_HPP
 #define RWLIBS_CALIBRATION_SERIALDEVICEPOSEMEASUREMENT_HPP
 
+#include "Pose6D.hpp"
 #include <rw/math.hpp>
-#include <rwlibs/calibration.hpp>
 #include <QtCore>
 #include <QtXml/qdom.h>
 
