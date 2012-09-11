@@ -131,8 +131,8 @@ void SerialDeviceCalibration::save(std::string fileName) {
 	file.close();
 }
 
-SerialDeviceCalibration::Ptr SerialDeviceCalibration::load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string fileName) {
-	QFile file(QString::fromStdString(fileName));
+SerialDeviceCalibration::Ptr SerialDeviceCalibration::load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string filePath) {
+	QFile file(QString::fromStdString(filePath));
 	file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate);
 
 	QDomDocument document("SerialDeviceCalibration");
@@ -178,30 +178,34 @@ SerialDeviceCalibration::Ptr SerialDeviceCalibration::load(rw::kinematics::State
 		}
 	}
 
-	SerialDeviceCalibration::Ptr serialDeviceCalibration = rw::common::ownedPtr(
+	SerialDeviceCalibration::Ptr calibration = rw::common::ownedPtr(
 			new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations, encoderCalibrations));
 
-	set(serialDeviceCalibration, device);
-
-	return serialDeviceCalibration;
+	return calibration;
 }
 
-SerialDeviceCalibration::Ptr SerialDeviceCalibration::get(rw::models::SerialDevice::Ptr serialDevice) {
-	SerialDeviceCalibration::Ptr serialDeviceCalibration;
-	rw::common::PropertyMap propertyMap = serialDevice->getPropertyMap();
+SerialDeviceCalibration::Ptr SerialDeviceCalibration::get(rw::models::SerialDevice::Ptr device) {
+	return get(device->getPropertyMap());
+}
+
+SerialDeviceCalibration::Ptr SerialDeviceCalibration::get(const rw::common::PropertyMap& propertyMap) {
+	SerialDeviceCalibration::Ptr calibration;
 	if (propertyMap.has("Calibration"))
-		serialDeviceCalibration = propertyMap.get<SerialDeviceCalibration::Ptr>("Calibration");
-	return serialDeviceCalibration;
+		calibration = propertyMap.get<SerialDeviceCalibration::Ptr>("Calibration");
+	return calibration;
 }
 
-void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr serialDeviceCalibration, rw::models::SerialDevice::Ptr serialDevice) {
-	rw::common::PropertyMap propertyMap = serialDevice->getPropertyMap();
+void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr calibration, rw::models::SerialDevice::Ptr device) {
+	set(calibration, device->getPropertyMap());
+}
+
+void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr calibration, rw::common::PropertyMap& propertyMap) {
 	if (propertyMap.has("Calibration")) {
-		if (serialDeviceCalibration->isApplied())
-			serialDeviceCalibration->revert();
+		if (calibration->isApplied())
+			calibration->revert();
 		propertyMap.erase("Calibration");
 	}
-	propertyMap.add<SerialDeviceCalibration::Ptr>("Calibration", "", serialDeviceCalibration);
+	propertyMap.add<SerialDeviceCalibration::Ptr>("Calibration", "Calibration of serial device", calibration);
 }
 
 void SerialDeviceCalibration::doApply() {

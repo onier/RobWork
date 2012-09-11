@@ -14,8 +14,8 @@
 namespace rwlibs {
 namespace calibration {
 
-SerialDeviceCalibrator::SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device,
-		rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, DeviceJacobian::Ptr jacobian) :
+SerialDeviceCalibrator::SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, rw::kinematics::Frame::Ptr referenceFrame,
+		rw::kinematics::Frame::Ptr measurementFrame, DeviceJacobian::Ptr jacobian) :
 		_device(device), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _jacobian(jacobian), _weight(true), _maxIterations(100), _precision(
 				1e-14) {
 
@@ -84,13 +84,13 @@ void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
 			double conditionNumber = singularValues(0) / singularValues(singularValues.rows() - 1);
 
 //			std::cout << "---" << std::endl;
+			std::cout << "Iteration " << iterationNo << " completed. Singular: " << (isSingular ? "Yes" : "No") << ". Condition: " << conditionNumber
+					<< ". ||Residuals||: " << residualsNorm << ". ||Step||: " << stepNorm << ". ||StepError||: " << stepErrorNorm << ". RoC: " << roc << "."
+					<< std::endl;
 //			std::cout << "Jacobian (" << jacobian.rows() << "x" << jacobian.cols() << "):" << std::endl;
 //			std::cout << jacobian.block(0, 0, jacobian.rows() > 5 ? 6 : jacobian.rows(), jacobian.cols()) << std::endl;
 //			std::cout << "Residuals:\t" << residuals.segment(0, residuals.rows() > 6 ? 12 : 6).transpose() << std::endl;
 //			std::cout << "Step: \t" << step.transpose() << std::endl;
-			std::cout << "Iteration " << iterationNo << " completed. Singular: " << (isSingular ? "Yes" : "No") << ". Condition: " << conditionNumber
-					<< ". ||Residuals||: " << residualsNorm << ". ||Step||: " << stepNorm << ". ||StepError||: " << stepErrorNorm << ". RoC: " << roc << "."
-					<< std::endl;
 //			std::cin.ignore();
 
 			if (isSingular)

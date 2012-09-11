@@ -50,7 +50,11 @@ public:
 
 	static SerialDeviceCalibration::Ptr get(rw::models::SerialDevice::Ptr serialDevice);
 
-	static void set(SerialDeviceCalibration::Ptr serialDeviceCalibration, rw::models::SerialDevice::Ptr serialDevice);
+	static SerialDeviceCalibration::Ptr get(const rw::common::PropertyMap& propertyMap);
+
+	static void set(SerialDeviceCalibration::Ptr calibration, rw::models::SerialDevice::Ptr device);
+
+	static void set(SerialDeviceCalibration::Ptr calibration, rw::common::PropertyMap& propertyMap);
 
 protected:
 	virtual void doApply();

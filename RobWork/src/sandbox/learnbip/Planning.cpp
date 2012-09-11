@@ -253,6 +253,9 @@ Planning::Status Planning::getPath(QPath &res, const rw::math::Q qTo, const rw::
 	if (planner->query(qFrom,qTo,path,10.)) {
 		PathLengthOptimizer optimizer(constraint, _metric);
 		path = optimizer.pathPruning(path);
+		if (path.size() > 2)
+			path = optimizer.partialShortCut(path,10,0.1,0.25);
+		path = optimizer.pathPruning(path);
 		res.clear();
 		for (unsigned int i = 0; i < path.size(); i++) {
 			res.push_back(path[i]);
@@ -310,6 +313,9 @@ Planning::Status Planning::getPath(QPath &res, const Transform3D<> pose, const Q
 					Q end = qs[i];
 					if (planner->query(start,end,path,10.)) {
 						PathLengthOptimizer optimizer(constraint, _metric);
+						path = optimizer.pathPruning(path);
+						if (path.size() > 2)
+							path = optimizer.partialShortCut(path,10,0.1,0.25);
 						path = optimizer.pathPruning(path);
 						res.clear();
 						for (unsigned int i = 0; i < path.size(); i++) {
