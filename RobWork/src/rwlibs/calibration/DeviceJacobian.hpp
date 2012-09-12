@@ -8,7 +8,7 @@
 #ifndef RWLIBS_CALIBRATION_DEVICEJACOBIAN_HPP_
 #define RWLIBS_CALIBRATION_DEVICEJACOBIAN_HPP_
 
-#include "DeviceCalibration.hpp"
+#include "Calibration.hpp"
 #include <Eigen/Core>
 #include <rw/kinematics.hpp>
 
@@ -30,7 +30,9 @@ public:
 		_isEnabled = isEnabled;
 	}
 
-	virtual DeviceCalibration::Ptr getCalibration() const = 0;
+	virtual Calibration::Ptr getCalibration() const {
+		return _calibration;
+	}
 
 	virtual int getParameterCount() const = 0;
 
@@ -40,11 +42,12 @@ public:
 	virtual void step(const Eigen::VectorXd& step) = 0;
 
 protected:
-	DeviceJacobian() :
-			_isEnabled(true) {
+	DeviceJacobian(Calibration::Ptr calibration) :
+		_calibration(calibration), _isEnabled(true) {
 	}
 
 private:
+	Calibration::Ptr _calibration;
 	bool _isEnabled;
 };
 

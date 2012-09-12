@@ -25,8 +25,6 @@ public:
 
 	virtual ~SerialDeviceJacobian();
 
-	virtual DeviceCalibration::Ptr getCalibration() const;
-
 	virtual int getParameterCount() const;
 
 	virtual Eigen::MatrixXd compute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
@@ -37,11 +35,11 @@ public:
 
 	FixedFrameJacobian::Ptr getEndJacobian() const;
 
-	QList<DHParameterJacobian::Ptr> getDHParameterJacobians() const;
+	std::vector<DHParameterJacobian::Ptr> getDHParameterJacobians() const;
 
 	void setDHParameterJacobiansEnabled(bool isEnabled);
 
-	QList<EncoderParameterJacobian::Ptr> getEncoderDecentralizationJacobians() const;
+	std::vector<EncoderParameterJacobian::Ptr> getEncoderDecentralizationJacobians() const;
 
 	void setEncoderDecentralizationJacobiansEnabled(bool isEnabled);
 
@@ -49,9 +47,9 @@ private:
 	SerialDeviceCalibration::Ptr _calibration;
 	FixedFrameJacobian::Ptr _baseJacobian;
 	FixedFrameJacobian::Ptr _endJacobian;
-	QList<DHParameterJacobian::Ptr> _dhParameterJacobians;
-	QList<EncoderParameterJacobian::Ptr> _encoderDecentralizationJacobians;
-	QList<DeviceJacobian::Ptr> _jacobians;
+	std::vector<DHParameterJacobian::Ptr> _dhParameterJacobians;
+	std::vector<EncoderParameterJacobian::Ptr> _encoderParameterJacobians;
+	std::vector<DeviceJacobian::Ptr> _jacobians;
 };
 
 }

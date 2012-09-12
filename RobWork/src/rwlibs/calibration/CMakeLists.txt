@@ -15,6 +15,7 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 		EncoderParameterJacobian.cpp
 		FixedFrameCalibration.cpp
 		FixedFrameJacobian.cpp
+		IterativeSolver.cpp
 		SerialDeviceCalibration.cpp
 		SerialDeviceCalibrator.cpp
 		SerialDeviceJacobian.cpp
@@ -23,7 +24,7 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 	)
     
 	SET(SRC_FILES_HPP
-		DeviceCalibration.hpp
+		Calibration.hpp
 		DeviceJacobian.hpp
 		DHParameterCalibration.hpp
 		DHParameterJacobian.hpp
@@ -32,6 +33,7 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 		EncoderParameterJacobian.hpp
 		FixedFrameCalibration.hpp
 		FixedFrameJacobian.hpp
+		IterativeSolver.hpp
 		Pose6D.hpp
 		RPY.hpp
 		SerialDeviceCalibration.hpp

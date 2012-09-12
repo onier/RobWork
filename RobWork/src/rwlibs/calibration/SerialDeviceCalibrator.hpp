@@ -11,9 +11,8 @@
 #include <rw/math.hpp>
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
-#include "SerialDeviceCalibration.hpp"
-#include "SerialDeviceJacobian.hpp"
-#include "SerialDevicePoseMeasurement.hpp"
+#include "DeviceJacobian.hpp"
+#include "IterativeSolver.hpp"
 #include "SerialDevicePoseMeasurementList.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
@@ -21,11 +20,11 @@
 namespace rwlibs {
 namespace calibration {
 
-class SerialDeviceCalibrator {
+class SerialDeviceCalibrator: public IterativeSolver {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibrator> Ptr;
 
-	SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, DeviceJacobian::Ptr jacobian);
+	SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, DeviceJacobian::Ptr jacobian);
 
 	virtual ~SerialDeviceCalibrator();
 
@@ -41,25 +40,26 @@ public:
 
 	int getMinimumMeasurementCount() const;
 
-	void calibrate(const rw::kinematics::State& state);
+	void calibrate();
 
-	void computeJacobian(Eigen::MatrixXd& jacobian, rw::kinematics::State state);
+	virtual void computeJacobian(Eigen::MatrixXd& jacobian);
 
-	void computeJacobian(Eigen::MatrixXd& jacobian, rw::kinematics::State state, const SerialDevicePoseMeasurementList& measurements);
+	void computeJacobian(Eigen::MatrixXd& jacobian, const SerialDevicePoseMeasurementList& measurements);
 
-	void computeResiduals(Eigen::VectorXd& residuals, rw::kinematics::State state);
+	virtual void computeResiduals(Eigen::VectorXd& residuals);
 
-	void computeResiduals(Eigen::VectorXd& residuals, rw::kinematics::State state, const SerialDevicePoseMeasurementList& measurements);
+	void computeResiduals(Eigen::VectorXd& residuals, const SerialDevicePoseMeasurementList& measurements);
+
+	virtual void takeStep(const Eigen::VectorXd& step);
 
 private:
 	rw::models::SerialDevice::Ptr _device;
+	rw::kinematics::State _state;
 	rw::kinematics::Frame::Ptr _referenceFrame;
 	rw::kinematics::Frame::Ptr _measurementFrame;
 	DeviceJacobian::Ptr _jacobian;
 	SerialDevicePoseMeasurementList _measurements;
 	bool _weight;
-	int _maxIterations;
-	double _precision;
 };
 
 }

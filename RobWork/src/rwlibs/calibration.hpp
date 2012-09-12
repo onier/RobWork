@@ -8,7 +8,7 @@
 #ifndef RWLIBS_CALIBRATION_HPP_
 #define RWLIBS_CALIBRATION_HPP_
 
-#include "./calibration/DeviceCalibration.hpp"
+#include "./calibration/Calibration.hpp"
 #include "./calibration/DeviceJacobian.hpp"
 #include "./calibration/DHParameterCalibration.hpp"
 #include "./calibration/DHParameterJacobian.hpp"
@@ -16,6 +16,7 @@
 #include "./calibration/EncoderParameterJacobian.hpp"
 #include "./calibration/FixedFrameCalibration.hpp"
 #include "./calibration/FixedFrameJacobian.hpp"
+#include "./calibration/IterativeSolver.hpp"
 #include "./calibration/Pose6D.hpp"
 #include "./calibration/RPY.hpp"
 #include "./calibration/SerialDeviceCalibration.hpp"

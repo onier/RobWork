@@ -10,17 +10,13 @@
 namespace rwlibs {
 namespace calibration {
 
-EncoderParameterJacobian::EncoderParameterJacobian(rw::models::SerialDevice::Ptr serialDevice, EncoderParameterCalibration::Ptr calibration) :
-		_serialDevice(serialDevice), _calibration(calibration), _enabledParameters(Eigen::Vector2i::Ones()) {
+EncoderParameterJacobian::EncoderParameterJacobian(EncoderParameterCalibration::Ptr calibration, rw::models::JointDevice::Ptr jointDevice) :
+		DeviceJacobian(calibration), _calibration(calibration), _jointDevice(jointDevice), _enabledParameters(Eigen::Vector2i::Ones()) {
 	// Find joint number.
 	const rw::models::Joint::Ptr joint = _calibration->getJoint();
-	const std::vector<rw::models::Joint*> joints = _serialDevice->getJoints();
+	const std::vector<rw::models::Joint*> joints = _jointDevice->getJoints();
 	_jointNo = std::find(joints.begin(), joints.end(), joint.get()) - joints.begin();
 
-}
-
-DeviceCalibration::Ptr EncoderParameterJacobian::getCalibration() const {
-	return _calibration;
 }
 
 int EncoderParameterJacobian::getParameterCount() const {
@@ -35,7 +31,7 @@ Eigen::MatrixXd EncoderParameterJacobian::compute(rw::kinematics::Frame::Ptr ref
 		RW_THROW("No parameters enabled.");
 
 	// Get joint value.
-	const rw::math::Q q = _serialDevice->getQ(state);
+	const rw::math::Q q = _jointDevice->getQ(state);
 	const double qi = q[_jointNo];
 
 	// Prepare transformations.

@@ -18,19 +18,18 @@
 #include <rw/models.hpp>
 #include <rw/models/DHParameterSet.hpp>
 #include <rw/kinematics.hpp>
-#include <QtCore>
 #include <QtXml/qdom.h>
 
 namespace rwlibs {
 namespace calibration {
 
-class SerialDeviceCalibration: public DeviceCalibration {
+class SerialDeviceCalibration: public Calibration {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibration> Ptr;
 
 	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice);
 
-	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration, const QList<DHParameterCalibration::Ptr>& dhParameterCalibrations, const QList<EncoderParameterCalibration::Ptr>& encoderDecentralization);
+	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration, const std::vector<DHParameterCalibration::Ptr>& dhParameterCalibrations, const std::vector<EncoderParameterCalibration::Ptr>& encoderDecentralization);
 
 	virtual ~SerialDeviceCalibration();
 
@@ -40,13 +39,11 @@ public:
 
 	FixedFrameCalibration::Ptr getEndCalibration() const;
 
-	QList<DHParameterCalibration::Ptr> getDHParameterCalibrations() const;
+	std::vector<DHParameterCalibration::Ptr> getDHParameterCalibrations() const;
 
-	QList<EncoderParameterCalibration::Ptr> getEncoderDecentralizationCalibrations() const;
+	std::vector<EncoderParameterCalibration::Ptr> getEncoderParameterCalibrations() const;
 
 	void save(std::string fileName);
-
-	static SerialDeviceCalibration::Ptr load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string fileName);
 
 	static SerialDeviceCalibration::Ptr get(rw::models::SerialDevice::Ptr serialDevice);
 
@@ -55,6 +52,8 @@ public:
 	static void set(SerialDeviceCalibration::Ptr calibration, rw::models::SerialDevice::Ptr device);
 
 	static void set(SerialDeviceCalibration::Ptr calibration, rw::common::PropertyMap& propertyMap);
+
+	static SerialDeviceCalibration::Ptr load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string fileName);
 
 protected:
 	virtual void doApply();
@@ -67,9 +66,9 @@ private:
 	rw::models::SerialDevice::Ptr _serialDevice;
 	FixedFrameCalibration::Ptr _baseCalibration;
 	FixedFrameCalibration::Ptr _endCalibration;
-	QList<DHParameterCalibration::Ptr> _dhParameterCalibrations;
-	QList<EncoderParameterCalibration::Ptr> _encoderDecentralizationCalibrations;
-	QList<DeviceCalibration::Ptr> _calibrations;
+	std::vector<DHParameterCalibration::Ptr> _dhParameterCalibrations;
+	std::vector<EncoderParameterCalibration::Ptr> _encoderParameterCalibrations;
+	std::vector<Calibration::Ptr> _calibrations;
 };
 
 }

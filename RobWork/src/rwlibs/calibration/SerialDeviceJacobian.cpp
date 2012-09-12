@@ -10,55 +10,52 @@
 namespace rwlibs {
 namespace calibration {
 
-SerialDeviceJacobian::SerialDeviceJacobian(SerialDeviceCalibration::Ptr calibration) : _calibration(calibration) {
+SerialDeviceJacobian::SerialDeviceJacobian(SerialDeviceCalibration::Ptr calibration) :
+		DeviceJacobian(calibration), _calibration(calibration) {
 	_baseJacobian = rw::common::ownedPtr(new FixedFrameJacobian(calibration->getBaseCalibration()));
 	_endJacobian = rw::common::ownedPtr(new FixedFrameJacobian(calibration->getEndCalibration()));
-	QListIterator<DHParameterCalibration::Ptr> dhParameterCalibrationIterator(calibration->getDHParameterCalibrations());
-	while (dhParameterCalibrationIterator.hasNext()) {
-		bool isFirst = !dhParameterCalibrationIterator.hasPrevious();
+	std::vector<DHParameterCalibration::Ptr> dhParameterCalibrations = calibration->getDHParameterCalibrations();
+	for (std::vector<DHParameterCalibration::Ptr>::iterator it = dhParameterCalibrations.begin();
+			it != dhParameterCalibrations.end(); ++it) {
+		bool isFirst = (it == dhParameterCalibrations.begin());
 		// Enable only a and alpha for first link.
-		DHParameterJacobian::Ptr dhParameterJacobian = rw::common::ownedPtr(new DHParameterJacobian(dhParameterCalibrationIterator.next()));
+		DHParameterJacobian::Ptr dhParameterJacobian = rw::common::ownedPtr(new DHParameterJacobian((*it)));
 		if (isFirst)
 			dhParameterJacobian->setEnabledParameters(true, false, true, false);
-		_dhParameterJacobians.append(dhParameterJacobian);
+		_dhParameterJacobians.push_back(dhParameterJacobian);
 	}
-	QListIterator<EncoderParameterCalibration::Ptr> encoderDecentralizationCalibrationIterator(calibration->getEncoderDecentralizationCalibrations());
-	while (encoderDecentralizationCalibrationIterator.hasNext())
-		_encoderDecentralizationJacobians.append(rw::common::ownedPtr(new EncoderParameterJacobian(calibration->getDevice(), encoderDecentralizationCalibrationIterator.next())));
+	std::vector<EncoderParameterCalibration::Ptr> encoderParameterCalibrations = calibration->getEncoderParameterCalibrations();
+	for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = encoderParameterCalibrations.begin();
+			it != encoderParameterCalibrations.end(); ++it)
+		_encoderParameterJacobians.push_back(rw::common::ownedPtr(new EncoderParameterJacobian((*it), calibration->getDevice())));
 
-	_jacobians.append(_baseJacobian.cast<DeviceJacobian>());
-	_jacobians.append(_endJacobian.cast<DeviceJacobian>());
-	QListIterator<DHParameterJacobian::Ptr> dhParameterJacobianIterator(_dhParameterJacobians);
-	while (dhParameterJacobianIterator.hasNext())
-		_jacobians.append(dhParameterJacobianIterator.next().cast<DeviceJacobian>());
-	QListIterator<EncoderParameterJacobian::Ptr> encoderDecentralizationJacobianIterator(_encoderDecentralizationJacobians);
-	while (encoderDecentralizationJacobianIterator.hasNext())
-		_jacobians.append(encoderDecentralizationJacobianIterator.next().cast<DeviceJacobian>());
+	_jacobians.push_back(_baseJacobian.cast<DeviceJacobian>());
+	_jacobians.push_back(_endJacobian.cast<DeviceJacobian>());
+	for (std::vector<DHParameterCalibration::Ptr>::iterator it = calibration->getDHParameterCalibrations().begin();
+			it != calibration->getDHParameterCalibrations().end(); ++it)
+		_jacobians.push_back((*it).cast<DeviceJacobian>());
+	for (std::vector<DHParameterCalibration::Ptr>::iterator it = calibration->getDHParameterCalibrations().begin();
+			it != calibration->getDHParameterCalibrations().end(); ++it)
+		_jacobians.push_back((*it).cast<DeviceJacobian>());
 }
 
 SerialDeviceJacobian::~SerialDeviceJacobian() {
 
 }
 
-DeviceCalibration::Ptr SerialDeviceJacobian::getCalibration() const {
-	return _calibration;
-}
-
 int SerialDeviceJacobian::getParameterCount() const {
 	int parameterCount = 0;
-	QListIterator<DeviceJacobian::Ptr> jacobianIterator(_jacobians);
-	while (jacobianIterator.hasNext())
-		parameterCount += jacobianIterator.next()->getParameterCount();
+	for (std::vector<DeviceJacobian::Ptr>::const_iterator it = _jacobians.begin(); it != _jacobians.end(); ++it)
+		parameterCount += (*it)->getParameterCount();
 	return parameterCount;
 }
 
 Eigen::MatrixXd SerialDeviceJacobian::compute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 		const rw::kinematics::State& state) {
 	unsigned int parameterNo = 0;
-	QListIterator<DeviceJacobian::Ptr> jacobianIterator(_jacobians);
 	Eigen::MatrixXd jacobian(6, getParameterCount());
-	while (jacobianIterator.hasNext()) {
-		DeviceJacobian::Ptr poseJacobian = jacobianIterator.next();
+	for (std::vector<DeviceJacobian::Ptr>::iterator it = _jacobians.begin(); it != _jacobians.end(); ++it) {
+		DeviceJacobian::Ptr poseJacobian = (*it);
 		unsigned int parameterCount = poseJacobian->getParameterCount();
 		if (parameterCount > 0) {
 			jacobian.block(0, parameterNo, 6, parameterCount) = poseJacobian->compute(referenceFrame, measurementFrame, state);
@@ -70,9 +67,8 @@ Eigen::MatrixXd SerialDeviceJacobian::compute(rw::kinematics::Frame::Ptr referen
 
 void SerialDeviceJacobian::step(const Eigen::VectorXd& step) {
 	unsigned int parameterNo = 0;
-	QListIterator<DeviceJacobian::Ptr> jacobianIterator(_jacobians);
-	while (jacobianIterator.hasNext()) {
-		DeviceJacobian::Ptr jacobian = jacobianIterator.next();
+	for (std::vector<DeviceJacobian::Ptr>::iterator it = _jacobians.begin(); it != _jacobians.end(); ++it) {
+		DeviceJacobian::Ptr jacobian = (*it);
 		unsigned int parameterCount = jacobian->getParameterCount();
 		if (parameterCount > 0) {
 			jacobian->step(step.segment(parameterNo, parameterCount));
@@ -89,24 +85,23 @@ FixedFrameJacobian::Ptr SerialDeviceJacobian::getEndJacobian() const {
 	return _endJacobian;
 }
 
-QList<DHParameterJacobian::Ptr> SerialDeviceJacobian::getDHParameterJacobians() const {
+std::vector<DHParameterJacobian::Ptr> SerialDeviceJacobian::getDHParameterJacobians() const {
 	return _dhParameterJacobians;
 }
 
 void SerialDeviceJacobian::setDHParameterJacobiansEnabled(bool isEnabled) {
-	QListIterator<DHParameterJacobian::Ptr> jacobianIterator(_dhParameterJacobians);
-	while (jacobianIterator.hasNext())
-		jacobianIterator.next()->setEnabled(isEnabled);
+	for (std::vector<DHParameterJacobian::Ptr>::iterator it = _dhParameterJacobians.begin(); it != _dhParameterJacobians.end(); ++it)
+		(*it)->setEnabled(isEnabled);
 }
 
-QList<EncoderParameterJacobian::Ptr> SerialDeviceJacobian::getEncoderDecentralizationJacobians() const {
-	return _encoderDecentralizationJacobians;
+std::vector<EncoderParameterJacobian::Ptr> SerialDeviceJacobian::getEncoderDecentralizationJacobians() const {
+	return _encoderParameterJacobians;
 }
 
 void SerialDeviceJacobian::setEncoderDecentralizationJacobiansEnabled(bool isEnabled) {
-	QListIterator<EncoderParameterJacobian::Ptr> jacobianIterator(_encoderDecentralizationJacobians);
-	while (jacobianIterator.hasNext())
-		jacobianIterator.next()->setEnabled(isEnabled);
+	for (std::vector<EncoderParameterJacobian::Ptr>::iterator it = _encoderParameterJacobians.begin(); it != _encoderParameterJacobians.end();
+			++it)
+		(*it)->setEnabled(isEnabled);
 }
 
 }

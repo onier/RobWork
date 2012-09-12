@@ -11,12 +11,8 @@ namespace rwlibs {
 namespace calibration {
 
 DHParameterJacobian::DHParameterJacobian(DHParameterCalibration::Ptr calibration) :
-		_calibration(calibration), _enabledParameters(Eigen::Vector4i::Ones()) {
+		DeviceJacobian(calibration), _calibration(calibration), _enabledParameters(Eigen::Vector4i::Ones()) {
 
-}
-
-DeviceCalibration::Ptr DHParameterJacobian::getCalibration() const {
-	return _calibration;
 }
 
 int DHParameterJacobian::getParameterCount() const {

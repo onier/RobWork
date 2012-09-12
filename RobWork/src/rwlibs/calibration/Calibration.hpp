@@ -1,23 +1,23 @@
 /*
- * DeviceCalibration.hpp
+ * Calibration.hpp
  *
  *  Created on: Aug 30, 2012
  *      Author: bing
  */
 
-#ifndef RWLIBS_CALIBRATION_DEVICECALIBRATION_HPP_
-#define RWLIBS_CALIBRATION_DEVICECALIBRATION_HPP_
+#ifndef RWLIBS_CALIBRATION_CALIBRATION_HPP_
+#define RWLIBS_CALIBRATION_CALIBRATION_HPP_
 
 #include <rw/kinematics.hpp>
 
 namespace rwlibs {
 namespace calibration {
 
-class DeviceCalibration {
+class Calibration {
 public:
-	typedef rw::common::Ptr<DeviceCalibration> Ptr;
+	typedef rw::common::Ptr<Calibration> Ptr;
 
-	virtual ~DeviceCalibration() {
+	virtual ~Calibration() {
 	}
 
 	bool isEnabled() const {
@@ -25,6 +25,9 @@ public:
 	}
 
 	void setEnabled(bool isEnabled) {
+		if (_isApplied)
+			RW_THROW("Already applied.");
+
 		_isEnabled = isEnabled;
 	}
 
@@ -64,7 +67,7 @@ public:
 	}
 
 protected:
-	DeviceCalibration() :
+	Calibration() :
 			_isEnabled(true), _isApplied(false) {
 	}
 
@@ -82,4 +85,4 @@ private:
 }
 }
 
-#endif /* RWLIBS_CALIBRATION_DEVICECALIBRATION_HPP_ */
+#endif /* RWLIBS_CALIBRATION_CALIBRATION_HPP_ */

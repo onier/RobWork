@@ -11,7 +11,7 @@
 #include <rw/math.hpp>
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
-#include "DeviceCalibration.hpp"
+#include "Calibration.hpp"
 #include <Eigen/Geometry>
 #include <rw/kinematics.hpp>
 #include <rw/models.hpp>
@@ -20,7 +20,7 @@
 namespace rwlibs {
 namespace calibration {
 
-class FixedFrameCalibration: public DeviceCalibration {
+class FixedFrameCalibration: public Calibration {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 

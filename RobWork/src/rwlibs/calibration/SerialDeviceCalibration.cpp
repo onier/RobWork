@@ -9,6 +9,7 @@
 
 #include "Pose6D.hpp"
 #include <rw/models.hpp>
+#include <QtCore>
 
 namespace rwlibs {
 namespace calibration {
@@ -25,33 +26,29 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 	for (std::vector<rw::models::Joint*>::iterator jointIterator = joints.begin(); jointIterator != joints.end(); jointIterator++) {
 		// Add only DH parameter calibrations for intermediate links.
 		if (jointIterator != joints.begin())
-			_dhParameterCalibrations.append(rw::common::ownedPtr(new DHParameterCalibration(*jointIterator)));
-		_encoderDecentralizationCalibrations.append(rw::common::ownedPtr(new EncoderParameterCalibration(serialDevice, *jointIterator)));
+			_dhParameterCalibrations.push_back(rw::common::ownedPtr(new DHParameterCalibration(*jointIterator)));
+		_encoderParameterCalibrations.push_back(rw::common::ownedPtr(new EncoderParameterCalibration(serialDevice, *jointIterator)));
 	}
 
-	_calibrations.append(_baseCalibration.cast<DeviceCalibration>());
-	_calibrations.append(_endCalibration.cast<DeviceCalibration>());
-	QListIterator<DHParameterCalibration::Ptr> dhParameterCalibrationIterator(_dhParameterCalibrations);
-	while (dhParameterCalibrationIterator.hasNext())
-		_calibrations.append(dhParameterCalibrationIterator.next().cast<DeviceCalibration>());
-	QListIterator<EncoderParameterCalibration::Ptr> encoderDecentralizationCalibrationIterator(_encoderDecentralizationCalibrations);
-	while (encoderDecentralizationCalibrationIterator.hasNext())
-		_calibrations.append(encoderDecentralizationCalibrationIterator.next().cast<DeviceCalibration>());
+	_calibrations.push_back(_baseCalibration.cast<Calibration>());
+	_calibrations.push_back(_endCalibration.cast<Calibration>());
+	for (std::vector<DHParameterCalibration::Ptr>::iterator it = _dhParameterCalibrations.begin(); it != _dhParameterCalibrations.end(); ++it)
+		_calibrations.push_back((*it).cast<Calibration>());
+	for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = _encoderParameterCalibrations.begin(); it != _encoderParameterCalibrations.end(); ++it)
+		_calibrations.push_back((*it).cast<Calibration>());
 }
 
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration,
-		FixedFrameCalibration::Ptr endCalibration, const QList<DHParameterCalibration::Ptr>& dhParameterCalibrations,
-		const QList<EncoderParameterCalibration::Ptr>& encoderDecentralizationCalibrations) :
-		_serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _dhParameterCalibrations(
-				dhParameterCalibrations), _encoderDecentralizationCalibrations(encoderDecentralizationCalibrations) {
-	_calibrations.append(_baseCalibration.cast<DeviceCalibration>());
-	_calibrations.append(_endCalibration.cast<DeviceCalibration>());
-	QListIterator<DHParameterCalibration::Ptr> dhParameterCalibrationIterator(_dhParameterCalibrations);
-	while (dhParameterCalibrationIterator.hasNext())
-		_calibrations.append(dhParameterCalibrationIterator.next().cast<DeviceCalibration>());
-	QListIterator<EncoderParameterCalibration::Ptr> encoderDecentralizationCalibrationIterator(_encoderDecentralizationCalibrations);
-	while (encoderDecentralizationCalibrationIterator.hasNext())
-		_calibrations.append(encoderDecentralizationCalibrationIterator.next().cast<DeviceCalibration>());
+		FixedFrameCalibration::Ptr endCalibration, const std::vector<DHParameterCalibration::Ptr>& dhParameterCalibrations,
+		const std::vector<EncoderParameterCalibration::Ptr>& encoderDecentralizationCalibrations) :
+		_serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _dhParameterCalibrations(dhParameterCalibrations), _encoderParameterCalibrations(
+				encoderDecentralizationCalibrations) {
+	_calibrations.push_back(_baseCalibration.cast<Calibration>());
+	_calibrations.push_back(_endCalibration.cast<Calibration>());
+	for (std::vector<DHParameterCalibration::Ptr>::iterator it = _dhParameterCalibrations.begin(); it != _dhParameterCalibrations.end(); ++it)
+		_calibrations.push_back((*it).cast<Calibration>());
+	for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = _encoderParameterCalibrations.begin(); it != _encoderParameterCalibrations.end(); ++it)
+		_calibrations.push_back((*it).cast<Calibration>());
 }
 
 SerialDeviceCalibration::~SerialDeviceCalibration() {
@@ -70,12 +67,12 @@ FixedFrameCalibration::Ptr SerialDeviceCalibration::getEndCalibration() const {
 	return _endCalibration;
 }
 
-QList<DHParameterCalibration::Ptr> SerialDeviceCalibration::getDHParameterCalibrations() const {
+std::vector<DHParameterCalibration::Ptr> SerialDeviceCalibration::getDHParameterCalibrations() const {
 	return _dhParameterCalibrations;
 }
 
-QList<EncoderParameterCalibration::Ptr> SerialDeviceCalibration::getEncoderDecentralizationCalibrations() const {
-	return _encoderDecentralizationCalibrations;
+std::vector<EncoderParameterCalibration::Ptr> SerialDeviceCalibration::getEncoderParameterCalibrations() const {
+	return _encoderParameterCalibrations;
 }
 
 void SerialDeviceCalibration::save(std::string fileName) {
@@ -103,20 +100,18 @@ void SerialDeviceCalibration::save(std::string fileName) {
 	// Save dh corrections
 	if (_dhParameterCalibrations.size() > 0) {
 		QDomElement dhCorrections = document.createElement("DHParameterCalibrations");
-		QListIterator<DHParameterCalibration::Ptr> it(_dhParameterCalibrations);
-		while (it.hasNext()) {
-			DHParameterCalibration::Ptr dhParameterCalibration = it.next();
+		for (std::vector<DHParameterCalibration::Ptr>::iterator it = _dhParameterCalibrations.begin(); it != _dhParameterCalibrations.end(); ++it) {
+			DHParameterCalibration::Ptr dhParameterCalibration = (*it);
 			dhCorrections.appendChild(dhParameterCalibration->toXml(document));
 		}
 		elmRoot.appendChild(dhCorrections);
 	}
 
 	// Save encoder corrections
-	if (_encoderDecentralizationCalibrations.size() > 0) {
-		QDomElement encoderCorrections = document.createElement("JointEncoderCalibrations");
-		QListIterator<EncoderParameterCalibration::Ptr> it(_encoderDecentralizationCalibrations);
-		while (it.hasNext()) {
-			EncoderParameterCalibration::Ptr encoderCalibration = it.next();
+	if (_encoderParameterCalibrations.size() > 0) {
+		QDomElement encoderCorrections = document.createElement("EncoderParameterCalibrations");
+		for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = _encoderParameterCalibrations.begin(); it != _encoderParameterCalibrations.end(); ++it) {
+			EncoderParameterCalibration::Ptr encoderCalibration = (*it);
 			encoderCorrections.appendChild(encoderCalibration->toXml(document));
 		}
 		elmRoot.appendChild(encoderCorrections);
@@ -129,59 +124,6 @@ void SerialDeviceCalibration::save(std::string fileName) {
 	textStream << document.toString();
 
 	file.close();
-}
-
-SerialDeviceCalibration::Ptr SerialDeviceCalibration::load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string filePath) {
-	QFile file(QString::fromStdString(filePath));
-	file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate);
-
-	QDomDocument document("SerialDeviceCalibration");
-
-	if (!document.setContent(&file))
-		RW_THROW("Content not set.");
-
-	QDomElement elmRoot = document.documentElement();
-	if (elmRoot.tagName() != "SerialDeviceCalibration")
-		RW_THROW("Element not found.");
-
-	// Load base frame calibration
-	FixedFrameCalibration::Ptr baseCalibration;
-	QDomNode nodeBase = elmRoot.namedItem("BaseFrameCalibration");
-	if (!nodeBase.isNull() && nodeBase.hasChildNodes())
-		baseCalibration = FixedFrameCalibration::fromXml(nodeBase.childNodes().at(0).toElement(), stateStructure);
-
-	// Load end frame calibration
-	FixedFrameCalibration::Ptr endCalibration;
-	QDomNode nodeEnd = elmRoot.namedItem("EndFrameCalibration");
-	if (!nodeEnd.isNull() && nodeEnd.hasChildNodes())
-		endCalibration = FixedFrameCalibration::fromXml(nodeEnd.childNodes().at(0).toElement(), stateStructure);
-
-	// Load DH calibrations
-	QList<DHParameterCalibration::Ptr> dhCalibrations;
-	QDomNode nodeDH = elmRoot.namedItem("DHParameterCalibrations");
-	if (!nodeDH.isNull()) {
-		QDomNodeList nodes = nodeDH.childNodes();
-		for (int nodeNo = 0; nodeNo < nodes.size(); nodeNo++) {
-			QDomElement element = nodes.at(nodeNo).toElement();
-			dhCalibrations.append(DHParameterCalibration::fromXml(element, stateStructure));
-		}
-	}
-
-	// Load encoder calibrations
-	QList<EncoderParameterCalibration::Ptr> encoderCalibrations;
-	QDomNode nodeEncoder = elmRoot.namedItem("JointEncoderCalibrations");
-	if (!nodeEncoder.isNull()) {
-		QDomNodeList nodes = nodeEncoder.childNodes();
-		for (int nodeNo = 0; nodeNo < nodes.size(); nodeNo++) {
-			QDomElement element = nodes.at(nodeNo).toElement();
-			encoderCalibrations.append(EncoderParameterCalibration::fromXml(element, stateStructure, device));
-		}
-	}
-
-	SerialDeviceCalibration::Ptr calibration = rw::common::ownedPtr(
-			new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations, encoderCalibrations));
-
-	return calibration;
 }
 
 SerialDeviceCalibration::Ptr SerialDeviceCalibration::get(rw::models::SerialDevice::Ptr device) {
@@ -208,28 +150,79 @@ void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr calibration, rw::
 	propertyMap.add<SerialDeviceCalibration::Ptr>("Calibration", "Calibration of serial device", calibration);
 }
 
+SerialDeviceCalibration::Ptr SerialDeviceCalibration::load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device,
+		std::string filePath) {
+	QFile file(QString::fromStdString(filePath));
+	file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate);
+
+	QDomDocument document("SerialDeviceCalibration");
+
+	if (!document.setContent(&file))
+		RW_THROW("Content not set.");
+
+	QDomElement elmRoot = document.documentElement();
+	if (elmRoot.tagName() != "SerialDeviceCalibration")
+		RW_THROW("Element not found.");
+
+	// Load base frame calibration
+	FixedFrameCalibration::Ptr baseCalibration;
+	QDomNode nodeBase = elmRoot.namedItem("BaseFrameCalibration");
+	if (!nodeBase.isNull() && nodeBase.hasChildNodes())
+		baseCalibration = FixedFrameCalibration::fromXml(nodeBase.childNodes().at(0).toElement(), stateStructure);
+
+	// Load end frame calibration
+	FixedFrameCalibration::Ptr endCalibration;
+	QDomNode nodeEnd = elmRoot.namedItem("EndFrameCalibration");
+	if (!nodeEnd.isNull() && nodeEnd.hasChildNodes())
+		endCalibration = FixedFrameCalibration::fromXml(nodeEnd.childNodes().at(0).toElement(), stateStructure);
+
+	// Load DH calibrations
+	std::vector<DHParameterCalibration::Ptr> dhCalibrations;
+	QDomNode nodeDH = elmRoot.namedItem("DHParameterCalibrations");
+	if (!nodeDH.isNull()) {
+		QDomNodeList nodes = nodeDH.childNodes();
+		for (int nodeNo = 0; nodeNo < nodes.size(); nodeNo++) {
+			QDomElement element = nodes.at(nodeNo).toElement();
+			dhCalibrations.push_back(DHParameterCalibration::fromXml(element, stateStructure));
+		}
+	}
+
+	// Load encoder calibrations
+	std::vector<EncoderParameterCalibration::Ptr> encoderCalibrations;
+	QDomNode nodeEncoder = elmRoot.namedItem("JointEncoderCalibrations");
+	if (!nodeEncoder.isNull()) {
+		QDomNodeList nodes = nodeEncoder.childNodes();
+		for (int nodeNo = 0; nodeNo < nodes.size(); nodeNo++) {
+			QDomElement element = nodes.at(nodeNo).toElement();
+			encoderCalibrations.push_back(EncoderParameterCalibration::fromXml(element, stateStructure, device));
+		}
+	}
+
+	SerialDeviceCalibration::Ptr calibration = rw::common::ownedPtr(
+			new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations, encoderCalibrations));
+
+	return calibration;
+}
+
 void SerialDeviceCalibration::doApply() {
-	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
-	while (calibrationIterator.hasNext()) {
-		DeviceCalibration::Ptr calibration = calibrationIterator.next();
+	for (std::vector<Calibration::Ptr>::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		Calibration::Ptr calibration = (*it);
 		if (calibration->isEnabled())
 			calibration->apply();
 	}
 }
 
 void SerialDeviceCalibration::doRevert() {
-	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
-	while (calibrationIterator.hasNext()) {
-		DeviceCalibration::Ptr calibration = calibrationIterator.next();
+	for (std::vector<Calibration::Ptr>::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		Calibration::Ptr calibration = (*it);
 		if (calibration->isEnabled())
 			calibration->revert();
 	}
 }
 
 void SerialDeviceCalibration::doCorrect(rw::kinematics::State& state) {
-	QListIterator<DeviceCalibration::Ptr> calibrationIterator(_calibrations);
-	while (calibrationIterator.hasNext()) {
-		DeviceCalibration::Ptr calibration = calibrationIterator.next();
+	for (std::vector<Calibration::Ptr>::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		Calibration::Ptr calibration = (*it);
 		if (calibration->isEnabled())
 			calibration->correct(state);
 	}

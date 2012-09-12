@@ -15,7 +15,7 @@
 namespace rwlibs {
 namespace calibration {
 
-class SerialDevicePoseMeasurementList: public QList<SerialDevicePoseMeasurement> {
+class SerialDevicePoseMeasurementList: public std::vector<SerialDevicePoseMeasurement> {
 public:
 	void save(std::string fileName);
 

@@ -10,7 +10,6 @@
 
 #include "Pose6D.hpp"
 #include <rw/math.hpp>
-#include <QtCore>
 #include <QtXml/qdom.h>
 
 namespace rwlibs {
@@ -18,8 +17,6 @@ namespace calibration {
 
 class SerialDevicePoseMeasurement {
 public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 	SerialDevicePoseMeasurement(const rw::math::Q& state, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covariance = Eigen::Matrix<double, 6, 6>::Identity());
 
 	SerialDevicePoseMeasurement(QDomElement& element);
@@ -38,6 +35,9 @@ private:
 	rw::math::Q _q;
 	Pose6D<double> _pose;
 	Eigen::Matrix<double, 6, 6> _covariance;
+
+public:
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 }

@@ -7,6 +7,8 @@
 
 #include "SerialDevicePoseMeasurement.hpp"
 
+#include <QtCore>
+
 namespace rwlibs {
 namespace calibration {
 

@@ -21,9 +21,7 @@ public:
 
 	typedef rw::common::Ptr<EncoderParameterJacobian> Ptr;
 
-	EncoderParameterJacobian(rw::models::SerialDevice::Ptr serialDevice, EncoderParameterCalibration::Ptr calibration);
-
-	virtual DeviceCalibration::Ptr getCalibration() const;
+	EncoderParameterJacobian(EncoderParameterCalibration::Ptr calibration, rw::models::JointDevice::Ptr jointDevice);
 
 	virtual int getParameterCount() const;
 
@@ -34,8 +32,9 @@ public:
 	void setEnabledParameters(bool tau, bool sigma);
 
 private:
-	rw::models::SerialDevice::Ptr _serialDevice;
 	EncoderParameterCalibration::Ptr _calibration;
+	rw::models::JointDevice::Ptr _jointDevice;
+	rw::models::Joint::Ptr _joint;
 	Eigen::Vector2i _enabledParameters;
 	int _jointNo;
 };

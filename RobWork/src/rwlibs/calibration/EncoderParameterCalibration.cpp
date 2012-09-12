@@ -37,7 +37,7 @@ void EncoderParameterCalibration::correct(const Eigen::Vector2d& correction) {
 }
 
 QDomElement EncoderParameterCalibration::toXml(QDomDocument& document) {
-	QDomElement element = document.createElement("JointEncoderCalibration");
+	QDomElement element = document.createElement("EDParameterCalibration");
 
 	element.setAttribute("joint", QString::fromStdString(_joint->getName()));
 

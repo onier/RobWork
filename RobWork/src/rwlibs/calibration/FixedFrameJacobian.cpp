@@ -13,12 +13,8 @@ namespace rwlibs {
 namespace calibration {
 
 FixedFrameJacobian::FixedFrameJacobian(FixedFrameCalibration::Ptr calibration) :
-		_calibration(calibration), _enabledParameters(Eigen::Matrix<int, 6, 1>::Ones()) {
+		DeviceJacobian(calibration), _calibration(calibration), _enabledParameters(Eigen::Matrix<int, 6, 1>::Ones()) {
 
-}
-
-DeviceCalibration::Ptr FixedFrameJacobian::getCalibration() const {
-	return _calibration;
 }
 
 int FixedFrameJacobian::getParameterCount() const {

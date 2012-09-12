@@ -7,6 +7,7 @@
 
 #include "SerialDevicePoseMeasurementList.hpp"
 
+#include <QtCore>
 #include <QtXml/qdom.h>
 
 namespace rwlibs {
@@ -47,13 +48,17 @@ SerialDevicePoseMeasurementList SerialDevicePoseMeasurementList::load(std::strin
 		RW_THROW("Root element not found.");
 
 	QDomNode node = elmRoot.firstChild();
+	std::cout << "1." << std::endl;
 	while (!node.isNull()) {
 		QDomElement element = node.toElement();
+		std::cout << "2." << std::endl;
 		if (!element.isNull())
-			list.append(SerialDevicePoseMeasurement(element));
+			list.push_back(SerialDevicePoseMeasurement(element));
+		std::cout << "3." << std::endl;
 
 		node = node.nextSibling();
 	}
+	std::cout << "4." << std::endl;
 
 	return list;
 }

@@ -22,8 +22,6 @@ public:
 
 	FixedFrameJacobian(FixedFrameCalibration::Ptr calibration);
 
-	virtual DeviceCalibration::Ptr getCalibration() const;
-
 	virtual int getParameterCount() const;
 
 	virtual Eigen::MatrixXd compute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
