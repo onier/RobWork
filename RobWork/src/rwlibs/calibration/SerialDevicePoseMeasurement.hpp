@@ -17,9 +17,9 @@ namespace calibration {
 
 class SerialDevicePoseMeasurement {
 public:
-	SerialDevicePoseMeasurement(const rw::math::Q& state, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covariance = Eigen::Matrix<double, 6, 6>::Identity());
+	typedef rw::common::Ptr<SerialDevicePoseMeasurement> Ptr;
 
-	SerialDevicePoseMeasurement(QDomElement& element);
+	SerialDevicePoseMeasurement(const rw::math::Q& state, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covariance = Eigen::Matrix<double, 6, 6>::Identity());
 
 	virtual ~SerialDevicePoseMeasurement();
 
@@ -28,8 +28,6 @@ public:
 	Pose6D<double> getPose() const;
 
 	Eigen::Matrix<double, 6, 6> getCovariance() const;
-
-	virtual QDomElement toXml(QDomDocument& document) const;
 
 private:
 	rw::math::Q _q;

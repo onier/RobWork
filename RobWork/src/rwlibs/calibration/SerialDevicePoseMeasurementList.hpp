@@ -10,16 +10,14 @@
 
 #include "SerialDevicePoseMeasurement.hpp"
 
-#include <rw/common.hpp>
-
 namespace rwlibs {
 namespace calibration {
 
-class SerialDevicePoseMeasurementList: public std::vector<SerialDevicePoseMeasurement, Eigen::aligned_allocator<SerialDevicePoseMeasurement> > {
+class SerialDevicePoseMeasurementList {
 public:
-	void save(std::string fileName);
+	static void save(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements, std::string fileName);
 
-	static SerialDevicePoseMeasurementList load(std::string fileName);
+	static std::vector<SerialDevicePoseMeasurement::Ptr> load(std::string fileName);
 };
 
 }

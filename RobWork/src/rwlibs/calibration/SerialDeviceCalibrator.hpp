@@ -13,7 +13,7 @@
 
 #include "DeviceJacobian.hpp"
 #include "IterativeSolver.hpp"
-#include "SerialDevicePoseMeasurementList.hpp"
+#include "SerialDevicePoseMeasurement.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
 
@@ -34,7 +34,7 @@ public:
 
 	DeviceJacobian::Ptr getJacobian() const;
 
-	void setMeasurementList(const SerialDevicePoseMeasurementList& measurements);
+	void setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
 	void setWeight(bool weight);
 
@@ -44,11 +44,11 @@ public:
 
 	virtual void computeJacobian(Eigen::MatrixXd& jacobian);
 
-	void computeJacobian(Eigen::MatrixXd& jacobian, const SerialDevicePoseMeasurementList& measurements);
+	void computeJacobian(Eigen::MatrixXd& jacobian, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
 	virtual void computeResiduals(Eigen::VectorXd& residuals);
 
-	void computeResiduals(Eigen::VectorXd& residuals, const SerialDevicePoseMeasurementList& measurements);
+	void computeResiduals(Eigen::VectorXd& residuals, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
 	virtual void takeStep(const Eigen::VectorXd& step);
 
@@ -58,7 +58,7 @@ private:
 	rw::kinematics::Frame::Ptr _referenceFrame;
 	rw::kinematics::Frame::Ptr _measurementFrame;
 	DeviceJacobian::Ptr _jacobian;
-	SerialDevicePoseMeasurementList _measurements;
+	std::vector<SerialDevicePoseMeasurement::Ptr> _measurements;
 	bool _weight;
 };
 

@@ -152,7 +152,7 @@ ADD_CUSTOM_TARGET(rw_all-tests ctest -V
           rw_loader-test rw_kinematics-test 
           rw_trajectory-test rw_collision-test 
           rw_graphics-test 
-          rw_planner-test ${SANDBOX_TEST} ${PERFORMANCE_TEST} ${RW_EXTRA_TESTS}
+          rw_calibration-test rw_planner-test ${SANDBOX_TEST} ${PERFORMANCE_TEST} ${RW_EXTRA_TESTS}
           ${TEST_DEPENDENCIES}
     WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
@@ -161,7 +161,7 @@ INSTALL(TARGETS
             rw_invkin-test rw_loader-test rw_kinematics-test 
             rw_trajectory-test rw_collision-test 
             rw_graphics-test 
-            rw_planner-test ${SANDBOX_TEST} ${PERFORMANCE_TEST}
+            rw_calibration-test rw_planner-test ${SANDBOX_TEST} ${PERFORMANCE_TEST}
         DESTINATION ${RW_INSTALL_DIR}/test)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/TestSuiteConfig.xml.install
