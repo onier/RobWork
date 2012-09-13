@@ -40,14 +40,16 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	// Load robot pose measurements from file.
 	rwlibs::calibration::SerialDevicePoseMeasurementList serialDevicePoseMeasurementList = rwlibs::calibration::SerialDevicePoseMeasurementList::load(
 			measurementFilePath);
-//	BOOST_CHECK_MESSAGE(serialDevicePoseMeasurementList.size() == 400, "Measurement list does not contain 400 measurements.");
+	BOOST_CHECK_MESSAGE(serialDevicePoseMeasurementList.size() == 400, "Measurement list does not contain 400 measurements.");
 
 	// Initialize calibration, jacobian and calibrator.
 	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration(
 			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
+	BOOST_REQUIRE_MESSAGE(!serialDeviceCalibration.isNull(), "Calibration could not be initialized.");
 
 	rwlibs::calibration::SerialDeviceJacobian::Ptr serialDeviceJacobian(
 			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceJacobian(serialDeviceCalibration)));
+	BOOST_REQUIRE_MESSAGE(!serialDeviceJacobian.isNull(), "Jacobian could not be initialized.");
 //	serialDeviceJacobian->getBaseJacobian()->setEnabled(false);
 //	serialDeviceJacobian->getEndJacobian()->setEnabled(false);
 //	serialDeviceJacobian->setDHParameterJacobiansEnabled(false);
@@ -55,12 +57,13 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 
 	rwlibs::calibration::SerialDeviceCalibrator::Ptr serialDeviceCalibrator(
 			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, state, referenceFrame, measurementFrame, serialDeviceJacobian)));
-//	serialDeviceCalibrator->setMeasurementList(serialDevicePoseMeasurementList);
+	BOOST_REQUIRE_MESSAGE(!serialDeviceCalibrator.isNull(), "Calibrator could not be initialized.");
+	serialDeviceCalibrator->setMeasurementList(serialDevicePoseMeasurementList);
 	serialDeviceCalibrator->setWeight(false);
 
 	try {
 		// Run calibrator.
-//		serialDeviceCalibrator->calibrate();
+		serialDeviceCalibrator->calibrate();
 	} catch (rw::common::Exception& ex) {
 		BOOST_FAIL(ex.getMessage());
 	}

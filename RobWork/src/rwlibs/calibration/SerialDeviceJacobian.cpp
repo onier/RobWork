@@ -15,8 +15,7 @@ SerialDeviceJacobian::SerialDeviceJacobian(SerialDeviceCalibration::Ptr calibrat
 	_baseJacobian = rw::common::ownedPtr(new FixedFrameJacobian(calibration->getBaseCalibration()));
 	_endJacobian = rw::common::ownedPtr(new FixedFrameJacobian(calibration->getEndCalibration()));
 	std::vector<DHParameterCalibration::Ptr> dhParameterCalibrations = calibration->getDHParameterCalibrations();
-	for (std::vector<DHParameterCalibration::Ptr>::iterator it = dhParameterCalibrations.begin();
-			it != dhParameterCalibrations.end(); ++it) {
+	for (std::vector<DHParameterCalibration::Ptr>::iterator it = dhParameterCalibrations.begin(); it != dhParameterCalibrations.end(); ++it) {
 		bool isFirst = (it == dhParameterCalibrations.begin());
 		// Enable only a and alpha for first link.
 		DHParameterJacobian::Ptr dhParameterJacobian = rw::common::ownedPtr(new DHParameterJacobian((*it)));
@@ -25,17 +24,14 @@ SerialDeviceJacobian::SerialDeviceJacobian(SerialDeviceCalibration::Ptr calibrat
 		_dhParameterJacobians.push_back(dhParameterJacobian);
 	}
 	std::vector<EncoderParameterCalibration::Ptr> encoderParameterCalibrations = calibration->getEncoderParameterCalibrations();
-	for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = encoderParameterCalibrations.begin();
-			it != encoderParameterCalibrations.end(); ++it)
+	for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = encoderParameterCalibrations.begin(); it != encoderParameterCalibrations.end(); ++it)
 		_encoderParameterJacobians.push_back(rw::common::ownedPtr(new EncoderParameterJacobian((*it), calibration->getDevice())));
 
 	_jacobians.push_back(_baseJacobian.cast<DeviceJacobian>());
 	_jacobians.push_back(_endJacobian.cast<DeviceJacobian>());
-	for (std::vector<DHParameterCalibration::Ptr>::iterator it = calibration->getDHParameterCalibrations().begin();
-			it != calibration->getDHParameterCalibrations().end(); ++it)
+	for (std::vector<DHParameterJacobian::Ptr>::iterator it = _dhParameterJacobians.begin(); it != _dhParameterJacobians.end(); ++it)
 		_jacobians.push_back((*it).cast<DeviceJacobian>());
-	for (std::vector<DHParameterCalibration::Ptr>::iterator it = calibration->getDHParameterCalibrations().begin();
-			it != calibration->getDHParameterCalibrations().end(); ++it)
+	for (std::vector<EncoderParameterJacobian::Ptr>::iterator it = _encoderParameterJacobians.begin(); it != _encoderParameterJacobians.end(); ++it)
 		_jacobians.push_back((*it).cast<DeviceJacobian>());
 }
 
@@ -55,10 +51,10 @@ Eigen::MatrixXd SerialDeviceJacobian::compute(rw::kinematics::Frame::Ptr referen
 	unsigned int parameterNo = 0;
 	Eigen::MatrixXd jacobian(6, getParameterCount());
 	for (std::vector<DeviceJacobian::Ptr>::iterator it = _jacobians.begin(); it != _jacobians.end(); ++it) {
-		DeviceJacobian::Ptr poseJacobian = (*it);
-		unsigned int parameterCount = poseJacobian->getParameterCount();
+		DeviceJacobian::Ptr deviceJacobian = (*it);
+		unsigned int parameterCount = deviceJacobian->getParameterCount();
 		if (parameterCount > 0) {
-			jacobian.block(0, parameterNo, 6, parameterCount) = poseJacobian->compute(referenceFrame, measurementFrame, state);
+			jacobian.block(0, parameterNo, 6, parameterCount) = deviceJacobian->compute(referenceFrame, measurementFrame, state);
 			parameterNo += parameterCount;
 		}
 	}
@@ -99,8 +95,7 @@ std::vector<EncoderParameterJacobian::Ptr> SerialDeviceJacobian::getEncoderDecen
 }
 
 void SerialDeviceJacobian::setEncoderDecentralizationJacobiansEnabled(bool isEnabled) {
-	for (std::vector<EncoderParameterJacobian::Ptr>::iterator it = _encoderParameterJacobians.begin(); it != _encoderParameterJacobians.end();
-			++it)
+	for (std::vector<EncoderParameterJacobian::Ptr>::iterator it = _encoderParameterJacobians.begin(); it != _encoderParameterJacobians.end(); ++it)
 		(*it)->setEnabled(isEnabled);
 }
 

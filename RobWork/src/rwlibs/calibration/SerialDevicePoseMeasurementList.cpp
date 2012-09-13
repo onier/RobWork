@@ -48,17 +48,15 @@ SerialDevicePoseMeasurementList SerialDevicePoseMeasurementList::load(std::strin
 		RW_THROW("Root element not found.");
 
 	QDomNode node = elmRoot.firstChild();
-	std::cout << "1." << std::endl;
 	while (!node.isNull()) {
 		QDomElement element = node.toElement();
-		std::cout << "2." << std::endl;
-		if (!element.isNull())
-			list.push_back(SerialDevicePoseMeasurement(element));
-		std::cout << "3." << std::endl;
+		if (!element.isNull()) {
+			SerialDevicePoseMeasurement measurement(element);
+			list.push_back(measurement);
+		}
 
 		node = node.nextSibling();
 	}
-	std::cout << "4." << std::endl;
 
 	return list;
 }

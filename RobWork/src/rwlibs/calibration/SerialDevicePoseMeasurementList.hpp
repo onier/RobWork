@@ -15,7 +15,7 @@
 namespace rwlibs {
 namespace calibration {
 
-class SerialDevicePoseMeasurementList: public std::vector<SerialDevicePoseMeasurement> {
+class SerialDevicePoseMeasurementList: public std::vector<SerialDevicePoseMeasurement, Eigen::aligned_allocator<SerialDevicePoseMeasurement> > {
 public:
 	void save(std::string fileName);
 
