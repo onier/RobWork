@@ -11,6 +11,7 @@
 #include <rw/math.hpp>
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
+#include "CompositeCalibration.hpp"
 #include "DHParameterCalibration.hpp"
 #include "EncoderParameterCalibration.hpp"
 #include "FixedFrameCalibration.hpp"
@@ -23,13 +24,13 @@
 namespace rwlibs {
 namespace calibration {
 
-class SerialDeviceCalibration: public Calibration {
+class SerialDeviceCalibration: public CompositeCalibration<Calibration> {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibration> Ptr;
 
 	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice);
 
-	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration, const std::vector<DHParameterCalibration::Ptr>& dhParameterCalibrations, const std::vector<EncoderParameterCalibration::Ptr>& encoderDecentralization);
+	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration, const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration, const CompositeCalibration<EncoderParameterCalibration>::Ptr& compositeEncoderParameterCalibration);
 
 	virtual ~SerialDeviceCalibration();
 
@@ -39,9 +40,9 @@ public:
 
 	FixedFrameCalibration::Ptr getEndCalibration() const;
 
-	std::vector<DHParameterCalibration::Ptr> getDHParameterCalibrations() const;
+	const CompositeCalibration<DHParameterCalibration>::Ptr& getCompositeDHParameterCalibration() const;
 
-	std::vector<EncoderParameterCalibration::Ptr> getEncoderParameterCalibrations() const;
+	const CompositeCalibration<EncoderParameterCalibration>::Ptr& getCompositeEncoderParameterCalibration() const;
 
 	void save(std::string fileName);
 
@@ -55,20 +56,12 @@ public:
 
 	static SerialDeviceCalibration::Ptr load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string fileName);
 
-protected:
-	virtual void doApply();
-
-	virtual void doRevert();
-
-	virtual void doCorrect(rw::kinematics::State& state);
-
 private:
 	rw::models::SerialDevice::Ptr _serialDevice;
 	FixedFrameCalibration::Ptr _baseCalibration;
 	FixedFrameCalibration::Ptr _endCalibration;
-	std::vector<DHParameterCalibration::Ptr> _dhParameterCalibrations;
-	std::vector<EncoderParameterCalibration::Ptr> _encoderParameterCalibrations;
-	std::vector<Calibration::Ptr> _calibrations;
+	CompositeCalibration<DHParameterCalibration>::Ptr _compositeDHParameterCalibration;
+	CompositeCalibration<EncoderParameterCalibration>::Ptr _compositeEncoderParameterCalibration;
 };
 
 }

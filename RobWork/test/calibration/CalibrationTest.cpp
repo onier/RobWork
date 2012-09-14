@@ -49,13 +49,9 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	BOOST_CHECK_MESSAGE(serialDevicePoseMeasurementList.size() == 400, "Measurement list does not contain 400 measurements.");
 
 	// Initialize calibration, jacobian and calibrator.
-	BOOST_TEST_CHECKPOINT("Initializing new calibration");
+	BOOST_TEST_CHECKPOINT("Initializing calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration(
 			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
-
-	BOOST_TEST_CHECKPOINT("Initializing jacobian");
-	rwlibs::calibration::SerialDeviceJacobian::Ptr serialDeviceJacobian(
-			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceJacobian(serialDeviceCalibration)));
 //	serialDeviceJacobian->getBaseJacobian()->setEnabled(false);
 //	serialDeviceJacobian->getEndJacobian()->setEnabled(false);
 //	serialDeviceJacobian->setDHParameterJacobiansEnabled(false);
@@ -63,7 +59,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 
 	BOOST_TEST_CHECKPOINT("Initializing calibrator");
 	rwlibs::calibration::SerialDeviceCalibrator::Ptr serialDeviceCalibrator(
-			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, state, referenceFrame, measurementFrame, serialDeviceJacobian)));
+			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, state, referenceFrame, measurementFrame, serialDeviceCalibration)));
 	serialDeviceCalibrator->setMeasurements(serialDevicePoseMeasurementList);
 	serialDeviceCalibrator->setWeight(false);
 

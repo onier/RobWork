@@ -11,7 +11,7 @@
 #include <rw/math.hpp>
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
-#include "DeviceJacobian.hpp"
+#include "Calibration.hpp"
 #include "IterativeSolver.hpp"
 #include "SerialDevicePoseMeasurement.hpp"
 #include <Eigen/Geometry>
@@ -24,7 +24,7 @@ class SerialDeviceCalibrator: public IterativeSolver {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibrator> Ptr;
 
-	SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, DeviceJacobian::Ptr jacobian);
+	SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration);
 
 	virtual ~SerialDeviceCalibrator();
 
@@ -32,7 +32,7 @@ public:
 
 	rw::kinematics::Frame::Ptr getMeasurementFrame() const;
 
-	DeviceJacobian::Ptr getJacobian() const;
+	Calibration::Ptr getCalibration() const;
 
 	void setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
@@ -57,7 +57,7 @@ private:
 	rw::kinematics::State _state;
 	rw::kinematics::Frame::Ptr _referenceFrame;
 	rw::kinematics::Frame::Ptr _measurementFrame;
-	DeviceJacobian::Ptr _jacobian;
+	Calibration::Ptr _calibration;
 	std::vector<SerialDevicePoseMeasurement::Ptr> _measurements;
 	bool _weight;
 };

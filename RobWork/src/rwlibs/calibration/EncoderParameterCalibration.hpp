@@ -33,7 +33,7 @@ public:
 
 	Eigen::Vector2d getCorrection() const;
 
-	void correct(const Eigen::Vector2d& correction);
+	void setEnabledParameters(bool tau, bool sigma);
 
 	QDomElement toXml(QDomDocument& document);
 
@@ -46,12 +46,19 @@ protected:
 
 	virtual void doCorrect(rw::kinematics::State& state);
 
+	virtual int doGetParameterCount() const;
+
+	virtual Eigen::MatrixXd doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
+
+	virtual void doStep(const Eigen::VectorXd& step);
+
 private:
 	bool _isEnabled;
 	bool _isApplied;
 	rw::models::JointDevice::Ptr _jointDevice;
 	rw::models::Joint::Ptr _joint;
 	Eigen::Vector2d _correction;
+	Eigen::Vector2i _enabledParameters;
 	int _jointNo;
 };
 

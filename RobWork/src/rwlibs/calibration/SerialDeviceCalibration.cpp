@@ -22,33 +22,37 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getBase()).cast<rw::kinematics::FixedFrame>(), true));
 	_endCalibration = rw::common::ownedPtr(
 			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getEnd()).cast<rw::kinematics::FixedFrame>(), false));
+
+	_compositeDHParameterCalibration = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
+	_compositeEncoderParameterCalibration = rw::common::ownedPtr(new CompositeCalibration<EncoderParameterCalibration>());
 	std::vector<rw::models::Joint*> joints(_serialDevice->getJoints());
 	for (std::vector<rw::models::Joint*>::iterator jointIterator = joints.begin(); jointIterator != joints.end(); jointIterator++) {
 		// Add only DH parameter calibrations for intermediate links.
-		if (jointIterator != joints.begin())
-			_dhParameterCalibrations.push_back(rw::common::ownedPtr(new DHParameterCalibration(*jointIterator)));
-		_encoderParameterCalibrations.push_back(rw::common::ownedPtr(new EncoderParameterCalibration(serialDevice, *jointIterator)));
+		if (jointIterator != joints.begin()) {
+			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(*jointIterator));
+			// Enable only a and alpha for first link.
+			if (_compositeDHParameterCalibration->getCalibrations().size() == 0)
+				calibration->setEnabledParameters(true, false, true, false);
+			_compositeDHParameterCalibration->add(calibration);
+		}
+		_compositeEncoderParameterCalibration->add(rw::common::ownedPtr(new EncoderParameterCalibration(serialDevice, *jointIterator)));
 	}
 
-	_calibrations.push_back(_baseCalibration.cast<Calibration>());
-	_calibrations.push_back(_endCalibration.cast<Calibration>());
-	for (std::vector<DHParameterCalibration::Ptr>::iterator it = _dhParameterCalibrations.begin(); it != _dhParameterCalibrations.end(); ++it)
-		_calibrations.push_back((*it).cast<Calibration>());
-	for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = _encoderParameterCalibrations.begin(); it != _encoderParameterCalibrations.end(); ++it)
-		_calibrations.push_back((*it).cast<Calibration>());
+	add(_baseCalibration.cast<Calibration>());
+	add(_endCalibration.cast<Calibration>());
+	add(_compositeDHParameterCalibration.cast<Calibration>());
+	add(_compositeEncoderParameterCalibration.cast<Calibration>());
 }
 
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration,
-		FixedFrameCalibration::Ptr endCalibration, const std::vector<DHParameterCalibration::Ptr>& dhParameterCalibrations,
-		const std::vector<EncoderParameterCalibration::Ptr>& encoderDecentralizationCalibrations) :
-		_serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _dhParameterCalibrations(dhParameterCalibrations), _encoderParameterCalibrations(
-				encoderDecentralizationCalibrations) {
-	_calibrations.push_back(_baseCalibration.cast<Calibration>());
-	_calibrations.push_back(_endCalibration.cast<Calibration>());
-	for (std::vector<DHParameterCalibration::Ptr>::iterator it = _dhParameterCalibrations.begin(); it != _dhParameterCalibrations.end(); ++it)
-		_calibrations.push_back((*it).cast<Calibration>());
-	for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = _encoderParameterCalibrations.begin(); it != _encoderParameterCalibrations.end(); ++it)
-		_calibrations.push_back((*it).cast<Calibration>());
+		FixedFrameCalibration::Ptr endCalibration, const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration,
+		const CompositeCalibration<EncoderParameterCalibration>::Ptr& compositeEncoderParameterCalibration) :
+		_serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _compositeDHParameterCalibration(
+				compositeDHParameterCalibration), _compositeEncoderParameterCalibration(compositeEncoderParameterCalibration) {
+	add(_baseCalibration.cast<Calibration>());
+	add(_endCalibration.cast<Calibration>());
+	add(_compositeDHParameterCalibration.cast<Calibration>());
+	add(_compositeEncoderParameterCalibration.cast<Calibration>());
 }
 
 SerialDeviceCalibration::~SerialDeviceCalibration() {
@@ -67,12 +71,12 @@ FixedFrameCalibration::Ptr SerialDeviceCalibration::getEndCalibration() const {
 	return _endCalibration;
 }
 
-std::vector<DHParameterCalibration::Ptr> SerialDeviceCalibration::getDHParameterCalibrations() const {
-	return _dhParameterCalibrations;
+const CompositeCalibration<DHParameterCalibration>::Ptr& SerialDeviceCalibration::getCompositeDHParameterCalibration() const {
+	return _compositeDHParameterCalibration;
 }
 
-std::vector<EncoderParameterCalibration::Ptr> SerialDeviceCalibration::getEncoderParameterCalibrations() const {
-	return _encoderParameterCalibrations;
+const CompositeCalibration<EncoderParameterCalibration>::Ptr& SerialDeviceCalibration::getCompositeEncoderParameterCalibration() const {
+	return _compositeEncoderParameterCalibration;
 }
 
 void SerialDeviceCalibration::save(std::string fileName) {
@@ -98,9 +102,10 @@ void SerialDeviceCalibration::save(std::string fileName) {
 	}
 
 	// Save dh corrections
-	if (_dhParameterCalibrations.size() > 0) {
+	std::vector<DHParameterCalibration::Ptr> dhParameterCalibrations = _compositeDHParameterCalibration->getCalibrations();
+	if (dhParameterCalibrations.size() > 0) {
 		QDomElement dhCorrections = document.createElement("DHParameterCalibrations");
-		for (std::vector<DHParameterCalibration::Ptr>::iterator it = _dhParameterCalibrations.begin(); it != _dhParameterCalibrations.end(); ++it) {
+		for (std::vector<DHParameterCalibration::Ptr>::iterator it = dhParameterCalibrations.begin(); it != dhParameterCalibrations.end(); ++it) {
 			DHParameterCalibration::Ptr dhParameterCalibration = (*it);
 			dhCorrections.appendChild(dhParameterCalibration->toXml(document));
 		}
@@ -108,9 +113,11 @@ void SerialDeviceCalibration::save(std::string fileName) {
 	}
 
 	// Save encoder corrections
-	if (_encoderParameterCalibrations.size() > 0) {
+	std::vector<EncoderParameterCalibration::Ptr> encoderParameterCalibrations = _compositeEncoderParameterCalibration->getCalibrations();
+	if (encoderParameterCalibrations.size() > 0) {
 		QDomElement encoderCorrections = document.createElement("EncoderParameterCalibrations");
-		for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = _encoderParameterCalibrations.begin(); it != _encoderParameterCalibrations.end(); ++it) {
+		for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = encoderParameterCalibrations.begin();
+				it != encoderParameterCalibrations.end(); ++it) {
 			EncoderParameterCalibration::Ptr encoderCalibration = (*it);
 			encoderCorrections.appendChild(encoderCalibration->toXml(document));
 		}
@@ -177,24 +184,24 @@ SerialDeviceCalibration::Ptr SerialDeviceCalibration::load(rw::kinematics::State
 		endCalibration = FixedFrameCalibration::fromXml(nodeEnd.childNodes().at(0).toElement(), stateStructure);
 
 	// Load DH calibrations
-	std::vector<DHParameterCalibration::Ptr> dhCalibrations;
+	CompositeCalibration<DHParameterCalibration>::Ptr dhCalibrations = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
 	QDomNode nodeDH = elmRoot.namedItem("DHParameterCalibrations");
 	if (!nodeDH.isNull()) {
 		QDomNodeList nodes = nodeDH.childNodes();
 		for (int nodeNo = 0; nodeNo < nodes.size(); nodeNo++) {
 			QDomElement element = nodes.at(nodeNo).toElement();
-			dhCalibrations.push_back(DHParameterCalibration::fromXml(element, stateStructure));
+			dhCalibrations->add(DHParameterCalibration::fromXml(element, stateStructure));
 		}
 	}
 
 	// Load encoder calibrations
-	std::vector<EncoderParameterCalibration::Ptr> encoderCalibrations;
+	CompositeCalibration<EncoderParameterCalibration>::Ptr encoderCalibrations = rw::common::ownedPtr(new CompositeCalibration<EncoderParameterCalibration>());
 	QDomNode nodeEncoder = elmRoot.namedItem("JointEncoderCalibrations");
 	if (!nodeEncoder.isNull()) {
 		QDomNodeList nodes = nodeEncoder.childNodes();
 		for (int nodeNo = 0; nodeNo < nodes.size(); nodeNo++) {
 			QDomElement element = nodes.at(nodeNo).toElement();
-			encoderCalibrations.push_back(EncoderParameterCalibration::fromXml(element, stateStructure, device));
+			encoderCalibrations->add(EncoderParameterCalibration::fromXml(element, stateStructure, device));
 		}
 	}
 
@@ -202,30 +209,6 @@ SerialDeviceCalibration::Ptr SerialDeviceCalibration::load(rw::kinematics::State
 			new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations, encoderCalibrations));
 
 	return calibration;
-}
-
-void SerialDeviceCalibration::doApply() {
-	for (std::vector<Calibration::Ptr>::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
-		Calibration::Ptr calibration = (*it);
-		if (calibration->isEnabled())
-			calibration->apply();
-	}
-}
-
-void SerialDeviceCalibration::doRevert() {
-	for (std::vector<Calibration::Ptr>::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
-		Calibration::Ptr calibration = (*it);
-		if (calibration->isEnabled())
-			calibration->revert();
-	}
-}
-
-void SerialDeviceCalibration::doCorrect(rw::kinematics::State& state) {
-	for (std::vector<Calibration::Ptr>::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
-		Calibration::Ptr calibration = (*it);
-		if (calibration->isEnabled())
-			calibration->correct(state);
-	}
 }
 
 }

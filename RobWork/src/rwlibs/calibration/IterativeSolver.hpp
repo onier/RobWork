@@ -8,6 +8,7 @@
 #ifndef RWLIBS_CALIBRATION_ITERATIVESOLVER_HPP_
 #define RWLIBS_CALIBRATION_ITERATIVESOLVER_HPP_
 
+#include <vector>
 #include <Eigen/Core>
 
 namespace rwlibs {
@@ -18,6 +19,8 @@ public:
 	IterativeSolver();
 
 	virtual ~IterativeSolver();
+
+	void iterate();
 
 	void solve();
 
@@ -30,6 +33,11 @@ public:
 protected:
 	int _maxIterations;
 	double _threshold;
+	int _iterationNo;
+	std::vector<Eigen::VectorXd> _steps;
+	Eigen::MatrixXd _jacobian;
+	Eigen::VectorXd _residuals;
+	Eigen::VectorXd _step;
 };
 
 }

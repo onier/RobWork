@@ -36,7 +36,7 @@ public:
 
 	rw::models::DHParameterSet getCorrection() const;
 
-	void correct(const rw::models::DHParameterSet& correction);
+	void setEnabledParameters(bool a, bool length, bool alpha, bool angle);
 
 	QDomElement toXml(QDomDocument& document);
 
@@ -49,9 +49,16 @@ protected:
 
 	virtual void doCorrect(rw::kinematics::State& state);
 
+	virtual int doGetParameterCount() const;
+
+	virtual Eigen::MatrixXd doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
+
+	virtual void doStep(const Eigen::VectorXd& step);
+
 private:
 	rw::models::Joint::Ptr _joint;
 	rw::models::DHParameterSet _correction;
+	Eigen::Vector4i _enabledParameters;
 };
 
 }

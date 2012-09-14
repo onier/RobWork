@@ -14,12 +14,13 @@ DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) :
 		_joint(joint), _correction(
 				rw::models::DHParameterSet::get(_joint.get())->isParallel() ?
 						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, true) :
-						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, rw::models::DHParameterSet::get(_joint.get())->getType())) {
+						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, rw::models::DHParameterSet::get(_joint.get())->getType())), _enabledParameters(
+				Eigen::Vector4i::Ones()) {
 
 }
 
 DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint, const rw::models::DHParameterSet& correction) :
-		_joint(joint), _correction(correction) {
+		_joint(joint), _correction(correction), _enabledParameters(Eigen::Vector4i::Ones()) {
 
 }
 
@@ -35,22 +36,8 @@ rw::models::DHParameterSet DHParameterCalibration::getCorrection() const {
 	return _correction;
 }
 
-void DHParameterCalibration::correct(const rw::models::DHParameterSet& correction) {
-	bool wasApplied = isApplied();
-	if (wasApplied)
-		revert();
-
-	double a = _correction.a() + correction.a(), alpha = _correction.alpha() + correction.alpha();
-	if (_correction.isParallel()) {
-		double b = _correction.b() + correction.b(), beta = _correction.beta() + correction.beta();
-		_correction = rw::models::DHParameterSet(alpha, a, beta, b, true);
-	} else {
-		double d = _correction.d() + correction.d(), theta = _correction.theta() + correction.theta();
-		_correction = rw::models::DHParameterSet(alpha, a, d, theta, _correction.getType());
-	}
-
-	if (wasApplied)
-		apply();
+void DHParameterCalibration::setEnabledParameters(bool a, bool length, bool alpha, bool angle) {
+	_enabledParameters << a, length, alpha, angle;
 }
 
 QDomElement DHParameterCalibration::toXml(QDomDocument& document) {
@@ -152,6 +139,81 @@ void DHParameterCalibration::doRevert() {
 
 void DHParameterCalibration::doCorrect(rw::kinematics::State& state) {
 
+}
+
+int DHParameterCalibration::doGetParameterCount() const {
+	return _enabledParameters.sum();
+}
+
+Eigen::MatrixXd DHParameterCalibration::doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+		const rw::kinematics::State& state) {
+	const Eigen::Affine3d tfmToPreLink = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), _joint->getParent(state), state);
+	const Eigen::Affine3d tfmLink = _joint->getFixedTransform();
+	const Eigen::Affine3d tfmToPostLink = tfmToPreLink * tfmLink;
+	const Eigen::Affine3d tfmJoint = _joint->getJointTransform(state);
+	const Eigen::Affine3d tfmPostJoint = rw::kinematics::Kinematics::frameTframe(_joint.get(), measurementFrame.get(), state);
+	const Eigen::Affine3d tfmToEnd = tfmToPostLink * tfmJoint * tfmPostJoint;
+	const bool isParallel = rw::models::DHParameterSet::get(_joint.get())->isParallel();
+
+	const unsigned int nColumns = _enabledParameters.sum();
+	Eigen::MatrixXd jacobian(6, nColumns);
+	int columnNo = 0;
+	// a
+	if (_enabledParameters(0)) {
+		jacobian.block<3, 1>(0, columnNo) = tfmToPostLink.linear().col(0);
+		jacobian.block<3, 1>(3, columnNo) = Eigen::Vector3d::Zero();
+		columnNo++;
+	}
+	// b/d
+	if (_enabledParameters(1)) {
+		jacobian.block<3, 1>(0, columnNo) = tfmToPreLink.linear().col(isParallel ? 1 : 2);
+		jacobian.block<3, 1>(3, columnNo) = Eigen::Vector3d::Zero();
+		columnNo++;
+	}
+	// alpha
+	if (_enabledParameters(2)) {
+		Eigen::Vector3d xAxisToPost = tfmToPostLink.linear().col(0);
+		Eigen::Vector3d tlPostToEnd = tfmToEnd.translation() - tfmToPostLink.translation();
+		jacobian.block<3, 1>(0, columnNo) = xAxisToPost.cross(tlPostToEnd);
+		jacobian.block<3, 1>(3, columnNo) = xAxisToPost;
+		columnNo++;
+	}
+	// beta/theta
+	if (_enabledParameters(3)) {
+		Eigen::Vector3d yzAxisToPre = tfmToPreLink.linear().col(isParallel ? 1 : 2);
+		Eigen::Vector3d tlPreToEnd = tfmToEnd.translation() - tfmToPreLink.translation();
+		jacobian.block<3, 1>(0, columnNo) = yzAxisToPre.cross(tlPreToEnd);
+		jacobian.block<3, 1>(3, columnNo) = yzAxisToPre;
+		columnNo++;
+	}
+
+	return jacobian;
+}
+
+void DHParameterCalibration::doStep(const Eigen::VectorXd& step) {
+	unsigned int enabledParameterNo = 0;
+	Eigen::Vector4d parameterVector = Eigen::Vector4d::Zero();
+	for (int parameterNo = 0; parameterNo < _enabledParameters.rows(); parameterNo++)
+		if (_enabledParameters(parameterNo)) {
+			parameterVector(parameterNo) = step(enabledParameterNo);
+			enabledParameterNo++;
+		}
+
+	bool wasApplied = isApplied();
+	if (wasApplied)
+		revert();
+
+	double a = _correction.a() + parameterVector(0), alpha = _correction.alpha() + parameterVector(2);
+	if (_correction.isParallel()) {
+		double b = _correction.b() + parameterVector(1), beta = _correction.beta() + parameterVector(3);
+		_correction = rw::models::DHParameterSet(alpha, a, beta, b, true);
+	} else {
+		double d = _correction.d() + parameterVector(1), theta = _correction.theta() + parameterVector(3);
+		_correction = rw::models::DHParameterSet(alpha, a, d, theta, _correction.getType());
+	}
+
+	if (wasApplied)
+		apply();
 }
 
 }

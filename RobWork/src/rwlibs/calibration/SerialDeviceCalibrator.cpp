@@ -14,8 +14,8 @@ namespace rwlibs {
 namespace calibration {
 
 SerialDeviceCalibrator::SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state,
-		rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, DeviceJacobian::Ptr jacobian) :
-		_device(device), _state(state), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _jacobian(jacobian), _weight(true) {
+		rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration) :
+		_device(device), _state(state), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _weight(true) {
 
 }
 
@@ -31,8 +31,8 @@ rw::kinematics::Frame::Ptr SerialDeviceCalibrator::getMeasurementFrame() const {
 	return _measurementFrame;
 }
 
-DeviceJacobian::Ptr SerialDeviceCalibrator::getJacobian() const {
-	return _jacobian;
+Calibration::Ptr SerialDeviceCalibrator::getCalibration() const {
+	return _calibration;
 }
 
 void SerialDeviceCalibrator::setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
@@ -44,25 +44,24 @@ void SerialDeviceCalibrator::setWeight(bool weight) {
 }
 
 int SerialDeviceCalibrator::getMinimumMeasurementCount() const {
-	return ceil(_jacobian->getParameterCount() / 6);
+	return ceil(_calibration->getParameterCount() / 6);
 }
 
 void SerialDeviceCalibrator::calibrate() {
-	Calibration::Ptr calibration = _jacobian->getCalibration();
-	const bool wasApplied = calibration->isApplied();
+	const bool wasApplied = _calibration->isApplied();
 	if (!wasApplied)
-		calibration->apply();
+		_calibration->apply();
 
 	try {
 		solve();
 	} catch (rw::common::Exception& ex) {
 		if (!wasApplied)
-			calibration->revert();
+			_calibration->revert();
 		throw ex;
 	}
 
 	if (!wasApplied)
-		calibration->revert();
+		_calibration->revert();
 }
 
 void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians) {
@@ -71,8 +70,7 @@ void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians) 
 
 void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
 	const unsigned int measurementCount = measurements.size();
-	const Calibration::Ptr calibration = _jacobian->getCalibration();
-	const unsigned int parameterCount = _jacobian->getParameterCount();
+	const unsigned int parameterCount = _calibration->getParameterCount();
 
 	stackedJacobians.resize(6 * measurementCount, parameterCount);
 	for (unsigned int measurementNo = 0; measurementNo < measurementCount; measurementNo++) {
@@ -80,10 +78,10 @@ void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, 
 		_device->setQ(q, _state);
 
 		// Update state to current
-		calibration->correct(_state);
+		_calibration->correct(_state);
 
 		// Setup Jacobian.
-		stackedJacobians.block(6 * measurementNo, 0, 6, parameterCount) = _jacobian->compute(_referenceFrame, _measurementFrame, _state);
+		stackedJacobians.block(6 * measurementNo, 0, 6, parameterCount) = _calibration->compute(_referenceFrame, _measurementFrame, _state);
 
 		// Weight system
 		if (_weight) {
@@ -100,7 +98,6 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals)
 
 void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
 	const unsigned int measurementCount = measurements.size();
-	const Calibration::Ptr calibration = _jacobian->getCalibration();
 
 	stackedResiduals.resize(6 * measurementCount);
 	for (unsigned int measurementNo = 0; measurementNo < measurementCount; measurementNo++) {
@@ -108,7 +105,7 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals,
 		_device->setQ(q, _state);
 
 		// Update state to current
-		calibration->correct(_state);
+		_calibration->correct(_state);
 
 		// Prepare transformations.
 		const Eigen::Affine3d tfmToMarker = Eigen::Affine3d(rw::kinematics::Kinematics::frameTframe(_referenceFrame.get(), _measurementFrame.get(), _state));
@@ -130,7 +127,7 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals,
 }
 
 void SerialDeviceCalibrator::takeStep(const Eigen::VectorXd& step) {
-	_jacobian->step(step);
+	_calibration->step(step);
 }
 
 }

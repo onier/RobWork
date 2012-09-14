@@ -8,6 +8,7 @@
 #ifndef RWLIBS_CALIBRATION_CALIBRATION_HPP_
 #define RWLIBS_CALIBRATION_CALIBRATION_HPP_
 
+#include <Eigen/Core>
 #include <rw/kinematics.hpp>
 
 namespace rwlibs {
@@ -17,65 +18,42 @@ class Calibration {
 public:
 	typedef rw::common::Ptr<Calibration> Ptr;
 
-	virtual ~Calibration() {
-	}
+	virtual ~Calibration();
 
-	bool isEnabled() const {
-		return _isEnabled;
-	}
+	virtual bool isEnabled() const;
 
-	void setEnabled(bool isEnabled) {
-		if (_isApplied)
-			RW_THROW("Already applied.");
+	virtual void setEnabled(bool isEnabled);
 
-		_isEnabled = isEnabled;
-	}
+	virtual bool isApplied() const;
 
-	bool isApplied() const {
-		return _isApplied;
-	}
+	void apply();
 
-	void apply() {
-		if (!_isEnabled)
-			RW_THROW("Not enabled.");
-		if (_isApplied)
-			RW_THROW("Already applied.");
+	void revert();
 
-		doApply();
+	void correct(rw::kinematics::State& state);
 
-		_isApplied = true;
-	}
+	int getParameterCount() const;
 
-	virtual void revert() {
-		if (!_isEnabled)
-			RW_THROW("Not enabled.");
-		if (!_isApplied)
-			RW_THROW("Not applied.");
+	Eigen::MatrixXd compute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+			const rw::kinematics::State& state);
 
-		doRevert();
-
-		_isApplied = false;
-	}
-
-	virtual void correct(rw::kinematics::State& state) {
-		if (!_isEnabled)
-			RW_THROW("Not enabled.");
-		if (!_isApplied)
-			RW_WARN("Not applied.");
-
-		doCorrect(state);
-	}
+	void step(const Eigen::VectorXd& step);
 
 protected:
-	Calibration() :
-			_isEnabled(true), _isApplied(false) {
-	}
+	Calibration();
 
 	virtual void doApply() = 0;
 
 	virtual void doRevert() = 0;
 
 	virtual void doCorrect(rw::kinematics::State& state) = 0;
+
+	virtual int doGetParameterCount() const = 0;
+
+	virtual Eigen::MatrixXd doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+			const rw::kinematics::State& state) = 0;
+
+	virtual void doStep(const Eigen::VectorXd& step) = 0;
 
 private:
 	bool _isEnabled;

@@ -36,7 +36,7 @@ public:
 
 	Eigen::Affine3d getCorrection() const;
 
-	void correct(const Eigen::Affine3d& correction);
+	void setEnabledParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw);
 
 	QDomElement toXml(QDomDocument& document);
 
@@ -49,10 +49,17 @@ protected:
 
 	virtual void doCorrect(rw::kinematics::State& state);
 
+	virtual int doGetParameterCount() const;
+
+	virtual Eigen::MatrixXd doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
+
+	virtual void doStep(const Eigen::VectorXd& step);
+
 private:
 	rw::kinematics::FixedFrame::Ptr _frame;
 	bool _isPreCorrection;
 	Eigen::Affine3d _correction;
+	Eigen::Matrix<int, 6, 1> _enabledParameters;
 };
 
 }

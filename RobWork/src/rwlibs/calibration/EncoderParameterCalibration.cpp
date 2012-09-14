@@ -14,7 +14,7 @@ namespace calibration {
 
 EncoderParameterCalibration::EncoderParameterCalibration(rw::models::JointDevice::Ptr jointDevice, rw::models::Joint::Ptr joint,
 		const Eigen::Vector2d& correction) :
-		_jointDevice(jointDevice), _joint(joint), _correction(correction) {
+		_jointDevice(jointDevice), _joint(joint), _correction(correction), _enabledParameters(Eigen::Vector2i::Ones()) {
 	// Find joint number.
 	const std::vector<rw::models::Joint*> joints = jointDevice->getJoints();
 	_jointNo = std::find(joints.begin(), joints.end(), joint.get()) - joints.begin();
@@ -32,8 +32,8 @@ Eigen::Vector2d EncoderParameterCalibration::getCorrection() const {
 	return _correction;
 }
 
-void EncoderParameterCalibration::correct(const Eigen::Vector2d& correction) {
-	_correction = _correction + correction;
+void EncoderParameterCalibration::setEnabledParameters(bool tau, bool sigma) {
+	_enabledParameters << tau, sigma;
 }
 
 QDomElement EncoderParameterCalibration::toXml(QDomDocument& document) {
@@ -47,7 +47,8 @@ QDomElement EncoderParameterCalibration::toXml(QDomDocument& document) {
 	return element;
 }
 
-EncoderParameterCalibration::Ptr EncoderParameterCalibration::fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure, rw::models::JointDevice::Ptr jointDevice) {
+EncoderParameterCalibration::Ptr EncoderParameterCalibration::fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure,
+		rw::models::JointDevice::Ptr jointDevice) {
 	if (!element.hasAttribute("joint"))
 		RW_THROW("\"joint\" attribute missing.");
 	QString jointName = element.attribute("joint");
@@ -81,6 +82,54 @@ void EncoderParameterCalibration::doCorrect(rw::kinematics::State& state) {
 //	q[_jointNo] = rw::models::EncoderDecentralization::calcRealAngle(q[_jointNo], _correction(0), _correction(1));
 	q[_jointNo] = q[_jointNo] - (_correction(1) * cos(q[_jointNo]) + _correction(0) * sin(q[_jointNo]));
 	_jointDevice->setQ(q, state);
+}
+
+int EncoderParameterCalibration::doGetParameterCount() const {
+	return _enabledParameters.sum();
+}
+
+Eigen::MatrixXd EncoderParameterCalibration::doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+		const rw::kinematics::State& state) {
+	// Get joint value.
+	const rw::math::Q q = _jointDevice->getQ(state);
+	const double qi = q[_jointNo];
+
+	// Prepare transformations.
+	const Eigen::Affine3d tfmToPostJoint = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), _joint.get(), state);
+	const Eigen::Affine3d tfmPostJoint = rw::kinematics::Kinematics::frameTframe(_joint.get(), measurementFrame.get(), state);
+	const Eigen::Affine3d tfmToEnd = tfmToPostJoint * tfmPostJoint;
+	const Eigen::Vector3d posToEnd = tfmToEnd.translation() - tfmToPostJoint.translation();
+	const Eigen::Vector3d jointAxis = tfmToPostJoint.linear().col(2);
+
+	const unsigned int nColumns = _enabledParameters.sum();
+	Eigen::MatrixXd jacobian(6, nColumns);
+	int columnNo = 0;
+	// tau
+	if (_enabledParameters(0)) {
+		jacobian.block<3, 1>(0, columnNo) = -sin(qi) * jointAxis.cross(posToEnd);
+		jacobian.block<3, 1>(3, columnNo) = -sin(qi) * jointAxis;
+		columnNo++;
+	}
+	// sigma
+	if (_enabledParameters(1)) {
+		jacobian.block<3, 1>(0, columnNo) = -cos(qi) * jointAxis.cross(posToEnd);
+		jacobian.block<3, 1>(3, columnNo) = -cos(qi) * jointAxis;
+		columnNo++;
+	}
+
+	return jacobian;
+}
+
+void EncoderParameterCalibration::doStep(const Eigen::VectorXd& step) {
+	unsigned int enabledParameterNo = 0;
+	Eigen::Vector2d parameterVector = Eigen::Vector2d::Zero();
+	for (int parameterNo = 0; parameterNo < _enabledParameters.rows(); parameterNo++)
+		if (_enabledParameters(parameterNo)) {
+			parameterVector(parameterNo) = step(enabledParameterNo);
+			enabledParameterNo++;
+		}
+
+	_correction = _correction + parameterVector;
 }
 
 }
