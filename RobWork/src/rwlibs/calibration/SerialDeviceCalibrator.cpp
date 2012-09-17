@@ -7,6 +7,7 @@
 
 #include "SerialDeviceCalibrator.hpp"
 
+#include "NLLSSolver.hpp"
 #include <Eigen/Eigenvalues>
 #include <rw/models/DHParameterSet.hpp>
 
@@ -53,7 +54,8 @@ void SerialDeviceCalibrator::calibrate() {
 		_calibration->apply();
 
 	try {
-		solve();
+		NLLSSolver solver(this);
+		solver.solve();
 	} catch (rw::common::Exception& ex) {
 		if (!wasApplied)
 			_calibration->revert();
@@ -81,7 +83,7 @@ void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, 
 		_calibration->correct(_state);
 
 		// Setup Jacobian.
-		stackedJacobians.block(6 * measurementNo, 0, 6, parameterCount) = _calibration->compute(_referenceFrame, _measurementFrame, _state);
+		stackedJacobians.block(6 * measurementNo, 0, 6, parameterCount) = _calibration->computeJacobian(_referenceFrame, _measurementFrame, _state);
 
 		// Weight system
 		if (_weight) {

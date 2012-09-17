@@ -88,7 +88,7 @@ int EncoderParameterCalibration::doGetParameterCount() const {
 	return _enabledParameters.sum();
 }
 
-Eigen::MatrixXd EncoderParameterCalibration::doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+Eigen::MatrixXd EncoderParameterCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 		const rw::kinematics::State& state) {
 	// Get joint value.
 	const rw::math::Q q = _jointDevice->getQ(state);

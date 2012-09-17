@@ -12,7 +12,7 @@
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
 #include "Calibration.hpp"
-#include "IterativeSolver.hpp"
+#include "NLLSProblem.hpp"
 #include "SerialDevicePoseMeasurement.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
@@ -20,7 +20,7 @@
 namespace rwlibs {
 namespace calibration {
 
-class SerialDeviceCalibrator: public IterativeSolver {
+class SerialDeviceCalibrator: public NLLSProblem {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibrator> Ptr;
 

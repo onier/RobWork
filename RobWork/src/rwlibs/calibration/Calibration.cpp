@@ -64,13 +64,13 @@ int Calibration::getParameterCount() const {
 	return _isEnabled ? doGetParameterCount() : 0;
 }
 
-Eigen::MatrixXd Calibration::compute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state) {
+Eigen::MatrixXd Calibration::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state) {
 	if (!_isEnabled)
 		RW_THROW("Not enabled.");
 	if (!doGetParameterCount())
 		RW_THROW("No parameters enabled.");
 
-	return doCompute(referenceFrame, measurementFrame, state);
+	return doComputeJacobian(referenceFrame, measurementFrame, state);
 }
 
 void Calibration::step(const Eigen::VectorXd& step) {

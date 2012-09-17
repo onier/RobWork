@@ -48,7 +48,7 @@ protected:
 
 	virtual int doGetParameterCount() const;
 
-	virtual Eigen::MatrixXd doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
+	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
 
 	virtual void doStep(const Eigen::VectorXd& step);
 

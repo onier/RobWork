@@ -14,7 +14,8 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 		DHParameterCalibration.cpp
 		EncoderParameterCalibration.cpp
 		FixedFrameCalibration.cpp
-		IterativeSolver.cpp
+		NLLSProblem.cpp
+		NLLSSolver.cpp
 		SerialDeviceCalibration.cpp
 		SerialDeviceCalibrator.cpp
 		SerialDevicePoseMeasurement.cpp
@@ -28,7 +29,8 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 		EigenTransformAddons.hpp
 		EncoderParameterCalibration.hpp
 		FixedFrameCalibration.hpp
-		IterativeSolver.hpp
+		NLLSProblem.hpp
+		NLLSSolver.hpp
 		Pose6D.hpp
 		RPY.hpp
 		SerialDeviceCalibration.hpp

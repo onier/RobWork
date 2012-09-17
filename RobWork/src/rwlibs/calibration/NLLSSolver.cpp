@@ -1,11 +1,11 @@
 /*
- * IterativeSolver.cpp
+ * NLLSSolver.cpp
  *
  *  Created on: Sep 12, 2012
  *      Author: bing
  */
 
-#include "IterativeSolver.hpp"
+#include "NLLSSolver.hpp"
 
 #include <Eigen/SVD>
 #include <rw/common.hpp>
@@ -13,20 +13,20 @@
 namespace rwlibs {
 namespace calibration {
 
-IterativeSolver::IterativeSolver() :
-		_maxIterations(100), _threshold(1e-14), _iterationNo(0) {
+NLLSSolver::NLLSSolver(NLLSProblem::Ptr problem) :
+		_problem(problem), _maxIterations(100), _threshold(1e-14), _iterationNo(0) {
 
 }
 
-IterativeSolver::~IterativeSolver() {
+NLLSSolver::~NLLSSolver() {
 
 }
 
-void IterativeSolver::iterate() {
+void NLLSSolver::iterate() {
 	_iterationNo++;
 
-	computeJacobian(_jacobian);
-	computeResiduals(_residuals);
+	_problem->computeJacobian(_jacobian);
+	_problem->computeResiduals(_residuals);
 
 	Eigen::JacobiSVD<Eigen::MatrixXd> jacobianSvd = _jacobian.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
 
@@ -62,18 +62,15 @@ void IterativeSolver::iterate() {
 	if (isinf(stepNorm))
 		RW_THROW("Infinite step.");
 
-	takeStep(_step);
+	_problem->takeStep(_step);
 }
 
-void IterativeSolver::solve() {
+void NLLSSolver::solve() {
 	while (true) {
 		iterate();
 
-		if (_step.norm() <= _threshold) {
-			computeJacobian(_jacobian);
-			computeResiduals(_residuals);
+		if (_step.norm() <= _threshold)
 			break;
-		}
 
 		if (_maxIterations > 0 && _iterationNo > _maxIterations)
 			RW_THROW("Iteration limit exceeded.");

@@ -145,7 +145,7 @@ int DHParameterCalibration::doGetParameterCount() const {
 	return _enabledParameters.sum();
 }
 
-Eigen::MatrixXd DHParameterCalibration::doCompute(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 		const rw::kinematics::State& state) {
 	const Eigen::Affine3d tfmToPreLink = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), _joint->getParent(state), state);
 	const Eigen::Affine3d tfmLink = _joint->getFixedTransform();
