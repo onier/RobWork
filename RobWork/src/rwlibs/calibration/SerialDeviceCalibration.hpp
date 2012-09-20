@@ -13,13 +13,12 @@
 
 #include "CompositeCalibration.hpp"
 #include "DHParameterCalibration.hpp"
-#include "EncoderParameterCalibration.hpp"
+//#include "EncoderParameterCalibration.hpp"
 #include "FixedFrameCalibration.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
 #include <rw/models/DHParameterSet.hpp>
 #include <rw/kinematics.hpp>
-#include <QtXml/qdom.h>
 
 namespace rwlibs {
 namespace calibration {
@@ -30,7 +29,9 @@ public:
 
 	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice);
 
-	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration, const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration, const CompositeCalibration<EncoderParameterCalibration>::Ptr& compositeEncoderParameterCalibration);
+	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration,
+			const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration/*,
+			 const CompositeCalibration<EncoderParameterCalibration>::Ptr& compositeEncoderParameterCalibration*/);
 
 	virtual ~SerialDeviceCalibration();
 
@@ -40,11 +41,9 @@ public:
 
 	FixedFrameCalibration::Ptr getEndCalibration() const;
 
-	const CompositeCalibration<DHParameterCalibration>::Ptr& getCompositeDHParameterCalibration() const;
+	CompositeCalibration<DHParameterCalibration>::Ptr getCompositeDHParameterCalibration() const;
 
-	const CompositeCalibration<EncoderParameterCalibration>::Ptr& getCompositeEncoderParameterCalibration() const;
-
-	void save(std::string fileName);
+//	CompositeCalibration<EncoderParameterCalibration>::Ptr getCompositeEncoderParameterCalibration() const;
 
 	static SerialDeviceCalibration::Ptr get(rw::models::SerialDevice::Ptr serialDevice);
 
@@ -54,14 +53,12 @@ public:
 
 	static void set(SerialDeviceCalibration::Ptr calibration, rw::common::PropertyMap& propertyMap);
 
-	static SerialDeviceCalibration::Ptr load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string fileName);
-
 private:
 	rw::models::SerialDevice::Ptr _serialDevice;
 	FixedFrameCalibration::Ptr _baseCalibration;
 	FixedFrameCalibration::Ptr _endCalibration;
 	CompositeCalibration<DHParameterCalibration>::Ptr _compositeDHParameterCalibration;
-	CompositeCalibration<EncoderParameterCalibration>::Ptr _compositeEncoderParameterCalibration;
+//	CompositeCalibration<EncoderParameterCalibration>::Ptr _compositeEncoderParameterCalibration;
 };
 
 }

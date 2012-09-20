@@ -10,7 +10,6 @@
 
 #include "Pose6D.hpp"
 #include <rw/math.hpp>
-#include <QtXml/qdom.h>
 
 namespace rwlibs {
 namespace calibration {

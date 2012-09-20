@@ -15,7 +15,6 @@
 #include <Eigen/Geometry>
 #include <rw/kinematics.hpp>
 #include <rw/models.hpp>
-#include <QtXml/qdom.h>
 
 namespace rwlibs {
 namespace calibration {
@@ -26,21 +25,17 @@ public:
 
 	typedef rw::common::Ptr<FixedFrameCalibration> Ptr;
 
-	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPreCorrection = true, const Eigen::Affine3d& correction = Eigen::Affine3d::Identity());
+	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPreCorrection = true, const Eigen::Affine3d& transform = Eigen::Affine3d::Identity());
 
 	virtual ~FixedFrameCalibration();
 
 	rw::kinematics::FixedFrame::Ptr getFrame() const;
 
+	Eigen::Affine3d getTransform() const;
+
 	bool isPreCorrection() const;
 
-	Eigen::Affine3d getCorrection() const;
-
 	void setEnabledParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw);
-
-	QDomElement toXml(QDomDocument& document);
-
-	static FixedFrameCalibration::Ptr fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure);
 
 protected:
 	virtual void doApply();
@@ -58,7 +53,7 @@ protected:
 private:
 	rw::kinematics::FixedFrame::Ptr _frame;
 	bool _isPreCorrection;
-	Eigen::Affine3d _correction;
+	Eigen::Affine3d _transform;
 	Eigen::Matrix<int, 6, 1> _enabledParameters;
 };
 

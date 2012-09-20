@@ -1,12 +1,12 @@
 /*
- * NLLSProblem.hpp
+ * NLLSSystem.hpp
  *
  *  Created on: Sep 17, 2012
  *      Author: bing
  */
 
-#ifndef RWLIBS_CALIBRATION_JACOBIAN_HPP_
-#define RWLIBS_CALIBRATION_JACOBIAN_HPP_
+#ifndef RWLIBS_CALIBRATION_NLLSSYSTEM_HPP_
+#define RWLIBS_CALIBRATION_NLLSSYSTEM_HPP_
 
 #include <Eigen/Core>
 #include <rw/common.hpp>
@@ -14,11 +14,11 @@
 namespace rwlibs {
 namespace calibration {
 
-class NLLSProblem {
+class NLLSSystem {
 public:
-	typedef rw::common::Ptr<NLLSProblem> Ptr;
+	typedef rw::common::Ptr<NLLSSystem> Ptr;
 
-	virtual ~NLLSProblem();
+	virtual ~NLLSSystem();
 
 	virtual void computeJacobian(Eigen::MatrixXd& jacobian) = 0;
 

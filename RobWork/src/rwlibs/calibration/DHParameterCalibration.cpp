@@ -11,7 +11,7 @@ namespace rwlibs {
 namespace calibration {
 
 DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) :
-		_joint(joint), _correction(
+		_joint(joint), _dhParameterSet(
 				rw::models::DHParameterSet::get(_joint.get())->isParallel() ?
 						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, true) :
 						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, rw::models::DHParameterSet::get(_joint.get())->getType())), _enabledParameters(
@@ -19,8 +19,8 @@ DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) :
 
 }
 
-DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint, const rw::models::DHParameterSet& correction) :
-		_joint(joint), _correction(correction), _enabledParameters(Eigen::Vector4i::Ones()) {
+DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint, const rw::models::DHParameterSet& dhParameterSet) :
+		_joint(joint), _dhParameterSet(dhParameterSet), _enabledParameters(Eigen::Vector4i::Ones()) {
 
 }
 
@@ -32,86 +32,28 @@ rw::models::Joint::Ptr DHParameterCalibration::getJoint() const {
 	return _joint;
 }
 
-rw::models::DHParameterSet DHParameterCalibration::getCorrection() const {
-	return _correction;
+rw::models::DHParameterSet DHParameterCalibration::getDHParameterSet() const {
+	return _dhParameterSet;
 }
 
 void DHParameterCalibration::setEnabledParameters(bool a, bool length, bool alpha, bool angle) {
 	_enabledParameters << a, length, alpha, angle;
 }
 
-QDomElement DHParameterCalibration::toXml(QDomDocument& document) {
-	QDomElement element = document.createElement("DHParameterCalibration");
-
-	element.setAttribute("joint", QString::fromStdString(_joint->getName()));
-
-	element.setAttribute("type", QString::fromStdString(_correction.getType()));
-	element.setAttribute("alpha", QString("%1").arg(_correction.alpha(), 0, 'g', 16));
-	element.setAttribute("a", QString("%1").arg(_correction.a(), 0, 'g', 16));
-	if (_correction.isParallel()) {
-		element.setAttribute("offset", QString("%1").arg(_correction.beta(), 0, 'g', 16));
-		element.setAttribute("b", QString("%1").arg(_correction.b(), 0, 'g', 16));
-	} else {
-		element.setAttribute("offset", QString("%1").arg(_correction.theta(), 0, 'g', 16));
-		element.setAttribute("d", QString("%1").arg(_correction.d(), 0, 'g', 16));
-	}
-
-	return element;
-}
-
-DHParameterCalibration::Ptr DHParameterCalibration::fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure) {
-	if (!element.hasAttribute("joint"))
-		RW_THROW("\"joint\" attribute missing.");
-	QString jointName = element.attribute("joint");
-
-	rw::models::Joint::Ptr joint = (rw::models::Joint*) stateStructure->findFrame(jointName.toStdString());
-	if (joint.isNull())
-		RW_THROW(QString("Joint \"%1\" not found.").arg(jointName).toStdString());
-
-	if (!element.hasAttribute("alpha"))
-		RW_THROW(QString("Joint \"%1\" needs \"alpha\" attribute.").arg(jointName).toStdString());
-	double alpha = element.attribute("alpha").toDouble();
-
-	if (!element.hasAttribute("a"))
-		RW_THROW(QString("Joint \"%1\" needs \"a\" attribute.").arg(jointName).toStdString());
-	double a = element.attribute("a").toDouble();
-
-	double d;
-	bool isParallel;
-	if (!(element.hasAttribute("b") || element.hasAttribute("d")))
-		RW_THROW(QString("Joint \"%1\" needs \"b\" or \"d\" attribute.").arg(jointName).toStdString());
-	if (element.hasAttribute("b")) {
-		d = element.attribute("b").toDouble();
-		isParallel = true;
-	} else {
-		d = element.attribute("d").toDouble();
-		isParallel = false;
-	}
-
-	if (!element.hasAttribute("offset"))
-		RW_THROW(QString("Joint \"%1\" needs \"offset\" attribute.").arg(jointName).toStdString());
-	double offset = element.attribute("offset").toDouble();
-
-	return rw::common::ownedPtr(
-			new DHParameterCalibration(joint,
-					isParallel ? rw::models::DHParameterSet(alpha, a, offset, d, isParallel) : rw::models::DHParameterSet(alpha, a, d, offset)));
-
-}
-
 void DHParameterCalibration::doApply() {
 	rw::models::DHParameterSet current = *rw::models::DHParameterSet::get(_joint.get());
 
-	double alpha = current.alpha() + _correction.alpha();
-	double a = current.a() + _correction.a();
+	double alpha = current.alpha() + _dhParameterSet.alpha();
+	double a = current.a() + _dhParameterSet.a();
 	if (current.isParallel()) {
-		double beta = current.beta() + _correction.beta();
-		double b = current.b() + _correction.b();
+		double beta = current.beta() + _dhParameterSet.beta();
+		double b = current.b() + _dhParameterSet.b();
 		rw::models::DHParameterSet dhParameterSet(alpha, a, beta, b, true);
 		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
 	} else {
-		double d = current.d() + _correction.d();
-		double theta = current.theta() + _correction.theta();
+		double d = current.d() + _dhParameterSet.d();
+		double theta = current.theta() + _dhParameterSet.theta();
 		rw::models::DHParameterSet dhParameterSet(alpha, a, d, theta, current.getType());
 		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
@@ -120,17 +62,17 @@ void DHParameterCalibration::doApply() {
 
 void DHParameterCalibration::doRevert() {
 	rw::models::DHParameterSet current = *rw::models::DHParameterSet::get(_joint.get());
-	double alpha = current.alpha() - _correction.alpha();
-	double a = current.a() - _correction.a();
+	double alpha = current.alpha() - _dhParameterSet.alpha();
+	double a = current.a() - _dhParameterSet.a();
 	if (current.isParallel()) {
-		double beta = current.beta() - _correction.beta();
-		double b = current.b() - _correction.b();
+		double beta = current.beta() - _dhParameterSet.beta();
+		double b = current.b() - _dhParameterSet.b();
 		rw::models::DHParameterSet dhParameterSet(alpha, a, beta, b, true);
 		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
 	} else {
-		double d = current.d() - _correction.d();
-		double theta = current.theta() - _correction.theta();
+		double d = current.d() - _dhParameterSet.d();
+		double theta = current.theta() - _dhParameterSet.theta();
 		rw::models::DHParameterSet dhParameterSet(alpha, a, d, theta, current.getType());
 		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
@@ -203,13 +145,13 @@ void DHParameterCalibration::doStep(const Eigen::VectorXd& step) {
 	if (wasApplied)
 		revert();
 
-	double a = _correction.a() + parameterVector(0), alpha = _correction.alpha() + parameterVector(2);
-	if (_correction.isParallel()) {
-		double b = _correction.b() + parameterVector(1), beta = _correction.beta() + parameterVector(3);
-		_correction = rw::models::DHParameterSet(alpha, a, beta, b, true);
+	double a = _dhParameterSet.a() + parameterVector(0), alpha = _dhParameterSet.alpha() + parameterVector(2);
+	if (_dhParameterSet.isParallel()) {
+		double b = _dhParameterSet.b() + parameterVector(1), beta = _dhParameterSet.beta() + parameterVector(3);
+		_dhParameterSet = rw::models::DHParameterSet(alpha, a, beta, b, true);
 	} else {
-		double d = _correction.d() + parameterVector(1), theta = _correction.theta() + parameterVector(3);
-		_correction = rw::models::DHParameterSet(alpha, a, d, theta, _correction.getType());
+		double d = _dhParameterSet.d() + parameterVector(1), theta = _dhParameterSet.theta() + parameterVector(3);
+		_dhParameterSet = rw::models::DHParameterSet(alpha, a, d, theta, _dhParameterSet.getType());
 	}
 
 	if (wasApplied)

@@ -14,7 +14,6 @@
 #include "Calibration.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
-#include <QtXml/qdom.h>
 
 namespace rwlibs {
 namespace calibration {
@@ -25,13 +24,13 @@ public:
 
 	typedef rw::common::Ptr<EncoderParameterCalibration> Ptr;
 
-	EncoderParameterCalibration(rw::models::JointDevice::Ptr jointDevice, rw::models::Joint::Ptr joint, const Eigen::Vector2d& correction = Eigen::Vector2d::Zero());
+	EncoderParameterCalibration(rw::models::JointDevice::Ptr jointDevice, rw::models::Joint::Ptr joint);
+
+	EncoderParameterCalibration(rw::models::JointDevice::Ptr jointDevice, rw::models::Joint::Ptr joint, const Eigen::VectorXd& correction);
 
 	virtual ~EncoderParameterCalibration();
 
 	rw::models::Joint::Ptr getJoint() const;
-
-	Eigen::Vector2d getCorrection() const;
 
 	void setEnabledParameters(bool tau, bool sigma);
 
@@ -52,13 +51,17 @@ protected:
 
 	virtual void doStep(const Eigen::VectorXd& step);
 
+	virtual int getCorrectionFunctionCount() const;
+
+	virtual Eigen::VectorXd computeCorrectionFunctionVector(const double& q);
+
 private:
 	bool _isEnabled;
 	bool _isApplied;
 	rw::models::JointDevice::Ptr _jointDevice;
 	rw::models::Joint::Ptr _joint;
-	Eigen::Vector2d _correction;
-	Eigen::Vector2i _enabledParameters;
+	Eigen::VectorXd _parameters;
+	Eigen::VectorXi _enabledParameters;
 	int _jointNo;
 };
 

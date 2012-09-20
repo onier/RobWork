@@ -15,7 +15,6 @@
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
 #include <rw/models/DHParameterSet.hpp>
-#include <QtXml/qdom.h>
 
 namespace rwlibs {
 namespace calibration {
@@ -28,19 +27,15 @@ public:
 
 	DHParameterCalibration(rw::models::Joint::Ptr joint);
 
-	DHParameterCalibration(rw::models::Joint::Ptr joint, const rw::models::DHParameterSet& correction);
+	DHParameterCalibration(rw::models::Joint::Ptr joint, const rw::models::DHParameterSet& dhParameterSet);
 
 	virtual ~DHParameterCalibration();
 
 	rw::models::Joint::Ptr getJoint() const;
 
-	rw::models::DHParameterSet getCorrection() const;
+	rw::models::DHParameterSet getDHParameterSet() const;
 
 	void setEnabledParameters(bool a, bool length, bool alpha, bool angle);
-
-	QDomElement toXml(QDomDocument& document);
-
-	static DHParameterCalibration::Ptr fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure);
 
 protected:
 	virtual void doApply();
@@ -57,7 +52,7 @@ protected:
 
 private:
 	rw::models::Joint::Ptr _joint;
-	rw::models::DHParameterSet _correction;
+	rw::models::DHParameterSet _dhParameterSet;
 	Eigen::Vector4i _enabledParameters;
 };
 

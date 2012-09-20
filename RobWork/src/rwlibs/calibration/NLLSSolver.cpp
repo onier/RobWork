@@ -13,8 +13,8 @@
 namespace rwlibs {
 namespace calibration {
 
-NLLSSolver::NLLSSolver(NLLSProblem::Ptr problem) :
-		_problem(problem), _maxIterations(100), _threshold(1e-14), _iterationNo(0) {
+NLLSSolver::NLLSSolver(NLLSSystem::Ptr system) :
+		_system(system) {
 
 }
 
@@ -22,59 +22,91 @@ NLLSSolver::~NLLSSolver() {
 
 }
 
-void NLLSSolver::iterate() {
-	_iterationNo++;
+NLLSSystem::Ptr NLLSSolver::getSystem() const {
+	return _system;
+}
 
-	_problem->computeJacobian(_jacobian);
-	_problem->computeResiduals(_residuals);
+const Eigen::MatrixXd& NLLSSolver::getJacobian() const {
+	return _jacobian;
+}
 
-	Eigen::JacobiSVD<Eigen::MatrixXd> jacobianSvd = _jacobian.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
+const Eigen::JacobiSVD<Eigen::MatrixXd>& NLLSSolver::getJacobianSvd() const {
+	return _jacobianSvd;
+}
 
-	_step = jacobianSvd.solve(-_residuals);
-	_steps.push_back(_step);
+const Eigen::VectorXd& NLLSSolver::getResiduals() const {
+	return _residuals;
+}
 
-	// Compute singularity-test, norm of step and residuals, rate of convergence and condition number.
-	bool isSingular = (jacobianSvd.singularValues().rows() != jacobianSvd.nonzeroSingularValues());
-	double residualsNorm = _residuals.norm();
-	double stepNorm = _step.norm();
-	double stepErrorNorm = (_jacobian * _step - _residuals).norm();
-	double roc = std::numeric_limits<double>::signaling_NaN();
-	if (_iterationNo > 2) {
-		roc = log(_steps[_iterationNo - 1].norm() / _steps[_iterationNo - 2].norm()) / log(_steps[_iterationNo - 2].norm() / _steps[_iterationNo - 3].norm());
-	}
-	Eigen::VectorXd singularValues = jacobianSvd.singularValues();
+const Eigen::VectorXd& NLLSSolver::getStep() const {
+	return _step;
+}
+
+const std::vector<NLLSIterationLog>& NLLSSolver::getIterationLogs() const {
+	return _iterationLogs;
+}
+
+NLLSIterationLog NLLSSolver::iterate() {
+	// Compute Jacobian and residuals.
+	_system->computeJacobian(_jacobian);
+	_system->computeResiduals(_residuals);
+
+	// Compute SVD of Jacobian.
+	_jacobianSvd = _jacobian.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
+
+	// Solve Jacobian * step = residuals.
+	_step = _jacobianSvd.solve(-_residuals);
+
+	// Apply step.
+	_system->takeStep(_step);
+
+	// Log iteration.
+	int iterationNumber = _iterationLogs.size() + 1;
+	Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
+	bool isSingular = (singularValues.rows() != _jacobianSvd.nonzeroSingularValues());
 	double conditionNumber = singularValues(0) / singularValues(singularValues.rows() - 1);
-
-	//			std::cout << "---" << std::endl;
-	std::cout << "Iteration " << _iterationNo << " completed. Singular: " << (isSingular ? "Yes" : "No") << ". Condition: " << conditionNumber
-			<< ". ||Residuals||: " << residualsNorm << ". ||Step||: " << stepNorm << ". ||StepError||: " << stepErrorNorm << ". RoC: " << roc << "."
-			<< std::endl;
+	double residualNorm = _residuals.norm();
+	double stepNorm = _step.norm();
+	NLLSIterationLog iterationLog(iterationNumber, isSingular, conditionNumber, residualNorm, stepNorm);
+	_iterationLogs.push_back(iterationLog);
+	std::cout << "Iteration " << iterationNumber << " completed. Singular: " << (isSingular ? "Yes" : "No") << ". Condition: " << conditionNumber
+			<< ". ||Residuals||: " << residualNorm << ". ||Step||: " << stepNorm << "." << std::endl;
 //	std::cout << "Jacobian (" << _jacobian.rows() << "x" << _jacobian.cols() << "):" << std::endl;
 //	std::cout << _jacobian.block(0, 0, _jacobian.rows() > 5 ? 6 : _jacobian.rows(), _jacobian.cols()) << std::endl;
 	//			std::cout << "Residuals:\t" << residuals.segment(0, residuals.rows() > 6 ? 12 : 6).transpose() << std::endl;
 	//			std::cout << "Step: \t" << step.transpose() << std::endl;
+	//			std::cout << "---" << std::endl;
 //	std::cin.ignore();
 
-	if (isSingular)
-		RW_THROW("Singular Jacobian.");
-	if (isnan(stepNorm))
-		RW_THROW("NaN step.");
-	if (isinf(stepNorm))
-		RW_THROW("Infinite step.");
-
-	_problem->takeStep(_step);
+	return iterationLog;
 }
 
-void NLLSSolver::solve() {
-	while (true) {
-		iterate();
+const std::vector<NLLSIterationLog>& NLLSSolver::solve() {
+	return solve(1e-14, 100);
+}
 
-		if (_step.norm() <= _threshold)
+const std::vector<NLLSIterationLog>& NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
+	while (true) {
+		NLLSIterationLog iterationLog = iterate();
+
+		// Verify iteration.
+		if (iterationLog.isSingular())
+			RW_THROW("Singular Jacobian.");
+		if (isnan(iterationLog.getStepNorm()))
+			RW_THROW("NaN step.");
+		if (isinf(iterationLog.getStepNorm()))
+			RW_THROW("Infinite step.");
+
+		// Stop iterating if step is below accepted threshold.
+		if (iterationLog.getStepNorm() <= acceptThreshold)
 			break;
 
-		if (_maxIterations > 0 && _iterationNo > _maxIterations)
-			RW_THROW("Iteration limit exceeded.");
+		// Throw exception if iteration limit has been reached.
+		if (maxIterationCount > 0 && iterationLog.getIterationNumber() >= maxIterationCount)
+			RW_THROW("Iteration limit reached.");
 	}
+
+	return _iterationLogs;
 }
 
 }

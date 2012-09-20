@@ -8,32 +8,47 @@
 #ifndef RWLIBS_CALIBRATION_NLLSSOLVER_HPP_
 #define RWLIBS_CALIBRATION_NLLSSOLVER_HPP_
 
-#include "NLLSProblem.hpp"
-#include <vector>
+#include "NLLSIterationLog.hpp"
+#include "NLLSSystem.hpp"
 #include <Eigen/Core>
+#include <Eigen/SVD>
 
 namespace rwlibs {
 namespace calibration {
 
 class NLLSSolver {
 public:
-	NLLSSolver(NLLSProblem::Ptr problem);
+	typedef rw::common::Ptr<NLLSSolver> Ptr;
+
+	NLLSSolver(NLLSSystem::Ptr system);
 
 	virtual ~NLLSSolver();
 
-	void iterate();
+	NLLSSystem::Ptr getSystem() const;
 
-	void solve();
+	const Eigen::MatrixXd& getJacobian() const;
+
+	const Eigen::JacobiSVD<Eigen::MatrixXd>& getJacobianSvd() const;
+
+	const Eigen::VectorXd& getResiduals() const;
+
+	const Eigen::VectorXd& getStep() const;
+
+	const std::vector<NLLSIterationLog>& getIterationLogs() const;
+
+	NLLSIterationLog iterate();
+
+	const std::vector<NLLSIterationLog>& solve();
+
+	const std::vector<NLLSIterationLog>& solve(double acceptThreshold, int maxIterations);
 
 protected:
-	NLLSProblem::Ptr _problem;
-	int _maxIterations;
-	double _threshold;
-	int _iterationNo;
+	NLLSSystem::Ptr _system;
 	Eigen::MatrixXd _jacobian;
+	Eigen::JacobiSVD<Eigen::MatrixXd> _jacobianSvd;
 	Eigen::VectorXd _residuals;
 	Eigen::VectorXd _step;
-	std::vector<Eigen::VectorXd> _steps;
+	std::vector<NLLSIterationLog> _iterationLogs;
 };
 
 }

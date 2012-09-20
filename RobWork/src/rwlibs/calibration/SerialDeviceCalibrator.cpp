@@ -28,12 +28,36 @@ rw::kinematics::Frame::Ptr SerialDeviceCalibrator::getReferenceFrame() const {
 	return _referenceFrame;
 }
 
+void SerialDeviceCalibrator::setReferenceFrame(rw::kinematics::Frame::Ptr referenceFrame) {
+	_referenceFrame = referenceFrame;
+}
+
 rw::kinematics::Frame::Ptr SerialDeviceCalibrator::getMeasurementFrame() const {
 	return _measurementFrame;
 }
 
+void SerialDeviceCalibrator::setMeasurementFrame(rw::kinematics::Frame::Ptr measurementFrame) {
+	_measurementFrame = measurementFrame;
+}
+
 Calibration::Ptr SerialDeviceCalibrator::getCalibration() const {
 	return _calibration;
+}
+
+int SerialDeviceCalibrator::getMinimumMeasurementCount() const {
+	return ceil(_calibration->getParameterCount() / 6);
+}
+
+const std::vector<SerialDevicePoseMeasurement::Ptr>& SerialDeviceCalibrator::getMeasurements() const {
+	return _measurements;
+}
+
+void SerialDeviceCalibrator::addMeasurement(SerialDevicePoseMeasurement::Ptr measurement) {
+	_measurements.push_back(measurement);
+}
+
+void SerialDeviceCalibrator::addMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix) {
+	_measurements.push_back(rw::common::ownedPtr(new SerialDevicePoseMeasurement(q, pose, covarianceMatrix)));
 }
 
 void SerialDeviceCalibrator::setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
@@ -42,10 +66,6 @@ void SerialDeviceCalibrator::setMeasurements(const std::vector<SerialDevicePoseM
 
 void SerialDeviceCalibrator::setWeight(bool weight) {
 	_weight = weight;
-}
-
-int SerialDeviceCalibrator::getMinimumMeasurementCount() const {
-	return ceil(_calibration->getParameterCount() / 6);
 }
 
 void SerialDeviceCalibrator::calibrate() {

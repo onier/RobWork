@@ -12,7 +12,7 @@
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
 #include "Calibration.hpp"
-#include "NLLSProblem.hpp"
+#include "NLLSSystem.hpp"
 #include "SerialDevicePoseMeasurement.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
@@ -20,25 +20,37 @@
 namespace rwlibs {
 namespace calibration {
 
-class SerialDeviceCalibrator: public NLLSProblem {
+class SerialDeviceCalibrator: public NLLSSystem {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibrator> Ptr;
 
-	SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration);
+	SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state, rw::kinematics::Frame::Ptr referenceFrame,
+			rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration);
 
 	virtual ~SerialDeviceCalibrator();
 
 	rw::kinematics::Frame::Ptr getReferenceFrame() const;
 
+	void setReferenceFrame(rw::kinematics::Frame::Ptr referenceFrame);
+
 	rw::kinematics::Frame::Ptr getMeasurementFrame() const;
 
+	void setMeasurementFrame(rw::kinematics::Frame::Ptr measurementFrame);
+
 	Calibration::Ptr getCalibration() const;
+
+	int getMinimumMeasurementCount() const;
+
+	const std::vector<SerialDevicePoseMeasurement::Ptr>& getMeasurements() const;
+
+	void addMeasurement(SerialDevicePoseMeasurement::Ptr measurement);
+
+	void addMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix =
+			Eigen::Matrix<double, 6, 6>::Identity());
 
 	void setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
 	void setWeight(bool weight);
-
-	int getMinimumMeasurementCount() const;
 
 	void calibrate();
 

@@ -1,11 +1,11 @@
 /*
- * SerialDevicePoseMeasurementList.cpp
+ * XmlMeasurementFile.cpp
  *
  *  Created on: May 22, 2012
  *      Author: bing
  */
 
-#include "SerialDevicePoseMeasurementList.hpp"
+#include "XmlMeasurementFile.hpp"
 
 #include <rw/common.hpp>
 #include <QtCore>
@@ -14,10 +14,7 @@
 namespace rwlibs {
 namespace calibration {
 
-void SerialDevicePoseMeasurementList::save(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements, std::string fileName) {
-	QFile file(QString::fromStdString(fileName));
-	file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-
+void XmlMeasurementFile::save(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements, std::string fileName) {
 	QDomDocument document("SerialDevicePoseMeasurements");
 
 	QDomElement elmRoot = document.createElement("SerialDevicePoseMeasurements");
@@ -56,21 +53,18 @@ void SerialDevicePoseMeasurementList::save(const std::vector<SerialDevicePoseMea
 		elmRoot.appendChild(elmMeasurement);
 	}
 
+	QFile file(QString::fromStdString(fileName));
+	file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 	QTextStream textStream(&file);
 	textStream.setRealNumberPrecision(16);
 	textStream << document.toString();
-
-	file.close();
 }
 
-std::vector<SerialDevicePoseMeasurement::Ptr> SerialDevicePoseMeasurementList::load(std::string fileName) {
-	std::vector<SerialDevicePoseMeasurement::Ptr> measurements;
-
+std::vector<SerialDevicePoseMeasurement::Ptr> XmlMeasurementFile::load(std::string fileName) {
 	QFile file(QString::fromStdString(fileName));
 	file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate);
 
 	QDomDocument document("SerialDevicePoseMeasurements");
-
 	if (!document.setContent(&file))
 		RW_THROW("Content not set.");
 
@@ -79,35 +73,36 @@ std::vector<SerialDevicePoseMeasurement::Ptr> SerialDevicePoseMeasurementList::l
 		RW_THROW("Root element not found.");
 
 	QDomNode node = elmRoot.firstChild();
+	std::vector<SerialDevicePoseMeasurement::Ptr> measurements;
 	while (!node.isNull()) {
 		QDomElement element = node.toElement();
 		if (!element.isNull() && element.tagName() == "SerialDevicePoseMeasurement") {
-				QDomElement elmState = element.namedItem("Q").toElement();
-				QStringList txtStateSplitted = elmState.text().split(" ");
-				int stateSize = txtStateSplitted.count();
-				if (stateSize <= 0)
-					RW_THROW("Q not parsed correctly.");
-				rw::math::Q q = rw::math::Q(stateSize);
-				for (int variableNo = 0; variableNo < stateSize; variableNo++)
-					q[variableNo] = txtStateSplitted[variableNo].toDouble();
+			QDomElement elmState = element.namedItem("Q").toElement();
+			QStringList txtStateSplitted = elmState.text().split(" ");
+			int stateSize = txtStateSplitted.count();
+			if (stateSize <= 0)
+				RW_THROW("Q not parsed correctly.");
+			rw::math::Q q = rw::math::Q(stateSize);
+			for (int variableNo = 0; variableNo < stateSize; variableNo++)
+				q[variableNo] = txtStateSplitted[variableNo].toDouble();
 
-				QDomElement elmPose = element.namedItem("Pose").toElement();
-				QStringList txtPoseSplitted = elmPose.text().split(" ");
-				if (txtPoseSplitted.size() != 6)
-					RW_THROW("Pose not parsed correctly.");
-				rwlibs::calibration::Pose6D<double> pose = Pose6D<double>(txtPoseSplitted[0].toDouble(), txtPoseSplitted[1].toDouble(),
-						txtPoseSplitted[2].toDouble(), txtPoseSplitted[3].toDouble(), txtPoseSplitted[4].toDouble(), txtPoseSplitted[5].toDouble());
+			QDomElement elmPose = element.namedItem("Pose").toElement();
+			QStringList txtPoseSplitted = elmPose.text().split(" ");
+			if (txtPoseSplitted.size() != 6)
+				RW_THROW("Pose not parsed correctly.");
+			rwlibs::calibration::Pose6D<double> pose = Pose6D<double>(txtPoseSplitted[0].toDouble(), txtPoseSplitted[1].toDouble(),
+					txtPoseSplitted[2].toDouble(), txtPoseSplitted[3].toDouble(), txtPoseSplitted[4].toDouble(), txtPoseSplitted[5].toDouble());
 
-				QDomElement elmCovarianceMatrix = element.namedItem("CovarianceMatrix").toElement();
-				QStringList txtCovarianceMatrixSplitted = elmCovarianceMatrix.text().split(" ");
-				if (txtCovarianceMatrixSplitted.size() != 6 * 6)
-					RW_THROW("Covariance matrix not parsed correctly.");
-				Eigen::Matrix<double, 6, 6> covariance;
-				for (int rowNo = 0; rowNo < 6; rowNo++)
-					for (int colNo = 0; colNo < 6; colNo++)
-						covariance(rowNo, colNo) = txtCovarianceMatrixSplitted[rowNo * 6 + colNo].toDouble();
+			QDomElement elmCovarianceMatrix = element.namedItem("CovarianceMatrix").toElement();
+			QStringList txtCovarianceMatrixSplitted = elmCovarianceMatrix.text().split(" ");
+			if (txtCovarianceMatrixSplitted.size() != 6 * 6)
+				RW_THROW("Covariance matrix not parsed correctly.");
+			Eigen::Matrix<double, 6, 6> covariance;
+			for (int rowNo = 0; rowNo < 6; rowNo++)
+				for (int colNo = 0; colNo < 6; colNo++)
+					covariance(rowNo, colNo) = txtCovarianceMatrixSplitted[rowNo * 6 + colNo].toDouble();
 
-				measurements.push_back(rw::common::ownedPtr(new SerialDevicePoseMeasurement(q, pose, covariance)));
+			measurements.push_back(rw::common::ownedPtr(new SerialDevicePoseMeasurement(q, pose, covariance)));
 		}
 
 		node = node.nextSibling();

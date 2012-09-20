@@ -12,14 +12,17 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 		Calibration.cpp
 		CompositeCalibration.cpp
 		DHParameterCalibration.cpp
-		EncoderParameterCalibration.cpp
+#		EncoderParameterCalibration.cpp
 		FixedFrameCalibration.cpp
-		NLLSProblem.cpp
+		NLLSIterationLog.cpp
 		NLLSSolver.cpp
+		NLLSSystem.cpp
 		SerialDeviceCalibration.cpp
 		SerialDeviceCalibrator.cpp
 		SerialDevicePoseMeasurement.cpp
-		SerialDevicePoseMeasurementList.cpp
+		XmlCalibrationLoader.cpp
+		XmlCalibrationSaver.cpp
+		XmlMeasurementFile.cpp
 	)
     
 	SET(SRC_FILES_HPP
@@ -27,16 +30,19 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 		CompositeCalibration.hpp
 		DHParameterCalibration.hpp
 		EigenTransformAddons.hpp
-		EncoderParameterCalibration.hpp
+#		EncoderParameterCalibration.hpp
 		FixedFrameCalibration.hpp
-		NLLSProblem.hpp
+		NLLSIterationLog.hpp
 		NLLSSolver.hpp
+		NLLSSystem.hpp
 		Pose6D.hpp
 		RPY.hpp
 		SerialDeviceCalibration.hpp
 		SerialDeviceCalibrator.hpp
 		SerialDevicePoseMeasurement.hpp
-		SerialDevicePoseMeasurementList.hpp
+		XmlCalibrationLoader.hpp
+		XmlCalibrationSaver.hpp
+		XmlMeasurementFile.hpp
 	)
     
 	RW_ADD_LIBRARY(${SUBSYS_NAME} calibration ${SRC_FILES} ${SRC_FILES_HPP})
