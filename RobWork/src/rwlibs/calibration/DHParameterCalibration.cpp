@@ -129,7 +129,7 @@ Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame:
 }
 
 void DHParameterCalibration::doStep(const Eigen::VectorXd& step) {
-	const unsigned int parameterCount = _lockedParameters.rows();
+	const int parameterCount = _lockedParameters.rows();
 	unsigned int unlockedParameterIndex = 0;
 	Eigen::Vector4d parameterVector = Eigen::Vector4d::Zero();
 	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++)
