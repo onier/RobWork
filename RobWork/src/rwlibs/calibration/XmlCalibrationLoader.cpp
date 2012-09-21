@@ -44,9 +44,9 @@ FixedFrameCalibration::Ptr ElementReader::readElement<FixedFrameCalibration::Ptr
 	if (txtTransformSplitted.count() != 12)
 		RW_THROW( QString("Transform has wrong size (12 numbers).").toStdString());
 	Eigen::Affine3d transform;
-	for (int rowNo = 0; rowNo < 3; rowNo++)
-		for (int colNo = 0; colNo < 4; colNo++)
-			transform(rowNo, colNo) = txtTransformSplitted[4 * rowNo + colNo].toDouble();
+	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
+		for (int columnIndex = 0; columnIndex < 4; columnIndex++)
+			transform(rowIndex, columnIndex) = txtTransformSplitted[4 * rowIndex + columnIndex].toDouble();
 
 	return rw::common::ownedPtr(new FixedFrameCalibration(frame, isPreCorrection, transform));
 }
@@ -123,8 +123,8 @@ SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(std::string fileName, rw
 	QDomNode nodeDH = elmRoot.namedItem("DHParameterCalibrations");
 	if (!nodeDH.isNull()) {
 		QDomNodeList nodes = nodeDH.childNodes();
-		for (int nodeNo = 0; nodeNo < nodes.size(); nodeNo++)
-			dhCalibrations->add(elementReader.readElement<DHParameterCalibration::Ptr>(nodes.at(nodeNo).toElement()));
+		for (int nodeIndex = 0; nodeIndex < nodes.size(); nodeIndex++)
+			dhCalibrations->add(elementReader.readElement<DHParameterCalibration::Ptr>(nodes.at(nodeIndex).toElement()));
 	}
 
 	//	// Load encoder calibrations

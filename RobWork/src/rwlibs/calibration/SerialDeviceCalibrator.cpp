@@ -68,20 +68,36 @@ void SerialDeviceCalibrator::setWeight(bool weight) {
 	_weight = weight;
 }
 
+NLLSSolverLog::Ptr SerialDeviceCalibrator::getLog() const {
+	return _log;
+}
+
 void SerialDeviceCalibrator::calibrate() {
+	// Apply calibration if not applied.
 	const bool wasApplied = _calibration->isApplied();
 	if (!wasApplied)
 		_calibration->apply();
 
+	// Solve non-linear least square system.
+	NLLSSolver::Ptr solver(rw::common::ownedPtr(new NLLSSolver(this)));
 	try {
-		NLLSSolver solver(this);
-		solver.solve();
+		solver->solve();
+
+		// Get solver log.
+		_log = solver->getLog();
 	} catch (rw::common::Exception& ex) {
+		// Get solver log.
+		_log = solver->getLog();
+
+		// Revert calibration if it was not applied.
 		if (!wasApplied)
 			_calibration->revert();
+
+		// Re-trow exception.
 		throw ex;
 	}
 
+	// Revert calibration if it was not applied.
 	if (!wasApplied)
 		_calibration->revert();
 }
@@ -95,21 +111,21 @@ void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, 
 	const unsigned int parameterCount = _calibration->getParameterCount();
 
 	stackedJacobians.resize(6 * measurementCount, parameterCount);
-	for (unsigned int measurementNo = 0; measurementNo < measurementCount; measurementNo++) {
-		const rw::math::Q q = measurements[measurementNo]->getQ();
+	for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
+		const rw::math::Q q = measurements[measurementIndex]->getQ();
 		_device->setQ(q, _state);
 
 		// Update state to current
 		_calibration->correct(_state);
 
 		// Setup Jacobian.
-		stackedJacobians.block(6 * measurementNo, 0, 6, parameterCount) = _calibration->computeJacobian(_referenceFrame, _measurementFrame, _state);
+		stackedJacobians.block(6 * measurementIndex, 0, 6, parameterCount) = _calibration->computeJacobian(_referenceFrame, _measurementFrame, _state);
 
 		// Weight system
 		if (_weight) {
 			const Eigen::Matrix<double, 6, 6> weightMatrix = Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(
-					measurements[measurementNo]->getCovariance()).operatorInverseSqrt();
-			stackedJacobians.block(6 * measurementNo, 0, 6, parameterCount) = weightMatrix * stackedJacobians.block(6 * measurementNo, 0, 6, parameterCount);
+					measurements[measurementIndex]->getCovariance()).operatorInverseSqrt();
+			stackedJacobians.block(6 * measurementIndex, 0, 6, parameterCount) = weightMatrix * stackedJacobians.block(6 * measurementIndex, 0, 6, parameterCount);
 		}
 	}
 }
@@ -122,8 +138,8 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals,
 	const unsigned int measurementCount = measurements.size();
 
 	stackedResiduals.resize(6 * measurementCount);
-	for (unsigned int measurementNo = 0; measurementNo < measurementCount; measurementNo++) {
-		const rw::math::Q q = measurements[measurementNo]->getQ();
+	for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
+		const rw::math::Q q = measurements[measurementIndex]->getQ();
 		_device->setQ(q, _state);
 
 		// Update state to current
@@ -133,17 +149,17 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals,
 		const Eigen::Affine3d tfmToMarker = Eigen::Affine3d(rw::kinematics::Kinematics::frameTframe(_referenceFrame.get(), _measurementFrame.get(), _state));
 
 		// Setup residual vector.
-		const Pose6D<double> pose = measurements[measurementNo]->getPose();
-		stackedResiduals.segment<3>(6 * measurementNo) = -(pose.translation() - tfmToMarker.translation());
+		const Pose6D<double> pose = measurements[measurementIndex]->getPose();
+		stackedResiduals.segment<3>(6 * measurementIndex) = -(pose.translation() - tfmToMarker.translation());
 		const Eigen::Matrix3d dR = pose.rotation() * tfmToMarker.linear().transpose();
-		stackedResiduals(6 * measurementNo + 3) = -(dR(2, 1) - dR(1, 2)) / 2;
-		stackedResiduals(6 * measurementNo + 4) = -(dR(0, 2) - dR(2, 0)) / 2;
-		stackedResiduals(6 * measurementNo + 5) = -(dR(1, 0) - dR(0, 1)) / 2;
+		stackedResiduals(6 * measurementIndex + 3) = -(dR(2, 1) - dR(1, 2)) / 2;
+		stackedResiduals(6 * measurementIndex + 4) = -(dR(0, 2) - dR(2, 0)) / 2;
+		stackedResiduals(6 * measurementIndex + 5) = -(dR(1, 0) - dR(0, 1)) / 2;
 
 		if (_weight) {
 			const Eigen::Matrix<double, 6, 6> weightMatrix =
-					Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(measurements[measurementNo]->getCovariance()).operatorInverseSqrt();
-			stackedResiduals.segment<6>(6 * measurementNo) = weightMatrix * stackedResiduals.segment<6>(6 * measurementNo);
+					Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(measurements[measurementIndex]->getCovariance()).operatorInverseSqrt();
+			stackedResiduals.segment<6>(6 * measurementIndex) = weightMatrix * stackedResiduals.segment<6>(6 * measurementIndex);
 		}
 	}
 }

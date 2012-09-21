@@ -30,9 +30,9 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 		// Add only DH parameter calibrations for intermediate links.
 		if (jointIterator != joints.begin()) {
 			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(*jointIterator));
-			// Enable only a and alpha for first link.
+			// Lock d and theta for first link.
 			if (_compositeDHParameterCalibration->getCalibrations().size() == 0)
-				calibration->setEnabledParameters(true, false, true, false);
+				calibration->setLockedParameters(false, true, false, true);
 			_compositeDHParameterCalibration->add(calibration);
 		}
 //		_compositeEncoderParameterCalibration->add(rw::common::ownedPtr(new EncoderParameterCalibration(serialDevice, *jointIterator)));
@@ -46,9 +46,9 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration,
 		FixedFrameCalibration::Ptr endCalibration, const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration/*,
-		const CompositeCalibration<EncoderParameterCalibration>::Ptr& compositeEncoderParameterCalibration*/) :
+		 const CompositeCalibration<EncoderParameterCalibration>::Ptr& compositeEncoderParameterCalibration*/) :
 		_serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _compositeDHParameterCalibration(
-				compositeDHParameterCalibration) /*, _compositeEncoderParameterCalibration(compositeEncoderParameterCalibration)*/ {
+				compositeDHParameterCalibration) /*, _compositeEncoderParameterCalibration(compositeEncoderParameterCalibration)*/{
 	add(_baseCalibration.cast<Calibration>());
 	add(_endCalibration.cast<Calibration>());
 	add(_compositeDHParameterCalibration.cast<Calibration>());

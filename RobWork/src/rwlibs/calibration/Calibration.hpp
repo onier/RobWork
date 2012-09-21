@@ -20,9 +20,9 @@ public:
 
 	virtual ~Calibration();
 
-	virtual bool isEnabled() const;
+	virtual bool isLocked() const;
 
-	virtual void setEnabled(bool isEnabled);
+	virtual void setLocked(bool isLocked);
 
 	virtual bool isApplied() const;
 
@@ -56,7 +56,7 @@ protected:
 	virtual void doStep(const Eigen::VectorXd& step) = 0;
 
 private:
-	bool _isEnabled;
+	bool _isLocked;
 	bool _isApplied;
 };
 

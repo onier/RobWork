@@ -69,7 +69,7 @@ template<class T>
 void CompositeCalibration<T>::doApply() {
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (calibration->isEnabled())
+		if (!calibration->isLocked())
 			calibration->apply();
 	}
 }
@@ -78,7 +78,7 @@ template<class T>
 void CompositeCalibration<T>::doRevert() {
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (calibration->isEnabled())
+		if (!calibration->isLocked())
 			calibration->revert();
 	}
 }
@@ -87,7 +87,7 @@ template<class T>
 void CompositeCalibration<T>::doCorrect(rw::kinematics::State& state) {
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (calibration->isEnabled())
+		if (!calibration->isLocked())
 			calibration->correct(state);
 	}
 }

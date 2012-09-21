@@ -32,7 +32,7 @@ public:
 
 	rw::models::Joint::Ptr getJoint() const;
 
-	void setEnabledParameters(bool tau, bool sigma);
+	void setLockedParameters(bool tau, bool sigma);
 
 	QDomElement toXml(QDomDocument& document);
 
@@ -56,13 +56,11 @@ protected:
 	virtual Eigen::VectorXd computeCorrectionFunctionVector(const double& q);
 
 private:
-	bool _isEnabled;
-	bool _isApplied;
 	rw::models::JointDevice::Ptr _jointDevice;
 	rw::models::Joint::Ptr _joint;
 	Eigen::VectorXd _parameters;
-	Eigen::VectorXi _enabledParameters;
-	int _jointNo;
+	Eigen::VectorXi _lockedParameters;
+	int _jointIndex;
 };
 
 }

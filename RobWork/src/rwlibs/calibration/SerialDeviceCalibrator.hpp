@@ -13,6 +13,7 @@
 
 #include "Calibration.hpp"
 #include "NLLSSystem.hpp"
+#include "NLLSSolverLog.hpp"
 #include "SerialDevicePoseMeasurement.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
@@ -52,6 +53,8 @@ public:
 
 	void setWeight(bool weight);
 
+	NLLSSolverLog::Ptr getLog() const;
+
 	void calibrate();
 
 	virtual void computeJacobian(Eigen::MatrixXd& jacobian);
@@ -72,6 +75,7 @@ private:
 	Calibration::Ptr _calibration;
 	std::vector<SerialDevicePoseMeasurement::Ptr> _measurements;
 	bool _weight;
+	NLLSSolverLog::Ptr _log;
 };
 
 }

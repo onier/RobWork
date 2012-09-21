@@ -16,18 +16,18 @@ inline Transform(const rw::math::Transform3D<>& transform3d) {
 	matrix(0,3) = vector3d(0);
 	matrix(1,3) = vector3d(1);
 	matrix(2,3) = vector3d(2);
-	for (int i = 0; i < 3; i++)
-		for (int j = 0; j < 3; j++)
-			matrix(i,j) = rotation3d(i,j);
+	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
+		for (int colIndex = 0; colIndex < 3; colIndex++)
+			matrix(rowIndex, colIndex) = rotation3d(rowIndex, colIndex);
 	*this = matrix;
 }
 
 operator rw::math::Transform3D<>() const {
 	rw::math::Transform3D<> rwTfm;
 
-	for (int rowNo = 0; rowNo < this->matrix().rows()-1; rowNo++)
-		for (int colNo = 0; colNo < this->matrix().cols(); colNo++)
-			rwTfm(rowNo, colNo) = this->matrix()(rowNo, colNo);
+	for (int rowIndex = 0; rowIndex < this->matrix().rows()-1; rowIndex++)
+		for (int colIndex = 0; colIndex < this->matrix().cols(); colIndex++)
+			rwTfm(rowIndex, colIndex) = this->matrix()(rowIndex, colIndex);
 
 	return rwTfm;
 }

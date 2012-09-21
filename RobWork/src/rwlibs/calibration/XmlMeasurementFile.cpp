@@ -36,17 +36,17 @@ void XmlMeasurementFile::save(const std::vector<SerialDevicePoseMeasurement::Ptr
 		QDomElement elmPose = document.createElement("Pose");
 		QString poseTxt;
 		rwlibs::calibration::Pose6D<double> pose = measurement->getPose();
-		for (int variableNo = 0; variableNo < 6; variableNo++)
-			poseTxt.append(QString(" %1").arg(pose(variableNo), 0, 'g', 16));
+		for (int variableIndex = 0; variableIndex < 6; variableIndex++)
+			poseTxt.append(QString(" %1").arg(pose(variableIndex), 0, 'g', 16));
 		elmPose.appendChild(document.createTextNode(poseTxt.trimmed()));
 		elmMeasurement.appendChild(elmPose);
 
 		QDomElement elmCovariance = document.createElement("CovarianceMatrix");
 		QString txtCovariance;
 		Eigen::Matrix<double, 6, 6> covariance = measurement->getCovariance();
-		for (int rowNo = 0; rowNo < covariance.rows(); rowNo++)
-			for (int columnNo = 0; columnNo < covariance.cols(); columnNo++)
-				txtCovariance.append(QString(" %1").arg(covariance(rowNo, columnNo), 0, 'g', 16));
+		for (int rowIndex = 0; rowIndex < covariance.rows(); rowIndex++)
+			for (int columnIndex = 0; columnIndex < covariance.cols(); columnIndex++)
+				txtCovariance.append(QString(" %1").arg(covariance(rowIndex, columnIndex), 0, 'g', 16));
 		elmCovariance.appendChild(document.createTextNode(txtCovariance.trimmed()));
 		elmMeasurement.appendChild(elmCovariance);
 

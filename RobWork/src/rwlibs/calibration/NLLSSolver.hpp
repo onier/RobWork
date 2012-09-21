@@ -9,6 +9,7 @@
 #define RWLIBS_CALIBRATION_NLLSSOLVER_HPP_
 
 #include "NLLSIterationLog.hpp"
+#include "NLLSSolverLog.hpp"
 #include "NLLSSystem.hpp"
 #include <Eigen/Core>
 #include <Eigen/SVD>
@@ -26,29 +27,21 @@ public:
 
 	NLLSSystem::Ptr getSystem() const;
 
-	const Eigen::MatrixXd& getJacobian() const;
-
-	const Eigen::JacobiSVD<Eigen::MatrixXd>& getJacobianSvd() const;
-
-	const Eigen::VectorXd& getResiduals() const;
-
-	const Eigen::VectorXd& getStep() const;
-
-	const std::vector<NLLSIterationLog>& getIterationLogs() const;
+	NLLSSolverLog::Ptr getLog() const;
 
 	NLLSIterationLog iterate();
 
-	const std::vector<NLLSIterationLog>& solve();
+	void solve();
 
-	const std::vector<NLLSIterationLog>& solve(double acceptThreshold, int maxIterations);
+	void solve(double acceptThreshold, int maxIterations);
 
 protected:
 	NLLSSystem::Ptr _system;
+	NLLSSolverLog::Ptr _log;
 	Eigen::MatrixXd _jacobian;
 	Eigen::JacobiSVD<Eigen::MatrixXd> _jacobianSvd;
 	Eigen::VectorXd _residuals;
 	Eigen::VectorXd _step;
-	std::vector<NLLSIterationLog> _iterationLogs;
 };
 
 }

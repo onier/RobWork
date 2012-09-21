@@ -13,18 +13,18 @@ namespace rwlibs {
 namespace calibration {
 
 EncoderParameterCalibration::EncoderParameterCalibration(rw::models::JointDevice::Ptr jointDevice, rw::models::Joint::Ptr joint) :
-		_jointDevice(jointDevice), _joint(joint), _parameters(Eigen::VectorXd::Zero(getCorrectionFunctionCount())), _enabledParameters(Eigen::VectorXi::Ones(getCorrectionFunctionCount())) {
+		_jointDevice(jointDevice), _joint(joint), _parameters(Eigen::VectorXd::Zero(getCorrectionFunctionCount())), _lockedParameters(Eigen::VectorXi::Zero(getCorrectionFunctionCount())) {
 	// Find joint number.
 	const std::vector<rw::models::Joint*> joints = jointDevice->getJoints();
-	_jointNo = std::find(joints.begin(), joints.end(), joint.get()) - joints.begin();
+	_jointIndex = std::find(joints.begin(), joints.end(), joint.get()) - joints.begin();
 }
 
 EncoderParameterCalibration::EncoderParameterCalibration(rw::models::JointDevice::Ptr jointDevice, rw::models::Joint::Ptr joint,
 		const Eigen::VectorXd& parameters) :
-		_jointDevice(jointDevice), _joint(joint), _parameters(parameters), _enabledParameters(Eigen::VectorXi::Ones(getCorrectionFunctionCount())) {
+		_jointDevice(jointDevice), _joint(joint), _parameters(parameters), _lockedParameters(Eigen::VectorXi::Zero(getCorrectionFunctionCount())) {
 	// Find joint number.
 	const std::vector<rw::models::Joint*> joints = jointDevice->getJoints();
-	_jointNo = std::find(joints.begin(), joints.end(), joint.get()) - joints.begin();
+	_jointIndex = std::find(joints.begin(), joints.end(), joint.get()) - joints.begin();
 }
 
 EncoderParameterCalibration::~EncoderParameterCalibration() {
@@ -35,8 +35,8 @@ rw::models::Joint::Ptr EncoderParameterCalibration::getJoint() const {
 	return _joint;
 }
 
-void EncoderParameterCalibration::setEnabledParameters(bool tau, bool sigma) {
-	_enabledParameters << tau, sigma;
+void EncoderParameterCalibration::setLockedParameters(bool tau, bool sigma) {
+	_lockedParameters << tau, sigma;
 }
 
 QDomElement EncoderParameterCalibration::toXml(QDomDocument& document) {
@@ -81,19 +81,19 @@ void EncoderParameterCalibration::doRevert() {
 
 void EncoderParameterCalibration::doCorrect(rw::kinematics::State& state) {
 	rw::math::Q q = _jointDevice->getQ(state);
-	q[_jointNo] = q[_jointNo] + _parameters.cwiseProduct(computeCorrectionFunctionVector(q[_jointNo])).sum();
+	q[_jointIndex] = q[_jointIndex] + _parameters.cwiseProduct(computeCorrectionFunctionVector(q[_jointIndex])).sum();
 	_jointDevice->setQ(q, state);
 }
 
 int EncoderParameterCalibration::doGetParameterCount() const {
-	return _enabledParameters.sum();
+	return _lockedParameters.rows() - _lockedParameters.sum();
 }
 
 Eigen::MatrixXd EncoderParameterCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 		const rw::kinematics::State& state) {
 	// Get joint value.
 	const rw::math::Q q = _jointDevice->getQ(state);
-	const double qi = q[_jointNo];
+	const double qi = q[_jointIndex];
 
 	// Prepare transformations.
 	const Eigen::Affine3d tfmToPostJoint = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), _joint.get(), state);
@@ -102,10 +102,10 @@ Eigen::MatrixXd EncoderParameterCalibration::doComputeJacobian(rw::kinematics::F
 	const Eigen::Vector3d posToEnd = tfmToEnd.translation() - tfmToPostJoint.translation();
 	const Eigen::Vector3d jointAxis = tfmToPostJoint.linear().col(2);
 
-	const int nEnabledParameters = _enabledParameters.sum();
-	Eigen::MatrixXd jacobian(6, nEnabledParameters);
+	const int nUnlockedParameters = getParameterCount();
+	Eigen::MatrixXd jacobian(6, nUnlockedParameters);
 	Eigen::VectorXd functionVector = computeCorrectionFunctionVector(qi);
-	for (int parameterNo = 0; parameterNo < nEnabledParameters; parameterNo++) {
+	for (int parameterNo = 0; parameterNo < nUnlockedParameters; parameterNo++) {
 		jacobian.block<3, 1>(0, parameterNo) = functionVector(parameterNo) * jointAxis.cross(posToEnd);
 		jacobian.block<3, 1>(3, parameterNo) = functionVector(parameterNo) * jointAxis;
 	}
@@ -114,14 +114,12 @@ Eigen::MatrixXd EncoderParameterCalibration::doComputeJacobian(rw::kinematics::F
 }
 
 void EncoderParameterCalibration::doStep(const Eigen::VectorXd& step) {
-	const int nParameters = _enabledParameters.rows();
-	unsigned int enabledParameterNo = 0;
-	Eigen::VectorXd parametersStep = Eigen::VectorXd::Zero(nParameters);
-	for (int parameterNo = 0; parameterNo < nParameters; parameterNo++)
-		if (_enabledParameters(parameterNo)) {
-			parametersStep(parameterNo) = step(enabledParameterNo);
-			enabledParameterNo++;
-		}
+	const int parameterCount = _lockedParameters.rows();
+	unsigned int unlockedParameterIndex = 0;
+	Eigen::VectorXd parametersStep = Eigen::VectorXd::Zero(parameterCount);
+	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++)
+		if (!_lockedParameters(parameterIndex))
+			parametersStep(parameterIndex) = step(unlockedParameterIndex++);
 
 	_parameters = _parameters + parametersStep;
 }
@@ -131,19 +129,15 @@ int EncoderParameterCalibration::getCorrectionFunctionCount() const {
 }
 
 Eigen::VectorXd EncoderParameterCalibration::computeCorrectionFunctionVector(const double& q) {
-	const unsigned int nEnabledParameters = _enabledParameters.sum();
-	Eigen::VectorXd corrections(nEnabledParameters);
-	int parameterNo = 0;
+	const unsigned int parameterCount = getParameterCount();
+	Eigen::VectorXd corrections(parameterCount);
+	int parameterIndex = 0;
 	// tau
-	if (_enabledParameters(0)) {
-		corrections(parameterNo) = -sin(q);
-		parameterNo++;
-	}
+	if (!_lockedParameters(0))
+		corrections(parameterIndex++) = -sin(q);
 	// sigma
-	if (_enabledParameters(1)) {
-		corrections(parameterNo) = -cos(q);
-		parameterNo++;
-	}
+	if (!_lockedParameters(1))
+		corrections(parameterIndex) = -cos(q);
 	return corrections;
 }
 

@@ -14,15 +14,15 @@ Calibration::~Calibration() {
 
 }
 
-bool Calibration::isEnabled() const {
-	return _isEnabled;
+bool Calibration::isLocked() const {
+	return _isLocked;
 }
 
-void Calibration::setEnabled(bool isEnabled) {
+void Calibration::setLocked(bool isLocked) {
 	if (_isApplied)
 		RW_THROW("Already applied.");
 
-	_isEnabled = isEnabled;
+	_isLocked = isLocked;
 }
 
 bool Calibration::isApplied() const {
@@ -30,8 +30,8 @@ bool Calibration::isApplied() const {
 }
 
 void Calibration::apply() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
+	if (_isLocked)
+		RW_THROW("Locked.");
 	if (_isApplied)
 		RW_THROW("Already applied.");
 
@@ -41,8 +41,8 @@ void Calibration::apply() {
 }
 
 void Calibration::revert() {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
+	if (_isLocked)
+		RW_THROW("Locked.");
 	if (!_isApplied)
 		RW_THROW("Not applied.");
 
@@ -52,8 +52,8 @@ void Calibration::revert() {
 }
 
 void Calibration::correct(rw::kinematics::State& state) {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
+	if (_isLocked)
+		RW_THROW("Locked.");
 	if (!_isApplied)
 		RW_WARN("Not applied.");
 
@@ -61,29 +61,29 @@ void Calibration::correct(rw::kinematics::State& state) {
 }
 
 int Calibration::getParameterCount() const {
-	return _isEnabled ? doGetParameterCount() : 0;
+	return _isLocked ? 0 : doGetParameterCount();
 }
 
 Eigen::MatrixXd Calibration::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state) {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (!doGetParameterCount())
+	if (_isLocked)
+		RW_THROW("Locked.");
+	if (doGetParameterCount() == 0)
 		RW_THROW("No parameters enabled.");
 
 	return doComputeJacobian(referenceFrame, measurementFrame, state);
 }
 
 void Calibration::step(const Eigen::VectorXd& step) {
-	if (!_isEnabled)
-		RW_THROW("Not enabled.");
-	if (!doGetParameterCount())
+	if (_isLocked)
+		RW_THROW("Locked.");
+	if (doGetParameterCount() == 0)
 		RW_THROW("No parameters enabled.");
 
 	return doStep(step);
 }
 
 Calibration::Calibration() :
-		_isEnabled(true), _isApplied(false) {
+		_isLocked(false), _isApplied(false) {
 }
 
 }

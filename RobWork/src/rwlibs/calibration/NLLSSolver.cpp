@@ -14,7 +14,7 @@ namespace rwlibs {
 namespace calibration {
 
 NLLSSolver::NLLSSolver(NLLSSystem::Ptr system) :
-		_system(system) {
+		_system(system), _log(rw::common::ownedPtr(new NLLSSolverLog())) {
 
 }
 
@@ -26,24 +26,8 @@ NLLSSystem::Ptr NLLSSolver::getSystem() const {
 	return _system;
 }
 
-const Eigen::MatrixXd& NLLSSolver::getJacobian() const {
-	return _jacobian;
-}
-
-const Eigen::JacobiSVD<Eigen::MatrixXd>& NLLSSolver::getJacobianSvd() const {
-	return _jacobianSvd;
-}
-
-const Eigen::VectorXd& NLLSSolver::getResiduals() const {
-	return _residuals;
-}
-
-const Eigen::VectorXd& NLLSSolver::getStep() const {
-	return _step;
-}
-
-const std::vector<NLLSIterationLog>& NLLSSolver::getIterationLogs() const {
-	return _iterationLogs;
+NLLSSolverLog::Ptr NLLSSolver::getLog() const {
+	return _log;
 }
 
 NLLSIterationLog NLLSSolver::iterate() {
@@ -61,33 +45,21 @@ NLLSIterationLog NLLSSolver::iterate() {
 	_system->takeStep(_step);
 
 	// Log iteration.
-	int iterationNumber = _iterationLogs.size() + 1;
-	Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
-	bool isSingular = (singularValues.rows() != _jacobianSvd.nonzeroSingularValues());
-	double conditionNumber = singularValues(0) / singularValues(singularValues.rows() - 1);
-	double residualNorm = _residuals.norm();
-	double stepNorm = _step.norm();
-	NLLSIterationLog iterationLog(iterationNumber, isSingular, conditionNumber, residualNorm, stepNorm);
-	_iterationLogs.push_back(iterationLog);
-	std::cout << "Iteration " << iterationNumber << " completed. Singular: " << (isSingular ? "Yes" : "No") << ". Condition: " << conditionNumber
-			<< ". ||Residuals||: " << residualNorm << ". ||Step||: " << stepNorm << "." << std::endl;
-//	std::cout << "Jacobian (" << _jacobian.rows() << "x" << _jacobian.cols() << "):" << std::endl;
-//	std::cout << _jacobian.block(0, 0, _jacobian.rows() > 5 ? 6 : _jacobian.rows(), _jacobian.cols()) << std::endl;
-	//			std::cout << "Residuals:\t" << residuals.segment(0, residuals.rows() > 6 ? 12 : 6).transpose() << std::endl;
-	//			std::cout << "Step: \t" << step.transpose() << std::endl;
-	//			std::cout << "---" << std::endl;
-//	std::cin.ignore();
 
-	return iterationLog;
+	return _log->addIteration(_jacobian, _jacobianSvd, _residuals, _step);
 }
 
-const std::vector<NLLSIterationLog>& NLLSSolver::solve() {
+void NLLSSolver::solve() {
 	return solve(1e-14, 100);
 }
 
-const std::vector<NLLSIterationLog>& NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
+void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 	while (true) {
 		NLLSIterationLog iterationLog = iterate();
+
+		std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
+				<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
+				<< iterationLog.getStepNorm() << "." << std::endl;
 
 		// Verify iteration.
 		if (iterationLog.isSingular())
@@ -105,8 +77,6 @@ const std::vector<NLLSIterationLog>& NLLSSolver::solve(double acceptThreshold, i
 		if (maxIterationCount > 0 && iterationLog.getIterationNumber() >= maxIterationCount)
 			RW_THROW("Iteration limit reached.");
 	}
-
-	return _iterationLogs;
 }
 
 }

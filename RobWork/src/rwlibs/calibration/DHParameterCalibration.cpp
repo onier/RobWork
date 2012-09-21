@@ -14,13 +14,13 @@ DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) :
 		_joint(joint), _dhParameterSet(
 				rw::models::DHParameterSet::get(_joint.get())->isParallel() ?
 						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, true) :
-						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, rw::models::DHParameterSet::get(_joint.get())->getType())), _enabledParameters(
-				Eigen::Vector4i::Ones()) {
+						rw::models::DHParameterSet(0.0, 0.0, 0.0, 0.0, rw::models::DHParameterSet::get(_joint.get())->getType())), _lockedParameters(
+				Eigen::Vector4i::Zero()) {
 
 }
 
 DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint, const rw::models::DHParameterSet& dhParameterSet) :
-		_joint(joint), _dhParameterSet(dhParameterSet), _enabledParameters(Eigen::Vector4i::Ones()) {
+		_joint(joint), _dhParameterSet(dhParameterSet), _lockedParameters(Eigen::Vector4i::Zero()) {
 
 }
 
@@ -32,12 +32,12 @@ rw::models::Joint::Ptr DHParameterCalibration::getJoint() const {
 	return _joint;
 }
 
-rw::models::DHParameterSet DHParameterCalibration::getDHParameterSet() const {
+rw::models::DHParameterSet DHParameterCalibration::getCorrection() const {
 	return _dhParameterSet;
 }
 
-void DHParameterCalibration::setEnabledParameters(bool a, bool length, bool alpha, bool angle) {
-	_enabledParameters << a, length, alpha, angle;
+void DHParameterCalibration::setLockedParameters(bool a, bool length, bool alpha, bool angle) {
+	_lockedParameters << a, length, alpha, angle;
 }
 
 void DHParameterCalibration::doApply() {
@@ -84,7 +84,7 @@ void DHParameterCalibration::doCorrect(rw::kinematics::State& state) {
 }
 
 int DHParameterCalibration::doGetParameterCount() const {
-	return _enabledParameters.sum();
+	return _lockedParameters.rows() - _lockedParameters.sum();
 }
 
 Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
@@ -97,49 +97,44 @@ Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame:
 	const Eigen::Affine3d tfmToEnd = tfmToPostLink * tfmJoint * tfmPostJoint;
 	const bool isParallel = rw::models::DHParameterSet::get(_joint.get())->isParallel();
 
-	const unsigned int nColumns = _enabledParameters.sum();
-	Eigen::MatrixXd jacobian(6, nColumns);
-	int columnNo = 0;
+	const unsigned int columnCount = getParameterCount();
+	Eigen::MatrixXd jacobian(6, columnCount);
+	int columnIndex = 0;
 	// a
-	if (_enabledParameters(0)) {
-		jacobian.block<3, 1>(0, columnNo) = tfmToPostLink.linear().col(0);
-		jacobian.block<3, 1>(3, columnNo) = Eigen::Vector3d::Zero();
-		columnNo++;
+	if (!_lockedParameters(0)) {
+		jacobian.block<3, 1>(0, columnIndex) = tfmToPostLink.linear().col(0);
+		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
 	// b/d
-	if (_enabledParameters(1)) {
-		jacobian.block<3, 1>(0, columnNo) = tfmToPreLink.linear().col(isParallel ? 1 : 2);
-		jacobian.block<3, 1>(3, columnNo) = Eigen::Vector3d::Zero();
-		columnNo++;
+	if (!_lockedParameters(1)) {
+		jacobian.block<3, 1>(0, columnIndex) = tfmToPreLink.linear().col(isParallel ? 1 : 2);
+		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
 	// alpha
-	if (_enabledParameters(2)) {
+	if (!_lockedParameters(2)) {
 		Eigen::Vector3d xAxisToPost = tfmToPostLink.linear().col(0);
 		Eigen::Vector3d tlPostToEnd = tfmToEnd.translation() - tfmToPostLink.translation();
-		jacobian.block<3, 1>(0, columnNo) = xAxisToPost.cross(tlPostToEnd);
-		jacobian.block<3, 1>(3, columnNo) = xAxisToPost;
-		columnNo++;
+		jacobian.block<3, 1>(0, columnIndex) = xAxisToPost.cross(tlPostToEnd);
+		jacobian.block<3, 1>(3, columnIndex++) = xAxisToPost;
 	}
 	// beta/theta
-	if (_enabledParameters(3)) {
+	if (!_lockedParameters(3)) {
 		Eigen::Vector3d yzAxisToPre = tfmToPreLink.linear().col(isParallel ? 1 : 2);
 		Eigen::Vector3d tlPreToEnd = tfmToEnd.translation() - tfmToPreLink.translation();
-		jacobian.block<3, 1>(0, columnNo) = yzAxisToPre.cross(tlPreToEnd);
-		jacobian.block<3, 1>(3, columnNo) = yzAxisToPre;
-		columnNo++;
+		jacobian.block<3, 1>(0, columnIndex) = yzAxisToPre.cross(tlPreToEnd);
+		jacobian.block<3, 1>(3, columnIndex) = yzAxisToPre;
 	}
 
 	return jacobian;
 }
 
 void DHParameterCalibration::doStep(const Eigen::VectorXd& step) {
-	unsigned int enabledParameterNo = 0;
+	const unsigned int parameterCount = _lockedParameters.rows();
+	unsigned int unlockedParameterIndex = 0;
 	Eigen::Vector4d parameterVector = Eigen::Vector4d::Zero();
-	for (int parameterNo = 0; parameterNo < _enabledParameters.rows(); parameterNo++)
-		if (_enabledParameters(parameterNo)) {
-			parameterVector(parameterNo) = step(enabledParameterNo);
-			enabledParameterNo++;
-		}
+	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++)
+		if (!_lockedParameters(parameterIndex))
+			parameterVector(parameterIndex) = step(unlockedParameterIndex++);
 
 	bool wasApplied = isApplied();
 	if (wasApplied)

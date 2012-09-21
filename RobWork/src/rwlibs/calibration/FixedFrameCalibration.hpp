@@ -35,7 +35,7 @@ public:
 
 	bool isPreCorrection() const;
 
-	void setEnabledParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw);
+	void setLockedParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw);
 
 protected:
 	virtual void doApply();
@@ -54,7 +54,7 @@ private:
 	rw::kinematics::FixedFrame::Ptr _frame;
 	bool _isPreCorrection;
 	Eigen::Affine3d _transform;
-	Eigen::Matrix<int, 6, 1> _enabledParameters;
+	Eigen::Matrix<int, 6, 1> _lockedParameters;
 };
 
 }

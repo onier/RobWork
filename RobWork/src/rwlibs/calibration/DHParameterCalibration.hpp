@@ -33,9 +33,9 @@ public:
 
 	rw::models::Joint::Ptr getJoint() const;
 
-	rw::models::DHParameterSet getDHParameterSet() const;
+	rw::models::DHParameterSet getCorrection() const;
 
-	void setEnabledParameters(bool a, bool length, bool alpha, bool angle);
+	void setLockedParameters(bool a, bool length, bool alpha, bool angle);
 
 protected:
 	virtual void doApply();
@@ -53,7 +53,7 @@ protected:
 private:
 	rw::models::Joint::Ptr _joint;
 	rw::models::DHParameterSet _dhParameterSet;
-	Eigen::Vector4i _enabledParameters;
+	Eigen::Vector4i _lockedParameters;
 };
 
 }

@@ -16,6 +16,7 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 		FixedFrameCalibration.cpp
 		NLLSIterationLog.cpp
 		NLLSSolver.cpp
+		NLLSSolverLog.cpp
 		NLLSSystem.cpp
 		SerialDeviceCalibration.cpp
 		SerialDeviceCalibrator.cpp
@@ -34,6 +35,7 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 		FixedFrameCalibration.hpp
 		NLLSIterationLog.hpp
 		NLLSSolver.hpp
+		NLLSSolverLog.hpp
 		NLLSSystem.hpp
 		Pose6D.hpp
 		RPY.hpp

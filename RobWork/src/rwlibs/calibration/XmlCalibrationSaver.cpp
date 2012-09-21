@@ -39,9 +39,9 @@ QDomElement ElementCreator::createElement<FixedFrameCalibration::Ptr>(FixedFrame
 
 	QString baseTransformTxt;
 	Eigen::Affine3d correction = calibration->getTransform();
-	for (int rowNo = 0; rowNo < 3; rowNo++)
-		for (int colNo = 0; colNo < 4; colNo++)
-			baseTransformTxt.append(QString(" %1").arg(correction(rowNo, colNo), 0, 'g', 16));
+	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
+		for (int colIndex = 0; colIndex < 4; colIndex++)
+			baseTransformTxt.append(QString(" %1").arg(correction(rowIndex, colIndex), 0, 'g', 16));
 	elmTransform.appendChild(_document->createTextNode(baseTransformTxt.trimmed()));
 	element.appendChild(elmTransform);
 
@@ -54,7 +54,7 @@ QDomElement ElementCreator::createElement<DHParameterCalibration::Ptr>(DHParamet
 
 	element.setAttribute("joint", QString::fromStdString(calibration->getJoint()->getName()));
 
-	rw::models::DHParameterSet correction = calibration->getDHParameterSet();
+	rw::models::DHParameterSet correction = calibration->getCorrection();
 	element.setAttribute("type", QString::fromStdString(correction.getType()));
 	element.setAttribute("alpha", QString("%1").arg(correction.alpha(), 0, 'g', 16));
 	element.setAttribute("a", QString("%1").arg(correction.a(), 0, 'g', 16));
