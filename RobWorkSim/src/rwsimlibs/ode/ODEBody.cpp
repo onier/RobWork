@@ -182,7 +182,7 @@ void ODEBody::postupdate(rw::kinematics::State& state){
     switch(_type){
     case(ODEBody::RIGID): {
         //std::cout << _mframe->getName() << std::endl;
-        Transform3D<> wTp = rw::kinematics::Kinematics::worldTframe( _mframe->getParent(), state);
+        Transform3D<> wTp = rw::kinematics::Kinematics::worldTframe( _mframe->getParent(state), state);
         //std::cout << "wTp    : " << wTp << std::endl;
         //std::cout << "wTb_ode: " << ODEUtil::getODEBodyT3D(_bodyId) << std::endl;
 
@@ -214,7 +214,7 @@ void ODEBody::postupdate(rw::kinematics::State& state){
     break;
     case(ODEBody::KINEMATIC): {
 
-        Transform3D<> wTp = rw::kinematics::Kinematics::worldTframe( _mframe->getParent(), state);
+        Transform3D<> wTp = rw::kinematics::Kinematics::worldTframe( _mframe->getParent(state), state);
         Transform3D<> pTb = inverse(wTp) * ODEUtil::getODEBodyT3D(_bodyId);
         pTb.P() -= pTb.R()*_offset;
         _mframe->setTransform( pTb , state );

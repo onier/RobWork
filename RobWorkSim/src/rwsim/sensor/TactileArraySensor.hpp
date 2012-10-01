@@ -37,7 +37,7 @@
 
 namespace rwsim {
 namespace sensor {
-	//! @addtogroup dynamics
+	//! @addtogroup rwsim_dynamics
 	//! @{
 
 	/**

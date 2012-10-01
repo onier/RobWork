@@ -21,6 +21,7 @@
 #include <rwlibs/swig/ScriptTypes.hpp>
 #include <rwsim/dynamics/DynamicWorkCell.hpp>
 #include <rwsim/dynamics/DynamicDevice.hpp>
+#include <rwsim/dynamics/SuctionCup.hpp>
 #include <rwsim/dynamics/Body.hpp>
 #include <rwsim/dynamics/BodyUtil.hpp>
 #include <rwsim/dynamics/RigidBody.hpp>
@@ -59,6 +60,7 @@ namespace swig {
     typedef rwsim::dynamics::BodyInfo BodyInfo;
     typedef rwsim::dynamics::DynamicDevice DynamicDevice;
     typedef rwsim::dynamics::RigidDevice RigidDevice;
+    typedef rwsim::dynamics::SuctionCup SuctionCup;
     typedef rwsim::control::PoseController PoseController;
 
     // for now we add all static functions here

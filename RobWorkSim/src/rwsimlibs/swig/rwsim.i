@@ -69,6 +69,8 @@ public:
 
     const BodyInfo& getInfo() const;
     BodyInfo& getInfo();
+
+    const std::string& getName() const;
     const std::string& getMaterialID() const;
     const InertiaMatrix& getInertia() const;
 
@@ -270,7 +272,44 @@ class RigidDevice : public DynamicDevice {
         // void setVelocity(Q& vel, rw::kinematics::State& state){ setJointVelocities(vel, state);}
     };
 
+%nodefaultctor SuctionCup;
+class SuctionCup : public DynamicDevice {
+public:
 
+    rw::common::Ptr<Body> getBaseBody();
+
+    rw::common::Ptr<Body> getEndBody();
+
+    //void addToWorkCell(rwsim::dynamics::DynamicWorkCell::Ptr dwc);
+
+    double getRadius();
+
+    double getHeight();
+
+    Q getSpringParamsOpen();
+
+    Q getSpringParamsClosed();
+
+    Q getJointVelocities(const State& state);
+
+    void setJointVelocities(const Q &vel, State& state);
+
+    void addForceTorque(const Q &forceTorque, rw::kinematics::State& state);
+
+    Transform3D getOffset();
+
+    std::vector<rw::common::Ptr<Body> > getLinks();
+
+    bool isClosed(const State& state);
+    void setClosed(bool closed, State& state);
+
+    rw::common::Ptr<Body> getContactBody(const State& state);
+    void setContactBody(rw::common::Ptr<Body> b, State& state);
+
+    double getPressure(const State& state);
+    void setPressure(double pressure, State& state);
+
+};
 
 class DynamicWorkCell
 {
@@ -347,9 +386,12 @@ public:
 
         rw::common::Ptr<RigidDevice> findRigidDevice(const std::string& name)
         { return $self->DynamicWorkCell::findDevice<RigidDevice>(name); }
-        //KinematicBody* findKinematicBody(const std::string& name)
-        //{ return $self->DynamicWorkCell::findBody<KinematicBody>(name).get(); }
+        rw::common::Ptr<SuctionCup> findSuctionCup(const std::string& name)
+        { return $self->DynamicWorkCell::findDevice<SuctionCup>(name); }
 
+        void setGravity(double x, double y, double z){
+            $self->DynamicWorkCell::setGravity( rw::math::Vector3D<>(x,y,z) );
+        }
 
     };
 
