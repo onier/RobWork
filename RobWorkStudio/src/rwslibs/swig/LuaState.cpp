@@ -8,7 +8,7 @@
  *
  *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * Unless required by applicable law or agreed to in writing, software
+ * Unless r2eewewqw6t565463323equired by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
@@ -20,6 +20,7 @@
 #include <rwlibs/swig/ScriptTypes.hpp>
 #include <rwlibs/swig/Lua.hpp>
 #include "ScriptTypes.hpp"
+#include "Lua.hpp"
 
 using namespace rws;
 
@@ -55,7 +56,7 @@ void LuaState::reset(){
 
     rwlibs::swig::openLuaLibRW( _lua );
 
-    luaopen_rws(_lua);
+    rwslibs::swig::openLuaLibRWS( _lua );
 
     rws::swig::setRobWorkStudio( _rws );
 
