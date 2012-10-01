@@ -313,6 +313,9 @@ bool ProximityStrategyPQP::inCollision(
                 tolerance,
                 qdata.cache->_toleranceResult);
 
+            data.getCollisionData()._nrBVTests += qdata.cache->_toleranceResult.NumBVTests();
+            data.getCollisionData()._nrPrimTests += qdata.cache->_toleranceResult.NumTriTests();
+
             if (qdata.cache->_toleranceResult.CloserThanTolerance() != 0){
                 return true;
             }
@@ -378,8 +381,12 @@ bool ProximityStrategyPQP::inCollision(ProximityModel::Ptr aModel,
                 qdata.cache->_collideResult,
                 firstContact);
 
+            data._nrBVTests += qdata.cache->_collideResult.NumBVTests();
+            data._nrPrimTests += qdata.cache->_collideResult.NumTriTests();
+
             _numBVTests += qdata.cache->_collideResult.NumBVTests();
             _numTriTests += qdata.cache->_collideResult.NumTriTests();
+
             if (qdata.cache->_collideResult.Colliding() != 0){
             	data.a = aModel;
             	data.b = bModel;

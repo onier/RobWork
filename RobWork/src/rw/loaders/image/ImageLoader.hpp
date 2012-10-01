@@ -62,6 +62,35 @@ namespace rw { namespace loaders {
 		};
 		*/
 
+
+        /**
+         * @ingroup extensionpoints
+         *
+         * @brief a factory for ImageLoader. This factory also defines an
+         * extension point for image loaders.
+         *
+         *
+         */
+#ifdef skdnmfdslknf
+        class Factory: public ExtensionPoint<ImageLoader> {
+        public:
+            Factory():ExtensionPoint<ImageLoader>("rw.loaders.ImageLoader", "Example extension point"){};
+
+            /**
+             * @brief get an image loader for a specific file format
+             * @param
+             * @return
+             */
+            static std::vector<rw::common::Ptr<Extension> > getImageLoader(const std::string& format);
+            static std::vector<rw::common::Ptr<Extension> > hasImageLoader(const std::string& format);
+
+            /**
+             * @brief get a list of supported formats
+             * @return
+             */
+            static std::vector<std::string> getSupportedFormats();
+        };
+#endif
 	};
 	/*@}*/
 }}

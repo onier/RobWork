@@ -25,6 +25,7 @@
 #include "Box.hpp"
 #include "Cylinder.hpp"
 #include "Sphere.hpp"
+#include "PointCloud.hpp"
 
 /*
 #include "Line.hpp"
@@ -44,7 +45,7 @@ using namespace rw::math;
 namespace
 {
     const std::string extensionsArray[] = {
-        /*".TRI", ".AC", ".AC3D", ".3DS", ".IVG",*/ ".STL", ".STLA", ".STLB"
+        /*".TRI", ".AC", ".AC3D", ".3DS", ".IVG",*/ ".STL", ".STLA", ".STLB", ".PCD",
     };
 
     const int extensionCount = sizeof(extensionsArray) / sizeof(extensionsArray[0]);
@@ -170,6 +171,14 @@ Geometry::Ptr GeometryFactory::getGeometry(const std::string& raw_filename, bool
 				RW_THROW("Reading of geometry failed!");
 			getCache().add(filename, data);
 			return ownedPtr(new Geometry(getCache().get(filename)));
+		} else if( filetype==".PCD" ) {
+		    GeometryData::Ptr data = PointCloud::loadPCD(filename);
+
+            if( data == NULL )
+                RW_THROW("Reading of geometry failed!");
+            getCache().add(filename, data);
+            return ownedPtr(new Geometry(getCache().get(filename)));
+
 		} else {
 		    RW_THROW(
 				"Unknown extension "

@@ -50,6 +50,7 @@ SET(FILES_CPP
     TriDistanceCalc.cpp
     TriTriToleranceIntersect.cpp
     TriMeshSurfaceSampler.cpp
+    PointCloud.cpp
 )
 
 SET(FILES_HPP
@@ -106,7 +107,7 @@ SET(FILES_HPP
     TriDistanceCalc.hpp
     TriTriToleranceIntersect.hpp
     TriMeshSurfaceSampler.hpp
-    
+    PointCloud.hpp
 )
 
 SOURCE_GROUP(geometry FILES ${FILES_CPP} ${FILES_HPP})

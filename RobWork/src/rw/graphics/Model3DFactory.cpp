@@ -36,7 +36,7 @@
 #include <rw/geometry/Geometry.hpp>
 #include <rw/geometry/GeometryFactory.hpp>
 #include <rw/geometry/STLFile.hpp>
-
+#include <rw/sensor/Image25D.hpp>
 #include <string>
 #include <istream>
 #include <sstream>
@@ -48,11 +48,12 @@ using namespace rw;
 using namespace rw::common;
 using namespace rw::geometry;
 using namespace rw::graphics;
+using namespace rw::sensor;
 
 namespace
 {
     const std::string extensionsArray[] = {
-        ".TRI", ".AC", ".AC3D", ".3DS", ".OBJ", ".IVG", ".STL", ".STLA", ".STLB"
+        ".TRI", ".AC", ".AC3D", ".3DS", ".OBJ", ".IVG", ".STL", ".STLA", ".STLB", ".PCD"
     };
 
     const int extensionCount = sizeof(extensionsArray) / sizeof(extensionsArray[0]);
@@ -144,6 +145,10 @@ Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const st
 
         getCache().add(filename, model, moddate);
         return getCache().get(filename);
+    } else if (filetype == ".PCD") {
+        Image25D::Ptr img = Image25D::load(filename );
+
+
     } else if (filetype == ".3DS") {
     	//std::cout << "loading 3ds file!" << std::endl;
     	Loader3DS loader;
