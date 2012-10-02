@@ -23,7 +23,7 @@
 #include "Log.hpp"
 #include "Message.hpp"
 
-#define BOOST_FILESYSTEM_VERSION 2
+#define BOOST_FILESYSTEM_VERSION 3
 
 #include <boost/filesystem.hpp>
 #include <boost/filesystem/operations.hpp>
@@ -259,14 +259,14 @@ void IOUtil::getFilesInFolder(const std::string& path, const std::string& fileMa
 	        if (!boost::filesystem::is_regular_file(it->status())) //If not a regular file
                 continue;
 
-            std::string filename = it->path().filename();
+            std::string filename = it->path().filename().string();
             if (!boost::regex_match(filename.c_str(), match, regex)) 
                 continue;
 
 	        if (addPath)
 		        result.push_back(it->path().string());
 	        else
-                result.push_back(it->path().filename());		        
+                result.push_back(it->path().filename().string());		        
         }
     }
     catch (const std::exception& e)
@@ -287,13 +287,13 @@ std::vector<std::string> IOUtil::getFilesInFolder(const std::string& path, bool 
 
 size_t IOUtil::getFileSize(const std::string& filename){
     namespace fs = boost::filesystem;
-    fs::path p( filename, fs::native );
+    fs::path p( filename );
     return (size_t)fs::file_size( p );
 }
 
 std::time_t IOUtil::getLastFileWrite(const std::string& filename){
     namespace fs = boost::filesystem;
-    fs::path p( filename, fs::native );
+    fs::path p( filename );
     std::time_t ft = fs::last_write_time( p );
     return ft;
 }
