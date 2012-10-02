@@ -1,28 +1,20 @@
 <!DOCTYPE SerialDeviceCalibration>
 <SerialDeviceCalibration>
  <BaseFrameCalibration>
-  <FrameCalibration isPreCorrection="1" frame="SomeDevice.Base">
-   <Transform>0.9872341017549622 0.1527931721714095 -0.04497860457896885 0.1922941548113696 -0.1540727687934828 0.9877043857809515 -0.0264882658055123 -0.07195674725972979 0.04037833885121102 0.03308009744350058 0.9986367191850826 -0.1288449591330142</Transform>
-  </FrameCalibration>
+  <FixedFrameCalibration isPreCorrection="1" frame="SomeDevice.Base">
+   <Transform>0.7416978149095892 -0.6706892121221824 -0.007767374155211383 0.1434649533887924 0.4170941848367111 0.4521227281128913 0.788427219024785 0.3441436035414756 -0.5252778239500883 -0.5880144721575166 0.6150790097211715 -1.682780937057464</Transform>
+  </FixedFrameCalibration>
  </BaseFrameCalibration>
  <EndFrameCalibration>
-  <FrameCalibration isPreCorrection="0" frame="SomeDevice.Marker">
-   <Transform>0.9575621184233676 0.2878488038532891 0.01475992821065506 -0.0002958830499978369 -0.287583545773884 0.9575907447018198 -0.01776710053820066 0.002981535626736261 -0.01924820928484877 0.01276838993941221 0.9997332017381846 0.02897390406576248</Transform>
-  </FrameCalibration>
+  <FixedFrameCalibration isPreCorrection="0" frame="SomeDevice.Marker">
+   <Transform>0.9575636366116208 0.2878438345648296 0.01475834483072797 -0.000294424261482096 -0.2875785155125603 0.9575921772579015 -0.017771310308025 0.002977993630751832 -0.01924783766348309 0.0127729776280628 0.9997331502895127 0.02897361148026515</Transform>
+  </FixedFrameCalibration>
  </EndFrameCalibration>
  <DHParameterCalibrations>
-  <DHParameterCalibration offset="0" joint="SomeDevice.Joint2" alpha="0.004601294174758668" type="schilling" a="0.007656342932348783" d="0"/>
-  <DHParameterCalibration offset="0.007187389727682147" joint="SomeDevice.Joint3" alpha="-0.005733401080688781" type="HGP" a="-0.002100367458163849" b="-0.006706218268270145"/>
-  <DHParameterCalibration offset="0.001367361953527763" joint="SomeDevice.Joint4" alpha="-0.0163320919370157" type="HGP" a="-0.01212736289872899" b="-3.875764876459232e-05"/>
-  <DHParameterCalibration offset="0.04143463293571113" joint="SomeDevice.Joint5" alpha="-0.01959733362352702" type="schilling" a="-0.002693880745631557" d="0.005508902271217368"/>
-  <DHParameterCalibration offset="-0.008404921957598378" joint="SomeDevice.Joint6" alpha="0.01612871133719104" type="schilling" a="-0.002008610156398849" d="0.002776912737964307"/>
+  <DHParameterCalibration offset="0" joint="SomeDevice.Joint2" alpha="0.004601997422194031" type="schilling" a="0.007623431456321238" d="0"/>
+  <DHParameterCalibration offset="0.00715839320585632" joint="SomeDevice.Joint3" alpha="-0.005701163387050859" type="HGP" a="-0.002099037881729294" b="-0.006758605306771865"/>
+  <DHParameterCalibration offset="0.001363136782590965" joint="SomeDevice.Joint4" alpha="-0.01633249700466906" type="HGP" a="-0.01212597840918533" b="-5.482418785779284e-05"/>
+  <DHParameterCalibration offset="0.04147003509651109" joint="SomeDevice.Joint5" alpha="-0.01959457798465148" type="schilling" a="-0.002691986758954116" d="0.005500233145449537"/>
+  <DHParameterCalibration offset="-0.008405027524852815" joint="SomeDevice.Joint6" alpha="0.01612161318201019" type="schilling" a="-0.002011263656577972" d="0.002777750023474103"/>
  </DHParameterCalibrations>
- <JointEncoderCalibrations>
-  <JointEncoderCalibration tau="-0.0001083846538026777" joint="SomeDevice.Joint1" sigma="0.0001067137626549196"/>
-  <JointEncoderCalibration tau="0.0001699333799770806" joint="SomeDevice.Joint2" sigma="2.398547504020562e-05"/>
-  <JointEncoderCalibration tau="-3.106873521728959e-07" joint="SomeDevice.Joint3" sigma="-0.000327682862631457"/>
-  <JointEncoderCalibration tau="-0.0001812144559141131" joint="SomeDevice.Joint4" sigma="-0.0001092882181732139"/>
-  <JointEncoderCalibration tau="-2.377797547538001e-06" joint="SomeDevice.Joint5" sigma="-3.008173611880186e-05"/>
-  <JointEncoderCalibration tau="-8.605280689312925e-05" joint="SomeDevice.Joint6" sigma="-0.0001909976098499892"/>
- </JointEncoderCalibrations>
 </SerialDeviceCalibration>

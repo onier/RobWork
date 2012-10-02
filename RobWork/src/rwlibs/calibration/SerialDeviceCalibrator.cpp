@@ -7,9 +7,8 @@
 
 #include "SerialDeviceCalibrator.hpp"
 
-#include "NLLSSolver.hpp"
+#include "nlls/NLLSSolver.hpp"
 #include <Eigen/Eigenvalues>
-#include <rw/models/DHParameterSet.hpp>
 
 namespace rwlibs {
 namespace calibration {
@@ -44,23 +43,23 @@ Calibration::Ptr SerialDeviceCalibrator::getCalibration() const {
 	return _calibration;
 }
 
-int SerialDeviceCalibrator::getMinimumMeasurementCount() const {
+unsigned int SerialDeviceCalibrator::getMinimumMeasurementCount() const {
 	return ceil(_calibration->getParameterCount() / 6);
 }
 
-const std::vector<SerialDevicePoseMeasurement::Ptr>& SerialDeviceCalibrator::getMeasurements() const {
+const std::vector<DevicePoseMeasurement::Ptr>& SerialDeviceCalibrator::getMeasurements() const {
 	return _measurements;
 }
 
-void SerialDeviceCalibrator::addMeasurement(SerialDevicePoseMeasurement::Ptr measurement) {
+void SerialDeviceCalibrator::addMeasurement(DevicePoseMeasurement::Ptr measurement) {
 	_measurements.push_back(measurement);
 }
 
 void SerialDeviceCalibrator::addMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix) {
-	_measurements.push_back(rw::common::ownedPtr(new SerialDevicePoseMeasurement(q, pose, covarianceMatrix)));
+	_measurements.push_back(rw::common::ownedPtr(new DevicePoseMeasurement(q, pose, covarianceMatrix)));
 }
 
-void SerialDeviceCalibrator::setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
+void SerialDeviceCalibrator::setMeasurements(const std::vector<DevicePoseMeasurement::Ptr>& measurements) {
 	_measurements = measurements;
 }
 
@@ -106,7 +105,7 @@ void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians) 
 	computeJacobian(stackedJacobians, _measurements);
 }
 
-void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
+void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, const std::vector<DevicePoseMeasurement::Ptr>& measurements) {
 	const unsigned int measurementCount = measurements.size();
 	const unsigned int parameterCount = _calibration->getParameterCount();
 
@@ -134,7 +133,7 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals)
 	computeResiduals(stackedResiduals, _measurements);
 }
 
-void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
+void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals, const std::vector<DevicePoseMeasurement::Ptr>& measurements) {
 	const unsigned int measurementCount = measurements.size();
 
 	stackedResiduals.resize(6 * measurementCount);
@@ -150,11 +149,12 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals,
 
 		// Setup residual vector.
 		const Pose6D<double> pose = measurements[measurementIndex]->getPose();
-		stackedResiduals.segment<3>(6 * measurementIndex) = -(pose.translation() - tfmToMarker.translation());
-		const Eigen::Matrix3d dR = pose.rotation() * tfmToMarker.linear().transpose();
-		stackedResiduals(6 * measurementIndex + 3) = -(dR(2, 1) - dR(1, 2)) / 2;
-		stackedResiduals(6 * measurementIndex + 4) = -(dR(0, 2) - dR(2, 0)) / 2;
-		stackedResiduals(6 * measurementIndex + 5) = -(dR(1, 0) - dR(0, 1)) / 2;
+		const Eigen::Vector3d dp = tfmToMarker.translation() - pose.translation();
+		stackedResiduals.segment<3>(6 * measurementIndex) = dp;
+		const Eigen::Matrix3d dR = tfmToMarker.linear() * pose.rotation().matrix().transpose();
+		stackedResiduals(6 * measurementIndex + 3) = (dR(2, 1) - dR(1, 2)) / 2;
+		stackedResiduals(6 * measurementIndex + 4) = (dR(0, 2) - dR(2, 0)) / 2;
+		stackedResiduals(6 * measurementIndex + 5) = (dR(1, 0) - dR(0, 1)) / 2;
 
 		if (_weight) {
 			const Eigen::Matrix<double, 6, 6> weightMatrix =

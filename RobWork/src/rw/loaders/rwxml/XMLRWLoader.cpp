@@ -65,6 +65,7 @@
 
 #ifdef RW_HAVE_EIGEN
 #include <rwlibs/calibration/SerialDeviceCalibration.hpp>
+#include <rwlibs/calibration/XmlCalibrationLoader.hpp>
 #endif
 
 using namespace rw::math;
@@ -508,8 +509,8 @@ Device::Ptr createDevice(DummyDevice &dev, DummySetup &setup) {
 			std::string filename = StringUtil::getDirectoryName(dummyCalibration._pos.file) + "/" + dummyCalibration._filename;
 
 			// load and apply calibration
-			rwlibs::calibration::SerialDeviceCalibration::Ptr calibration = rwlibs::calibration::SerialDeviceCalibration::load(setup.tree,
-					model.cast<SerialDevice>(), filename);
+			rwlibs::calibration::SerialDeviceCalibration::Ptr calibration = rwlibs::calibration::XmlCalibrationLoader::load(filename, setup.tree,
+					model.cast<SerialDevice>());
 			rwlibs::calibration::SerialDeviceCalibration::set(calibration, model.cast<SerialDevice>());
 			calibration->apply();
 		}

@@ -52,7 +52,7 @@ public:
 
 	Eigen::Affine3d operator*(const Eigen::Affine3d& other) const;
 
-	Pose6D<double> operator*(const Pose6D<double>& other) const;
+	Pose6D<Scalar> operator*(const Pose6D<Scalar>& other) const;
 
 	operator Eigen::Affine3d() const;
 
@@ -62,6 +62,9 @@ public:
 
 	static Pose6D<Scalar> Zero();
 };
+
+typedef Pose6D<float> Pose6Df;
+typedef Pose6D<double> Pose6Dd;
 
 template<typename Scalar>
 inline Pose6D<Scalar>::Pose6D() :
@@ -155,9 +158,9 @@ inline Eigen::Affine3d Pose6D<Scalar>::operator*(
 }
 
 template<typename Scalar>
-inline Pose6D<double> Pose6D<Scalar>::operator*(
-		const Pose6D<double>& other) const {
-	return Pose6D<double>(this->toTransform() * other.toTransform());
+inline Pose6D<Scalar> Pose6D<Scalar>::operator*(
+		const Pose6D<Scalar>& other) const {
+	return Pose6D<Scalar>(this->toTransform() * other.toTransform());
 }
 
 template<typename Scalar>
@@ -167,7 +170,7 @@ inline Pose6D<Scalar>::operator Eigen::Affine3d() const {
 
 template<typename Scalar>
 inline Pose6D<Scalar> Pose6D<Scalar>::Zero() {
-	return Eigen::Matrix<double, 6, 1>::Zero();
+	return Eigen::Matrix<Scalar, 6, 1>::Zero();
 }
 
 }

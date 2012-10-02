@@ -25,6 +25,7 @@ add_subdirectory(planning)
 add_subdirectory(sensors)
 add_subdirectory(luaeditor)
 add_subdirectory(lua)
+add_subdirectory(calibration)
 # depends on all above
 add_subdirectory(rwstudioapp)
 # this needs to be last

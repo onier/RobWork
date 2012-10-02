@@ -19,9 +19,6 @@ bool Calibration::isLocked() const {
 }
 
 void Calibration::setLocked(bool isLocked) {
-	if (_isApplied)
-		RW_THROW("Already applied.");
-
 	_isLocked = isLocked;
 }
 
@@ -52,8 +49,6 @@ void Calibration::revert() {
 }
 
 void Calibration::correct(rw::kinematics::State& state) {
-	if (_isLocked)
-		RW_THROW("Locked.");
 	if (!_isApplied)
 		RW_WARN("Not applied.");
 

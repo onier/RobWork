@@ -27,53 +27,49 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 
 	// Find device and frames.
 	BOOST_TEST_CHECKPOINT("Finding device");
-	rw::models::SerialDevice::Ptr serialDevice = workCell->findDevice(deviceName).cast<rw::models::SerialDevice>();
-	BOOST_REQUIRE_MESSAGE(!serialDevice.isNull(), "Device not found.");
+	rw::models::SerialDevice::Ptr device = workCell->findDevice(deviceName).cast<rw::models::SerialDevice>();
+	BOOST_REQUIRE_MESSAGE(!device.isNull(), "Device not found.");
 	BOOST_TEST_CHECKPOINT("Finding reference frame");
 	rw::kinematics::Frame::Ptr referenceFrame = workCell->findFrame(referenceFrameName);
 	BOOST_REQUIRE_MESSAGE(!referenceFrame.isNull(), "Reference frame not found.");
 	BOOST_TEST_CHECKPOINT("Finding measurement frame");
-	rw::kinematics::Frame::Ptr measurementFrame = serialDevice->getEnd();
+	rw::kinematics::Frame::Ptr measurementFrame = device->getEnd();
 	BOOST_REQUIRE_MESSAGE(!referenceFrame.isNull(), "Measurement frame not found.");
 
 	// Find current calibration.
 	BOOST_TEST_CHECKPOINT("Getting existing calibration");
-	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibrationLast = rwlibs::calibration::SerialDeviceCalibration::get(serialDevice);
+	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibrationLast = rwlibs::calibration::SerialDeviceCalibration::get(device);
 	BOOST_CHECK_MESSAGE(!serialDeviceCalibrationLast.isNull(), "Existing calibration not found.");
 	serialDeviceCalibrationLast->revert();
 
 	// Load robot pose measurements from file.
 	BOOST_TEST_CHECKPOINT("Loading measurements");
-	std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> serialDevicePoseMeasurementList = rwlibs::calibration::SerialDevicePoseMeasurementList::load(
-			measurementFilePath);
-	BOOST_CHECK_MESSAGE(serialDevicePoseMeasurementList.size() == 400, "Measurement list does not contain 400 measurements.");
+	std::vector<rwlibs::calibration::DevicePoseMeasurement::Ptr> measurements = rwlibs::calibration::XmlMeasurementFile::load(measurementFilePath);
+	BOOST_CHECK_MESSAGE(measurements.size() == 400, "Measurement list does not contain 400 measurements.");
 
 	// Initialize calibration, jacobian and calibrator.
 	BOOST_TEST_CHECKPOINT("Initializing calibration");
-	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration(
-			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
-//	serialDeviceJacobian->getBaseJacobian()->setEnabled(false);
-//	serialDeviceJacobian->getEndJacobian()->setEnabled(false);
-//	serialDeviceJacobian->setDHParameterJacobiansEnabled(false);
-//	serialDeviceJacobian->setEncoderDecentralizationJacobiansEnabled(false);
+	rwlibs::calibration::SerialDeviceCalibration::Ptr calibration(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(device)));
+//	calibration->getCompositeDHParameterCalibration()->setLocked(true);
 
 	BOOST_TEST_CHECKPOINT("Initializing calibrator");
-	rwlibs::calibration::SerialDeviceCalibrator::Ptr serialDeviceCalibrator(
-			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, state, referenceFrame, measurementFrame, serialDeviceCalibration)));
-	serialDeviceCalibrator->setMeasurements(serialDevicePoseMeasurementList);
-	serialDeviceCalibrator->setWeight(false);
+	rwlibs::calibration::SerialDeviceCalibrator::Ptr calibrator(
+			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(device, state, referenceFrame, measurementFrame, calibration)));
+	calibrator->setMeasurements(measurements);
+	calibrator->setWeight(false);
 
 	try {
 		// Run calibrator.
 		BOOST_TEST_CHECKPOINT("Calibrating");
-		serialDeviceCalibrator->calibrate();
+		calibrator->calibrate();
 	} catch (rw::common::Exception& ex) {
 		BOOST_FAIL(ex.getMessage());
 	}
 
 	// Save and load calibration.
 	BOOST_TEST_CHECKPOINT("Saving and loading calibration");
-	serialDeviceCalibration->save(calibrationFilePath);
-	rwlibs::calibration::SerialDeviceCalibration::Ptr calibrationLoaded = rwlibs::calibration::SerialDeviceCalibration::load(workCell->getStateStructure(), serialDevice, calibrationFilePath);
+	rwlibs::calibration::XmlCalibrationSaver::save(calibration, calibrationFilePath);
+	rwlibs::calibration::SerialDeviceCalibration::Ptr calibrationLoaded = rwlibs::calibration::XmlCalibrationLoader::load(calibrationFilePath,
+			workCell->getStateStructure(), device);
 	BOOST_CHECK_MESSAGE(!calibrationLoaded.isNull(), "Save and load failed.");
 }

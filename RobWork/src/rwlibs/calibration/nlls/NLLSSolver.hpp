@@ -13,6 +13,7 @@
 #include "NLLSSystem.hpp"
 #include <Eigen/Core>
 #include <Eigen/SVD>
+#include <QtCore>
 
 namespace rwlibs {
 namespace calibration {

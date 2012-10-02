@@ -41,20 +41,20 @@ void DHParameterCalibration::setLockedParameters(bool a, bool length, bool alpha
 }
 
 void DHParameterCalibration::doApply() {
-	rw::models::DHParameterSet current = *rw::models::DHParameterSet::get(_joint.get());
+	rw::models::DHParameterSet currentSet = *rw::models::DHParameterSet::get(_joint.get());
 
-	double alpha = current.alpha() + _dhParameterSet.alpha();
-	double a = current.a() + _dhParameterSet.a();
-	if (current.isParallel()) {
-		double beta = current.beta() + _dhParameterSet.beta();
-		double b = current.b() + _dhParameterSet.b();
+	double alpha = currentSet.alpha() + _dhParameterSet.alpha();
+	double a = currentSet.a() + _dhParameterSet.a();
+	if (currentSet.isParallel()) {
+		double beta = currentSet.beta() + _dhParameterSet.beta();
+		double b = currentSet.b() + _dhParameterSet.b();
 		rw::models::DHParameterSet dhParameterSet(alpha, a, beta, b, true);
 		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
 	} else {
-		double d = current.d() + _dhParameterSet.d();
-		double theta = current.theta() + _dhParameterSet.theta();
-		rw::models::DHParameterSet dhParameterSet(alpha, a, d, theta, current.getType());
+		double d = currentSet.d() + _dhParameterSet.d();
+		double theta = currentSet.theta() + _dhParameterSet.theta();
+		rw::models::DHParameterSet dhParameterSet(alpha, a, d, theta, currentSet.getType());
 		rw::models::DHParameterSet::set(dhParameterSet, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
 	}

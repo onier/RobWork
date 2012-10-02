@@ -14,16 +14,16 @@
 namespace rwlibs {
 namespace calibration {
 
-void XmlMeasurementFile::save(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements, std::string fileName) {
-	QDomDocument document("SerialDevicePoseMeasurements");
+void XmlMeasurementFile::save(const std::vector<DevicePoseMeasurement::Ptr>& measurements, std::string fileName) {
+	QDomDocument document("DevicePoseMeasurements");
 
-	QDomElement elmRoot = document.createElement("SerialDevicePoseMeasurements");
+	QDomElement elmRoot = document.createElement("DevicePoseMeasurements");
 	document.appendChild(elmRoot);
 
-	for (std::vector<SerialDevicePoseMeasurement::Ptr>::const_iterator it = measurements.begin(); it != measurements.end(); ++it) {
-		SerialDevicePoseMeasurement::Ptr measurement = (*it);
+	for (std::vector<DevicePoseMeasurement::Ptr>::const_iterator it = measurements.begin(); it != measurements.end(); ++it) {
+		DevicePoseMeasurement::Ptr measurement = (*it);
 
-		QDomElement elmMeasurement = document.createElement("SerialDevicePoseMeasurement");
+		QDomElement elmMeasurement = document.createElement("DevicePoseMeasurement");
 
 		QDomElement elmState = document.createElement("Q");
 		QString stateTxt;
@@ -60,23 +60,23 @@ void XmlMeasurementFile::save(const std::vector<SerialDevicePoseMeasurement::Ptr
 	textStream << document.toString();
 }
 
-std::vector<SerialDevicePoseMeasurement::Ptr> XmlMeasurementFile::load(std::string fileName) {
+std::vector<DevicePoseMeasurement::Ptr> XmlMeasurementFile::load(std::string fileName) {
 	QFile file(QString::fromStdString(fileName));
 	file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate);
 
-	QDomDocument document("SerialDevicePoseMeasurements");
+	QDomDocument document("DevicePoseMeasurements");
 	if (!document.setContent(&file))
 		RW_THROW("Content not set.");
 
 	QDomElement elmRoot = document.documentElement();
-	if (elmRoot.tagName() != "SerialDevicePoseMeasurements")
+	if (elmRoot.tagName() != "DevicePoseMeasurements")
 		RW_THROW("Root element not found.");
 
 	QDomNode node = elmRoot.firstChild();
-	std::vector<SerialDevicePoseMeasurement::Ptr> measurements;
+	std::vector<DevicePoseMeasurement::Ptr> measurements;
 	while (!node.isNull()) {
 		QDomElement element = node.toElement();
-		if (!element.isNull() && element.tagName() == "SerialDevicePoseMeasurement") {
+		if (!element.isNull() && element.tagName() == "DevicePoseMeasurement") {
 			QDomElement elmState = element.namedItem("Q").toElement();
 			QStringList txtStateSplitted = elmState.text().split(" ");
 			int stateSize = txtStateSplitted.count();
@@ -102,7 +102,7 @@ std::vector<SerialDevicePoseMeasurement::Ptr> XmlMeasurementFile::load(std::stri
 				for (int colNo = 0; colNo < 6; colNo++)
 					covariance(rowNo, colNo) = txtCovarianceMatrixSplitted[rowNo * 6 + colNo].toDouble();
 
-			measurements.push_back(rw::common::ownedPtr(new SerialDevicePoseMeasurement(q, pose, covariance)));
+			measurements.push_back(rw::common::ownedPtr(new DevicePoseMeasurement(q, pose, covariance)));
 		}
 
 		node = node.nextSibling();

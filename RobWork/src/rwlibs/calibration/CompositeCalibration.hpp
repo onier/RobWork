@@ -12,24 +12,51 @@
 
 namespace rwlibs {
 namespace calibration {
+/** @addtogroup calibration */
+/*@{*/
 
+/**
+ * @brief CompositeCalibration combines several calibrations.
+ *
+ * T can be Calibration or subclasses thereof.
+ */
 template<class T>
 class CompositeCalibration: public Calibration {
 public:
 	typedef rw::common::Ptr<CompositeCalibration> Ptr;
 	typedef typename std::vector<rw::common::Ptr<T> >::iterator iterator;
 
+	/**
+	* @brief Constructor.
+	*/
 	CompositeCalibration();
 
+	/**
+	* @brief Destructor.
+	*/
 	virtual ~CompositeCalibration();
 
+	/**
+	* @brief Returns a reference to a vector with pointers to the Calibration(s) in the CompositeCalibration.
+	* @return std::vector with pointers to Calibration(s)
+	*/
 	const std::vector<rw::common::Ptr<T> >& getCalibrations() const;
 
+    /**
+    * @brief Add calibration.
+    * @param calibration [in] pointer to calibration
+    */
 	void add(rw::common::Ptr<T> calibration);
 
 protected:
+	/**
+	 * @brief Apply all calibrations.
+	 */
 	virtual void doApply();
 
+	/**
+	 * @brief Revert all calibrations.
+	 */
 	virtual void doRevert();
 
 	virtual void doCorrect(rw::kinematics::State& state);
@@ -129,6 +156,7 @@ void CompositeCalibration<T>::doStep(const Eigen::VectorXd& step) {
 	}
 }
 
+/*@}*/
 }
 }
 

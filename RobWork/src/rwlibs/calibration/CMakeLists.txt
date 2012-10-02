@@ -2,46 +2,46 @@ SET(SUBSYS_NAME rw_calibration)
 SET(SUBSYS_DESC "Calibration of devices")
 SET(SUBSYS_DEPS rw ${QT_LIBRARIES})
 
-IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
-	set(build TRUE)
-	RW_SUBSYS_OPTION(build ${SUBSYS_NAME} ${SUBSYS_DESC} ON)
-	RW_SUBSYS_DEPEND(build ${SUBSYS_NAME} DEPS ${SUBSYS_DEPS})
-	RW_ADD_DOC(${SUBSYS_NAME})
+set(build ${RW_HAVE_EIGEN} AND ${RW_HAVE_QT})
+RW_SUBSYS_OPTION(build ${SUBSYS_NAME} ${SUBSYS_DESC} ${RW_HAVE_EIGEN} AND ${RW_HAVE_QT})
+RW_SUBSYS_DEPEND(build ${SUBSYS_NAME} DEPS ${SUBSYS_DEPS})
+RW_ADD_DOC(${SUBSYS_NAME})
 
+IF( build )
 	SET(SRC_FILES
+		nlls/NLLSIterationLog.cpp
+		nlls/NLLSSolver.cpp
+		nlls/NLLSSolverLog.cpp
+		nlls/NLLSSystem.cpp
 		Calibration.cpp
 		CompositeCalibration.cpp
+		DevicePoseMeasurement.cpp
 		DHParameterCalibration.cpp
-#		EncoderParameterCalibration.cpp
+	#	EncoderParameterCalibration.cpp
 		FixedFrameCalibration.cpp
-		NLLSIterationLog.cpp
-		NLLSSolver.cpp
-		NLLSSolverLog.cpp
-		NLLSSystem.cpp
 		SerialDeviceCalibration.cpp
 		SerialDeviceCalibrator.cpp
-		SerialDevicePoseMeasurement.cpp
 		XmlCalibrationLoader.cpp
 		XmlCalibrationSaver.cpp
 		XmlMeasurementFile.cpp
 	)
     
 	SET(SRC_FILES_HPP
+		nlls/NLLSIterationLog.hpp
+		nlls/NLLSSolver.hpp
+		nlls/NLLSSolverLog.hpp
+		nlls/NLLSSystem.hpp
 		Calibration.hpp
 		CompositeCalibration.hpp
+		DevicePoseMeasurement.hpp
 		DHParameterCalibration.hpp
 		EigenTransformAddons.hpp
-#		EncoderParameterCalibration.hpp
+	#	EncoderParameterCalibration.hpp
 		FixedFrameCalibration.hpp
-		NLLSIterationLog.hpp
-		NLLSSolver.hpp
-		NLLSSolverLog.hpp
-		NLLSSystem.hpp
 		Pose6D.hpp
 		RPY.hpp
 		SerialDeviceCalibration.hpp
 		SerialDeviceCalibrator.hpp
-		SerialDevicePoseMeasurement.hpp
 		XmlCalibrationLoader.hpp
 		XmlCalibrationSaver.hpp
 		XmlMeasurementFile.hpp
@@ -52,4 +52,3 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 	TARGET_LINK_LIBRARIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
 	ADD_DEPENDENCIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
 ENDIF()
-
