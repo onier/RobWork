@@ -38,7 +38,7 @@ public:
 
 	static EncoderParameterCalibration::Ptr fromXml(const QDomElement& element, rw::kinematics::StateStructure::Ptr stateStructure, rw::models::JointDevice::Ptr jointDevice);
 
-protected:
+private:
 	virtual void doApply();
 
 	virtual void doRevert();
@@ -49,7 +49,7 @@ protected:
 
 	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
 
-	virtual void doStep(const Eigen::VectorXd& step);
+	virtual void doTakeStep(const Eigen::VectorXd& step);
 
 	virtual int getCorrectionFunctionCount() const;
 

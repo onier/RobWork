@@ -48,15 +48,9 @@ public:
     */
 	void add(rw::common::Ptr<T> calibration);
 
-protected:
-	/**
-	 * @brief Apply all calibrations.
-	 */
+private:
 	virtual void doApply();
 
-	/**
-	 * @brief Revert all calibrations.
-	 */
 	virtual void doRevert();
 
 	virtual void doCorrect(rw::kinematics::State& state);
@@ -66,7 +60,7 @@ protected:
 	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 			const rw::kinematics::State& state);
 
-	virtual void doStep(const Eigen::VectorXd& step);
+	virtual void doTakeStep(const Eigen::VectorXd& step);
 
 private:
 	std::vector<rw::common::Ptr<T> > _calibrations;
@@ -96,7 +90,7 @@ template<class T>
 void CompositeCalibration<T>::doApply() {
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (!calibration->isLocked())
+		if (!calibration->isApplied() && !calibration->isLocked())
 			calibration->apply();
 	}
 }
@@ -105,7 +99,7 @@ template<class T>
 void CompositeCalibration<T>::doRevert() {
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (!calibration->isLocked())
+		if (calibration->isApplied() && !calibration->isLocked())
 			calibration->revert();
 	}
 }
@@ -114,7 +108,7 @@ template<class T>
 void CompositeCalibration<T>::doCorrect(rw::kinematics::State& state) {
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (!calibration->isLocked())
+		if (calibration->isApplied() && !calibration->isLocked())
 			calibration->correct(state);
 	}
 }
@@ -144,13 +138,13 @@ Eigen::MatrixXd CompositeCalibration<T>::doComputeJacobian(rw::kinematics::Frame
 }
 
 template<class T>
-void CompositeCalibration<T>::doStep(const Eigen::VectorXd& step) {
+void CompositeCalibration<T>::doTakeStep(const Eigen::VectorXd& step) {
 	unsigned int parameterNo = 0;
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
 		unsigned int parameterCount = calibration->getParameterCount();
 		if (parameterCount > 0) {
-			calibration->step(step.segment(parameterNo, parameterCount));
+			calibration->takeStep(step.segment(parameterNo, parameterCount));
 			parameterNo += parameterCount;
 		}
 	}

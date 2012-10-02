@@ -17,7 +17,6 @@
 #include "FixedFrameCalibration.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
-#include <rw/models/DHParameterSet.hpp>
 #include <rw/kinematics.hpp>
 
 namespace rwlibs {

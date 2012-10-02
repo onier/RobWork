@@ -28,7 +28,7 @@ bool Calibration::isApplied() const {
 
 void Calibration::apply() {
 	if (_isLocked)
-		RW_THROW("Locked.");
+		RW_THROW("Calibration is locked.");
 	if (_isApplied)
 		RW_THROW("Already applied.");
 
@@ -39,7 +39,7 @@ void Calibration::apply() {
 
 void Calibration::revert() {
 	if (_isLocked)
-		RW_THROW("Locked.");
+		RW_THROW("Calibration is locked.");
 	if (!_isApplied)
 		RW_THROW("Not applied.");
 
@@ -61,20 +61,20 @@ int Calibration::getParameterCount() const {
 
 Eigen::MatrixXd Calibration::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state) {
 	if (_isLocked)
-		RW_THROW("Locked.");
+		RW_THROW("Calibration is locked.");
 	if (doGetParameterCount() == 0)
-		RW_THROW("No parameters enabled.");
+		RW_THROW("Calibration has no enabled parameters.");
 
 	return doComputeJacobian(referenceFrame, measurementFrame, state);
 }
 
-void Calibration::step(const Eigen::VectorXd& step) {
+void Calibration::takeStep(const Eigen::VectorXd& step) {
 	if (_isLocked)
-		RW_THROW("Locked.");
+		RW_THROW("Calibration is locked.");
 	if (doGetParameterCount() == 0)
-		RW_THROW("No parameters enabled.");
+		RW_THROW("Calibration has no enabled parameters.");
 
-	return doStep(step);
+	return doTakeStep(step);
 }
 
 Calibration::Calibration() :

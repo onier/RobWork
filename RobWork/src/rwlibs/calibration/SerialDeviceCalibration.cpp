@@ -96,7 +96,7 @@ void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr calibration, rw::
 
 void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr calibration, rw::common::PropertyMap& propertyMap) {
 	if (propertyMap.has("Calibration")) {
-		if (calibration->isApplied())
+		if (calibration->isApplied() && !calibration->isLocked())
 			calibration->revert();
 		propertyMap.erase("Calibration");
 	}

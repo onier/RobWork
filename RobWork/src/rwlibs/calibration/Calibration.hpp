@@ -28,8 +28,16 @@ public:
 	 */
 	virtual ~Calibration();
 
+	/**
+	 * @brief Test if calibration is locked.
+	 * @return True if locked, false otherwise.
+	 */
 	virtual bool isLocked() const;
 
+	/**
+	 * @brief Lock or unlock calibration.
+	 * @param isLocked [in] True to lock, false to unlock.
+	 */
 	virtual void setLocked(bool isLocked);
 
 	/**
@@ -40,11 +48,15 @@ public:
 
 	/**
 	 * @brief Apply calibration.
+	 *
+	 * Exception is thrown if calibration is locked or already applied.
 	 */
 	void apply();
 
 	/**
 	 * @brief Revert calibration.
+	 *
+	 * Exception is thrown if calibration is locked or not applied.
 	 */
 	void revert();
 
@@ -54,11 +66,11 @@ public:
 
 	Eigen::MatrixXd computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state);
 
-	void step(const Eigen::VectorXd& step);
+	void takeStep(const Eigen::VectorXd& step);
 
 protected:
 	/**
-	 * @brief Protected constructor.
+	 * @brief Constructor.
 	 */
 	Calibration();
 
@@ -79,7 +91,7 @@ protected:
 	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
 			const rw::kinematics::State& state) = 0;
 
-	virtual void doStep(const Eigen::VectorXd& step) = 0;
+	virtual void doTakeStep(const Eigen::VectorXd& step) = 0;
 
 private:
 	bool _isLocked;

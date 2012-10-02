@@ -72,6 +72,10 @@ NLLSSolverLog::Ptr SerialDeviceCalibrator::getLog() const {
 }
 
 void SerialDeviceCalibrator::calibrate() {
+	// Throw exception if calibration is locked.
+	if (_calibration->isLocked())
+		RW_THROW("Calibration is locked.");
+
 	// Apply calibration if not applied.
 	const bool wasApplied = _calibration->isApplied();
 	if (!wasApplied)
@@ -165,7 +169,7 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals,
 }
 
 void SerialDeviceCalibrator::takeStep(const Eigen::VectorXd& step) {
-	_calibration->step(step);
+	_calibration->takeStep(step);
 }
 
 }

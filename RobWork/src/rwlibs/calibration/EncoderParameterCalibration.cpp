@@ -113,7 +113,7 @@ Eigen::MatrixXd EncoderParameterCalibration::doComputeJacobian(rw::kinematics::F
 	return jacobian;
 }
 
-void EncoderParameterCalibration::doStep(const Eigen::VectorXd& step) {
+void EncoderParameterCalibration::doTakeStep(const Eigen::VectorXd& step) {
 	const int parameterCount = _lockedParameters.rows();
 	unsigned int unlockedParameterIndex = 0;
 	Eigen::VectorXd parametersStep = Eigen::VectorXd::Zero(parameterCount);
