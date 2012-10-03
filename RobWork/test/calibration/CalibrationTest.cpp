@@ -44,19 +44,20 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 
 	// Load robot pose measurements from file.
 	BOOST_TEST_CHECKPOINT("Loading measurements");
-	std::vector<rwlibs::calibration::DevicePoseMeasurement::Ptr> measurements = rwlibs::calibration::XmlMeasurementFile::load(measurementFilePath);
+	std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> measurements = rwlibs::calibration::XmlMeasurementFile::load(measurementFilePath);
 	BOOST_CHECK_MESSAGE(measurements.size() == 400, "Measurement list does not contain 400 measurements.");
 
 	// Initialize calibration, jacobian and calibrator.
 	BOOST_TEST_CHECKPOINT("Initializing calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr calibration(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(device)));
-//	calibration->getCompositeDHParameterCalibration()->setLocked(true);
+//	calibration->getCompositeDHParameterCalibration()->setEnabled(false);
+//	calibration->getCompositeDHParameterCalibration()->getCalibrations()[0]->lockParameter(rwlibs::calibration::DHParameterCalibration::PARAMETER_A);
 
 	BOOST_TEST_CHECKPOINT("Initializing calibrator");
 	rwlibs::calibration::SerialDeviceCalibrator::Ptr calibrator(
 			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(device, state, referenceFrame, measurementFrame, calibration)));
 	calibrator->setMeasurements(measurements);
-	calibrator->setWeight(false);
+//	calibrator->setWeighted(false);
 
 	try {
 		// Run calibrator.

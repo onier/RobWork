@@ -11,10 +11,10 @@
 #include <rw/math.hpp>
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
 
-#include "Calibration.hpp"
 #include "nlls/NLLSSystem.hpp"
 #include "nlls/NLLSSolverLog.hpp"
-#include "DevicePoseMeasurement.hpp"
+#include "Calibration.hpp"
+#include "SerialDevicePoseMeasurement.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
 
@@ -42,14 +42,14 @@ public:
 
 	unsigned int getMinimumMeasurementCount() const;
 
-	const std::vector<DevicePoseMeasurement::Ptr>& getMeasurements() const;
+	const std::vector<SerialDevicePoseMeasurement::Ptr>& getMeasurements() const;
 
-	void addMeasurement(DevicePoseMeasurement::Ptr measurement);
+	void addMeasurement(SerialDevicePoseMeasurement::Ptr measurement);
 
 	void addMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix =
 			Eigen::Matrix<double, 6, 6>::Identity());
 
-	void setMeasurements(const std::vector<DevicePoseMeasurement::Ptr>& measurements);
+	void setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
 	void setWeight(bool weight);
 
@@ -59,11 +59,11 @@ public:
 
 	virtual void computeJacobian(Eigen::MatrixXd& jacobian);
 
-	void computeJacobian(Eigen::MatrixXd& jacobian, const std::vector<DevicePoseMeasurement::Ptr>& measurements);
+	void computeJacobian(Eigen::MatrixXd& jacobian, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
 	virtual void computeResiduals(Eigen::VectorXd& residuals);
 
-	void computeResiduals(Eigen::VectorXd& residuals, const std::vector<DevicePoseMeasurement::Ptr>& measurements);
+	void computeResiduals(Eigen::VectorXd& residuals, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
 	virtual void takeStep(const Eigen::VectorXd& step);
 
@@ -73,7 +73,7 @@ private:
 	rw::kinematics::Frame::Ptr _referenceFrame;
 	rw::kinematics::Frame::Ptr _measurementFrame;
 	Calibration::Ptr _calibration;
-	std::vector<DevicePoseMeasurement::Ptr> _measurements;
+	std::vector<SerialDevicePoseMeasurement::Ptr> _measurements;
 	bool _weight;
 	NLLSSolverLog::Ptr _log;
 };

@@ -47,19 +47,19 @@ unsigned int SerialDeviceCalibrator::getMinimumMeasurementCount() const {
 	return ceil(_calibration->getParameterCount() / 6);
 }
 
-const std::vector<DevicePoseMeasurement::Ptr>& SerialDeviceCalibrator::getMeasurements() const {
+const std::vector<SerialDevicePoseMeasurement::Ptr>& SerialDeviceCalibrator::getMeasurements() const {
 	return _measurements;
 }
 
-void SerialDeviceCalibrator::addMeasurement(DevicePoseMeasurement::Ptr measurement) {
+void SerialDeviceCalibrator::addMeasurement(SerialDevicePoseMeasurement::Ptr measurement) {
 	_measurements.push_back(measurement);
 }
 
 void SerialDeviceCalibrator::addMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix) {
-	_measurements.push_back(rw::common::ownedPtr(new DevicePoseMeasurement(q, pose, covarianceMatrix)));
+	_measurements.push_back(rw::common::ownedPtr(new SerialDevicePoseMeasurement(q, pose, covarianceMatrix)));
 }
 
-void SerialDeviceCalibrator::setMeasurements(const std::vector<DevicePoseMeasurement::Ptr>& measurements) {
+void SerialDeviceCalibrator::setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
 	_measurements = measurements;
 }
 
@@ -109,7 +109,7 @@ void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians) 
 	computeJacobian(stackedJacobians, _measurements);
 }
 
-void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, const std::vector<DevicePoseMeasurement::Ptr>& measurements) {
+void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
 	const unsigned int measurementCount = measurements.size();
 	const unsigned int parameterCount = _calibration->getParameterCount();
 
@@ -137,7 +137,7 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals)
 	computeResiduals(stackedResiduals, _measurements);
 }
 
-void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals, const std::vector<DevicePoseMeasurement::Ptr>& measurements) {
+void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements) {
 	const unsigned int measurementCount = measurements.size();
 
 	stackedResiduals.resize(6 * measurementCount);

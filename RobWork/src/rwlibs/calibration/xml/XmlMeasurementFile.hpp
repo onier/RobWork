@@ -8,16 +8,16 @@
 #ifndef RWLIBS_CALIBRATION_XMLMEASUREMENTFILE_HPP
 #define RWLIBS_CALIBRATION_XMLMEASUREMENTFILE_HPP
 
-#include "../DevicePoseMeasurement.hpp"
+#include "../SerialDevicePoseMeasurement.hpp"
 
 namespace rwlibs {
 namespace calibration {
 
 class XmlMeasurementFile {
 public:
-	static void save(const std::vector<DevicePoseMeasurement::Ptr>& measurements, std::string fileName);
+	static void save(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements, std::string fileName);
 
-	static std::vector<DevicePoseMeasurement::Ptr> load(std::string fileName);
+	static std::vector<SerialDevicePoseMeasurement::Ptr> load(std::string fileName);
 };
 
 }

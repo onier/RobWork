@@ -18,12 +18,12 @@ IF( build )
 		xml/XmlMeasurementFile.cpp
 		Calibration.cpp
 		CompositeCalibration.cpp
-		DevicePoseMeasurement.cpp
 		DHParameterCalibration.cpp
 	#	EncoderParameterCalibration.cpp
 		FixedFrameCalibration.cpp
 		SerialDeviceCalibration.cpp
 		SerialDeviceCalibrator.cpp
+		SerialDevicePoseMeasurement.cpp
 	)
     
 	SET(SRC_FILES_HPP
@@ -36,7 +36,6 @@ IF( build )
 		xml/XmlMeasurementFile.hpp
 		Calibration.hpp
 		CompositeCalibration.hpp
-		DevicePoseMeasurement.hpp
 		DHParameterCalibration.hpp
 		EigenTransformAddons.hpp
 	#	EncoderParameterCalibration.hpp
@@ -45,6 +44,7 @@ IF( build )
 		RPY.hpp
 		SerialDeviceCalibration.hpp
 		SerialDeviceCalibrator.hpp
+		SerialDevicePoseMeasurement.hpp
 	)
     
 	RW_ADD_LIBRARY(${SUBSYS_NAME} calibration ${SRC_FILES} ${SRC_FILES_HPP})

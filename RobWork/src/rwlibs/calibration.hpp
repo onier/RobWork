@@ -17,7 +17,6 @@
 #include "./calibration/xml/XmlMeasurementFile.hpp"
 #include "./calibration/Calibration.hpp"
 #include "./calibration/CompositeCalibration.hpp"
-#include "./calibration/DevicePoseMeasurement.hpp"
 #include "./calibration/DHParameterCalibration.hpp"
 //#include "./calibration/EncoderParameterCalibration.hpp"
 #include "./calibration/FixedFrameCalibration.hpp"
@@ -25,5 +24,6 @@
 #include "./calibration/RPY.hpp"
 #include "./calibration/SerialDeviceCalibration.hpp"
 #include "./calibration/SerialDeviceCalibrator.hpp"
+#include "./calibration/SerialDevicePoseMeasurement.hpp"
 
 #endif /* RWLIBS_CALIBRATION_HPP_ */
