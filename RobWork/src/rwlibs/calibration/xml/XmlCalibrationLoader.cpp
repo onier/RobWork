@@ -7,7 +7,6 @@
 
 #include "XmlCalibrationLoader.hpp"
 
-#include "SerialDeviceCalibration.hpp"
 #include <QtCore>
 #include <QtXml/qdom.h>
 

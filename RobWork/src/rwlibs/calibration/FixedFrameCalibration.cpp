@@ -60,13 +60,13 @@ int FixedFrameCalibration::doGetParameterCount() const {
 	return _lockedParameters.rows() - _lockedParameters.sum();
 }
 
-Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 		const rw::kinematics::State& state) {
 	// Convert RobWork transformations.
 	const Eigen::Affine3d tfmToPreCorrection = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(),
 			_isPreCorrection ? _frame.get() : _frame->getParent(state), state);
 	const Eigen::Affine3d tfmPostCorrection = rw::kinematics::Kinematics::frameTframe(_isPreCorrection ? _frame.get() : _frame->getParent(state),
-			measurementFrame.get(), state);
+			targetFrame.get(), state);
 
 	// Prepare transformations.
 	const Eigen::Matrix3d rtmToPreCorrection = tfmToPreCorrection.linear();

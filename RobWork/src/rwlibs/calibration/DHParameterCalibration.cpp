@@ -87,13 +87,13 @@ int DHParameterCalibration::doGetParameterCount() const {
 	return _lockedParameters.rows() - _lockedParameters.sum();
 }
 
-Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 		const rw::kinematics::State& state) {
 	const Eigen::Affine3d tfmToPreLink = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), _joint->getParent(state), state);
 	const Eigen::Affine3d tfmLink = _joint->getFixedTransform();
 	const Eigen::Affine3d tfmToPostLink = tfmToPreLink * tfmLink;
 	const Eigen::Affine3d tfmJoint = _joint->getJointTransform(state);
-	const Eigen::Affine3d tfmPostJoint = rw::kinematics::Kinematics::frameTframe(_joint.get(), measurementFrame.get(), state);
+	const Eigen::Affine3d tfmPostJoint = rw::kinematics::Kinematics::frameTframe(_joint.get(), targetFrame.get(), state);
 	const Eigen::Affine3d tfmToEnd = tfmToPostLink * tfmJoint * tfmPostJoint;
 	const bool isParallel = rw::models::DHParameterSet::get(_joint.get())->isParallel();
 

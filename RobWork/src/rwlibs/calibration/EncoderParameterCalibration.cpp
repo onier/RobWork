@@ -89,7 +89,7 @@ int EncoderParameterCalibration::doGetParameterCount() const {
 	return _lockedParameters.rows() - _lockedParameters.sum();
 }
 
-Eigen::MatrixXd EncoderParameterCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+Eigen::MatrixXd EncoderParameterCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 		const rw::kinematics::State& state) {
 	// Get joint value.
 	const rw::math::Q q = _jointDevice->getQ(state);
@@ -97,7 +97,7 @@ Eigen::MatrixXd EncoderParameterCalibration::doComputeJacobian(rw::kinematics::F
 
 	// Prepare transformations.
 	const Eigen::Affine3d tfmToPostJoint = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), _joint.get(), state);
-	const Eigen::Affine3d tfmPostJoint = rw::kinematics::Kinematics::frameTframe(_joint.get(), measurementFrame.get(), state);
+	const Eigen::Affine3d tfmPostJoint = rw::kinematics::Kinematics::frameTframe(_joint.get(), targetFrame.get(), state);
 	const Eigen::Affine3d tfmToEnd = tfmToPostJoint * tfmPostJoint;
 	const Eigen::Vector3d posToEnd = tfmToEnd.translation() - tfmToPostJoint.translation();
 	const Eigen::Vector3d jointAxis = tfmToPostJoint.linear().col(2);

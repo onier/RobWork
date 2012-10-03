@@ -8,7 +8,7 @@
 #ifndef RWLIBS_CALIBRATION_XMLMEASUREMENTFILE_HPP
 #define RWLIBS_CALIBRATION_XMLMEASUREMENTFILE_HPP
 
-#include "DevicePoseMeasurement.hpp"
+#include "../DevicePoseMeasurement.hpp"
 
 namespace rwlibs {
 namespace calibration {

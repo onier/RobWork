@@ -59,13 +59,15 @@ int Calibration::getParameterCount() const {
 	return _isLocked ? 0 : doGetParameterCount();
 }
 
-Eigen::MatrixXd Calibration::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const rw::kinematics::State& state) {
+Eigen::MatrixXd Calibration::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state) {
 	if (_isLocked)
 		RW_THROW("Calibration is locked.");
+	if (!_isApplied)
+		RW_WARN("Not applied.");
 	if (doGetParameterCount() == 0)
 		RW_THROW("Calibration has no enabled parameters.");
 
-	return doComputeJacobian(referenceFrame, measurementFrame, state);
+	return doComputeJacobian(referenceFrame, targetFrame, state);
 }
 
 void Calibration::takeStep(const Eigen::VectorXd& step) {

@@ -65,7 +65,7 @@
 
 #ifdef RW_HAVE_EIGEN
 #include <rwlibs/calibration/SerialDeviceCalibration.hpp>
-#include <rwlibs/calibration/XmlCalibrationLoader.hpp>
+#include <rwlibs/calibration/xml/XmlCalibrationLoader.hpp>
 #endif
 
 using namespace rw::math;

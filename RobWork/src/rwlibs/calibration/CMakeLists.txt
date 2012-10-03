@@ -13,6 +13,9 @@ IF( build )
 		nlls/NLLSSolver.cpp
 		nlls/NLLSSolverLog.cpp
 		nlls/NLLSSystem.cpp
+		xml/XmlCalibrationLoader.cpp
+		xml/XmlCalibrationSaver.cpp
+		xml/XmlMeasurementFile.cpp
 		Calibration.cpp
 		CompositeCalibration.cpp
 		DevicePoseMeasurement.cpp
@@ -21,9 +24,6 @@ IF( build )
 		FixedFrameCalibration.cpp
 		SerialDeviceCalibration.cpp
 		SerialDeviceCalibrator.cpp
-		XmlCalibrationLoader.cpp
-		XmlCalibrationSaver.cpp
-		XmlMeasurementFile.cpp
 	)
     
 	SET(SRC_FILES_HPP
@@ -31,6 +31,9 @@ IF( build )
 		nlls/NLLSSolver.hpp
 		nlls/NLLSSolverLog.hpp
 		nlls/NLLSSystem.hpp
+		xml/XmlCalibrationLoader.hpp
+		xml/XmlCalibrationSaver.hpp
+		xml/XmlMeasurementFile.hpp
 		Calibration.hpp
 		CompositeCalibration.hpp
 		DevicePoseMeasurement.hpp
@@ -42,9 +45,6 @@ IF( build )
 		RPY.hpp
 		SerialDeviceCalibration.hpp
 		SerialDeviceCalibrator.hpp
-		XmlCalibrationLoader.hpp
-		XmlCalibrationSaver.hpp
-		XmlMeasurementFile.hpp
 	)
     
 	RW_ADD_LIBRARY(${SUBSYS_NAME} calibration ${SRC_FILES} ${SRC_FILES_HPP})

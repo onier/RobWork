@@ -44,7 +44,7 @@ public:
 
     /**
     * @brief Add calibration.
-    * @param calibration [in] pointer to calibration
+    * @param[in] calibration Pointer to calibration to be added.
     */
 	void add(rw::common::Ptr<T> calibration);
 
@@ -57,7 +57,7 @@ private:
 
 	virtual int doGetParameterCount() const;
 
-	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 			const rw::kinematics::State& state);
 
 	virtual void doTakeStep(const Eigen::VectorXd& step);
@@ -122,7 +122,7 @@ int CompositeCalibration<T>::doGetParameterCount() const {
 }
 
 template<class T>
-Eigen::MatrixXd CompositeCalibration<T>::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
+Eigen::MatrixXd CompositeCalibration<T>::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 		const rw::kinematics::State& state) {
 	unsigned int parameterNo = 0;
 	Eigen::MatrixXd jacobian(6, getParameterCount());
@@ -130,7 +130,7 @@ Eigen::MatrixXd CompositeCalibration<T>::doComputeJacobian(rw::kinematics::Frame
 		rw::common::Ptr<T> calibration = (*it);
 		unsigned int parameterCount = calibration->getParameterCount();
 		if (parameterCount > 0) {
-			jacobian.block(0, parameterNo, 6, parameterCount) = calibration->computeJacobian(referenceFrame, measurementFrame, state);
+			jacobian.block(0, parameterNo, 6, parameterCount) = calibration->computeJacobian(referenceFrame, targetFrame, state);
 			parameterNo += parameterCount;
 		}
 	}

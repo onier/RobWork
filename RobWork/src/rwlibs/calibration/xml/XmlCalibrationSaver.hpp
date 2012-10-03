@@ -8,7 +8,7 @@
 #ifndef RWLIBS_CALIBRATION_XMLCALIBRATIONSAVER_HPP_
 #define RWLIBS_CALIBRATION_XMLCALIBRATIONSAVER_HPP_
 
-#include "SerialDeviceCalibration.hpp"
+#include "../SerialDeviceCalibration.hpp"
 
 namespace rwlibs {
 namespace calibration {
