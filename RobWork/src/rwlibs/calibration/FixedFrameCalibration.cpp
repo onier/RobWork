@@ -109,7 +109,7 @@ Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::
 
 void FixedFrameCalibration::doTakeStep(const Eigen::VectorXd& step) {
 	const int parameterCount = _lockedParameters.rows();
-	Pose6D<double> stepPose = Pose6D<double>::Zero();
+	Pose6Dd stepPose = Pose6Dd::Zero();
 	unsigned int unlockedParameterIndex = 0;
 	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++)
 		if (!_lockedParameters(parameterIndex))

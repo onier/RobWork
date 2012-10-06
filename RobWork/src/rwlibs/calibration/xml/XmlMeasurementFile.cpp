@@ -41,14 +41,16 @@ void XmlMeasurementFile::save(const std::vector<SerialDevicePoseMeasurement::Ptr
 		elmPose.appendChild(document.createTextNode(poseTxt.simplified()));
 		elmMeasurement.appendChild(elmPose);
 
-		QDomElement elmCovariance = document.createElement("CovarianceMatrix");
-		QString txtCovariance;
-		Eigen::Matrix<double, 6, 6> covariance = measurement->getCovariance();
-		for (int rowIndex = 0; rowIndex < covariance.rows(); rowIndex++)
-			for (int columnIndex = 0; columnIndex < covariance.cols(); columnIndex++)
-				txtCovariance.append(QString(" %1").arg(covariance(rowIndex, columnIndex), 0, 'g', 16));
-		elmCovariance.appendChild(document.createTextNode(txtCovariance.simplified()));
-		elmMeasurement.appendChild(elmCovariance);
+		if (measurement->hasCovariance()) {
+			QDomElement elmCovariance = document.createElement("CovarianceMatrix");
+			QString txtCovariance;
+			Eigen::Matrix<double, 6, 6> covariance = measurement->getCovariance();
+			for (int rowIndex = 0; rowIndex < covariance.rows(); rowIndex++)
+				for (int columnIndex = 0; columnIndex < covariance.cols(); columnIndex++)
+					txtCovariance.append(QString(" %1").arg(covariance(rowIndex, columnIndex), 0, 'g', 16));
+			elmCovariance.appendChild(document.createTextNode(txtCovariance.simplified()));
+			elmMeasurement.appendChild(elmCovariance);
+		}
 
 		elmRoot.appendChild(elmMeasurement);
 	}

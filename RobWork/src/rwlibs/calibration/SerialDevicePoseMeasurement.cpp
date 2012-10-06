@@ -13,8 +13,13 @@
 namespace rwlibs {
 namespace calibration {
 
-SerialDevicePoseMeasurement::SerialDevicePoseMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covariance) :
-	_q(q), _pose(pose), _covariance(covariance) {
+SerialDevicePoseMeasurement::SerialDevicePoseMeasurement(const rw::math::Q& q, const Pose6Dd& pose) :
+	_q(q), _pose(pose), _hasCovariance(false) {
+
+}
+
+SerialDevicePoseMeasurement::SerialDevicePoseMeasurement(const rw::math::Q& q, const Pose6Dd& pose, const Eigen::Matrix<double, 6, 6>& covariance) :
+	_q(q), _pose(pose), _covariance(covariance), _hasCovariance(true) {
 
 }
 
@@ -26,12 +31,16 @@ rw::math::Q SerialDevicePoseMeasurement::getQ() const {
 	return _q;
 }
 
-Pose6D<double> SerialDevicePoseMeasurement::getPose() const {
+Pose6Dd SerialDevicePoseMeasurement::getPose() const {
 	return _pose;
 }
 
 Eigen::Matrix<double, 6, 6> SerialDevicePoseMeasurement::getCovariance() const {
 	return _covariance;
+}
+
+bool SerialDevicePoseMeasurement::hasCovariance() const {
+	return _hasCovariance;
 }
 
 }
