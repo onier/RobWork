@@ -10,6 +10,7 @@
 
 #include "Pose6D.hpp"
 #include <rw/math.hpp>
+#include <rw/models.hpp>
 
 namespace rwlibs {
 namespace calibration {
@@ -18,7 +19,7 @@ class SerialDevicePoseMeasurement {
 public:
 	typedef rw::common::Ptr<SerialDevicePoseMeasurement> Ptr;
 
-	SerialDevicePoseMeasurement(const rw::math::Q& state, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covariance = Eigen::Matrix<double, 6, 6>::Identity());
+	SerialDevicePoseMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covariance = Eigen::Matrix<double, 6, 6>::Identity());
 
 	virtual ~SerialDevicePoseMeasurement();
 

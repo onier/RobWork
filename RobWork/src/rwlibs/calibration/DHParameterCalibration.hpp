@@ -23,17 +23,24 @@ class DHParameterCalibration: public Calibration {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
+	enum {
+		DHPARAMETER_A = 0,
+		DHPARAMETER_B_D = 1,
+		DHPARAMETER_ALPHA = 2,
+		DHPARAMETER_BETA_THETA = 3
+	};
+
 	typedef rw::common::Ptr<DHParameterCalibration> Ptr;
 
-	DHParameterCalibration(rw::models::Joint::Ptr joint);
-
-	DHParameterCalibration(rw::models::Joint::Ptr joint, const rw::models::DHParameterSet& dhParameterSet);
+	DHParameterCalibration(rw::models::Joint::Ptr joint, const Eigen::Vector4d& parameterSet = Eigen::Vector4d::Zero());
 
 	virtual ~DHParameterCalibration();
 
 	rw::models::Joint::Ptr getJoint() const;
 
-	rw::models::DHParameterSet getCorrection() const;
+	Eigen::Vector4d getCorrection() const;
+
+	void setCorrection(const Eigen::Vector4d& correction);
 
 	void setLockedParameters(bool a, bool length, bool alpha, bool angle);
 
@@ -52,7 +59,7 @@ private:
 
 private:
 	rw::models::Joint::Ptr _joint;
-	rw::models::DHParameterSet _dhParameterSet;
+	Eigen::Vector4d _parameterSet;
 	Eigen::Vector4i _lockedParameters;
 };
 

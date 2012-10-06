@@ -51,7 +51,7 @@ public:
 
 	void setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
-	void setWeight(bool weight);
+	void setWeighted(bool isWeighted);
 
 	NLLSSolverLog::Ptr getLog() const;
 
@@ -74,7 +74,7 @@ private:
 	rw::kinematics::Frame::Ptr _measurementFrame;
 	Calibration::Ptr _calibration;
 	std::vector<SerialDevicePoseMeasurement::Ptr> _measurements;
-	bool _weight;
+	bool _isWeighted;
 	NLLSSolverLog::Ptr _log;
 };
 

@@ -19,9 +19,9 @@ using namespace rwlibs::calibration;
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice) :
 		_serialDevice(serialDevice) {
 	_baseCalibration = rw::common::ownedPtr(
-			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getBase()).cast<rw::kinematics::FixedFrame>(), true));
+			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getBase()).cast<rw::kinematics::FixedFrame>(), false));
 	_endCalibration = rw::common::ownedPtr(
-			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getEnd()).cast<rw::kinematics::FixedFrame>(), false));
+			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getEnd()).cast<rw::kinematics::FixedFrame>(), true));
 
 	_compositeDHParameterCalibration = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
 //	_compositeEncoderParameterCalibration = rw::common::ownedPtr(new CompositeCalibration<EncoderParameterCalibration>());

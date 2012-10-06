@@ -31,6 +31,10 @@ Eigen::Affine3d FixedFrameCalibration::getTransform() const {
 	return _transform;
 }
 
+void FixedFrameCalibration::setTransform(const Eigen::Affine3d& transform) {
+	_transform = transform;
+}
+
 bool FixedFrameCalibration::isPreCorrection() const {
 	return _isPreCorrection;
 }

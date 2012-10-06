@@ -33,6 +33,8 @@ public:
 
 	Eigen::Affine3d getTransform() const;
 
+	void setTransform(const Eigen::Affine3d& transform);
+
 	bool isPreCorrection() const;
 
 	void setLockedParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw);

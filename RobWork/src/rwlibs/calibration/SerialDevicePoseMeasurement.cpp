@@ -7,6 +7,7 @@
 
 #include "SerialDevicePoseMeasurement.hpp"
 
+#include <rw/kinematics.hpp>
 #include <QtCore>
 
 namespace rwlibs {

@@ -145,6 +145,14 @@ IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
 	TARGET_LINK_LIBRARIES( rw_calibration-test ${TEST_LIBRARIES} )
 	ADD_TEST( rw_calibration-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rw_calibration-test ${DEFAULT_TEST_ARGS})
 	ADD_DEPENDENCIES(rw_calibration-test ${TEST_DEPENDENCIES})
+	
+	ADD_EXECUTABLE( rw_calibration-tool calibration/CalibrationTool.cpp)       
+	TARGET_LINK_LIBRARIES( rw_calibration-tool ${TEST_LIBRARIES} )
+	ADD_DEPENDENCIES(rw_calibration-tool ${TEST_DEPENDENCIES})
+	
+	ADD_EXECUTABLE( rw_calibration-mtool calibration/MeasurementTool.cpp)       
+	TARGET_LINK_LIBRARIES( rw_calibration-mtool ${TEST_LIBRARIES} )
+	ADD_DEPENDENCIES(rw_calibration-mtool ${TEST_DEPENDENCIES})
 ENDIF()
 
 ADD_CUSTOM_TARGET(rw_all-tests ctest -V 

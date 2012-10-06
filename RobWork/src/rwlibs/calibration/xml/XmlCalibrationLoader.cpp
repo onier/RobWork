@@ -39,7 +39,8 @@ FixedFrameCalibration::Ptr ElementReader::readElement<FixedFrameCalibration::Ptr
 	bool isPreCorrection = element.attribute("isPreCorrection").toInt();
 
 	QDomElement transformNode = element.namedItem("Transform").toElement();
-	QStringList txtTransformSplitted = transformNode.text().trimmed().split(" ");
+	QStringList txtTransformSplitted = transformNode.text().simplified().split(" ");
+	txtTransformSplitted.removeAll(" ");
 	if (txtTransformSplitted.count() != 12)
 		RW_THROW( QString("Transform has wrong size (12 numbers).").toStdString());
 	Eigen::Affine3d transform;
@@ -60,33 +61,24 @@ DHParameterCalibration::Ptr ElementReader::readElement<DHParameterCalibration::P
 	if (joint.isNull())
 		RW_THROW(QString("Joint \"%1\" not found.").arg(jointName).toStdString());
 
-	if (!element.hasAttribute("alpha"))
-		RW_THROW(QString("Joint \"%1\" needs \"alpha\" attribute.").arg(jointName).toStdString());
-	double alpha = element.attribute("alpha").toDouble();
-
 	if (!element.hasAttribute("a"))
 		RW_THROW(QString("Joint \"%1\" needs \"a\" attribute.").arg(jointName).toStdString());
 	double a = element.attribute("a").toDouble();
 
-	double d;
-	bool isParallel;
-	if (!(element.hasAttribute("b") || element.hasAttribute("d")))
-		RW_THROW(QString("Joint \"%1\" needs \"b\" or \"d\" attribute.").arg(jointName).toStdString());
-	if (element.hasAttribute("b")) {
-		d = element.attribute("b").toDouble();
-		isParallel = true;
-	} else {
-		d = element.attribute("d").toDouble();
-		isParallel = false;
-	}
+	if (!element.hasAttribute("length"))
+		RW_THROW(QString("Joint \"%1\" needs \"length\" attribute.").arg(jointName).toStdString());
+	double length = element.attribute("length").toDouble();
 
-	if (!element.hasAttribute("offset"))
-		RW_THROW(QString("Joint \"%1\" needs \"offset\" attribute.").arg(jointName).toStdString());
-	double offset = element.attribute("offset").toDouble();
+	if (!element.hasAttribute("alpha"))
+		RW_THROW(QString("Joint \"%1\" needs \"alpha\" attribute.").arg(jointName).toStdString());
+	double alpha = element.attribute("alpha").toDouble();
+
+	if (!element.hasAttribute("angle"))
+		RW_THROW(QString("Joint \"%1\" needs \"angle\" attribute.").arg(jointName).toStdString());
+	double angle = element.attribute("angle").toDouble();
 
 	return rw::common::ownedPtr(
-			new DHParameterCalibration(joint,
-					isParallel ? rw::models::DHParameterSet(alpha, a, offset, d, isParallel) : rw::models::DHParameterSet(alpha, a, d, offset)));
+			new DHParameterCalibration(joint, Eigen::Vector4d(a, length, alpha, angle)));
 }
 
 SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(std::string fileName, rw::kinematics::StateStructure::Ptr stateStructure,
@@ -95,7 +87,6 @@ SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(std::string fileName, rw
 	file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate);
 
 	QDomDocument document("SerialDeviceCalibration");
-
 	if (!document.setContent(&file))
 		RW_THROW("Content not set.");
 

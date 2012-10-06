@@ -53,17 +53,11 @@ QDomElement ElementCreator::createElement<DHParameterCalibration::Ptr>(DHParamet
 
 	element.setAttribute("joint", QString::fromStdString(calibration->getJoint()->getName()));
 
-	rw::models::DHParameterSet correction = calibration->getCorrection();
-	element.setAttribute("type", QString::fromStdString(correction.getType()));
-	element.setAttribute("alpha", QString("%1").arg(correction.alpha(), 0, 'g', 16));
-	element.setAttribute("a", QString("%1").arg(correction.a(), 0, 'g', 16));
-	if (correction.isParallel()) {
-		element.setAttribute("offset", QString("%1").arg(correction.beta(), 0, 'g', 16));
-		element.setAttribute("b", QString("%1").arg(correction.b(), 0, 'g', 16));
-	} else {
-		element.setAttribute("offset", QString("%1").arg(correction.theta(), 0, 'g', 16));
-		element.setAttribute("d", QString("%1").arg(correction.d(), 0, 'g', 16));
-	}
+	Eigen::Vector4d correction = calibration->getCorrection();
+	element.setAttribute("a", QString("%1").arg(correction(0), 0, 'g', 16));
+	element.setAttribute("length", QString("%1").arg(correction(1), 0, 'g', 16));
+	element.setAttribute("alpha", QString("%1").arg(correction(2), 0, 'g', 16));
+	element.setAttribute("angle", QString("%1").arg(correction(3), 0, 'g', 16));
 
 	return element;
 }
