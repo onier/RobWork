@@ -15,7 +15,9 @@ namespace calibration {
 
 class XmlCalibrationSaver {
 public:
-	static void save(SerialDeviceCalibration::Ptr, std::string fileName);
+	static void save(SerialDeviceCalibration::Ptr serialDeviceCalibration, std::string fileName);
+
+	static void save(SerialDeviceCalibration::Ptr serialDeviceCalibration, std::ostream& ostream);
 };
 
 }

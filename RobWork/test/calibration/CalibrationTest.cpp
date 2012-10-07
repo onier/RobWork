@@ -22,6 +22,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	const std::string deviceName("SomeDevice");
 	const std::string referenceFrameName("SomeSensorFrame");
 	const std::string measurementFrameName("SomeDevice.Marker");
+	const std::string calibrationFilePath(testFilePath() + "calibration/SomeCalibration.xml");
 	const unsigned int measurementCount = 40;
 
 	// Load workcell.
@@ -49,6 +50,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	serialDeviceCalibrationLast->revert();
 
 	// Setup artificial calibration.
+	BOOST_TEST_CHECKPOINT("Setting up artificial calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr artificialCalibration(
 			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
 	artificialCalibration->getBaseCalibration()->setTransform(rwlibs::calibration::Pose6Dd(0.07, 0.008, 0.009, 0.08, 0.007, 0.06).toTransform());
@@ -58,6 +60,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialDhParameterCalibrations.size(); calibrationIndex++)
 		artificialDhParameterCalibrations[calibrationIndex]->setCorrection(Eigen::Vector4d(0.003, 0.0, -0.002, 0.0));
 
+	BOOST_TEST_CHECKPOINT("Applying artificial calibration");
 	artificialCalibration->apply();
 
 	// Load robot pose measurements from file.
@@ -66,6 +69,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 			state, measurementCount, true);
 	BOOST_CHECK_MESSAGE(measurements.size() == measurementCount, "Measurement generation failed.");
 
+	BOOST_TEST_CHECKPOINT("Reverting artificial calibration");
 	artificialCalibration->revert();
 
 	// Initialize calibration, jacobian and calibrator.
@@ -85,6 +89,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 		BOOST_TEST_CHECKPOINT("Calibrating");
 		calibrator->calibrate();
 
+		// Verify that the calibration match the artificial calibration.
 		BOOST_CHECK_MESSAGE(calibration->getBaseCalibration()->getTransform().isApprox(artificialCalibration->getBaseCalibration()->getTransform(), 10e-5),
 				"Base calibration failed.");
 		BOOST_CHECK_MESSAGE(calibration->getEndCalibration()->getTransform().isApprox(artificialCalibration->getEndCalibration()->getTransform(), 10e-5),
@@ -99,6 +104,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 		BOOST_TEST_CHECKPOINT("Applying calibration");
 		calibration->apply();
 
+		// Verify that calibration fits measurements.
 		for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 			BOOST_TEST_CHECKPOINT("Updating state");
 			serialDevice->setQ(measurements[measurementIndex]->getQ(), state);
@@ -113,6 +119,40 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 
 		BOOST_TEST_CHECKPOINT("Reverting calibration");
 		calibration->revert();
+
+		BOOST_TEST_CHECKPOINT("Saving calibration");
+		rwlibs::calibration::XmlCalibrationSaver::save(calibration, calibrationFilePath);
+
+		BOOST_TEST_CHECKPOINT("Loading calibration");
+		rwlibs::calibration::SerialDeviceCalibration::Ptr calibrationLoaded = rwlibs::calibration::XmlCalibrationLoader::load(calibrationFilePath, workCell->getStateStructure(), serialDevice);
+
+		BOOST_TEST_CHECKPOINT("Applying loaded calibration");
+		calibrationLoaded->apply();
+
+		// Verify that the loaded calibration match the artificial calibration.
+		BOOST_CHECK_MESSAGE(calibrationLoaded->getBaseCalibration()->getTransform().isApprox(artificialCalibration->getBaseCalibration()->getTransform(), 10e-5),
+				"Base calibration failed.");
+		BOOST_CHECK_MESSAGE(calibrationLoaded->getEndCalibration()->getTransform().isApprox(artificialCalibration->getEndCalibration()->getTransform(), 10e-5),
+				"End calibration failed.");
+		std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> dhParameterCalibrationsLoaded =
+				calibrationLoaded->getCompositeDHParameterCalibration()->getCalibrations();
+		for (unsigned int calibrationIndex = 0; calibrationIndex < dhParameterCalibrations.size(); calibrationIndex++)
+			BOOST_CHECK_MESSAGE(
+					dhParameterCalibrationsLoaded[calibrationIndex]->getCorrection().isApprox(artificialDhParameterCalibrations[calibrationIndex]->getCorrection(), 10e-5),
+					"DH calibration failed.");
+
+		// Verify that loaded calibration fits measurements.
+		for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
+			BOOST_TEST_CHECKPOINT("Updating state");
+			serialDevice->setQ(measurements[measurementIndex]->getQ(), state);
+
+			BOOST_TEST_CHECKPOINT("Computing measurement error");
+			const Eigen::Affine3d tfmMeasurement = measurements[measurementIndex]->getPose().toTransform();
+			const Eigen::Affine3d tfmModel = Eigen::Affine3d(rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state));
+			const Eigen::Affine3d tfmError = tfmModel.difference(tfmMeasurement);
+
+			BOOST_CHECK_MESSAGE(tfmError.isApprox(Eigen::Affine3d::Identity(), 10e-5), "Measurement error is non-zero.");
+		}
 	} catch (rw::common::Exception& ex) {
 		BOOST_FAIL(ex.getMessage());
 	}

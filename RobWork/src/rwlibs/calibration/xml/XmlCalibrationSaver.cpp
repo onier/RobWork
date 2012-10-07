@@ -62,10 +62,7 @@ QDomElement ElementCreator::createElement<DHParameterCalibration::Ptr>(DHParamet
 	return element;
 }
 
-void XmlCalibrationSaver::save(SerialDeviceCalibration::Ptr calibration, std::string fileName) {
-	QFile file(QString::fromStdString(fileName));
-	file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-
+QDomDocument createDOMDocument(SerialDeviceCalibration::Ptr calibration) {
 	QDomDocument document("SerialDeviceCalibration");
 
 	QDomElement elmRoot = document.createElement("SerialDeviceCalibration");
@@ -111,11 +108,22 @@ void XmlCalibrationSaver::save(SerialDeviceCalibration::Ptr calibration, std::st
 
 	document.appendChild(elmRoot);
 
+	return document;
+}
+
+void XmlCalibrationSaver::save(SerialDeviceCalibration::Ptr calibration, std::string fileName) {
+	QFile file(QString::fromStdString(fileName));
+	file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+
 	QTextStream textStream(&file);
 	textStream.setRealNumberPrecision(16);
-	textStream << document.toString();
+	textStream << createDOMDocument(calibration).toString();
 
 	file.close();
+}
+
+void XmlCalibrationSaver::save(SerialDeviceCalibration::Ptr calibration, std::ostream& ostream) {
+	ostream << createDOMDocument(calibration).toString().toStdString();
 }
 
 }

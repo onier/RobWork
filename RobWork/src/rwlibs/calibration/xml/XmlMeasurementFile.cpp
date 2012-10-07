@@ -93,7 +93,7 @@ std::vector<SerialDevicePoseMeasurement::Ptr> XmlMeasurementFile::load(std::stri
 			if (txtPoseSplitted.size() != 6)
 				RW_THROW("Pose not parsed correctly.");
 			rwlibs::calibration::Pose6D<double> pose = Pose6D<double>(txtPoseSplitted[0].toDouble(), txtPoseSplitted[1].toDouble(),
-					txtPoseSplitted[2].toDouble(), txtPoseSplitted[3].toDouble(), txtPoseSplitted[4].toDouble(), txtPoseSplitted[5].toDouble());
+					txtPoseSplitted[2].toDouble(), txtPoseSplitted[5].toDouble(), txtPoseSplitted[4].toDouble(), txtPoseSplitted[3].toDouble());
 
 			Eigen::Matrix<double, 6, 6> covariance = Eigen::Matrix<double, 6, 6>::Identity();
 			if (!element.namedItem("CovarianceMatrix").isNull()) {

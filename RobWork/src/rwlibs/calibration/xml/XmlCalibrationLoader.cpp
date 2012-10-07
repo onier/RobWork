@@ -106,7 +106,7 @@ SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(std::string fileName, rw
 	FixedFrameCalibration::Ptr endCalibration;
 	QDomNode nodeEnd = elmRoot.namedItem("EndFrameCalibration");
 	if (!nodeEnd.isNull() && nodeEnd.hasChildNodes())
-		endCalibration = elementReader.readElement<FixedFrameCalibration::Ptr>(nodeBase.childNodes().at(0).toElement());
+		endCalibration = elementReader.readElement<FixedFrameCalibration::Ptr>(nodeEnd.childNodes().at(0).toElement());
 
 	// Load DH calibrations
 	CompositeCalibration<DHParameterCalibration>::Ptr dhCalibrations = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
