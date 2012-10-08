@@ -270,7 +270,7 @@ ENDIF ()
 #
 FIND_PACKAGE(Eigen3 QUIET)
 FIND_PACKAGE( Qt4 COMPONENTS QtCore QtGui QtXml QUIET)
-IF( EIGEN3_FOUND AND QT4_FOUND)
+IF( EIGEN3_FOUND AND QT4_FOUND AND ENABLE_CALIBRATION_PACKAGE)
 	SET(RW_HAVE_EIGEN ${EIGEN3_FOUND})
 	SET(RW_HAVE_QT ${QT4_FOUND})	
 	include( ${QT_USE_FILE} )
@@ -389,6 +389,12 @@ IF(${Boost_MINOR_VERSION} VERSION_LESS 41 )
     # so we include it from our own
     SET(ADDITIONAL_BOOST_BINDINGS "${RW_ROOT}/ext/deprecated")
     MESSAGE(STATUS "RobWork: Boost ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION} found, no support for property_tree. Adding from ext!")   
+ENDIF()
+
+IF(${Boost_MINOR_VERSION} VERSION_LESS 44 ) 
+    ADD_DEFINITIONS("-DBOOST_FILESYSTEM_VERSION=2")
+ELSE()
+    ADD_DEFINITIONS("-DBOOST_FILESYSTEM_VERSION=3")
 ENDIF()
 
 ###########################################################################
