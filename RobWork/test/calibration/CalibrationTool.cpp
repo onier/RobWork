@@ -216,13 +216,13 @@ void printSolverLog() {
 void printCalibrationSummary() {
 	rwlibs::calibration::FixedFrameCalibration::Ptr baseCalibration = serialDeviceCalibration->getBaseCalibration();
 	std::cout << "\tBase calibration of [ " << baseCalibration->getFrame()->getName() << " ]: [ Translation: "
-			<< baseCalibration->getTransform().translation().norm() * 100.0 << " cm - Rotation: "
-			<< Eigen::AngleAxisd(baseCalibration->getTransform().linear()).angle() * 180 / M_PI << " ° ]" << std::endl;
+			<< baseCalibration->getCorrection().translation().norm() * 100.0 << " cm - Rotation: "
+			<< Eigen::AngleAxisd(baseCalibration->getCorrection().linear()).angle() * 180 / M_PI << " ° ]" << std::endl;
 
 	rwlibs::calibration::FixedFrameCalibration::Ptr endCalibration = serialDeviceCalibration->getEndCalibration();
 	std::cout << "\tEnd calibration of [ " << endCalibration->getFrame()->getName() << " ]: [ Translation: "
-			<< endCalibration->getTransform().translation().norm() * 100.0 << " cm - Rotation: "
-			<< Eigen::AngleAxisd(endCalibration->getTransform().linear()).angle() * 180 / M_PI << " ° ]" << std::endl;
+			<< endCalibration->getCorrection().translation().norm() * 100.0 << " cm - Rotation: "
+			<< Eigen::AngleAxisd(endCalibration->getCorrection().linear()).angle() * 180 / M_PI << " ° ]" << std::endl;
 
 	rwlibs::calibration::CompositeCalibration<rwlibs::calibration::DHParameterCalibration>::Ptr dhParameterCalibration =
 			serialDeviceCalibration->getCompositeDHParameterCalibration();
@@ -230,9 +230,9 @@ void printCalibrationSummary() {
 		rwlibs::calibration::DHParameterCalibration::Ptr dhCalibration = dhParameterCalibration->getCalibrations()[calibrationIndex];
 		Eigen::Vector4d correction = dhCalibration->getCorrection();
 		std::cout << "\tDH calibration of [ " << dhCalibration->getJoint()->getName() << " ]: [ a: "
-				<< correction(rwlibs::calibration::DHParameterCalibration::DHPARAMETER_A) * 100.0 << " cm - b/d: "
-				<< correction(rwlibs::calibration::DHParameterCalibration::DHPARAMETER_B_D) * 100.0 << " cm - alpha: "
-				<< correction(rwlibs::calibration::DHParameterCalibration::DHPARAMETER_ALPHA) * 180 / M_PI << " ° - beta/theta: "
-				<< correction(rwlibs::calibration::DHParameterCalibration::DHPARAMETER_BETA_THETA) * 180 / M_PI << " ° ]" << std::endl;
+				<< correction(rwlibs::calibration::DHParameterCalibration::PARAMETER_A) * 100.0 << " cm - b/d: "
+				<< correction(rwlibs::calibration::DHParameterCalibration::PARAMETER_B_D) * 100.0 << " cm - alpha: "
+				<< correction(rwlibs::calibration::DHParameterCalibration::PARAMETER_ALPHA) * 180 / M_PI << " ° - beta/theta: "
+				<< correction(rwlibs::calibration::DHParameterCalibration::PARAMETER_BETA_THETA) * 180 / M_PI << " ° ]" << std::endl;
 	}
 }

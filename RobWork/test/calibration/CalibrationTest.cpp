@@ -53,8 +53,8 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	BOOST_TEST_CHECKPOINT("Setting up artificial calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr artificialCalibration(
 			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
-	artificialCalibration->getBaseCalibration()->setTransform(rwlibs::calibration::Pose6Dd(0.07, 0.008, 0.009, 0.08, 0.007, 0.06).toTransform());
-	artificialCalibration->getEndCalibration()->setTransform(rwlibs::calibration::Pose6Dd(0.01, 0.002, 0.003, 0.04, 0.005, 0.06).toTransform());
+	artificialCalibration->getBaseCalibration()->setCorrection(rwlibs::calibration::Pose6Dd(0.07, 0.008, 0.009, 0.08, 0.007, 0.06).toTransform());
+	artificialCalibration->getEndCalibration()->setCorrection(rwlibs::calibration::Pose6Dd(0.01, 0.002, 0.003, 0.04, 0.005, 0.06).toTransform());
 	std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> artificialDhParameterCalibrations =
 			artificialCalibration->getCompositeDHParameterCalibration()->getCalibrations();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialDhParameterCalibrations.size(); calibrationIndex++)
@@ -90,9 +90,9 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 		calibrator->calibrate();
 
 		// Verify that the calibration match the artificial calibration.
-		BOOST_CHECK_MESSAGE(calibration->getBaseCalibration()->getTransform().isApprox(artificialCalibration->getBaseCalibration()->getTransform(), 10e-5),
+		BOOST_CHECK_MESSAGE(calibration->getBaseCalibration()->getCorrection().isApprox(artificialCalibration->getBaseCalibration()->getCorrection(), 10e-5),
 				"Base calibration failed.");
-		BOOST_CHECK_MESSAGE(calibration->getEndCalibration()->getTransform().isApprox(artificialCalibration->getEndCalibration()->getTransform(), 10e-5),
+		BOOST_CHECK_MESSAGE(calibration->getEndCalibration()->getCorrection().isApprox(artificialCalibration->getEndCalibration()->getCorrection(), 10e-5),
 				"End calibration failed.");
 		std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> dhParameterCalibrations =
 				calibration->getCompositeDHParameterCalibration()->getCalibrations();
@@ -130,9 +130,9 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 		calibrationLoaded->apply();
 
 		// Verify that the loaded calibration match the artificial calibration.
-		BOOST_CHECK_MESSAGE(calibrationLoaded->getBaseCalibration()->getTransform().isApprox(artificialCalibration->getBaseCalibration()->getTransform(), 10e-5),
+		BOOST_CHECK_MESSAGE(calibrationLoaded->getBaseCalibration()->getCorrection().isApprox(artificialCalibration->getBaseCalibration()->getCorrection(), 10e-5),
 				"Base calibration failed.");
-		BOOST_CHECK_MESSAGE(calibrationLoaded->getEndCalibration()->getTransform().isApprox(artificialCalibration->getEndCalibration()->getTransform(), 10e-5),
+		BOOST_CHECK_MESSAGE(calibrationLoaded->getEndCalibration()->getCorrection().isApprox(artificialCalibration->getEndCalibration()->getCorrection(), 10e-5),
 				"End calibration failed.");
 		std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> dhParameterCalibrationsLoaded =
 				calibrationLoaded->getCompositeDHParameterCalibration()->getCalibrations();

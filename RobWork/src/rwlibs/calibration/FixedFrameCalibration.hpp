@@ -25,17 +25,26 @@ public:
 
 	typedef rw::common::Ptr<FixedFrameCalibration> Ptr;
 
+	enum PARAMETER {
+		X = 0,
+		Y = 1,
+		Z = 2,
+		ROLL = 3,
+		PITCH = 4,
+		YAW = 5
+	};
+
 	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPreCorrection = true, const Eigen::Affine3d& transform = Eigen::Affine3d::Identity());
 
 	virtual ~FixedFrameCalibration();
 
 	rw::kinematics::FixedFrame::Ptr getFrame() const;
 
-	Eigen::Affine3d getTransform() const;
+	bool isPostCorrection() const;
 
-	void setTransform(const Eigen::Affine3d& transform);
+	Eigen::Affine3d getCorrection() const;
 
-	bool isPreCorrection() const;
+	void setCorrection(const Eigen::Affine3d& transform);
 
 	void setLockedParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw);
 
@@ -54,8 +63,8 @@ private:
 
 private:
 	rw::kinematics::FixedFrame::Ptr _frame;
-	bool _isPreCorrection;
-	Eigen::Affine3d _transform;
+	bool _isPostCorrection;
+	Eigen::Affine3d _correction;
 	Eigen::Matrix<int, 6, 1> _lockedParameters;
 };
 

@@ -23,11 +23,13 @@ class DHParameterCalibration: public Calibration {
 public:
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-	enum {
-		DHPARAMETER_A = 0,
-		DHPARAMETER_B_D = 1,
-		DHPARAMETER_ALPHA = 2,
-		DHPARAMETER_BETA_THETA = 3
+	enum PARAMETER {
+		A = 0,
+		B = 1,
+		D = 1,
+		ALPHA = 2,
+		BETA = 3,
+		THETA = 3
 	};
 
 	typedef rw::common::Ptr<DHParameterCalibration> Ptr;
@@ -59,7 +61,7 @@ private:
 
 private:
 	rw::models::Joint::Ptr _joint;
-	Eigen::Vector4d _parameterSet;
+	Eigen::Vector4d _correction;
 	Eigen::Vector4i _lockedParameters;
 };
 

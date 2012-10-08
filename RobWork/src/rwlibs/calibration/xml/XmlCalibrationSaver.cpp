@@ -32,12 +32,12 @@ QDomElement ElementCreator::createElement<FixedFrameCalibration::Ptr>(FixedFrame
 	QDomElement element = _document->createElement("FixedFrameCalibration");
 
 	element.setAttribute("frame", QString::fromStdString(calibration->getFrame()->getName()));
-	element.setAttribute("isPreCorrection", QString::number(calibration->isPreCorrection()));
+	element.setAttribute("isPostCorrection", QString::number(calibration->isPostCorrection()));
 
 	QDomElement elmTransform = _document->createElement("Transform");
 
 	QString baseTransformTxt;
-	Eigen::Affine3d correction = calibration->getTransform();
+	Eigen::Affine3d correction = calibration->getCorrection();
 	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
 		for (int colIndex = 0; colIndex < 4; colIndex++)
 			baseTransformTxt.append(QString(" %1").arg(correction(rowIndex, colIndex), 0, 'g', 16));

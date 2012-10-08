@@ -15,7 +15,7 @@ namespace rwlibs {
 namespace calibration {
 
 FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPreCorrection, const Eigen::Affine3d& transform) :
-		_frame(frame), _isPreCorrection(isPreCorrection), _transform(transform), _lockedParameters(Eigen::Matrix<int, 6, 1>::Zero()) {
+		_frame(frame), _isPostCorrection(isPreCorrection), _correction(transform), _lockedParameters(Eigen::Matrix<int, 6, 1>::Zero()) {
 
 }
 
@@ -27,16 +27,16 @@ rw::kinematics::FixedFrame::Ptr FixedFrameCalibration::getFrame() const {
 	return _frame;
 }
 
-Eigen::Affine3d FixedFrameCalibration::getTransform() const {
-	return _transform;
+bool FixedFrameCalibration::isPostCorrection() const {
+	return _isPostCorrection;
 }
 
-void FixedFrameCalibration::setTransform(const Eigen::Affine3d& transform) {
-	_transform = transform;
+Eigen::Affine3d FixedFrameCalibration::getCorrection() const {
+	return _correction;
 }
 
-bool FixedFrameCalibration::isPreCorrection() const {
-	return _isPreCorrection;
+void FixedFrameCalibration::setCorrection(const Eigen::Affine3d& correction) {
+	_correction = correction;
 }
 
 void FixedFrameCalibration::setLockedParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw) {
@@ -44,16 +44,15 @@ void FixedFrameCalibration::setLockedParameters(bool x, bool y, bool z, bool rol
 }
 
 void FixedFrameCalibration::doApply() {
-	Eigen::Affine3d newTransform =
-			_isPreCorrection ? Eigen::Affine3d(_frame->getFixedTransform()) * _transform : _transform * _frame->getFixedTransform();
-	_frame->setTransform(newTransform);
+	Eigen::Affine3d correctedTransform =
+			_isPostCorrection ? _correction * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * _correction;
+	_frame->setCorrection(correctedTransform);
 }
 
 void FixedFrameCalibration::doRevert() {
-	Eigen::Affine3d newTransform =
-			_isPreCorrection ?
-					Eigen::Affine3d(_frame->getFixedTransform()) * _transform.inverse() : _transform.inverse() * _frame->getFixedTransform();
-	_frame->setTransform(newTransform);
+	Eigen::Affine3d correctedTransform =
+			_isPostCorrection ? _correction.inverse() * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * _correction.inverse();
+	_frame->setCorrection(correctedTransform);
 }
 
 void FixedFrameCalibration::doCorrect(rw::kinematics::State& state) {
@@ -67,41 +66,42 @@ int FixedFrameCalibration::doGetParameterCount() const {
 Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 		const rw::kinematics::State& state) {
 	// Convert RobWork transformations.
-	const Eigen::Affine3d tfmToPreCorrection = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(),
-			_isPreCorrection ? _frame.get() : _frame->getParent(state), state);
-	const Eigen::Affine3d tfmPostCorrection = rw::kinematics::Kinematics::frameTframe(_isPreCorrection ? _frame.get() : _frame->getParent(state),
+	const Eigen::Affine3d toPreCorrectionTransform = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(),
+			_isPostCorrection ? _frame->getParent(state) : _frame.get(), state);
+	const Eigen::Affine3d postCorrectionTransform = rw::kinematics::Kinematics::frameTframe(_isPostCorrection ? _frame->getParent(state) : _frame.get(),
 			targetFrame.get(), state);
 
 	// Prepare transformations.
-	const Eigen::Matrix3d rtmToPreCorrection = tfmToPreCorrection.linear();
-	const Eigen::Vector3d tlPreToEnd = (tfmToPreCorrection * tfmPostCorrection).translation() - tfmToPreCorrection.translation();
+	const Eigen::Matrix3d toPreCorrectionRotation = toPreCorrectionTransform.linear();
+	const Eigen::Vector3d preToEndTranslation = (toPreCorrectionTransform * postCorrectionTransform).translation() - toPreCorrectionTransform.translation();
 
 	const int columnCount = getParameterCount();
 	Eigen::MatrixXd jacobian(6, columnCount);
 	int columnIndex = 0;
-	if (!_lockedParameters(0)) {
-		jacobian.block<3, 1>(0, columnIndex) = rtmToPreCorrection.col(0);
+
+	if (!_lockedParameters(PARAMETER::X)) {
+		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(0);
 		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
-	if (!_lockedParameters(1)) {
-		jacobian.block<3, 1>(0, columnIndex) = rtmToPreCorrection.col(1);
+	if (!_lockedParameters(PARAMETER::Y)) {
+		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(1);
 		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
-	if (!_lockedParameters(2)) {
-		jacobian.block<3, 1>(0, columnIndex) = rtmToPreCorrection.col(2);
+	if (!_lockedParameters(PARAMETER::Z)) {
+		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(2);
 		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
-	if (!_lockedParameters(3)) {
-		jacobian.block<3, 1>(0, columnIndex) = rtmToPreCorrection.col(0).cross(tlPreToEnd);
-		jacobian.block<3, 1>(3, columnIndex++) = rtmToPreCorrection.col(0);
+	if (!_lockedParameters(PARAMETER::ROLL)) {
+		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(0).cross(preToEndTranslation);
+		jacobian.block<3, 1>(3, columnIndex++) = toPreCorrectionRotation.col(0);
 	}
-	if (!_lockedParameters(4)) {
-		jacobian.block<3, 1>(0, columnIndex) = rtmToPreCorrection.col(1).cross(tlPreToEnd);
-		jacobian.block<3, 1>(3, columnIndex++) = rtmToPreCorrection.col(1);
+	if (!_lockedParameters(PARAMETER::PITCH)) {
+		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(1).cross(preToEndTranslation);
+		jacobian.block<3, 1>(3, columnIndex++) = toPreCorrectionRotation.col(1);
 	}
-	if (!_lockedParameters(5)) {
-		jacobian.block<3, 1>(0, columnIndex) = rtmToPreCorrection.col(2).cross(tlPreToEnd);
-		jacobian.block<3, 1>(3, columnIndex) = rtmToPreCorrection.col(2);
+	if (!_lockedParameters(PARAMETER::YAW)) {
+		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(2).cross(preToEndTranslation);
+		jacobian.block<3, 1>(3, columnIndex) = toPreCorrectionRotation.col(2);
 	}
 
 	return jacobian;
@@ -116,11 +116,11 @@ void FixedFrameCalibration::doTakeStep(const Eigen::VectorXd& step) {
 			stepPose(parameterIndex) = stepPose(parameterIndex) + step(unlockedParameterIndex++);
 
 	Eigen::Affine3d stepTransform = stepPose.toTransform();
-	_transform = _isPreCorrection ? _transform * stepTransform : stepTransform * _transform;
+	_correction = _isPostCorrection ? stepTransform * _correction : _correction * stepTransform;
 	if (isApplied()) {
-		Eigen::Affine3d correctedBaseTransform =
-				_isPreCorrection ? Eigen::Affine3d(_frame->getFixedTransform()) * stepTransform : stepTransform * _frame->getFixedTransform();
-		_frame->setTransform(correctedBaseTransform);
+		Eigen::Affine3d correctedTransform =
+				_isPostCorrection ? stepTransform * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * stepTransform;
+		_frame->setCorrection(correctedTransform);
 	}
 }
 

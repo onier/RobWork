@@ -11,7 +11,7 @@ namespace rwlibs {
 namespace calibration {
 
 DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint, const Eigen::Vector4d& parameterSet) :
-		_joint(joint), _parameterSet(parameterSet), _lockedParameters(Eigen::Vector4i::Zero()) {
+		_joint(joint), _correction(parameterSet), _lockedParameters(Eigen::Vector4i::Zero()) {
 
 }
 
@@ -24,11 +24,11 @@ rw::models::Joint::Ptr DHParameterCalibration::getJoint() const {
 }
 
 Eigen::Vector4d DHParameterCalibration::getCorrection() const {
-	return _parameterSet;
+	return _correction;
 }
 
 void DHParameterCalibration::setCorrection(const Eigen::Vector4d& correction) {
-	_parameterSet = correction;
+	_correction = correction;
 }
 
 void DHParameterCalibration::setLockedParameters(bool a, bool length, bool alpha, bool angle) {
@@ -37,17 +37,17 @@ void DHParameterCalibration::setLockedParameters(bool a, bool length, bool alpha
 
 void DHParameterCalibration::doApply() {
 	rw::models::DHParameterSet dhParameterSetCurrent = *rw::models::DHParameterSet::get(_joint.get());
-	double a = dhParameterSetCurrent.a() + _parameterSet(DHPARAMETER_A);
-	double alpha = dhParameterSetCurrent.alpha() + _parameterSet(DHPARAMETER_ALPHA);
+	double a = dhParameterSetCurrent.a() + _correction(PARAMETER::A);
+	double alpha = dhParameterSetCurrent.alpha() + _correction(PARAMETER::ALPHA);
 	if (dhParameterSetCurrent.isParallel()) {
-		double b = dhParameterSetCurrent.b() + _parameterSet(DHPARAMETER_B_D);
-		double beta = dhParameterSetCurrent.beta() + _parameterSet(DHPARAMETER_BETA_THETA);
+		double b = dhParameterSetCurrent.b() + _correction(PARAMETER::B);
+		double beta = dhParameterSetCurrent.beta() + _correction(PARAMETER::BETA);
 		rw::models::DHParameterSet dhParameterSetNext(alpha, a, beta, b, true);
 		rw::models::DHParameterSet::set(dhParameterSetNext, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
 	} else {
-		double d = dhParameterSetCurrent.d() + _parameterSet(DHPARAMETER_B_D);
-		double theta = dhParameterSetCurrent.theta() + _parameterSet(DHPARAMETER_BETA_THETA);
+		double d = dhParameterSetCurrent.d() + _correction(PARAMETER::D);
+		double theta = dhParameterSetCurrent.theta() + _correction(PARAMETER::THETA);
 		rw::models::DHParameterSet dhParameterSetNext(alpha, a, d, theta, dhParameterSetCurrent.getType());
 		rw::models::DHParameterSet::set(dhParameterSetNext, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
@@ -56,17 +56,17 @@ void DHParameterCalibration::doApply() {
 
 void DHParameterCalibration::doRevert() {
 	rw::models::DHParameterSet dhParameterSetCurrent = *rw::models::DHParameterSet::get(_joint.get());
-	const double a = dhParameterSetCurrent.a() - _parameterSet(DHPARAMETER_A);
-	const double alpha = dhParameterSetCurrent.alpha() - _parameterSet(DHPARAMETER_ALPHA);
+	const double a = dhParameterSetCurrent.a() - _correction(PARAMETER::A);
+	const double alpha = dhParameterSetCurrent.alpha() - _correction(PARAMETER::ALPHA);
 	if (dhParameterSetCurrent.isParallel()) {
-		const double b = dhParameterSetCurrent.b() - _parameterSet(DHPARAMETER_B_D);
-		const double beta = dhParameterSetCurrent.beta() - _parameterSet(DHPARAMETER_BETA_THETA);
+		const double b = dhParameterSetCurrent.b() - _correction(PARAMETER::B);
+		const double beta = dhParameterSetCurrent.beta() - _correction(PARAMETER::BETA);
 		rw::models::DHParameterSet dhParameterSetNext(alpha, a, beta, b, true);
 		rw::models::DHParameterSet::set(dhParameterSetNext, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
 	} else {
-		const double d = dhParameterSetCurrent.d() - _parameterSet(DHPARAMETER_B_D);
-		const double theta = dhParameterSetCurrent.theta() - _parameterSet(DHPARAMETER_BETA_THETA);
+		const double d = dhParameterSetCurrent.d() - _correction(PARAMETER::D);
+		const double theta = dhParameterSetCurrent.theta() - _correction(PARAMETER::THETA);
 		rw::models::DHParameterSet dhParameterSetNext(alpha, a, d, theta, dhParameterSetCurrent.getType());
 		rw::models::DHParameterSet::set(dhParameterSetNext, _joint.get());
 		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
@@ -96,24 +96,24 @@ Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame:
 	Eigen::MatrixXd jacobian(6, columnCount);
 	int columnIndex = 0;
 	// a
-	if (!_lockedParameters(DHPARAMETER_A)) {
+	if (!_lockedParameters(PARAMETER::A)) {
 		jacobian.block<3, 1>(0, columnIndex) = tfmToPostLink.linear().col(0);
 		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
 	// b/d
-	if (!_lockedParameters(DHPARAMETER_B_D)) {
+	if (!_lockedParameters(PARAMETER::B_D)) {
 		jacobian.block<3, 1>(0, columnIndex) = tfmToPreLink.linear().col(isParallel ? 1 : 2);
 		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
 	// alpha
-	if (!_lockedParameters(DHPARAMETER_ALPHA)) {
+	if (!_lockedParameters(PARAMETER::ALPHA)) {
 		Eigen::Vector3d xAxisToPost = tfmToPostLink.linear().col(0);
 		Eigen::Vector3d tlPostToEnd = tfmToEnd.translation() - tfmToPostLink.translation();
 		jacobian.block<3, 1>(0, columnIndex) = xAxisToPost.cross(tlPostToEnd);
 		jacobian.block<3, 1>(3, columnIndex++) = xAxisToPost;
 	}
 	// beta/theta
-	if (!_lockedParameters(DHPARAMETER_BETA_THETA)) {
+	if (!_lockedParameters(PARAMETER::BETA_THETA)) {
 		Eigen::Vector3d yzAxisToPre = tfmToPreLink.linear().col(isParallel ? 1 : 2);
 		Eigen::Vector3d tlPreToEnd = tfmToEnd.translation() - tfmToPreLink.translation();
 		jacobian.block<3, 1>(0, columnIndex) = yzAxisToPre.cross(tlPreToEnd);
@@ -126,16 +126,16 @@ Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame:
 void DHParameterCalibration::doTakeStep(const Eigen::VectorXd& step) {
 	const int parameterCount = _lockedParameters.rows();
 	unsigned int unlockedParameterIndex = 0;
-	Eigen::Vector4d parameterVector = Eigen::Vector4d::Zero();
+	Eigen::Vector4d mappedStep = Eigen::Vector4d::Zero();
 	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++)
 		if (!_lockedParameters(parameterIndex))
-			parameterVector(parameterIndex) = step(unlockedParameterIndex++);
+			mappedStep(parameterIndex) = step(unlockedParameterIndex++);
 
 	bool wasApplied = isApplied();
 	if (wasApplied)
 		revert();
 
-	_parameterSet += parameterVector;
+	_correction += mappedStep;
 
 	if (wasApplied)
 		apply();

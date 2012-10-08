@@ -36,7 +36,7 @@ FixedFrameCalibration::Ptr ElementReader::readElement<FixedFrameCalibration::Ptr
 	if (frame.isNull())
 		RW_THROW("Frame not found.");
 
-	bool isPreCorrection = element.attribute("isPreCorrection").toInt();
+	bool isPostCorrection = element.attribute("isPostCorrection").toInt();
 
 	QDomElement transformNode = element.namedItem("Transform").toElement();
 	QStringList txtTransformSplitted = transformNode.text().simplified().split(" ");
@@ -48,7 +48,7 @@ FixedFrameCalibration::Ptr ElementReader::readElement<FixedFrameCalibration::Ptr
 		for (int columnIndex = 0; columnIndex < 4; columnIndex++)
 			transform(rowIndex, columnIndex) = txtTransformSplitted[4 * rowIndex + columnIndex].toDouble();
 
-	return rw::common::ownedPtr(new FixedFrameCalibration(frame, isPreCorrection, transform));
+	return rw::common::ownedPtr(new FixedFrameCalibration(frame, isPostCorrection, transform));
 }
 
 template<>
