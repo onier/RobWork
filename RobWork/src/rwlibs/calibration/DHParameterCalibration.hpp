@@ -21,16 +21,18 @@ namespace calibration {
 
 class DHParameterCalibration: public Calibration {
 public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 	enum PARAMETER {
-		A = 0,
-		B = 1,
-		D = 1,
-		ALPHA = 2,
-		BETA = 3,
-		THETA = 3
+		PARAMETER_A = 0,
+		PARAMETER_B = 1,
+		PARAMETER_D = 1,
+		PARAMETER_B_D = 1,
+		PARAMETER_ALPHA = 2,
+		PARAMETER_BETA = 3,
+		PARAMETER_THETA = 3,
+		PARAMETER_BETA_THETA = 3
 	};
+
+	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	typedef rw::common::Ptr<DHParameterCalibration> Ptr;
 

@@ -268,19 +268,20 @@ ENDIF ()
 #
 # If the user wants to use the calibration package, Eigen3 and Qt4 must be installed. Otherwise the package will be disabled.
 #
-FIND_PACKAGE(Eigen3 QUIET)
-FIND_PACKAGE( Qt4 COMPONENTS QtCore QtGui QtXml QUIET)
-IF( EIGEN3_FOUND AND QT4_FOUND AND ENABLE_CALIBRATION_PACKAGE)
-	SET(RW_HAVE_EIGEN ${EIGEN3_FOUND})
-	SET(RW_HAVE_QT ${QT4_FOUND})	
-	include( ${QT_USE_FILE} )
-	set(CALIBRATION_LIB rw_calibration ${QT_LIBRARIES})
-	set(CALIBRATION_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR} ${QT_INCLUDES})
-	message(STATUS "Found QT and Eigen: Building calibration package.")
-ELSE ()
-	message(STATUS "Did not find QT and Eigen: Calibration package disabled.")
-ENDIF ()
-
+IF ( RW_BUILD_CALIBRATION )
+	FIND_PACKAGE( Eigen3 QUIET )
+	FIND_PACKAGE( Qt4 COMPONENTS QtCore QtGui QtXml QUIET )
+	IF( EIGEN3_FOUND AND QT4_FOUND )
+		SET( RW_HAVE_EIGEN ${EIGEN3_FOUND} )
+		SET( RW_HAVE_QT ${QT4_FOUND} )
+		INCLUDE( ${QT_USE_FILE} )
+		SET( CALIBRATION_LIB rw_calibration ${QT_LIBRARIES} )
+		SET( CALIBRATION_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR} ${QT_INCLUDES} )
+		MESSAGE( STATUS "Found QT and Eigen: Building calibration package." )
+	ELSE ()
+		MESSAGE( STATUS "Did not find QT and Eigen: Calibration package disabled." )
+	ENDIF ()
+ENDIF()
 
 #######################################################################
 # COMPILER FLAGS AND MACRO SETUP
@@ -453,8 +454,8 @@ SET(ROBWORK_LIBRARIES_TMP
   rw_proximitystrategies
   ${YAOBI_LIBRARIES}
   ${PQP_LIBRARIES}  
-  rw
   ${CALIBRATION_LIB}
+  rw
   ${OPENGL_LIBRARIES}
   ${XERCESC_LIBRARIES}
   ${Boost_LIBRARIES}

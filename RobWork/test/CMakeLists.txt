@@ -55,6 +55,7 @@ SET(TEST_DEPENDENCIES
     rw_simulation
     rw_task
     rw_control
+    ${CALIBRATION_LIB}
 )
   
 # Repeat for each test
@@ -127,7 +128,7 @@ IF ( DEFINED COMPILE_SANDBOX OR RW_BUILD_SANDBOX )
     ADD_TEST( rw_sandbox-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rw_sandbox-test ${DEFAULT_TEST_ARGS})
     ADD_DEPENDENCIES(rw_sandbox-test ${TEST_DEPENDENCIES})
     SET(SANDBOX_TEST rw_sandbox-test) 
-endif()
+ENDIF()
 
 OPTION(RW_ENABLE_PERFORMANCE_TESTS "Set when you want to build the performance tests" ${RW_ENABLE_PERFORMANCE_TESTS})
 IF ( RW_ENABLE_PERFORMANCE_TESTS )
@@ -140,27 +141,24 @@ IF ( RW_ENABLE_PERFORMANCE_TESTS )
     SET(PERFORMANCE_TEST rw_performance-test)     
 ENDIF()
 
-IF (RW_HAVE_EIGEN AND RW_HAVE_QT)
-	ADD_EXECUTABLE( rw_calibration-test ${DO_EXCLUDE} test-main.cpp calibration/CalibrationTest.cpp)       
+IF ( RW_BUILD_CALIBRATION )
+	ADD_EXECUTABLE( rw_calibration-test ${DO_EXCLUDE} test-main.cpp calibration/CalibrationTest.cpp )
 	TARGET_LINK_LIBRARIES( rw_calibration-test ${TEST_LIBRARIES} )
-	ADD_TEST( rw_calibration-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rw_calibration-test ${DEFAULT_TEST_ARGS})
-	ADD_DEPENDENCIES(rw_calibration-test ${TEST_DEPENDENCIES})
+	ADD_TEST( rw_calibration-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rw_calibration-test ${DEFAULT_TEST_ARGS} )
+	ADD_DEPENDENCIES( rw_calibration-test ${TEST_DEPENDENCIES} )
+	SET(CALIBRATION_TEST rw_calibration-test)
 	
-	ADD_EXECUTABLE( rw_calibration-tool calibration/CalibrationTool.cpp)       
+	ADD_EXECUTABLE( rw_calibration-tool calibration/CalibrationTool.cpp )
 	TARGET_LINK_LIBRARIES( rw_calibration-tool ${TEST_LIBRARIES} )
-	ADD_DEPENDENCIES(rw_calibration-tool ${TEST_DEPENDENCIES})
-	
-	ADD_EXECUTABLE( rw_calibration-mtool calibration/MeasurementTool.cpp)       
-	TARGET_LINK_LIBRARIES( rw_calibration-mtool ${TEST_LIBRARIES} )
-	ADD_DEPENDENCIES(rw_calibration-mtool ${TEST_DEPENDENCIES})
+	ADD_DEPENDENCIES( rw_calibration-tool ${TEST_DEPENDENCIES} )
 ENDIF()
 
 ADD_CUSTOM_TARGET(rw_all-tests ctest -V 
   DEPENDS rw_math-test rw_common-test rw_geometry-test rw_models-test rw_invkin-test 
           rw_loader-test rw_kinematics-test 
           rw_trajectory-test rw_collision-test 
-          rw_graphics-test 
-          rw_calibration-test rw_planner-test ${SANDBOX_TEST} ${PERFORMANCE_TEST} ${RW_EXTRA_TESTS}
+          rw_graphics-test rw_planner-test rw_calibration-test
+          ${SANDBOX_TEST} ${PERFORMANCE_TEST} ${RW_EXTRA_TESTS}
           ${TEST_DEPENDENCIES}
     WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 
@@ -168,8 +166,7 @@ INSTALL(TARGETS
             rw_math-test rw_common-test rw_models-test rw_geometry-test 
             rw_invkin-test rw_loader-test rw_kinematics-test 
             rw_trajectory-test rw_collision-test 
-            rw_graphics-test 
-            rw_calibration-test rw_planner-test ${SANDBOX_TEST} ${PERFORMANCE_TEST}
+            rw_graphics-test rw_planner-test ${CALIBRATION_TEST} ${SANDBOX_TEST} ${PERFORMANCE_TEST}
         DESTINATION ${RW_INSTALL_DIR}/test)
 
 INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/TestSuiteConfig.xml.install
@@ -180,6 +177,3 @@ INSTALL(DIRECTORY
         FILES_MATCHING 
             PATTERN ".svn" EXCLUDE        
         )
-       
-        
-        

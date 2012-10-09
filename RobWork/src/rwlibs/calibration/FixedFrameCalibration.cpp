@@ -14,8 +14,8 @@
 namespace rwlibs {
 namespace calibration {
 
-FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPreCorrection, const Eigen::Affine3d& transform) :
-		_frame(frame), _isPostCorrection(isPreCorrection), _correction(transform), _lockedParameters(Eigen::Matrix<int, 6, 1>::Zero()) {
+FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const Eigen::Affine3d& transform) :
+		_frame(frame), _isPostCorrection(isPostCorrection), _correction(transform), _lockedParameters(Eigen::Matrix<int, 6, 1>::Zero()) {
 
 }
 
@@ -46,13 +46,13 @@ void FixedFrameCalibration::setLockedParameters(bool x, bool y, bool z, bool rol
 void FixedFrameCalibration::doApply() {
 	Eigen::Affine3d correctedTransform =
 			_isPostCorrection ? _correction * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * _correction;
-	_frame->setCorrection(correctedTransform);
+	_frame->setTransform(correctedTransform);
 }
 
 void FixedFrameCalibration::doRevert() {
 	Eigen::Affine3d correctedTransform =
 			_isPostCorrection ? _correction.inverse() * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * _correction.inverse();
-	_frame->setCorrection(correctedTransform);
+	_frame->setTransform(correctedTransform);
 }
 
 void FixedFrameCalibration::doCorrect(rw::kinematics::State& state) {
@@ -79,27 +79,27 @@ Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::
 	Eigen::MatrixXd jacobian(6, columnCount);
 	int columnIndex = 0;
 
-	if (!_lockedParameters(PARAMETER::X)) {
+	if (!_lockedParameters(PARAMETER_X)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(0);
 		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
-	if (!_lockedParameters(PARAMETER::Y)) {
+	if (!_lockedParameters(PARAMETER_Y)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(1);
 		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
-	if (!_lockedParameters(PARAMETER::Z)) {
+	if (!_lockedParameters(PARAMETER_Z)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(2);
 		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
 	}
-	if (!_lockedParameters(PARAMETER::ROLL)) {
+	if (!_lockedParameters(PARAMETER_ROLL)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(0).cross(preToEndTranslation);
 		jacobian.block<3, 1>(3, columnIndex++) = toPreCorrectionRotation.col(0);
 	}
-	if (!_lockedParameters(PARAMETER::PITCH)) {
+	if (!_lockedParameters(PARAMETER_PITCH)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(1).cross(preToEndTranslation);
 		jacobian.block<3, 1>(3, columnIndex++) = toPreCorrectionRotation.col(1);
 	}
-	if (!_lockedParameters(PARAMETER::YAW)) {
+	if (!_lockedParameters(PARAMETER_YAW)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(2).cross(preToEndTranslation);
 		jacobian.block<3, 1>(3, columnIndex) = toPreCorrectionRotation.col(2);
 	}
@@ -120,7 +120,7 @@ void FixedFrameCalibration::doTakeStep(const Eigen::VectorXd& step) {
 	if (isApplied()) {
 		Eigen::Affine3d correctedTransform =
 				_isPostCorrection ? stepTransform * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * stepTransform;
-		_frame->setCorrection(correctedTransform);
+		_frame->setTransform(correctedTransform);
 	}
 }
 

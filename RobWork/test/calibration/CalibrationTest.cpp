@@ -6,25 +6,24 @@
  */
 
 #include "../TestSuiteConfig.hpp"
-
 #include "MultivariateNormalDistribution.hpp"
 #include <rw/models.hpp>
 #include <rw/kinematics.hpp>
 #include <rw/loaders.hpp>
 #include <rwlibs/calibration.hpp>
 
+const std::string workCellFilePath(testFilePath() + "calibration/Scene/SomeScene.wc.xml");
+const std::string deviceName("SomeDevice");
+const std::string referenceFrameName("SomeSensorFrame");
+const std::string measurementFrameName("SomeDevice.Marker");
+const std::string calibrationFilePath(testFilePath() + "calibration/SomeCalibration.xml");
+const unsigned int measurementCount = 40;
+
 std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
 		rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rw::kinematics::State state, unsigned int measurementCount,
 		bool addNoise);
 
 BOOST_AUTO_TEST_CASE( CalibrationTest ) {
-	const std::string workCellFilePath(testFilePath() + "calibration/Scene/SomeScene.wc.xml");
-	const std::string deviceName("SomeDevice");
-	const std::string referenceFrameName("SomeSensorFrame");
-	const std::string measurementFrameName("SomeDevice.Marker");
-	const std::string calibrationFilePath(testFilePath() + "calibration/SomeCalibration.xml");
-	const unsigned int measurementCount = 40;
-
 	// Load workcell.
 	BOOST_TEST_CHECKPOINT("Loading work cell");
 	rw::models::WorkCell::Ptr workCell = rw::loaders::XMLRWLoader::load(workCellFilePath);

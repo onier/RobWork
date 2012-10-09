@@ -41,7 +41,7 @@ public:
 
 	RPY(const _Scalar& roll, const _Scalar& pitch, const _Scalar& yaw);
 
-	template <typename Derived>
+	template<typename Derived>
 	explicit RPY(const Eigen::MatrixBase<Derived>& matrix, _Scalar epsilon = 1e-5);
 
 	const _Scalar& roll() const;
@@ -75,7 +75,7 @@ RPY<_Scalar>::RPY(const _Scalar& roll, const _Scalar& pitch, const _Scalar& yaw)
 }
 
 template<typename _Scalar>
-template <typename Derived>
+template<typename Derived>
 RPY<_Scalar>::RPY(const Eigen::MatrixBase<Derived>& matrix, _Scalar epsilon) {
 	if (matrix.rows() != 3 || (matrix.cols() != 1 && matrix.cols() != 3))
 		RW_THROW("RPY must be constructed from a 3x1 vector or 3x3 matrix.");
@@ -114,7 +114,9 @@ inline Eigen::Matrix<_Scalar, 3, 1> RPY<_Scalar>::toVector() const {
 
 template<typename _Scalar>
 inline Eigen::Matrix<_Scalar, 3, 3> RPY<_Scalar>::toRotationMatrix() const {
-	return Eigen::Matrix<_Scalar, 3, 3>(Eigen::AngleAxis<_Scalar>(yaw_, Eigen::Matrix<_Scalar, 3, 1>::UnitZ()) * Eigen::AngleAxis<_Scalar>(pitch_, Eigen::Matrix<_Scalar, 3, 1>::UnitY()) * Eigen::AngleAxis<_Scalar>(roll_, Eigen::Matrix<_Scalar, 3, 1>::UnitX()));
+	return Eigen::Matrix<_Scalar, 3, 3>(
+			Eigen::AngleAxis<_Scalar>(roll_, Eigen::Matrix<_Scalar, 3, 1>::UnitZ()) * Eigen::AngleAxis<_Scalar>(pitch_, Eigen::Matrix<_Scalar, 3, 1>::UnitY())
+					* Eigen::AngleAxis<_Scalar>(yaw_, Eigen::Matrix<_Scalar, 3, 1>::UnitX()));
 }
 
 }

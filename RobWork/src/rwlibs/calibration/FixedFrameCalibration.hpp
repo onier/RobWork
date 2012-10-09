@@ -21,20 +21,20 @@ namespace calibration {
 
 class FixedFrameCalibration: public Calibration {
 public:
+	enum PARAMETER {
+		PARAMETER_X = 0,
+		PARAMETER_Y = 1,
+		PARAMETER_Z = 2,
+		PARAMETER_ROLL = 3,
+		PARAMETER_PITCH = 4,
+		PARAMETER_YAW = 5
+	};
+
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	typedef rw::common::Ptr<FixedFrameCalibration> Ptr;
 
-	enum PARAMETER {
-		X = 0,
-		Y = 1,
-		Z = 2,
-		ROLL = 3,
-		PITCH = 4,
-		YAW = 5
-	};
-
-	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPreCorrection = true, const Eigen::Affine3d& transform = Eigen::Affine3d::Identity());
+	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection = false, const Eigen::Affine3d& transform = Eigen::Affine3d::Identity());
 
 	virtual ~FixedFrameCalibration();
 

@@ -157,14 +157,14 @@ void initializeTool(int argumentCount, char** arguments) {
 	serialDeviceCalibration->getCompositeDHParameterCalibration()->setLocked(!enableDHCalibration);
 	std::cout << " Initialized." << std::endl;
 
-	std::cout << "\tInitializing calibrator [ Weighted: " << (weighted ? "Yes" : "No") << " ]..";
+	std::cout << "\tInitializing calibrator [ Weighting: " << (weighted ? "Enabled" : "Disabled") << " ]..";
 	std::cout.flush();
 	serialDeviceCalibrator = rw::common::ownedPtr(
 			new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, state, referenceFrame, measurementFrame, serialDeviceCalibration));
 	if (measurements.size() < serialDeviceCalibrator->getMinimumMeasurementCount())
 		RW_THROW("Not enough measurements.");
 	serialDeviceCalibrator->setMeasurements(measurements);
-	serialDeviceCalibrator->setWeighted(weighted);
+	serialDeviceCalibrator->setWeightingEnabled(weighted);
 	std::cout << " Initialized." << std::endl;
 }
 

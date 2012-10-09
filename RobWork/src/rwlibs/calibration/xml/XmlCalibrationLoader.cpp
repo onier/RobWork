@@ -77,8 +77,7 @@ DHParameterCalibration::Ptr ElementReader::readElement<DHParameterCalibration::P
 		RW_THROW(QString("Joint \"%1\" needs \"angle\" attribute.").arg(jointName).toStdString());
 	double angle = element.attribute("angle").toDouble();
 
-	return rw::common::ownedPtr(
-			new DHParameterCalibration(joint, Eigen::Vector4d(a, length, alpha, angle)));
+	return rw::common::ownedPtr(new DHParameterCalibration(joint, Eigen::Vector4d(a, length, alpha, angle)));
 }
 
 SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(std::string fileName, rw::kinematics::StateStructure::Ptr stateStructure,

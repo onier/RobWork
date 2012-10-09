@@ -15,7 +15,7 @@ namespace calibration {
 
 SerialDeviceCalibrator::SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state,
 		rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration) :
-		_device(device), _state(state), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _isWeighted(true) {
+		_device(device), _state(state), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _isWeightingEnabled(true) {
 
 }
 
@@ -63,8 +63,12 @@ void SerialDeviceCalibrator::setMeasurements(const std::vector<SerialDevicePoseM
 	_measurements = measurements;
 }
 
-void SerialDeviceCalibrator::setWeighted(bool isWeighted) {
-	_isWeighted = isWeighted;
+bool SerialDeviceCalibrator::isWeightingEnabled() const {
+	return _isWeightingEnabled;
+}
+
+void SerialDeviceCalibrator::setWeightingEnabled(bool isWeightingEnabled) {
+	_isWeightingEnabled = isWeightingEnabled;
 }
 
 NLLSSolverLog::Ptr SerialDeviceCalibrator::getLog() const {
@@ -127,7 +131,7 @@ void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians, 
 		stackedJacobians.block(6 * measurementIndex, 0, 6, parameterCount) = _calibration->computeJacobian(_referenceFrame, _measurementFrame, _state);
 
 		// Weight system
-		if (_isWeighted && measurement->hasCovariance()) {
+		if (_isWeightingEnabled && measurement->hasCovariance()) {
 			const Eigen::Matrix<double, 6, 6> weightMatrix = Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(
 					measurement->getCovariance()).operatorInverseSqrt();
 			stackedJacobians.block(6 * measurementIndex, 0, 6, parameterCount) = weightMatrix
@@ -164,7 +168,7 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals,
 		stackedResiduals(6 * measurementIndex + 4) = (dR(0, 2) - dR(2, 0)) / 2;
 		stackedResiduals(6 * measurementIndex + 5) = (dR(1, 0) - dR(0, 1)) / 2;
 
-		if (_isWeighted && measurement->hasCovariance()) {
+		if (_isWeightingEnabled && measurement->hasCovariance()) {
 			const Eigen::Matrix<double, 6, 6> weightMatrix = Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(
 					measurement->getCovariance()).operatorInverseSqrt();
 			stackedResiduals.segment<6>(6 * measurementIndex) = weightMatrix * stackedResiduals.segment<6>(6 * measurementIndex);
