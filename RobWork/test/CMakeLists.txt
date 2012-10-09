@@ -146,7 +146,7 @@ IF ( RW_BUILD_CALIBRATION )
 	TARGET_LINK_LIBRARIES( rw_calibration-test ${TEST_LIBRARIES} )
 	ADD_TEST( rw_calibration-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rw_calibration-test ${DEFAULT_TEST_ARGS} )
 	ADD_DEPENDENCIES( rw_calibration-test ${TEST_DEPENDENCIES} )
-	SET(CALIBRATION_TEST rw_calibration-test)
+	SET( CALIBRATION_TEST rw_calibration-test )
 	
 	ADD_EXECUTABLE( rw_calibration-tool calibration/CalibrationTool.cpp )
 	TARGET_LINK_LIBRARIES( rw_calibration-tool ${TEST_LIBRARIES} )
@@ -157,7 +157,7 @@ ADD_CUSTOM_TARGET(rw_all-tests ctest -V
   DEPENDS rw_math-test rw_common-test rw_geometry-test rw_models-test rw_invkin-test 
           rw_loader-test rw_kinematics-test 
           rw_trajectory-test rw_collision-test 
-          rw_graphics-test rw_planner-test rw_calibration-test
+          rw_graphics-test rw_planner-test ${CALIBRATION_TEST}
           ${SANDBOX_TEST} ${PERFORMANCE_TEST} ${RW_EXTRA_TESTS}
           ${TEST_DEPENDENCIES}
     WORKING_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
