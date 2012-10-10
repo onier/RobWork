@@ -42,12 +42,6 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	rw::kinematics::Frame::Ptr measurementFrame = workCell->findFrame(measurementFrameName);
 	BOOST_REQUIRE_MESSAGE(!measurementFrame.isNull(), "Measurement frame not found.");
 
-	// Find current calibration.
-	BOOST_TEST_CHECKPOINT("Getting existing calibration");
-	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibrationExisting = rwlibs::calibration::SerialDeviceCalibration::get(serialDevice);
-	BOOST_CHECK_MESSAGE(!serialDeviceCalibrationExisting.isNull(), "Existing calibration not found.");
-	serialDeviceCalibrationExisting->revert();
-
 	// Setup artificial calibration.
 	BOOST_TEST_CHECKPOINT("Setting up artificial calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr artificialCalibration(
@@ -71,7 +65,6 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	BOOST_TEST_CHECKPOINT("Reverting artificial calibration");
 	artificialCalibration->revert();
 
-	std::cout << "ASDF" << std::endl;
 	// Initialize calibration, jacobian and calibrator.
 	BOOST_TEST_CHECKPOINT("Initializing calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr calibration(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));

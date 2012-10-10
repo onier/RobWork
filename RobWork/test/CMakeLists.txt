@@ -142,15 +142,15 @@ IF ( RW_ENABLE_PERFORMANCE_TESTS )
 ENDIF()
 
 IF ( RW_BUILD_CALIBRATION )
-#	ADD_EXECUTABLE( rw_calibration-test ${DO_EXCLUDE} test-main.cpp calibration/CalibrationTest.cpp )
-#	TARGET_LINK_LIBRARIES( rw_calibration-test ${TEST_LIBRARIES} )
-#	ADD_TEST( rw_calibration-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rw_calibration-test ${DEFAULT_TEST_ARGS} )
-#	ADD_DEPENDENCIES( rw_calibration-test ${TEST_DEPENDENCIES} )
-#	SET( CALIBRATION_TEST rw_calibration-test )
+	ADD_EXECUTABLE( rw_calibration-test ${DO_EXCLUDE} test-main.cpp calibration/CalibrationTest.cpp )
+	TARGET_LINK_LIBRARIES( rw_calibration-test ${TEST_LIBRARIES} )
+	ADD_TEST( rw_calibration-test ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/rw_calibration-test ${DEFAULT_TEST_ARGS} )
+	ADD_DEPENDENCIES( rw_calibration-test ${TEST_DEPENDENCIES} )
+	SET( CALIBRATION_TEST rw_calibration-test )
 	
-#	ADD_EXECUTABLE( rw_calibration-tool calibration/CalibrationTool.cpp )
-#	TARGET_LINK_LIBRARIES( rw_calibration-tool ${TEST_LIBRARIES} )
-#	ADD_DEPENDENCIES( rw_calibration-tool ${TEST_DEPENDENCIES} )
+	ADD_EXECUTABLE( rw_calibration-tool calibration/CalibrationTool.cpp )
+	TARGET_LINK_LIBRARIES( rw_calibration-tool ${TEST_LIBRARIES} )
+	ADD_DEPENDENCIES( rw_calibration-tool ${TEST_DEPENDENCIES} )
 ENDIF()
 
 ADD_CUSTOM_TARGET(rw_all-tests ctest -V 

@@ -93,7 +93,7 @@ int main(int argumentCount, char** arguments) {
 	std::cout << " Found [ " << measurementFrame->getName() << " ]." << std::endl;
 
 	// Load robot pose measurements from file.
-	std::cout << "\tLoading measurements [" << measurementFilePath << "]..";
+	std::cout << "\tLoading measurements [ " << measurementFilePath << " ]..";
 	std::cout.flush();
 	measurements = rwlibs::calibration::XmlMeasurementFile::load(measurementFilePath);
 	std::cout << " Loaded " << measurements.size() << " measurements." << std::endl;
