@@ -63,7 +63,7 @@
 
 #include <boost/foreach.hpp>
 
-#ifdef RW_BUILD_WITH_CALIBRATION
+#ifdef RW_BUILD_CALIBRATION
 #include <rwlibs/calibration/SerialDeviceCalibration.hpp>
 #include <rwlibs/calibration/xml/XmlCalibrationLoader.hpp>
 #endif
@@ -502,7 +502,7 @@ Device::Ptr createDevice(DummyDevice &dev, DummySetup &setup) {
 		State state = setup.tree->getDefaultState();
 		model = ownedPtr(new SerialDevice(chain.front(), chain.back(), dev.getName(), state));
 
-#ifdef RW_BUILD_WITH_CALIBRATION
+#ifdef RW_BUILD_CALIBRATION
 		if (dev._calibration.size() > 0) {
 			// get filename
 			DummyCalibration dummyCalibration = dev._calibration.front();

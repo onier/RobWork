@@ -13,7 +13,8 @@ namespace rwlibs {
 namespace calibration {
 
 EncoderParameterCalibration::EncoderParameterCalibration(rw::models::JointDevice::Ptr jointDevice, rw::models::Joint::Ptr joint) :
-		_jointDevice(jointDevice), _joint(joint), _parameters(Eigen::VectorXd::Zero(getCorrectionFunctionCount())), _lockedParameters(Eigen::VectorXi::Zero(getCorrectionFunctionCount())) {
+		_jointDevice(jointDevice), _joint(joint), _parameters(Eigen::VectorXd::Zero(getCorrectionFunctionCount())), _lockedParameters(
+				Eigen::VectorXi::Zero(getCorrectionFunctionCount())) {
 	// Find joint number.
 	const std::vector<rw::models::Joint*> joints = jointDevice->getJoints();
 	_jointIndex = std::find(joints.begin(), joints.end(), joint.get()) - joints.begin();
@@ -133,8 +134,10 @@ Eigen::VectorXd EncoderParameterCalibration::computeCorrectionFunctionVector(con
 	Eigen::VectorXd corrections(parameterCount);
 	int parameterIndex = 0;
 	// tau
-	if (!_lockedParameters(0))
-		corrections(parameterIndex++) = -sin(q);
+	if (!_lockedParameters(0)) {
+		corrections(parameterIndex) = -sin(q);
+		parameterIndex++;
+	}
 	// sigma
 	if (!_lockedParameters(1))
 		corrections(parameterIndex) = -cos(q);

@@ -78,30 +78,34 @@ Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::
 	const int columnCount = getParameterCount();
 	Eigen::MatrixXd jacobian(6, columnCount);
 	int columnIndex = 0;
-
 	if (!_lockedParameters(PARAMETER_X)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(0);
-		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
+		jacobian.block<3, 1>(3, columnIndex) = Eigen::Vector3d::Zero();
+		columnIndex++;
 	}
 	if (!_lockedParameters(PARAMETER_Y)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(1);
-		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
+		jacobian.block<3, 1>(3, columnIndex) = Eigen::Vector3d::Zero();
+		columnIndex++;
 	}
 	if (!_lockedParameters(PARAMETER_Z)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(2);
-		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
-	}
-	if (!_lockedParameters(PARAMETER_ROLL)) {
-		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(0).cross(preToEndTranslation);
-		jacobian.block<3, 1>(3, columnIndex++) = toPreCorrectionRotation.col(0);
-	}
-	if (!_lockedParameters(PARAMETER_PITCH)) {
-		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(1).cross(preToEndTranslation);
-		jacobian.block<3, 1>(3, columnIndex++) = toPreCorrectionRotation.col(1);
+		jacobian.block<3, 1>(3, columnIndex) = Eigen::Vector3d::Zero();
+		columnIndex++;
 	}
 	if (!_lockedParameters(PARAMETER_YAW)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(2).cross(preToEndTranslation);
 		jacobian.block<3, 1>(3, columnIndex) = toPreCorrectionRotation.col(2);
+		columnIndex++;
+	}
+	if (!_lockedParameters(PARAMETER_PITCH)) {
+		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(1).cross(preToEndTranslation);
+		jacobian.block<3, 1>(3, columnIndex) = toPreCorrectionRotation.col(1);
+		columnIndex++;
+	}
+	if (!_lockedParameters(PARAMETER_ROLL)) {
+		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(0).cross(preToEndTranslation);
+		jacobian.block<3, 1>(3, columnIndex) = toPreCorrectionRotation.col(0);
 	}
 
 	return jacobian;

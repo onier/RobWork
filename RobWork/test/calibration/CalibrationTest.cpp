@@ -12,18 +12,18 @@
 #include <rw/loaders.hpp>
 #include <rwlibs/calibration.hpp>
 
-const std::string workCellFilePath(testFilePath() + "calibration/Scene/SomeScene.wc.xml");
-const std::string deviceName("SomeDevice");
-const std::string referenceFrameName("SomeSensorFrame");
-const std::string measurementFrameName("SomeDevice.Marker");
-const std::string calibrationFilePath(testFilePath() + "calibration/SomeCalibration.xml");
-const unsigned int measurementCount = 40;
-
 std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
 		rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rw::kinematics::State state, unsigned int measurementCount,
 		bool addNoise);
 
 BOOST_AUTO_TEST_CASE( CalibrationTest ) {
+	const std::string workCellFilePath(testFilePath() + "calibration/Scene/SomeScene.wc.xml");
+	const std::string deviceName("SomeDevice");
+	const std::string referenceFrameName("SomeSensorFrame");
+	const std::string measurementFrameName("SomeDevice.Marker");
+	const std::string calibrationFilePath(testFilePath() + "calibration/SomeCalibration.xml");
+	const unsigned int measurementCount = 40;
+
 	// Load workcell.
 	BOOST_TEST_CHECKPOINT("Loading work cell");
 	rw::models::WorkCell::Ptr workCell = rw::loaders::XMLRWLoader::load(workCellFilePath);
@@ -44,9 +44,9 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 
 	// Find current calibration.
 	BOOST_TEST_CHECKPOINT("Getting existing calibration");
-	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibrationLast = rwlibs::calibration::SerialDeviceCalibration::get(serialDevice);
-	BOOST_CHECK_MESSAGE(!serialDeviceCalibrationLast.isNull(), "Existing calibration not found.");
-	serialDeviceCalibrationLast->revert();
+	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibrationExisting = rwlibs::calibration::SerialDeviceCalibration::get(serialDevice);
+	BOOST_CHECK_MESSAGE(!serialDeviceCalibrationExisting.isNull(), "Existing calibration not found.");
+	serialDeviceCalibrationExisting->revert();
 
 	// Setup artificial calibration.
 	BOOST_TEST_CHECKPOINT("Setting up artificial calibration");
@@ -71,6 +71,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	BOOST_TEST_CHECKPOINT("Reverting artificial calibration");
 	artificialCalibration->revert();
 
+	std::cout << "ASDF" << std::endl;
 	// Initialize calibration, jacobian and calibrator.
 	BOOST_TEST_CHECKPOINT("Initializing calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr calibration(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
@@ -123,15 +124,18 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 		rwlibs::calibration::XmlCalibrationSaver::save(calibration, calibrationFilePath);
 
 		BOOST_TEST_CHECKPOINT("Loading calibration");
-		rwlibs::calibration::SerialDeviceCalibration::Ptr calibrationLoaded = rwlibs::calibration::XmlCalibrationLoader::load(calibrationFilePath, workCell->getStateStructure(), serialDevice);
+		rwlibs::calibration::SerialDeviceCalibration::Ptr calibrationLoaded = rwlibs::calibration::XmlCalibrationLoader::load(calibrationFilePath,
+				workCell->getStateStructure(), serialDevice);
 
 		BOOST_TEST_CHECKPOINT("Applying loaded calibration");
 		calibrationLoaded->apply();
 
 		// Verify that the loaded calibration match the artificial calibration.
-		BOOST_CHECK_MESSAGE(calibrationLoaded->getBaseCalibration()->getCorrection().isApprox(artificialCalibration->getBaseCalibration()->getCorrection(), 10e-5),
+		BOOST_CHECK_MESSAGE(
+				calibrationLoaded->getBaseCalibration()->getCorrection().isApprox(artificialCalibration->getBaseCalibration()->getCorrection(), 10e-5),
 				"Base calibration failed.");
-		BOOST_CHECK_MESSAGE(calibrationLoaded->getEndCalibration()->getCorrection().isApprox(artificialCalibration->getEndCalibration()->getCorrection(), 10e-5),
+		BOOST_CHECK_MESSAGE(
+				calibrationLoaded->getEndCalibration()->getCorrection().isApprox(artificialCalibration->getEndCalibration()->getCorrection(), 10e-5),
 				"End calibration failed.");
 		std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> dhParameterCalibrationsLoaded =
 				calibrationLoaded->getCompositeDHParameterCalibration()->getCalibrations();

@@ -98,19 +98,22 @@ Eigen::MatrixXd DHParameterCalibration::doComputeJacobian(rw::kinematics::Frame:
 	// a
 	if (!_lockedParameters(PARAMETER_A)) {
 		jacobian.block<3, 1>(0, columnIndex) = tfmToPostLink.linear().col(0);
-		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
+		jacobian.block<3, 1>(3, columnIndex) = Eigen::Vector3d::Zero();
+		columnIndex++;
 	}
 	// b/d
 	if (!_lockedParameters(PARAMETER_B_D)) {
 		jacobian.block<3, 1>(0, columnIndex) = tfmToPreLink.linear().col(isParallel ? 1 : 2);
-		jacobian.block<3, 1>(3, columnIndex++) = Eigen::Vector3d::Zero();
+		jacobian.block<3, 1>(3, columnIndex) = Eigen::Vector3d::Zero();
+		columnIndex++;
 	}
 	// alpha
 	if (!_lockedParameters(PARAMETER_ALPHA)) {
 		Eigen::Vector3d xAxisToPost = tfmToPostLink.linear().col(0);
 		Eigen::Vector3d tlPostToEnd = tfmToEnd.translation() - tfmToPostLink.translation();
 		jacobian.block<3, 1>(0, columnIndex) = xAxisToPost.cross(tlPostToEnd);
-		jacobian.block<3, 1>(3, columnIndex++) = xAxisToPost;
+		jacobian.block<3, 1>(3, columnIndex) = xAxisToPost;
+		columnIndex++;
 	}
 	// beta/theta
 	if (!_lockedParameters(PARAMETER_BETA_THETA)) {

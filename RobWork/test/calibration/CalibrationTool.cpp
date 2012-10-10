@@ -1,3 +1,4 @@
+#include <rw/common.hpp>
 #include <rw/loaders.hpp>
 #include <rwlibs/calibration.hpp>
 
@@ -7,10 +8,10 @@ std::string referenceFrameName;
 std::string measurementFrameName;
 std::string measurementFilePath;
 std::string calibrationFilePath;
-bool weighted;
-bool enableBaseCalibration;
-bool enableEndCalibration;
-bool enableDHCalibration;
+bool weighting;
+bool calibrateBase;
+bool calibrateEnd;
+bool calibrateDH;
 
 rw::models::WorkCell::Ptr workCell;
 rw::kinematics::State state;
@@ -23,111 +24,76 @@ std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> measurements;
 rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration;
 rwlibs::calibration::SerialDeviceCalibrator::Ptr serialDeviceCalibrator;
 
-void initializeTool(int argumentCount, char** arguments);
 void printMeasurementSummary();
 void printSolverLog();
 void printCalibrationSummary();
 
 int main(int argumentCount, char** arguments) {
-	try {
-		std::cout << "<!--" << std::endl;
-		std::cout << "Initializing calibration tool.." << std::endl;
-		initializeTool(argumentCount, arguments);
-		std::cout << "Initialized." << std::endl;
+	std::cout << "Initializing calibration tool:" << std::endl;
 
-		// Print differences between model and measurements before calibration.
-		std::cout << "Printing summary of differences between model and measurements before calibration.." << std::endl;
-		printMeasurementSummary();
-		std::cout << "Printed." << std::endl;
+	boost::program_options::options_description optionsDescription("Options");
+	optionsDescription.add_options()("workCellFile", boost::program_options::value<std::string>(&workCellFilePath), "set the work cell file path")("device",
+			boost::program_options::value<std::string>(&deviceName), "set the serial device name")("referenceFrame",
+			boost::program_options::value<std::string>(&referenceFrameName), "set the reference frame")("measurementFrame",
+			boost::program_options::value<std::string>(&measurementFrameName), "set the measurement frame")("measurementFile",
+			boost::program_options::value<std::string>(&measurementFilePath), "set the measurement file")("calibrationFile",
+			boost::program_options::value<std::string>(&calibrationFilePath), "set the calibration file")
+			("weighting", boost::program_options::value<bool>(&weighting)->default_value(true), "enable weighting")
+			("calibrateBase", boost::program_options::value<bool>(&calibrateBase)->default_value(true), "calibrate base")
+			("calibrateEnd", boost::program_options::value<bool>(&calibrateEnd)->default_value(true), "calibrate end")
+			("calibrateDH", boost::program_options::value<bool>(&calibrateDH)->default_value(true), "calibrate DH");
 
-		// Run calibrator.
-		std::cout << "Calibrating..";
-		std::cout.flush();
-		serialDeviceCalibrator->calibrate();
-		std::cout << " Calibrated in " << serialDeviceCalibrator->getLog()->getIterationLogs().size() << " iterations." << std::endl;
+	boost::program_options::positional_options_description positionalOptionsDescription;
+	positionalOptionsDescription.add("workCellFile", 1).add("measurementFile", 1).add("calibrationFile", 1);
 
-		std::cout << "Printing solver log.." << std::endl;
-		printSolverLog();
-		std::cout << "Printed." << std::endl;
-
-		// Print calibration summary.
-		std::cout << "Printing calibration summary.." << std::endl;
-		printCalibrationSummary();
-		std::cout << "Printed." << std::endl;
-
-		// Apply calibration.
-		std::cout << "Applying calibration..";
-		std::cout.flush();
-		serialDeviceCalibration->apply();
-		std::cout << " Applied." << std::endl;
-
-		// Print differences between model and measurements after calibration.
-		std::cout << "Printing differences between model and measurements after calibration.." << std::endl;
-		printMeasurementSummary();
-		std::cout << "Printed." << std::endl;
-
-		// Save and load calibration.
-		std::cout << "Printing calibration [" << calibrationFilePath << "].." << std::endl;
-		std::cout << "-->" << std::endl;
-	} catch (rw::common::Exception& exception) {
-		std::cout << "-->" << std::endl;
-		throw exception;
-	}
-
-	rwlibs::calibration::XmlCalibrationSaver::save(serialDeviceCalibration, std::cout);
-
-	return 0;
-}
-
-void initializeTool(int argumentCount, char** arguments) {
-	if (argumentCount < 7)
-		RW_THROW("Not enough arguments.");
-
-	workCellFilePath = arguments[1];
-	deviceName = arguments[2];
-	referenceFrameName = arguments[3];
-	measurementFrameName = arguments[4];
-	measurementFilePath = arguments[5];
-	calibrationFilePath = arguments[6];
-	weighted = argumentCount >= 7 ? std::atoi(arguments[7]) : true;
-	enableBaseCalibration = argumentCount >= 8 ? std::atoi(arguments[8]) : true;
-	enableEndCalibration = argumentCount >= 9 ? std::atoi(arguments[9]) : true;
-	enableDHCalibration = argumentCount >= 10 ? std::atoi(arguments[10]) : true;
+	boost::program_options::variables_map variablesMap;
+	boost::program_options::store(
+			boost::program_options::command_line_parser(argumentCount, arguments).options(optionsDescription).positional(positionalOptionsDescription).run(),
+			variablesMap);
+	boost::program_options::notify(variablesMap);
 
 	// Load workcell.
-	std::cout << "\tLoading work cell [ " << workCellFilePath << " ]..";
+	std::cout << "\tLoading work cell..";
 	std::cout.flush();
 	workCell = rw::loaders::XMLRWLoader::load(workCellFilePath);
-	if (workCell.isNull())
-		RW_THROW("Work cell not loaded.");
+	if (workCell.isNull()) {
+		std::cout << " FAILED." << std::endl;
+		return -1;
+	}
+	std::cout << " Loaded [ " << workCell->getName() << " ]." << std::endl;
 	state = workCell->getDefaultState();
-	std::cout << " Loaded." << std::endl;
 
 	// Find device and frames.
 	std::cout << "\tFinding device [ " << deviceName << " ]..";
 	std::cout.flush();
-	device = workCell->findDevice(deviceName);
-	if (device.isNull())
-		RW_THROW("Device not found.");
+	device = deviceName.empty() ? workCell->getDevices().front() : workCell->findDevice(deviceName);
+	if (device.isNull()) {
+		std::cout << " FAILED." << std::endl;
+		return -1;
+	}
+	std::cout << " Found [ " << device->getName() << " ]." << std::endl;
 	serialDevice = device.cast<rw::models::SerialDevice>();
-	std::cout << " Found." << std::endl;
 
 	std::cout << "\tFinding reference frame [ " << referenceFrameName << " ]..";
 	std::cout.flush();
-	referenceFrame = workCell->findFrame(referenceFrameName);
-	if (referenceFrame.isNull())
-		RW_THROW("Reference frame not found.");
-	std::cout << " Found." << std::endl;
+	referenceFrame = referenceFrameName.empty() ? workCell->findFrame("WORLD") : workCell->findFrame(referenceFrameName);
+	if (referenceFrame.isNull()) {
+		std::cout << " FAILED." << std::endl;
+		return -1;
+	}
+	std::cout << " Found [ " << referenceFrame->getName() << " ]." << std::endl;
 
 	std::cout << "\tFinding measurement frame [ " << measurementFrameName << " ]..";
 	std::cout.flush();
-	measurementFrame = workCell->findFrame(measurementFrameName);
-	if (measurementFrame.isNull())
-		RW_THROW("Measurement frame not found.");
-	std::cout << " Found." << std::endl;
+	measurementFrame = measurementFrameName.empty() ? device->getEnd() : workCell->findFrame(measurementFrameName);
+	if (measurementFrame.isNull()) {
+		std::cout << " FAILED." << std::endl;
+		return -1;
+	}
+	std::cout << " Found [ " << measurementFrame->getName() << " ]." << std::endl;
 
 	// Load robot pose measurements from file.
-	std::cout << "\tLoading measurements [ " << measurementFilePath << " ]..";
+	std::cout << "\tLoading measurements [" << measurementFilePath << "]..";
 	std::cout.flush();
 	measurements = rwlibs::calibration::XmlMeasurementFile::load(measurementFilePath);
 	std::cout << " Loaded " << measurements.size() << " measurements." << std::endl;
@@ -136,36 +102,78 @@ void initializeTool(int argumentCount, char** arguments) {
 	std::cout << "\tFinding existing calibration..";
 	std::cout.flush();
 	rwlibs::calibration::SerialDeviceCalibration::Ptr calibrationExisting = rwlibs::calibration::SerialDeviceCalibration::get(serialDevice);
-	if (calibrationExisting.isNull())
+	if (calibrationExisting.isNull()) {
 		std::cout << " Not found." << std::endl;
-	else {
+	} else {
 		std::cout << " Found." << std::endl;
 
-		std::cout << "\t - Disabling existing calibration..";
+		std::cout << "\t\tDisabling existing calibration..";
 		std::cout.flush();
 		calibrationExisting->revert();
 		std::cout << " Disabled." << std::endl;
 	}
 
 	// Initialize calibration, jacobian and calibrator.
-	std::cout << "\tInitializing calibration [ Base calibration: " << (enableBaseCalibration ? "Enabled" : "Disabled") << " - End calibration: "
-			<< (enableEndCalibration ? "Enabled" : "Disabled") << " - DH calibration: " << (enableDHCalibration ? "Enabled" : "Disabled") << " ]..";
+	std::cout << "\tInitializing calibration..";
 	std::cout.flush();
 	serialDeviceCalibration = rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice));
-	serialDeviceCalibration->getBaseCalibration()->setLocked(!enableBaseCalibration);
-	serialDeviceCalibration->getEndCalibration()->setLocked(!enableEndCalibration);
-	serialDeviceCalibration->getCompositeDHParameterCalibration()->setLocked(!enableDHCalibration);
-	std::cout << " Initialized." << std::endl;
+	serialDeviceCalibration->getBaseCalibration()->setLocked(!calibrateBase);
+	serialDeviceCalibration->getEndCalibration()->setLocked(!calibrateEnd);
+	serialDeviceCalibration->getCompositeDHParameterCalibration()->setLocked(!calibrateDH);
+	std::cout << " Initialized [ Base calibration: " << (!serialDeviceCalibration->getBaseCalibration()->isLocked() ? "Enabled" : "Disabled")
+			<< " - End calibration: " << (!serialDeviceCalibration->getEndCalibration()->isLocked() ? "Enabled" : "Disabled") << " - DH calibration: "
+			<< (!serialDeviceCalibration->getCompositeDHParameterCalibration()->isLocked() ? "Enabled" : "Disabled") << " ]." << std::endl;
 
-	std::cout << "\tInitializing calibrator [ Weighting: " << (weighted ? "Enabled" : "Disabled") << " ]..";
+	std::cout << "\tInitializing calibrator..";
 	std::cout.flush();
 	serialDeviceCalibrator = rw::common::ownedPtr(
 			new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, state, referenceFrame, measurementFrame, serialDeviceCalibration));
-	if (measurements.size() < serialDeviceCalibrator->getMinimumMeasurementCount())
-		RW_THROW("Not enough measurements.");
+	if (measurements.size() < serialDeviceCalibrator->getMinimumMeasurementCount()) {
+		std::cout << "Not enough measurements." << std::endl;
+		return -1;
+	}
 	serialDeviceCalibrator->setMeasurements(measurements);
-	serialDeviceCalibrator->setWeightingEnabled(weighted);
-	std::cout << " Initialized." << std::endl;
+	serialDeviceCalibrator->setWeightingEnabled(weighting);
+	std::cout << " Initialized [ Min. measurements: " << serialDeviceCalibrator->getMinimumMeasurementCount() << " -  Weighting: " << (serialDeviceCalibrator->isWeightingEnabled() ? "Enabled" : "Disabled") << " ]." << std::endl;
+
+	// Print differences between model and measurements before calibration.
+	std::cout << "Measurement summary before calibration:" << std::endl;
+	printMeasurementSummary();
+
+	// Run calibrator.
+	std::cout << "Calibrating.." << std::endl;
+	std::cout.flush();
+	try {
+		serialDeviceCalibrator->calibrate();
+		printSolverLog();
+		std::cout << "\tSucceeded." << std::endl;
+	} catch (rw::common::Exception& exception) {
+		printSolverLog();
+		std::cout << "\tFAILED." << std::endl;
+		throw exception;
+	}
+
+	// Print calibration summary.
+	std::cout << "Calibration summary:" << std::endl;
+	printCalibrationSummary();
+
+	// Apply calibration.
+	std::cout << "Applying calibration..";
+	std::cout.flush();
+	serialDeviceCalibration->apply();
+	std::cout << " Applied." << std::endl;
+
+	// Print differences between model and measurements after calibration.
+	std::cout << "Measurement summary after calibration:" << std::endl;
+	printMeasurementSummary();
+
+	// Save and load calibration.
+	std::cout << "Saving calibration [" << calibrationFilePath << "]..";
+	std::cout.flush();
+	rwlibs::calibration::XmlCalibrationSaver::save(serialDeviceCalibration, calibrationFilePath);
+	std::cout << " Saved." << std::endl;
+
+	return 0;
 }
 
 void printMeasurementSummary() {
@@ -195,12 +203,14 @@ void printMeasurementSummary() {
 			maxRotationalError = rotationalError;
 
 		std::cout << "\tMeasurement " << measurementIndex + 1 << ": [ Positional: " << positionError * 100.0 << " cm - Rotational: "
-				<< rotationalError * 180 / M_PI << " ° ]" << std::endl;
+				<< rotationalError * 180 / M_PI
+				<< " ° ]" << std::endl;
 	}
-	std::cout << "\t-- Summary --" << std::endl;
+	std::cout << "\tSummary:" << std::endl;
 	std::cout << "\tPositional [ Min: " << minPositionError * 100.0 << " cm - Avg: " << avgPositionError * 100.0 << " cm - Max: " << maxPositionError * 100.0
-			<< " cm ]" << " - Rotational [ Min: " << minRotationalError * 180 / M_PI
-			<< " ° - Avg: " << avgRotationalError * 180 / M_PI << " ° - Max: " << maxRotationalError * 180 / M_PI << " ° ]" << std::endl;
+			<< " cm ]" << std::endl;
+	std::cout << "\tRotational [ Min: " << minRotationalError * 180 / M_PI << " ° - Avg: " << avgRotationalError * 180 / M_PI << " ° - Max: "
+			<< maxRotationalError * 180 / M_PI << " ° ]" << std::endl;
 }
 
 void printSolverLog() {
@@ -209,7 +219,7 @@ void printSolverLog() {
 		rwlibs::calibration::NLLSIterationLog iterationLog = *it;
 		std::cout << "\tIteration " << iterationLog.getIterationNumber() << ": [ Singular: " << (iterationLog.isSingular() ? "Yes" : "No") << " - Condition: "
 				<< iterationLog.getConditionNumber() << " - ||Residuals||: " << iterationLog.getResidualNorm() << " - ||Step||: " << iterationLog.getStepNorm()
-				<< " ]." << std::endl;
+				<< " ]" << std::endl;
 	}
 }
 
