@@ -71,8 +71,8 @@ void SerialDeviceCalibrator::setWeightingEnabled(bool isWeightingEnabled) {
 	_isWeightingEnabled = isWeightingEnabled;
 }
 
-NLLSSolverLog::Ptr SerialDeviceCalibrator::getLog() const {
-	return _log;
+NLLSSolverLog::Ptr SerialDeviceCalibrator::getSolverLog() const {
+	return _solverLog;
 }
 
 void SerialDeviceCalibrator::calibrate() {
@@ -91,10 +91,10 @@ void SerialDeviceCalibrator::calibrate() {
 		solver->solve();
 
 		// Get solver log.
-		_log = solver->getLog();
+		_solverLog = solver->getLog();
 	} catch (rw::common::Exception& ex) {
 		// Get solver log.
-		_log = solver->getLog();
+		_solverLog = solver->getLog();
 
 		// Revert calibration if it was not applied.
 		if (!wasApplied)

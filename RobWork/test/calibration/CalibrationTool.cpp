@@ -214,7 +214,7 @@ void printMeasurementSummary() {
 }
 
 void printSolverLog() {
-	std::vector<rwlibs::calibration::NLLSIterationLog> iterationLogs = serialDeviceCalibrator->getLog()->getIterationLogs();
+	std::vector<rwlibs::calibration::NLLSIterationLog> iterationLogs = serialDeviceCalibrator->getSolverLog()->getIterationLogs();
 	for (std::vector<rwlibs::calibration::NLLSIterationLog>::const_iterator it = iterationLogs.begin(); it != iterationLogs.end(); it++) {
 		rwlibs::calibration::NLLSIterationLog iterationLog = *it;
 		std::cout << "\tIteration " << iterationLog.getIterationNumber() << ": [ Singular: " << (iterationLog.isSingular() ? "Yes" : "No") << " - Condition: "

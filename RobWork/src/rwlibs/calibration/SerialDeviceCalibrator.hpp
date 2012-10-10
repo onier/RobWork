@@ -55,7 +55,7 @@ public:
 
 	void setWeightingEnabled(bool isWeightingEnabled);
 
-	NLLSSolverLog::Ptr getLog() const;
+	NLLSSolverLog::Ptr getSolverLog() const;
 
 	void calibrate();
 
@@ -77,7 +77,7 @@ private:
 	Calibration::Ptr _calibration;
 	std::vector<SerialDevicePoseMeasurement::Ptr> _measurements;
 	bool _isWeightingEnabled;
-	NLLSSolverLog::Ptr _log;
+	NLLSSolverLog::Ptr _solverLog;
 };
 
 }
