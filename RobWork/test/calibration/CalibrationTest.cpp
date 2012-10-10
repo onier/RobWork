@@ -42,6 +42,13 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	rw::kinematics::Frame::Ptr measurementFrame = workCell->findFrame(measurementFrameName);
 	BOOST_REQUIRE_MESSAGE(!measurementFrame.isNull(), "Measurement frame not found.");
 
+	// Find existing calibration.
+	BOOST_TEST_CHECKPOINT("Getting existing calibration");
+	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibrationExisting = rwlibs::calibration::SerialDeviceCalibration::get(serialDevice);
+	BOOST_CHECK_MESSAGE(!serialDeviceCalibrationExisting.isNull(), "Existing serial calibration not found.");
+	if (!serialDeviceCalibrationExisting.isNull())
+		serialDeviceCalibrationExisting->revert();
+
 	// Setup artificial calibration.
 	BOOST_TEST_CHECKPOINT("Setting up artificial calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr artificialCalibration(

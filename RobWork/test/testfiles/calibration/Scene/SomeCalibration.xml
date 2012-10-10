@@ -1,0 +1,28 @@
+<!DOCTYPE SerialDeviceCalibration>
+<SerialDeviceCalibration>
+ <BaseFrameCalibration>
+  <FixedFrameCalibration frame="SomeDevice.Base" isPostCorrection="1">
+   <Transform>
+    0.9967772846586967 -0.07935248981661885 0.01175700422468699 0.07000000005748876
+    0.07991273733914969 0.9950415452407742 -0.05921382993707264 0.008000000212989709
+    -0.006999942814050301 0.05996253500941977 0.9981760842636154 0.009000000237742306
+   </Transform>
+  </FixedFrameCalibration>
+ </BaseFrameCalibration>
+ <EndFrameCalibration>
+  <FixedFrameCalibration frame="SomeDevice.Marker" isPostCorrection="0">
+   <Transform>
+    0.9991876164892832 -0.03961780019550001 0.007384914497434174 0.01000000008775284
+    0.0399888386976553 0.9974140758736849 -0.05971644688573065 0.001999999203405334
+    -0.004999983407760417 0.05996324838359596 0.9981880629466621 0.00299999977624357
+   </Transform>
+  </FixedFrameCalibration>
+ </EndFrameCalibration>
+ <DHParameterCalibrations>
+  <DHParameterCalibration joint="SomeDevice.Joint2" length="0" alpha="-0.002000000979793238" a="0.003000000709873611" angle="0"/>
+  <DHParameterCalibration joint="SomeDevice.Joint3" length="3.060577057549954e-10" alpha="-0.002000002559311737" a="0.00299999976529954" angle="-2.872778793358908e-09"/>
+  <DHParameterCalibration joint="SomeDevice.Joint4" length="-3.920358757889817e-10" alpha="-0.002000002098051411" a="0.002999999749113487" angle="-3.742968388132128e-09"/>
+  <DHParameterCalibration joint="SomeDevice.Joint5" length="2.418008868265479e-09" alpha="-0.001999998065818453" a="0.003000000144648682" angle="-5.074097117396557e-10"/>
+  <DHParameterCalibration joint="SomeDevice.Joint6" length="9.768090186002872e-10" alpha="-0.002000003624959393" a="0.00300000087633326" angle="6.642802572863745e-09"/>
+ </DHParameterCalibrations>
+</SerialDeviceCalibration>

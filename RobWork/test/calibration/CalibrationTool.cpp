@@ -53,7 +53,7 @@ int main(int argumentCount, char** arguments) {
 	boost::program_options::notify(variablesMap);
 
 	// Load workcell.
-	std::cout << "\tLoading work cell..";
+	std::cout << "\tLoading work cell [ " << workCellFilePath << " ]..";
 	std::cout.flush();
 	workCell = rw::loaders::XMLRWLoader::load(workCellFilePath);
 	if (workCell.isNull()) {
