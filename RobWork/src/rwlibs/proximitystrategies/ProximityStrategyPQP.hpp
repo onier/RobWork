@@ -126,7 +126,7 @@ namespace rwlibs { namespace proximitystrategies {
         };
 
     private:
-        bool _firstContact;
+        //bool _firstContact;
         rw::common::Cache<CacheKey, PQP::PQP_Model> _modelCache;
 
     public:

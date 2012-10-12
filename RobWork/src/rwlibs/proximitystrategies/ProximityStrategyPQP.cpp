@@ -175,7 +175,7 @@ namespace
 // ProximityStrategyPQP
 
 ProximityStrategyPQP::ProximityStrategyPQP() :
-    _firstContact(true),
+    //_firstContact(true),
 	_threshold(DBL_MAX)
 {
 	clearStats();
@@ -279,7 +279,8 @@ bool ProximityStrategyPQP::removeGeometry(rw::proximity::ProximityModel* model, 
 
 void ProximityStrategyPQP::setFirstContact(bool b)
 {
-    _firstContact = b;
+    RW_WARN("THIS METHOD ProximityStrategyPQP::setFirstContact IS DEPRECATED AND WILL HAVE NO EFFECT!");
+	//_firstContact = b;
 }
 
 ProximityStrategyPQP::QueryData ProximityStrategyPQP::initQuery(ProximityModel::Ptr& aModel, ProximityModel::Ptr& bModel, ProximityStrategyData &data){
@@ -371,7 +372,7 @@ bool ProximityStrategyPQP::inCollision(ProximityModel::Ptr aModel,
 
     size_t nrOfCollidingGeoms = 0, geoIdxA=0, geoIdxB=0;
     bool col_res = false;
-    bool firstContact = pdata.getCollisionQueryType() == FirstContact;
+    bool firstContact = pdata.getCollisionQueryType() == CollisionStrategy::FirstContact;
 
     BOOST_FOREACH(const RWPQPModel& ma, qdata.a->models) {
         BOOST_FOREACH(const RWPQPModel& mb, qdata.b->models) {
