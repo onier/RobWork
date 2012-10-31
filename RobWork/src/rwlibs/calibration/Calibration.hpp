@@ -42,6 +42,10 @@ public:
 	 */
 	virtual void setLocked(bool isLocked);
 
+	virtual bool isParameterLocked(int parameterIndex) = 0;
+
+	virtual void setParameterLocked(int parameterIndex, bool isLocked) = 0;
+
 	/**
 	 * @brief Test if calibration is applied.
 	 * @return True if applied, false otherwise

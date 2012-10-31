@@ -36,6 +36,10 @@ public:
 	*/
 	virtual ~CompositeCalibration();
 
+	virtual bool isParameterLocked(int parameterIndex);
+
+	virtual void setParameterLocked(int parameterIndex, bool isLocked);
+
 	/**
 	* @brief Returns a reference to a vector with pointers to the Calibration(s) in the CompositeCalibration.
 	* @return std::vector with pointers to Calibration(s)
@@ -74,6 +78,33 @@ CompositeCalibration<T>::CompositeCalibration() {
 template<class T>
 CompositeCalibration<T>::~CompositeCalibration() {
 
+}
+
+template<class T>
+bool CompositeCalibration<T>::isParameterLocked(int parameterIndex) {
+	int parameterIndexMin = 0, parameterIndexMax = 0;
+	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		rw::common::Ptr<T> calibration = (*it);
+		parameterIndexMax += calibration->getParameterCount();
+		if (parameterIndex >= parameterIndexMin && parameterIndex < parameterIndexMax)
+			return calibration->isParameterLocked(parameterIndex - parameterIndexMin);
+		parameterIndexMin += parameterIndexMax;
+	}
+	RW_THROW("Parameter index too large.");
+}
+
+template<class T>
+void CompositeCalibration<T>::setParameterLocked(int parameterIndex, bool isLocked) {
+	int parameterIndexMin = 0, parameterIndexMax = 0;
+	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		rw::common::Ptr<T> calibration = (*it);
+		parameterIndexMax += calibration->getParameterCount();
+		if (parameterIndex >= parameterIndexMin && parameterIndex < parameterIndexMax) {
+			calibration->setParameterLocked(parameterIndex - parameterIndexMin, isLocked);
+			break;
+		}
+		parameterIndexMin += parameterIndexMax;
+	}
 }
 
 template<class T>

@@ -46,7 +46,9 @@ public:
 
 	void setCorrection(const Eigen::Vector4d& correction);
 
-	void setLockedParameters(bool a, bool length, bool alpha, bool angle);
+	bool isParameterLocked(int parameterIndex);
+
+	void setParameterLocked(int parameterIndex, bool isLocked);
 
 private:
 	virtual void doApply();

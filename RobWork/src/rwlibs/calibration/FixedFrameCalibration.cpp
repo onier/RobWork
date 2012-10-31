@@ -39,8 +39,16 @@ void FixedFrameCalibration::setCorrection(const Eigen::Affine3d& correction) {
 	_correction = correction;
 }
 
-void FixedFrameCalibration::setLockedParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw) {
-	_lockedParameters << x, y, z, roll, pitch, yaw;
+bool FixedFrameCalibration::isParameterLocked(int parameterIndex) {
+	if (parameterIndex > 3)
+		RW_THROW("Parameter index large.");
+	return _lockedParameters(parameterIndex);
+}
+
+void FixedFrameCalibration::setParameterLocked(int parameterIndex, bool isLocked) {
+	if (parameterIndex > 3)
+		RW_THROW("Parameter index large.");
+	_lockedParameters(parameterIndex) = isLocked;
 }
 
 void FixedFrameCalibration::doApply() {

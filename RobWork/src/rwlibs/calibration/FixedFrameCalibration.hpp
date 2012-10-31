@@ -46,7 +46,9 @@ public:
 
 	void setCorrection(const Eigen::Affine3d& transform);
 
-	void setLockedParameters(bool x, bool y, bool z, bool roll, bool pitch, bool yaw);
+	bool isParameterLocked(int parameterIndex);
+
+	void setParameterLocked(int parameterIndex, bool isLocked);
 
 private:
 	virtual void doApply();

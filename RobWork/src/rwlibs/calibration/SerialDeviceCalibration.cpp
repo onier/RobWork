@@ -31,8 +31,10 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 		if (jointIterator != joints.begin()) {
 			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(*jointIterator));
 			// Lock d and theta for first link.
-			if (_compositeDHParameterCalibration->getCalibrations().size() == 0)
-				calibration->setLockedParameters(false, true, false, true);
+			if (_compositeDHParameterCalibration->getCalibrations().size() == 0) {
+				calibration->setParameterLocked(DHParameterCalibration::PARAMETER_D, true);
+				calibration->setParameterLocked(DHParameterCalibration::PARAMETER_THETA, true);
+			}
 			_compositeDHParameterCalibration->add(calibration);
 		}
 //		_compositeEncoderParameterCalibration->add(rw::common::ownedPtr(new EncoderParameterCalibration(serialDevice, *jointIterator)));

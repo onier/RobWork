@@ -31,8 +31,16 @@ void DHParameterCalibration::setCorrection(const Eigen::Vector4d& correction) {
 	_correction = correction;
 }
 
-void DHParameterCalibration::setLockedParameters(bool a, bool length, bool alpha, bool angle) {
-	_lockedParameters << a, length, alpha, angle;
+bool DHParameterCalibration::isParameterLocked(int parameterIndex) {
+	if (parameterIndex > 3)
+		RW_THROW("Parameter index too large.");
+	return _lockedParameters(parameterIndex);
+}
+
+void DHParameterCalibration::setParameterLocked(int parameterIndex, bool isLocked) {
+	if (parameterIndex > 3)
+		RW_THROW("Parameter index too large.");
+	_lockedParameters(parameterIndex) = isLocked;
 }
 
 void DHParameterCalibration::doApply() {
