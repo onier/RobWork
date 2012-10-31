@@ -46,9 +46,11 @@ public:
 
 	const Scalar& yaw() const;
 
-	Eigen::Matrix<Scalar, 3, 1> translation() const;
+   Eigen::VectorBlock<Eigen::Matrix<Scalar, 6, 1>, 3> translation();
 
-	RPY<Scalar> rotation() const;
+   const Eigen::VectorBlock<const Eigen::Matrix<Scalar, 6, 1>, 3> translation() const;
+
+	const RPY<Scalar> rotation() const;
 
 	Eigen::Affine3d operator*(const Eigen::Affine3d& other) const;
 
@@ -129,12 +131,17 @@ inline const Scalar& Pose6D<Scalar>::yaw() const {
 }
 
 template<typename Scalar>
-inline Eigen::Matrix<Scalar, 3, 1> Pose6D<Scalar>::translation() const {
-	return this->head(3);
+inline Eigen::VectorBlock<Eigen::Matrix<Scalar, 6, 1>, 3> Pose6D<Scalar>::translation() {
+   return this->template segment<3>(0);
 }
 
 template<typename Scalar>
-inline RPY<Scalar> Pose6D<Scalar>::rotation() const {
+inline const Eigen::VectorBlock<const Eigen::Matrix<Scalar, 6, 1>, 3> Pose6D<Scalar>::translation() const {
+   return this->template segment<3>(0);
+}
+
+template<typename Scalar>
+inline const RPY<Scalar> Pose6D<Scalar>::rotation() const {
 	return RPY<Scalar>(this->roll(), this->pitch(), this->yaw());
 }
 
