@@ -7,7 +7,7 @@
 
 #include "FixedFrameCalibration.hpp"
 
-#include "Pose6D.hpp"
+#include "eigen/Pose6D.hpp"
 #include <rw/kinematics.hpp>
 #include <QtCore>
 

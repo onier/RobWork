@@ -36,6 +36,8 @@ public:
 
 	void solve(double acceptThreshold, int maxIterations);
 
+	Eigen::MatrixXd estimateCovarianceMatrix() const;
+
 protected:
 	NLLSSystem::Ptr _system;
 	NLLSSolverLog::Ptr _log;

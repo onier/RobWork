@@ -45,8 +45,17 @@ NLLSIterationLog NLLSSolver::iterate() {
 	_system->takeStep(_step);
 
 	// Log iteration.
+	NLLSIterationLog iterationLog = _log->addIteration(_jacobian, _jacobianSvd, _residuals, _step);
 
-	return _log->addIteration(_jacobian, _jacobianSvd, _residuals, _step);
+	// Verify iteration.
+	if (iterationLog.isSingular())
+		RW_THROW("Singular Jacobian.");
+	if (isnan(iterationLog.getStepNorm()))
+		RW_THROW("NaN step.");
+	if (isinf(iterationLog.getStepNorm()))
+		RW_THROW("Infinite step.");
+
+	return iterationLog;
 }
 
 void NLLSSolver::solve() {
@@ -61,14 +70,6 @@ void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 //				<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
 //				<< iterationLog.getStepNorm() << "." << std::endl;
 
-		// Verify iteration.
-		if (iterationLog.isSingular())
-			RW_THROW("Singular Jacobian.");
-		if (isnan(iterationLog.getStepNorm()))
-			RW_THROW("NaN step.");
-		if (isinf(iterationLog.getStepNorm()))
-			RW_THROW("Infinite step.");
-
 		// Stop iterating if step is below accepted threshold.
 		if (iterationLog.getStepNorm() <= acceptThreshold)
 			break;
@@ -77,6 +78,29 @@ void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 		if (maxIterationCount > 0 && iterationLog.getIterationNumber() >= maxIterationCount)
 			RW_THROW("Iteration limit reached.");
 	}
+}
+
+Eigen::MatrixXd NLLSSolver::estimateCovarianceMatrix() const {
+	// Eq. 15.4.20 from Numerical Recipes (covariance of unknown variables)
+	typename Eigen::JacobiSVD<Eigen::MatrixXd>::MatrixVType V = _jacobianSvd.matrixV();
+	typename Eigen::JacobiSVD<Eigen::MatrixXd>::SingularValuesType singularValues = _jacobianSvd.singularValues();
+
+	double eps = std::numeric_limits<double>::epsilon();
+	double precision = eps * _jacobianSvd.rows() * singularValues(0);
+
+	typename Eigen::JacobiSVD<Eigen::MatrixXd>::MatrixVType covarianceMatrix(V.rows(), V.cols());
+	for (unsigned int j = 0; j < V.rows(); j++) {
+		for (unsigned int k = 0; k < V.rows(); k++) {
+			double sum = 0;
+			for (unsigned int i = 0; i < _jacobianSvd.cols(); i++) {
+				if (singularValues(i) > precision)
+					sum += (V(j, i) * V(k, i)) / (singularValues(i) * singularValues(i));
+			}
+			covarianceMatrix(j, k) = sum;
+		}
+	}
+
+	return covarianceMatrix;
 }
 
 }

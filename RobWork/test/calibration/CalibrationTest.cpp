@@ -66,7 +66,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	// Load robot pose measurements from file.
 	BOOST_TEST_CHECKPOINT("Generating measurements");
 	const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> measurements = generateMeasurements(serialDevice, referenceFrame, measurementFrame,
-			state, measurementCount, true);
+			state, measurementCount, false);
 	BOOST_CHECK_MESSAGE(measurements.size() == measurementCount, "Measurement generation failed.");
 
 	BOOST_TEST_CHECKPOINT("Reverting artificial calibration");
@@ -75,19 +75,17 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	// Initialize calibration, jacobian and calibrator.
 	BOOST_TEST_CHECKPOINT("Initializing calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr calibration(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
-//	calibration->getCompositeDHParameterCalibration()->setLocked(false);
-//	calibration->getCompositeDHParameterCalibration()->getCalibrations()[0]->lockParameter(rwlibs::calibration::DHParameterCalibration::PARAMETER_A);
 
 	BOOST_TEST_CHECKPOINT("Initializing calibrator");
 	rwlibs::calibration::SerialDeviceCalibrator::Ptr calibrator(
-			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, state, referenceFrame, measurementFrame, calibration)));
+			rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, referenceFrame, measurementFrame, calibration)));
 	calibrator->setMeasurements(measurements);
 //	calibrator->setWeighted(false);
 
 	try {
 		// Run calibrator.
 		BOOST_TEST_CHECKPOINT("Calibrating");
-		calibrator->calibrate();
+		calibrator->calibrate(state);
 
 		// Verify that the calibration match the artificial calibration.
 		BOOST_CHECK_MESSAGE(calibration->getBaseCalibration()->getCorrection().isApprox(artificialCalibration->getBaseCalibration()->getCorrection(), 10e-5),

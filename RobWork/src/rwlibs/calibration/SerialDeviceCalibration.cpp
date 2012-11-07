@@ -7,7 +7,6 @@
 
 #include "SerialDeviceCalibration.hpp"
 
-#include "Pose6D.hpp"
 #include <rw/models.hpp>
 #include <QtCore>
 

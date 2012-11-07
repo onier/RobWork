@@ -8,7 +8,7 @@
 #ifndef RWLIBS_CALIBRATION_SERIALDEVICEPOSEMEASUREMENT_HPP
 #define RWLIBS_CALIBRATION_SERIALDEVICEPOSEMEASUREMENT_HPP
 
-#include "Pose6D.hpp"
+#include "eigen/Pose6D.hpp"
 #include <rw/math.hpp>
 #include <rw/models.hpp>
 

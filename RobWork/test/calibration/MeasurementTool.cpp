@@ -30,16 +30,16 @@ int main(int argumentCount, char** arguments) {
 
 	// Find device and frames.
 	std::cout << "Finding device (" << deviceName << ").." << std::endl;
-	rw::models::Device::Ptr device = workCell->findDevice(deviceName);
+	rw::models::Device::Ptr device = deviceName.empty() ? workCell->getDevices().front() : workCell->findDevice(deviceName);
 	if (device.isNull())
 		RW_THROW("Device not found.");
 	rw::models::SerialDevice::Ptr serialDevice = device.cast<rw::models::SerialDevice>();
 	std::cout << "Finding reference frame (" << referenceFrameName << ").." << std::endl;
-	rw::kinematics::Frame::Ptr referenceFrame = workCell->findFrame(referenceFrameName);
+	rw::kinematics::Frame::Ptr referenceFrame = referenceFrameName.empty() ? workCell->findFrame("WORLD") : workCell->findFrame(referenceFrameName);
 	if (referenceFrame.isNull())
 		RW_THROW("Reference frame not found.");
 	std::cout << "Finding measurement frame (" << measurementFrameName << ").." << std::endl;
-	rw::kinematics::Frame::Ptr measurementFrame = workCell->findFrame(measurementFrameName);
+	rw::kinematics::Frame::Ptr measurementFrame = measurementFrameName.empty() ? device->getEnd() : workCell->findFrame(measurementFrameName);
 	if (measurementFrame.isNull())
 		RW_THROW("Measurement frame not found.");
 
@@ -121,8 +121,7 @@ void printMeasurementErrors(rw::models::SerialDevice::Ptr serialDevice, rw::kine
 		rw::kinematics::State state, const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr>& measurements) {
 	const unsigned int measurementCount = measurements.size();
 
-	double minPositionError = DBL_MAX, avgPositionError = 0.0, maxPositionError = DBL_MIN;
-	double minRotationalError = DBL_MAX, avgRotationalError = 0.0, maxRotationalError = DBL_MIN;
+	Eigen::VectorXd distances(measurementCount), angles(measurementCount);
 	for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 		serialDevice->setQ(measurements[measurementIndex]->getQ(), state);
 
@@ -130,21 +129,13 @@ void printMeasurementErrors(rw::models::SerialDevice::Ptr serialDevice, rw::kine
 		const Eigen::Affine3d tfmModel = Eigen::Affine3d(rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state));
 		const Eigen::Affine3d tfmError = tfmModel.difference(tfmMeasurement);
 
-		double positionError = tfmError.translation().norm();
-		if (positionError < minPositionError)
-			minPositionError = positionError;
-		avgPositionError += positionError / measurementCount;
-		if (positionError > maxPositionError)
-			maxPositionError = positionError;
+		distances(measurementIndex) = tfmError.translation().norm();
+		angles(measurementIndex) = Eigen::AngleAxisd(tfmError.linear()).angle();
 
-		double rotationalError = Eigen::AngleAxisd(tfmError.linear()).angle();
-		if (rotationalError < minRotationalError)
-			minRotationalError = rotationalError;
-		avgRotationalError += rotationalError / measurementCount;
-		if (rotationalError > maxRotationalError)
-			maxRotationalError = rotationalError;
+		std::cout << "\tMeasurement " << measurementIndex + 1 << ": [ " << distances(measurementIndex) * 100.0 << " cm / "
+				<< angles(measurementIndex) * 180 / M_PI << " ° ]" << std::endl;
 	}
-	std::cout << measurementCount << " measurements: Positional error [ Min: " << minPositionError * 100.0 << " cm - Avg: " << avgPositionError * 100.0
-			<< " cm - Max: " << maxPositionError * 100.0 << " cm ] Rotational error [ Min: " << minRotationalError * 180 / M_PI
-			<< " ° - Avg: " << avgRotationalError * 180 / M_PI << " ° - Max: " << maxRotationalError * 180 / M_PI << " ° ]" << std::endl;
+	std::cout << "\tSummary: [ Avg: " << distances.mean() * 100.0 << " cm / " << angles.mean() * 180 / M_PI << " ° - Min: "
+			<< distances.minCoeff() * 100.0 << " cm / " << angles.minCoeff() * 180 / M_PI << " ° - Max: " << distances.maxCoeff() * 100.0 << " cm / "
+			<< angles.maxCoeff() * 180 / M_PI << " ° ]" << std::endl;
 }

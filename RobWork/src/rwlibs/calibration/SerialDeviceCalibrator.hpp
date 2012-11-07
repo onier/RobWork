@@ -9,7 +9,7 @@
 #define RWLIBS_CALIBRATION_SERIALDEVICECALIBRATOR_HPP
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/TransformAddons.hpp"
 
 #include "nlls/NLLSSystem.hpp"
 #include "nlls/NLLSSolverLog.hpp"
@@ -25,7 +25,7 @@ class SerialDeviceCalibrator: public NLLSSystem {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibrator> Ptr;
 
-	SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state, rw::kinematics::Frame::Ptr referenceFrame,
+	SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, rw::kinematics::Frame::Ptr referenceFrame,
 			rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration);
 
 	virtual ~SerialDeviceCalibrator();
@@ -57,7 +57,9 @@ public:
 
 	NLLSSolverLog::Ptr getSolverLog() const;
 
-	void calibrate();
+	void calibrate(const rw::kinematics::State& state);
+
+	Eigen::MatrixXd getCovarianceMatrix() const;
 
 	virtual void computeJacobian(Eigen::MatrixXd& jacobian);
 
@@ -78,6 +80,7 @@ private:
 	std::vector<SerialDevicePoseMeasurement::Ptr> _measurements;
 	bool _isWeightingEnabled;
 	NLLSSolverLog::Ptr _solverLog;
+	Eigen::MatrixXd _covarianceMatrix;
 };
 
 }

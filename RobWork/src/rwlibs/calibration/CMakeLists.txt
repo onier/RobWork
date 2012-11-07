@@ -28,6 +28,9 @@ IF( build )
 	)
     
 	SET(SRC_FILES_HPP
+		eigen/Pose6D.hpp
+		eigen/RPY.hpp
+		eigen/TransformAddons.hpp
 		nlls/NLLSIterationLog.hpp
 		nlls/NLLSSolver.hpp
 		nlls/NLLSSolverLog.hpp
@@ -38,11 +41,8 @@ IF( build )
 		Calibration.hpp
 		CompositeCalibration.hpp
 		DHParameterCalibration.hpp
-		EigenTransformAddons.hpp
 	#	EncoderParameterCalibration.hpp
 		FixedFrameCalibration.hpp
-		Pose6D.hpp
-		RPY.hpp
 		SerialDeviceCalibration.hpp
 		SerialDeviceCalibrator.hpp
 		SerialDevicePoseMeasurement.hpp

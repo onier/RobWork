@@ -8,6 +8,8 @@
 #ifndef RWLIBS_CALIBRATION_HPP_
 #define RWLIBS_CALIBRATION_HPP_
 
+#include "./calibration/eigen/Pose6D.hpp"
+#include "./calibration/eigen/RPY.hpp"
 #include "./calibration/nlls/NLLSIterationLog.hpp"
 #include "./calibration/nlls/NLLSSolver.hpp"
 #include "./calibration/nlls/NLLSSolverLog.hpp"
@@ -20,8 +22,6 @@
 #include "./calibration/DHParameterCalibration.hpp"
 //#include "./calibration/EncoderParameterCalibration.hpp"
 #include "./calibration/FixedFrameCalibration.hpp"
-#include "./calibration/Pose6D.hpp"
-#include "./calibration/RPY.hpp"
 #include "./calibration/SerialDeviceCalibration.hpp"
 #include "./calibration/SerialDeviceCalibrator.hpp"
 #include "./calibration/SerialDevicePoseMeasurement.hpp"

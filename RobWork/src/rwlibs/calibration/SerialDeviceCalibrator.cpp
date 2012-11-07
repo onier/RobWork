@@ -13,9 +13,9 @@
 namespace rwlibs {
 namespace calibration {
 
-SerialDeviceCalibrator::SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device, const rw::kinematics::State& state,
+SerialDeviceCalibrator::SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device,
 		rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration) :
-		_device(device), _state(state), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _isWeightingEnabled(true) {
+		_device(device), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _isWeightingEnabled(true) {
 
 }
 
@@ -75,7 +75,9 @@ NLLSSolverLog::Ptr SerialDeviceCalibrator::getSolverLog() const {
 	return _solverLog;
 }
 
-void SerialDeviceCalibrator::calibrate() {
+void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
+	_state = state;
+
 	// Throw exception if calibration is locked.
 	if (_calibration->isLocked())
 		RW_THROW("Calibration is locked.");
@@ -89,6 +91,7 @@ void SerialDeviceCalibrator::calibrate() {
 	NLLSSolver::Ptr solver(rw::common::ownedPtr(new NLLSSolver(this)));
 	try {
 		solver->solve();
+		_covarianceMatrix = solver->estimateCovarianceMatrix();
 
 		// Get solver log.
 		_solverLog = solver->getLog();
@@ -107,6 +110,10 @@ void SerialDeviceCalibrator::calibrate() {
 	// Revert calibration if it was not applied.
 	if (!wasApplied)
 		_calibration->revert();
+}
+
+Eigen::MatrixXd SerialDeviceCalibrator::getCovarianceMatrix() const {
+	return _covarianceMatrix;
 }
 
 void SerialDeviceCalibrator::computeJacobian(Eigen::MatrixXd& stackedJacobians) {

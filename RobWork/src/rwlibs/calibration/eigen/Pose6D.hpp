@@ -9,7 +9,7 @@
 #define RWLIBS_CALIBRATION_POSE_HPP
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformAddons.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/TransformAddons.hpp"
 
 #include "RPY.hpp"
 
