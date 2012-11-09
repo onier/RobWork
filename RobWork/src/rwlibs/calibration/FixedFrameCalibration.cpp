@@ -14,6 +14,16 @@
 namespace rwlibs {
 namespace calibration {
 
+FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame) :
+		_frame(frame), _isPostCorrection(false), _correction(Eigen::Affine3d::Identity()), _lockedParameters(Eigen::Matrix<int, 6, 1>::Zero()) {
+
+}
+
+FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection) :
+		_frame(frame), _isPostCorrection(isPostCorrection), _correction(Eigen::Affine3d::Identity()), _lockedParameters(Eigen::Matrix<int, 6, 1>::Zero()) {
+
+}
+
 FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const Eigen::Affine3d& transform) :
 		_frame(frame), _isPostCorrection(isPostCorrection), _correction(transform), _lockedParameters(Eigen::Matrix<int, 6, 1>::Zero()) {
 

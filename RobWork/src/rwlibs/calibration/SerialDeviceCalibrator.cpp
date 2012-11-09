@@ -44,7 +44,7 @@ Calibration::Ptr SerialDeviceCalibrator::getCalibration() const {
 }
 
 unsigned int SerialDeviceCalibrator::getMinimumMeasurementCount() const {
-	return ceil(_calibration->getParameterCount() / 6);
+	return ceil(float(_calibration->getParameterCount()) / 6);
 }
 
 const std::vector<SerialDevicePoseMeasurement::Ptr>& SerialDeviceCalibrator::getMeasurements() const {

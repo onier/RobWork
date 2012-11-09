@@ -7,6 +7,7 @@
 
 #include "NLLSSolver.hpp"
 
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <Eigen/SVD>
 #include <rw/common.hpp>
 
@@ -50,9 +51,9 @@ NLLSIterationLog NLLSSolver::iterate() {
 	// Verify iteration.
 	if (iterationLog.isSingular())
 		RW_THROW("Singular Jacobian.");
-	if (isnan(iterationLog.getStepNorm()))
+	if (boost::math::isnan(iterationLog.getStepNorm()))
 		RW_THROW("NaN step.");
-	if (isinf(iterationLog.getStepNorm()))
+	if (boost::math::isinf(iterationLog.getStepNorm()))
 		RW_THROW("Infinite step.");
 
 	return iterationLog;
@@ -66,9 +67,9 @@ void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 	while (true) {
 		NLLSIterationLog iterationLog = iterate();
 
-//		std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
-//				<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
-//				<< iterationLog.getStepNorm() << "." << std::endl;
+		std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
+				<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
+				<< iterationLog.getStepNorm() << "." << std::endl;
 
 		// Stop iterating if step is below accepted threshold.
 		if (iterationLog.getStepNorm() <= acceptThreshold)
@@ -82,17 +83,17 @@ void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 
 Eigen::MatrixXd NLLSSolver::estimateCovarianceMatrix() const {
 	// Eq. 15.4.20 from Numerical Recipes (covariance of unknown variables)
-	typename Eigen::JacobiSVD<Eigen::MatrixXd>::MatrixVType V = _jacobianSvd.matrixV();
-	typename Eigen::JacobiSVD<Eigen::MatrixXd>::SingularValuesType singularValues = _jacobianSvd.singularValues();
+	Eigen::MatrixXd V = _jacobianSvd.matrixV();
+	Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
 
 	double eps = std::numeric_limits<double>::epsilon();
 	double precision = eps * _jacobianSvd.rows() * singularValues(0);
 
-	typename Eigen::JacobiSVD<Eigen::MatrixXd>::MatrixVType covarianceMatrix(V.rows(), V.cols());
-	for (unsigned int j = 0; j < V.rows(); j++) {
-		for (unsigned int k = 0; k < V.rows(); k++) {
+	Eigen::MatrixXd covarianceMatrix(V.rows(), V.cols());
+	for (int j = 0; j < V.rows(); j++) {
+		for (int k = 0; k < V.rows(); k++) {
 			double sum = 0;
-			for (unsigned int i = 0; i < _jacobianSvd.cols(); i++) {
+			for (int i = 0; i < _jacobianSvd.cols(); i++) {
 				if (singularValues(i) > precision)
 					sum += (V(j, i) * V(k, i)) / (singularValues(i) * singularValues(i));
 			}

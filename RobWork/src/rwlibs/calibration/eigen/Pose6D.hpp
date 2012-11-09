@@ -1,9 +1,9 @@
 /*
- * Pose6D.hpp
- *
- *  Created on: Oct 28, 2011
- *      Author: bing
- */
+* Pose6D.hpp
+*
+*  Created on: Oct 28, 2011
+*      Author: bing
+*/
 
 #ifndef RWLIBS_CALIBRATION_POSE_HPP
 #define RWLIBS_CALIBRATION_POSE_HPP
@@ -18,169 +18,103 @@
 #include <iostream>
 
 namespace rwlibs {
-namespace calibration {
+	namespace calibration {
 
-template<typename Scalar = double>
-class Pose6D: public Eigen::Matrix<Scalar, 6, 1> {
-public:
-	Pose6D();
+		template<typename Scalar = double>
+		class Pose6D: public Eigen::Matrix<Scalar, 6, 1> {
+		public:
+			Pose6D() : Eigen::Matrix<Scalar, 6, 1>() {
 
-	Pose6D(Scalar x, Scalar y, Scalar z, Scalar roll, Scalar pitch, Scalar yaw);
+			}
 
-	explicit Pose6D(const Eigen::Affine3d& transform);
+			inline Pose6D(Scalar x, Scalar y, Scalar z, Scalar roll, Scalar pitch, Scalar yaw) {
+				*this << x, y, z, roll, pitch, yaw;
+			}
 
-	template<typename OtherDerived>
-	Pose6D(const Eigen::MatrixBase<OtherDerived>& other);
+			explicit Pose6D(const Eigen::Affine3d& transform) {
+				this->template head<3>() = transform.translation();
+				RPY<Scalar> rpy(transform.linear());
+				//this->template tail<3>() << rpy.roll(), rpy.pitch(), rpy.yaw();
+				this->operator()(3) = rpy.roll();
+				this->operator()(4) = rpy.pitch();
+				this->operator()(5) = rpy.yaw();
+			}
 
-	virtual ~Pose6D();
+			template<typename OtherDerived>
+			inline Pose6D(const Eigen::MatrixBase<OtherDerived>& other) {
+				this->Eigen::Matrix<Scalar, 6, 1>::operator=(other);
+			}
 
-	Scalar& roll();
+			inline Scalar& roll() {
+				return this->operator()(3);
+			}
 
-	const Scalar& roll() const;
+			inline const Scalar& roll() const {
+				return this->operator()(3);
+			}
 
-	Scalar& pitch();
+			inline Scalar& pitch() {
+				return this->operator()(4);
+			}
 
-	const Scalar& pitch() const;
+			inline const Scalar& pitch() const {
+				return this->operator()(4);
+			}
 
-	Scalar& yaw();
+			inline Scalar& yaw() {
+				return this->operator()(5);
+			}
 
-	const Scalar& yaw() const;
+			inline const Scalar& yaw() const {
+				return this->operator()(5);
+			}
 
-   Eigen::VectorBlock<Eigen::Matrix<Scalar, 6, 1>, 3> translation();
+			inline Eigen::VectorBlock<Eigen::Matrix<Scalar, 6, 1>, 3> translation() {
+				return this->template segment<3>(0);
+			}
 
-   const Eigen::VectorBlock<const Eigen::Matrix<Scalar, 6, 1>, 3> translation() const;
+			inline const Eigen::VectorBlock<const Eigen::Matrix<Scalar, 6, 1>, 3> translation() const {
+				return this->template segment<3>(0);
+			}
 
-	const RPY<Scalar> rotation() const;
+			inline const RPY<Scalar> rotation() const {
+				return RPY<Scalar>(this->roll(), this->pitch(), this->yaw());
+			}
 
-	Eigen::Affine3d operator*(const Eigen::Affine3d& other) const;
+			inline Pose6D<Scalar> inverse() const {
+				return Pose6D<Scalar>(toTransform().inverse());
+			}
 
-	Pose6D<Scalar> operator*(const Pose6D<Scalar>& other) const;
+			inline Eigen::Affine3d toTransform() const {
+				Eigen::Affine3d transform;
+				transform.translation() = this->translation();
+				transform.linear() = this->rotation().toRotationMatrix();
+				return transform;
+			}
 
-	operator Eigen::Affine3d() const;
+			inline Eigen::Affine3d operator*(
+				const Eigen::Affine3d& other) const {
+					return this->toTransform() * other;
+			}
 
-	Pose6D<Scalar> inverse() const;
+			inline Pose6D<Scalar> operator*(
+				const Pose6D<Scalar>& other) const {
+					return Pose6D<Scalar>(this->toTransform() * other.toTransform());
+			}
 
-	Eigen::Affine3d toTransform() const;
+			inline operator Eigen::Affine3d() const {
+				return this->toTransform();
+			}
 
-	static Pose6D<Scalar> Zero();
-};
+			inline static Pose6D<Scalar> Zero() {
+				return Eigen::Matrix<Scalar, 6, 1>::Zero();
+			}
+		};
 
-typedef Pose6D<float> Pose6Df;
-typedef Pose6D<double> Pose6Dd;
+		typedef Pose6D<float> Pose6Df;
+		typedef Pose6D<double> Pose6Dd;
 
-template<typename Scalar>
-inline Pose6D<Scalar>::Pose6D() :
-		Eigen::Matrix<Scalar, 6, 1>() {
-
-}
-
-template<typename Scalar>
-inline Pose6D<Scalar>::Pose6D(Scalar x, Scalar y, Scalar z, Scalar roll,
-		Scalar pitch, Scalar yaw) {
-	*this << x, y, z, roll, pitch, yaw;
-}
-
-template<typename Scalar>
-inline Pose6D<Scalar>::Pose6D(const Eigen::Affine3d& transform) {
-	this->head(3) = transform.translation();
-	RPY < Scalar > rpy(transform.rotation().matrix());
-	this->operator()(3) = rpy.roll();
-	this->operator()(4) = rpy.pitch();
-	this->operator()(5) = rpy.yaw();
-}
-
-template<typename Scalar>
-Pose6D<Scalar>::~Pose6D() {
-
-}
-
-template<typename Scalar>
-template<typename OtherDerived>
-inline Pose6D<Scalar>::Pose6D(const Eigen::MatrixBase<OtherDerived>& other) {
-	this->Eigen::Matrix<Scalar, 6, 1>::operator=(other);
-}
-
-template<typename Scalar>
-inline Scalar& Pose6D<Scalar>::roll() {
-	return this->operator()(3);
-}
-
-template<typename Scalar>
-inline const Scalar& Pose6D<Scalar>::roll() const {
-	return this->operator()(3);
-}
-
-template<typename Scalar>
-inline Scalar& Pose6D<Scalar>::pitch() {
-	return this->operator()(4);
-}
-
-template<typename Scalar>
-inline const Scalar& Pose6D<Scalar>::pitch() const {
-	return this->operator()(4);
-}
-
-template<typename Scalar>
-inline Scalar& Pose6D<Scalar>::yaw() {
-	return this->operator()(5);
-}
-
-template<typename Scalar>
-inline const Scalar& Pose6D<Scalar>::yaw() const {
-	return this->operator()(5);
-}
-
-template<typename Scalar>
-inline Eigen::VectorBlock<Eigen::Matrix<Scalar, 6, 1>, 3> Pose6D<Scalar>::translation() {
-   return this->template segment<3>(0);
-}
-
-template<typename Scalar>
-inline const Eigen::VectorBlock<const Eigen::Matrix<Scalar, 6, 1>, 3> Pose6D<Scalar>::translation() const {
-   return this->template segment<3>(0);
-}
-
-template<typename Scalar>
-inline const RPY<Scalar> Pose6D<Scalar>::rotation() const {
-	return RPY<Scalar>(this->roll(), this->pitch(), this->yaw());
-}
-
-template<typename Scalar>
-inline Pose6D<Scalar> Pose6D<Scalar>::inverse() const {
-	return Pose6D<Scalar>(toTransform().inverse());
-}
-
-template<typename Scalar>
-inline Eigen::Affine3d Pose6D<Scalar>::toTransform() const {
-	Eigen::Affine3d transform;
-	transform.translation() = this->translation();
-	transform.linear() = this->rotation().toRotationMatrix();
-	return transform;
-}
-
-template<typename Scalar>
-inline Eigen::Affine3d Pose6D<Scalar>::operator*(
-		const Eigen::Affine3d& other) const {
-	return this->toTransform() * other;
-}
-
-template<typename Scalar>
-inline Pose6D<Scalar> Pose6D<Scalar>::operator*(
-		const Pose6D<Scalar>& other) const {
-	return Pose6D<Scalar>(this->toTransform() * other.toTransform());
-}
-
-template<typename Scalar>
-inline Pose6D<Scalar>::operator Eigen::Affine3d() const {
-	return this->toTransform();
-}
-
-template<typename Scalar>
-inline Pose6D<Scalar> Pose6D<Scalar>::Zero() {
-	return Eigen::Matrix<Scalar, 6, 1>::Zero();
-}
-
-}
+	}
 }
 
 #endif /* RWLIBS_CALIBRATION_POSE_HPP */

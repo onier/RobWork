@@ -17,11 +17,14 @@ std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasu
 		bool addNoise);
 
 BOOST_AUTO_TEST_CASE( CalibrationTest ) {
-	const std::string workCellFilePath(testFilePath() + "calibration/Scene/SomeScene.wc.xml");
+	const std::string testFilePath(testFilePath());
+	BOOST_REQUIRE_MESSAGE(!testFilePath.empty(), "Test suite not initialized.");
+
+	const std::string workCellFilePath(testFilePath + "calibration/Scene/SomeScene.wc.xml");
 	const std::string deviceName("SomeDevice");
 	const std::string referenceFrameName("SomeSensorFrame");
 	const std::string measurementFrameName("SomeDevice.Marker");
-	const std::string calibrationFilePath(testFilePath() + "calibration/SomeCalibration.xml");
+	const std::string calibrationFilePath(testFilePath + "calibration/SomeCalibration.xml");
 	const unsigned int measurementCount = 40;
 
 	// Load workcell.
@@ -170,9 +173,7 @@ std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasu
 		rw::math::Q q = rw::math::Math::ranQ(serialDevice->getBounds());
 		serialDevice->setQ(q, state);
 
-		rwlibs::calibration::Pose6Dd pose(rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state));
-
-		Eigen::Affine3d transform = pose.toTransform();
+		Eigen::Affine3d transform(rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state));
 		Eigen::Matrix<double, 6, 6> covariance = Eigen::Matrix<double, 6, 6>::Identity();
 		if (addNoise) {
 			Eigen::Matrix<double, 6, 6> random = Eigen::Matrix<double, 6, 6>::Random();
@@ -188,7 +189,7 @@ std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasu
 			transform.linear() = noise.linear() * transform.linear();
 			transform.translation() = noise.translation() + transform.translation();
 		}
-		rwlibs::calibration::Pose6Dd noisyPose = rwlibs::calibration::Pose6Dd(transform);
+		rwlibs::calibration::Pose6Dd noisyPose(transform);
 
 		measurements[measurementIndex] = rw::common::ownedPtr(new rwlibs::calibration::SerialDevicePoseMeasurement(q, noisyPose, covariance));
 	}

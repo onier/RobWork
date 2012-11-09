@@ -8,13 +8,6 @@
 #ifndef RWLIBS_CALIBRATION_EIGENTRANSFORMADDONS_HPP
 #define RWLIBS_CALIBRATION_EIGENTRANSFORMADDONS_HPP
 
-inline Transform difference(const Transform& other) const {
-	Transform difference;
-	difference.translation() = translation() - other.translation();
-	difference.linear() = linear() * other.linear().transpose();
-	return difference;
-}
-
 inline Transform(const rw::math::Transform3D<>& transform3d) {
 	check_template_params();
 	rw::math::Vector3D<Scalar> vector3d = transform3d.P();
@@ -37,6 +30,13 @@ operator rw::math::Transform3D<>() const {
 			rwTfm(rowIndex, colIndex) = this->matrix()(rowIndex, colIndex);
 
 	return rwTfm;
+}
+
+inline Transform difference(const Transform& other) const {
+	Transform difference;
+	difference.translation() = translation() - other.translation();
+	difference.linear() = linear() * other.linear().transpose();
+	return difference;
 }
 
 #endif /* RWLIBS_CALIBRATION_EIGENTRANSFORMADDONS_HPP */

@@ -1,5 +1,5 @@
 /*
- * FrameCalibration.hpp
+ * FixedFrameCalibration.hpp
  *
  *  Created on: Aug 28, 2012
  *      Author: bing
@@ -34,7 +34,11 @@ public:
 
 	typedef rw::common::Ptr<FixedFrameCalibration> Ptr;
 
-	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection = false, const Eigen::Affine3d& transform = Eigen::Affine3d::Identity());
+	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame);
+
+	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection);
+
+	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const Eigen::Affine3d& transform);
 
 	virtual ~FixedFrameCalibration();
 
