@@ -16,17 +16,16 @@
  ********************************************************************************/
 
 
-#ifndef RW_MATH_POSE6D_HPP
-#define RW_MATH_POSE6D_HPP
+#ifndef RW_MATH_Pose3D_HPP
+#define RW_MATH_Pose3D_HPP
 
 /**
- * @file Pose6D.hpp
+ * @file Pose3D.hpp
  */
 
 #include "EAA.hpp"
 #include "Vector3D.hpp"
 #include "Transform3D.hpp"
-#include "Pose3D.hpp"
 
 namespace rw { namespace math {
 
@@ -34,7 +33,7 @@ namespace rw { namespace math {
     /*@{*/
 
     /**
-     * @brief A Pose6D @f$ \mathbf{x}\in \mathbb{R}^6 @f$ describes a position
+     * @brief A Pose3D @f$ \mathbf{x}\in \mathbb{R}^6 @f$ describes a position
      * and orientation in 3-dimensions.
      *
      * @f$ {\mathbf{x}} = \left[
@@ -53,15 +52,15 @@ namespace rw { namespace math {
      * \theta k_z)@f$ describes the orientation in equal angle axis (EAA)
      * format.
      */
-	template<class T = double>
-    class Pose6D {
+    template<class T = double>
+    class Pose3D {
     private:
         Vector3D<T> _position;
         EAA<T> _orientation;
 
     public:
         /**
-         * @brief Creates a Pose6D from 6 parameters. 3 defining the
+         * @brief Creates a Pose3D from 6 parameters. 3 defining the
          * position and 3 defining the EAA orientation.
          * @param x [in] The position in the @f$ x @f$ axis
          * @param y [in] The position in the @f$ y @f$ axis
@@ -70,27 +69,27 @@ namespace rw { namespace math {
          * @param ky [in] @f$ \theta k_y @f$
          * @param kz [in] @f$ \theta k_z @f$
          */
-        Pose6D(T x, T y, T z, T kx, T ky, T kz) :
+        Pose3D(T x, T y, T z, T kx, T ky, T kz) :
             _position(x,y,z),
             _orientation(kx,ky,kz)
         {}
 
         /**
-         * @brief Creates a Pose6D from a Vector3D and a EAA
-         * @param v3d [in] Vector3D describing the 3D position of the Pose6D
-         * @param eaa [in] EAA describing the rotational component of the Pose6D.
+         * @brief Creates a Pose3D from a Vector3D and a EAA
+         * @param v3d [in] Vector3D describing the 3D position of the Pose3D
+         * @param eaa [in] EAA describing the rotational component of the Pose3D.
          */
-        Pose6D(const Vector3D<T> &v3d, const EAA<T> &eaa):
+        Pose3D(const Vector3D<T> &v3d, const EAA<T> &eaa):
             _position(v3d),
             _orientation(eaa)
         {}
 
         /**
-         * @brief Creates a Pose6D from a Transform3D
+         * @brief Creates a Pose3D from a Transform3D
          *
          * @param t3d [in] A Transform3D
          */
-        explicit Pose6D(const Transform3D<T> &t3d):
+        explicit Pose3D(const Transform3D<T> &t3d):
             _position(t3d.P()),
             _orientation(t3d.R())
         {}
@@ -153,7 +152,7 @@ namespace rw { namespace math {
         }
 
         /**
-         * @brief Converts the Pose6D into the corresponding Transform3D
+         * @brief Converts the Pose3D into the corresponding Transform3D
          * @return the corresponding Transform3D
          */
         const Transform3D<T> toTransform3D() {
@@ -161,13 +160,13 @@ namespace rw { namespace math {
         }
 
         /**
-         * @brief Casts Pose6D<T> to Pose6D<Q>
-         * @param pose [in] Pose6D with type T
-         * @return Pose6D with type Q
+         * @brief Casts Pose3D<T> to Pose3D<Q>
+         * @param pose [in] Pose3D with type T
+         * @return Pose3D with type Q
          */
         template<class Q>
-        friend const Pose6D<Q> cast(const Pose6D<T>& pose) {
-            return Pose6D<Q>(
+        friend const Pose3D<Q> cast(const Pose3D<T>& pose) {
+            return Pose3D<Q>(
                 static_cast<Q>(pose.get(0)),
                 static_cast<Q>(pose.get(1)),
                 static_cast<Q>(pose.get(2)),
@@ -183,10 +182,10 @@ namespace rw { namespace math {
      * @relates Q
      */
     template <class T>
-    std::ostream& operator<<(std::ostream& out, const Pose6D<T>& v)
+    std::ostream& operator<<(std::ostream& out, const Pose3D<T>& v)
     {
         return out
-            << "Pose6D {"<< v(0)<< ", "<< v(1)<< ", " << v(2)
+            << "Pose3D {"<< v(0)<< ", "<< v(1)<< ", " << v(2)
             << ", " << v(3) << ", " << v(4) << ", " << v(5) << "}";
     }
 

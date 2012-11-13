@@ -95,6 +95,8 @@ namespace rw { namespace math {
             return _rpy(index);
         }
 
+        size_t size() const { return 3; }
+
         /**
          * @brief Ouputs RPY to stream
          *

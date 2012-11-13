@@ -229,6 +229,7 @@ namespace rw { namespace math {
             }
         }
 
+        size_t size() const { return 4; }
 
         /**
          * @brief THIS IS NOT A MULTIPLICATION, but a rotation.
