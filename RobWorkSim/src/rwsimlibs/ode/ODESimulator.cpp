@@ -234,6 +234,8 @@ void ODESimulator::setEnabled(Body::Ptr body, bool enabled){
         RW_THROW("Body is NULL!");
     ODEBody *odebody = _rwFrameToODEBody[ body->getBodyFrame() ];
     Frame *frame = _rwODEBodyToFrame[ odebody ];
+
+
     if( enabled ) {
         dBodyEnable(odebody->getBodyID());
         _enabledMap[*frame] = 1;
@@ -1493,6 +1495,9 @@ bool ODESimulator::detectCollisionsRW(rw::kinematics::State& state, bool onlyTes
             //std::cout << "No ode bodies:" << pair.first->getName() << " -- " << pair.second->getName() << std::endl;
             continue;
         }
+
+        if( _enabledMap[*a_data->getFrame()]==0 || _enabledMap[*b_data->getFrame()]==0 )
+            continue;
 
         dGeomID a_geom = _frameToOdeGeoms[a_data->getFrame()];
         dGeomID b_geom = _frameToOdeGeoms[b_data->getFrame()];
