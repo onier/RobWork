@@ -9,7 +9,7 @@
 #define RWLIBS_CALIBRATION_DHPARAMETERCALIBRATION_HPP_
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/TransformAddons.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
 
 #include "Calibration.hpp"
 #include <Eigen/Geometry>

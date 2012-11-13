@@ -55,7 +55,7 @@ void SerialDeviceCalibrator::addMeasurement(SerialDevicePoseMeasurement::Ptr mea
 	_measurements.push_back(measurement);
 }
 
-void SerialDeviceCalibrator::addMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix) {
+void SerialDeviceCalibrator::addMeasurement(const rw::math::Q& q, const rw::math::Pose6D<>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix) {
 	_measurements.push_back(rw::common::ownedPtr(new SerialDevicePoseMeasurement(q, pose, covarianceMatrix)));
 }
 
@@ -164,7 +164,7 @@ void SerialDeviceCalibrator::computeResiduals(Eigen::VectorXd& stackedResiduals,
 		if (_calibration->isApplied())
 			_calibration->correct(_state);
 
-		const Eigen::Affine3d tfmMeasurement = measurement->getPose().toTransform();
+		const Eigen::Affine3d tfmMeasurement(measurement->getPose().toTransform3D());
 		const Eigen::Affine3d tfmModel = Eigen::Affine3d(rw::kinematics::Kinematics::frameTframe(_referenceFrame.get(), _measurementFrame.get(), _state));
 		const Eigen::Affine3d dT = tfmModel.difference(tfmMeasurement);
 

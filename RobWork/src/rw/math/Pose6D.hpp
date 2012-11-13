@@ -155,7 +155,7 @@ namespace rw { namespace math {
          * @brief Converts the Pose6D into the corresponding Transform3D
          * @return the corresponding Transform3D
          */
-        const Transform3D<T> toTransform3D() {
+        const Transform3D<T> toTransform3D() const {
             return Transform3D<T>(_position, _orientation);
         }
 

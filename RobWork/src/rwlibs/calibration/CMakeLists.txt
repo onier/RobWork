@@ -28,9 +28,7 @@ IF( build )
 	)
     
 	SET(SRC_FILES_HPP
-		eigen/Pose6D.hpp
-		eigen/RPY.hpp
-		eigen/TransformAddons.hpp
+		eigen/EigenTransformPlugin.hpp
 		nlls/NLLSIterationLog.hpp
 		nlls/NLLSSolver.hpp
 		nlls/NLLSSolverLog.hpp

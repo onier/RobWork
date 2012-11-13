@@ -9,7 +9,7 @@
 #define RWLIBS_CALIBRATION_SERIALDEVICECALIBRATOR_HPP
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/TransformAddons.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
 
 #include "nlls/NLLSSystem.hpp"
 #include "nlls/NLLSSolverLog.hpp"
@@ -46,7 +46,7 @@ public:
 
 	void addMeasurement(SerialDevicePoseMeasurement::Ptr measurement);
 
-	void addMeasurement(const rw::math::Q& q, const Pose6D<double>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix =
+	void addMeasurement(const rw::math::Q& q, const rw::math::Pose6D<>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix =
 			Eigen::Matrix<double, 6, 6>::Identity());
 
 	void setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);

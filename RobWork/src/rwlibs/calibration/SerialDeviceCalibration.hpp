@@ -9,7 +9,7 @@
 #define RWLIBS_CALIBRATION_SERIALDEVICECALIBRATION_HPP
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/TransformAddons.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
 
 #include "CompositeCalibration.hpp"
 #include "DHParameterCalibration.hpp"

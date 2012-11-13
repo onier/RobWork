@@ -7,7 +7,6 @@
 
 #include "FixedFrameCalibration.hpp"
 
-#include "eigen/Pose6D.hpp"
 #include <rw/kinematics.hpp>
 #include <QtCore>
 
@@ -50,14 +49,12 @@ void FixedFrameCalibration::setCorrection(const Eigen::Affine3d& correction) {
 }
 
 bool FixedFrameCalibration::isParameterLocked(int parameterIndex) {
-	if (parameterIndex > 3)
-		RW_THROW("Parameter index large.");
+	assert(parameterIndex < 4);
 	return _lockedParameters(parameterIndex);
 }
 
 void FixedFrameCalibration::setParameterLocked(int parameterIndex, bool isLocked) {
-	if (parameterIndex > 3)
-		RW_THROW("Parameter index large.");
+	assert(parameterIndex < 4);
 	_lockedParameters(parameterIndex) = isLocked;
 }
 
@@ -111,7 +108,7 @@ Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::
 		jacobian.block<3, 1>(3, columnIndex) = Eigen::Vector3d::Zero();
 		columnIndex++;
 	}
-	if (!_lockedParameters(PARAMETER_YAW)) {
+	if (!_lockedParameters(PARAMETER_ROLL)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(2).cross(preToEndTranslation);
 		jacobian.block<3, 1>(3, columnIndex) = toPreCorrectionRotation.col(2);
 		columnIndex++;
@@ -121,7 +118,7 @@ Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::
 		jacobian.block<3, 1>(3, columnIndex) = toPreCorrectionRotation.col(1);
 		columnIndex++;
 	}
-	if (!_lockedParameters(PARAMETER_ROLL)) {
+	if (!_lockedParameters(PARAMETER_YAW)) {
 		jacobian.block<3, 1>(0, columnIndex) = toPreCorrectionRotation.col(0).cross(preToEndTranslation);
 		jacobian.block<3, 1>(3, columnIndex) = toPreCorrectionRotation.col(0);
 	}
@@ -131,17 +128,20 @@ Eigen::MatrixXd FixedFrameCalibration::doComputeJacobian(rw::kinematics::Frame::
 
 void FixedFrameCalibration::doTakeStep(const Eigen::VectorXd& step) {
 	const int parameterCount = _lockedParameters.rows();
-	Pose6Dd stepPose = Pose6Dd::Zero();
+	Eigen::Matrix<double, 6, 1> mappedStep = Eigen::Matrix<double, 6, 1>::Zero();
 	unsigned int unlockedParameterIndex = 0;
-	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++)
-		if (!_lockedParameters(parameterIndex))
-			stepPose(parameterIndex) = stepPose(parameterIndex) + step(unlockedParameterIndex++);
+	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
+		if (!_lockedParameters(parameterIndex)) {
+			mappedStep(parameterIndex) = step(unlockedParameterIndex);
+			unlockedParameterIndex++;
+		}
+	}
 
-	Eigen::Affine3d stepTransform = stepPose.toTransform();
+	Eigen::Affine3d stepTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(mappedStep(0), mappedStep(1), mappedStep(2)), rw::math::RPY<>(mappedStep(3), mappedStep(4), mappedStep(5)).toRotation3D()));
 	_correction = _isPostCorrection ? stepTransform * _correction : _correction * stepTransform;
 	if (isApplied()) {
 		Eigen::Affine3d correctedTransform =
-				_isPostCorrection ? stepTransform * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * stepTransform;
+			_isPostCorrection ? stepTransform * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * stepTransform;
 		_frame->setTransform(correctedTransform);
 	}
 }

@@ -8,6 +8,7 @@
 #include "XmlMeasurementFile.hpp"
 
 #include <rw/common.hpp>
+
 #include <QtCore>
 #include <QtXml/qdom.h>
 
@@ -35,7 +36,7 @@ void XmlMeasurementFile::save(const std::vector<SerialDevicePoseMeasurement::Ptr
 
 		QDomElement elmPose = document.createElement("Pose");
 		QString poseTxt;
-		rwlibs::calibration::Pose6D<double> pose = measurement->getPose();
+		rw::math::Pose6D<> pose = measurement->getPose();
 		for (int variableIndex = 0; variableIndex < 6; variableIndex++)
 			poseTxt.append(QString(" %1").arg(pose(variableIndex), 0, 'g', 16));
 		elmPose.appendChild(document.createTextNode(poseTxt.simplified()));
@@ -92,7 +93,7 @@ std::vector<SerialDevicePoseMeasurement::Ptr> XmlMeasurementFile::load(std::stri
 			QStringList txtPoseSplitted = elmPose.text().simplified().split(" ");
 			if (txtPoseSplitted.size() != 6)
 				RW_THROW("Pose not parsed correctly.");
-			rwlibs::calibration::Pose6D<double> pose = Pose6D<double>(txtPoseSplitted[0].toDouble(), txtPoseSplitted[1].toDouble(),
+			rw::math::Pose6D<> pose = rw::math::Pose6D<>(txtPoseSplitted[0].toDouble(), txtPoseSplitted[1].toDouble(),
 					txtPoseSplitted[2].toDouble(), txtPoseSplitted[3].toDouble(), txtPoseSplitted[4].toDouble(), txtPoseSplitted[5].toDouble());
 
 			Eigen::Matrix<double, 6, 6> covariance = Eigen::Matrix<double, 6, 6>::Identity();
