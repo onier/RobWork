@@ -269,15 +269,15 @@ std::vector<std::pair<std::string, double> > testStrategy(CollisionStrategy::Ptr
     finesetup.strategyName = strategyname;
 
     loadModelsData(coarsesetup, 20, "geoms/performance/CoarseModel.stl", "Coarse");
-    //setFirstContact(coarsesetup);
     setAllContact(coarsesetup);
     intializeTestSetupData( coarsesetup, 1);
     intializeBuildingSetup( coarsesetup , timings);
-    intializeTestSetupData( coarsesetup, 200);
+    intializeTestSetupData( coarsesetup, 100);
 
     testPerConfiguration( coarsesetup , timings);
     testPerObjectPair( coarsesetup , timings);
 
+    //setFirstContact(coarsesetup);
 
     loadModelsData(finesetup, 20, "geoms/performance/CoarseModel.stl", "Fine");
     setFirstContact(finesetup);
