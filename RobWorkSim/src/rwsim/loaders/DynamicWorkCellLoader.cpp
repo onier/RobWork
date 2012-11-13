@@ -1096,7 +1096,7 @@ namespace
             if(dev==NULL)
                 RW_THROW("No valid is referenced by the PoseDeviceController.");
 
-            Frame* tcp = getFrameFromAttr(tree, state, "tcp");
+            //Frame* tcp = getFrameFromAttr(tree, state, "tcp");
 
             double dt = tree.get<double>("TimeStep");
 
