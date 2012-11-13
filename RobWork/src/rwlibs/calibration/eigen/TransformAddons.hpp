@@ -12,14 +12,11 @@ inline Transform(const rw::math::Transform3D<>& transform3d) {
 	check_template_params();
 	rw::math::Vector3D<Scalar> vector3d = transform3d.P();
 	rw::math::Rotation3D<Scalar> rotation3d = transform3d.R();
-	Matrix<double, 4, 4> matrix = Matrix<double, 4, 4>::Identity();
-	matrix(0,3) = vector3d(0);
-	matrix(1,3) = vector3d(1);
-	matrix(2,3) = vector3d(2);
+	this->setIdentity();
+	this->translation() << vector3d(0), vector3d(1), vector3d(2);
 	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
-	for (int colIndex = 0; colIndex < 3; colIndex++)
-	matrix(rowIndex, colIndex) = rotation3d(rowIndex, colIndex);
-	*this = matrix;
+		for (int colIndex = 0; colIndex < 3; colIndex++)
+			this->linear()(rowIndex, colIndex) = rotation3d(rowIndex, colIndex);
 }
 
 operator rw::math::Transform3D<>() const {

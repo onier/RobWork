@@ -173,7 +173,8 @@ std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasu
 		rw::math::Q q = rw::math::Math::ranQ(serialDevice->getBounds());
 		serialDevice->setQ(q, state);
 
-		Eigen::Affine3d transform(rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state));
+//		Eigen::Affine3d transform(rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state));
+		Eigen::Affine3d transform = rwlibs::calibration::Pose6Dd(rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state)).toTransform();
 		Eigen::Matrix<double, 6, 6> covariance = Eigen::Matrix<double, 6, 6>::Identity();
 		if (addNoise) {
 			Eigen::Matrix<double, 6, 6> random = Eigen::Matrix<double, 6, 6>::Random();
