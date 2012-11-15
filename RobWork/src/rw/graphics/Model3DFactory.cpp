@@ -141,7 +141,7 @@ Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const st
         Model3D *model = new Model3D(name);
 
         model->addTriMesh(Model3D::Material("stlmat",0.6f,0.6f,0.6f), *data);
-        model->optimize(45*rw::math::Deg2Rad);
+        model->optimize(30*rw::math::Deg2Rad);
 
         getCache().add(filename, model, moddate);
         return getCache().get(filename);

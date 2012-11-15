@@ -186,13 +186,15 @@ void Model3D::optimize(double smooth_angle, SmoothMethod method){
                     groups.push_back( std::list<size_t>(1,face) );
                     continue;
                 }
-                Vector3D<float> facenormal = calcNormal(obj, face);
+                Vector3D<float> facenormal = normalize( calcNormal(obj, face) );
                 // compare this face with all groups, add it to the first group where it fits
                 bool ingroup = false;
                 BOOST_FOREACH(std::list<size_t>& group, groups){
                     BOOST_FOREACH(size_t groupface, group){
-                        if( smooth_angle>std::acos( dot( normalize(calcNormal(obj, groupface)), normalize(facenormal)) )){
-                            // the face should be put into this group
+                    	//double angle = angle(normalize(calcNormal(obj, groupface)), normalize(facenormal));
+                        double ang = std::acos( dot( normalize(calcNormal(obj, groupface)), facenormal) );
+                    	if( smooth_angle>std::fabs(ang)){
+                        	// the face should be put into this group
                             ingroup = true;
 
                             break;

@@ -191,6 +191,7 @@ Model3D::Ptr LoaderAC3D::load(const std::string& filename){
                         rwobj->_texCoords.push_back(s.uvs[2]);
 	                }
                 } else {
+                	//std::cout << "*********** poly start ********************" << std::endl;
             	    // its a polygon, since we don't support that in Model3D, we make triangles of it
                     IndexedPolygonN<> poly(s.vertrefs.size());
             	    for(size_t j=0; j<s.vertrefs.size();j++)
@@ -199,8 +200,15 @@ Model3D::Ptr LoaderAC3D::load(const std::string& filename){
             	    // calculate poly normal from first three vertices
             	    Vector3D<> v0 = cast<double>( rwobj->_vertices[ poly[0] ] );
                     Vector3D<> v1 = cast<double>( rwobj->_vertices[ poly[1] ] );
-                    Vector3D<> v2 = cast<double>( rwobj->_vertices[ poly[2] ] );
+                    Vector3D<> v2 = cast<double>( rwobj->_vertices[ poly[3] ] );
+                    // we need to make sure its not degenerate, that is two points are the same
+                    if(MetricUtil::dist2(v1,v2)<0.0001 ){
+                    	// choose a new point for v2
+                    	v2 = cast<double>( rwobj->_vertices[ poly[2] ] );
+                    }
+
                     Vector3D<> n = normalize( cross(v1-v0,v2-v0) );
+
                     //std::cout << "-" << v0 << "\n-" << v1 << "\n-" << v2 << "\n-" << n << std::endl;
 
                     EAA<> eaa(n,Vector3D<>(0,0,1));
@@ -210,11 +218,9 @@ Model3D::Ptr LoaderAC3D::load(const std::string& filename){
                     for(size_t j=0;j<poly.size();j++){
                         // rotate each point such that the xy-plane is perpendicular to the normal
                         Vector3D<> v = rotNtoZ * cast<double>( rwobj->_vertices[ poly[j] ] );
-                        //std::cout << v << std::endl;
                         points[j](0) = v(0);
                         points[j](1) = v(1);
                     }
-
                     //std::cout << std::endl;
                     // make sure to handle materials
                     rwobj->setMaterial(s.mat);
@@ -224,18 +230,33 @@ Model3D::Ptr LoaderAC3D::load(const std::string& filename){
                     int iidx=0;
                     if( Triangulate::processPoints(points, indices) ){
                         while(iidx < (int)indices.size()){
-                            IndexedTriangle<> tri(poly[ indices[iidx  ] ],
-                                                  poly[ indices[iidx+1] ],
-                                                  poly[ indices[iidx+2] ]);
+                            // check if we need to flip triangle
+                            // the normal should be 0,0,1
+                            Vector3D<> p0( points[indices[iidx  ]](0), points[indices[iidx  ]](1), 0);
+                            Vector3D<> p1( points[indices[iidx+1]](0), points[indices[iidx+1]](1), 0);
+                            Vector3D<> p2( points[indices[iidx+2]](0), points[indices[iidx+2]](1), 0);
+
+                            Vector3D<> nn = normalize( cross(p1-p0,p2-p0) );
+                            //std::cout << nn << std::endl;
+                            int iidx0 = iidx, iidx1 = iidx+1, iidx2=iidx+2;
+                            if(nn(2)<0){
+                            	iidx1=iidx+2;
+                            	iidx2=iidx+1;
+                            }
+
+                            IndexedTriangle<> tri(poly[ indices[iidx0] ],
+                                                  poly[ indices[iidx1] ],
+                                                  poly[ indices[iidx2] ]);
+
                             // first add triangle
                             rwobj->addTriangle(tri);
                             // next add the texture information
                             if(obj->texture!=-1){
                                 //if(s.uvs.size()!=3)
                                 //    RW_THROW("Not enough texture coordinates. uvs.size: " << s.uvs.size());
-                                rwobj->_texCoords.push_back(s.uvs[indices[iidx  ]]);
-                                rwobj->_texCoords.push_back(s.uvs[indices[iidx+1]]);
-                                rwobj->_texCoords.push_back(s.uvs[indices[iidx+2]]);
+                                rwobj->_texCoords.push_back(s.uvs[indices[iidx0]]);
+                                rwobj->_texCoords.push_back(s.uvs[indices[iidx1]]);
+                                rwobj->_texCoords.push_back(s.uvs[indices[iidx2]]);
                             }
                             iidx += 3;
                         }
@@ -263,7 +284,7 @@ Model3D::Ptr LoaderAC3D::load(const std::string& filename){
         }
         setlocale(LC_ALL, locale.c_str());
         delete model;
-        //rwmodel->optimize(45*Deg2Rad);
+        rwmodel->optimize(45*Deg2Rad);
         return ownedPtr(rwmodel);
 
     } catch (...) {} 
@@ -669,19 +690,22 @@ void LoaderAC3D::calc_vertex_normals(AC3DObject *ob)
 		    if(ob->normals[ref].toV3D().normInf()<0.01){
 	            ob->normals[ref] = surf.normal;
 		    } else {
+		    	ob->normals[ref] = surf.normal;
+		    	/*
 		        // first test if the angle between the current normal and the new normal is small
-		        //double ang = Rad2Deg * angle(normalize(ob->normals[ref].toV3D()),surf.normal.toV3D());
-		        //if(ang<35){
+		        double ang = Rad2Deg * std::acos( dot(normalize(ob->normals[ref].toV3D()),surf.normal.toV3D()) );
+		        if(std::fabs(ang)<40){
 		            ob->normals[ref].val[0] += surf.normal.val[0];
 		            ob->normals[ref].val[1] += surf.normal.val[1];
 		            ob->normals[ref].val[2] += surf.normal.val[2];
-		        //} else {
+		        } else {
                     // add a new vertice and normal
-                //    ob->normals.push_back( surf.normal );
-                //    ob->vertices.push_back(ob->vertices[ref]);
-                //    ref = ob->normals.size()-1;
-                //    ob->vertex_cnt++;
-		        //}
+                    ob->normals.push_back( surf.normal );
+                    ob->vertices.push_back(ob->vertices[ref]);
+                    ref = ob->normals.size()-1;
+                    ob->vertex_cnt++;
+		        }
+		        */
 		    }
 		}
 	}
