@@ -190,7 +190,7 @@ namespace rw { namespace common {
 		/**
 		 * @brief Returns true is the smart pointer is null
 		 */
-		bool isNull() {
+		bool isNull() const {
 			return get() == NULL;
 		}
 

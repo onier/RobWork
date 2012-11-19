@@ -20,15 +20,15 @@ class SerialDevicePoseMeasurement {
 public:
 	typedef rw::common::Ptr<SerialDevicePoseMeasurement> Ptr;
 
-	SerialDevicePoseMeasurement(const rw::math::Q& q, const rw::math::Pose6D<>& pose);
+	SerialDevicePoseMeasurement(const rw::math::Q& q, const rw::math::Transform3D<>& transform);
 
-	SerialDevicePoseMeasurement(const rw::math::Q& q, const rw::math::Pose6D<>& pose, const Eigen::Matrix<double, 6, 6>& covariance);
+	SerialDevicePoseMeasurement(const rw::math::Q& q, const rw::math::Transform3D<>& transform, const Eigen::Matrix<double, 6, 6>& covariance);
 
 	virtual ~SerialDevicePoseMeasurement();
 
 	const rw::math::Q& getQ() const;
 
-	const rw::math::Pose6D<>& getPose() const;
+	const rw::math::Transform3D<>& getTransform() const;
 
 	const Eigen::Matrix<double, 6, 6>& getCovariance() const;
 
@@ -36,7 +36,7 @@ public:
 
 private:
 	rw::math::Q _q;
-	rw::math::Pose6D<> _pose;
+	rw::math::Transform3D<> _transform;
 	Eigen::Matrix<double, 6, 6> _covariance;
 	bool _hasCovariance;
 

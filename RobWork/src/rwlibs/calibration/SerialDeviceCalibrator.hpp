@@ -12,6 +12,7 @@
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
 
 #include "nlls/NLLSSystem.hpp"
+#include "nlls/NLLSSolver.hpp"
 #include "nlls/NLLSSolverLog.hpp"
 #include "Calibration.hpp"
 #include "SerialDevicePoseMeasurement.hpp"
@@ -21,7 +22,7 @@
 namespace rwlibs {
 namespace calibration {
 
-class SerialDeviceCalibrator: public NLLSSystem {
+class SerialDeviceCalibrator: NLLSSystem {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibrator> Ptr;
 
@@ -46,7 +47,7 @@ public:
 
 	void addMeasurement(SerialDevicePoseMeasurement::Ptr measurement);
 
-	void addMeasurement(const rw::math::Q& q, const rw::math::Pose6D<>& pose, const Eigen::Matrix<double, 6, 6>& covarianceMatrix =
+	void addMeasurement(const rw::math::Q& q, const rw::math::Transform3D<>& transform, const Eigen::Matrix<double, 6, 6>& covarianceMatrix =
 			Eigen::Matrix<double, 6, 6>::Identity());
 
 	void setMeasurements(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
@@ -55,19 +56,16 @@ public:
 
 	void setWeightingEnabled(bool isWeightingEnabled);
 
-	NLLSSolverLog::Ptr getSolverLog() const;
-
 	void calibrate(const rw::kinematics::State& state);
 
-	Eigen::MatrixXd getCovarianceMatrix() const;
+	NLLSSolverLog::Ptr getSolverLog() const;
 
+	Eigen::MatrixXd estimateCovariance() const;
+
+private:
 	virtual void computeJacobian(Eigen::MatrixXd& jacobian);
 
-	void computeJacobian(Eigen::MatrixXd& jacobian, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
-
 	virtual void computeResiduals(Eigen::VectorXd& residuals);
-
-	void computeResiduals(Eigen::VectorXd& residuals, const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements);
 
 	virtual void takeStep(const Eigen::VectorXd& step);
 
@@ -79,8 +77,7 @@ private:
 	Calibration::Ptr _calibration;
 	std::vector<SerialDevicePoseMeasurement::Ptr> _measurements;
 	bool _isWeightingEnabled;
-	NLLSSolverLog::Ptr _solverLog;
-	Eigen::MatrixXd _covarianceMatrix;
+	NLLSSolver::Ptr _solver;
 };
 
 }

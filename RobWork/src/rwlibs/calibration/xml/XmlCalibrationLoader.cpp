@@ -80,8 +80,8 @@ DHParameterCalibration::Ptr ElementReader::readElement<DHParameterCalibration::P
 	return rw::common::ownedPtr(new DHParameterCalibration(joint, Eigen::Vector4d(a, length, alpha, angle)));
 }
 
-SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(std::string fileName, rw::kinematics::StateStructure::Ptr stateStructure,
-		rw::models::SerialDevice::Ptr device) {
+SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(rw::kinematics::StateStructure::Ptr stateStructure,
+		rw::models::SerialDevice::Ptr device, std::string fileName) {
 	QFile file(QString::fromStdString(fileName));
 	file.open(QIODevice::ReadOnly | QIODevice::Text | QIODevice::Truncate);
 

@@ -82,6 +82,8 @@ CompositeCalibration<T>::~CompositeCalibration() {
 
 template<class T>
 bool CompositeCalibration<T>::isParameterLocked(int parameterIndex) {
+	RW_ASSERT(parameterIndex < getParameterCount());
+
 	int parameterIndexMin = 0, parameterIndexMax = 0;
 	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
@@ -90,11 +92,12 @@ bool CompositeCalibration<T>::isParameterLocked(int parameterIndex) {
 			return calibration->isParameterLocked(parameterIndex - parameterIndexMin);
 		parameterIndexMin += parameterIndexMax;
 	}
-	RW_THROW("Parameter index too large.");
 }
 
 template<class T>
 void CompositeCalibration<T>::setParameterLocked(int parameterIndex, bool isLocked) {
+	RW_ASSERT(parameterIndex < getParameterCount());
+
 	int parameterIndexMin = 0, parameterIndexMax = 0;
 	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);

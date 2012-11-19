@@ -67,9 +67,9 @@ void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 	while (true) {
 		NLLSIterationLog iterationLog = iterate();
 
-		std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
-				<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
-				<< iterationLog.getStepNorm() << "." << std::endl;
+		//std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
+		//	<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
+		//	<< iterationLog.getStepNorm() << "." << std::endl;
 
 		// Stop iterating if step is below accepted threshold.
 		if (iterationLog.getStepNorm() <= acceptThreshold)
@@ -81,7 +81,7 @@ void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 	}
 }
 
-Eigen::MatrixXd NLLSSolver::estimateCovarianceMatrix() const {
+Eigen::MatrixXd NLLSSolver::estimateCovariance() const {
 	// Eq. 15.4.20 from Numerical Recipes (covariance of unknown variables)
 	Eigen::MatrixXd V = _jacobianSvd.matrixV();
 	Eigen::VectorXd singularValues = _jacobianSvd.singularValues();

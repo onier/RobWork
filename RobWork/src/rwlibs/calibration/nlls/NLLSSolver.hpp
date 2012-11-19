@@ -36,7 +36,7 @@ public:
 
 	void solve(double acceptThreshold, int maxIterations);
 
-	Eigen::MatrixXd estimateCovarianceMatrix() const;
+	Eigen::MatrixXd estimateCovariance() const;
 
 protected:
 	NLLSSystem::Ptr _system;

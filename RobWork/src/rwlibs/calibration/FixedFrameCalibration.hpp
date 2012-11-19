@@ -38,7 +38,7 @@ public:
 
 	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection);
 
-	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const Eigen::Affine3d& transform);
+	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const rw::math::Transform3D<>& transform);
 
 	virtual ~FixedFrameCalibration();
 
@@ -46,9 +46,9 @@ public:
 
 	bool isPostCorrection() const;
 
-	Eigen::Affine3d getCorrection() const;
+	rw::math::Transform3D<> getCorrection() const;
 
-	void setCorrection(const Eigen::Affine3d& transform);
+	void setCorrection(const rw::math::Transform3D<>& transform);
 
 	bool isParameterLocked(int parameterIndex);
 
@@ -70,7 +70,7 @@ private:
 private:
 	rw::kinematics::FixedFrame::Ptr _frame;
 	bool _isPostCorrection;
-	Eigen::Affine3d _correction;
+	rw::math::Transform3D<> _correction;
 	Eigen::Matrix<int, 6, 1> _lockedParameters;
 };
 

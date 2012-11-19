@@ -23,7 +23,7 @@ FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr fra
 
 }
 
-FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const Eigen::Affine3d& transform) :
+FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const rw::math::Transform3D<>& transform) :
 		_frame(frame), _isPostCorrection(isPostCorrection), _correction(transform), _lockedParameters(Eigen::Matrix<int, 6, 1>::Zero()) {
 
 }
@@ -40,33 +40,33 @@ bool FixedFrameCalibration::isPostCorrection() const {
 	return _isPostCorrection;
 }
 
-Eigen::Affine3d FixedFrameCalibration::getCorrection() const {
+rw::math::Transform3D<> FixedFrameCalibration::getCorrection() const {
 	return _correction;
 }
 
-void FixedFrameCalibration::setCorrection(const Eigen::Affine3d& correction) {
+void FixedFrameCalibration::setCorrection(const rw::math::Transform3D<>& correction) {
 	_correction = correction;
 }
 
 bool FixedFrameCalibration::isParameterLocked(int parameterIndex) {
-	assert(parameterIndex < 4);
+	RW_ASSERT(parameterIndex < _lockedParameters.size());
 	return _lockedParameters(parameterIndex);
 }
 
 void FixedFrameCalibration::setParameterLocked(int parameterIndex, bool isLocked) {
-	assert(parameterIndex < 4);
+	RW_ASSERT(parameterIndex < _lockedParameters.size());
 	_lockedParameters(parameterIndex) = isLocked;
 }
 
 void FixedFrameCalibration::doApply() {
-	Eigen::Affine3d correctedTransform =
-			_isPostCorrection ? _correction * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * _correction;
+	rw::math::Transform3D<> correctedTransform =
+			_isPostCorrection ? _correction * _frame->getFixedTransform() : _frame->getFixedTransform() * _correction;
 	_frame->setTransform(correctedTransform);
 }
 
 void FixedFrameCalibration::doRevert() {
-	Eigen::Affine3d correctedTransform =
-			_isPostCorrection ? _correction.inverse() * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * _correction.inverse();
+	rw::math::Transform3D<> correctedTransform =
+			_isPostCorrection ? rw::math::inverse(_correction) * _frame->getFixedTransform() : _frame->getFixedTransform() * rw::math::inverse(_correction);
 	_frame->setTransform(correctedTransform);
 }
 
@@ -131,17 +131,18 @@ void FixedFrameCalibration::doTakeStep(const Eigen::VectorXd& step) {
 	Eigen::Matrix<double, 6, 1> mappedStep = Eigen::Matrix<double, 6, 1>::Zero();
 	unsigned int unlockedParameterIndex = 0;
 	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
-		if (!_lockedParameters(parameterIndex)) {
+		if (!isParameterLocked(parameterIndex)) {
 			mappedStep(parameterIndex) = step(unlockedParameterIndex);
 			unlockedParameterIndex++;
 		}
 	}
 
-	Eigen::Affine3d stepTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(mappedStep(0), mappedStep(1), mappedStep(2)), rw::math::RPY<>(mappedStep(3), mappedStep(4), mappedStep(5)).toRotation3D()));
+	rw::math::Transform3D<> stepTransform(rw::math::Vector3D<>(mappedStep(0), mappedStep(1), mappedStep(2)), rw::math::RPY<>(mappedStep(3), mappedStep(4), mappedStep(5)).toRotation3D());
+
 	_correction = _isPostCorrection ? stepTransform * _correction : _correction * stepTransform;
 	if (isApplied()) {
-		Eigen::Affine3d correctedTransform =
-			_isPostCorrection ? stepTransform * _frame->getFixedTransform() : Eigen::Affine3d(_frame->getFixedTransform()) * stepTransform;
+		rw::math::Transform3D<> correctedTransform =
+			_isPostCorrection ? stepTransform * _frame->getFixedTransform() : _frame->getFixedTransform() * stepTransform;
 		_frame->setTransform(correctedTransform);
 	}
 }

@@ -15,7 +15,7 @@ namespace calibration {
 
 class XmlCalibrationLoader {
 public:
-	static SerialDeviceCalibration::Ptr load(std::string fileName, rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device);
+	static SerialDeviceCalibration::Ptr load(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr device, std::string fileName);
 };
 
 }

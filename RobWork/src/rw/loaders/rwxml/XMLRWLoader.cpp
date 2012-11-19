@@ -509,8 +509,8 @@ Device::Ptr createDevice(DummyDevice &dev, DummySetup &setup) {
 			std::string filename = StringUtil::getDirectoryName(dummyCalibration._pos.file) + "/" + dummyCalibration._filename;
 
 			// load and apply calibration
-			rwlibs::calibration::SerialDeviceCalibration::Ptr calibration = rwlibs::calibration::XmlCalibrationLoader::load(filename, setup.tree,
-					model.cast<SerialDevice>());
+			rwlibs::calibration::SerialDeviceCalibration::Ptr calibration = rwlibs::calibration::XmlCalibrationLoader::load(setup.tree,
+					model.cast<SerialDevice>(), filename);
 			rwlibs::calibration::SerialDeviceCalibration::set(calibration, model.cast<SerialDevice>());
 			calibration->apply();
 		}
