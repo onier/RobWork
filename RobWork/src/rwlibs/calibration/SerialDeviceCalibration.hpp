@@ -13,7 +13,6 @@
 
 #include "CompositeCalibration.hpp"
 #include "DHParameterCalibration.hpp"
-//#include "EncoderParameterCalibration.hpp"
 #include "FixedFrameCalibration.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
@@ -29,8 +28,7 @@ public:
 	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice);
 
 	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration,
-			const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration/*,
-			 const CompositeCalibration<EncoderParameterCalibration>::Ptr& compositeEncoderParameterCalibration*/);
+			const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration);
 
 	virtual ~SerialDeviceCalibration();
 
@@ -41,8 +39,6 @@ public:
 	FixedFrameCalibration::Ptr getEndCalibration() const;
 
 	CompositeCalibration<DHParameterCalibration>::Ptr getCompositeDHParameterCalibration() const;
-
-//	CompositeCalibration<EncoderParameterCalibration>::Ptr getCompositeEncoderParameterCalibration() const;
 
 	static SerialDeviceCalibration::Ptr get(rw::models::SerialDevice::Ptr serialDevice);
 
@@ -57,7 +53,6 @@ private:
 	FixedFrameCalibration::Ptr _baseCalibration;
 	FixedFrameCalibration::Ptr _endCalibration;
 	CompositeCalibration<DHParameterCalibration>::Ptr _compositeDHParameterCalibration;
-//	CompositeCalibration<EncoderParameterCalibration>::Ptr _compositeEncoderParameterCalibration;
 };
 
 }

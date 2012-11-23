@@ -1,11 +1,11 @@
 /*
- * NLLSSolver.cpp
+ * NLLSNewtonSolver.cpp
  *
  *  Created on: Sep 12, 2012
  *      Author: bing
  */
 
-#include "NLLSSolver.hpp"
+#include "NLLSNewtonSolver.hpp"
 
 #include <boost/math/special_functions/fpclassify.hpp>
 #include <Eigen/SVD>
@@ -14,24 +14,27 @@
 namespace rwlibs {
 namespace calibration {
 
-NLLSSolver::NLLSSolver(NLLSSystem::Ptr system) :
-		_system(system), _log(rw::common::ownedPtr(new NLLSSolverLog())) {
+const double stepConvergenceTolerance = 1e-14;
+const int maxIterationCount = 100;
+
+NLLSNewtonSolver::NLLSNewtonSolver(NLLSSystem::Ptr system) :
+		_system(system) {
 
 }
 
-NLLSSolver::~NLLSSolver() {
+NLLSNewtonSolver::~NLLSNewtonSolver() {
 
 }
 
-NLLSSystem::Ptr NLLSSolver::getSystem() const {
+NLLSSystem::Ptr NLLSNewtonSolver::getSystem() const {
 	return _system;
 }
 
-NLLSSolverLog::Ptr NLLSSolver::getLog() const {
+const NLLSSolverLog& NLLSNewtonSolver::getLog() const {
 	return _log;
 }
 
-NLLSIterationLog NLLSSolver::iterate() {
+NLLSIterationLog NLLSNewtonSolver::iterate() {
 	// Compute Jacobian and residuals.
 	_system->computeJacobian(_jacobian);
 	_system->computeResiduals(_residuals);
@@ -46,7 +49,7 @@ NLLSIterationLog NLLSSolver::iterate() {
 	_system->takeStep(_step);
 
 	// Log iteration.
-	NLLSIterationLog iterationLog = _log->addIteration(_jacobian, _jacobianSvd, _residuals, _step);
+	NLLSIterationLog iterationLog = _log.addIteration(_jacobian, _jacobianSvd, _residuals, _step);
 
 	// Verify iteration.
 	if (iterationLog.isSingular())
@@ -59,11 +62,11 @@ NLLSIterationLog NLLSSolver::iterate() {
 	return iterationLog;
 }
 
-void NLLSSolver::solve() {
-	return solve(1e-14, 100);
+bool NLLSNewtonSolver::isConverged() const {
+	return _step.norm() <= stepConvergenceTolerance;
 }
 
-void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
+void NLLSNewtonSolver::solve() {
 	while (true) {
 		NLLSIterationLog iterationLog = iterate();
 
@@ -72,7 +75,7 @@ void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 		//	<< iterationLog.getStepNorm() << "." << std::endl;
 
 		// Stop iterating if step is below accepted threshold.
-		if (iterationLog.getStepNorm() <= acceptThreshold)
+		if (isConverged())
 			break;
 
 		// Throw exception if iteration limit has been reached.
@@ -81,8 +84,8 @@ void NLLSSolver::solve(double acceptThreshold, int maxIterationCount) {
 	}
 }
 
-Eigen::MatrixXd NLLSSolver::estimateCovariance() const {
-	// Eq. 15.4.20 from Numerical Recipes (covariance of unknown variables)
+Eigen::MatrixXd NLLSNewtonSolver::estimateCovarianceMatrix() const {
+	// Eq. 15.4.20 from Numerical Recipes (covariance matrix of unknown variables)
 	Eigen::MatrixXd V = _jacobianSvd.matrixV();
 	Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
 

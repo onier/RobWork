@@ -19,7 +19,7 @@ namespace calibration {
 /**
  * @brief Calibration represents a kinematic correction.
  *
- * Calibrations has the concept of \i locking. Locked calibrations cannot change state
+ * Calibrations can be applied or reverted.
  */
 class Calibration {
 public:
@@ -31,22 +31,6 @@ public:
 	virtual ~Calibration();
 
 	/**
-	 * @brief Test if calibration is locked.
-	 * @return True if locked, false otherwise
-	 */
-	virtual bool isLocked() const;
-
-	/**
-	 * @brief Lock or unlock calibration.
-	 * @param[in] isLocked True to lock, false to unlock.
-	 */
-	virtual void setLocked(bool isLocked);
-
-	virtual bool isParameterLocked(int parameterIndex) = 0;
-
-	virtual void setParameterLocked(int parameterIndex, bool isLocked) = 0;
-
-	/**
 	 * @brief Test if calibration is applied.
 	 * @return True if applied, false otherwise
 	 */
@@ -55,39 +39,23 @@ public:
 	/**
 	 * @brief Apply calibration.
 	 *
-	 * Exception is thrown if calibration is locked or already applied.
+	 * Exception is thrown if calibration is already applied.
 	 */
 	void apply();
 
 	/**
 	 * @brief Revert calibration.
 	 *
-	 * Exception is thrown if calibration is locked or not applied.
+	 * Exception is thrown if calibration is not applied.
 	 */
 	void revert();
 
-	void correct(rw::kinematics::State& state);
-
 	/**
-	 * @brief Returns the number of parameters describing the calibration.
-	 * @return Number of parameters
-	 */
-	int getParameterCount() const;
-
-	/**
-	 * @brief Compute the Jacobian matrix.
+	 * @brief Correct state according to calibration.
 	 *
-	 * Exception is thrown if calibration is locked, not applied or getParameterCount() returns 0.
-	 *
-	 * @see	getParameterCount()
-	 * @param[in]	referenceFrame	Reference frame from which partial derivatives are seen.
-	 * @param[in]	targetFrame		Target frame of which the partial derivatives are described.
-	 * @param[in]	state			State of the work cell.
-	 * @return Jacobian matrix
+	 * Exception is thrown if calibration is not applied.
 	 */
-	Eigen::MatrixXd computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state);
-
-	void takeStep(const Eigen::VectorXd& step);
+	void correctState(rw::kinematics::State& state);
 
 protected:
 	/**
@@ -104,24 +72,13 @@ protected:
 	 * @brief Subclass implementation of revert().
 	 */
 	virtual void doRevert() = 0;
-
-	virtual void doCorrect(rw::kinematics::State& state) = 0;
-
+	
 	/**
-	 * @brief Subclass implementation of getParameterCount().
+	 * @brief Subclass implementation of correctState().
 	 */
-	virtual int doGetParameterCount() const = 0;
-
-	/**
-	 * @brief Subclass implementation of computeJacobian().
-	 */
-	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
-			const rw::kinematics::State& state) = 0;
-
-	virtual void doTakeStep(const Eigen::VectorXd& step) = 0;
+	virtual void doCorrectState(rw::kinematics::State& state) = 0;
 
 private:
-	bool _isLocked;
 	bool _isApplied;
 };
 

@@ -16,11 +16,10 @@ bool addNoise;
 
 int parseArguments(int argumentCount, char** arguments);
 void printHelp();
-std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
+std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
 	rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rw::kinematics::State state, unsigned int measurementCount,
 	bool addNoise);
-void printMeasurementErrors(rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
-	rw::kinematics::State state, const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr>& measurements, rwlibs::calibration::Calibration::Ptr calibration);
+void printMeasurements(const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration);
 
 int main(int argumentCount, char** arguments) {
 	if (int parseResult = parseArguments(argumentCount, arguments) < 1)
@@ -69,34 +68,39 @@ int main(int argumentCount, char** arguments) {
 	std::cout << "Found [ " << measurementFrame->getName() << " ]." << std::endl;
 
 	std::cout << "Initializing artificial calibration..";
+	std::cout.flush();
 	rwlibs::calibration::SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
-	artificialCalibration->getBaseCalibration()->setCorrection(rw::math::Transform3D<>(rw::math::Vector3D<>(0.07, 0.008, 0.009), rw::math::RPY<>(0.08, 0.007, 0.06)));
-	artificialCalibration->getEndCalibration()->setCorrection(rw::math::Transform3D<>(rw::math::Vector3D<>(0.01, 0.002, 0.003), rw::math::RPY<>(0.04, 0.005, 0.06)));
+	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.007, 0.0008, 0.0009), rw::math::RPY<>(0.008, 0.0007, 0.006)));
+	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.001, 0.0002, 0.0003), rw::math::RPY<>(0.004, 0.0005, 0.006)));
 	std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> artificialDhParameterCalibrations =
 		artificialCalibration->getCompositeDHParameterCalibration()->getCalibrations();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialDhParameterCalibrations.size(); calibrationIndex++)
-		artificialDhParameterCalibrations[calibrationIndex]->setCorrection(Eigen::Vector4d(0.003, 0.0, -0.002, 0.0));
+		artificialDhParameterCalibrations[calibrationIndex]->setCorrection(Eigen::Vector4d(0.0003, 0.0, -0.0002, 0.0));
 	std::cout << " Initialized." << std::endl;
 
 	std::cout << "Applying artificial calibration..";
+	std::cout.flush();
 	artificialCalibration->apply();
 	std::cout << " Applied." << std::endl;
 
 	std::cout << "Generating measurements [ Count: " << measurementCount << " - Noise: " << (addNoise ? "Enabled" : "Disabled") << " ]..";
-	std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> measurements = generateMeasurements(serialDevice, referenceFrame, measurementFrame,
+	std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> measurements = generateMeasurements(serialDevice, referenceFrame, measurementFrame,
 		state, measurementCount, addNoise);
 	std::cout << " Generated." << std::endl;
 
 	std::cout << "Reverting artificial calibration..";
+	std::cout.flush();
+	std::cout.flush();
 	artificialCalibration->revert();
 	std::cout << " Reverted." << std::endl;
 
 	std::cout << "Saving measurement file [ " << measurementFilePath << " ]..";
+	std::cout.flush();
 	rwlibs::calibration::XmlMeasurementFile::save(measurements, measurementFilePath);
 	std::cout << " Saved." << std::endl;
 
 	std::cout << "Residual summary:" << std::endl;
-	printMeasurementErrors(serialDevice, referenceFrame, measurementFrame, state, measurements, artificialCalibration);
+	printMeasurements(measurements, workCell, serialDevice, referenceFrame, measurementFrame, artificialCalibration);
 
 	return 0;
 }
@@ -139,12 +143,12 @@ void printHelp() {
 	std::cerr << optionsDescription << std::endl;
 }
 
-std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
+std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
 	rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rw::kinematics::State state, unsigned int measurementCount,
 	bool addNoise) {
 		MultivariateNormalDistribution<double, 6> mvnd(time(0));
 
-		std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> measurements(measurementCount);
+		std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> measurements;
 		for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 			rw::math::Q q = rw::math::Math::ranQ(serialDevice->getBounds());
 			serialDevice->setQ(q, state);
@@ -158,49 +162,49 @@ std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasu
 				covariance.block<3, 3>(3, 3) /= 5.0;
 				covariance.block<3, 3>(3, 0) /= 1000.0;
 				covariance.block<3, 3>(0, 3) /= 1000.0;
-				covariance /= 10e7;
+				covariance /= 10e14;
 
 				Eigen::Matrix<double, 6, 1> mvndVector = mvnd.draw(covariance);
 				transform.P() = rw::math::Vector3D<>(mvndVector(0), mvndVector(1), mvndVector(2)) + transform.P();
 				transform.R() = rw::math::RPY<>(mvndVector(3), mvndVector(4), mvndVector(5)).toRotation3D() * transform.R();
 			}
 
-			measurements[measurementIndex] = rw::common::ownedPtr(new rwlibs::calibration::SerialDevicePoseMeasurement(q, transform, covariance));
+			measurements.push_back(rwlibs::calibration::SerialDevicePoseMeasurement(q, transform, covariance));
 		}
 
 		return measurements;
 }
 
-void printMeasurementErrors(rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
-	rw::kinematics::State state, const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr>& measurements, rwlibs::calibration::Calibration::Ptr calibration) {
-		const unsigned int measurementCount = measurements.size();
+void printMeasurements(const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration) {
+	const unsigned int measurementCount = measurements.size();
 
-		Eigen::VectorXd distances(measurementCount), angles(measurementCount);
-		Eigen::VectorXd calibratedDistances(measurementCount), calibratedAngles(measurementCount);
-		for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
-			serialDevice->setQ(measurements[measurementIndex]->getQ(), state);
+	Eigen::VectorXd distances(measurementCount), angles(measurementCount);
+	Eigen::VectorXd calibratedDistances(measurementCount), calibratedAngles(measurementCount);
+	rw::kinematics::State state = workCell->getDefaultState();
+	for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
+		serialDevice->setQ(measurements[measurementIndex].getQ(), state);
 
-			const rw::math::Transform3D<> tfmMeasurement = measurements[measurementIndex]->getTransform();
-			const rw::math::Transform3D<> tfmModel = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state);
-			calibration->apply();
-			const rw::math::Transform3D<> tfmCalibratedModel =
-				rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state);
-			calibration->revert();
-			const rw::math::Transform3D<> tfmError = rw::math::Transform3D<>(tfmModel.P() - tfmMeasurement.P(), tfmModel.R() * rw::math::inverse(tfmMeasurement.R()));
-			const rw::math::Transform3D<> tfmCalibratedError = rw::math::Transform3D<>(tfmCalibratedModel.P() - tfmMeasurement.P(), tfmCalibratedModel.R() * rw::math::inverse(tfmMeasurement.R()));
+		const rw::math::Transform3D<> tfmMeasurement = measurements[measurementIndex].getTransform();
+		const rw::math::Transform3D<> tfmModel = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state);
+		serialDeviceCalibration->apply();
+		const rw::math::Transform3D<> tfmCalibratedModel =
+			rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state);
+		serialDeviceCalibration->revert();
+		const rw::math::Transform3D<> tfmError = rw::math::Transform3D<>(tfmModel.P() - tfmMeasurement.P(), tfmModel.R() * rw::math::inverse(tfmMeasurement.R()));
+		const rw::math::Transform3D<> tfmCalibratedError = rw::math::Transform3D<>(tfmCalibratedModel.P() - tfmMeasurement.P(), tfmCalibratedModel.R() * rw::math::inverse(tfmMeasurement.R()));
 
-			distances(measurementIndex) = tfmError.P().norm2(), calibratedDistances(measurementIndex) = tfmCalibratedError.P().norm2();
-			angles(measurementIndex) = rw::math::EAA<>(tfmError.R()).angle(), calibratedAngles(measurementIndex) = rw::math::EAA<>(
-				tfmCalibratedError.R()).angle();
+		distances(measurementIndex) = tfmError.P().norm2(), calibratedDistances(measurementIndex) = tfmCalibratedError.P().norm2();
+		angles(measurementIndex) = rw::math::EAA<>(tfmError.R()).angle(), calibratedAngles(measurementIndex) = rw::math::EAA<>(
+			tfmCalibratedError.R()).angle();
 
-			std::cout << "\tMeasurement " << measurementIndex + 1 << ": [ Uncalibrated: " << distances(measurementIndex) * 100.0 << " cm / "
-				<< angles(measurementIndex) * rw::math::Rad2Deg << " \u00B0 - Calibrated: " << calibratedDistances(measurementIndex) * 100.0 << " cm / "
-				<< calibratedAngles(measurementIndex) * rw::math::Rad2Deg << " \u00B0 ]" << std::endl;
-		}
-		std::cout << "\tSummary - Uncalibrated: [ Avg: " << distances.mean() * 100.0 << " cm / " << angles.mean() * rw::math::Rad2Deg << " \u00B0 - Min: "
-			<< distances.minCoeff() * 100.0 << " cm / " << angles.minCoeff() * rw::math::Rad2Deg << " \u00B0 - Max: " << distances.maxCoeff() * 100.0 << " cm / "
-			<< angles.maxCoeff() * rw::math::Rad2Deg << " \u00B0 ]" << std::endl;
-		std::cout << "\tSummary - Calibrated: [ Avg: " << calibratedDistances.mean() * 100.0 << " cm / " << calibratedAngles.mean() * rw::math::Rad2Deg << " \u00B0 - Min: "
-			<< calibratedDistances.minCoeff() * 100.0 << " cm / " << calibratedAngles.minCoeff() * rw::math::Rad2Deg << " \u00B0 - Max: "
-			<< calibratedDistances.maxCoeff() * 100.0 << " cm / " << calibratedAngles.maxCoeff() * rw::math::Rad2Deg << " \u00B0 ]" << std::endl;
+		std::cout << "\tMeasurement " << measurementIndex + 1 << ": [ Uncalibrated: " << distances(measurementIndex) * 100.0 << " cm / "
+			<< angles(measurementIndex) * rw::math::Rad2Deg << " \u00B0 - Calibrated: " << calibratedDistances(measurementIndex) * 100.0 << " cm / "
+			<< calibratedAngles(measurementIndex) * rw::math::Rad2Deg << " \u00B0 ]" << std::endl;
+	}
+	std::cout << "\tSummary - Uncalibrated: [ Avg: " << distances.mean() * 100.0 << " cm / " << angles.mean() * rw::math::Rad2Deg << " \u00B0 - Min: "
+		<< distances.minCoeff() * 100.0 << " cm / " << angles.minCoeff() * rw::math::Rad2Deg << " \u00B0 - Max: " << distances.maxCoeff() * 100.0 << " cm / "
+		<< angles.maxCoeff() * rw::math::Rad2Deg << " \u00B0 ]" << std::endl;
+	std::cout << "\tSummary - Calibrated: [ Avg: " << calibratedDistances.mean() * 100.0 << " cm / " << calibratedAngles.mean() * rw::math::Rad2Deg << " \u00B0 - Min: "
+		<< calibratedDistances.minCoeff() * 100.0 << " cm / " << calibratedAngles.minCoeff() * rw::math::Rad2Deg << " \u00B0 - Max: "
+		<< calibratedDistances.maxCoeff() * 100.0 << " cm / " << calibratedAngles.maxCoeff() * rw::math::Rad2Deg << " \u00B0 ]" << std::endl;
 }

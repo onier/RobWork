@@ -12,7 +12,7 @@
 #include <rw/loaders.hpp>
 #include <rwlibs/calibration.hpp>
 
-std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
+std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
 	rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rw::kinematics::State state, unsigned int measurementCount,
 	bool addNoise);
 
@@ -57,8 +57,8 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	rwlibs::calibration::SerialDeviceCalibration::Ptr artificialCalibration(
 		rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
 
-	artificialCalibration->getBaseCalibration()->setCorrection(rw::math::Transform3D<>(rw::math::Vector3D<>(0.07, 0.008, 0.009), rw::math::RPY<>(0.08, 0.007, 0.06)));
-	artificialCalibration->getEndCalibration()->setCorrection(rw::math::Transform3D<>(rw::math::Vector3D<>(0.01, 0.002, 0.003), rw::math::RPY<>(0.04, 0.005, 0.06)));
+	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.07, 0.008, 0.009), rw::math::RPY<>(0.08, 0.007, 0.06)));
+	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.01, 0.002, 0.003), rw::math::RPY<>(0.04, 0.005, 0.06)));
 	std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> artificialDhParameterCalibrations =
 		artificialCalibration->getCompositeDHParameterCalibration()->getCalibrations();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialDhParameterCalibrations.size(); calibrationIndex++)
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 
 	// Load robot pose measurements from file.
 	BOOST_TEST_CHECKPOINT("Generating measurements");
-	const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> measurements = generateMeasurements(serialDevice, referenceFrame, measurementFrame,
+	const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> measurements = generateMeasurements(serialDevice, referenceFrame, measurementFrame,
 		state, measurementCount, false);
 	BOOST_CHECK_MESSAGE(measurements.size() == measurementCount, "Measurement generation failed.");
 
@@ -79,10 +79,13 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	// Initialize calibration, jacobian and calibrator.
 	BOOST_TEST_CHECKPOINT("Initializing calibration");
 	rwlibs::calibration::SerialDeviceCalibration::Ptr calibration(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
+	
+	BOOST_TEST_CHECKPOINT("Initializing jacobian");
+	rwlibs::calibration::SerialDeviceJacobian::Ptr jacobian(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceJacobian(calibration)));
 
 	BOOST_TEST_CHECKPOINT("Initializing calibrator");
 	rwlibs::calibration::SerialDeviceCalibrator::Ptr calibrator(
-		rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, referenceFrame, measurementFrame, calibration)));
+		rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, referenceFrame, measurementFrame, calibration, jacobian)));
 	calibrator->setMeasurements(measurements);
 
 	try {
@@ -94,9 +97,9 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	}
 
 	// Verify that the calibration match the artificial calibration.
-	BOOST_CHECK_MESSAGE(Eigen::Affine3d(calibration->getBaseCalibration()->getCorrection()).isApprox(Eigen::Affine3d(artificialCalibration->getBaseCalibration()->getCorrection()), 10e-5),
+	BOOST_CHECK_MESSAGE(Eigen::Affine3d(calibration->getBaseCalibration()->getCorrectionTransform()).isApprox(Eigen::Affine3d(artificialCalibration->getBaseCalibration()->getCorrectionTransform()), 10e-5),
 		"Base calibration failed.");
-	BOOST_CHECK_MESSAGE(Eigen::Affine3d(calibration->getEndCalibration()->getCorrection()).isApprox(Eigen::Affine3d(artificialCalibration->getEndCalibration()->getCorrection()), 10e-5),
+	BOOST_CHECK_MESSAGE(Eigen::Affine3d(calibration->getEndCalibration()->getCorrectionTransform()).isApprox(Eigen::Affine3d(artificialCalibration->getEndCalibration()->getCorrectionTransform()), 10e-5),
 		"End calibration failed.");
 	std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> dhParameterCalibrations =
 		calibration->getCompositeDHParameterCalibration()->getCalibrations();
@@ -111,10 +114,10 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	// Verify that calibration fits measurements.
 	for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 		BOOST_TEST_CHECKPOINT("Updating state");
-		serialDevice->setQ(measurements[measurementIndex]->getQ(), state);
+		serialDevice->setQ(measurements[measurementIndex].getQ(), state);
 
 		BOOST_TEST_CHECKPOINT("Computing measurement error");
-		const rw::math::Transform3D<> tfmMeasurement = measurements[measurementIndex]->getTransform();
+		const rw::math::Transform3D<> tfmMeasurement = measurements[measurementIndex].getTransform();
 		const rw::math::Transform3D<> tfmModel = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state);
 		const rw::math::Transform3D<> tfmError(tfmModel.P() - tfmMeasurement.P(), tfmModel.R() * rw::math::inverse(tfmMeasurement.R()));
 
@@ -136,10 +139,10 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 
 	// Verify that the loaded calibration match the artificial calibration.
 	BOOST_CHECK_MESSAGE(
-		Eigen::Affine3d(calibrationLoaded->getBaseCalibration()->getCorrection()).isApprox(Eigen::Affine3d(artificialCalibration->getBaseCalibration()->getCorrection()), 10e-5),
+		Eigen::Affine3d(calibrationLoaded->getBaseCalibration()->getCorrectionTransform()).isApprox(Eigen::Affine3d(artificialCalibration->getBaseCalibration()->getCorrectionTransform()), 10e-5),
 		"Loading base calibration failed.");
 	BOOST_CHECK_MESSAGE(
-		Eigen::Affine3d(calibrationLoaded->getEndCalibration()->getCorrection()).isApprox(Eigen::Affine3d(artificialCalibration->getEndCalibration()->getCorrection()), 10e-5),
+		Eigen::Affine3d(calibrationLoaded->getEndCalibration()->getCorrectionTransform()).isApprox(Eigen::Affine3d(artificialCalibration->getEndCalibration()->getCorrectionTransform()), 10e-5),
 		"Loading end calibration failed.");
 	std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> dhParameterCalibrationsLoaded =
 		calibrationLoaded->getCompositeDHParameterCalibration()->getCalibrations();
@@ -151,10 +154,10 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	// Verify that loaded calibration fits measurements.
 	for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 		BOOST_TEST_CHECKPOINT("Updating state");
-		serialDevice->setQ(measurements[measurementIndex]->getQ(), state);
+		serialDevice->setQ(measurements[measurementIndex].getQ(), state);
 
 		BOOST_TEST_CHECKPOINT("Computing measurement error");
-		const rw::math::Transform3D<> tfmMeasurement = measurements[measurementIndex]->getTransform();
+		const rw::math::Transform3D<> tfmMeasurement = measurements[measurementIndex].getTransform();
 		const rw::math::Transform3D<> tfmModel = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), measurementFrame.get(), state);
 		const rw::math::Transform3D<> tfmError(tfmModel.P() - tfmMeasurement.P(), tfmModel.R() * rw::math::inverse(tfmMeasurement.R()));
 
@@ -162,12 +165,12 @@ BOOST_AUTO_TEST_CASE( CalibrationTest ) {
 	}
 }
 
-std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
+std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
 	rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rw::kinematics::State state, unsigned int measurementCount,
 	bool addNoise) {
 		MultivariateNormalDistribution<double, 6> mvnd(time(0));
 
-		std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> measurements(measurementCount);
+		std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> measurements;
 		for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 			rw::math::Q q = rw::math::Math::ranQ(serialDevice->getBounds());
 			serialDevice->setQ(q, state);
@@ -188,7 +191,7 @@ std::vector<rwlibs::calibration::SerialDevicePoseMeasurement::Ptr> generateMeasu
 				transform.R() = rw::math::RPY<>(mvndVector(3), mvndVector(4), mvndVector(5)).toRotation3D() * transform.R();
 			}
 
-			measurements[measurementIndex] = rw::common::ownedPtr(new rwlibs::calibration::SerialDevicePoseMeasurement(q, transform, covariance));
+			measurements.push_back(rwlibs::calibration::SerialDevicePoseMeasurement(q, transform, covariance));
 		}
 
 		return measurements;

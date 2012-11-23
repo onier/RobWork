@@ -18,8 +18,6 @@ namespace calibration {
 
 class NLLSSolverLog {
 public:
-	typedef rw::common::Ptr<NLLSSolverLog> Ptr;
-
 	NLLSSolverLog();
 
 	NLLSIterationLog addIteration(const Eigen::MatrixXd& jacobian, const Eigen::JacobiSVD<Eigen::MatrixXd>& jacobianSvd, const Eigen::VectorXd& residuals,

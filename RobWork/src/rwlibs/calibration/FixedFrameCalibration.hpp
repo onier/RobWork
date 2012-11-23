@@ -5,8 +5,8 @@
  *      Author: bing
  */
 
-#ifndef RWLIBS_CALIBRATION_FRAMECALIBRATION_HPP_
-#define RWLIBS_CALIBRATION_FRAMECALIBRATION_HPP_
+#ifndef RWLIBS_CALIBRATION_FIXEDFRAMECALIBRATION_HPP_
+#define RWLIBS_CALIBRATION_FIXEDFRAMECALIBRATION_HPP_
 
 #include <rw/math.hpp>
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
@@ -21,15 +21,6 @@ namespace calibration {
 
 class FixedFrameCalibration: public Calibration {
 public:
-	enum PARAMETER {
-		PARAMETER_X = 0,
-		PARAMETER_Y = 1,
-		PARAMETER_Z = 2,
-		PARAMETER_ROLL = 3,
-		PARAMETER_PITCH = 4,
-		PARAMETER_YAW = 5
-	};
-
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	typedef rw::common::Ptr<FixedFrameCalibration> Ptr;
@@ -46,35 +37,25 @@ public:
 
 	bool isPostCorrection() const;
 
-	rw::math::Transform3D<> getCorrection() const;
+	rw::math::Transform3D<> getCorrectionTransform() const;
 
-	void setCorrection(const rw::math::Transform3D<>& transform);
-
-	bool isParameterLocked(int parameterIndex);
-
-	void setParameterLocked(int parameterIndex, bool isLocked);
+	void setCorrectionTransform(const rw::math::Transform3D<>& correctionTransform);
 
 private:
 	virtual void doApply();
 
 	virtual void doRevert();
 
-	virtual void doCorrect(rw::kinematics::State& state);
-
-	virtual int doGetParameterCount() const;
-
-	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state);
-
-	virtual void doTakeStep(const Eigen::VectorXd& step);
+	virtual void doCorrectState(rw::kinematics::State& state);
 
 private:
 	rw::kinematics::FixedFrame::Ptr _frame;
 	bool _isPostCorrection;
-	rw::math::Transform3D<> _correction;
-	Eigen::Matrix<int, 6, 1> _lockedParameters;
+	rw::math::Transform3D<> _correctionTransform;
+	rw::math::Transform3D<> _originalTransform;
 };
 
 }
 }
 
-#endif /* RWLIBS_CALIBRATION_FRAMECALIBRATION_HPP_ */
+#endif /* RWLIBS_CALIBRATION_FIXEDFRAMECALIBRATION_HPP_ */

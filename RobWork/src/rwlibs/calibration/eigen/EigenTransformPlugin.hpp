@@ -29,11 +29,4 @@ operator rw::math::Transform3D<>() const {
 	return rwTfm;
 }
 
-inline Transform difference(const Transform& other) const {
-	Transform difference;
-	difference.translation() = translation() - other.translation();
-	difference.linear() = linear() * other.linear().transpose();
-	return difference;
-}
-
 #endif /* RWLIBS_CALIBRATION_EIGENTRANSFORMADDONS_HPP */

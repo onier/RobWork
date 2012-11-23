@@ -24,7 +24,6 @@ template<class T>
 class CompositeCalibration: public Calibration {
 public:
 	typedef rw::common::Ptr<CompositeCalibration> Ptr;
-	typedef typename std::vector<rw::common::Ptr<T> >::iterator iterator;
 
 	/**
 	* @brief Constructor.
@@ -35,10 +34,6 @@ public:
 	* @brief Destructor.
 	*/
 	virtual ~CompositeCalibration();
-
-	virtual bool isParameterLocked(int parameterIndex);
-
-	virtual void setParameterLocked(int parameterIndex, bool isLocked);
 
 	/**
 	* @brief Returns a reference to a vector with pointers to the Calibration(s) in the CompositeCalibration.
@@ -57,14 +52,7 @@ private:
 
 	virtual void doRevert();
 
-	virtual void doCorrect(rw::kinematics::State& state);
-
-	virtual int doGetParameterCount() const;
-
-	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
-			const rw::kinematics::State& state);
-
-	virtual void doTakeStep(const Eigen::VectorXd& step);
+	virtual void doCorrectState(rw::kinematics::State& state);
 
 private:
 	std::vector<rw::common::Ptr<T> > _calibrations;
@@ -81,36 +69,6 @@ CompositeCalibration<T>::~CompositeCalibration() {
 }
 
 template<class T>
-bool CompositeCalibration<T>::isParameterLocked(int parameterIndex) {
-	RW_ASSERT(parameterIndex < getParameterCount());
-
-	int parameterIndexMin = 0, parameterIndexMax = 0;
-	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
-		rw::common::Ptr<T> calibration = (*it);
-		parameterIndexMax += calibration->getParameterCount();
-		if (parameterIndex >= parameterIndexMin && parameterIndex < parameterIndexMax)
-			return calibration->isParameterLocked(parameterIndex - parameterIndexMin);
-		parameterIndexMin += parameterIndexMax;
-	}
-}
-
-template<class T>
-void CompositeCalibration<T>::setParameterLocked(int parameterIndex, bool isLocked) {
-	RW_ASSERT(parameterIndex < getParameterCount());
-
-	int parameterIndexMin = 0, parameterIndexMax = 0;
-	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
-		rw::common::Ptr<T> calibration = (*it);
-		parameterIndexMax += calibration->getParameterCount();
-		if (parameterIndex >= parameterIndexMin && parameterIndex < parameterIndexMax) {
-			calibration->setParameterLocked(parameterIndex - parameterIndexMin, isLocked);
-			break;
-		}
-		parameterIndexMin += parameterIndexMax;
-	}
-}
-
-template<class T>
 const std::vector<rw::common::Ptr<T> >& CompositeCalibration<T>::getCalibrations() const {
 	return _calibrations;
 }
@@ -122,65 +80,34 @@ void CompositeCalibration<T>::add(rw::common::Ptr<T> calibration) {
 
 template<class T>
 void CompositeCalibration<T>::doApply() {
+	RW_ASSERT(!isApplied());
+
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (!calibration->isApplied() && !calibration->isLocked())
+		if (!calibration->isApplied())
 			calibration->apply();
 	}
 }
 
 template<class T>
 void CompositeCalibration<T>::doRevert() {
+	RW_ASSERT(isApplied());
+
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (calibration->isApplied() && !calibration->isLocked())
+		if (calibration->isApplied())
 			calibration->revert();
 	}
 }
 
 template<class T>
-void CompositeCalibration<T>::doCorrect(rw::kinematics::State& state) {
+void CompositeCalibration<T>::doCorrectState(rw::kinematics::State& state) {
+	RW_ASSERT(isApplied());
+
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (calibration->isApplied() && !calibration->isLocked())
-			calibration->correct(state);
-	}
-}
-
-template<class T>
-int CompositeCalibration<T>::doGetParameterCount() const {
-	int parameterCount = 0;
-	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it)
-		parameterCount += (*it)->getParameterCount();
-	return parameterCount;
-}
-
-template<class T>
-Eigen::MatrixXd CompositeCalibration<T>::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
-		const rw::kinematics::State& state) {
-	unsigned int parameterNo = 0;
-	Eigen::MatrixXd jacobian(6, getParameterCount());
-	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
-		rw::common::Ptr<T> calibration = (*it);
-		unsigned int parameterCount = calibration->getParameterCount();
-		if (parameterCount > 0) {
-			jacobian.block(0, parameterNo, 6, parameterCount) = calibration->computeJacobian(referenceFrame, targetFrame, state);
-			parameterNo += parameterCount;
-		}
-	}
-	return jacobian;
-}
-
-template<class T>
-void CompositeCalibration<T>::doTakeStep(const Eigen::VectorXd& step) {
-	unsigned int parameterNo = 0;
-	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
-		rw::common::Ptr<T> calibration = (*it);
-		unsigned int parameterCount = calibration->getParameterCount();
-		if (parameterCount > 0) {
-			calibration->takeStep(step.segment(parameterNo, parameterCount));
-			parameterNo += parameterCount;
-		}
+		if (calibration->isApplied())
+			calibration->correctState(state);
 	}
 }
 

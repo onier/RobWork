@@ -8,7 +8,6 @@
 #include "SerialDeviceCalibration.hpp"
 
 #include <rw/models.hpp>
-#include <QtCore>
 
 namespace rwlibs {
 namespace calibration {
@@ -23,37 +22,28 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getEnd()).cast<rw::kinematics::FixedFrame>(), false));
 
 	_compositeDHParameterCalibration = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
-//	_compositeEncoderParameterCalibration = rw::common::ownedPtr(new CompositeCalibration<EncoderParameterCalibration>());
 	std::vector<rw::models::Joint*> joints(_serialDevice->getJoints());
 	for (std::vector<rw::models::Joint*>::iterator jointIterator = joints.begin(); jointIterator != joints.end(); jointIterator++) {
 		// Add only DH parameter calibrations for intermediate links.
 		if (jointIterator != joints.begin()) {
-			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(*jointIterator));
-			// Lock d and theta for first link.
-			if (_compositeDHParameterCalibration->getCalibrations().size() == 0) {
-				calibration->setParameterLocked(DHParameterCalibration::PARAMETER_D, true);
-				calibration->setParameterLocked(DHParameterCalibration::PARAMETER_THETA, true);
-			}
+			rw::models::Joint::Ptr joint = (*jointIterator);
+			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(joint));
 			_compositeDHParameterCalibration->add(calibration);
 		}
-//		_compositeEncoderParameterCalibration->add(rw::common::ownedPtr(new EncoderParameterCalibration(serialDevice, *jointIterator)));
 	}
 
 	add(_baseCalibration.cast<Calibration>());
 	add(_endCalibration.cast<Calibration>());
 	add(_compositeDHParameterCalibration.cast<Calibration>());
-//	add(_compositeEncoderParameterCalibration.cast<Calibration>());
 }
 
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration,
-		FixedFrameCalibration::Ptr endCalibration, const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration/*,
-		 const CompositeCalibration<EncoderParameterCalibration>::Ptr& compositeEncoderParameterCalibration*/) :
+		FixedFrameCalibration::Ptr endCalibration, const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration) :
 		_serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _compositeDHParameterCalibration(
-				compositeDHParameterCalibration) /*, _compositeEncoderParameterCalibration(compositeEncoderParameterCalibration)*/{
+				compositeDHParameterCalibration) {
 	add(_baseCalibration.cast<Calibration>());
 	add(_endCalibration.cast<Calibration>());
 	add(_compositeDHParameterCalibration.cast<Calibration>());
-//	add(_compositeEncoderParameterCalibration.cast<Calibration>());
 }
 
 SerialDeviceCalibration::~SerialDeviceCalibration() {
@@ -76,10 +66,6 @@ CompositeCalibration<DHParameterCalibration>::Ptr SerialDeviceCalibration::getCo
 	return _compositeDHParameterCalibration;
 }
 
-//CompositeCalibration<EncoderParameterCalibration>::Ptr SerialDeviceCalibration::getCompositeEncoderParameterCalibration() const {
-//	return _compositeEncoderParameterCalibration;
-//}
-
 SerialDeviceCalibration::Ptr SerialDeviceCalibration::get(rw::models::SerialDevice::Ptr device) {
 	return get(device->getPropertyMap());
 }
@@ -97,7 +83,7 @@ void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr calibration, rw::
 
 void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr calibration, rw::common::PropertyMap& propertyMap) {
 	if (propertyMap.has("Calibration")) {
-		if (calibration->isApplied() && !calibration->isLocked())
+		if (calibration->isApplied())
 			calibration->revert();
 		propertyMap.erase("Calibration");
 	}

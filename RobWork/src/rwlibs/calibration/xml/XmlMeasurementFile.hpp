@@ -15,9 +15,9 @@ namespace calibration {
 
 class XmlMeasurementFile {
 public:
-	static void save(const std::vector<SerialDevicePoseMeasurement::Ptr>& measurements, std::string fileName);
+	static void save(const std::vector<SerialDevicePoseMeasurement>& measurements, std::string fileName);
 
-	static std::vector<SerialDevicePoseMeasurement::Ptr> load(std::string fileName);
+	static std::vector<SerialDevicePoseMeasurement> load(std::string fileName);
 };
 
 }

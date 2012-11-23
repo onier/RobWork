@@ -37,7 +37,7 @@ QDomElement ElementCreator::createElement<FixedFrameCalibration::Ptr>(FixedFrame
 	QDomElement elmTransform = _document->createElement("Transform");
 
 	QString baseTransformTxt;
-	Eigen::Affine3d correction = calibration->getCorrection();
+	Eigen::Affine3d correction = calibration->getCorrectionTransform();
 	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
 		for (int colIndex = 0; colIndex < 4; colIndex++)
 			baseTransformTxt.append(QString(" %1").arg(correction(rowIndex, colIndex), 0, 'g', 16));

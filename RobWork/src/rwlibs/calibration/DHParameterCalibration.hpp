@@ -46,27 +46,17 @@ public:
 
 	void setCorrection(const Eigen::Vector4d& correction);
 
-	bool isParameterLocked(int parameterIndex);
-
-	void setParameterLocked(int parameterIndex, bool isLocked);
-
 private:
 	virtual void doApply();
 
 	virtual void doRevert();
 
-	virtual void doCorrect(rw::kinematics::State& state);
-
-	virtual int doGetParameterCount() const;
-
-	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state);
-
-	virtual void doTakeStep(const Eigen::VectorXd& step);
+	virtual void doCorrectState(rw::kinematics::State& state);
 
 private:
 	rw::models::Joint::Ptr _joint;
 	Eigen::Vector4d _correction;
-	Eigen::Vector4i _lockedParameters;
+	rw::models::DHParameterSet _originalSet;
 };
 
 }

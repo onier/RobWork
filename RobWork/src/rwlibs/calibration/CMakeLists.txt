@@ -11,38 +11,48 @@ RW_ADD_DOC( ${SUBSYS_NAME} )
 IF( build )
 	SET(SRC_FILES
 		nlls/NLLSIterationLog.cpp
-		nlls/NLLSSolver.cpp
+		nlls/NLLSNewtonSolver.cpp
 		nlls/NLLSSolverLog.cpp
 		nlls/NLLSSystem.cpp
 		xml/XmlCalibrationLoader.cpp
 		xml/XmlCalibrationSaver.cpp
 		xml/XmlMeasurementFile.cpp
+		JacobianBase.cpp
 		Calibration.cpp
-		CompositeCalibration.cpp
 		DHParameterCalibration.cpp
+		DHParameterJacobian.cpp
 	#	EncoderParameterCalibration.cpp
 		FixedFrameCalibration.cpp
+		FixedFrameJacobian.cpp
 		SerialDeviceCalibration.cpp
 		SerialDeviceCalibrator.cpp
+		SerialDeviceJacobian.cpp
 		SerialDevicePoseMeasurement.cpp
 	)
     
 	SET(SRC_FILES_HPP
 		eigen/EigenTransformPlugin.hpp
 		nlls/NLLSIterationLog.hpp
+		nlls/NLLSNewtonSolver.hpp
 		nlls/NLLSSolver.hpp
 		nlls/NLLSSolverLog.hpp
 		nlls/NLLSSystem.hpp
 		xml/XmlCalibrationLoader.hpp
 		xml/XmlCalibrationSaver.hpp
 		xml/XmlMeasurementFile.hpp
+		JacobianBase.hpp
 		Calibration.hpp
 		CompositeCalibration.hpp
+		CompositeJacobian.hpp
 		DHParameterCalibration.hpp
+		DHParameterJacobian.hpp
 	#	EncoderParameterCalibration.hpp
 		FixedFrameCalibration.hpp
+		FixedFrameJacobian.hpp
+		Jacobian.hpp
 		SerialDeviceCalibration.hpp
 		SerialDeviceCalibrator.hpp
+		SerialDeviceJacobian.hpp
 		SerialDevicePoseMeasurement.hpp
 	)
     

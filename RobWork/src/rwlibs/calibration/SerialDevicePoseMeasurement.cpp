@@ -13,13 +13,17 @@
 namespace rwlibs {
 namespace calibration {
 
-SerialDevicePoseMeasurement::SerialDevicePoseMeasurement(const rw::math::Q& q, const rw::math::Transform3D<>& transform) :
-	_q(q), _transform(transform), _hasCovariance(false) {
+SerialDevicePoseMeasurement::SerialDevicePoseMeasurement() : _hasCovarianceMatrix(false) {
 
 }
 
-SerialDevicePoseMeasurement::SerialDevicePoseMeasurement(const rw::math::Q& q, const rw::math::Transform3D<>& transform, const Eigen::Matrix<double, 6, 6>& covariance) :
-	_q(q), _transform(transform), _covariance(covariance), _hasCovariance(true) {
+SerialDevicePoseMeasurement::SerialDevicePoseMeasurement(const rw::math::Q& q, const rw::math::Transform3D<>& transform) :
+	_q(q), _transform(transform), _hasCovarianceMatrix(false) {
+
+}
+
+SerialDevicePoseMeasurement::SerialDevicePoseMeasurement(const rw::math::Q& q, const rw::math::Transform3D<>& transform, const Eigen::Matrix<double, 6, 6>& covarianceMatrix) :
+	_q(q), _transform(transform), _covarianceMatrix(covarianceMatrix), _hasCovarianceMatrix(true) {
 
 }
 
@@ -35,12 +39,12 @@ const rw::math::Transform3D<>& SerialDevicePoseMeasurement::getTransform() const
 	return _transform;
 }
 
-const Eigen::Matrix<double, 6, 6>& SerialDevicePoseMeasurement::getCovariance() const {
-	return _covariance;
+const Eigen::Matrix<double, 6, 6>& SerialDevicePoseMeasurement::getCovarianceMatrix() const {
+	return _covarianceMatrix;
 }
 
-bool SerialDevicePoseMeasurement::hasCovariance() const {
-	return _hasCovariance;
+bool SerialDevicePoseMeasurement::hasCovarianceMatrix() const {
+	return _hasCovarianceMatrix;
 }
 
 }

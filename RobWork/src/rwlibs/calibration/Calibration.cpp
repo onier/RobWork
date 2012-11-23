@@ -14,20 +14,11 @@ Calibration::~Calibration() {
 
 }
 
-bool Calibration::isLocked() const {
-	return _isLocked;
-}
-
-void Calibration::setLocked(bool isLocked) {
-	_isLocked = isLocked;
-}
-
 bool Calibration::isApplied() const {
 	return _isApplied;
 }
 
 void Calibration::apply() {
-	RW_ASSERT(!isLocked());
 	RW_ASSERT(!isApplied());
 
 	doApply();
@@ -36,7 +27,6 @@ void Calibration::apply() {
 }
 
 void Calibration::revert() {
-	RW_ASSERT(!isLocked());
 	RW_ASSERT(isApplied());
 
 	doRevert();
@@ -44,30 +34,15 @@ void Calibration::revert() {
 	_isApplied = false;
 }
 
-void Calibration::correct(rw::kinematics::State& state) {
+void Calibration::correctState(rw::kinematics::State& state) {
 	RW_ASSERT(isApplied());
 
-	doCorrect(state);
-}
-
-int Calibration::getParameterCount() const {
-	return _isLocked ? 0 : doGetParameterCount();
-}
-
-Eigen::MatrixXd Calibration::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state) {
-	RW_ASSERT(getParameterCount() != 0);
-
-	return doComputeJacobian(referenceFrame, targetFrame, state);
-}
-
-void Calibration::takeStep(const Eigen::VectorXd& step) {
-	RW_ASSERT(getParameterCount() != 0);
-
-	return doTakeStep(step);
+	doCorrectState(state);
 }
 
 Calibration::Calibration() :
-		_isLocked(false), _isApplied(false) {
+		_isApplied(false) {
+
 }
 
 }
