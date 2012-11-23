@@ -19,12 +19,12 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr s
 	_baseCalibration = rw::common::ownedPtr(
 			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getBase()).cast<rw::kinematics::FixedFrame>(), true));
 	_endCalibration = rw::common::ownedPtr(
-			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getEnd()).cast<rw::kinematics::FixedFrame>(), false));
+		new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getEnd()).cast<rw::kinematics::FixedFrame>(), false));
 
 	_compositeDHParameterCalibration = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
 	std::vector<rw::models::Joint*> joints(_serialDevice->getJoints());
 	for (std::vector<rw::models::Joint*>::iterator jointIterator = joints.begin(); jointIterator != joints.end(); jointIterator++) {
-		// Add only DH parameter calibrations for intermediate links.
+		// Add DH parameter calibrations for intermediate links.
 		if (jointIterator != joints.begin()) {
 			rw::models::Joint::Ptr joint = (*jointIterator);
 			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(joint));

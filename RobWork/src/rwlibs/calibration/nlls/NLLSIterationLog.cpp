@@ -10,8 +10,8 @@
 namespace rwlibs {
 namespace calibration {
 
-NLLSIterationLog::NLLSIterationLog(int iterationNumber, bool isSingular, double conditionNumber, double residualNorm, double stepNorm) :
-		_iterationNumber(iterationNumber), _isSingular(isSingular), _conditionNumber(conditionNumber), _residualNorm(residualNorm), _stepNorm(stepNorm) {
+NLLSIterationLog::NLLSIterationLog(int iterationNumber, double conditionNumber, bool isSingular, double residualNorm, double stepNorm, bool isConverged) :
+		_iterationNumber(iterationNumber), _conditionNumber(conditionNumber), _isSingular(isSingular), _residualNorm(residualNorm), _stepNorm(stepNorm), _isConverged(isConverged) {
 
 }
 
@@ -19,12 +19,12 @@ int NLLSIterationLog::getIterationNumber() const {
 	return _iterationNumber;
 }
 
-bool NLLSIterationLog::isSingular() const {
-	return _isSingular;
-}
-
 double NLLSIterationLog::getConditionNumber() const {
 	return _conditionNumber;
+}
+
+bool NLLSIterationLog::isSingular() const {
+	return _isSingular;
 }
 
 double NLLSIterationLog::getResidualNorm() const {
@@ -33,6 +33,10 @@ double NLLSIterationLog::getResidualNorm() const {
 
 double NLLSIterationLog::getStepNorm() const {
 	return _stepNorm;
+}
+
+bool NLLSIterationLog::isConverged() const {
+	return _isConverged;
 }
 
 }

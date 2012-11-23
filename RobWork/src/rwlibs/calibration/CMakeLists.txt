@@ -12,7 +12,6 @@ IF( build )
 	SET(SRC_FILES
 		nlls/NLLSIterationLog.cpp
 		nlls/NLLSNewtonSolver.cpp
-		nlls/NLLSSolverLog.cpp
 		nlls/NLLSSystem.cpp
 		xml/XmlCalibrationLoader.cpp
 		xml/XmlCalibrationSaver.cpp
@@ -35,7 +34,6 @@ IF( build )
 		nlls/NLLSIterationLog.hpp
 		nlls/NLLSNewtonSolver.hpp
 		nlls/NLLSSolver.hpp
-		nlls/NLLSSolverLog.hpp
 		nlls/NLLSSystem.hpp
 		xml/XmlCalibrationLoader.hpp
 		xml/XmlCalibrationSaver.hpp

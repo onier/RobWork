@@ -28,11 +28,9 @@ public:
 
 	virtual NLLSSystem::Ptr getSystem() const;
 
-	virtual const NLLSSolverLog& getLog() const;
+	virtual const std::vector<NLLSIterationLog>& getIterationLogs() const;
 
 	virtual NLLSIterationLog iterate();
-
-	virtual bool isConverged() const;
 
 	virtual void solve();
 
@@ -40,7 +38,7 @@ public:
 
 protected:
 	NLLSSystem::Ptr _system;
-	NLLSSolverLog _log;
+	std::vector<NLLSIterationLog> _iterationLogs;
 	Eigen::MatrixXd _jacobian;
 	Eigen::JacobiSVD<Eigen::MatrixXd> _jacobianSvd;
 	Eigen::VectorXd _residuals;

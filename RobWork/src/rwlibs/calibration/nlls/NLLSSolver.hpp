@@ -9,7 +9,6 @@
 #define RWLIBS_CALIBRATION_NLLSSOLVER_HPP_
 
 #include "NLLSIterationLog.hpp"
-#include "NLLSSolverLog.hpp"
 #include "NLLSSystem.hpp"
 #include <Eigen/Core>
 
@@ -20,11 +19,9 @@ class NLLSSolver {
 public:
 	typedef rw::common::Ptr<NLLSSolver> Ptr;
 
-	virtual const NLLSSolverLog& getLog() const = 0;
+	virtual const std::vector<NLLSIterationLog>& getIterationLogs() const = 0;
 
 	virtual NLLSIterationLog iterate() = 0;
-
-	virtual bool isConverged() const = 0;
 
 	virtual void solve() = 0;
 

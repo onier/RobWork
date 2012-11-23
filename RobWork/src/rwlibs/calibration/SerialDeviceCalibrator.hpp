@@ -51,13 +51,13 @@ public:
 
 	void setMeasurements(const std::vector<SerialDevicePoseMeasurement>& measurements);
 
-	bool isWeightingMeasurements() const;
+	bool isWeighting() const;
 
-	void setWeightingMeasurements(bool isWeightingMeasurements);
+	void setWeighting(bool isWeighting);
 
 	void calibrate(const rw::kinematics::State& state);
 
-	const NLLSSolverLog& getSolverLog() const;
+	NLLSSolver::Ptr getSolver() const;
 
 	Eigen::MatrixXd estimateCovarianceMatrix() const;
 
@@ -69,7 +69,7 @@ private:
 	std::vector<SerialDevicePoseMeasurement> _measurements;
 	Calibration::Ptr _calibration;
 	Jacobian::Ptr _jacobian;
-	bool _isWeightingMeasurements;
+	bool _isWeighting;
 	NLLSSolver::Ptr _solver;
 };
 

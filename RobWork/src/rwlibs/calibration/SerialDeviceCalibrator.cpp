@@ -17,7 +17,7 @@ class SerialDeviceCalibrationSystem: public NLLSSystem {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibrationSystem> Ptr;
 
-	SerialDeviceCalibrationSystem(rw::models::SerialDevice::Ptr device, rw::kinematics::State state, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const std::vector<SerialDevicePoseMeasurement>& measurements, Calibration::Ptr calibration, Jacobian::Ptr jacobian, bool isWeightingMeasurements) : _device(device), _state(state), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _measurements(measurements), _calibration(calibration), _jacobian(jacobian), _isWeightingMeasurements(isWeightingMeasurements) {
+	SerialDeviceCalibrationSystem(rw::models::SerialDevice::Ptr device, rw::kinematics::State state, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const std::vector<SerialDevicePoseMeasurement>& measurements, Calibration::Ptr calibration, Jacobian::Ptr jacobian, bool isWeighting) : _device(device), _state(state), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _measurements(measurements), _calibration(calibration), _jacobian(jacobian), _isWeighting(isWeighting) {
 		
 	}
 
@@ -43,7 +43,7 @@ private:
 			stackedJacobians.block(6 * measurementIndex, 0, 6, parameterCount) = _jacobian->computeJacobian(_referenceFrame, _measurementFrame, _state);
 		
 			// Weight Jacobian according to covariances.
-			if (_isWeightingMeasurements && measurement.hasCovarianceMatrix()) {
+			if (_isWeighting && measurement.hasCovarianceMatrix()) {
 				const Eigen::Matrix<double, 6, 6> weightMatrix = Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(
 						measurement.getCovarianceMatrix()).operatorInverseSqrt();
 				stackedJacobians.block(6 * measurementIndex, 0, 6, parameterCount) = weightMatrix
@@ -77,7 +77,7 @@ private:
 			stackedResiduals(6 * measurementIndex + 5) = (dR(1, 0) - dR(0, 1)) / 2;
 
 			// Weight residuals according to covariances.
-			if (_isWeightingMeasurements && measurement.hasCovarianceMatrix()) {
+			if (_isWeighting && measurement.hasCovarianceMatrix()) {
 				const Eigen::Matrix<double, 6, 6> weightMatrix = Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(
 						measurement.getCovarianceMatrix()).operatorInverseSqrt();
 				stackedResiduals.segment<6>(6 * measurementIndex) = weightMatrix * stackedResiduals.segment<6>(6 * measurementIndex);
@@ -97,12 +97,12 @@ private:
 	std::vector<SerialDevicePoseMeasurement> _measurements;
 	Calibration::Ptr _calibration;
 	Jacobian::Ptr _jacobian;
-	bool _isWeightingMeasurements;
+	bool _isWeighting;
 };
 
 SerialDeviceCalibrator::SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device,
 		rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration, Jacobian::Ptr jacobian) :
-		_device(device), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _jacobian(jacobian), _isWeightingMeasurements(true) {
+		_device(device), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _jacobian(jacobian), _isWeighting(true) {
 
 }
 
@@ -150,12 +150,12 @@ void SerialDeviceCalibrator::setMeasurements(const std::vector<SerialDevicePoseM
 	_measurements = measurements;
 }
 
-bool SerialDeviceCalibrator::isWeightingMeasurements() const {
-	return _isWeightingMeasurements;
+bool SerialDeviceCalibrator::isWeighting() const {
+	return _isWeighting;
 }
 
-void SerialDeviceCalibrator::setWeightingMeasurements(bool isWeightingMeasurements) {
-	_isWeightingMeasurements = isWeightingMeasurements;
+void SerialDeviceCalibrator::setWeighting(bool isWeighting) {
+	_isWeighting = isWeighting;
 }
 
 void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
@@ -164,7 +164,7 @@ void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
 	const int measurementCount = getMeasurementCount();
 	const int minimumMeasurementCount = getMinimumMeasurementCount();
 	if (measurementCount < minimumMeasurementCount)
-		RW_THROW(measurementCount << "is not enough (" << minimumMeasurementCount << " measurements required).");
+		RW_THROW(measurementCount << " measurements was provided but " << minimumMeasurementCount << " is required.");
 
 	_state = state;
 
@@ -174,7 +174,7 @@ void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
 		_calibration->apply();
 
 	// Solve non-linear least square system.
-	SerialDeviceCalibrationSystem::Ptr system = rw::common::ownedPtr(new SerialDeviceCalibrationSystem(_device, _state, _referenceFrame, _measurementFrame, _measurements, _calibration, _jacobian, _isWeightingMeasurements));
+	SerialDeviceCalibrationSystem::Ptr system = rw::common::ownedPtr(new SerialDeviceCalibrationSystem(_device, _state, _referenceFrame, _measurementFrame, _measurements, _calibration, _jacobian, _isWeighting));
 	_solver = rw::common::ownedPtr(new NLLSNewtonSolver(system));
 	try {
 		_solver->solve();
@@ -192,9 +192,9 @@ void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
 		_calibration->revert();
 }
 
-const NLLSSolverLog& SerialDeviceCalibrator::getSolverLog() const {
+NLLSSolver::Ptr SerialDeviceCalibrator::getSolver() const {
 	RW_ASSERT(!_solver.isNull());
-	return _solver->getLog();
+	return _solver;
 }
 
 Eigen::MatrixXd SerialDeviceCalibrator::estimateCovarianceMatrix() const {

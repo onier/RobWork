@@ -13,24 +13,27 @@ namespace calibration {
 
 class NLLSIterationLog {
 public:
-	NLLSIterationLog(int iterationNumber, bool isSingular, double conditionNumber, double residualNorm, double stepNorm);
+	NLLSIterationLog(int iterationNumber, double conditionNumber, bool isSingular, double residualNorm, double stepNorm, bool isConverged);
 
 	int getIterationNumber() const;
 
-	bool isSingular() const;
-
 	double getConditionNumber() const;
+
+	bool isSingular() const;
 
 	double getResidualNorm() const;
 
 	double getStepNorm() const;
 
+	bool isConverged() const;
+
 private:
 	int _iterationNumber;
-	bool _isSingular;
 	double _conditionNumber;
+	bool _isSingular;
 	double _residualNorm;
 	double _stepNorm;
+	bool _isConverged;
 };
 
 }

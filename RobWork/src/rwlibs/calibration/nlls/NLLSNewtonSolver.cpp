@@ -30,40 +30,48 @@ NLLSSystem::Ptr NLLSNewtonSolver::getSystem() const {
 	return _system;
 }
 
-const NLLSSolverLog& NLLSNewtonSolver::getLog() const {
-	return _log;
+const std::vector<NLLSIterationLog>& NLLSNewtonSolver::getIterationLogs() const {
+	return _iterationLogs;
 }
 
 NLLSIterationLog NLLSNewtonSolver::iterate() {
-	// Compute Jacobian and residuals.
+	RW_ASSERT(!_system.isNull());
+
+	// Compute Jacobian.
 	_system->computeJacobian(_jacobian);
-	_system->computeResiduals(_residuals);
 
 	// Compute SVD of Jacobian.
 	_jacobianSvd = _jacobian.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
+	const Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
+	const double conditionNumber = singularValues(0) / singularValues(singularValues.rows() - 1);
+	const bool isSingular = (singularValues.rows() != _jacobianSvd.nonzeroSingularValues());
 
-	// Solve Jacobian * step = residuals.
+	// Compute residuals
+	_system->computeResiduals(_residuals);
+	const double residualNorm = _residuals.norm();
+
+	// Compute step (solve Jacobian * step = residuals).
 	_step = _jacobianSvd.solve(-_residuals);
+	const double stepNorm = _step.norm();
+	const bool isConverged = _step.norm() <= stepConvergenceTolerance;
 
 	// Apply step.
 	_system->takeStep(_step);
-
-	// Log iteration.
-	NLLSIterationLog iterationLog = _log.addIteration(_jacobian, _jacobianSvd, _residuals, _step);
+	
+	// Log iteration.	
+	const int iterationNumber = _iterationLogs.size() + 1;
+	NLLSIterationLog iterationLog(iterationNumber, conditionNumber, isSingular, residualNorm, stepNorm, isConverged);
+	_iterationLogs.push_back(iterationLog);
 
 	// Verify iteration.
-	if (iterationLog.isSingular())
+	if (isSingular)
 		RW_THROW("Singular Jacobian.");
-	if (boost::math::isnan(iterationLog.getStepNorm()))
+	if (boost::math::isnan(stepNorm))
 		RW_THROW("NaN step.");
-	if (boost::math::isinf(iterationLog.getStepNorm()))
+	if (boost::math::isinf(stepNorm))
 		RW_THROW("Infinite step.");
 
 	return iterationLog;
-}
-
-bool NLLSNewtonSolver::isConverged() const {
-	return _step.norm() <= stepConvergenceTolerance;
 }
 
 void NLLSNewtonSolver::solve() {
@@ -74,8 +82,8 @@ void NLLSNewtonSolver::solve() {
 		//	<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
 		//	<< iterationLog.getStepNorm() << "." << std::endl;
 
-		// Stop iterating if step is below accepted threshold.
-		if (isConverged())
+		// Stop iterating if converged.
+		if (iterationLog.isConverged())
 			break;
 
 		// Throw exception if iteration limit has been reached.
@@ -85,12 +93,14 @@ void NLLSNewtonSolver::solve() {
 }
 
 Eigen::MatrixXd NLLSNewtonSolver::estimateCovarianceMatrix() const {
-	// Eq. 15.4.20 from Numerical Recipes (covariance matrix of unknown variables)
-	Eigen::MatrixXd V = _jacobianSvd.matrixV();
-	Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
+	RW_ASSERT(_jacobianSvd.rows() != 0 && _jacobianSvd.cols() != 0);
 
-	double eps = std::numeric_limits<double>::epsilon();
-	double precision = eps * _jacobianSvd.rows() * singularValues(0);
+	// Eq. 15.4.20 from Numerical Recipes (covariance matrix of unknown variables)
+	const Eigen::MatrixXd V = _jacobianSvd.matrixV();
+	const Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
+
+	const double eps = std::numeric_limits<double>::epsilon();
+	const double precision = eps * _jacobianSvd.rows() * singularValues(0);
 
 	Eigen::MatrixXd covarianceMatrix(V.rows(), V.cols());
 	for (int j = 0; j < V.rows(); j++) {
