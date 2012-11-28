@@ -1,9 +1,6 @@
-// -*- latex -*-
+# Release Notes of RobWork # {#page_rw_release_notes}
 
-/**
-\page page_release_notes Release Notes of RobWork
-
-\section sec_release_notes_05 Major Changes 0.5
+# Major Changes 0.5 # {#sec_release_notes_05}
 
 - New structure for rw::geometry package in RobWork. 
 
@@ -21,14 +18,12 @@
 
 - Plugin structure for RobWork.
 
-\section sec_release_notes_05_dependencies Dependencies
+## Dependencies ## {#sec_release_notes_05_dependencies}
 
 - XercesC are now required.
 
 
-
-
-\section sec_release_notes_04 Major Changes 0.4
+# Major Changes 0.4 # {#sec_release_notes_04}
 
 - Distributed under the Apache License Version 2.0
 
@@ -53,14 +48,14 @@ replaced by JacobianCalculator which combines the contributions of the individua
 
 - OBJ files can be used as drawables
 
-\section sec_release_notes_04_dependencies Dependencies
+## Dependencies ## {#sec_release_notes_04_dependencies}
 
 - XercesC to enable save/load of XML files. Can be downloaded from http://xerces.apache.org/xerces-c/
 
 - Boost in no longer included in ext.
 
 
-\section sec_release_notes_03_major Major Changes 0.3
+# Major Changes 0.3 # {#sec_release_notes_03_major}
 
 
 - All static methods start with lower-case. Most of the old methods are still available but are
@@ -103,5 +98,3 @@ compile the sandbox is specified in the RobWork.cmake file.
 - New CMakeFile structure to make it easier to configure RobWork, RobWorkStudio and other
 projects with the same setup.
 
-
-*/
