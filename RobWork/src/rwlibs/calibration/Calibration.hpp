@@ -19,7 +19,7 @@ namespace calibration {
 /**
  * @brief Calibration represents a kinematic correction.
  *
- * Calibrations can be applied or reverted.
+ * Calibrations can be applied or reverted. When applied the kinematics of the workcell will be modified according to the calibration model.
  */
 class Calibration {
 public:
@@ -30,56 +30,41 @@ public:
 	 */
 	virtual ~Calibration();
 
+	virtual bool isEnabled() const = 0;
+
+	virtual void setEnabled(bool isEnabled) = 0;
+
+	virtual double getParameterValue(int parameterIndex) const = 0;
+
+	virtual void setParameterValue(int parameterIndex, double value) = 0;
+
+	virtual int getParameterCount() const = 0;
+
+	virtual int getEnabledParameterCount() const = 0;
+	
+	virtual bool isParameterEnabled(int parameterIndex) const = 0;
+	
+	virtual void setParameterEnabled(int parameterIndex, bool isEnabled) = 0;
+
 	/**
 	 * @brief Test if calibration is applied.
 	 * @return True if applied, false otherwise
 	 */
-	virtual bool isApplied() const;
+	virtual bool isApplied() const = 0;
 
 	/**
 	 * @brief Apply calibration.
 	 *
 	 * Exception is thrown if calibration is already applied.
 	 */
-	void apply();
+	virtual void apply() = 0;
 
 	/**
 	 * @brief Revert calibration.
 	 *
 	 * Exception is thrown if calibration is not applied.
 	 */
-	void revert();
-
-	/**
-	 * @brief Correct state according to calibration.
-	 *
-	 * Exception is thrown if calibration is not applied.
-	 */
-	void correctState(rw::kinematics::State& state);
-
-protected:
-	/**
-	 * @brief Constructor.
-	 */
-	Calibration();
-
-	/**
-	 * @brief Subclass implementation of apply().
-	 */
-	virtual void doApply() = 0;
-
-	/**
-	 * @brief Subclass implementation of revert().
-	 */
-	virtual void doRevert() = 0;
-	
-	/**
-	 * @brief Subclass implementation of correctState().
-	 */
-	virtual void doCorrectState(rw::kinematics::State& state) = 0;
-
-private:
-	bool _isApplied;
+	virtual void revert() = 0;
 };
 
 /*@}*/

@@ -8,6 +8,7 @@
 #ifndef RWLIBS_CALIBRATION_JACOBIANBASE_HPP_
 #define RWLIBS_CALIBRATION_JACOBIANBASE_HPP_
 
+#include "Calibration.hpp"
 #include "Jacobian.hpp"
 
 namespace rwlibs {
@@ -25,51 +26,32 @@ public:
 	virtual ~JacobianBase();
 	
 	/**
-	 * @copydoc Jacobian::isEnabled()
+	 * @copydoc Jacobian::getColumnCount()
 	 */
-	virtual bool isEnabled() const;
-
-	/**
-	 * @copydoc Jacobian::setEnabled()
-	 */
-	virtual void setEnabled(bool isEnabled);
-	
-	/**
-	 * @copydoc Jacobian::getParameterCount()
-	 */
-	virtual int getParameterCount() const;
-
-	virtual bool isParameterEnabled(int parameterIndex);
-
-	virtual void setParameterEnabled(int parameterIndex, bool isEnabled);
+	virtual int getColumnCount() const;
 	
 	/**
 	 * @copydoc Jacobian::computeJacobian()
 	 */
 	virtual Eigen::MatrixXd computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state);
 	
+	/**
+	 * @copydoc Jacobian::takeStep()
+	 */
 	virtual void takeStep(const Eigen::VectorXd& step);
 
 protected:
 	/**
 	 * @brief Constructor.
 	 */
-	JacobianBase(int parameterCount);
+	JacobianBase(Calibration::Ptr calibration);
 
-	/**
-	 * @brief Subclass implementation of computeJacobian().
-	 */
-	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame,
-			const rw::kinematics::State& state) = 0;
-
-	/**
-	 * @brief Subclass implementation of takeStep().
-	 */
-	virtual void doTakeStep(const Eigen::VectorXd& step) = 0;
+	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state) = 0;
+	
+	virtual void doTakeStep(const Eigen::VectorXd& step);
 
 private:
-	bool _isEnabled;
-	Eigen::VectorXi _enabledParameters;
+	Calibration::Ptr _calibration;
 };
 
 /*@}*/

@@ -34,12 +34,12 @@ public:
 
 	FixedFrameJacobian::Ptr getEndJacobian() const;
 
-	CompositeJacobian<DHParameterJacobian>::Ptr getCompositeDHParameterJacobian() const;
+	CompositeJacobian<DHParameterJacobian>::Ptr getInternalLinkJacobian() const;
 
 private:
 	FixedFrameJacobian::Ptr _baseJacobian;
 	FixedFrameJacobian::Ptr _endJacobian;
-	CompositeJacobian<DHParameterJacobian>::Ptr _compositeDHParameterJacobian;
+	CompositeJacobian<DHParameterJacobian>::Ptr _internalLinkJacobian;
 };
 
 }

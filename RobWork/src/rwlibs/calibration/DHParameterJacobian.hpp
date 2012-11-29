@@ -22,17 +22,6 @@ namespace calibration {
 
 class DHParameterJacobian: public JacobianBase {
 public:
-	enum PARAMETER {
-		PARAMETER_A = 0,
-		PARAMETER_B = 1,
-		PARAMETER_D = 1,
-		PARAMETER_B_D = 1,
-		PARAMETER_ALPHA = 2,
-		PARAMETER_BETA = 3,
-		PARAMETER_THETA = 3,
-		PARAMETER_BETA_THETA = 3
-	};
-
 	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
 	typedef rw::common::Ptr<DHParameterJacobian> Ptr;
@@ -41,10 +30,8 @@ public:
 
 	virtual ~DHParameterJacobian();
 
-private:
+protected:
 	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state);
-
-	virtual void doTakeStep(const Eigen::VectorXd& step);
 
 private:
 	DHParameterCalibration::Ptr _calibration;

@@ -30,54 +30,75 @@ private:
 template<>
 FixedFrameCalibration::Ptr ElementReader::readElement<FixedFrameCalibration::Ptr>(const QDomElement& element) {
 	if (!element.hasAttribute("frame"))
-		RW_THROW( QString("\"frame\" attribute missing.").toStdString());
-	QString frameName = element.attribute("frame");
-	rw::kinematics::FixedFrame::Ptr frame = rw::kinematics::Frame::Ptr(_stateStructure->findFrame(frameName.toStdString())).cast<rw::kinematics::FixedFrame>();
-	if (frame.isNull())
-		RW_THROW("Frame not found.");
-
+		RW_THROW("\"frame\" attribute missing.");
+	std::string frameName = element.attribute("frame").toStdString();
+	rw::kinematics::Frame* frame = _stateStructure->findFrame(frameName);
+	rw::kinematics::FixedFrame::Ptr fixedFrame = rw::kinematics::Frame::Ptr(frame).cast<rw::kinematics::FixedFrame>();
+	if (fixedFrame.isNull())
+		RW_THROW("Frame \"" << frameName << "\" not found.");
+	
+	if (!element.hasAttribute("isPostCorrection"))
+		RW_THROW("\"isPostCorrection\" attribute missing.");
 	bool isPostCorrection = element.attribute("isPostCorrection").toInt();
 
-	QDomElement transformNode = element.namedItem("Transform").toElement();
-	QStringList txtTransformSplitted = transformNode.text().simplified().split(" ");
+	QDomElement transformElement = element.namedItem("Transform").toElement();
+	if (transformElement.isNull())
+		RW_THROW("\"Transform\" element not found");
+	QStringList txtTransformSplitted = transformElement.text().simplified().split(" ");
 	txtTransformSplitted.removeAll(" ");
 	if (txtTransformSplitted.count() != 12)
-		RW_THROW( QString("Transform has wrong size (12 numbers).").toStdString());
+		RW_THROW("Transform has wrong size (12 numbers).");
 	Eigen::Affine3d transform;
 	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
 		for (int columnIndex = 0; columnIndex < 4; columnIndex++)
 			transform(rowIndex, columnIndex) = txtTransformSplitted[4 * rowIndex + columnIndex].toDouble();
 
-	return rw::common::ownedPtr(new FixedFrameCalibration(frame, isPostCorrection, transform));
+	return rw::common::ownedPtr(new FixedFrameCalibration(fixedFrame, isPostCorrection, transform));
 }
 
 template<>
 DHParameterCalibration::Ptr ElementReader::readElement<DHParameterCalibration::Ptr>(const QDomElement& element) {
 	if (!element.hasAttribute("joint"))
 		RW_THROW("\"joint\" attribute missing.");
-	QString jointName = element.attribute("joint");
+	std::string jointName = element.attribute("joint").toStdString();
 
-	rw::models::Joint::Ptr joint = (rw::models::Joint*) _stateStructure->findFrame(jointName.toStdString());
+	rw::models::Joint::Ptr joint = (rw::models::Joint*) _stateStructure->findFrame(jointName);
 	if (joint.isNull())
-		RW_THROW(QString("Joint \"%1\" not found.").arg(jointName).toStdString());
+		RW_THROW("Joint \"" << jointName << "\" not found.");
+
+	DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(joint));
 
 	if (!element.hasAttribute("a"))
-		RW_THROW(QString("Joint \"%1\" needs \"a\" attribute.").arg(jointName).toStdString());
-	double a = element.attribute("a").toDouble();
+		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_A, false);
+	else
+		calibration->setParameterValue(DHParameterCalibration::PARAMETER_A, element.attribute("a").toDouble());
 
-	if (!element.hasAttribute("length"))
-		RW_THROW(QString("Joint \"%1\" needs \"length\" attribute.").arg(jointName).toStdString());
-	double length = element.attribute("length").toDouble();
+	if (!element.hasAttribute("b"))
+		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_B, false);
+	else
+		calibration->setParameterValue(DHParameterCalibration::PARAMETER_B, element.attribute("b").toDouble());
+
+	if (!element.hasAttribute("d"))
+		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_D, false);
+	else
+		calibration->setParameterValue(DHParameterCalibration::PARAMETER_D, element.attribute("d").toDouble());
 
 	if (!element.hasAttribute("alpha"))
-		RW_THROW(QString("Joint \"%1\" needs \"alpha\" attribute.").arg(jointName).toStdString());
-	double alpha = element.attribute("alpha").toDouble();
+		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_ALPHA, false);
+	else
+		calibration->setParameterValue(DHParameterCalibration::PARAMETER_ALPHA, element.attribute("alpha").toDouble());
 
-	if (!element.hasAttribute("angle"))
-		RW_THROW(QString("Joint \"%1\" needs \"angle\" attribute.").arg(jointName).toStdString());
-	double angle = element.attribute("angle").toDouble();
+	if (!element.hasAttribute("beta"))
+		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_BETA, false);
+	else
+		calibration->setParameterValue(DHParameterCalibration::PARAMETER_BETA, element.attribute("beta").toDouble());
 
-	return rw::common::ownedPtr(new DHParameterCalibration(joint, Eigen::Vector4d(a, length, alpha, angle)));
+	if (!element.hasAttribute("theta"))
+		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_THETA, false);
+	else
+		calibration->setParameterValue(DHParameterCalibration::PARAMETER_THETA, element.attribute("theta").toDouble());
+
+	return calibration;
 }
 
 SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(rw::kinematics::StateStructure::Ptr stateStructure,
@@ -113,22 +134,11 @@ SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(rw::kinematics::StateStr
 	if (!nodeDH.isNull()) {
 		QDomNodeList nodes = nodeDH.childNodes();
 		for (int nodeIndex = 0; nodeIndex < nodes.size(); nodeIndex++)
-			dhCalibrations->add(elementReader.readElement<DHParameterCalibration::Ptr>(nodes.at(nodeIndex).toElement()));
+			dhCalibrations->addCalibration(elementReader.readElement<DHParameterCalibration::Ptr>(nodes.at(nodeIndex).toElement()));
 	}
 
-	//	// Load encoder calibrations
-	//	CompositeCalibration<EncoderParameterCalibration>::Ptr encoderCalibrations = rw::common::ownedPtr(new CompositeCalibration<EncoderParameterCalibration>());
-	//	QDomNode nodeEncoder = elmRoot.namedItem("EncoderParameterCalibrations");
-	//	if (!nodeEncoder.isNull()) {
-	//		QDomNodeList nodes = nodeEncoder.childNodes();
-	//		for (int nodeNo = 0; nodeNo < nodes.size(); nodeNo++) {
-	//			QDomElement element = nodes.at(nodeNo).toElement();
-	//			encoderCalibrations->add(EncoderParameterCalibration::fromXml(element, stateStructure, device));
-	//		}
-	//	}
-
 	SerialDeviceCalibration::Ptr calibration = rw::common::ownedPtr(
-			new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations/*, encoderCalibrations*/));
+			new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations));
 
 	return calibration;
 }

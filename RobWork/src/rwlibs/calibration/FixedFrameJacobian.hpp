@@ -22,27 +22,16 @@ namespace calibration {
 
 class FixedFrameJacobian: public JacobianBase {
 public:
-	enum PARAMETER {
-		PARAMETER_X = 0,
-		PARAMETER_Y = 1,
-		PARAMETER_Z = 2,
-		PARAMETER_ROLL = 3,
-		PARAMETER_PITCH = 4,
-		PARAMETER_YAW = 5
-	};
-
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
 	typedef rw::common::Ptr<FixedFrameJacobian> Ptr;
 
 	FixedFrameJacobian(FixedFrameCalibration::Ptr calibration);
 
 	virtual ~FixedFrameJacobian();
-
-private:
+	
+protected:
 	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state);
 
-	virtual void doTakeStep(const Eigen::VectorXd& step);
+	//virtual void doTakeStep(const Eigen::VectorXd& step);
 
 private:
 	FixedFrameCalibration::Ptr _calibration;

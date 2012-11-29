@@ -1,64 +1,69 @@
 /*
- * JacobianBase.cpp
- *
- *  Created on: Nov 22, 2012
- *      Author: bing
- */
+* JacobianBase.cpp
+*
+*  Created on: Nov 22, 2012
+*      Author: bing
+*/
 
 #include "JacobianBase.hpp"
 
 namespace rwlibs {
-namespace calibration {
+	namespace calibration {
 
-JacobianBase::~JacobianBase() {
+		JacobianBase::~JacobianBase() {
 
-}
+		}
 
-bool JacobianBase::isEnabled() const {
-	return _isEnabled;
-}
+		int JacobianBase::getColumnCount() const {
+			return _calibration->getEnabledParameterCount();
+		}
 
-void JacobianBase::setEnabled(bool isEnabled) {
-	_isEnabled = isEnabled;
-}
+		Eigen::MatrixXd JacobianBase::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
+			const rw::kinematics::State& state) {
+				RW_ASSERT(!referenceFrame.isNull());
+				RW_ASSERT(!targetFrame.isNull());
+				RW_ASSERT(getColumnCount() != 0);
+				RW_ASSERT(_calibration->isApplied());
 
-int JacobianBase::getParameterCount() const {
-	return isEnabled() ? _enabledParameters.sum() : 0;
-}
+				return doComputeJacobian(referenceFrame, targetFrame, state);
+		}
 
-bool JacobianBase::isParameterEnabled(int parameterIndex) {
-	RW_ASSERT(parameterIndex < _enabledParameters.size());
-	return _enabledParameters(parameterIndex);
-}
+		void JacobianBase::takeStep(const Eigen::VectorXd& step) {
+			RW_ASSERT(step.rows() == getColumnCount());
 
-void JacobianBase::setParameterEnabled(int parameterIndex, bool isEnabled) {
-	RW_ASSERT(parameterIndex < _enabledParameters.size());
-	_enabledParameters(parameterIndex) = isEnabled;
-}
+			const int parameterCount = _calibration->getParameterCount();
+			Eigen::VectorXd fullStep = Eigen::VectorXd(parameterCount);
+			int parameterIndex, stepIndex;
+			for (parameterIndex = 0, stepIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
+				if (_calibration->isParameterEnabled(parameterIndex)) {
+					fullStep(parameterIndex) = step(stepIndex);
+					stepIndex++;
+				}
+			}
 
-Eigen::MatrixXd JacobianBase::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state) {
-	RW_ASSERT(getParameterCount() != 0);
-	return doComputeJacobian(referenceFrame, targetFrame, state);
-}
+			RW_ASSERT(stepIndex == step.rows());
 
-void JacobianBase::takeStep(const Eigen::VectorXd& step) {
-	RW_ASSERT(getParameterCount() != 0);
+			_calibration->revert();
 
-	// Map step.
-	const int parameterCount = _enabledParameters.rows();
-	unsigned int enabledParameterIndex = 0;
-	Eigen::VectorXd mappedStep = Eigen::VectorXd::Zero(parameterCount);
-	for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++)
-		if (isParameterEnabled(parameterIndex))
-			mappedStep(parameterIndex) = step(enabledParameterIndex++);
+			doTakeStep(fullStep);
 
-	return doTakeStep(mappedStep);
-}
+			_calibration->apply();
+		}
 
-JacobianBase::JacobianBase(int parameterCount) :
-		_isEnabled(true), _enabledParameters(Eigen::VectorXi::Ones(parameterCount)) {
+		JacobianBase::JacobianBase(Calibration::Ptr calibration) :
+			_calibration(calibration) {
 
-}
+		}
 
-}
+		void JacobianBase::doTakeStep(const Eigen::VectorXd& step) {	
+			const int parameterCount = _calibration->getParameterCount();
+			for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
+				if (_calibration->isParameterEnabled(parameterIndex)) {
+					double updatedParameterValue = _calibration->getParameterValue(parameterIndex) + step(parameterIndex);
+					_calibration->setParameterValue(parameterIndex, updatedParameterValue);
+				}
+			}
+		}
+
+	}
 }

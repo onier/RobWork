@@ -10,7 +10,7 @@
 
 <SerialDevice name="SomeDevice">
 <Include file="SomeDevice.xml" />
-<Calibration file="SomeCalibration.xml" />
+<!--Calibration file="SomeCalibration.xml" /-->
 </SerialDevice>
 
 <Frame name="SomeSensorFrame" refframe="ArmBase" type="Movable">

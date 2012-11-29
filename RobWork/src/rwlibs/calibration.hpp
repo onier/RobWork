@@ -10,12 +10,12 @@
 
 #include "./calibration/nlls/NLLSIterationLog.hpp"
 #include "./calibration/nlls/NLLSSolver.hpp"
-#include "./calibration/nlls/NLLSSolverLog.hpp"
 #include "./calibration/nlls/NLLSSystem.hpp"
 #include "./calibration/xml/XmlCalibrationLoader.hpp"
 #include "./calibration/xml/XmlCalibrationSaver.hpp"
 #include "./calibration/xml/XmlMeasurementFile.hpp"
 #include "./calibration/Calibration.hpp"
+#include "./calibration/CalibrationBase.hpp"
 #include "./calibration/CompositeCalibration.hpp"
 #include "./calibration/CompositeJacobian.hpp"
 #include "./calibration/DHParameterCalibration.hpp"

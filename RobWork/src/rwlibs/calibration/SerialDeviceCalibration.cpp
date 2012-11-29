@@ -14,36 +14,42 @@ namespace calibration {
 
 using namespace rwlibs::calibration;
 
-SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice) :
-		_serialDevice(serialDevice) {
+SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr device) :
+		_device(device) {
 	_baseCalibration = rw::common::ownedPtr(
-			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getBase()).cast<rw::kinematics::FixedFrame>(), true));
-	_endCalibration = rw::common::ownedPtr(
-		new FixedFrameCalibration(rw::kinematics::Frame::Ptr(_serialDevice->getEnd()).cast<rw::kinematics::FixedFrame>(), false));
+			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(device->getBase()).cast<rw::kinematics::FixedFrame>(), true));
 
-	_compositeDHParameterCalibration = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
-	std::vector<rw::models::Joint*> joints(_serialDevice->getJoints());
+	_endCalibration = rw::common::ownedPtr(
+		new FixedFrameCalibration(rw::kinematics::Frame::Ptr(device->getEnd()).cast<rw::kinematics::FixedFrame>(), false));
+	
+	_internalLinkCalibration = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
+	std::vector<rw::models::Joint*> joints = device->getJoints();
 	for (std::vector<rw::models::Joint*>::iterator jointIterator = joints.begin(); jointIterator != joints.end(); jointIterator++) {
 		// Add DH parameter calibrations for intermediate links.
 		if (jointIterator != joints.begin()) {
 			rw::models::Joint::Ptr joint = (*jointIterator);
 			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(joint));
-			_compositeDHParameterCalibration->add(calibration);
+			_internalLinkCalibration->addCalibration(calibration);
+
+			// Lock d and theta for first link.
+			if (jointIterator == ++(joints.begin())) {
+				calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_D, false);
+				calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_THETA, false);
+			}
 		}
 	}
-
-	add(_baseCalibration.cast<Calibration>());
-	add(_endCalibration.cast<Calibration>());
-	add(_compositeDHParameterCalibration.cast<Calibration>());
+	
+	addCalibration(_baseCalibration.cast<Calibration>());
+	addCalibration(_endCalibration.cast<Calibration>());
+	addCalibration(_internalLinkCalibration.cast<Calibration>());
 }
 
-SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration,
-		FixedFrameCalibration::Ptr endCalibration, const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration) :
-		_serialDevice(serialDevice), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _compositeDHParameterCalibration(
-				compositeDHParameterCalibration) {
-	add(_baseCalibration.cast<Calibration>());
-	add(_endCalibration.cast<Calibration>());
-	add(_compositeDHParameterCalibration.cast<Calibration>());
+SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr device, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration,
+			const CompositeCalibration<DHParameterCalibration>::Ptr& internalLinkCalibration) :
+		_device(device), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _internalLinkCalibration(internalLinkCalibration) {
+	addCalibration(_baseCalibration.cast<Calibration>());
+	addCalibration(_endCalibration.cast<Calibration>());
+	addCalibration(_internalLinkCalibration.cast<Calibration>());
 }
 
 SerialDeviceCalibration::~SerialDeviceCalibration() {
@@ -51,7 +57,7 @@ SerialDeviceCalibration::~SerialDeviceCalibration() {
 }
 
 rw::models::SerialDevice::Ptr SerialDeviceCalibration::getDevice() const {
-	return _serialDevice;
+	return _device;
 }
 
 FixedFrameCalibration::Ptr SerialDeviceCalibration::getBaseCalibration() const {
@@ -62,8 +68,8 @@ FixedFrameCalibration::Ptr SerialDeviceCalibration::getEndCalibration() const {
 	return _endCalibration;
 }
 
-CompositeCalibration<DHParameterCalibration>::Ptr SerialDeviceCalibration::getCompositeDHParameterCalibration() const {
-	return _compositeDHParameterCalibration;
+CompositeCalibration<DHParameterCalibration>::Ptr SerialDeviceCalibration::getInternalLinkCalibration() const {
+	return _internalLinkCalibration;
 }
 
 SerialDeviceCalibration::Ptr SerialDeviceCalibration::get(rw::models::SerialDevice::Ptr device) {
@@ -87,7 +93,7 @@ void SerialDeviceCalibration::set(SerialDeviceCalibration::Ptr calibration, rw::
 			calibration->revert();
 		propertyMap.erase("Calibration");
 	}
-	propertyMap.add<SerialDeviceCalibration::Ptr>("Calibration", "Calibration of serial device", calibration);
+	propertyMap.add<SerialDeviceCalibration::Ptr>("Calibration", "Calibration of SerialDevice", calibration);
 }
 
 }

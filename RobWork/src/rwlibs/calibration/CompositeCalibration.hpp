@@ -31,9 +31,19 @@ public:
 	CompositeCalibration();
 
 	/**
+	* @brief Constructor.
+	*/
+	CompositeCalibration(const std::vector<rw::common::Ptr<T> >& calibrations);
+
+	/**
 	* @brief Destructor.
 	*/
 	virtual ~CompositeCalibration();
+	
+	/**
+	 * @return Number of calibrations.
+	 */
+	int getCalibrationCount() const;
 
 	/**
 	* @brief Returns a reference to a vector with pointers to the Calibration(s) in the CompositeCalibration.
@@ -41,18 +51,41 @@ public:
 	*/
 	const std::vector<rw::common::Ptr<T> >& getCalibrations() const;
 
-    /**
-    * @brief Add calibration.
-    * @param[in] calibration Pointer to calibration to be added.
-    */
-	void add(rw::common::Ptr<T> calibration);
+	void addCalibration(rw::common::Ptr<T>& calibration);
+	
+	virtual bool isEnabled() const;
+
+	virtual void setEnabled(bool isEnabled);
+
+	virtual double getParameterValue(int parameterIndex) const;
+	
+	virtual void setParameterValue(int parameterIndex, double value);
+	
+	virtual int getParameterCount() const;
+	
+	virtual int getEnabledParameterCount() const;
+	
+	virtual bool isParameterEnabled(int parameterIndex) const;
+	
+	virtual void setParameterEnabled(int parameterIndex, bool isEnabled);
+	
+	/**
+	 * @copydoc Calibration::isApplied()
+	 */
+	virtual bool isApplied() const;
+	
+	/**
+	 * @copydoc Calibration::apply()
+	 */
+	virtual void apply();
+	
+	/**
+	 * @copydoc Calibration::revert()
+	 */
+	virtual void revert();
 
 private:
-	virtual void doApply();
-
-	virtual void doRevert();
-
-	virtual void doCorrectState(rw::kinematics::State& state);
+	rw::common::Ptr<T> findParameter(int parameterIndex, int& localParameterIndex) const;
 
 private:
 	std::vector<rw::common::Ptr<T> > _calibrations;
@@ -74,23 +107,114 @@ const std::vector<rw::common::Ptr<T> >& CompositeCalibration<T>::getCalibrations
 }
 
 template<class T>
-void CompositeCalibration<T>::add(rw::common::Ptr<T> calibration) {
+void CompositeCalibration<T>::addCalibration(rw::common::Ptr<T>& calibration) {
+	RW_ASSERT(!calibration->isApplied());
 	_calibrations.push_back(calibration);
 }
 
 template<class T>
-void CompositeCalibration<T>::doApply() {
-	RW_ASSERT(!isApplied());
+int CompositeCalibration<T>::getCalibrationCount() const {
+	return _calibrations.size();
+}
 
+template<class T>
+bool CompositeCalibration<T>::isEnabled() const {
+	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		const rw::common::Ptr<T> calibration = (*it);
+		if (calibration->isEnabled())
+			return true;
+	}
+
+	return false;
+}
+
+template<class T>
+void CompositeCalibration<T>::setEnabled(bool isEnabled) {
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<T> calibration = (*it);
-		if (!calibration->isApplied())
-			calibration->apply();
+		calibration->setEnabled(isEnabled);
 	}
 }
 
 template<class T>
-void CompositeCalibration<T>::doRevert() {
+double CompositeCalibration<T>::getParameterValue(int parameterIndex) const {
+	int localParameterIndex;
+	rw::common::Ptr<T> calibration = findParameter(parameterIndex, localParameterIndex);
+	return calibration->getParameterValue(localParameterIndex);
+}
+
+template<class T>
+void CompositeCalibration<T>::setParameterValue(int parameterIndex, double value) {
+	int localParameterIndex;
+	rw::common::Ptr<T> calibration = findParameter(parameterIndex, localParameterIndex);
+	calibration->setParameterValue(localParameterIndex, value);
+}
+
+template<class T>
+int CompositeCalibration<T>::getParameterCount() const {
+	int parameterCount = 0;
+	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		const rw::common::Ptr<T> calibration = (*it);
+		parameterCount += calibration->getParameterCount();
+	}
+	return parameterCount;
+}
+
+template<class T>
+int CompositeCalibration<T>::getEnabledParameterCount() const {
+	if (!isEnabled())
+		return 0;
+
+	int enabledParameterCount = 0;
+	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		const rw::common::Ptr<T> calibration = (*it);
+		enabledParameterCount += calibration->getEnabledParameterCount();
+	}
+	return enabledParameterCount;
+}
+
+template<class T>
+bool CompositeCalibration<T>::isParameterEnabled(int parameterIndex) const {
+	int localParameterIndex;
+	rw::common::Ptr<T> calibration = findParameter(parameterIndex, localParameterIndex);
+	return calibration->isParameterEnabled(localParameterIndex);
+}
+
+template<class T>
+void CompositeCalibration<T>::setParameterEnabled(int parameterIndex, bool isEnabled) {
+	int localParameterIndex;
+	rw::common::Ptr<T> calibration = findParameter(parameterIndex, localParameterIndex);
+	calibration->setParameterEnabled(localParameterIndex, isEnabled);
+}
+
+template<class T>
+bool CompositeCalibration<T>::isApplied() const {
+	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		const rw::common::Ptr<T> calibration = (*it);
+		if (calibration->isApplied())
+			return true;
+	}
+
+	return false;
+}
+
+template<class T>
+void CompositeCalibration<T>::apply() {
+	RW_ASSERT(isEnabled());
+	RW_ASSERT(!isApplied());
+
+	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		rw::common::Ptr<T> calibration = (*it);
+		if (calibration->isEnabled())
+			calibration->apply();
+	}
+
+	RW_ASSERT(isApplied());
+}
+
+template<class T>
+void CompositeCalibration<T>::revert() {
+	RW_ASSERT(isEnabled());
 	RW_ASSERT(isApplied());
 
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
@@ -98,17 +222,32 @@ void CompositeCalibration<T>::doRevert() {
 		if (calibration->isApplied())
 			calibration->revert();
 	}
+
+	RW_ASSERT(!isApplied());
 }
 
 template<class T>
-void CompositeCalibration<T>::doCorrectState(rw::kinematics::State& state) {
-	RW_ASSERT(isApplied());
+rw::common::Ptr<T> CompositeCalibration<T>::findParameter(int parameterIndex, int& localParameterIndex) const {
+	RW_ASSERT(parameterIndex < getParameterCount());
 
-	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
-		rw::common::Ptr<T> calibration = (*it);
-		if (calibration->isApplied())
-			calibration->correctState(state);
+	rw::common::Ptr<T> calibration;
+	int minParameterIndex = 0, maxParameterIndex = 0;
+	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
+		calibration = (*it);
+		const int parameterCount = calibration->getParameterCount();
+		maxParameterIndex += parameterCount;
+		if (parameterIndex >= minParameterIndex && parameterIndex < maxParameterIndex)
+			break;
+		minParameterIndex = maxParameterIndex;
 	}
+
+	RW_ASSERT(minParameterIndex != maxParameterIndex);
+
+	localParameterIndex = parameterIndex - minParameterIndex;
+
+	RW_ASSERT(localParameterIndex >= 0);
+
+	return calibration;
 }
 
 /*@}*/

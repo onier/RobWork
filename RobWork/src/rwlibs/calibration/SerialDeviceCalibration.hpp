@@ -25,10 +25,10 @@ class SerialDeviceCalibration: public CompositeCalibration<Calibration> {
 public:
 	typedef rw::common::Ptr<SerialDeviceCalibration> Ptr;
 
-	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice);
+	SerialDeviceCalibration(rw::models::SerialDevice::Ptr device);
 
-	SerialDeviceCalibration(rw::models::SerialDevice::Ptr serialDevice, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration,
-			const CompositeCalibration<DHParameterCalibration>::Ptr& compositeDHParameterCalibration);
+	SerialDeviceCalibration(rw::models::SerialDevice::Ptr device, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration,
+			const CompositeCalibration<DHParameterCalibration>::Ptr& internalLinkCalibration);
 
 	virtual ~SerialDeviceCalibration();
 
@@ -38,9 +38,11 @@ public:
 
 	FixedFrameCalibration::Ptr getEndCalibration() const;
 
-	CompositeCalibration<DHParameterCalibration>::Ptr getCompositeDHParameterCalibration() const;
+	CompositeCalibration<DHParameterCalibration>::Ptr getInternalLinkCalibration() const;
 
-	static SerialDeviceCalibration::Ptr get(rw::models::SerialDevice::Ptr serialDevice);
+	static SerialDeviceCalibration::Ptr make(rw::models::SerialDevice::Ptr device);
+
+	static SerialDeviceCalibration::Ptr get(rw::models::SerialDevice::Ptr device);
 
 	static SerialDeviceCalibration::Ptr get(const rw::common::PropertyMap& propertyMap);
 
@@ -49,10 +51,10 @@ public:
 	static void set(SerialDeviceCalibration::Ptr calibration, rw::common::PropertyMap& propertyMap);
 
 private:
-	rw::models::SerialDevice::Ptr _serialDevice;
+	rw::models::SerialDevice::Ptr _device;
 	FixedFrameCalibration::Ptr _baseCalibration;
 	FixedFrameCalibration::Ptr _endCalibration;
-	CompositeCalibration<DHParameterCalibration>::Ptr _compositeDHParameterCalibration;
+	CompositeCalibration<DHParameterCalibration>::Ptr _internalLinkCalibration;
 };
 
 }

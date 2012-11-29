@@ -8,7 +8,6 @@
 #ifndef RWLIBS_CALIBRATION_JACOBIAN_HPP_
 #define RWLIBS_CALIBRATION_JACOBIAN_HPP_
 
-#include "Calibration.hpp"
 #include <Eigen/Core>
 #include <rw/kinematics.hpp>
 
@@ -21,27 +20,7 @@ class Jacobian {
 public:
 	typedef rw::common::Ptr<Jacobian> Ptr;
 
-	/**
-	 * @brief Test if calibration is enabled.
-	 * @return True if enable, false if disabled.
-	 */
-	virtual bool isEnabled() const = 0;
-
-	/**
-	 * @brief Enable or disable calibration.
-	 * @param[in]	isLocked	True to enable, false to enable.
-	 */
-	virtual void setEnabled(bool isEnabled) = 0;
-
-	/**
-	 * @brief Returns the number of parameters describing the calibration.
-	 * @return Number of parameters
-	 */
-	virtual int getParameterCount() const = 0;
-
-	virtual bool isParameterEnabled(int parameterIndex) = 0;
-
-	virtual void setParameterEnabled(int parameterIndex, bool isEnabled) = 0;
+	virtual int getColumnCount() const = 0;
 
 	/**
 	 * @brief Compute the Jacobian matrix.
@@ -52,7 +31,7 @@ public:
 	 * @param[in]	referenceFrame	Reference frame from which partial derivatives are seen.
 	 * @param[in]	targetFrame		Target frame of which the partial derivatives are described.
 	 * @param[in]	state			State of the work cell.
-	 * @return Jacobian matrix
+	 * @return Jacobian matrix.
 	 */
 	virtual Eigen::MatrixXd computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state) = 0;
 	

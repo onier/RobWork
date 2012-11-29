@@ -8,20 +8,23 @@
 #ifndef RWLIBS_CALIBRATION_FIXEDFRAMECALIBRATION_HPP_
 #define RWLIBS_CALIBRATION_FIXEDFRAMECALIBRATION_HPP_
 
-#include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
-
-#include "Calibration.hpp"
-#include <Eigen/Geometry>
+#include "CalibrationBase.hpp"
 #include <rw/kinematics.hpp>
 #include <rw/models.hpp>
 
 namespace rwlibs {
 namespace calibration {
 
-class FixedFrameCalibration: public Calibration {
+class FixedFrameCalibration: public CalibrationBase {
 public:
-	EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+	enum PARAMETER {
+		PARAMETER_X = 0,
+		PARAMETER_Y = 1,
+		PARAMETER_Z = 2,
+		PARAMETER_ROLL = 3,
+		PARAMETER_PITCH = 4,
+		PARAMETER_YAW = 5
+	};
 
 	typedef rw::common::Ptr<FixedFrameCalibration> Ptr;
 
@@ -29,7 +32,7 @@ public:
 
 	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection);
 
-	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const rw::math::Transform3D<>& transform);
+	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection, const rw::math::Transform3D<>& correctionTransform);
 
 	virtual ~FixedFrameCalibration();
 
@@ -39,19 +42,16 @@ public:
 
 	rw::math::Transform3D<> getCorrectionTransform() const;
 
-	void setCorrectionTransform(const rw::math::Transform3D<>& correctionTransform);
+	void setCorrectionTransform(const rw::math::Transform3D<>& transform);
 
 private:
 	virtual void doApply();
 
 	virtual void doRevert();
 
-	virtual void doCorrectState(rw::kinematics::State& state);
-
 private:
 	rw::kinematics::FixedFrame::Ptr _frame;
 	bool _isPostCorrection;
-	rw::math::Transform3D<> _correctionTransform;
 	rw::math::Transform3D<> _originalTransform;
 };
 

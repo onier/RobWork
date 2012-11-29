@@ -2,6 +2,8 @@
 #include <rw/loaders.hpp>
 #include <rwlibs/calibration.hpp>
 
+using namespace rwlibs::calibration;
+
 boost::program_options::options_description optionsDescription("Options");
 boost::program_options::positional_options_description positionalOptionsDescription;
 boost::program_options::variables_map variablesMap;
@@ -16,10 +18,10 @@ bool addNoise;
 
 int parseArguments(int argumentCount, char** arguments);
 void printHelp();
-std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
+std::vector<SerialDevicePoseMeasurement> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
 	rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rw::kinematics::State state, unsigned int measurementCount,
 	bool addNoise);
-void printMeasurements(const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration);
+void printMeasurements(const std::vector<SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, SerialDeviceCalibration::Ptr serialDeviceCalibration);
 
 int main(int argumentCount, char** arguments) {
 	if (int parseResult = parseArguments(argumentCount, arguments) < 1)
@@ -69,13 +71,24 @@ int main(int argumentCount, char** arguments) {
 
 	std::cout << "Initializing artificial calibration..";
 	std::cout.flush();
-	rwlibs::calibration::SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice)));
-	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.007, 0.0008, 0.0009), rw::math::RPY<>(0.008, 0.0007, 0.006)));
-	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.001, 0.0002, 0.0003), rw::math::RPY<>(0.004, 0.0005, 0.006)));
-	std::vector<rwlibs::calibration::DHParameterCalibration::Ptr> artificialDhParameterCalibrations =
-		artificialCalibration->getCompositeDHParameterCalibration()->getCalibrations();
-	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialDhParameterCalibrations.size(); calibrationIndex++)
-		artificialDhParameterCalibrations[calibrationIndex]->setCorrection(Eigen::Vector4d(0.0003, 0.0, -0.0002, 0.0));
+	SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice)));
+	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.4 / 100.0, 0.05 / 100.0, -0.06 / 100.0), rw::math::RPY<>(-4 * rw::math::Deg2Rad, 5  * rw::math::Deg2Rad, 6 * rw::math::Deg2Rad)));
+	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.03 / 100.0, -0.2 / 100.0, 0.01 / 100.0), rw::math::RPY<>(3 * rw::math::Deg2Rad, 2 * rw::math::Deg2Rad, -1 * rw::math::Deg2Rad)));
+	std::vector<DHParameterCalibration::Ptr> artificialInternalLinkCalibrations = artificialCalibration->getInternalLinkCalibration()->getCalibrations();
+	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialInternalLinkCalibrations.size(); calibrationIndex++) {
+		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_A))
+			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_A, 0.3 / 100.0);
+		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_B))
+			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_B, -0.2 / 100.0);
+		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_D))
+			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_D, -0.1 / 100.0);
+		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_ALPHA))
+			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_ALPHA, -0.1 * rw::math::Deg2Rad);
+		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_BETA))
+			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_BETA, 0.2 * rw::math::Deg2Rad);
+		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_THETA))
+			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_THETA, 0.3 * rw::math::Deg2Rad);
+	}
 	std::cout << " Initialized." << std::endl;
 
 	std::cout << "Applying artificial calibration..";
@@ -84,7 +97,7 @@ int main(int argumentCount, char** arguments) {
 	std::cout << " Applied." << std::endl;
 
 	std::cout << "Generating measurements [ Count: " << measurementCount << " - Noise: " << (addNoise ? "Enabled" : "Disabled") << " ]..";
-	std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> measurements = generateMeasurements(serialDevice, referenceFrame, measurementFrame,
+	std::vector<SerialDevicePoseMeasurement> measurements = generateMeasurements(serialDevice, referenceFrame, measurementFrame,
 		state, measurementCount, addNoise);
 	std::cout << " Generated." << std::endl;
 
@@ -96,7 +109,7 @@ int main(int argumentCount, char** arguments) {
 
 	std::cout << "Saving measurement file [ " << measurementFilePath << " ]..";
 	std::cout.flush();
-	rwlibs::calibration::XmlMeasurementFile::save(measurements, measurementFilePath);
+	XmlMeasurementFile::save(measurements, measurementFilePath);
 	std::cout << " Saved." << std::endl;
 
 	std::cout << "Residual summary:" << std::endl;
@@ -143,12 +156,12 @@ void printHelp() {
 	std::cerr << optionsDescription << std::endl;
 }
 
-std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
+std::vector<SerialDevicePoseMeasurement> generateMeasurements(rw::models::SerialDevice::Ptr serialDevice,
 	rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rw::kinematics::State state, unsigned int measurementCount,
 	bool addNoise) {
 		MultivariateNormalDistribution<double, 6> mvnd(time(0));
 
-		std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> measurements;
+		std::vector<SerialDevicePoseMeasurement> measurements;
 		for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 			rw::math::Q q = rw::math::Math::ranQ(serialDevice->getBounds());
 			serialDevice->setQ(q, state);
@@ -169,13 +182,13 @@ std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> generateMeasuremen
 				transform.R() = rw::math::RPY<>(mvndVector(3), mvndVector(4), mvndVector(5)).toRotation3D() * transform.R();
 			}
 
-			measurements.push_back(rwlibs::calibration::SerialDevicePoseMeasurement(q, transform, covariance));
+			measurements.push_back(SerialDevicePoseMeasurement(q, transform, covariance));
 		}
 
 		return measurements;
 }
 
-void printMeasurements(const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration) {
+void printMeasurements(const std::vector<SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, SerialDeviceCalibration::Ptr serialDeviceCalibration) {
 	const unsigned int measurementCount = measurements.size();
 
 	Eigen::VectorXd distances(measurementCount), angles(measurementCount);

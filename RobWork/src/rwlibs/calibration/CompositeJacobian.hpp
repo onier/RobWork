@@ -41,27 +41,12 @@ public:
 	*/
 	const std::vector<rw::common::Ptr<T> >& getJacobians() const;
 
-    /**
-    * @brief Add calibration.
-    * @param[in] calibration Pointer to calibration to be added.
-    */
-	void add(rw::common::Ptr<T> calibration);
+	void addJacobian(rw::common::Ptr<T> jacobian);
 	
 	/**
-	 * @copydoc Jacobian::isEnabled()
+	 * @copydoc Jacobian::getColumnCount()
 	 */
-	virtual bool isEnabled() const;
-
-	/**
-	 * @copydoc Jacobian::setEnabled()
-	 */
-	virtual void setEnabled(bool isEnabled);
-
-	virtual int getParameterCount() const;
-
-	virtual bool isParameterEnabled(int parameterIndex);
-
-	virtual void setParameterEnabled(int parameterIndex, bool isEnabled);
+	virtual int getColumnCount() const;
 
 	virtual Eigen::MatrixXd computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 			const rw::kinematics::State& state);
@@ -69,9 +54,6 @@ public:
 	virtual void takeStep(const Eigen::VectorXd& step);
 
 private:
-
-private:
-	bool _isEnabled;
 	std::vector<rw::common::Ptr<T> > _jacobians;
 };
 
@@ -91,103 +73,53 @@ const std::vector<rw::common::Ptr<T> >& CompositeJacobian<T>::getJacobians() con
 }
 
 template<class T>
-void CompositeJacobian<T>::add(rw::common::Ptr<T> jacobian) {
+void CompositeJacobian<T>::addJacobian(rw::common::Ptr<T> jacobian) {
 	_jacobians.push_back(jacobian);
 }
 
 template<class T>
-bool CompositeJacobian<T>::isEnabled() const {
-	return _isEnabled;
-}
-
-template<class T>
-void CompositeJacobian<T>::setEnabled(bool isEnabled) {
-	_isEnabled = isEnabled;
-}
-
-template<class T>
-int CompositeJacobian<T>::getParameterCount() const {
-	if (!isEnabled())
-		return 0;
-
-	int parameterCount = 0;
+int CompositeJacobian<T>::getColumnCount() const {
+	int columnCount = 0;
 	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _jacobians.begin(); it != _jacobians.end(); ++it) {
-		const rw::common::Ptr<T> parametrization = (*it);
-		parameterCount += parametrization->getParameterCount();
+		const rw::common::Ptr<T> jacobian = (*it);
+		columnCount += jacobian->getColumnCount();
 	}
-	return parameterCount;
-}
-
-template<class T>
-bool CompositeJacobian<T>::isParameterEnabled(int parameterIndex) {
-	RW_ASSERT(parameterIndex < getParameterCount());
-
-	rw::common::Ptr<T> parametrization;
-	int parameterIndexMin = 0, parameterIndexMax = 0;
-	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _jacobians.begin(); it != _jacobians.end(); ++it) {
-		parametrization = (*it);
-		const int parameterCount = parametrization->getParameterCount();
-		parameterIndexMax += parameterCount;
-		if (parameterIndex >= parameterIndexMin && parameterIndex < parameterIndexMax)
-			break;
-		parameterIndexMin = parameterIndexMax;
-	}
-
-	RW_ASSERT(parameterIndexMin != parameterIndexMax);
-
-	return parametrization->isParameterEnabled(parameterIndex - parameterIndexMin);
-}
-
-template<class T>
-void CompositeJacobian<T>::setParameterEnabled(int parameterIndex, bool isEnabled) {
-	RW_ASSERT(parameterIndex < getParameterCount());
-
-	rw::common::Ptr<T> parametrization;
-	int parameterIndexMin = 0, parameterIndexMax = 0;
-	for (typename std::vector<rw::common::Ptr<T> >::const_iterator it = _jacobians.begin(); it != _jacobians.end(); ++it) {
-		parametrization = (*it);
-		const int parameterCount = parametrization->getParameterCount();
-		parameterIndexMax += parameterCount;
-		if (parameterIndex >= parameterIndexMin && parameterIndex < parameterIndexMax)
-			break;
-		parameterIndexMin = parameterIndexMax;
-	}
-
-	RW_ASSERT(parameterIndexMin != parameterIndexMax);
-	
-	parametrization->setParameterEnabled(parameterIndex - parameterIndexMin, isEnabled);
+	return columnCount;
 }
 
 template<class T>
 Eigen::MatrixXd CompositeJacobian<T>::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 		const rw::kinematics::State& state) {
-	RW_ASSERT(getParameterCount() != 0);
+	RW_ASSERT(getColumnCount() != 0);
 
-	int parameterIndex = 0;
-	Eigen::MatrixXd jacobian(6, getParameterCount());
+	const int columnCount = getColumnCount();
+	Eigen::MatrixXd jacobianMatrix(6, columnCount);
+	int columnIndex = 0;
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _jacobians.begin(); it != _jacobians.end(); ++it) {
-		rw::common::Ptr<T> parametrization = (*it);
-		const int parameterCount = parametrization->getParameterCount();
-		if (parameterCount > 0) {
-			jacobian.block(0, parameterIndex, 6, parameterCount) = parametrization->computeJacobian(referenceFrame, targetFrame, state);
-			parameterIndex += parameterCount;
+		rw::common::Ptr<T> jacobian = (*it);
+		const int columnCount = jacobian->getColumnCount();
+		if (columnCount > 0) {
+			jacobianMatrix.block(0, columnIndex, 6, columnCount) = jacobian->computeJacobian(referenceFrame, targetFrame, state);
+			columnIndex += columnCount;
 		}
 	}
 
-	return jacobian;
+	return jacobianMatrix;
 }
 
 template<class T>
 void CompositeJacobian<T>::takeStep(const Eigen::VectorXd& step) {
-	RW_ASSERT(getParameterCount() != 0);
+	RW_ASSERT(step.rows() != 0);
+	RW_ASSERT(step.rows() == getColumnCount());
 
-	unsigned int parameterIndex = 0;
+	// HACK: Fix this.
+	int columnIndex = 0;
 	for (typename std::vector<rw::common::Ptr<T> >::iterator it = _jacobians.begin(); it != _jacobians.end(); ++it) {
-		rw::common::Ptr<T> parametrization = (*it);
-		unsigned int parameterCount = parametrization->getParameterCount();
-		if (parameterCount > 0) {
-			parametrization->takeStep(step.segment(parameterIndex, parameterCount));
-			parameterIndex += parameterCount;
+		rw::common::Ptr<T> jacobian = (*it);
+		const int columnCount = jacobian->getColumnCount();
+		if (columnCount > 0) {
+			jacobian->takeStep(step.segment(columnIndex, columnCount));
+			columnIndex += columnCount;
 		}
 	}
 }

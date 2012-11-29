@@ -18,6 +18,7 @@ IF( build )
 		xml/XmlMeasurementFile.cpp
 		JacobianBase.cpp
 		Calibration.cpp
+		CalibrationBase.cpp
 		DHParameterCalibration.cpp
 		DHParameterJacobian.cpp
 	#	EncoderParameterCalibration.cpp
@@ -40,6 +41,7 @@ IF( build )
 		xml/XmlMeasurementFile.hpp
 		JacobianBase.hpp
 		Calibration.hpp
+		CalibrationBase.hpp
 		CompositeCalibration.hpp
 		CompositeJacobian.hpp
 		DHParameterCalibration.hpp

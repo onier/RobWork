@@ -53,11 +53,18 @@ QDomElement ElementCreator::createElement<DHParameterCalibration::Ptr>(DHParamet
 
 	element.setAttribute("joint", QString::fromStdString(calibration->getJoint()->getName()));
 
-	Eigen::Vector4d correction = calibration->getCorrection();
-	element.setAttribute("a", QString("%1").arg(correction(0), 0, 'g', 16));
-	element.setAttribute("length", QString("%1").arg(correction(1), 0, 'g', 16));
-	element.setAttribute("alpha", QString("%1").arg(correction(2), 0, 'g', 16));
-	element.setAttribute("angle", QString("%1").arg(correction(3), 0, 'g', 16));
+	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_A))
+		element.setAttribute("a", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_A), 0, 'g', 16));
+	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_B))
+		element.setAttribute("b", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_B), 0, 'g', 16));
+	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_D))
+		element.setAttribute("d", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_D), 0, 'g', 16));
+	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_ALPHA))
+		element.setAttribute("alpha", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_ALPHA), 0, 'g', 16));
+	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_BETA))
+		element.setAttribute("beta", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_BETA), 0, 'g', 16));
+	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_THETA))
+		element.setAttribute("theta", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_THETA), 0, 'g', 16));
 
 	return element;
 }
@@ -69,22 +76,19 @@ QDomDocument createDOMDocument(SerialDeviceCalibration::Ptr calibration) {
 
 	ElementCreator creator(&document);
 
-	// Save base correction
 	if (!calibration->getBaseCalibration().isNull()) {
 		QDomElement elmBase = document.createElement("BaseFrameCalibration");
 		elmBase.appendChild(creator.createElement<FixedFrameCalibration::Ptr>(calibration->getBaseCalibration()));
 		elmRoot.appendChild(elmBase);
 	}
 
-	// Save end correction
 	if (!calibration->getEndCalibration().isNull()) {
 		QDomElement elmEnd = document.createElement("EndFrameCalibration");
 		elmEnd.appendChild(creator.createElement<FixedFrameCalibration::Ptr>(calibration->getEndCalibration()));
 		elmRoot.appendChild(elmEnd);
 	}
 
-	// Save dh corrections
-	std::vector<DHParameterCalibration::Ptr> dhParameterCalibrations = calibration->getCompositeDHParameterCalibration()->getCalibrations();
+	std::vector<DHParameterCalibration::Ptr> dhParameterCalibrations = calibration->getInternalLinkCalibration()->getCalibrations();
 	if (dhParameterCalibrations.size() > 0) {
 		QDomElement dhCorrections = document.createElement("DHParameterCalibrations");
 		for (std::vector<DHParameterCalibration::Ptr>::iterator it = dhParameterCalibrations.begin(); it != dhParameterCalibrations.end(); ++it) {
@@ -93,18 +97,6 @@ QDomDocument createDOMDocument(SerialDeviceCalibration::Ptr calibration) {
 		}
 		elmRoot.appendChild(dhCorrections);
 	}
-
-	//	// Save encoder corrections
-	//	std::vector<EncoderParameterCalibration::Ptr> encoderParameterCalibrations = _compositeEncoderParameterCalibration->getCalibrations();
-	//	if (encoderParameterCalibrations.size() > 0) {
-	//		QDomElement encoderCorrections = document.createElement("EncoderParameterCalibrations");
-	//		for (std::vector<EncoderParameterCalibration::Ptr>::iterator it = encoderParameterCalibrations.begin(); it != encoderParameterCalibrations.end();
-	//				++it) {
-	//			EncoderParameterCalibration::Ptr encoderCalibration = (*it);
-	//			encoderCorrections.appendChild(encoderCalibration->toXml(document));
-	//		}
-	//		elmRoot.appendChild(encoderCorrections);
-	//	}
 
 	document.appendChild(elmRoot);
 

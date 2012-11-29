@@ -63,7 +63,6 @@ public:
 
 private:
 	rw::models::SerialDevice::Ptr _device;
-	rw::kinematics::State _state;
 	rw::kinematics::Frame::Ptr _referenceFrame;
 	rw::kinematics::Frame::Ptr _measurementFrame;
 	std::vector<SerialDevicePoseMeasurement> _measurements;
