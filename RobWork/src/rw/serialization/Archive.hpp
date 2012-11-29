@@ -46,22 +46,10 @@ public:
 
     class Access {
     public:
-/*
-        // SFINAE test
-        template <typename T>
-        class
-        {
-            typedef char one;
-            typedef long two;
 
-            template <typename C> static one test( char[sizeof(&C::load)] ) ;
-            template <typename C> static two test(...);
-
-
-        public:
-            enum { value = sizeof(test<T>(0)) == sizeof(char) };
-        };
-  */
+    	/**
+    	 * @brief SFINAE class to test if a specific type has a specific method
+    	 */
         template<typename T>
         class has_load_func
         {

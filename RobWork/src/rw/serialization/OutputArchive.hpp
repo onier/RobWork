@@ -2,29 +2,55 @@
 #define RW_COMMON_OUTPUTARCHIVE_HPP
 
 #include "Archive.hpp"
+#include "Serializable.hpp"
 #include <boost/cstdint.hpp>
+#include <boost/type_traits.hpp>
 
+
+/**
+ * @brief serializable objects can be written to an output archive.
+ *
+ * This class define an interface for serializing data.
+ */
 class OutputArchive : public Archive {
 public:
+	//! @brief destructor
     virtual ~OutputArchive(){};
 
+	//! @copydoc Archive::open
     virtual void open(std::ostream& ofs) = 0;
 
     // utils to handle arrays
     virtual void writeEnterScope(const std::string& id) = 0;
     virtual void writeLeaveScope(const std::string& id) = 0;
-    virtual void writeEnterArray(const std::string& id) = 0;
-    virtual void writeLeaveArray(const std::string& id) = 0;
 
     // writing primitives to archive
     virtual void write(bool val, const std::string& id) = 0;
-
-    virtual void write(int val, const std::string& id) = 0;
-    virtual void write(unsigned int val, const std::string& id){ write((int)val,id); }
-
+    virtual void write(boost::int8_t val, const std::string& id) = 0;
+    virtual void write(boost::uint8_t val, const std::string& id) = 0;
+    virtual void write(boost::int16_t val, const std::string& id) = 0;
+    virtual void write(boost::uint16_t val, const std::string& id) = 0;
+    virtual void write(boost::int32_t val, const std::string& id) = 0;
+    virtual void write(boost::uint32_t val, const std::string& id) = 0;
+    virtual void write(boost::int64_t val, const std::string& id) = 0;
     virtual void write(boost::uint64_t val, const std::string& id) = 0;
+    virtual void write(float val, const std::string& id) = 0;
     virtual void write(double val, const std::string& id) = 0;
-    virtual void write(const std::string&  val, const std::string& id) = 0;
+    virtual void write(const std::string& val, const std::string& id) = 0;
+
+    virtual void write(const std::vector<bool>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<boost::int8_t>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<boost::uint8_t>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<boost::int16_t>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<boost::uint16_t>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<boost::int32_t>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<boost::uint32_t>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<boost::int64_t>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<boost::uint64_t>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<float>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<double>& val, const std::string& id) = 0;
+    virtual void write(const std::vector<std::string>& val, const std::string& id) = 0;
+
 
     // a pointer value
 
@@ -52,7 +78,25 @@ public:
     void write(const T& data, const std::string& id){
         // the data method must have an implementation of load/save and if not then we try the generic write
         // method which could provide a solution by the implementation itself
-        writeEnterScope(id);
+    	if( boost::is_const<T>::value_type ){
+    		RW_THROW("type T cannot be of type const!");
+    	} else if( boost::is_reference<T>::value_type ){
+    		RW_THROW("type T cannot be of type reference!");
+    	} else if( boost::is_floating_point<T>::value_type || boost::is_integral<T>::value_type){
+    		T* val = new T;
+    		write(*val, id);
+    		return val;
+    	}
+
+        // test if T inherit from Serializable
+        if(boost::is_base_of<Serializable, T>::value_type) {
+        	object.write(*this, id);
+        } else {
+        	// the T does not
+
+        }
+
+/*
         try {
             Archive::Access::save<T>(data, *this, id);
         } catch (...){
@@ -60,7 +104,7 @@ public:
             boost::any adata(data);
             write(adata, id);
         }
-        writeLeaveScope(id);
+        */
     }
 
     /**

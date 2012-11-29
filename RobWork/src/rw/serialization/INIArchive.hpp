@@ -10,7 +10,10 @@
 #include <fstream>
 #include <rw/common/macros.hpp>
 #include <boost/any.hpp>
+#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string.hpp>
+
 #include "InputArchive.hpp"
 #include "OutputArchive.hpp"
 
@@ -30,12 +33,7 @@ public:
         close();
     }
 
-    virtual void open(const std::string& filename){
-        _fstr = new std::fstream(filename.c_str());
-        _ofs = _fstr;
-        _ifs = _fstr;
-        _isopen =  _fstr->is_open();
-    }
+    virtual void open(const std::string& filename);
 
     virtual void open(std::ostream& ofs){
         _ofs = &ofs;
@@ -49,6 +47,7 @@ public:
 
     virtual bool isOpen(){ return _isopen; };
 
+    //////////////////// SCOPE
     // utils to handle arrays
     virtual void writeEnterScope(const std::string& id){
         _scope.push_back(id);
@@ -60,8 +59,6 @@ public:
         }
         _scope.pop_back();
     };
-    virtual void writeEnterArray(const std::string& id){};
-    virtual void writeLeaveArray(const std::string& id){};
 
 
     // utils to handle arrays
@@ -76,38 +73,59 @@ public:
         }
         _scope.pop_back();
     };
-    virtual void readEnterArray(const std::string& id){};
-    virtual void readLeaveArray(const std::string& id){};
 
+    ///////////////////////// WRITING
 
-    // writing primitives to archive
     virtual void write(bool val, const std::string& id){
         if(val) write((int)1,id);
         else write((int)0,id);
     }
+    void write(boost::int8_t val, const std::string& id){ writeValue(val,id);};
+    void write(boost::uint8_t val, const std::string& id){ writeValue(val,id);};
+    void write(boost::int16_t val, const std::string& id){ writeValue(val,id);};
+    void write(boost::uint16_t val, const std::string& id){ writeValue(val,id);};
+    void write(boost::int32_t val, const std::string& id){ writeValue(val,id);};
+    void write(boost::uint32_t val, const std::string& id){ writeValue(val,id);};
+    void write(boost::int64_t val, const std::string& id){ writeValue(val,id);};
+    void write(boost::uint64_t val, const std::string& id){ writeValue(val,id);};
+    void write(float val, const std::string& id){ writeValue(val,id);};
+    void write(double val, const std::string& id){ writeValue(val,id);};
+    void write(const std::string& val, const std::string& id){ writeValue(val,id);};
 
-    virtual void write(int val, const std::string& id){
-        (*_ofs) << id << "=" << val << "\n";
-    }
+    void write(const std::vector<bool>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<boost::int8_t>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<boost::uint8_t>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<boost::int16_t>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<boost::uint16_t>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<boost::int32_t>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<boost::uint32_t>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<boost::int64_t>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<boost::uint64_t>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<float>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<double>& val, const std::string& id){ writeValue(val,id);};
+    void write(const std::vector<std::string>& val, const std::string& id){ writeValue(val,id);};
 
-    virtual void write(boost::uint64_t val, const std::string& id){
-        (*_ofs) << id << "=" << val << "\n";
-    }
-
-    virtual void write(double val, const std::string& id){
-        (*_ofs) << id << "=" << val << "\n";
-    }
-    virtual void write(const std::string&  val, const std::string& id){
-        (*_ofs) << id << "=" << val << "\n";
-    }
-
+    //template<class T>
+    //void write(const T& data, const std::string& id){ OutputArchive::write<T>(data,id); }
 
     template<class T>
-    void write(const T& data, const std::string& id){ OutputArchive::write<T>(data,id); }
+    void writeValue( const std::vector<T>& val, const std::string& id ){
+    	(*_ofs) << id << "=";
+    	BOOST_FOREACH(const T& rval, val){ (*_ofs) << rval << " "; }
+    	(*_ofs) << "\n";
+    }
 
-    std::pair<std::string,std::string> getNameValue(){
+    template<class T>
+    void writeValue( const T&  val, const std::string& id ){
+    	(*_ofs) << id << "=" << val << "\n";
+    }
+
+
+    ///////////////// READING
+
+    std::pair<std::string, std::string> getNameValue(){
         std::string line(_line);
-        for(int i=0;i<line.size();i++){
+        for(size_t i=0;i<line.size();i++){
             if(line[i]== '='){
                 char nname[100],nval[100];
                 // split is at i
@@ -121,57 +139,58 @@ public:
             }
         }
         RW_THROW("Not valid ini property!");
+        return std::make_pair("","");
     }
 
-    // writing primitives to archive
-    virtual void read(bool& val, const std::string& id){
-        int res = readInt(id);
-        if(res==0)
-            val = false;
-        else
-            val = true;
-    }
+    virtual void read(bool& val, const std::string& id);
+    virtual void read(boost::int8_t& val, const std::string& id){readValue<boost::int8_t>(val,id);}
+    virtual void read(boost::uint8_t& val, const std::string& id){readValue<boost::uint8_t>(val,id);}
+    virtual void read(boost::int16_t& val, const std::string& id){readValue<boost::int16_t>(val,id);}
+    virtual void read(boost::uint16_t& val, const std::string& id){readValue<boost::uint16_t>(val,id);}
+    virtual void read(boost::int32_t& val, const std::string& id){readValue<boost::int32_t>(val,id);}
+    virtual void read(boost::uint32_t& val, const std::string& id){readValue<boost::uint32_t>(val,id);}
+    virtual void read(boost::int64_t& val, const std::string& id){readValue<boost::int64_t>(val,id);}
+    virtual void read(boost::uint64_t& val, const std::string& id){readValue<boost::uint64_t>(val,id);}
+    virtual void read(float& val, const std::string& id){readValue<float>(val,id);}
+    virtual void read(double& val, const std::string& id){readValue<double>(val,id);}
+    virtual void read(std::string& val, const std::string& id);
 
-    virtual void read(int& val, const std::string& id){
-        _ifs->getline(_line,500);
-        std::pair<std::string,std::string> valname = getNameValue();
-        if(id!=valname.first)
-            RW_WARN("mismatched ids: " << id << " ---- " << valname.first);
-        val = boost::lexical_cast<int>(valname.second);
+    virtual void read(std::vector<bool>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<boost::int8_t>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<boost::uint8_t>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<boost::int16_t>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<boost::uint16_t>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<boost::int32_t>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<boost::uint32_t>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<boost::int64_t>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<boost::uint64_t>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<float>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<double>& val, const std::string& id){readValue(val,id);}
+    virtual void read(std::vector<std::string>& val, const std::string& id) ;
 
-    }
-
-    virtual void read(boost::uint64_t& val, const std::string& id){
-        _ifs->getline(_line,500);
-        std::pair<std::string,std::string> valname = getNameValue();
-        if(id!=valname.first)
-            RW_WARN("mismatched ids: " << id << " ---- " << valname.first);
-        val = boost::lexical_cast<boost::uint64_t>(valname.second);
-
-    }
-
-    virtual void read(double &val, const std::string& id){
-        _ifs->getline(_line,500);
-        std::pair<std::string,std::string> valname = getNameValue();
-        if(id!=valname.first)
-            RW_WARN("mismatched ids: " << id << " ---- " << valname.first);
-        val = boost::lexical_cast<double>(valname.second);
-    }
-
-    virtual void read(std::string&  val, const std::string& id){
-        _ifs->getline(_line,500);
-        std::pair<std::string,std::string> valname = getNameValue();
-        //std::cout << valname.first << "  " << valname.second << std::endl;
-        val = valname.second;
-    }
+	 template<class T>
+	 void readValue(std::vector<T>& val, const std::string& id){
+		_ifs->getline(_line,500);
+		std::pair<std::string,std::string> valname = getNameValue();
+		if(id!=valname.first)
+			RW_WARN("mismatched ids: " << id << " ---- " << valname.first);
+	    // read from array
+		std::vector<std::string> result;
+		boost::split(result, valname.second, boost::is_any_of("\t "));
+		BOOST_FOREACH(std::string& rval, result){
+			val.push_back( boost::lexical_cast<T>(rval) );
+		}
+	 }
 
 
-    //
-    template<class T>
-    T* read(const std::string& id){
-        return InputArchive::read<T>(id);
-    }
-
+	 template<class T>
+	 void readValue(T& val, const std::string& id){
+		_ifs->getline(_line,500);
+		std::pair<std::string,std::string> valname = getNameValue();
+		if(id!=valname.first)
+			RW_WARN("mismatched ids: " << id << " ---- " << valname.first);
+		val = boost::lexical_cast<T>(valname.second);
+	 }
 
 
 private:
@@ -179,7 +198,7 @@ private:
         if(_scope.size()==0)
             return "";
         std::stringstream sstr;
-        for(int i=0;i<_scope.size()-1;i++)
+        for(size_t i=0;i<_scope.size()-1;i++)
             sstr << _scope[i] << ".";
         sstr << _scope.back();
         return sstr.str();
