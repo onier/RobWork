@@ -1,3 +1,20 @@
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
+
 #ifndef RW_COMMON_INPUTARCHIVE_HPP
 #define RW_COMMON_INPUTARCHIVE_HPP
 
@@ -7,6 +24,8 @@
 #include <boost/cstdint.hpp>
 #include <boost/type_traits.hpp>
 
+namespace rw {
+namespace common {
 /**
  * @brief an archive interface for reading from a serialized class.
  */
@@ -65,15 +84,6 @@ public:
     double readDouble(const std::string& id) { double b; read(b,id); return b;};
     std::string readString(const std::string& id) { std::string b; read(b,id); return b;};
 
-
-/*
-    std::string readString(const std::string& id){
-        std::string result;
-        read(result, id);
-        return result;
-    }
-*/
-
     //
     template<class T>
     void read(T& object, const std::string& id){
@@ -83,9 +93,7 @@ public:
     	} else if( boost::is_reference<T>::value_type ){
     		RW_THROW("type T cannot be of type reference!");
     	} else if( boost::is_floating_point<T>::value_type || boost::is_integral<T>::value_type){
-    		T* val = new T;
-    		read(*val,id);
-    		return val;
+    		read(object,id);
     	}
 
         // test if T inherit from Serializable
@@ -93,34 +101,9 @@ public:
         	object.read(*this, id);
         } else {
         	// the T does not
-
+        	serialization::read(object, *this, id);
         }
-
-        /*
-        T* data = Archive::Access::load<T>(*this, id);
-
-        if(data==NULL){
-            // try read with generic call
-            boost::any anyval = read(id);
-            data = boost::any_cast<T>(&anyval);
-            if(data == NULL ){
-                RW_THROW("No leader for data! id:"<< id);
-            }
-        }
-        readLeaveScope(id);
-        return data;
-        */
     }
-
-
-protected:
-
-    /**
-     * @brief this is the fallback call in case a class does not implement load/save funtionality
-     * then the implementation on the OutputArchive might be able to save the class.
-     *
-     * @note unfortunately this require the implementing InputArchive to use downcast methods...
-     */
-    virtual boost::any read(const std::string& id){ RW_THROW("No handler for this type of data!");};
 };
+}} //namespace end
 #endif

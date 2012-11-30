@@ -1,6 +1,25 @@
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
+
 #include "INIArchive.hpp"
 
 #include <boost/filesystem.hpp>
+
+using namespace rw::common;
 
 void INIArchive::open(const std::string& filename){
 	if( !boost::filesystem::exists(filename.c_str()) ){
@@ -9,11 +28,26 @@ void INIArchive::open(const std::string& filename){
 	}
 
 	_fstr = new std::fstream(filename.c_str());
+	_iostr = _fstr;
 	_ofs = _fstr;
 	_ifs = _fstr;
 	_isopen =  _fstr->is_open();
 }
 
+void INIArchive::open(std::iostream& stream){
+	_fstr = NULL;
+	_iostr = &stream;
+	_ofs = _iostr;
+	_ifs = _iostr;
+	_isopen =  true;
+}
+
+void INIArchive::flush(){
+	if(_iostr!=NULL)
+		_iostr->flush();
+	if(_ofs!=NULL && _ofs!=_iostr)
+		_ofs->flush();
+}
 
 
  void INIArchive::read(bool& val, const std::string& id){
