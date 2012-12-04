@@ -31,7 +31,6 @@ IF( build )
 	)
     
 	SET(SRC_FILES_HPP
-		eigen/EigenTransformPlugin.hpp
 		nlls/NLLSIterationLog.hpp
 		nlls/NLLSNewtonSolver.hpp
 		nlls/NLLSSolver.hpp
@@ -46,6 +45,7 @@ IF( build )
 		CompositeJacobian.hpp
 		DHParameterCalibration.hpp
 		DHParameterJacobian.hpp
+		EigenTransformPlugin.hpp
 	#	EncoderParameterCalibration.hpp
 		FixedFrameCalibration.hpp
 		FixedFrameJacobian.hpp

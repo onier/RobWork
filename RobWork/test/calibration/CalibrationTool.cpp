@@ -19,9 +19,9 @@ bool isLinkCalibrationEnabled;
 
 void parseArguments(int argumentCount, char** arguments, boost::program_options::options_description& optionsDescription);
 void printHelp(const boost::program_options::options_description& optionsDescription);
-void printSolverSummary(rwlibs::calibration::NLLSSolver::Ptr solver);
-void printCalibrationSummary(rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration);
-void printMeasurements(const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration);
+void printSolverSummary(NLLSSolver::Ptr solver);
+void printCalibrationSummary(SerialDeviceCalibration::Ptr serialDeviceCalibration);
+void printMeasurements(const std::vector<SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, SerialDeviceCalibration::Ptr serialDeviceCalibration);
 
 int main(int argumentCount, char** arguments) {
 	std::cout << "Parsing arguments.. ";
@@ -85,13 +85,13 @@ int main(int argumentCount, char** arguments) {
 	// Load robot pose measurements from file.
 	std::cout << "Loading measurements [ " << measurementFilePath << " ].. ";
 	std::cout.flush();
-	std::vector<rwlibs::calibration::SerialDevicePoseMeasurement> measurements = rwlibs::calibration::XmlMeasurementFile::load(measurementFilePath);
+	std::vector<SerialDevicePoseMeasurement> measurements = XmlMeasurementFile::load(measurementFilePath);
 	std::cout << "Loaded " << measurements.size() << " measurements." << std::endl;
 
 	// Disable existing calibration if one exist.
 	std::cout << "Finding existing calibration.. ";
 	std::cout.flush();
-	rwlibs::calibration::SerialDeviceCalibration::Ptr calibrationExisting = rwlibs::calibration::SerialDeviceCalibration::get(serialDevice);
+	SerialDeviceCalibration::Ptr calibrationExisting = SerialDeviceCalibration::get(serialDevice);
 	if (calibrationExisting.isNull()) {
 		std::cout << "Not found." << std::endl;
 	} else {
@@ -106,7 +106,7 @@ int main(int argumentCount, char** arguments) {
 	// Initialize calibration, jacobian and calibrator.
 	std::cout << "Initializing calibration [ Base: " << (isBaseCalibrationEnabled ? "Enabled" : "Disabled") << " - End: " << (isEndCalibrationEnabled ? "Enabled" : "Disabled") << " - Link: " << (isLinkCalibrationEnabled ? "Enabled" : "Disabled") << " ].. ";
 	std::cout.flush();
-	rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration = rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceCalibration(serialDevice));
+	SerialDeviceCalibration::Ptr serialDeviceCalibration = rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice));
 	serialDeviceCalibration->getBaseCalibration()->setEnabled(isBaseCalibrationEnabled);
 	serialDeviceCalibration->getEndCalibration()->setEnabled(isEndCalibrationEnabled);
 	serialDeviceCalibration->getInternalLinkCalibration()->setEnabled(isLinkCalibrationEnabled);
@@ -114,13 +114,13 @@ int main(int argumentCount, char** arguments) {
 	
 	std::cout << "Initializing jacobian.. ";
 	std::cout.flush();
-	rwlibs::calibration::SerialDeviceJacobian::Ptr serialDeviceJacobian = rw::common::ownedPtr(new rwlibs::calibration::SerialDeviceJacobian(serialDeviceCalibration));
+	SerialDeviceJacobian::Ptr serialDeviceJacobian = rw::common::ownedPtr(new SerialDeviceJacobian(serialDeviceCalibration));
 	std::cout << "Initialized." << std::endl;
 
 	std::cout << "Initializing calibrator [ Weighting: " << (isWeighting ? "Enabled" : "Disabled") << " ].. ";
 	std::cout.flush();
-	rwlibs::calibration::SerialDeviceCalibrator::Ptr serialDeviceCalibrator = rw::common::ownedPtr(
-		new rwlibs::calibration::SerialDeviceCalibrator(serialDevice, referenceFrame, measurementFrame, serialDeviceCalibration, serialDeviceJacobian));
+	SerialDeviceCalibrator::Ptr serialDeviceCalibrator = rw::common::ownedPtr(
+		new SerialDeviceCalibrator(serialDevice, referenceFrame, measurementFrame, serialDeviceCalibration, serialDeviceJacobian));
 	serialDeviceCalibrator->setMeasurements(measurements);
 	serialDeviceCalibrator->setWeighting(isWeighting);
 	std::cout << "Initialized." << std::endl;
@@ -136,7 +136,7 @@ int main(int argumentCount, char** arguments) {
 		if (!calibrationFilePath.empty()) {
 			std::cout << "Saving calibration [" << calibrationFilePath << "].. ";
 			std::cout.flush();
-			rwlibs::calibration::XmlCalibrationSaver::save(serialDeviceCalibration, calibrationFilePath);
+			XmlCalibrationSaver::save(serialDeviceCalibration, calibrationFilePath);
 			std::cout << "Saved." << std::endl;
 		}
 
@@ -195,80 +195,82 @@ void printHelp(const boost::program_options::options_description& optionsDescrip
 	std::cerr << optionsDescription << std::endl;
 }
 
-void printSolverSummary(rwlibs::calibration::NLLSSolver::Ptr solver) {
-	std::vector<rwlibs::calibration::NLLSIterationLog> iterationLogs = solver->getIterationLogs();
-	for (std::vector<rwlibs::calibration::NLLSIterationLog>::const_iterator it = iterationLogs.begin(); it != iterationLogs.end(); it++) {
-		rwlibs::calibration::NLLSIterationLog iterationLog = (*it);
+void printSolverSummary(NLLSSolver::Ptr solver) {
+	std::vector<NLLSIterationLog> iterationLogs = solver->getIterationLogs();
+	for (std::vector<NLLSIterationLog>::const_iterator it = iterationLogs.begin(); it != iterationLogs.end(); it++) {
+		NLLSIterationLog iterationLog = (*it);
 		std::cout << "\tIteration " << iterationLog.getIterationNumber() << ": Jacobian [ Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
 			<< " - Condition: " << iterationLog.getConditionNumber() << " ] - ||Residuals||: " << iterationLog.getResidualNorm() << " - ||Step||: "
 			<< iterationLog.getStepNorm() << std::endl;
 	}
 }
 
-void printCalibrationSummary(rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration) {
-	rwlibs::calibration::FixedFrameCalibration::Ptr baseCalibration = serialDeviceCalibration->getBaseCalibration();
-	std::cout << "\tBase calibration of [ " << baseCalibration->getFrame()->getName() << " ]:";
-	std::cout << " [";
-	if (baseCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_X))
-		std::cout << " x: " << baseCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_X) * 100.0 << " cm";
-	if (baseCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_Y))
-		std::cout << " y: " << baseCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_Y) * 100.0 << " cm";
-	if (baseCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_Z))
-		std::cout << " z: " << baseCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_Z) * 100.0 << " cm";
-	if (baseCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_ROLL))
-		std::cout << " roll: " << baseCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_ROLL) * rw::math::Rad2Deg << " \u00B0";
-	if (baseCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_PITCH))
-		std::cout << " pitch: " << baseCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_PITCH) * rw::math::Rad2Deg << " \u00B0";
-	if (baseCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_YAW))
-		std::cout << " yaw: " << baseCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_YAW) * rw::math::Rad2Deg << " \u00B0";
+void printCalibrationSummary(SerialDeviceCalibration::Ptr serialDeviceCalibration) {
+	FixedFrameCalibration::Ptr baseCalibration = serialDeviceCalibration->getBaseCalibration();
+	std::cout << "\tBase calibration of [ " << baseCalibration->getFrame()->getName() << " ]: [";
+	CalibrationParameterSet baseParameterSet = baseCalibration->getParameterSet();
+	if (baseParameterSet(FixedFrameCalibration::PARAMETER_X).isEnabled())
+		std::cout << " x: " << baseParameterSet(FixedFrameCalibration::PARAMETER_X) * 100.0 << " cm";
+	if (baseParameterSet(FixedFrameCalibration::PARAMETER_Y).isEnabled())
+		std::cout << " y: " << baseParameterSet(FixedFrameCalibration::PARAMETER_Y) * 100.0 << " cm";
+	if (baseParameterSet(FixedFrameCalibration::PARAMETER_Z).isEnabled())
+		std::cout << " z: " << baseParameterSet(FixedFrameCalibration::PARAMETER_Z) * 100.0 << " cm";
+	if (baseParameterSet(FixedFrameCalibration::PARAMETER_ROLL).isEnabled())
+		std::cout << " roll: " << baseParameterSet(FixedFrameCalibration::PARAMETER_ROLL) * rw::math::Rad2Deg << " \u00B0";
+	if (baseParameterSet(FixedFrameCalibration::PARAMETER_PITCH).isEnabled())
+		std::cout << " pitch: " << baseParameterSet(FixedFrameCalibration::PARAMETER_PITCH) * rw::math::Rad2Deg << " \u00B0";
+	if (baseParameterSet(FixedFrameCalibration::PARAMETER_YAW).isEnabled())
+		std::cout << " yaw: " << baseParameterSet(FixedFrameCalibration::PARAMETER_YAW) * rw::math::Rad2Deg << " \u00B0";
 	std::cout << " ] [";
 	const rw::math::Transform3D<> baseCalibrationCorrectionTransform = baseCalibration->getCorrectionTransform();
 	std::cout << " Translation: " << baseCalibrationCorrectionTransform.P().norm2() * 100.0 << " cm";
 	std::cout << " Rotation: " << rw::math::EAA<>(baseCalibrationCorrectionTransform.R()).angle() * rw::math::Rad2Deg << " \u00B0";
 	std::cout << " ]" << std::endl;
 
-	rwlibs::calibration::FixedFrameCalibration::Ptr endCalibration = serialDeviceCalibration->getEndCalibration();
+	FixedFrameCalibration::Ptr endCalibration = serialDeviceCalibration->getEndCalibration();
 	std::cout << "\tEnd calibration of [ " << endCalibration->getFrame()->getName() << " ]: [";
-	if (endCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_X))
-		std::cout << " x: " << endCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_X) * 100.0 << " cm";
-	if (endCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_Y))
-		std::cout << " y: " << endCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_Y) * 100.0 << " cm";
-	if (endCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_Z))
-		std::cout << " z: " << endCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_Z) * 100.0 << " cm";
-	if (endCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_ROLL))
-		std::cout << " roll: " << endCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_ROLL) * rw::math::Rad2Deg << " \u00B0";
-	if (endCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_PITCH))
-		std::cout << " pitch: " << endCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_PITCH) * rw::math::Rad2Deg << " \u00B0";
-	if (endCalibration->isParameterEnabled(FixedFrameCalibration::PARAMETER_YAW))
-		std::cout << " yaw: " << endCalibration->getParameterValue(FixedFrameCalibration::PARAMETER_YAW) * rw::math::Rad2Deg << " \u00B0";
+	CalibrationParameterSet endParameterSet = endCalibration->getParameterSet();
+	if (endParameterSet(FixedFrameCalibration::PARAMETER_X).isEnabled())
+		std::cout << " x: " << endParameterSet(FixedFrameCalibration::PARAMETER_X) * 100.0 << " cm";
+	if (endParameterSet(FixedFrameCalibration::PARAMETER_Y).isEnabled())
+		std::cout << " y: " << endParameterSet(FixedFrameCalibration::PARAMETER_Y) * 100.0 << " cm";
+	if (endParameterSet(FixedFrameCalibration::PARAMETER_Z).isEnabled())
+		std::cout << " z: " << endParameterSet(FixedFrameCalibration::PARAMETER_Z) * 100.0 << " cm";
+	if (endParameterSet(FixedFrameCalibration::PARAMETER_ROLL).isEnabled())
+		std::cout << " roll: " << endParameterSet(FixedFrameCalibration::PARAMETER_ROLL) * rw::math::Rad2Deg << " \u00B0";
+	if (endParameterSet(FixedFrameCalibration::PARAMETER_PITCH).isEnabled())
+		std::cout << " pitch: " << endParameterSet(FixedFrameCalibration::PARAMETER_PITCH) * rw::math::Rad2Deg << " \u00B0";
+	if (endParameterSet(FixedFrameCalibration::PARAMETER_YAW).isEnabled())
+		std::cout << " yaw: " << endParameterSet(FixedFrameCalibration::PARAMETER_YAW) * rw::math::Rad2Deg << " \u00B0";
 	std::cout << " ] [";
 	const rw::math::Transform3D<> endCalibrationCorrectionTransform = endCalibration->getCorrectionTransform();
 	std::cout << " Translation: " << endCalibrationCorrectionTransform.P().norm2() * 100.0 << " cm";
 	std::cout << " Rotation: " << rw::math::EAA<>(endCalibrationCorrectionTransform.R()).angle() * rw::math::Rad2Deg << " \u00B0";
 	std::cout << " ]" << std::endl;
 
-	rwlibs::calibration::CompositeCalibration<rwlibs::calibration::DHParameterCalibration>::Ptr dhParameterCalibration =
+	CompositeCalibration<DHParameterCalibration>::Ptr dhParameterCalibration =
 		serialDeviceCalibration->getInternalLinkCalibration();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < dhParameterCalibration->getCalibrations().size(); calibrationIndex++) {
-		rwlibs::calibration::DHParameterCalibration::Ptr dhCalibration = dhParameterCalibration->getCalibrations()[calibrationIndex];
+		DHParameterCalibration::Ptr dhCalibration = dhParameterCalibration->getCalibrations()[calibrationIndex];
+		CalibrationParameterSet dhParameterSet = dhCalibration->getParameterSet();
 		std::cout << "\tDH calibration of [ " << dhCalibration->getJoint()->getName() << " ]: [";
-		if (dhCalibration->isParameterEnabled(rwlibs::calibration::DHParameterCalibration::PARAMETER_A))
-			std::cout << " a: " << dhCalibration->getParameterValue(rwlibs::calibration::DHParameterCalibration::PARAMETER_A) * 100.0 << " cm";
-		if (dhCalibration->isParameterEnabled(rwlibs::calibration::DHParameterCalibration::PARAMETER_B))
-			std::cout << " b: " << dhCalibration->getParameterValue(rwlibs::calibration::DHParameterCalibration::PARAMETER_B) * 100.0 << " cm";
-		if (dhCalibration->isParameterEnabled(rwlibs::calibration::DHParameterCalibration::PARAMETER_D))
-			std::cout << " d: " << dhCalibration->getParameterValue(rwlibs::calibration::DHParameterCalibration::PARAMETER_D) * 100.0 << " cm";
-		if (dhCalibration->isParameterEnabled(rwlibs::calibration::DHParameterCalibration::PARAMETER_ALPHA))
-			std::cout << " alpha: "	<< dhCalibration->getParameterValue(rwlibs::calibration::DHParameterCalibration::PARAMETER_ALPHA) * rw::math::Rad2Deg << " \u00B0";
-		if (dhCalibration->isParameterEnabled(rwlibs::calibration::DHParameterCalibration::PARAMETER_BETA))
-			std::cout << " beta: " << dhCalibration->getParameterValue(rwlibs::calibration::DHParameterCalibration::PARAMETER_BETA) * rw::math::Rad2Deg << " \u00B0";
-		if (dhCalibration->isParameterEnabled(rwlibs::calibration::DHParameterCalibration::PARAMETER_THETA))
-			std::cout << " theta: " << dhCalibration->getParameterValue(rwlibs::calibration::DHParameterCalibration::PARAMETER_THETA) * rw::math::Rad2Deg << " \u00B0";
+		if (dhParameterSet(DHParameterCalibration::PARAMETER_A).isEnabled())
+			std::cout << " a: " << dhParameterSet(DHParameterCalibration::PARAMETER_A) * 100.0 << " cm";
+		if (dhParameterSet(DHParameterCalibration::PARAMETER_B).isEnabled())
+			std::cout << " b: " << dhParameterSet(DHParameterCalibration::PARAMETER_B) * 100.0 << " cm";
+		if (dhParameterSet(DHParameterCalibration::PARAMETER_D).isEnabled())
+			std::cout << " d: " << dhParameterSet(DHParameterCalibration::PARAMETER_D) * 100.0 << " cm";
+		if (dhParameterSet(DHParameterCalibration::PARAMETER_ALPHA).isEnabled())
+			std::cout << " alpha: "	<< dhParameterSet(DHParameterCalibration::PARAMETER_ALPHA) * rw::math::Rad2Deg << " \u00B0";
+		if (dhParameterSet(DHParameterCalibration::PARAMETER_BETA).isEnabled())
+			std::cout << " beta: " << dhParameterSet(DHParameterCalibration::PARAMETER_BETA) * rw::math::Rad2Deg << " \u00B0";
+		if (dhParameterSet(DHParameterCalibration::PARAMETER_THETA).isEnabled())
+			std::cout << " theta: " << dhParameterSet(DHParameterCalibration::PARAMETER_THETA) * rw::math::Rad2Deg << " \u00B0";
 		std::cout << " ]" << std::endl;
 	}
 }
 
-void printMeasurements(const std::vector<rwlibs::calibration::SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, rwlibs::calibration::SerialDeviceCalibration::Ptr serialDeviceCalibration) {
+void printMeasurements(const std::vector<SerialDevicePoseMeasurement>& measurements, rw::models::WorkCell::Ptr workCell, rw::models::SerialDevice::Ptr serialDevice, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, SerialDeviceCalibration::Ptr serialDeviceCalibration) {
 	const unsigned int measurementCount = measurements.size();
 
 	Eigen::VectorXd distances(measurementCount), angles(measurementCount);

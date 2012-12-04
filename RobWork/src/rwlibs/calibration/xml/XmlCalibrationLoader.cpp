@@ -48,7 +48,7 @@ FixedFrameCalibration::Ptr ElementReader::readElement<FixedFrameCalibration::Ptr
 	txtTransformSplitted.removeAll(" ");
 	if (txtTransformSplitted.count() != 12)
 		RW_THROW("Transform has wrong size (12 numbers).");
-	Eigen::Affine3d transform;
+	rw::math::Transform3D<> transform;
 	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
 		for (int columnIndex = 0; columnIndex < 4; columnIndex++)
 			transform(rowIndex, columnIndex) = txtTransformSplitted[4 * rowIndex + columnIndex].toDouble();
@@ -67,36 +67,39 @@ DHParameterCalibration::Ptr ElementReader::readElement<DHParameterCalibration::P
 		RW_THROW("Joint \"" << jointName << "\" not found.");
 
 	DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(joint));
+	CalibrationParameterSet parameterSet = calibration->getParameterSet();
 
 	if (!element.hasAttribute("a"))
-		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_A, false);
+		parameterSet(DHParameterCalibration::PARAMETER_A).setEnabled(false);
 	else
-		calibration->setParameterValue(DHParameterCalibration::PARAMETER_A, element.attribute("a").toDouble());
+		parameterSet(DHParameterCalibration::PARAMETER_A) = element.attribute("a").toDouble();
 
 	if (!element.hasAttribute("b"))
-		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_B, false);
+		parameterSet(DHParameterCalibration::PARAMETER_B).setEnabled(false);
 	else
-		calibration->setParameterValue(DHParameterCalibration::PARAMETER_B, element.attribute("b").toDouble());
+		parameterSet(DHParameterCalibration::PARAMETER_B) = element.attribute("b").toDouble();
 
 	if (!element.hasAttribute("d"))
-		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_D, false);
+		parameterSet(DHParameterCalibration::PARAMETER_D).setEnabled(false);
 	else
-		calibration->setParameterValue(DHParameterCalibration::PARAMETER_D, element.attribute("d").toDouble());
+		parameterSet(DHParameterCalibration::PARAMETER_D) = element.attribute("d").toDouble();
 
 	if (!element.hasAttribute("alpha"))
-		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_ALPHA, false);
+		parameterSet(DHParameterCalibration::PARAMETER_ALPHA).setEnabled(false);
 	else
-		calibration->setParameterValue(DHParameterCalibration::PARAMETER_ALPHA, element.attribute("alpha").toDouble());
+		parameterSet(DHParameterCalibration::PARAMETER_ALPHA) = element.attribute("alpha").toDouble();
 
 	if (!element.hasAttribute("beta"))
-		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_BETA, false);
+		parameterSet(DHParameterCalibration::PARAMETER_BETA).setEnabled(false);
 	else
-		calibration->setParameterValue(DHParameterCalibration::PARAMETER_BETA, element.attribute("beta").toDouble());
+		parameterSet(DHParameterCalibration::PARAMETER_BETA) = element.attribute("beta").toDouble();
 
 	if (!element.hasAttribute("theta"))
-		calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_THETA, false);
+		parameterSet(DHParameterCalibration::PARAMETER_THETA).setEnabled(false);
 	else
-		calibration->setParameterValue(DHParameterCalibration::PARAMETER_THETA, element.attribute("theta").toDouble());
+		parameterSet(DHParameterCalibration::PARAMETER_THETA) = element.attribute("theta").toDouble();
+
+	calibration->setParameterSet(parameterSet);
 
 	return calibration;
 }
@@ -137,8 +140,7 @@ SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(rw::kinematics::StateStr
 			dhCalibrations->addCalibration(elementReader.readElement<DHParameterCalibration::Ptr>(nodes.at(nodeIndex).toElement()));
 	}
 
-	SerialDeviceCalibration::Ptr calibration = rw::common::ownedPtr(
-			new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations));
+	SerialDeviceCalibration::Ptr calibration = rw::common::ownedPtr(new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations));
 
 	return calibration;
 }

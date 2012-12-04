@@ -9,7 +9,7 @@
 #define RWLIBS_CALIBRATION_DHPARAMETERJACOBIAN_HPP_
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformPlugin.hpp"
 
 #include "DHParameterCalibration.hpp"
 #include "JacobianBase.hpp"
@@ -35,6 +35,7 @@ protected:
 
 private:
 	DHParameterCalibration::Ptr _calibration;
+	rw::models::Joint::Ptr _joint;
 };
 
 }

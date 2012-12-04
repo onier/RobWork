@@ -12,8 +12,15 @@
 
 namespace rwlibs {
 	namespace calibration {
+		int FixedFrameCalibration::PARAMETER_X = 0;
+		int FixedFrameCalibration::PARAMETER_Y = 1;
+		int FixedFrameCalibration::PARAMETER_Z = 2;
+		int FixedFrameCalibration::PARAMETER_ROLL = 3;
+		int FixedFrameCalibration::PARAMETER_PITCH = 4;
+		int FixedFrameCalibration::PARAMETER_YAW = 5;
+
 		FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame) :
-			CalibrationBase(6), _frame(frame), _isPostCorrection(false) {
+			CalibrationBase(CalibrationParameterSet(6)), _frame(frame), _isPostCorrection(false) {
 		}
 
 		FixedFrameCalibration::FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame, bool isPostCorrection) :
@@ -38,28 +45,32 @@ namespace rwlibs {
 		}
 
 		rw::math::Transform3D<> FixedFrameCalibration::getCorrectionTransform() const {
-			rw::math::Vector3D<> translation(
-				isParameterEnabled(PARAMETER_X) ? getParameterValue(PARAMETER_X) : 0.0,
-				isParameterEnabled(PARAMETER_Y) ? getParameterValue(PARAMETER_Y) : 0.0,
-				isParameterEnabled(PARAMETER_Z) ? getParameterValue(PARAMETER_Z) : 0.0
+			CalibrationParameterSet parameterSet = getParameterSet();
+			return rw::math::Transform3D<>(
+				rw::math::Vector3D<>(
+				parameterSet(PARAMETER_X).isEnabled() ? parameterSet(PARAMETER_X) : 0.0,
+				parameterSet(PARAMETER_Y).isEnabled() ? parameterSet(PARAMETER_Y) : 0.0,
+				parameterSet(PARAMETER_Z).isEnabled() ? parameterSet(PARAMETER_Z) : 0.0
+				),
+				rw::math::RPY<>(
+				parameterSet(PARAMETER_ROLL).isEnabled() ? parameterSet(PARAMETER_ROLL) : 0.0,
+				parameterSet(PARAMETER_PITCH).isEnabled() ? parameterSet(PARAMETER_PITCH) : 0.0,
+				parameterSet(PARAMETER_YAW).isEnabled() ? parameterSet(PARAMETER_YAW) : 0.0
+				).toRotation3D()
 				);
-			rw::math::RPY<> rpy(
-				isParameterEnabled(PARAMETER_ROLL) ? getParameterValue(PARAMETER_ROLL) : 0.0,
-				isParameterEnabled(PARAMETER_PITCH) ? getParameterValue(PARAMETER_PITCH) : 0.0,
-				isParameterEnabled(PARAMETER_YAW) ? getParameterValue(PARAMETER_YAW) : 0.0
-				);
-			return rw::math::Transform3D<>(translation, rpy.toRotation3D());
 		}
 
 		void FixedFrameCalibration::setCorrectionTransform(const rw::math::Transform3D<>& transform) {
+			CalibrationParameterSet parameterSet = getParameterSet();
 			// HACK: Fix hack.
-			setParameterValue(PARAMETER_X, transform.P()(0));
-			setParameterValue(PARAMETER_Y, transform.P()(1));
-			setParameterValue(PARAMETER_Z, transform.P()(2));
+			parameterSet(PARAMETER_X) = transform.P()(0);
+			parameterSet(PARAMETER_Y) = transform.P()(1);
+			parameterSet(PARAMETER_Z) = transform.P()(2);
 			rw::math::RPY<> rpy(transform.R());
-			setParameterValue(PARAMETER_ROLL, rpy(0));
-			setParameterValue(PARAMETER_PITCH, rpy(1));
-			setParameterValue(PARAMETER_YAW, rpy(2));
+			parameterSet(PARAMETER_ROLL) = rpy(0);
+			parameterSet(PARAMETER_PITCH) = rpy(1);
+			parameterSet(PARAMETER_YAW) = rpy(2);
+			setParameterSet(parameterSet);
 		}
 
 		void FixedFrameCalibration::doApply() {

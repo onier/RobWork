@@ -8,13 +8,9 @@
 #ifndef RWLIBS_CALIBRATION_SERIALDEVICECALIBRATION_HPP
 #define RWLIBS_CALIBRATION_SERIALDEVICECALIBRATION_HPP
 
-#include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
-
 #include "CompositeCalibration.hpp"
 #include "DHParameterCalibration.hpp"
 #include "FixedFrameCalibration.hpp"
-#include <Eigen/Geometry>
 #include <rw/models.hpp>
 #include <rw/kinematics.hpp>
 

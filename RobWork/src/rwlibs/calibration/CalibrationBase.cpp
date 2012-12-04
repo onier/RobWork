@@ -24,40 +24,12 @@ namespace rwlibs {
 			_isEnabled = isEnabled;
 		}
 
-		double CalibrationBase::getParameterValue(int parameterIndex) const {
-			RW_ASSERT(parameterIndex < getParameterCount());
-			RW_ASSERT(isParameterEnabled(parameterIndex));
-
-			return isParameterEnabled(parameterIndex) * _parameters(parameterIndex);
+		CalibrationParameterSet CalibrationBase::getParameterSet() const {
+			return _parameterSet;
 		}
 
-		void CalibrationBase::setParameterValue(int parameterIndex, double parameterValue) {
-			RW_ASSERT(parameterIndex < getParameterCount());
-			RW_ASSERT(isParameterEnabled(parameterIndex));
-			RW_ASSERT(!isApplied());
-
-			_parameters(parameterIndex) = parameterValue;
-		}
-
-		int CalibrationBase::getParameterCount() const {
-			return _enabledParameters.rows();
-		}
-
-		int CalibrationBase::getEnabledParameterCount() const {
-			return isEnabled() ? _enabledParameters.sum() : 0;
-		}
-
-		bool CalibrationBase::isParameterEnabled(int parameterIndex) const {
-			RW_ASSERT(parameterIndex < getParameterCount());
-
-			return _enabledParameters(parameterIndex) != 0;
-		}
-
-		void CalibrationBase::setParameterEnabled(int parameterIndex, bool isEnabled) {
-			RW_ASSERT(parameterIndex < getParameterCount());
-			RW_ASSERT(!isApplied());
-
-			_enabledParameters(parameterIndex) = isEnabled;
+		void CalibrationBase::setParameterSet(const CalibrationParameterSet& parameterSet) {
+			_parameterSet = parameterSet;
 		}
 
 		bool CalibrationBase::isApplied() const {
@@ -86,8 +58,8 @@ namespace rwlibs {
 			RW_ASSERT(!isApplied());
 		}
 
-		CalibrationBase::CalibrationBase(int parameterCount) :
-			_parameters(Eigen::VectorXd::Zero(parameterCount)), _isEnabled(true), _enabledParameters(Eigen::VectorXi::Ones(parameterCount)), _isApplied(false) {
+		CalibrationBase::CalibrationBase(const CalibrationParameterSet& parameterSet) :
+			_parameterSet(parameterSet), _isEnabled(true), _isApplied(false) {
 
 		}
 

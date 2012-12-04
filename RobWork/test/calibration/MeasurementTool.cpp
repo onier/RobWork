@@ -72,22 +72,26 @@ int main(int argumentCount, char** arguments) {
 	std::cout << "Initializing artificial calibration..";
 	std::cout.flush();
 	SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice)));
-	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.4 / 100.0, 0.05 / 100.0, -0.06 / 100.0), rw::math::RPY<>(-4 * rw::math::Deg2Rad, 5  * rw::math::Deg2Rad, 6 * rw::math::Deg2Rad)));
-	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.03 / 100.0, -0.2 / 100.0, 0.01 / 100.0), rw::math::RPY<>(3 * rw::math::Deg2Rad, 2 * rw::math::Deg2Rad, -1 * rw::math::Deg2Rad)));
-	std::vector<DHParameterCalibration::Ptr> artificialInternalLinkCalibrations = artificialCalibration->getInternalLinkCalibration()->getCalibrations();
+	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(7.0 / 100.0, -8.0 / 100.0, 9.0 / 100.0), rw::math::RPY<>(1.9 * rw::math::Deg2Rad, -1.8 * rw::math::Deg2Rad, 1.7 * rw::math::Deg2Rad)));
+	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(1.0 / 100.0, 2.0 / 100.0, -3.0 / 100.0), rw::math::RPY<>(-0.3 * rw::math::Deg2Rad, 0.2 * rw::math::Deg2Rad, 0.1 * rw::math::Deg2Rad)));
+	std::vector<DHParameterCalibration::Ptr> artificialInternalLinkCalibrations =
+		artificialCalibration->getInternalLinkCalibration()->getCalibrations();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialInternalLinkCalibrations.size(); calibrationIndex++) {
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_A))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_A, 0.3 / 100.0);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_B))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_B, -0.2 / 100.0);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_D))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_D, -0.1 / 100.0);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_ALPHA))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_ALPHA, -0.1 * rw::math::Deg2Rad);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_BETA))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_BETA, 0.2 * rw::math::Deg2Rad);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_THETA))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_THETA, 0.3 * rw::math::Deg2Rad);
+		DHParameterCalibration::Ptr calibration = artificialInternalLinkCalibrations[calibrationIndex];
+		CalibrationParameterSet parameterSet = calibration->getParameterSet();
+		if (parameterSet(DHParameterCalibration::PARAMETER_A).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_A) = 0.3 / 100.0;
+		if (parameterSet(DHParameterCalibration::PARAMETER_B).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_B) = -0.2 / 100.0;
+		if (parameterSet(DHParameterCalibration::PARAMETER_D).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_D) = -0.1 / 100.0;
+		if (parameterSet(DHParameterCalibration::PARAMETER_ALPHA).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_ALPHA) = -0.6 * rw::math::Deg2Rad;
+		if (parameterSet(DHParameterCalibration::PARAMETER_BETA).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_BETA) = 0.5 * rw::math::Deg2Rad;
+		if (parameterSet(DHParameterCalibration::PARAMETER_THETA).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_THETA) = 0.4 * rw::math::Deg2Rad;
+		calibration->setParameterSet(parameterSet);
 	}
 	std::cout << " Initialized." << std::endl;
 

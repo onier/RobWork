@@ -9,7 +9,7 @@
 #define RWLIBS_CALIBRATION_SERIALDEVICEJACOBIAN_HPP
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformPlugin.hpp"
 
 #include "CompositeJacobian.hpp"
 #include "DHParameterJacobian.hpp"

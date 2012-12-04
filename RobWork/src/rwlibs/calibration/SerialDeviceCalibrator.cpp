@@ -30,6 +30,9 @@ namespace rwlibs {
 				const int measurementCount = _measurements.size();
 				const int rowCount = 6 * measurementCount;
 				const int columnCount = _jacobian->getColumnCount();
+				RW_ASSERT(columnCount > 0);
+				RW_ASSERT(rowCount >= columnCount);
+
 				stackedJacobians.resize(rowCount, columnCount);
 				for (int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 					const SerialDevicePoseMeasurement measurement = _measurements[measurementIndex];

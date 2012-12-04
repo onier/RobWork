@@ -78,9 +78,10 @@ void NLLSNewtonSolver::solve() {
 	while (true) {
 		NLLSIterationLog iterationLog = iterate();
 
-		//std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
-		//	<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
-		//	<< iterationLog.getStepNorm() << "." << std::endl;
+		std::cout << "Step: " << _step.transpose() << std::endl;
+		std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
+			<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
+			<< iterationLog.getStepNorm() << "." << std::endl;
 
 		// Stop iterating if converged.
 		if (iterationLog.isConverged())

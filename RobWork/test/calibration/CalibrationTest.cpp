@@ -51,23 +51,26 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 
 	// Setup artificial calibration.
 	SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice)));
-	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.07, 0.008, 0.009), rw::math::RPY<>(0.08, 0.007, 0.06)));
-	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(0.01, 0.002, 0.003), rw::math::RPY<>(0.04, 0.005, 0.06)));
+	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(7.0 / 100.0, -8.0 / 100.0, 9.0 / 100.0), rw::math::RPY<>(1.9 * rw::math::Deg2Rad, -1.8 * rw::math::Deg2Rad, 1.7 * rw::math::Deg2Rad)));
+	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(1.0 / 100.0, 2.0 / 100.0, -3.0 / 100.0), rw::math::RPY<>(-0.3 * rw::math::Deg2Rad, 0.2 * rw::math::Deg2Rad, 0.1 * rw::math::Deg2Rad)));
 	std::vector<DHParameterCalibration::Ptr> artificialInternalLinkCalibrations =
 		artificialCalibration->getInternalLinkCalibration()->getCalibrations();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialInternalLinkCalibrations.size(); calibrationIndex++) {
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_A))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_A, 0.003);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_B))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_B, -0.001);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_D))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_D, -0.001);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_ALPHA))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_ALPHA, -0.002);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_BETA))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_BETA, 0.004);
-		if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(DHParameterCalibration::PARAMETER_THETA))
-			artificialInternalLinkCalibrations[calibrationIndex]->setParameterValue(DHParameterCalibration::PARAMETER_THETA, 0.004);
+		DHParameterCalibration::Ptr calibration = artificialInternalLinkCalibrations[calibrationIndex];
+		CalibrationParameterSet parameterSet = calibration->getParameterSet();
+		if (parameterSet(DHParameterCalibration::PARAMETER_A).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_A) = 0.3 / 100.0;
+		if (parameterSet(DHParameterCalibration::PARAMETER_B).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_B) = -0.2 / 100.0;
+		if (parameterSet(DHParameterCalibration::PARAMETER_D).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_D) = -0.1 / 100.0;
+		if (parameterSet(DHParameterCalibration::PARAMETER_ALPHA).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_ALPHA) = -0.6 * rw::math::Deg2Rad;
+		if (parameterSet(DHParameterCalibration::PARAMETER_BETA).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_BETA) = 0.5 * rw::math::Deg2Rad;
+		if (parameterSet(DHParameterCalibration::PARAMETER_THETA).isEnabled())
+			parameterSet(DHParameterCalibration::PARAMETER_THETA) = 0.4 * rw::math::Deg2Rad;
+		calibration->setParameterSet(parameterSet);
 	}
 
 	artificialCalibration->apply();
@@ -92,7 +95,7 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 	}
 
 	const int iterationCount = calibrator->getSolver()->getIterationLogs().back().getIterationNumber();
-	BOOST_CHECK_EQUAL(iterationCount, 6);
+	BOOST_CHECK_EQUAL(iterationCount, 5);
 
 	// Verify that the calibration match the artificial calibration.
 	{
@@ -114,11 +117,11 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 	std::vector<DHParameterCalibration::Ptr> internalLinkCalibrations =
 		calibration->getInternalLinkCalibration()->getCalibrations();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < internalLinkCalibrations.size(); calibrationIndex++) {
-		for (int parameterIndex = 0; parameterIndex < artificialInternalLinkCalibrations[calibrationIndex]->getParameterCount(); parameterIndex++) {
-			if (artificialInternalLinkCalibrations[calibrationIndex]->isParameterEnabled(parameterIndex)) {
-				double artificialInternalLinkParameterValue = artificialInternalLinkCalibrations[calibrationIndex]->getParameterValue(parameterIndex);
-				double internalLinkParameterValue = internalLinkCalibrations[calibrationIndex]->getParameterValue(parameterIndex);
-				double internalLinkParameterError = internalLinkParameterValue - artificialInternalLinkParameterValue;
+		const CalibrationParameterSet artificialParameterSet = artificialInternalLinkCalibrations[calibrationIndex]->getParameterSet();
+		const CalibrationParameterSet parameterSet = internalLinkCalibrations[calibrationIndex]->getParameterSet();
+		for (int parameterIndex = 0; parameterIndex < artificialParameterSet.getCount(); parameterIndex++) {
+			if (artificialParameterSet(parameterIndex).isEnabled()) {
+				double internalLinkParameterError = parameterSet(parameterIndex) - artificialParameterSet(parameterIndex);
 				BOOST_CHECK_SMALL(internalLinkParameterError, 10e-5);
 			}
 		}

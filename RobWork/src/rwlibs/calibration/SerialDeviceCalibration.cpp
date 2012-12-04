@@ -31,10 +31,12 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr d
 			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(joint));
 			_internalLinkCalibration->addCalibration(calibration);
 
-			// Lock d and theta for first link.
+			// Disable d and theta for first link.
 			if (jointIterator == ++(joints.begin())) {
-				calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_D, false);
-				calibration->setParameterEnabled(DHParameterCalibration::PARAMETER_THETA, false);
+				CalibrationParameterSet parameterSet = calibration->getParameterSet();
+				parameterSet(DHParameterCalibration::PARAMETER_D).setEnabled(false);
+				parameterSet(DHParameterCalibration::PARAMETER_THETA).setEnabled(false);
+				calibration->setParameterSet(parameterSet);
 			}
 		}
 	}

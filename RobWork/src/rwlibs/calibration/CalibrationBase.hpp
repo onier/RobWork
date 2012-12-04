@@ -33,17 +33,9 @@ public:
 
 	virtual void setEnabled(bool isEnabled);
 
-	virtual double getParameterValue(int parameterIndex) const;
+	virtual CalibrationParameterSet getParameterSet() const;
 
-	virtual void setParameterValue(int parameterIndex, double value);
-	
-	virtual int getParameterCount() const;
-	
-	virtual int getEnabledParameterCount() const;
-	
-	virtual bool isParameterEnabled(int parameterIndex) const;
-	
-	virtual void setParameterEnabled(int parameterIndex, bool isEnabled);
+	virtual void setParameterSet(const CalibrationParameterSet& parameterSet);
 
 	/**
 	 * @copydoc Calibration::isApplied()
@@ -64,7 +56,7 @@ protected:
 	/**
 	 * @brief Constructor.
 	 */
-	CalibrationBase(int parameterCount);
+	CalibrationBase(const CalibrationParameterSet& parameterSet);
 
 	/**
 	 * @brief Subclass implementation of apply().
@@ -77,9 +69,8 @@ protected:
 	virtual void doRevert() = 0;
 
 private:
-	Eigen::VectorXd _parameters;
+	CalibrationParameterSet _parameterSet;
 	bool _isEnabled;
-	Eigen::VectorXi _enabledParameters;
 	bool _isApplied;
 };
 

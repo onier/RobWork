@@ -15,7 +15,10 @@ namespace rwlibs {
 		}
 
 		int JacobianBase::getColumnCount() const {
-			return _calibration->getEnabledParameterCount();
+			if (!_calibration->isEnabled())
+				return 0;
+			
+			return _calibration->getParameterSet().getEnabledCount();
 		}
 
 		Eigen::MatrixXd JacobianBase::computeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
@@ -24,18 +27,18 @@ namespace rwlibs {
 				RW_ASSERT(!targetFrame.isNull());
 				RW_ASSERT(getColumnCount() != 0);
 				RW_ASSERT(_calibration->isApplied());
-
 				return doComputeJacobian(referenceFrame, targetFrame, state);
 		}
 
 		void JacobianBase::takeStep(const Eigen::VectorXd& step) {
 			RW_ASSERT(step.rows() == getColumnCount());
-
-			const int parameterCount = _calibration->getParameterCount();
+			
+			const CalibrationParameterSet parameterSet = _calibration->getParameterSet();
+			const int parameterCount = parameterSet.getCount();
 			Eigen::VectorXd fullStep = Eigen::VectorXd(parameterCount);
 			int parameterIndex, stepIndex;
 			for (parameterIndex = 0, stepIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
-				if (_calibration->isParameterEnabled(parameterIndex)) {
+				if (parameterSet(parameterIndex).isEnabled()) {
 					fullStep(parameterIndex) = step(stepIndex);
 					stepIndex++;
 				}
@@ -56,13 +59,14 @@ namespace rwlibs {
 		}
 
 		void JacobianBase::doTakeStep(const Eigen::VectorXd& step) {	
-			const int parameterCount = _calibration->getParameterCount();
+			CalibrationParameterSet parameterSet = _calibration->getParameterSet();
+			const int parameterCount = parameterSet.getCount();
 			for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
-				if (_calibration->isParameterEnabled(parameterIndex)) {
-					double updatedParameterValue = _calibration->getParameterValue(parameterIndex) + step(parameterIndex);
-					_calibration->setParameterValue(parameterIndex, updatedParameterValue);
+				if (parameterSet(parameterIndex).isEnabled()) {
+					parameterSet(parameterIndex) += step(parameterIndex);
 				}
 			}
+			_calibration->setParameterSet(parameterSet);
 		}
 
 	}

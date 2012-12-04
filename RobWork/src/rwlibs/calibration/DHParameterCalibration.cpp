@@ -9,12 +9,23 @@
 
 namespace rwlibs {
 	namespace calibration {
+		int DHParameterCalibration::PARAMETER_A = 0;
+		int DHParameterCalibration::PARAMETER_B = 1;
+		int DHParameterCalibration::PARAMETER_D = 2;
+		int DHParameterCalibration::PARAMETER_ALPHA = 3;
+		int DHParameterCalibration::PARAMETER_BETA = 4;
+		int DHParameterCalibration::PARAMETER_THETA = 5;
 
-		DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) : CalibrationBase(6), _joint(joint), _originalSet(*rw::models::DHParameterSet::get(joint.get())), _isParallel(_originalSet.isParallel()) {
+		DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) : CalibrationBase(CalibrationParameterSet(6)), _joint(joint), _originalSet(*rw::models::DHParameterSet::get(joint.get())), _isParallel(_originalSet.isParallel()) {
+			CalibrationParameterSet parameterSet = getParameterSet();
 			if (_isParallel) {
-				setParameterEnabled(PARAMETER_D, false), setParameterEnabled(PARAMETER_THETA, false);
+				parameterSet(PARAMETER_D).setEnabled(false);
+				parameterSet(PARAMETER_THETA).setEnabled(false);
+				setParameterSet(parameterSet);
 			} else {
-				setParameterEnabled(PARAMETER_B, false), setParameterEnabled(PARAMETER_BETA, false);
+				parameterSet(PARAMETER_B).setEnabled(false);
+				parameterSet(PARAMETER_BETA).setEnabled(false);
+				setParameterSet(parameterSet);
 			
 				// Warn if b/beta representation is not used for close to parallel joints.
 				const double alphaParallelThreshold = 10 * rw::math::Deg2Rad;
@@ -32,18 +43,19 @@ namespace rwlibs {
 		}
 
 		void DHParameterCalibration::doApply() {
+			CalibrationParameterSet parameterSet = getParameterSet();
 			_originalSet = *rw::models::DHParameterSet::get(_joint.get());
-			const double a = isParameterEnabled(PARAMETER_A) ? (_originalSet.a() + getParameterValue(PARAMETER_A)) : _originalSet.a();
-			const double alpha = isParameterEnabled(PARAMETER_ALPHA) ? (_originalSet.alpha() + getParameterValue(PARAMETER_ALPHA)) : _originalSet.alpha();
+			const double a = parameterSet(PARAMETER_A).isEnabled() ? (_originalSet.a() + parameterSet(PARAMETER_A)) : _originalSet.a();
+			const double alpha = parameterSet(PARAMETER_ALPHA).isEnabled() ? (_originalSet.alpha() + parameterSet(PARAMETER_ALPHA)) : _originalSet.alpha();
 			if (_originalSet.isParallel()) {
-				const double b = isParameterEnabled(PARAMETER_B) ? (_originalSet.b() + getParameterValue(PARAMETER_B)) : _originalSet.b();
-				const double beta = isParameterEnabled(PARAMETER_BETA) ? (_originalSet.beta() + getParameterValue(PARAMETER_BETA)) : _originalSet.beta();
+				const double b = parameterSet(PARAMETER_B).isEnabled() ? (_originalSet.b() + parameterSet(PARAMETER_B)) : _originalSet.b();
+				const double beta = parameterSet(PARAMETER_BETA).isEnabled() ? (_originalSet.beta() + parameterSet(PARAMETER_BETA)) : _originalSet.beta();
 				const rw::models::DHParameterSet correctedSet(alpha, a, beta, b, true);
 				rw::models::DHParameterSet::set(correctedSet, _joint.get());
 				_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
 			} else {
-				const double d = isParameterEnabled(PARAMETER_D) ? (_originalSet.d() + getParameterValue(PARAMETER_D)) : _originalSet.d();
-				const double theta = isParameterEnabled(PARAMETER_THETA) ? (_originalSet.theta() + getParameterValue(PARAMETER_THETA)) : _originalSet.theta();
+				const double d = parameterSet(PARAMETER_D).isEnabled() ? (_originalSet.d() + parameterSet(PARAMETER_D)) : _originalSet.d();
+				const double theta = parameterSet(PARAMETER_THETA).isEnabled() ? (_originalSet.theta() + parameterSet(PARAMETER_THETA)) : _originalSet.theta();
 				const rw::models::DHParameterSet correctedSet(alpha, a, d, theta, _originalSet.getType());
 				rw::models::DHParameterSet::set(correctedSet, _joint.get());
 				_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));

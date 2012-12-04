@@ -17,14 +17,7 @@ namespace calibration {
 
 class FixedFrameCalibration: public CalibrationBase {
 public:
-	enum PARAMETER {
-		PARAMETER_X = 0,
-		PARAMETER_Y = 1,
-		PARAMETER_Z = 2,
-		PARAMETER_ROLL = 3,
-		PARAMETER_PITCH = 4,
-		PARAMETER_YAW = 5
-	};
+	static int PARAMETER_X, PARAMETER_Y, PARAMETER_Z, PARAMETER_ROLL, PARAMETER_PITCH, PARAMETER_YAW;
 
 	typedef rw::common::Ptr<FixedFrameCalibration> Ptr;
 

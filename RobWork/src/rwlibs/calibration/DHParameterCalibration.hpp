@@ -17,14 +17,7 @@ namespace calibration {
 
 class DHParameterCalibration: public CalibrationBase {
 public:
-	enum PARAMETER {
-		PARAMETER_A,
-		PARAMETER_B,
-		PARAMETER_D,
-		PARAMETER_ALPHA,
-		PARAMETER_BETA,
-		PARAMETER_THETA
-	};
+	static int PARAMETER_A, PARAMETER_B, PARAMETER_D, PARAMETER_ALPHA, PARAMETER_BETA, PARAMETER_THETA;
 
 	typedef rw::common::Ptr<DHParameterCalibration> Ptr;
 

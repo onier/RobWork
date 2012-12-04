@@ -37,7 +37,7 @@ QDomElement ElementCreator::createElement<FixedFrameCalibration::Ptr>(FixedFrame
 	QDomElement elmTransform = _document->createElement("Transform");
 
 	QString baseTransformTxt;
-	Eigen::Affine3d correction = calibration->getCorrectionTransform();
+	rw::math::Transform3D<> correction = calibration->getCorrectionTransform();
 	for (int rowIndex = 0; rowIndex < 3; rowIndex++)
 		for (int colIndex = 0; colIndex < 4; colIndex++)
 			baseTransformTxt.append(QString(" %1").arg(correction(rowIndex, colIndex), 0, 'g', 16));
@@ -53,18 +53,19 @@ QDomElement ElementCreator::createElement<DHParameterCalibration::Ptr>(DHParamet
 
 	element.setAttribute("joint", QString::fromStdString(calibration->getJoint()->getName()));
 
-	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_A))
-		element.setAttribute("a", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_A), 0, 'g', 16));
-	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_B))
-		element.setAttribute("b", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_B), 0, 'g', 16));
-	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_D))
-		element.setAttribute("d", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_D), 0, 'g', 16));
-	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_ALPHA))
-		element.setAttribute("alpha", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_ALPHA), 0, 'g', 16));
-	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_BETA))
-		element.setAttribute("beta", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_BETA), 0, 'g', 16));
-	if (calibration->isParameterEnabled(DHParameterCalibration::PARAMETER_THETA))
-		element.setAttribute("theta", QString("%1").arg(calibration->getParameterValue(DHParameterCalibration::PARAMETER_THETA), 0, 'g', 16));
+	const CalibrationParameterSet parameterSet = calibration->getParameterSet();
+	if (parameterSet(DHParameterCalibration::PARAMETER_A).isEnabled())
+		element.setAttribute("a", QString("%1").arg(parameterSet(DHParameterCalibration::PARAMETER_A), 0, 'g', 16));
+	if (parameterSet(DHParameterCalibration::PARAMETER_B).isEnabled())
+		element.setAttribute("b", QString("%1").arg(parameterSet(DHParameterCalibration::PARAMETER_B), 0, 'g', 16));
+	if (parameterSet(DHParameterCalibration::PARAMETER_D).isEnabled())
+		element.setAttribute("d", QString("%1").arg(parameterSet(DHParameterCalibration::PARAMETER_D), 0, 'g', 16));
+	if (parameterSet(DHParameterCalibration::PARAMETER_ALPHA).isEnabled())
+		element.setAttribute("alpha", QString("%1").arg(parameterSet(DHParameterCalibration::PARAMETER_ALPHA), 0, 'g', 16));
+	if (parameterSet(DHParameterCalibration::PARAMETER_BETA).isEnabled())
+		element.setAttribute("beta", QString("%1").arg(parameterSet(DHParameterCalibration::PARAMETER_BETA), 0, 'g', 16));
+	if (parameterSet(DHParameterCalibration::PARAMETER_THETA).isEnabled())
+		element.setAttribute("theta", QString("%1").arg(parameterSet(DHParameterCalibration::PARAMETER_THETA), 0, 'g', 16));
 
 	return element;
 }

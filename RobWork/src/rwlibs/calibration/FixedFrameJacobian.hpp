@@ -9,7 +9,7 @@
 #define RWLIBS_CALIBRATION_FIXEDFRAMEJACOBIAN_HPP_
 
 #include <rw/math.hpp>
-#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/eigen/EigenTransformPlugin.hpp"
+#define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformPlugin.hpp"
 
 #include "JacobianBase.hpp"
 #include "FixedFrameCalibration.hpp"
@@ -35,6 +35,8 @@ protected:
 
 private:
 	FixedFrameCalibration::Ptr _calibration;
+	rw::kinematics::FixedFrame::Ptr _fixedFrame;
+	bool _isPostCorrection;
 };
 
 }
