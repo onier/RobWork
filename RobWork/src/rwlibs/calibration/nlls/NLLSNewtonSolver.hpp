@@ -30,6 +30,8 @@ public:
 
 	virtual const std::vector<NLLSIterationLog>& getIterationLogs() const;
 
+	virtual const int getIterationCount() const;
+
 	virtual NLLSIterationLog iterate();
 
 	virtual void solve();

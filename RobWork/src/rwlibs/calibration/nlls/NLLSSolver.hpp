@@ -21,6 +21,8 @@ public:
 
 	virtual const std::vector<NLLSIterationLog>& getIterationLogs() const = 0;
 
+	virtual const int getIterationCount() const = 0;
+
 	virtual NLLSIterationLog iterate() = 0;
 
 	virtual void solve() = 0;

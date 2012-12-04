@@ -42,9 +42,28 @@ namespace rwlibs {
 			return _joint;
 		}
 
+		//rw::math::Transform3D<> DHParameterCalibration::getCorrectionTransform() const {
+		//	rw::math::Transform3D<> original, corrected;
+		//	CalibrationParameterSet parameterSet = getParameterSet();
+		//	const double a = parameterSet(PARAMETER_A).isEnabled() ? (_originalSet.a() + parameterSet(PARAMETER_A)) : _originalSet.a();
+		//	const double alpha = parameterSet(PARAMETER_ALPHA).isEnabled() ? (_originalSet.alpha() + parameterSet(PARAMETER_ALPHA)) : _originalSet.alpha();
+		//	if (_originalSet.isParallel()) {
+		//		const double b = parameterSet(PARAMETER_B).isEnabled() ? (_originalSet.b() + parameterSet(PARAMETER_B)) : _originalSet.b();
+		//		const double beta = parameterSet(PARAMETER_BETA).isEnabled() ? (_originalSet.beta() + parameterSet(PARAMETER_BETA)) : _originalSet.beta();
+		//		const rw::models::DHParameterSet correctedSet(alpha, a, beta, b, true);
+		//		rw::models::DHParameterSet::set(correctedSet, _joint.get());
+		//		_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
+		//	} else {
+		//		const double d = parameterSet(PARAMETER_D).isEnabled() ? (_originalSet.d() + parameterSet(PARAMETER_D)) : _originalSet.d();
+		//		const double theta = parameterSet(PARAMETER_THETA).isEnabled() ? (_originalSet.theta() + parameterSet(PARAMETER_THETA)) : _originalSet.theta();
+		//		const rw::models::DHParameterSet correctedSet(alpha, a, d, theta, _originalSet.getType());
+		//		rw::models::DHParameterSet::set(correctedSet, _joint.get());
+		//		_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
+		//	}
+		//}
+
 		void DHParameterCalibration::doApply() {
 			CalibrationParameterSet parameterSet = getParameterSet();
-			_originalSet = *rw::models::DHParameterSet::get(_joint.get());
 			const double a = parameterSet(PARAMETER_A).isEnabled() ? (_originalSet.a() + parameterSet(PARAMETER_A)) : _originalSet.a();
 			const double alpha = parameterSet(PARAMETER_ALPHA).isEnabled() ? (_originalSet.alpha() + parameterSet(PARAMETER_ALPHA)) : _originalSet.alpha();
 			if (_originalSet.isParallel()) {
@@ -52,25 +71,29 @@ namespace rwlibs {
 				const double beta = parameterSet(PARAMETER_BETA).isEnabled() ? (_originalSet.beta() + parameterSet(PARAMETER_BETA)) : _originalSet.beta();
 				const rw::models::DHParameterSet correctedSet(alpha, a, beta, b, true);
 				rw::models::DHParameterSet::set(correctedSet, _joint.get());
-				_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(alpha, a, beta, b));
+				const rw::math::Transform3D<> correctedTransform = computeTransform(correctedSet);
+				_joint->setFixedTransform(correctedTransform);
 			} else {
 				const double d = parameterSet(PARAMETER_D).isEnabled() ? (_originalSet.d() + parameterSet(PARAMETER_D)) : _originalSet.d();
 				const double theta = parameterSet(PARAMETER_THETA).isEnabled() ? (_originalSet.theta() + parameterSet(PARAMETER_THETA)) : _originalSet.theta();
 				const rw::models::DHParameterSet correctedSet(alpha, a, d, theta, _originalSet.getType());
 				rw::models::DHParameterSet::set(correctedSet, _joint.get());
-				_joint->setFixedTransform(rw::math::Transform3D<double>::DH(alpha, a, d, theta));
+				const rw::math::Transform3D<> correctedTransform = computeTransform(correctedSet);
+				_joint->setFixedTransform(correctedTransform);
 			}
 		}
 
 		void DHParameterCalibration::doRevert() {
-			if (_originalSet.isParallel()) {
-				rw::models::DHParameterSet::set(_originalSet, _joint.get());
-				_joint->setFixedTransform(rw::math::Transform3D<double>::DHHGP(_originalSet.alpha(), _originalSet.a(), _originalSet.beta(), _originalSet.b()));
-			} else {
-				rw::models::DHParameterSet::set(_originalSet, _joint.get());
-				_joint->setFixedTransform(rw::math::Transform3D<double>::DH(_originalSet.alpha(), _originalSet.a(), _originalSet.d(), _originalSet.theta()));
-			}
+			rw::models::DHParameterSet::set(_originalSet, _joint.get());
+			const rw::math::Transform3D<> correctedTransform = computeTransform(_originalSet);
+			_joint->setFixedTransform(correctedTransform);
 		}
 
+		rw::math::Transform3D<> DHParameterCalibration::computeTransform(const rw::models::DHParameterSet& dhParameterSet) {
+			if (dhParameterSet.isParallel())
+				return rw::math::Transform3D<double>::DHHGP(dhParameterSet.alpha(), dhParameterSet.a(), dhParameterSet.beta(), dhParameterSet.b());
+			else
+				return rw::math::Transform3D<double>::DH(dhParameterSet.alpha(), dhParameterSet.a(), dhParameterSet.d(), dhParameterSet.theta());
+		}
 	}
 }

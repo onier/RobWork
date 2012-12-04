@@ -27,10 +27,16 @@ public:
 
 	rw::models::Joint::Ptr getJoint() const;
 
+	//rw::math::Transform3D<> getCorrectionTransform() const;
+
 private:
 	virtual void doApply();
 
 	virtual void doRevert();
+
+	//static rw::math::Transform3D<> computeCorrectedTransform(const rw::models::DHParameterSet& dhParameterSet);
+
+	static rw::math::Transform3D<> computeTransform(const rw::models::DHParameterSet& dhParameterSet);
 
 private:
 	rw::models::Joint::Ptr _joint;

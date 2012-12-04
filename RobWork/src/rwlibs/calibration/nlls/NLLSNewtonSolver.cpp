@@ -34,6 +34,10 @@ const std::vector<NLLSIterationLog>& NLLSNewtonSolver::getIterationLogs() const 
 	return _iterationLogs;
 }
 
+const int NLLSNewtonSolver::getIterationCount() const {
+	return _iterationLogs.size();
+}
+
 NLLSIterationLog NLLSNewtonSolver::iterate() {
 	RW_ASSERT(!_system.isNull());
 
@@ -42,24 +46,24 @@ NLLSIterationLog NLLSNewtonSolver::iterate() {
 
 	// Compute SVD of Jacobian.
 	_jacobianSvd = _jacobian.jacobiSvd(Eigen::ComputeThinU | Eigen::ComputeThinV);
-	const Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
-	const double conditionNumber = singularValues(0) / singularValues(singularValues.rows() - 1);
-	const bool isSingular = (singularValues.rows() != _jacobianSvd.nonzeroSingularValues());
 
 	// Compute residuals
 	_system->computeResiduals(_residuals);
-	const double residualNorm = _residuals.norm();
 
 	// Compute step (solve Jacobian * step = residuals).
 	_step = _jacobianSvd.solve(-_residuals);
-	const double stepNorm = _step.norm();
-	const bool isConverged = _step.norm() <= stepConvergenceTolerance;
 
 	// Apply step.
 	_system->takeStep(_step);
 	
 	// Log iteration.	
 	const int iterationNumber = _iterationLogs.size() + 1;
+	const Eigen::VectorXd singularValues = _jacobianSvd.singularValues();
+	const double conditionNumber = singularValues(0) / singularValues(singularValues.rows() - 1);
+	const bool isSingular = (singularValues.rows() != _jacobianSvd.nonzeroSingularValues());
+	const double residualNorm = _residuals.norm();
+	const double stepNorm = _step.norm();
+	const bool isConverged = _step.norm() <= stepConvergenceTolerance;
 	NLLSIterationLog iterationLog(iterationNumber, conditionNumber, isSingular, residualNorm, stepNorm, isConverged);
 	_iterationLogs.push_back(iterationLog);
 
@@ -78,10 +82,10 @@ void NLLSNewtonSolver::solve() {
 	while (true) {
 		NLLSIterationLog iterationLog = iterate();
 
-		std::cout << "Step: " << _step.transpose() << std::endl;
-		std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
-			<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
-			<< iterationLog.getStepNorm() << "." << std::endl;
+		//std::cout << "Step: " << _step.transpose() << std::endl;
+		//std::cout << "Iteration " << iterationLog.getIterationNumber() << " completed. Singular: " << (iterationLog.isSingular() ? "Yes" : "No")
+		//	<< ". Condition: " << iterationLog.getConditionNumber() << ". ||Residuals||: " << iterationLog.getResidualNorm() << ". ||Step||: "
+		//	<< iterationLog.getStepNorm() << "." << std::endl;
 
 		// Stop iterating if converged.
 		if (iterationLog.isConverged())
