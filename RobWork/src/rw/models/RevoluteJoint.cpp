@@ -160,13 +160,16 @@ Transform3D<> RevoluteJoint::doGetTransform(const State& state) const
 
 
 void RevoluteJoint::getJacobian(size_t row, size_t col, const Transform3D<>& joint, const Transform3D<>& tcp, const State& state, Jacobian& jacobian) const {
-    const Vector3D<> axis = joint.R().getCol(2);
-    const Vector3D<> p = cross(axis, tcp.P() - joint.P());
+    double q = getData(state)[0];
+	_impl->getJacobian(row, col, joint, tcp, q, jacobian);
+	//const Vector3D<> axis = joint.R().getCol(2);
+	//if (_impl->getJacobianScale() != 1) {
+	//	axis *= _impl->getJacobianScale();
+	//}
+	//const Vector3D<> p = cross(axis, tcp.P() - joint.P());
 
-    jacobian.addPosition(p, row, col);
-    jacobian.addRotation(axis,row, col);
-
-
+ //   jacobian.addPosition(p, row, col);
+ //   jacobian.addRotation(axis,row, col);
 }
 
 rw::math::Transform3D<> RevoluteJoint::getFixedTransform() const{
@@ -234,11 +237,25 @@ rw::math::Transform3D<> RevoluteJoint::getJointTransform(const rw::kinematics::S
 }
 
 
+void RevoluteJoint::RevoluteJointImpl::getJacobian(size_t row,
+  												   size_t col,
+												   const Transform3D<>& joint,
+												   const Transform3D<>& tcp,
+												   double q,
+												   Jacobian& jacobian) const 
+{
+	const Vector3D<> axis = joint.R().getCol(2);
+	const Vector3D<> p = cross(axis, tcp.P() - joint.P());
+
+    jacobian.addPosition(p, row, col);
+    jacobian.addRotation(axis,row, col);
+}
 
 
 RevoluteJoint::RevoluteJointBasic::RevoluteJointBasic(const rw::math::Transform3D<>& transform) :
     _transform(transform)
-{ }
+{ 
+	}
 
 void RevoluteJoint::RevoluteJointBasic::multiplyTransform(const rw::math::Transform3D<>& parent,
                        double q,
@@ -507,4 +524,20 @@ rw::math::Transform3D<> RevoluteJoint::RevoluteJointWithQMapping::getTransform(d
 
 rw::math::Transform3D<> RevoluteJoint::RevoluteJointWithQMapping::getFixedTransform() const {
 	return _impl->getFixedTransform();
+}
+
+void RevoluteJoint::RevoluteJointWithQMapping::getJacobian(size_t row,
+										size_t col,
+										const Transform3D<>& joint,
+										const Transform3D<>& tcp,
+										double q,
+										Jacobian& jacobian) const 
+{	
+	Vector3D<> axis = joint.R().getCol(2);
+	//The axis is scaled with the first order derivative of the mapping to account for the mapping.
+	axis *= _mapping->dx(q);
+	const Vector3D<> p = cross(axis, tcp.P() - joint.P());
+
+    jacobian.addPosition(p, row, col);
+    jacobian.addRotation(axis,row, col);	
 }

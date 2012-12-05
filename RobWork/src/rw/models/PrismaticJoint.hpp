@@ -160,6 +160,14 @@ namespace rw { namespace models {
             virtual rw::math::Transform3D<> getTransform(double q)  = 0;
 
             virtual rw::math::Transform3D<> getFixedTransform() const = 0;
+
+			virtual void getJacobian(size_t row,
+									 size_t col,
+									 const math::Transform3D<>& joint,
+									 const math::Transform3D<>& tcp,
+									 double q,
+									 math::Jacobian& jacobian) const;
+
         };
 
 
@@ -294,6 +302,14 @@ namespace rw { namespace models {
 
 				rw::math::Transform3D<> getTransform(double q);
 				rw::math::Transform3D<> getFixedTransform() const;
+
+				virtual void getJacobian(size_t row,
+										 size_t col,
+										 const math::Transform3D<>& joint,
+										 const math::Transform3D<>& tcp,
+										 double q,
+										 math::Jacobian& jacobian) const;
+
 			private:
 				PrismaticJointImpl* _impl;
 				rw::math::Function1Diff<>::Ptr _mapping;
