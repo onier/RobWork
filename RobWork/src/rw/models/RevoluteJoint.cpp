@@ -21,6 +21,7 @@
 #include <rw/math/EAA.hpp>
 #include <rw/kinematics/State.hpp>
 
+using namespace rw::common;
 using namespace rw::models;
 using namespace rw::kinematics;
 using namespace rw::math;
@@ -181,6 +182,22 @@ void RevoluteJoint::setFixedTransform( const rw::math::Transform3D<>& t3d) {
     else
         _impl = new RevoluteJointBasic(t3d);
     delete tmp;
+}
+
+void RevoluteJoint::setJointMapping(rw::math::Function1Diff<>::Ptr function) {
+	RevoluteJointImpl *tmp = _impl;
+	_impl = new RevoluteJointWithQMapping(tmp->getFixedTransform(), function);
+	delete tmp;
+}
+
+void RevoluteJoint::removeJointMapping() {
+    RevoluteJointImpl *tmp = _impl;
+	Transform3D<> t3d = _impl->getFixedTransform();
+    if (t3d.P() == Vector3D<>(0, 0, 0))
+        _impl = new RevoluteJointZeroOffsetImpl(t3d.R());
+    else
+        _impl = new RevoluteJointBasic(t3d);
+    delete tmp;	
 }
 
 rw::math::Transform3D<> RevoluteJoint::getTransform(double q) const{
@@ -458,4 +475,36 @@ rw::math::Transform3D<> RevoluteJoint::RevoluteJointZeroOffsetImpl::getTransform
 
 rw::math::Transform3D<> RevoluteJoint::RevoluteJointZeroOffsetImpl::getFixedTransform() const {
     return _transform;
+}
+
+
+RevoluteJoint::RevoluteJointWithQMapping::RevoluteJointWithQMapping(const Transform3D<>& t3d, Function1Diff<>::Ptr mapping):	
+	_mapping(mapping)
+{
+    if (t3d.P() == Vector3D<>(0, 0, 0))
+        _impl = new RevoluteJointZeroOffsetImpl(t3d.R());
+    else
+        _impl = new RevoluteJointBasic(t3d);
+}
+
+RevoluteJoint::RevoluteJointWithQMapping::~RevoluteJointWithQMapping() {
+	delete _impl;
+}
+
+void RevoluteJoint::RevoluteJointWithQMapping::multiplyTransform(
+	const rw::math::Transform3D<>& parent,
+	double q,
+	rw::math::Transform3D<>& result) const 
+{
+	double qnew = _mapping->x(q);
+	_impl->multiplyTransform(parent, q, result);
+}
+
+rw::math::Transform3D<> RevoluteJoint::RevoluteJointWithQMapping::getTransform(double q) {
+	double qnew = _mapping->x(q);
+	return _impl->getTransform(qnew);
+}
+
+rw::math::Transform3D<> RevoluteJoint::RevoluteJointWithQMapping::getFixedTransform() const {
+	return _impl->getFixedTransform();
 }

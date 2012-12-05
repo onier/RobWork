@@ -102,6 +102,20 @@ void PrismaticJoint::setFixedTransform( const rw::math::Transform3D<>& t3d) {
     delete tmp;
 }
 
+//! @copydoc Joint::setJointMapping()
+void PrismaticJoint::setJointMapping(rw::math::Function1Diff<>::Ptr function) {
+	PrismaticJointImpl *tmp = _impl;
+	_impl = new PrismaticJointWithQMapping(tmp->getFixedTransform(), function);
+	delete tmp;
+}
+
+//! @copydoc Joint::removeJointMapping()
+void PrismaticJoint::removeJointMapping() {
+	Transform3D<> t3d = _impl->getFixedTransform();
+	setFixedTransform(t3d);
+}
+
+
 rw::math::Transform3D<> PrismaticJoint::getTransform(double q) const{
     return _impl->getTransform( q );
 }
@@ -116,3 +130,38 @@ rw::math::Transform3D<> PrismaticJoint::getJointTransform(const rw::kinematics::
     return getJointTransform(q);
 }
 
+
+
+PrismaticJoint::PrismaticJointWithQMapping::PrismaticJointWithQMapping(const Transform3D<>& t3d, const Function1Diff<>::Ptr mapping):	
+	_mapping(mapping)
+{
+    const Rotation3D<>& rot = t3d.R();
+    if (rot == Rotation3D<>::identity())
+        _impl = new PrismaticJointZeroRotationImpl(t3d.P());
+    else if (t3d.P() == Vector3D<>(0, 0, 0))
+        _impl = new PrismaticJointZeroOffsetImpl(t3d.R());
+    else
+        _impl = new PrismaticJointImplBasic(t3d);
+}
+
+PrismaticJoint::PrismaticJointWithQMapping::~PrismaticJointWithQMapping() {
+	delete _impl;
+}
+
+void PrismaticJoint::PrismaticJointWithQMapping::multiplyTransform(
+	const rw::math::Transform3D<>& parent,
+	double q,
+	rw::math::Transform3D<>& result) const 
+{
+	double qnew = _mapping->x(q);
+	_impl->multiplyTransform(parent, q, result);
+}
+
+rw::math::Transform3D<> PrismaticJoint::PrismaticJointWithQMapping::getTransform(double q) {
+	double qnew = _mapping->x(q);
+	return _impl->getTransform(qnew);
+}
+
+rw::math::Transform3D<> PrismaticJoint::PrismaticJointWithQMapping::getFixedTransform() const {
+	return _impl->getFixedTransform();
+}
