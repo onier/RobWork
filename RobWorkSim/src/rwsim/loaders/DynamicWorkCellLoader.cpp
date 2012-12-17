@@ -25,7 +25,7 @@
 #include <boost/property_tree/xml_parser.hpp>
 #include <boost/optional.hpp>
 #include <boost/foreach.hpp>
-
+#include <boost/lexical_cast.hpp>
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Vector3D.hpp>
@@ -292,6 +292,19 @@ namespace
         return values;
     }
 
+    rw::math::Q getValueAsQ(const std::string& strlist ){
+        std::istringstream buf(strlist);
+        std::vector<double> values;
+        std::string str;
+        while( buf >> str ){
+        	double val = boost::lexical_cast<double>(str);
+            values.push_back(val);
+        }
+
+        return rw::math::Q(values.size(), &values[0]);
+    }
+
+
     Q readQ(PTree& tree){
         //Log::debugLog()<< "ReadQ" << std::endl;
         std::vector<double> arr = readArray(tree);
@@ -393,6 +406,9 @@ namespace
                 } else if( type=="float" ){
                     double value = p->second.get_value<double>();
                     map.add<double>(name, "", value);
+        		} else if( type=="Q" ){
+        			rw::math::Q value = getValueAsQ(p->second.get_value<std::string>());
+        			map.add<rw::math::Q>(name, "", value);
                 } else {
                     RW_THROW("DynamicWorkCellLoader: Unknown engine property type: " << StringUtil::quote(type) );
                 }
@@ -564,6 +580,9 @@ namespace
         //std::vector<Geometry::Ptr> geoms = loadGeometrySingle(*refframe, state.rwstate);
         FixedBody::Ptr body = ownedPtr( new FixedBody(info, bodyObj) );
 
+        readProperties(tree, bodyObj->getBase()->getPropertyMap());
+
+
         state.allbodies.push_back(body);
         return body;
     }
@@ -721,6 +740,8 @@ namespace
         BodyInfo info;
         info.mass = tree.get<double>("Mass");
         info.material = tree.get<string>("MaterialID");
+
+        readProperties(tree, obj->getBase()->getPropertyMap());
 
         info.objects.push_back(obj);
         // check if the body has multiple objects associated
@@ -1207,6 +1228,8 @@ namespace
         }
     }
 
+
+
     void readInclude(PTree& tree, PTree &parent, CI &iter, ParserState& state){
     	CI lastIter = iter;
     	--lastIter;
@@ -1258,6 +1281,10 @@ namespace
         		} else if( type=="float" ){
         			double value = p->second.get_value<double>();
         			state.engineProps.add<double>(name, "", value);
+        		} else if( type=="Q" ){
+        			rw::math::Q value = getValueAsQ(p->second.get_value<std::string>());
+
+        			state.engineProps.add<rw::math::Q>(name, "", value);
         		} else {
         			RW_THROW("DynamicWorkCellLoader: Unknown engine property type: " << StringUtil::quote(type) );
         		}

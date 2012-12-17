@@ -95,6 +95,10 @@ void PDController::setSampleTime(double stime){
 }
 
 void PDController::update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state) {
+	if(!_enabled){
+		return;
+	}
+
 	//_accTime+=dt;
 	//if(_accTime<_stime)
 	//	return;
