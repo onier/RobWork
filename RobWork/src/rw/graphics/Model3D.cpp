@@ -22,6 +22,11 @@
 #include <rw/geometry/IndexedTriMesh.hpp>
 #include <rw/geometry/TriangleUtil.hpp>
 #include <rw/geometry/Geometry.hpp>
+#include <rw/geometry/GeometryData.hpp>
+#include <rw/math/Transform3D.hpp>
+
+#include <boost/foreach.hpp>
+
 #include <list>
 #include <stack>
 
@@ -65,6 +70,44 @@ bool Model3D::hasMaterial(const std::string& matid){
             return true;
     }
     return false;
+}
+
+rw::geometry::GeometryData::Ptr Model3D::toGeometryData(){
+	rw::geometry::IndexedTriMeshN0F::Ptr mesh = rw::common::ownedPtr( new rw::geometry::IndexedTriMeshN0F() );
+
+	std::stack<std::pair<Object3D::Ptr,Transform3D<float> > > objects;
+	BOOST_FOREACH(Object3D::Ptr obj, _objects){
+		objects.push( std::make_pair(obj, Transform3D<float>::identity()) );
+	}
+
+	while(!objects.empty()){
+		Object3D::Ptr obj = objects.top().first;
+		Transform3D<float> t3d = objects.top().second * obj->_transform;
+		objects.pop();
+
+		BOOST_FOREACH(Object3D::Ptr child, obj->_kids){
+			objects.push( std::make_pair(child, t3d) );
+		}
+
+		size_t csize = mesh->getVertices().size();
+		size_t tsize = mesh->getTriangles().size();
+
+		size_t vsize = obj->_vertices.size();
+		size_t fsize = obj->_faces.size();
+		mesh->getVertices().resize( csize+vsize );
+		mesh->resize( tsize+fsize );
+		// copy all from obj to mesh
+		for(size_t i=0;i<vsize;i++){
+			mesh->getVertices()[csize+i] = obj->_transform * obj->_vertices[i];
+		}
+
+		for(size_t i=0;i<fsize;i++){
+			mesh->getTriangles()[tsize+i][0] = obj->_faces[i][0]+csize;
+			mesh->getTriangles()[tsize+i][1] = obj->_faces[i][1]+csize;
+			mesh->getTriangles()[tsize+i][2] = obj->_faces[i][2]+csize;
+		}
+	}
+	return mesh;
 }
 
 void Model3D::addTriMesh(const Material& mat, const TriMesh& mesh){

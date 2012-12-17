@@ -25,6 +25,15 @@ SET(FILES_CPP
   ProgramOptions.cpp
   ThreadSafeQueue.cpp
   ThreadSafeStack.cpp
+  
+  Archive.cpp
+  BoostXMLParser.cpp
+  DOMElem.cpp
+  DOMParser.cpp
+  InputArchive.cpp
+  OutputArchive.cpp
+  INIArchive.cpp
+  Serializable.cpp
 )
 
 SET(FILES_HPP
@@ -56,6 +65,14 @@ SET(FILES_HPP
   ThreadSafeQueue.hpp
   ThreadSafeStack.hpp
   
+  Archive.hpp
+  BoostXMLParser.hpp
+  DOMElem.hpp
+  DOMParser.hpp
+  InputArchive.hpp
+  OutputArchive.hpp
+  INIArchive.hpp
+  Serializable.hpp
 )
 
 FILE(GLOB SRC_FILES_CPP ${FILES_CPP})

@@ -109,7 +109,7 @@ Vector2D<> Line2DPolar::projectionPoint(const Line2DPolar& line, const Vector2D<
 }
 
 Line2DPolar Line2DPolar::lineToLocal(
-    const Pose2D& pose,
+    const Pose2D<>& pose,
     const Line2DPolar& line)
 {
     const double ami = line.getTheta();

@@ -21,6 +21,9 @@
 #include <rw/common/IOUtil.hpp>
 #include <rw/common/StringUtil.hpp>
 #include <rw/math/Transform3D.hpp>
+
+#include <rw/graphics/Model3DFactory.hpp>
+
 #include "STLFile.hpp"
 #include "Box.hpp"
 #include "Cylinder.hpp"
@@ -45,7 +48,7 @@ using namespace rw::math;
 namespace
 {
     const std::string extensionsArray[] = {
-        /*".TRI", ".AC", ".AC3D", ".3DS", ".IVG",*/ ".STL", ".STLA", ".STLB", ".PCD",
+        ".STL", ".STLA", ".STLB", ".PCD",".TRI", ".AC", ".AC3D", ".3DS", ".OBJ"
     };
 
     const int extensionCount = sizeof(extensionsArray) / sizeof(extensionsArray[0]);
@@ -148,7 +151,15 @@ Geometry::Ptr GeometryFactory::load(const std::string& raw_filename, bool useCac
 Geometry::Ptr GeometryFactory::getGeometry(const std::string& raw_filename, bool useCache){
 
     if( raw_filename[0] != '#' ){
-        const std::string& filename = IOUtil::resolveFileName(raw_filename, extensions);
+        std::string filename;
+        try{
+        	filename = IOUtil::resolveFileName(raw_filename, extensions);
+        } catch(...){
+        	// try loading a model instead, and create geometry from this
+
+        }
+
+
         std::string filetype = StringUtil::toUpper(StringUtil::getFileExtension(filename));
 
         // if the file does not exist then throw an exception
@@ -180,13 +191,21 @@ Geometry::Ptr GeometryFactory::getGeometry(const std::string& raw_filename, bool
             return ownedPtr(new Geometry(getCache().get(filename)));
 
 		} else {
-		    RW_THROW(
+			rw::graphics::Model3D::Ptr model = rw::graphics::Model3DFactory::loadModel(filename,"");
+
+			GeometryData::Ptr data = model->toGeometryData();
+			getCache().add(filename, data);
+			return ownedPtr(new Geometry(getCache().get(filename)));
+
+			/*
+			RW_THROW(
 				"Unknown extension "
 				<< StringUtil::quote(StringUtil::getFileExtension(filename))
 				<< " for file "
 				<< StringUtil::quote(raw_filename)
 				<< " that was resolved to file name "
 				<< filename);
+				*/
 		}
     }
 

@@ -131,8 +131,19 @@ namespace geometry {
 
 		const rw::math::Transform3D<float>& getDataTransform() const { return _sensorTransform; }
 
+		/**
+		 * @brief load point cloud from PCD file
+		 * @param filename [in] name of PCD file
+		 * @return a point cloud
+		 */
 		static rw::common::Ptr<PointCloud> loadPCD( const std::string& filename );
 
+		/**
+		 * @brief save point cloud in PCD file format (PCL library format)
+		 * @param cloud [in] the point cloud to save
+		 * @param filename [in] the name of the file to save to
+		 * @param t3d [in] the transformation of the point cloud
+		 */
         static void savePCD( const PointCloud& cloud,
                                                     const std::string& filename ,
                                                     const rw::math::Transform3D<float>& t3d =

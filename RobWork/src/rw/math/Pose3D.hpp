@@ -125,12 +125,12 @@ namespace rw { namespace math {
          *
          * @return the \f$i\f$'th index of the pose.
          */
-        T operator()(size_t i) const {
+        const T& operator()(size_t i) const {
             assert(i < 6);
             if (i < 3)
                 return _position(i);
             else
-                return _orientation.axis()(i-3)*_orientation.angle();
+                return _orientation(i-3);
         }
 
         /**
@@ -143,13 +143,37 @@ namespace rw { namespace math {
          *
          * @return the \f$i\f$'th index of the pose.
          */
-        T operator[](size_t i) const {
+        T& operator()(size_t i) {
             assert(i < 6);
             if (i < 3)
                 return _position(i);
             else
-                return _orientation.axis()(i-3)*_orientation.angle();
+                return _orientation(i-3);
         }
+
+        /**
+         * @brief Returns the \f$i\f$'th element in the pose.
+         *
+         * \f$i\in\{0,1,2\} \f$ corresponds to \f$\{x,y,z\}\f$ respectively.
+         * \f$i\in\{3,4,5\}\f$ corresponds to the equivalent angle axis.
+         *
+         * @param i [in] index to return
+         *
+         * @return the \f$i\f$'th index of the pose.
+         */
+        const T& operator[](size_t i) const { return (*this)(i); }
+
+        /**
+         * @brief Returns the \f$i\f$'th element in the pose.
+         *
+         * \f$i\in\{0,1,2\} \f$ corresponds to \f$\{x,y,z\}\f$ respectively.
+         * \f$i\in\{3,4,5\}\f$ corresponds to the equivalent angle axis.
+         *
+         * @param i [in] index to return
+         *
+         * @return the \f$i\f$'th index of the pose.
+         */
+        T& operator[](size_t i) { return (*this)(i); }
 
         /**
          * @brief Converts the Pose3D into the corresponding Transform3D

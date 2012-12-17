@@ -72,6 +72,9 @@ namespace common {
 		 * actual media that has been openned.
 		 */
 		virtual void flush() = 0;
+
+		// TODO: make extension point for archives
+
 	};
 
 }}

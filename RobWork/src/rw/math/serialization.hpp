@@ -68,6 +68,7 @@ namespace serialization {
     void write(const rw::math::Jacobian& tmp, OutputArchive& oar, const std::string& id);
     void read(rw::math::Jacobian& tmp, InputArchive& iar, const std::string& id);
 
+
 }}}
 
 #endif

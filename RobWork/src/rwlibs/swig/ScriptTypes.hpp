@@ -179,7 +179,7 @@ typedef rwlibs::pathoptimization::ClearanceOptimizer ClearanceOptimizer;
 // not added yet
 typedef rwlibs::simulation::SimulatedController SimulatedController;
 typedef rwlibs::simulation::SimulatedSensor SimulatedSensor;
-
+typedef rwlibs::simulation::Simulator Simulator;
 
 void writelog(const std::string& msg);
 

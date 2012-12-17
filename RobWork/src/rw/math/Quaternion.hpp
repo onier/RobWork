@@ -229,6 +229,20 @@ namespace rw { namespace math {
             }
         }
 
+        /**
+         * @brief Returns reference to Quaternion element
+         * @param i [in] index in the quaternion \f$i\in \{0,1,2,3\} \f$
+         * @return reference to element
+         */
+        const T& operator[](size_t i) const { return (*this)(i); }
+
+        /**
+         * @brief Returns reference to Quaternion element
+         * @param i [in] index in the quaternion \f$i\in \{0,1,2,3\} \f$
+         * @return reference to element
+         */
+        T& operator[](size_t i) { return (*this)(i); }
+
         size_t size() const { return 4; }
 
         /**

@@ -87,23 +87,32 @@ public:
     //
     template<class T>
     void read(T& object, const std::string& id){
+    	readImpl(object, id);
+    }
+
+private:
+    template<class T>
+    void readImpl(T& object, const std::string& id, typename boost::enable_if_c<boost::is_base_of<Serializable, T>::value, T>::type* def=NULL){
+    	object.read(*this, id);
+    }
+
+    template<class T>
+    void readImpl(T& object, const std::string& id, typename boost::disable_if_c<boost::is_base_of<Serializable, T>::value, T>::type* def=NULL){
     	// first test if T is any of the primitives
-    	if( boost::is_const<T>::value_type ){
+    	if( boost::is_const<T>::value ){
     		RW_THROW("type T cannot be of type const!");
-    	} else if( boost::is_reference<T>::value_type ){
+    	} else if( boost::is_reference<T>::value ){
     		RW_THROW("type T cannot be of type reference!");
-    	} else if( boost::is_floating_point<T>::value_type || boost::is_integral<T>::value_type){
+    	} else if( boost::is_floating_point<T>::value || boost::is_integral<T>::value){
     		read(object,id);
+    	} else {
+    		serialization::read(object, *this, id);
     	}
 
-        // test if T inherit from Serializable
-        if(boost::is_base_of<Serializable, T>::value_type) {
-        	object.read(*this, id);
-        } else {
-        	// the T does not
-        	serialization::read(object, *this, id);
-        }
     }
+
+
+
 };
 }} //namespace end
 #endif

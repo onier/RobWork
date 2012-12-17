@@ -121,7 +121,7 @@ public:
 	// 'line' given relative to the coordinate frame of 'pose'.
 	static
 	Line2DPolar lineToLocal(
-		const Pose2D& pose,
+		const Pose2D<>& pose,
 		const Line2DPolar& line);
 
 public:

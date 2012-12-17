@@ -80,26 +80,41 @@ namespace common {
 		void write(const T& object, const std::string& id){
 			// the data method must have an implementation of load/save and if not then we try the generic write
 			// method which could provide a solution by the implementation itself
-			if( boost::is_pointer<T>::value_type ){
-				// a pointer to an object is allways saved as a uint64_t
-				write((uint64_t)object, id);
-				//RW_THROW("type T cannot be of type const!");
-			} else if( boost::is_reference<T>::value_type ){
-				RW_THROW("type T cannot be of type reference!");
-			} else if( boost::is_floating_point<T>::value_type || boost::is_integral<T>::value_type){
-				T* val = new T;
-				write(*val, id);
-				return val;
-			}
+			writeImpl(object, id);
 
-			// test if T inherit from Serializable
-			if(boost::is_base_of<Serializable, T>::value_type) {
-				object.write(*this, id);
-			} else {
-				// try and use overloaded method
-				serialization::write(object, *this, id);
-			}
 		}
+
+	private:
+	    template<class T>
+	    void writeImpl(T& object, const std::string& id, typename boost::enable_if_c<boost::is_base_of<Serializable, T>::value, T>::type* def=NULL){
+			object.write(*this, id);
+	    }
+
+/*
+	    template<class T>
+	    void writeImpl(T& object, const std::string& id, typename boost::enable_if_c<boost::is_pointer<T>::value, T>::type* def=NULL){
+			write((uint64_t)object, id);
+	    }
+*/
+
+	    //template<class T>
+	    //void writeImpl(T& object, const std::string& id, typename boost::enable_if_c<boost::is_pointer<T>::value, T>::type* def=NULL){
+	    //	BOOST_MPL_ASSERT_MSG(boost::is_pointer<T>::value, "type T cannot be of type reference!");
+	    //}
+
+	    template<typename T>
+	    void writeImpl(T& object, const std::string& id, typename boost::disable_if_c<boost::is_base_of<Serializable, T>::value, T>::type* def=NULL){
+	    	//BOOST_MPL_ASSERT_MSG(boost::is_reference<T>::value, "type T cannot be of type reference!" , (T) );
+
+			//if( boost::is_floating_point<T>::value || boost::is_integral<T>::value){
+			//	T* val = new T;
+			//	write(*val, id);
+			//}
+
+			// try and use overloaded method
+			serialization::write(object, *this, id);
+	    }
+
 
 	};
 

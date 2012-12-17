@@ -172,7 +172,9 @@ void RenderModel3D::drawUsingSimple(const DrawableNode::RenderInfo& info, const 
                 }
                 glEnd();
             }
-            /* this render the normals
+            // this render the normals
+            // TODO: create method to switch normal rendering on and off
+            /*
             glBegin(GL_LINES);
             for(size_t i=data.startIdx; i<data.startIdx+data.size; i++){
                 // draw faces
@@ -187,12 +189,13 @@ void RenderModel3D::drawUsingSimple(const DrawableNode::RenderInfo& info, const 
                 glVertex3fv(&(obj._normals[tri[2]]*0.01+obj._vertices[tri[2]])(0));
             }
             glEnd();
-            */
+             */
         }
         //std::cout << glGetError() << std::endl;
     }
 
     // draw children
+    // TODO: create method to switch normal rendering on and off
     BOOST_FOREACH(const Model3D::Object3D::Ptr& child, obj._kids){
         drawUsingSimple(info, *child, type, alpha);
     }

@@ -141,6 +141,13 @@ namespace rw { namespace math {
             return m()(index);
         }
 
+        //! @copydoc operator()
+        const T& operator[](size_t i) const { return (*this)(i); }
+
+        //! @copydoc operator()
+        T& operator[](size_t i) { return (*this)(i); }
+
+
         /**
          * @brief Adds the velocity screw given as a parameter to the velocity screw.
          *
