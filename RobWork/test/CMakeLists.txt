@@ -3,10 +3,16 @@ configure_file(
   ${CMAKE_CURRENT_SOURCE_DIR}/TestSuiteConfig.hpp
 )
 
-SET(ROBWORK_TESTFILES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/testfiles) 
+SET(ROBWORK_TESTFILES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/testfiles)
+
+SET(TEST_RUN_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+IF(MSVC)
+	SET(TEST_RUN_OUTPUT_DIR ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CMAKE_BUILD_TYPE} )
+ENDIF()
+
 CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/TestSuiteConfig.xml.in
-  ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/TestSuiteConfig.xml
+  ${TEST_RUN_OUTPUT_DIR}/TestSuiteConfig.xml
 )
 
 SET(ROBWORK_TESTFILES_DIR ${RW_INSTALL_DIR}/test/testfiles) 
@@ -14,7 +20,7 @@ CONFIGURE_FILE(
   ${CMAKE_CURRENT_SOURCE_DIR}/TestSuiteConfig.xml.in
   ${CMAKE_CURRENT_SOURCE_DIR}/TestSuiteConfig.xml.install
 )
-
+ 
 SET(TEST_LIBRARIES
   ${RW_DRAWABLE_LIBRARY_LIST}
   ${RW_PATHPLANNERS_LIBRARY_LIST}
@@ -41,6 +47,7 @@ SET(COMMON_TEST_SRC
   common/PropertyTest.cpp
   common/StringUtilTest.cpp
   common/CommonTest.cpp
+  common/SerializationTest.cpp
 )
 
 SET(DEFAULT_TEST_ARGS "--log_level=all")
