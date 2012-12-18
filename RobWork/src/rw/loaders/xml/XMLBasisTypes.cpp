@@ -251,57 +251,47 @@ Rotation3D<> XMLBasisTypes::readRotation3D(DOMElement* element, bool doCheckHead
         checkHeader(element, Rotation3DId);
 
     std::vector<double> values = readNVector(element);
-    // we are switching to quaternions instead... rotation3d are simply to error prone to precision errors
+    if (values.size() != 9)
+        RW_THROW("Expected 9 floating points for Rotation3D. Only "<<values.size()<<" values found");
 
-    if (values.size() == 4){
-        Quaternion<> quat(values[0], values[1], values[2], values[3]);
-        quat.normalize();
-        Rotation3D<> rot = quat.toRotation3D();
+    Rotation3D<> rot(values[0], values[1], values[2],
+                        values[3], values[4], values[5],
+                        values[6], values[7], values[8]);
 
-        using namespace boost::numeric::ublas;
-        while(fabs(LinearAlgebra::det(rot.m())-1.0)>0.00001  ){
+    Eigen::MatrixXd u, v;
+	Eigen::VectorXd w;
+    LinearAlgebra::svd(rot.e(), u, w ,v);
+	Eigen::MatrixXd res = u * v.transpose();
 
+    rot = Rotation3D<>(res);
 
-            LinearAlgebra::Matrix<>::type u, v;
-            boost::numeric::ublas::vector<double> w;
+    using namespace boost::numeric::ublas;
+    /*
+    */
 
-            std::cout.precision(17);
-            std::cout << rot << std::endl;
-            RW_WARN("Parse of Rotation3D failed. A rotation 3d must be an "
-                     "orthogonal matrix with determinant of 1! det=" << LinearAlgebra::det(rot.m()));
-            LinearAlgebra::svd(rot.m(), u, w ,v);
-            LinearAlgebra::Matrix<>::type res = prod(u,trans(v));
-            rot = Rotation3D<>(res);
-            return rot;
-        }
+    while(fabs(LinearAlgebra::det(rot.m())-1.0)>0.00001  ){
+        std::cout.precision(16);
+        std::cout << rot << std::endl;
+        RW_WARN("Parse of Rotation3D failed. A rotation 3d must be an "
+                 "orthogonal matrix with determinant of 1! det=" << LinearAlgebra::det(rot.m()));
+        LinearAlgebra::svd(rot.e(), u, w ,v);
+        res = u*v.transpose();
+        rot = Rotation3D<>(res);
 
-
-        return rot;
-    } else if(values.size() == 9){
-
-        Rotation3D<> rot(values[0], values[1], values[2],
-                            values[3], values[4], values[5],
-                            values[6], values[7], values[8]);
-
-        using namespace boost::numeric::ublas;
-        while(fabs(LinearAlgebra::det(rot.m())-1.0)>0.00001  ){
-
-            LinearAlgebra::Matrix<>::type u, v;
-            boost::numeric::ublas::vector<double> w;
-
-            std::cout.precision(17);
-            std::cout << rot << std::endl;
-            RW_WARN("Parse of Rotation3D failed. A rotation 3d must be an "
-                     "orthogonal matrix with determinant of 1! det=" << LinearAlgebra::det(rot.m()));
-            LinearAlgebra::svd(rot.m(), u, w ,v);
-            LinearAlgebra::Matrix<>::type res = prod(u,trans(v));
-            rot = Rotation3D<>(res);
-
-        }
-        return rot;
     }
-
-    RW_THROW("Expected 9 or 4 (quaternion) floating points for Rotation3D. Only "<<values.size()<<" values found");
+/*
+    int cnt =0;
+    while(fabs(LinearAlgebra::det(rot.m())-1.0)>0.00001  ){
+        if(cnt>3){
+            std::cout << rot << std::endl;
+            RW_THROW("Parse of Rotation3D failed. A rotation 3d must be an "
+                     "orthogonal matrix with determinant of 1! det=" << LinearAlgebra::det(rot.m()));
+        }
+        cnt++;
+        rot.normalize();
+    }
+    */
+    return rot;
 }
 
 Rotation2D<> XMLBasisTypes::readRotation2D(DOMElement* element, bool doCheckHeader) {
@@ -365,7 +355,7 @@ Transform3D<> XMLBasisTypes::readTransform3D(DOMElement* element, bool doCheckHe
 
         }
     }
-    //rotation.normalize();
+    rotation.normalize();
     return Transform3D<>(position, rotation);
 }
 
@@ -683,38 +673,13 @@ xercesc::DOMElement* XMLBasisTypes::createQuaternion(const rw::math::Quaternion<
 
 DOMElement* XMLBasisTypes::createRotation3D(const rw::math::Rotation3D<>& r, xercesc::DOMDocument* doc) {
     //DOMElement* element = doc->createElement(Rotation3DId);
-
-    // check if rotation is proper orthogonal before saving it
-    //RW_ASSERT( fabs(LinearAlgebra::det( target.R().m() ))-1.0 < 0.00000001 );
-    double detVal = LinearAlgebra::det( r.m() )-1.0;
-    if( fabs(detVal) > 0.0000001 ){
-        RW_WARN("A rotation matrix that is being streamed does not have a determinant of 1, det="<<detVal);
-    }
-
-//#define QUATERNION_BASED_SAVE
-#ifdef QUATERNION_BASED_SAVE
-    // we use quaternions because these are more robust to precision issues
-    Quaternion<> quat( r );
-    quat.normalize();
     std::ostringstream str;
     str.unsetf(std::ios::floatfield);            // floatfield not set
-    str.precision(17);
-    str<<quat(0)<<" "<<quat(1)<<" "<<quat(2)<<" "<< quat(3);
-    return createElement(Rotation3DId, XMLStr(str.str()).uni(), doc);
-
-
-#else
-    std::ostringstream str;
-    str.unsetf(std::ios::floatfield);            // floatfield not set
-    str.precision(17);
+    str.precision(16);
     str<<r(0,0)<<" "<<r(0,1)<<" "<<r(0,2)<<" ";
     str<<r(1,0)<<" "<<r(1,1)<<" "<<r(1,2)<<" ";
     str<<r(2,0)<<" "<<r(2,1)<<" "<<r(2,2);
     return createElement(Rotation3DId, XMLStr(str.str()).uni(), doc);
-#endif
-
-
-
     /*DOMText* txt = doc->createTextNode(XMLStr(str.str()).uni());
     element->appendChild(txt);
     return element;*/
@@ -725,7 +690,7 @@ xercesc::DOMElement* XMLBasisTypes::createRotation2D(const rw::math::Rotation2D<
     //DOMElement* element = doc->createElement(Rotation2DId);
     std::ostringstream str;
     str.unsetf(std::ios::floatfield);            // floatfield not set
-    str.precision(17);
+    str.precision(16);
     str<<r(0,0)<<" "<<r(0,1)<<" "<<r(1,0)<<" "<<r(1,1);
     return createElement(Rotation2DId, XMLStr(str.str()).uni(), doc);
     /*DOMText* txt = doc->createTextNode(XMLStr(str.str()).uni());

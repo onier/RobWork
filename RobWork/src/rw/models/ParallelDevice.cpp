@@ -35,14 +35,14 @@ using namespace rw::kinematics;
 using boost::numeric::ublas::slice;
 using boost::numeric::ublas::range;
 
-typedef boost::numeric::ublas::matrix_vector_slice<Jacobian::Base> MatrixSlice;
-typedef boost::numeric::ublas::matrix_range<Jacobian::Base> MatrixRange;
+typedef boost::numeric::ublas::matrix_vector_slice<Jacobian::BoostBase> MatrixSlice;
+typedef boost::numeric::ublas::matrix_range<Jacobian::BoostBase> MatrixRange;
 
 namespace
 {
-    Jacobian::Base* makeZeroMatrix(int rows, int cols)
+    Jacobian::BoostBase* makeZeroMatrix(int rows, int cols)
     {
-        return new Jacobian::Base(Jacobian::ZeroBase(rows, cols));
+		return new Jacobian::BoostBase(Jacobian::BoostZeroBase(rows, cols));
     }
 
     void append(std::vector<Joint*>& result, const std::vector<Joint*>& tail)
@@ -90,8 +90,8 @@ ParallelDevice::ParallelDevice(
     _uaJointJ = makeZeroMatrix(6*(legs.size()-1), _unActuatedJoints.size());
 
     // construct the current joint value vectors for actuated and unactuated joints
-    _lastAJVal = new Q(Q::ZeroBase(_actuatedJoints.size()) );
-    _lastUAJVal = new Q(Q::ZeroBase(_unActuatedJoints.size()) );
+    _lastAJVal = new Q(Q::zero(_actuatedJoints.size()) );
+    _lastUAJVal = new Q(Q::zero(_unActuatedJoints.size()) );
 
     for (size_t i = 0; i < _actuatedJoints.size(); i++)
         (*_lastAJVal)(i) = *_actuatedJoints[i]->getData(state);
@@ -166,7 +166,7 @@ void ParallelDevice::setQ(const Q& q, State& s) const
     }
 
     double e = 1e-6;
-    Q deltaQA(Q::ZeroBase( _actuatedJoints.size() ));
+    Q deltaQA(Q::zero( _actuatedJoints.size() ));
     for(i=0;i<_actuatedJoints.size();i++){
         deltaQA(i) = q(i) - (*_lastAJVal)(i);
     }
@@ -181,7 +181,7 @@ void ParallelDevice::setQ(const Q& q, State& s) const
         prod(LinearAlgebra::pseudoInverse(*_uaJointJ), aJdeltaQA.m()));
 
     // Solve the equation uaJ(q)*dQua = dY , where dY = deltaPoses, for dQua
-    Q deltaY(Q::ZeroBase(_unActuatedJoints.size()));
+    Q deltaY(Q::zero(_unActuatedJoints.size()));
 
     int iterations = 0;
     double error = 1;
@@ -277,20 +277,22 @@ Jacobian ParallelDevice::baseJend(const State& state) const
         columns += (*leg_iter)->nrOfJoints();
     }
 
-    Jacobian jacobian(Jacobian::ZeroBase(rows, columns));
+
+    Jacobian::BoostBase m = Jacobian::BoostZeroBase(rows, columns);
 
     // initialize configuration vector
     int row=0,column=0;
     for(size_t i=0;i<_legs.size();i++){
         // copy the base to endeffector jacobian of leg i to the jacobian matrix at index (row,column)
+
         MatrixRange(
-            jacobian.m(),
+            m,
             range(row, row+6),
             range(column, column+_legs[i]->nrOfJoints())) = _legs[i]->baseJend(state).m();
 
         if(i!=0){ // for all legs except the first copy -bTe jacobian of leg into (row-6,column)
             MatrixRange(
-                jacobian.m(),
+                m,
                 range(row-6, row),
                 range(column, column + _legs[i]->nrOfJoints())) =
                 -_legs[i]->baseJend(state).m();
@@ -300,7 +302,8 @@ Jacobian ParallelDevice::baseJend(const State& state) const
         row += 6; // allways for robots in 3d
         column += _legs[i]->nrOfJoints();
     }
-    return jacobian;
+
+    return Jacobian( m );
 }
 
 Jacobian ParallelDevice::baseJframe(const Frame* frame, const State& state) const
@@ -315,6 +318,6 @@ Jacobian ParallelDevice::baseJframe(const Frame* frame, const State& state) cons
         columns += (*leg_iter)->nrOfJoints();
     }
 
-    Jacobian jacobian(Jacobian::ZeroBase(rows, columns));
+    Jacobian jacobian(Jacobian::BoostZeroBase(rows, columns));
     return jacobian;
 }

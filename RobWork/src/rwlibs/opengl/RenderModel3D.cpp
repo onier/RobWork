@@ -118,7 +118,7 @@ void RenderModel3D::drawUsingSimple(const DrawableNode::RenderInfo& info, const 
                 
                 if(obj._mappedToFaces){
                     glBegin(GL_TRIANGLES);
-                    for(size_t i=data.startIdx; i<data.startIdx+data.size; i++){
+                    for(int i=data.startIdx; i<data.startIdx+data.size; i++){
                         // draw faces
                         const rw::geometry::IndexedTriangle<uint16_t> &tri = obj._faces[i];
                         glTexCoord2fv(&obj._texCoords[i*3](0) );
@@ -138,7 +138,7 @@ void RenderModel3D::drawUsingSimple(const DrawableNode::RenderInfo& info, const 
                 } else {
                     RW_ASSERT(obj._texCoords.size()==obj._normals.size());
                     glBegin(GL_TRIANGLES);
-                    for(size_t i=data.startIdx; i<data.startIdx+data.size; i++){
+                    for(int i=data.startIdx; i<data.startIdx+data.size; i++){
                         // draw faces
                         const rw::geometry::IndexedTriangle<uint16_t> &tri = obj._faces[i];
                         glTexCoord2fv(&obj._texCoords[tri[0]](0) );
@@ -317,7 +317,7 @@ void RenderModel3D::useMaterial(const Model3D::Material& mat, DrawType type, dou
 
     //std::cout << mat.name << std::endl;
 	if(mat.simplergb){
-		glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], (float)(mat.rgb[3]*alpha) );
+		//glColor4f(mat.rgb[0], mat.rgb[1], mat.rgb[2], (float)(mat.rgb[3]*alpha) );
 	} else {
 		glMaterialfv(GL_FRONT, GL_SPECULAR, mat.specular);
 		glMaterialfv(GL_FRONT, GL_SHININESS, &mat.shininess);
