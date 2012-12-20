@@ -234,7 +234,12 @@ int main(int argumentCount, char** argumentArray) {
 	// Initialize calibration, jacobian and calibrator.
 	std::cout << "Initializing calibration.. ";
 	std::cout.flush();
-	SerialDeviceCalibration::Ptr serialDeviceCalibration = rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice));
+	std::vector<rw::math::Function<>::Ptr> encoderCorrectionFunctions;
+	class EncoderTauFunction: public rw::math::Function<> { public: virtual double x(double q) { return -sin(q); }; };
+	encoderCorrectionFunctions.push_back(rw::common::ownedPtr(new EncoderTauFunction()));
+	class EncoderSigmaFunction: public rw::math::Function<> { public: virtual double x(double q) { return -cos(q); }; };
+	encoderCorrectionFunctions.push_back(rw::common::ownedPtr(new EncoderSigmaFunction()));
+	SerialDeviceCalibration::Ptr serialDeviceCalibration = rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice, encoderCorrectionFunctions));
 	std::cout << "Initialized." << std::endl;
 
 	std::cout << "Initializing jacobian.. ";
@@ -484,15 +489,12 @@ std::ostream& operator<<(std::ostream& out, const JointEncoderCalibration::Ptr c
 
 	out << " Parameters [";
 	CalibrationParameterSet parameterSet = calibration->getParameterSet();
-	if (parameterSet(JointEncoderCalibration::PARAMETER_TAU).isEnabled()) {
-		out << " tau: " << parameterSet(JointEncoderCalibration::PARAMETER_TAU) * 1000.0;
-		if (parameterSet(JointEncoderCalibration::PARAMETER_TAU).hasVariance())
-			out << " (sd: " << parameterSet(JointEncoderCalibration::PARAMETER_TAU).getStandardDeviation() << ")";
-	}
-	if (parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).isEnabled()) {
-		out << " sigma: " << parameterSet(JointEncoderCalibration::PARAMETER_SIGMA) * 1000.0;
-		if (parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).hasVariance())
-			out << " (sd: " << parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).getStandardDeviation() << ")";
+	for (int parameterIndex = 0; parameterIndex < parameterSet.getCount(); parameterIndex++) {
+		if (parameterSet(parameterIndex).isEnabled()) {
+			out << " " << parameterSet(parameterIndex) * 1000.0;
+			if (parameterSet(parameterIndex).hasVariance())
+				out << " (sd: " << parameterSet(parameterIndex).getStandardDeviation() << ")";
+		}
 	}
 	out << " ]";
 

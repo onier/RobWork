@@ -14,7 +14,7 @@ namespace calibration {
 
 using namespace rwlibs::calibration;
 
-SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr device) :
+SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr device, const std::vector<rw::math::Function<>::Ptr>& encoderCorrectionFunctions) :
 		_device(device) {
 	_baseCalibration = rw::common::ownedPtr(
 			new FixedFrameCalibration(rw::kinematics::Frame::Ptr(device->getBase()).cast<rw::kinematics::FixedFrame>(), true));
@@ -44,7 +44,7 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr d
 		}
 
 		// Add joint calibrations.
-		JointEncoderCalibration::Ptr jointCalibration = rw::common::ownedPtr(new JointEncoderCalibration(device.cast<rw::models::JointDevice>(), joint));
+		JointEncoderCalibration::Ptr jointCalibration = rw::common::ownedPtr(new JointEncoderCalibration(device.cast<rw::models::JointDevice>(), joint, encoderCorrectionFunctions));
 		_compositeJointCalibration->addCalibration(jointCalibration);
 	}
 	

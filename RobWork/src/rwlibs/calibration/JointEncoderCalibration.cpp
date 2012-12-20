@@ -9,21 +9,19 @@
 
 namespace rwlibs {
 	namespace calibration {
-		int JointEncoderCalibration::PARAMETER_TAU = 0;
-		int JointEncoderCalibration::PARAMETER_SIGMA = 1;
-
 		class JointEncoderMapping : public rw::math::Function1Diff<> {
 		public:
-			JointEncoderMapping(const CalibrationParameterSet& parameterSet) : _parameterSet(parameterSet) {
+			JointEncoderMapping(const std::vector<rw::math::Function<>::Ptr>& correctionFunctions, const CalibrationParameterSet& parameterSet) : _correctionFunctions(correctionFunctions), _parameterSet(parameterSet) {
 			}
 
 			virtual double x(double q) {
-				double corrected = q;
-				if (_parameterSet(JointEncoderCalibration::PARAMETER_TAU).isEnabled())
-					corrected -= _parameterSet(JointEncoderCalibration::PARAMETER_TAU) * sin(q);
-				if (_parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).isEnabled())
-					corrected -= _parameterSet(JointEncoderCalibration::PARAMETER_SIGMA) * cos(q);
-				return corrected;
+				double correctedQ = q;
+				for (int parameterIndex = 0; parameterIndex < _parameterSet.getCount(); parameterIndex++) {
+					if (_parameterSet(parameterIndex).isEnabled()) {
+						correctedQ += _parameterSet(parameterIndex) * _correctionFunctions[parameterIndex]->x(q);
+					}
+				}
+				return correctedQ;
 			}
 
 			virtual double dx(double q) {
@@ -31,10 +29,11 @@ namespace rwlibs {
 			}
 
 		private:
+			std::vector<rw::math::Function<>::Ptr> _correctionFunctions;
 			CalibrationParameterSet _parameterSet;
 		};
 
-		JointEncoderCalibration::JointEncoderCalibration(rw::models::JointDevice::Ptr device, rw::models::Joint::Ptr joint) : CalibrationBase(CalibrationParameterSet(2)), _device(device), _joint(joint) {
+		JointEncoderCalibration::JointEncoderCalibration(rw::models::JointDevice::Ptr device, rw::models::Joint::Ptr joint, const std::vector<rw::math::Function<>::Ptr>& correctionFunctions) : CalibrationBase(CalibrationParameterSet(correctionFunctions.size())), _device(device), _joint(joint), _correctionFunctions(correctionFunctions) {
 			
 		}
 
@@ -50,10 +49,16 @@ namespace rwlibs {
 			return _joint;
 		}
 
+		std::vector<rw::math::Function<>::Ptr> JointEncoderCalibration::getCorrectionFunctions() const {
+			return _correctionFunctions;
+		}
+
 		void JointEncoderCalibration::doApply() {
 			CalibrationParameterSet parameterSet = getParameterSet();
-			rw::math::Function1Diff<>::Ptr jointMapping = rw::common::ownedPtr(new JointEncoderMapping(parameterSet)).cast<rw::math::Function1Diff<> >();
-			_joint->setJointMapping(jointMapping);
+			if (parameterSet.getEnabledCount() > 0) {
+				rw::math::Function1Diff<>::Ptr jointMapping = rw::common::ownedPtr(new JointEncoderMapping(_correctionFunctions, parameterSet)).cast<rw::math::Function1Diff<> >();
+				_joint->setJointMapping(jointMapping);
+			}
 		}
 
 		void JointEncoderCalibration::doRevert() {

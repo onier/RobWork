@@ -21,8 +21,6 @@ namespace rwlibs {
 
 		Eigen::MatrixXd JointEncoderJacobian::doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame,
 			const rw::kinematics::State& state) {
-				const CalibrationParameterSet parameterSet = _calibration->getParameterSet();
-
 				// Prepare transformations.
 				const Eigen::Affine3d tfmToPostJoint = rw::kinematics::Kinematics::frameTframe(referenceFrame.get(), _joint.get(), state);
 				const Eigen::Affine3d tfmPostJoint = rw::kinematics::Kinematics::frameTframe(_joint.get(), targetFrame.get(), state);
@@ -35,20 +33,21 @@ namespace rwlibs {
 				RW_ASSERT(_jointIndex < q.size());
 				const double qi = q[_jointIndex];
 
+				const CalibrationParameterSet parameterSet = _calibration->getParameterSet();
+				const std::vector<rw::math::Function<>::Ptr> correctionFunctions = _calibration->getCorrectionFunctions();
+
+				// Setup jacobian.
 				const int columnCount = getColumnCount();
 				Eigen::MatrixXd jacobian(6, columnCount);
 				int columnIndex = 0;
-				if (parameterSet(JointEncoderCalibration::PARAMETER_TAU).isEnabled()) {
-					jacobian.block<3, 1>(0, columnIndex) = -sin(qi) * jointAxis.cross(posToEnd);
-					jacobian.block<3, 1>(3, columnIndex) = -sin(qi) * jointAxis;
-					columnIndex++;
+				for (int parameterIndex = 0; parameterIndex < parameterSet.getCount(); parameterIndex++) {
+					if (parameterSet(parameterIndex).isEnabled()) {
+						// Revolute joint implementation.
+						jacobian.block<3, 1>(0, columnIndex) = correctionFunctions[parameterIndex]->x(qi) * jointAxis.cross(posToEnd);
+						jacobian.block<3, 1>(3, columnIndex) = correctionFunctions[parameterIndex]->x(qi) * jointAxis;
+						columnIndex++;
+					}
 				}
-				if (parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).isEnabled()) {
-					jacobian.block<3, 1>(0, columnIndex) = -cos(qi) * jointAxis.cross(posToEnd);
-					jacobian.block<3, 1>(3, columnIndex) = -cos(qi) * jointAxis;
-					columnIndex++;
-				}
-				
 				RW_ASSERT(columnIndex == columnCount);
 
 				return jacobian;

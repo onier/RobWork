@@ -71,21 +71,6 @@ QDomElement ElementCreator::createElement<DHLinkCalibration::Ptr>(DHLinkCalibrat
 	return element;
 }
 
-template<>
-QDomElement ElementCreator::createElement<JointEncoderCalibration::Ptr>(JointEncoderCalibration::Ptr calibration) {
-	QDomElement element = _document->createElement("DHLinkCalibration");
-
-	element.setAttribute("joint", QString::fromStdString(calibration->getJoint()->getName()));
-
-	const CalibrationParameterSet parameterSet = calibration->getParameterSet();
-	if (parameterSet(JointEncoderCalibration::PARAMETER_TAU).isEnabled())
-		element.setAttribute("a", QString("%1").arg(parameterSet(JointEncoderCalibration::PARAMETER_TAU), 0, 'g', 16));
-	if (parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).isEnabled())
-		element.setAttribute("b", QString("%1").arg(parameterSet(JointEncoderCalibration::PARAMETER_SIGMA), 0, 'g', 16));
-
-	return element;
-}
-
 QDomDocument createDOMDocument(SerialDeviceCalibration::Ptr calibration) {
 	QDomDocument document("SerialDeviceCalibration");
 
@@ -114,17 +99,6 @@ QDomDocument createDOMDocument(SerialDeviceCalibration::Ptr calibration) {
 			linkCalibrationElement.appendChild(creator.createElement<DHLinkCalibration::Ptr>(linkCalibration));
 		}
 		rootElement.appendChild(linkCalibrationElement);
-	}
-
-	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getCompositeJointCalibration();
-	const int jointCalibrationCount = compositeJointCalibration->getCalibrationCount();
-	if (jointCalibrationCount > 0) {
-		QDomElement jointCalibrationElement = document.createElement("JointCalibrations");
-		for (int calibrationIndex = 0; calibrationIndex < jointCalibrationCount; calibrationIndex++) {
-			JointEncoderCalibration::Ptr jointCalibration = compositeJointCalibration->getCalibration(calibrationIndex);
-			jointCalibrationElement.appendChild(creator.createElement<JointEncoderCalibration::Ptr>(jointCalibration));
-		}
-		rootElement.appendChild(jointCalibrationElement);
 	}
 
 	document.appendChild(rootElement);

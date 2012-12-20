@@ -50,7 +50,13 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 		serialDeviceCalibrationExisting->revert();
 
 	// Setup artificial calibration.
-	SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice)));
+	const int ENCODER_PARAMETER_TAU = 0, ENCODER_PARAMETER_SIGMA = 1;
+	std::vector<rw::math::Function<>::Ptr> encoderCorrectionFunctions;
+	class EncoderTauFunction: public rw::math::Function<> { public: virtual double x(double q) { return -sin(q); }; };
+	encoderCorrectionFunctions.push_back(rw::common::ownedPtr(new EncoderTauFunction()));
+	class EncoderSigmaFunction: public rw::math::Function<> { public: virtual double x(double q) { return -cos(q); }; };
+	encoderCorrectionFunctions.push_back(rw::common::ownedPtr(new EncoderSigmaFunction()));
+	SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice, encoderCorrectionFunctions)));
 	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(7.0 / 100.0, -8.0 / 100.0, 9.0 / 100.0), rw::math::RPY<>(1.9 * rw::math::Deg2Rad, -1.8 * rw::math::Deg2Rad, 1.7 * rw::math::Deg2Rad)));
 	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(1.0 / 100.0, 2.0 / 100.0, -3.0 / 100.0), rw::math::RPY<>(-0.3 * rw::math::Deg2Rad, 0.2 * rw::math::Deg2Rad, 0.1 * rw::math::Deg2Rad)));
 	CompositeCalibration<DHLinkCalibration>::Ptr artificialCompositeLinkCalibration = artificialCalibration->getCompositeLinkCalibration();
@@ -75,10 +81,10 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialCompositeJointCalibration->getCalibrationCount(); calibrationIndex++) {
 		JointEncoderCalibration::Ptr artificialJointCalibration = artificialCompositeJointCalibration->getCalibration(calibrationIndex);
 		CalibrationParameterSet parameterSet = artificialJointCalibration->getParameterSet();
-		if (parameterSet(JointEncoderCalibration::PARAMETER_TAU).isEnabled())
-			parameterSet(JointEncoderCalibration::PARAMETER_TAU) = 0.003;
-		if (parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).isEnabled())
-			parameterSet(JointEncoderCalibration::PARAMETER_SIGMA) = -0.002;
+		if (parameterSet(ENCODER_PARAMETER_TAU).isEnabled())
+			parameterSet(ENCODER_PARAMETER_TAU) = 0.003;
+		if (parameterSet(ENCODER_PARAMETER_SIGMA).isEnabled())
+			parameterSet(ENCODER_PARAMETER_SIGMA) = -0.002;
 		artificialJointCalibration->setParameterSet(parameterSet);
 	}
 
@@ -91,7 +97,7 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 	artificialCalibration->revert();
 
 	// Initialize calibration, jacobian and calibrator.
-	SerialDeviceCalibration::Ptr calibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice)));
+	SerialDeviceCalibration::Ptr calibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice, encoderCorrectionFunctions)));
 	SerialDeviceJacobian::Ptr jacobian(rw::common::ownedPtr(new SerialDeviceJacobian(calibration)));
 	SerialDeviceCalibrator::Ptr calibrator(rw::common::ownedPtr(new SerialDeviceCalibrator(serialDevice, referenceFrame, measurementFrame, calibration, jacobian)));
 	calibrator->setMeasurements(measurements);
