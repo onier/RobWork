@@ -19,7 +19,7 @@ SerialDeviceJacobian::SerialDeviceJacobian(SerialDeviceCalibration::Ptr calibrat
 	_endJacobian = rw::common::ownedPtr(new FixedFrameJacobian(calibration->getEndCalibration()));
 	
 	_compositeLinkJacobian = rw::common::ownedPtr(new CompositeJacobian<DHLinkJacobian>());
-	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = calibration->getLinkCalibration();
+	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = calibration->getCompositeLinkCalibration();
 	for (int calibrationIndex = 0; calibrationIndex < compositeLinkCalibration->getCalibrationCount(); calibrationIndex++) {
 		DHLinkCalibration::Ptr linkCalibration = compositeLinkCalibration->getCalibration(calibrationIndex);
 		DHLinkJacobian::Ptr jacobian = rw::common::ownedPtr(new DHLinkJacobian(linkCalibration));
@@ -27,7 +27,7 @@ SerialDeviceJacobian::SerialDeviceJacobian(SerialDeviceCalibration::Ptr calibrat
 	}
 
 	_compositeJointJacobian = rw::common::ownedPtr(new CompositeJacobian<JointEncoderJacobian>());
-	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getJointCalibration();
+	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getCompositeJointCalibration();
 	for (int calibrationIndex = 0; calibrationIndex < compositeJointCalibration->getCalibrationCount(); calibrationIndex++) {
 		JointEncoderCalibration::Ptr jointCalibration = compositeJointCalibration->getCalibration(calibrationIndex);
 		JointEncoderJacobian::Ptr jacobian = rw::common::ownedPtr(new JointEncoderJacobian(jointCalibration));
@@ -52,11 +52,11 @@ FixedFrameJacobian::Ptr SerialDeviceJacobian::getEndJacobian() const {
 	return _endJacobian;
 }
 
-CompositeJacobian<DHLinkJacobian>::Ptr SerialDeviceJacobian::getLinkJacobian() const {
+CompositeJacobian<DHLinkJacobian>::Ptr SerialDeviceJacobian::getCompositeLinkJacobian() const {
 	return _compositeLinkJacobian;
 }
 
-CompositeJacobian<JointEncoderJacobian>::Ptr SerialDeviceJacobian::getJointJacobian() const {
+CompositeJacobian<JointEncoderJacobian>::Ptr SerialDeviceJacobian::getCompositeJointJacobian() const {
 	return _compositeJointJacobian;
 }
 

@@ -74,7 +74,7 @@ int main(int argumentCount, char** arguments) {
 	SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice)));
 	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(7.0 / 100.0, -8.0 / 100.0, 9.0 / 100.0), rw::math::RPY<>(1.9 * rw::math::Deg2Rad, -1.8 * rw::math::Deg2Rad, 1.7 * rw::math::Deg2Rad)));
 	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(1.0 / 100.0, 2.0 / 100.0, -3.0 / 100.0), rw::math::RPY<>(-0.3 * rw::math::Deg2Rad, 0.2 * rw::math::Deg2Rad, 0.1 * rw::math::Deg2Rad)));
-	CompositeCalibration<DHLinkCalibration>::Ptr artificialCompositeLinkCalibration = artificialCalibration->getLinkCalibration();
+	CompositeCalibration<DHLinkCalibration>::Ptr artificialCompositeLinkCalibration = artificialCalibration->getCompositeLinkCalibration();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialCompositeLinkCalibration->getCalibrationCount(); calibrationIndex++) {
 		DHLinkCalibration::Ptr artificialLinkCalibration = artificialCompositeLinkCalibration->getCalibration(calibrationIndex);
 		CalibrationParameterSet parameterSet = artificialLinkCalibration->getParameterSet();
@@ -91,6 +91,16 @@ int main(int argumentCount, char** arguments) {
 		if (parameterSet(DHLinkCalibration::PARAMETER_THETA).isEnabled())
 			parameterSet(DHLinkCalibration::PARAMETER_THETA) = 0.4 * rw::math::Deg2Rad;
 		artificialLinkCalibration->setParameterSet(parameterSet);
+	}
+	CompositeCalibration<JointEncoderCalibration>::Ptr artificialCompositeJointCalibration = artificialCalibration->getCompositeJointCalibration();
+	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialCompositeJointCalibration->getCalibrationCount(); calibrationIndex++) {
+		JointEncoderCalibration::Ptr artificialJointCalibration = artificialCompositeJointCalibration->getCalibration(calibrationIndex);
+		CalibrationParameterSet parameterSet = artificialJointCalibration->getParameterSet();
+		if (parameterSet(JointEncoderCalibration::PARAMETER_TAU).isEnabled())
+			parameterSet(JointEncoderCalibration::PARAMETER_TAU) = 0.003;
+		if (parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).isEnabled())
+			parameterSet(JointEncoderCalibration::PARAMETER_SIGMA) = -0.002;
+		artificialJointCalibration->setParameterSet(parameterSet);
 	}
 	std::cout << " Initialized." << std::endl;
 

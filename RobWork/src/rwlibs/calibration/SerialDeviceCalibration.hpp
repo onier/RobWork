@@ -35,9 +35,9 @@ public:
 
 	FixedFrameCalibration::Ptr getEndCalibration() const;
 
-	CompositeCalibration<DHLinkCalibration>::Ptr getLinkCalibration() const;
+	CompositeCalibration<DHLinkCalibration>::Ptr getCompositeLinkCalibration() const;
 
-	CompositeCalibration<JointEncoderCalibration>::Ptr getJointCalibration() const;
+	CompositeCalibration<JointEncoderCalibration>::Ptr getCompositeJointCalibration() const;
 
 	static SerialDeviceCalibration::Ptr make(rw::models::SerialDevice::Ptr device);
 

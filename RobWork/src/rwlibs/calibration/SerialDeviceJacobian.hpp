@@ -35,9 +35,9 @@ public:
 
 	FixedFrameJacobian::Ptr getEndJacobian() const;
 
-	CompositeJacobian<DHLinkJacobian>::Ptr getLinkJacobian() const;
+	CompositeJacobian<DHLinkJacobian>::Ptr getCompositeLinkJacobian() const;
 
-	CompositeJacobian<JointEncoderJacobian>::Ptr getJointJacobian() const;
+	CompositeJacobian<JointEncoderJacobian>::Ptr getCompositeJointJacobian() const;
 
 private:
 	FixedFrameJacobian::Ptr _baseJacobian;

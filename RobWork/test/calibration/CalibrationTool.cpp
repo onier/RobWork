@@ -260,8 +260,8 @@ int main(int argumentCount, char** argumentArray) {
 		std::cout.flush();
 		serialDeviceCalibration->getBaseCalibration()->setEnabled(isBaseCalibrationEnabled);
 		serialDeviceCalibration->getEndCalibration()->setEnabled(isEndCalibrationEnabled);
-		serialDeviceCalibration->getLinkCalibration()->setEnabled(isLinkCalibrationEnabled);
-		serialDeviceCalibration->getJointCalibration()->setEnabled(isJointCalibrationEnabled);
+		serialDeviceCalibration->getCompositeLinkCalibration()->setEnabled(isLinkCalibrationEnabled);
+		serialDeviceCalibration->getCompositeJointCalibration()->setEnabled(isJointCalibrationEnabled);
 		serialDeviceCalibrator->calibrate(workCellState);
 		const int iterationCount = serialDeviceCalibrator->getSolver()->getIterationCount();
 		std::cout << "Calibrated [ Iteration count: " << iterationCount << " ]." << std::endl;
@@ -346,7 +346,7 @@ std::ostream& operator<<(std::ostream& out, const SerialDeviceCalibration::Ptr c
 		hasPrevious = true;
 	}
 
-	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = calibration->getLinkCalibration();
+	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = calibration->getCompositeLinkCalibration();
 	if (compositeLinkCalibration->isEnabled()) {
 		for (unsigned int calibrationIndex = 0; calibrationIndex < compositeLinkCalibration->getCalibrationCount(); calibrationIndex++) {
 			DHLinkCalibration::Ptr linkCalibration = compositeLinkCalibration->getCalibration(calibrationIndex);
@@ -359,7 +359,7 @@ std::ostream& operator<<(std::ostream& out, const SerialDeviceCalibration::Ptr c
 		}
 	}
 
-	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getJointCalibration();
+	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getCompositeJointCalibration();
 	if (compositeJointCalibration->isEnabled()) {
 		for (unsigned int calibrationIndex = 0; calibrationIndex < compositeJointCalibration->getCalibrationCount(); calibrationIndex++) {
 			JointEncoderCalibration::Ptr jointCalibration = compositeJointCalibration->getCalibration(calibrationIndex);

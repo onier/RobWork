@@ -79,11 +79,11 @@ FixedFrameCalibration::Ptr SerialDeviceCalibration::getEndCalibration() const {
 	return _endCalibration;
 }
 
-CompositeCalibration<DHLinkCalibration>::Ptr SerialDeviceCalibration::getLinkCalibration() const {
+CompositeCalibration<DHLinkCalibration>::Ptr SerialDeviceCalibration::getCompositeLinkCalibration() const {
 	return _compositeLinkCalibration;
 }
 
-CompositeCalibration<JointEncoderCalibration>::Ptr SerialDeviceCalibration::getJointCalibration() const {
+CompositeCalibration<JointEncoderCalibration>::Ptr SerialDeviceCalibration::getCompositeJointCalibration() const {
 	return _compositeJointCalibration;
 }
 

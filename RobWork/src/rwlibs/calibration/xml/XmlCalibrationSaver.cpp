@@ -105,7 +105,7 @@ QDomDocument createDOMDocument(SerialDeviceCalibration::Ptr calibration) {
 		rootElement.appendChild(endElement);
 	}
 
-	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = calibration->getLinkCalibration();
+	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = calibration->getCompositeLinkCalibration();
 	const int linkCalibrationCount = compositeLinkCalibration->getCalibrationCount();
 	if (linkCalibrationCount > 0) {
 		QDomElement linkCalibrationElement = document.createElement("LinkCalibrations");
@@ -116,7 +116,7 @@ QDomDocument createDOMDocument(SerialDeviceCalibration::Ptr calibration) {
 		rootElement.appendChild(linkCalibrationElement);
 	}
 
-	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getJointCalibration();
+	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getCompositeJointCalibration();
 	const int jointCalibrationCount = compositeJointCalibration->getCalibrationCount();
 	if (jointCalibrationCount > 0) {
 		QDomElement jointCalibrationElement = document.createElement("JointCalibrations");
