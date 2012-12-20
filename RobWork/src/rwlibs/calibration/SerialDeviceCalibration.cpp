@@ -22,36 +22,45 @@ SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr d
 	_endCalibration = rw::common::ownedPtr(
 		new FixedFrameCalibration(rw::kinematics::Frame::Ptr(device->getEnd()).cast<rw::kinematics::FixedFrame>(), false));
 	
-	_internalLinkCalibration = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
+	_compositeLinkCalibration = rw::common::ownedPtr(new CompositeCalibration<DHLinkCalibration>());
+	_compositeJointCalibration = rw::common::ownedPtr(new CompositeCalibration<JointEncoderCalibration>());
+
 	std::vector<rw::models::Joint*> joints = device->getJoints();
 	for (std::vector<rw::models::Joint*>::iterator jointIterator = joints.begin(); jointIterator != joints.end(); jointIterator++) {
-		// Add DH parameter calibrations for intermediate links.
+		rw::models::Joint::Ptr joint = (*jointIterator);
+
+		// Add link calibrations for intermediate links.
 		if (jointIterator != joints.begin()) {
-			rw::models::Joint::Ptr joint = (*jointIterator);
-			DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(joint));
-			_internalLinkCalibration->addCalibration(calibration);
+			DHLinkCalibration::Ptr linkCalibration = rw::common::ownedPtr(new DHLinkCalibration(joint));
+			_compositeLinkCalibration->addCalibration(linkCalibration);
 
 			// Disable d and theta for first link.
 			if (jointIterator == ++(joints.begin())) {
-				CalibrationParameterSet parameterSet = calibration->getParameterSet();
-				parameterSet(DHParameterCalibration::PARAMETER_D).setEnabled(false);
-				parameterSet(DHParameterCalibration::PARAMETER_THETA).setEnabled(false);
-				calibration->setParameterSet(parameterSet);
+				CalibrationParameterSet parameterSet = linkCalibration->getParameterSet();
+				parameterSet(DHLinkCalibration::PARAMETER_D).setEnabled(false);
+				parameterSet(DHLinkCalibration::PARAMETER_THETA).setEnabled(false);
+				linkCalibration->setParameterSet(parameterSet);
 			}
 		}
+
+		// Add joint calibrations.
+		JointEncoderCalibration::Ptr jointCalibration = rw::common::ownedPtr(new JointEncoderCalibration(device.cast<rw::models::JointDevice>(), joint));
+		_compositeJointCalibration->addCalibration(jointCalibration);
 	}
 	
 	addCalibration(_baseCalibration.cast<Calibration>());
 	addCalibration(_endCalibration.cast<Calibration>());
-	addCalibration(_internalLinkCalibration.cast<Calibration>());
+	addCalibration(_compositeLinkCalibration.cast<Calibration>());
+	addCalibration(_compositeJointCalibration.cast<Calibration>());
 }
 
 SerialDeviceCalibration::SerialDeviceCalibration(rw::models::SerialDevice::Ptr device, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration,
-			const CompositeCalibration<DHParameterCalibration>::Ptr& internalLinkCalibration) :
-		_device(device), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _internalLinkCalibration(internalLinkCalibration) {
+			const CompositeCalibration<DHLinkCalibration>::Ptr& compositeLinkCalibration, const CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration) :
+		_device(device), _baseCalibration(baseCalibration), _endCalibration(endCalibration), _compositeLinkCalibration(compositeLinkCalibration) {
 	addCalibration(_baseCalibration.cast<Calibration>());
 	addCalibration(_endCalibration.cast<Calibration>());
-	addCalibration(_internalLinkCalibration.cast<Calibration>());
+	addCalibration(_compositeLinkCalibration.cast<Calibration>());
+	addCalibration(_compositeJointCalibration.cast<Calibration>());
 }
 
 SerialDeviceCalibration::~SerialDeviceCalibration() {
@@ -70,8 +79,12 @@ FixedFrameCalibration::Ptr SerialDeviceCalibration::getEndCalibration() const {
 	return _endCalibration;
 }
 
-CompositeCalibration<DHParameterCalibration>::Ptr SerialDeviceCalibration::getInternalLinkCalibration() const {
-	return _internalLinkCalibration;
+CompositeCalibration<DHLinkCalibration>::Ptr SerialDeviceCalibration::getLinkCalibration() const {
+	return _compositeLinkCalibration;
+}
+
+CompositeCalibration<JointEncoderCalibration>::Ptr SerialDeviceCalibration::getJointCalibration() const {
+	return _compositeJointCalibration;
 }
 
 SerialDeviceCalibration::Ptr SerialDeviceCalibration::get(rw::models::SerialDevice::Ptr device) {

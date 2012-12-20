@@ -53,24 +53,33 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 	SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice)));
 	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(7.0 / 100.0, -8.0 / 100.0, 9.0 / 100.0), rw::math::RPY<>(1.9 * rw::math::Deg2Rad, -1.8 * rw::math::Deg2Rad, 1.7 * rw::math::Deg2Rad)));
 	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(1.0 / 100.0, 2.0 / 100.0, -3.0 / 100.0), rw::math::RPY<>(-0.3 * rw::math::Deg2Rad, 0.2 * rw::math::Deg2Rad, 0.1 * rw::math::Deg2Rad)));
-	std::vector<DHParameterCalibration::Ptr> artificialInternalLinkCalibrations =
-		artificialCalibration->getInternalLinkCalibration()->getCalibrations();
-	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialInternalLinkCalibrations.size(); calibrationIndex++) {
-		DHParameterCalibration::Ptr calibration = artificialInternalLinkCalibrations[calibrationIndex];
-		CalibrationParameterSet parameterSet = calibration->getParameterSet();
-		if (parameterSet(DHParameterCalibration::PARAMETER_A).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_A) = 0.3 / 100.0;
-		if (parameterSet(DHParameterCalibration::PARAMETER_B).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_B) = -0.2 / 100.0;
-		if (parameterSet(DHParameterCalibration::PARAMETER_D).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_D) = -0.1 / 100.0;
-		if (parameterSet(DHParameterCalibration::PARAMETER_ALPHA).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_ALPHA) = -0.6 * rw::math::Deg2Rad;
-		if (parameterSet(DHParameterCalibration::PARAMETER_BETA).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_BETA) = 0.5 * rw::math::Deg2Rad;
-		if (parameterSet(DHParameterCalibration::PARAMETER_THETA).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_THETA) = 0.4 * rw::math::Deg2Rad;
-		calibration->setParameterSet(parameterSet);
+	CompositeCalibration<DHLinkCalibration>::Ptr artificialCompositeLinkCalibration = artificialCalibration->getLinkCalibration();
+	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialCompositeLinkCalibration->getCalibrationCount(); calibrationIndex++) {
+		DHLinkCalibration::Ptr artificialLinkCalibration = artificialCompositeLinkCalibration->getCalibration(calibrationIndex);
+		CalibrationParameterSet parameterSet = artificialLinkCalibration->getParameterSet();
+		if (parameterSet(DHLinkCalibration::PARAMETER_A).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_A) = 0.3 / 100.0;
+		if (parameterSet(DHLinkCalibration::PARAMETER_B).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_B) = -0.2 / 100.0;
+		if (parameterSet(DHLinkCalibration::PARAMETER_D).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_D) = -0.1 / 100.0;
+		if (parameterSet(DHLinkCalibration::PARAMETER_ALPHA).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_ALPHA) = -0.6 * rw::math::Deg2Rad;
+		if (parameterSet(DHLinkCalibration::PARAMETER_BETA).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_BETA) = 0.5 * rw::math::Deg2Rad;
+		if (parameterSet(DHLinkCalibration::PARAMETER_THETA).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_THETA) = 0.4 * rw::math::Deg2Rad;
+		artificialLinkCalibration->setParameterSet(parameterSet);
+	}
+	CompositeCalibration<JointEncoderCalibration>::Ptr artificialCompositeJointCalibration = artificialCalibration->getJointCalibration();
+	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialCompositeJointCalibration->getCalibrationCount(); calibrationIndex++) {
+		JointEncoderCalibration::Ptr artificialJointCalibration = artificialCompositeJointCalibration->getCalibration(calibrationIndex);
+		CalibrationParameterSet parameterSet = artificialJointCalibration->getParameterSet();
+		if (parameterSet(JointEncoderCalibration::PARAMETER_TAU).isEnabled())
+			parameterSet(JointEncoderCalibration::PARAMETER_TAU) = 0.003;
+		if (parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).isEnabled())
+			parameterSet(JointEncoderCalibration::PARAMETER_SIGMA) = -0.002;
+		artificialJointCalibration->setParameterSet(parameterSet);
 	}
 
 	artificialCalibration->apply();
@@ -95,34 +104,54 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 	}
 
 	const int iterationCount = calibrator->getSolver()->getIterationLogs().back().getIterationNumber();
-	BOOST_CHECK_EQUAL(iterationCount, 5);
+	BOOST_CHECK_EQUAL(iterationCount, 6);
 
 	// Verify that the calibration match the artificial calibration.
-	{
+	FixedFrameCalibration::Ptr baseCalibration = calibration->getBaseCalibration();
+	if (baseCalibration->isEnabled()) {
 		const rw::math::Transform3D<> artificialBaseCorrectionTransform = artificialCalibration->getBaseCalibration()->getCorrectionTransform();
-		const rw::math::Transform3D<> baseCorrectionTransform = calibration->getBaseCalibration()->getCorrectionTransform();
+		const rw::math::Transform3D<> baseCorrectionTransform = baseCalibration->getCorrectionTransform();
 		double baseDistanceError = (artificialBaseCorrectionTransform.P() - baseCorrectionTransform.P()).norm2();
 		BOOST_CHECK_SMALL(baseDistanceError, 10e-5);
 		double baseAngleError = rw::math::EAA<>(artificialBaseCorrectionTransform.R() * rw::math::inverse(baseCorrectionTransform.R())).angle();
 		BOOST_CHECK_SMALL(baseAngleError, 10e-5);
 	}
-	{
+	FixedFrameCalibration::Ptr endCalibration = calibration->getEndCalibration();
+	if (endCalibration->isEnabled()) {
 		const rw::math::Transform3D<> artificialEndCorrectionTransform = artificialCalibration->getEndCalibration()->getCorrectionTransform();
-		const rw::math::Transform3D<> endCorrectionTransform = calibration->getEndCalibration()->getCorrectionTransform();
+		const rw::math::Transform3D<> endCorrectionTransform = endCalibration->getCorrectionTransform();
 		double endDistanceError = (artificialEndCorrectionTransform.P() - endCorrectionTransform.P()).norm2();
 		BOOST_CHECK_SMALL(endDistanceError, 10e-5);
 		double endAngleError = rw::math::EAA<>(artificialEndCorrectionTransform.R() * rw::math::inverse(endCorrectionTransform.R())).angle();
 		BOOST_CHECK_SMALL(endAngleError, 10e-5);
 	}
-	std::vector<DHParameterCalibration::Ptr> internalLinkCalibrations =
-		calibration->getInternalLinkCalibration()->getCalibrations();
-	for (unsigned int calibrationIndex = 0; calibrationIndex < internalLinkCalibrations.size(); calibrationIndex++) {
-		const CalibrationParameterSet artificialParameterSet = artificialInternalLinkCalibrations[calibrationIndex]->getParameterSet();
-		const CalibrationParameterSet parameterSet = internalLinkCalibrations[calibrationIndex]->getParameterSet();
-		for (int parameterIndex = 0; parameterIndex < artificialParameterSet.getCount(); parameterIndex++) {
-			if (artificialParameterSet(parameterIndex).isEnabled()) {
-				double internalLinkParameterError = parameterSet(parameterIndex) - artificialParameterSet(parameterIndex);
-				BOOST_CHECK_SMALL(internalLinkParameterError, 10e-5);
+	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = calibration->getLinkCalibration();
+	if (compositeLinkCalibration->isEnabled()) {
+		for (unsigned int calibrationIndex = 0; calibrationIndex < artificialCompositeLinkCalibration->getCalibrationCount(); calibrationIndex++) {
+			DHLinkCalibration::Ptr calibration = compositeLinkCalibration->getCalibration(calibrationIndex);
+			if (calibration->isEnabled()) {
+				const CalibrationParameterSet parameterSet = calibration->getParameterSet();
+				const CalibrationParameterSet artificialParameterSet = artificialCompositeLinkCalibration->getCalibration(calibrationIndex)->getParameterSet();
+				for (int parameterIndex = 0; parameterIndex < artificialParameterSet.getCount(); parameterIndex++) {
+					if (artificialParameterSet(parameterIndex).isEnabled()) {
+						BOOST_CHECK_CLOSE(parameterSet(parameterIndex), artificialParameterSet(parameterIndex), 10e-5);
+					}
+				}
+			}
+		}
+	}
+	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getJointCalibration();
+	if (compositeJointCalibration->isEnabled()) {
+		for (unsigned int calibrationIndex = 0; calibrationIndex < artificialCompositeJointCalibration->getCalibrationCount(); calibrationIndex++) {
+			JointEncoderCalibration::Ptr calibration = compositeJointCalibration->getCalibration(calibrationIndex);
+			if (calibration->isEnabled()) {
+				const CalibrationParameterSet parameterSet = calibration->getParameterSet();
+				const CalibrationParameterSet artificialParameterSet = artificialCompositeJointCalibration->getCalibration(calibrationIndex)->getParameterSet();
+				for (int parameterIndex = 0; parameterIndex < artificialParameterSet.getCount(); parameterIndex++) {
+					if (artificialParameterSet(parameterIndex).isEnabled()) {
+						BOOST_CHECK_CLOSE(parameterSet(parameterIndex), artificialParameterSet(parameterIndex), 10e-5);
+					}
+				}
 			}
 		}
 	}
@@ -154,7 +183,7 @@ BOOST_AUTO_TEST_CASE( CalibratorTest ) {
 	// Verify that the loaded calibration match the artificial calibration.
 	BOOST_CHECK(Eigen::Affine3d(calibrationLoaded->getBaseCalibration()->getCorrectionTransform()).isApprox(Eigen::Affine3d(artificialCalibration->getBaseCalibration()->getCorrectionTransform()), 10e-5));
 	BOOST_CHECK(Eigen::Affine3d(calibrationLoaded->getEndCalibration()->getCorrectionTransform()).isApprox(Eigen::Affine3d(artificialCalibration->getEndCalibration()->getCorrectionTransform()), 10e-5));
-	std::vector<DHParameterCalibration::Ptr> internalLinkCalibrationsLoaded =
+	std::vector<DHLinkCalibration::Ptr> internalLinkCalibrationsLoaded =
 	calibrationLoaded->getInternalLinkCalibration()->getCalibrations();
 	for (unsigned int calibrationIndex = 0; calibrationIndex < internalLinkCalibrationsLoaded.size(); calibrationIndex++)
 	for (int parameterIndex = 0; parameterIndex < 4; parameterIndex++)

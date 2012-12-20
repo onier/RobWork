@@ -45,11 +45,7 @@ public:
 	 */
 	int getCalibrationCount() const;
 
-	/**
-	* @brief Returns a reference to a vector with pointers to the Calibration(s) in the CompositeCalibration.
-	* @return std::vector with pointers to Calibration(s)
-	*/
-	const std::vector<rw::common::Ptr<C> >& getCalibrations() const;
+	const rw::common::Ptr<C>& getCalibration(int index) const;
 
 	void addCalibration(rw::common::Ptr<C>& calibration);
 	
@@ -94,8 +90,8 @@ CompositeCalibration<C>::~CompositeCalibration() {
 }
 
 template<class C>
-const std::vector<rw::common::Ptr<C> >& CompositeCalibration<C>::getCalibrations() const {
-	return _calibrations;
+const rw::common::Ptr<C>& CompositeCalibration<C>::getCalibration(int index) const {
+	return _calibrations[index];
 }
 
 template<class C>
@@ -133,16 +129,21 @@ CalibrationParameterSet CompositeCalibration<C>::getParameterSet() const {
 	int parameterCount = 0;
 	for (typename std::vector<rw::common::Ptr<C> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		const rw::common::Ptr<C> calibration = (*it);
-		parameterCount += calibration->getParameterSet().getCount();
+		if (calibration->isEnabled())
+			parameterCount += calibration->getParameterSet().getCount();
 	}
 
 	CalibrationParameterSet parameterSet(parameterCount);
+
 	int parameterIndex = 0;
 	for (typename std::vector<rw::common::Ptr<C> >::const_iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		const rw::common::Ptr<C> calibration = (*it);
-		const CalibrationParameterSet currentParameterSet = calibration->getParameterSet();
-		for (int currentParameterIndex = 0; currentParameterIndex < currentParameterSet.getCount(); currentParameterIndex++, parameterIndex++)
-			parameterSet(parameterIndex) = currentParameterSet(currentParameterIndex);
+		
+		if (calibration->isEnabled()) {
+			const CalibrationParameterSet currentParameterSet = calibration->getParameterSet();
+			for (int currentParameterIndex = 0; currentParameterIndex < currentParameterSet.getCount(); currentParameterIndex++, parameterIndex++)
+				parameterSet(parameterIndex) = currentParameterSet(currentParameterIndex);
+		}
 	}
 
 	return parameterSet;
@@ -153,10 +154,12 @@ void CompositeCalibration<C>::setParameterSet(const CalibrationParameterSet& par
 	int parameterIndex = 0;
 	for (typename std::vector<rw::common::Ptr<C> >::iterator it = _calibrations.begin(); it != _calibrations.end(); ++it) {
 		rw::common::Ptr<C> calibration = (*it);
-		CalibrationParameterSet currentParameterSet = calibration->getParameterSet();
-		for (int currentParameterIndex = 0; currentParameterIndex < currentParameterSet.getCount(); currentParameterIndex++, parameterIndex++)
-			currentParameterSet(currentParameterIndex) = parameterSet(parameterIndex);
-		calibration->setParameterSet(currentParameterSet);
+		if (calibration->isEnabled()) {
+			CalibrationParameterSet currentParameterSet = calibration->getParameterSet();
+			for (int currentParameterIndex = 0; currentParameterIndex < currentParameterSet.getCount(); currentParameterIndex++, parameterIndex++)
+				currentParameterSet(currentParameterIndex) = parameterSet(parameterIndex);
+			calibration->setParameterSet(currentParameterSet);
+		}
 	}
 }
 

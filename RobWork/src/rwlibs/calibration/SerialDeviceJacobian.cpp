@@ -17,17 +17,27 @@ using namespace rwlibs::calibration;
 SerialDeviceJacobian::SerialDeviceJacobian(SerialDeviceCalibration::Ptr calibration) {
 	_baseJacobian = rw::common::ownedPtr(new FixedFrameJacobian(calibration->getBaseCalibration()));
 	_endJacobian = rw::common::ownedPtr(new FixedFrameJacobian(calibration->getEndCalibration()));
-	_internalLinkJacobian = rw::common::ownedPtr(new CompositeJacobian<DHParameterJacobian>());
-	std::vector<DHParameterCalibration::Ptr> dhParameterCalibrations(calibration->getInternalLinkCalibration()->getCalibrations());
-	for (std::vector<DHParameterCalibration::Ptr>::iterator calibrationIterator = dhParameterCalibrations.begin(); calibrationIterator != dhParameterCalibrations.end(); calibrationIterator++) {
-		DHParameterCalibration::Ptr calibration = (*calibrationIterator);
-		DHParameterJacobian::Ptr jacobian = rw::common::ownedPtr(new DHParameterJacobian(calibration));
-		_internalLinkJacobian->addJacobian(jacobian);
+	
+	_compositeLinkJacobian = rw::common::ownedPtr(new CompositeJacobian<DHLinkJacobian>());
+	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = calibration->getLinkCalibration();
+	for (int calibrationIndex = 0; calibrationIndex < compositeLinkCalibration->getCalibrationCount(); calibrationIndex++) {
+		DHLinkCalibration::Ptr linkCalibration = compositeLinkCalibration->getCalibration(calibrationIndex);
+		DHLinkJacobian::Ptr jacobian = rw::common::ownedPtr(new DHLinkJacobian(linkCalibration));
+		_compositeLinkJacobian->addJacobian(jacobian);
+	}
+
+	_compositeJointJacobian = rw::common::ownedPtr(new CompositeJacobian<JointEncoderJacobian>());
+	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = calibration->getJointCalibration();
+	for (int calibrationIndex = 0; calibrationIndex < compositeJointCalibration->getCalibrationCount(); calibrationIndex++) {
+		JointEncoderCalibration::Ptr jointCalibration = compositeJointCalibration->getCalibration(calibrationIndex);
+		JointEncoderJacobian::Ptr jacobian = rw::common::ownedPtr(new JointEncoderJacobian(jointCalibration));
+		_compositeJointJacobian->addJacobian(jacobian);
 	}
 
 	addJacobian(_baseJacobian.cast<Jacobian>());
 	addJacobian(_endJacobian.cast<Jacobian>());
-	addJacobian(_internalLinkJacobian.cast<Jacobian>());
+	addJacobian(_compositeLinkJacobian.cast<Jacobian>());
+	addJacobian(_compositeJointJacobian.cast<Jacobian>());
 }
 
 SerialDeviceJacobian::~SerialDeviceJacobian() {
@@ -42,8 +52,12 @@ FixedFrameJacobian::Ptr SerialDeviceJacobian::getEndJacobian() const {
 	return _endJacobian;
 }
 
-CompositeJacobian<DHParameterJacobian>::Ptr SerialDeviceJacobian::getInternalLinkJacobian() const {
-	return _internalLinkJacobian;
+CompositeJacobian<DHLinkJacobian>::Ptr SerialDeviceJacobian::getLinkJacobian() const {
+	return _compositeLinkJacobian;
+}
+
+CompositeJacobian<JointEncoderJacobian>::Ptr SerialDeviceJacobian::getJointJacobian() const {
+	return _compositeJointJacobian;
 }
 
 }

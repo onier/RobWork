@@ -19,9 +19,12 @@ IF( build )
 		JacobianBase.cpp
 		Calibration.cpp
 		CalibrationBase.cpp
-		DHParameterCalibration.cpp
-		DHParameterJacobian.cpp
-	#	EncoderParameterCalibration.cpp
+		CalibrationParameter.cpp
+		CalibrationParameterSet.cpp
+		DHLinkCalibration.cpp
+		DHLinkJacobian.cpp
+		JointEncoderCalibration.cpp
+		JointEncoderJacobian.cpp
 		FixedFrameCalibration.cpp
 		FixedFrameJacobian.cpp
 		SerialDeviceCalibration.cpp
@@ -41,15 +44,18 @@ IF( build )
 		JacobianBase.hpp
 		Calibration.hpp
 		CalibrationBase.hpp
+		CalibrationParameter.hpp
+		CalibrationParameterSet.hpp
 		CompositeCalibration.hpp
 		CompositeJacobian.hpp
-		DHParameterCalibration.hpp
-		DHParameterJacobian.hpp
+		DHLinkCalibration.hpp
+		DHLinkJacobian.hpp
 		EigenTransformPlugin.hpp
-	#	EncoderParameterCalibration.hpp
 		FixedFrameCalibration.hpp
 		FixedFrameJacobian.hpp
 		Jacobian.hpp
+		JointEncoderCalibration.hpp
+		JointEncoderJacobian.hpp
 		SerialDeviceCalibration.hpp
 		SerialDeviceCalibrator.hpp
 		SerialDeviceJacobian.hpp

@@ -514,7 +514,7 @@ void RevoluteJoint::RevoluteJointWithQMapping::multiplyTransform(
 	rw::math::Transform3D<>& result) const 
 {
 	double qnew = _mapping->x(q);
-	_impl->multiplyTransform(parent, q, result);
+	_impl->multiplyTransform(parent, qnew, result);
 }
 
 rw::math::Transform3D<> RevoluteJoint::RevoluteJointWithQMapping::getTransform(double q) {

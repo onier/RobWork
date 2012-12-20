@@ -9,7 +9,8 @@
 #define RWLIBS_CALIBRATION_SERIALDEVICECALIBRATION_HPP
 
 #include "CompositeCalibration.hpp"
-#include "DHParameterCalibration.hpp"
+#include "DHLinkCalibration.hpp"
+#include "JointEncoderCalibration.hpp"
 #include "FixedFrameCalibration.hpp"
 #include <rw/models.hpp>
 #include <rw/kinematics.hpp>
@@ -24,7 +25,7 @@ public:
 	SerialDeviceCalibration(rw::models::SerialDevice::Ptr device);
 
 	SerialDeviceCalibration(rw::models::SerialDevice::Ptr device, FixedFrameCalibration::Ptr baseCalibration, FixedFrameCalibration::Ptr endCalibration,
-			const CompositeCalibration<DHParameterCalibration>::Ptr& internalLinkCalibration);
+			const CompositeCalibration<DHLinkCalibration>::Ptr& compositeLinkCalibration, const CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration);
 
 	virtual ~SerialDeviceCalibration();
 
@@ -34,7 +35,9 @@ public:
 
 	FixedFrameCalibration::Ptr getEndCalibration() const;
 
-	CompositeCalibration<DHParameterCalibration>::Ptr getInternalLinkCalibration() const;
+	CompositeCalibration<DHLinkCalibration>::Ptr getLinkCalibration() const;
+
+	CompositeCalibration<JointEncoderCalibration>::Ptr getJointCalibration() const;
 
 	static SerialDeviceCalibration::Ptr make(rw::models::SerialDevice::Ptr device);
 
@@ -50,7 +53,8 @@ private:
 	rw::models::SerialDevice::Ptr _device;
 	FixedFrameCalibration::Ptr _baseCalibration;
 	FixedFrameCalibration::Ptr _endCalibration;
-	CompositeCalibration<DHParameterCalibration>::Ptr _internalLinkCalibration;
+	CompositeCalibration<DHLinkCalibration>::Ptr _compositeLinkCalibration;
+	CompositeCalibration<JointEncoderCalibration>::Ptr _compositeJointCalibration;
 };
 
 }

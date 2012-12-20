@@ -31,8 +31,6 @@ public:
 protected:
 	virtual Eigen::MatrixXd doComputeJacobian(rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr targetFrame, const rw::kinematics::State& state);
 
-	//virtual void doTakeStep(const Eigen::VectorXd& step);
-
 private:
 	FixedFrameCalibration::Ptr _calibration;
 	rw::kinematics::FixedFrame::Ptr _fixedFrame;

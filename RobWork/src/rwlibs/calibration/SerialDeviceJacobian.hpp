@@ -12,8 +12,9 @@
 #define EIGEN_TRANSFORM_PLUGIN "rwlibs/calibration/EigenTransformPlugin.hpp"
 
 #include "CompositeJacobian.hpp"
-#include "DHParameterJacobian.hpp"
+#include "DHLinkJacobian.hpp"
 #include "FixedFrameJacobian.hpp"
+#include "JointEncoderJacobian.hpp"
 #include "SerialDeviceCalibration.hpp"
 #include <Eigen/Geometry>
 #include <rw/models.hpp>
@@ -34,12 +35,15 @@ public:
 
 	FixedFrameJacobian::Ptr getEndJacobian() const;
 
-	CompositeJacobian<DHParameterJacobian>::Ptr getInternalLinkJacobian() const;
+	CompositeJacobian<DHLinkJacobian>::Ptr getLinkJacobian() const;
+
+	CompositeJacobian<JointEncoderJacobian>::Ptr getJointJacobian() const;
 
 private:
 	FixedFrameJacobian::Ptr _baseJacobian;
 	FixedFrameJacobian::Ptr _endJacobian;
-	CompositeJacobian<DHParameterJacobian>::Ptr _internalLinkJacobian;
+	CompositeJacobian<DHLinkJacobian>::Ptr _compositeLinkJacobian;
+	CompositeJacobian<JointEncoderJacobian>::Ptr _compositeJointJacobian;
 };
 
 }

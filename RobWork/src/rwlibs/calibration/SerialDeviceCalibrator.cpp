@@ -17,7 +17,7 @@ namespace rwlibs {
 		public:
 			typedef rw::common::Ptr<SerialDeviceCalibrationSystem> Ptr;
 
-			SerialDeviceCalibrationSystem(rw::models::SerialDevice::Ptr device, rw::kinematics::State state, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const std::vector<SerialDevicePoseMeasurement>& measurements, Calibration::Ptr calibration, Jacobian::Ptr jacobian, bool isWeighting) : _device(device), _state(state), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _measurements(measurements), _calibration(calibration), _jacobian(jacobian), _isWeighting(isWeighting) {
+			SerialDeviceCalibrationSystem(rw::models::SerialDevice::Ptr device, rw::kinematics::State workCellState, rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, const std::vector<SerialDevicePoseMeasurement>& measurements, Calibration::Ptr calibration, Jacobian::Ptr jacobian, bool isWeightingMeasurements) : _device(device), _workCellState(workCellState), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _measurements(measurements), _calibration(calibration), _jacobian(jacobian), _isWeightingMeasurements(isWeightingMeasurements) {
 
 			}
 
@@ -34,19 +34,20 @@ namespace rwlibs {
 				RW_ASSERT(rowCount >= columnCount);
 
 				stackedJacobians.resize(rowCount, columnCount);
+				rw::kinematics::State workCellState = _workCellState;
 				for (int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 					const SerialDevicePoseMeasurement measurement = _measurements[measurementIndex];
 
 					// Update state according to current measurement.
 					const rw::math::Q q = measurement.getQ();
-					_device->setQ(q, _state);
+					_device->setQ(q, workCellState);
 
 					// Compute Jacobian.
 					const int rowIndex = 6 * measurementIndex;
-					stackedJacobians.block(rowIndex, 0, 6, columnCount) = _jacobian->computeJacobian(_referenceFrame, _measurementFrame, _state);
+					stackedJacobians.block(rowIndex, 0, 6, columnCount) = _jacobian->computeJacobian(_referenceFrame, _measurementFrame, workCellState);
 
 					// Weight Jacobian according to covariances.
-					if (_isWeighting && measurement.hasCovarianceMatrix()) {
+					if (_isWeightingMeasurements && measurement.hasCovarianceMatrix()) {
 						const Eigen::Matrix<double, 6, 6> weightMatrix = Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(
 							measurement.getCovarianceMatrix()).operatorInverseSqrt();
 						stackedJacobians.block(rowIndex, 0, 6, columnCount) = weightMatrix
@@ -60,17 +61,18 @@ namespace rwlibs {
 
 				const int rowCount = 6 * measurementCount;
 				stackedResiduals.resize(6 * measurementCount);
+				rw::kinematics::State workCellState = _workCellState;
 				for (unsigned int measurementIndex = 0; measurementIndex < measurementCount; measurementIndex++) {
 					const SerialDevicePoseMeasurement measurement = _measurements[measurementIndex];
 
 					// Update state according to current measurement.
 					const rw::math::Q q = measurement.getQ();
-					_device->setQ(q, _state);
+					_device->setQ(q, workCellState);
 
 					// Compute residuals.
 					const int rowIndex = 6 * measurementIndex;
 					const rw::math::Transform3D<> tfmMeasurement = measurement.getTransform();
-					const rw::math::Transform3D<> tfmModel = rw::kinematics::Kinematics::frameTframe(_referenceFrame.get(), _measurementFrame.get(), _state);
+					const rw::math::Transform3D<> tfmModel = rw::kinematics::Kinematics::frameTframe(_referenceFrame.get(), _measurementFrame.get(), workCellState);
 					const rw::math::Vector3D<> dP = tfmModel.P() - tfmMeasurement.P();
 					stackedResiduals(rowIndex + 0) = dP(0);
 					stackedResiduals(rowIndex + 1) = dP(1);
@@ -81,7 +83,7 @@ namespace rwlibs {
 					stackedResiduals(rowIndex + 5) = (dR(1, 0) - dR(0, 1)) / 2;
 
 					// Weight residuals according to covariances.
-					if (_isWeighting && measurement.hasCovarianceMatrix()) {
+					if (_isWeightingMeasurements && measurement.hasCovarianceMatrix()) {
 						const Eigen::Matrix<double, 6, 6> weightMatrix = Eigen::SelfAdjointEigenSolver<Eigen::Matrix<double, 6, 6> >(
 							measurement.getCovarianceMatrix()).operatorInverseSqrt();
 						stackedResiduals.segment<6>(rowIndex) = weightMatrix * stackedResiduals.segment<6>(rowIndex);
@@ -95,18 +97,18 @@ namespace rwlibs {
 
 		private:
 			rw::models::SerialDevice::Ptr _device;
-			rw::kinematics::State _state;
+			rw::kinematics::State _workCellState;
 			rw::kinematics::Frame::Ptr _referenceFrame;
 			rw::kinematics::Frame::Ptr _measurementFrame;
 			std::vector<SerialDevicePoseMeasurement> _measurements;
 			Calibration::Ptr _calibration;
 			Jacobian::Ptr _jacobian;
-			bool _isWeighting;
+			bool _isWeightingMeasurements;
 		};
 
 		SerialDeviceCalibrator::SerialDeviceCalibrator(rw::models::SerialDevice::Ptr device,
 			rw::kinematics::Frame::Ptr referenceFrame, rw::kinematics::Frame::Ptr measurementFrame, Calibration::Ptr calibration, Jacobian::Ptr jacobian) :
-		_device(device), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _jacobian(jacobian), _isWeighting(true) {
+		_device(device), _referenceFrame(referenceFrame), _measurementFrame(measurementFrame), _calibration(calibration), _jacobian(jacobian), _isWeightingMeasurements(true) {
 
 		}
 
@@ -154,15 +156,15 @@ namespace rwlibs {
 			_measurements = measurements;
 		}
 
-		bool SerialDeviceCalibrator::isWeighting() const {
-			return _isWeighting;
+		bool SerialDeviceCalibrator::isWeightingMeasurements() const {
+			return _isWeightingMeasurements;
 		}
 
-		void SerialDeviceCalibrator::setWeighting(bool isWeighting) {
-			_isWeighting = isWeighting;
+		void SerialDeviceCalibrator::setWeightingMeasurements(bool isWeightingMeasurements) {
+			_isWeightingMeasurements = isWeightingMeasurements;
 		}
 
-		void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& state) {
+		void SerialDeviceCalibrator::calibrate(const rw::kinematics::State& workCellState) {
 			RW_ASSERT(_calibration->isEnabled());
 
 			const int measurementCount = getMeasurementCount();
@@ -177,9 +179,29 @@ namespace rwlibs {
 
 			// Solve non-linear least square system.
 			try {
-				SerialDeviceCalibrationSystem::Ptr system = rw::common::ownedPtr(new SerialDeviceCalibrationSystem(_device, state, _referenceFrame, _measurementFrame, _measurements, _calibration, _jacobian, _isWeighting));
+				SerialDeviceCalibrationSystem::Ptr system = rw::common::ownedPtr(new SerialDeviceCalibrationSystem(_device, workCellState, _referenceFrame, _measurementFrame, _measurements, _calibration, _jacobian, _isWeightingMeasurements));
 				_solver = rw::common::ownedPtr(new NLLSNewtonSolver(system));
 				_solver->solve();
+				
+				// Compute variances if weighting was enabled.
+				if (_isWeightingMeasurements) {
+					Eigen::MatrixXd covarianceMatrix = _solver->estimateCovarianceMatrix();
+					CalibrationParameterSet parameterSet = _calibration->getParameterSet();
+					RW_ASSERT(covarianceMatrix.rows() == covarianceMatrix.cols());
+					RW_ASSERT(covarianceMatrix.rows() == parameterSet.getEnabledCount());
+					const int parameterCount = parameterSet.getCount();
+					const int enabledParameterCount = parameterSet.getEnabledCount();
+					int enabledParameterIndex = 0;
+					for (int parameterIndex = 0; parameterIndex < parameterCount; parameterIndex++) {
+						if (parameterSet(parameterIndex).isEnabled()) {
+							double variance = covarianceMatrix(enabledParameterIndex, enabledParameterIndex);
+							parameterSet(parameterIndex).setVariance(variance);
+							enabledParameterIndex++;
+						}
+					}
+					RW_ASSERT(enabledParameterIndex == enabledParameterCount);
+					_calibration->setParameterSet(parameterSet);
+				}
 			} catch (rw::common::Exception& exception) {
 				// Revert calibration if it was not applied.
 				if (!wasApplied)
@@ -197,11 +219,6 @@ namespace rwlibs {
 		NLLSSolver::Ptr SerialDeviceCalibrator::getSolver() const {
 			RW_ASSERT(!_solver.isNull());
 			return _solver;
-		}
-
-		Eigen::MatrixXd SerialDeviceCalibrator::estimateCovarianceMatrix() const {
-			RW_ASSERT(!_solver.isNull());
-			return _solver->estimateCovarianceMatrix();
 		}
 
 	}

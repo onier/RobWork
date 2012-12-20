@@ -82,15 +82,5 @@ namespace rwlibs {
 				return jacobianMatrix;
 		}
 
-		//void FixedFrameJacobian::doTakeStep(const Eigen::VectorXd& step) {
-		//	const rw::math::Transform3D<> correctionTransform = _calibration->getCorrectionTransform();
-		//	const rw::math::Transform3D<> stepTransform = rw::math::Transform3D<>(
-		//		rw::math::Vector3D<>(step(0), step(1), step(2)),
-		//		rw::math::RPY<>(step(3), step(4), step(5))
-		//		);
-		//	const rw::math::Transform3D<> correctedCorrectionTransform = _calibration->isPostCorrection() ? correctionTransform * stepTransform : stepTransform * correctionTransform;
-		//	_calibration->setCorrectionTransform(correctedCorrectionTransform);
-		//}
-
 	}
 }

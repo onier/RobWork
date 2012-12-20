@@ -74,24 +74,23 @@ int main(int argumentCount, char** arguments) {
 	SerialDeviceCalibration::Ptr artificialCalibration(rw::common::ownedPtr(new SerialDeviceCalibration(serialDevice)));
 	artificialCalibration->getBaseCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(7.0 / 100.0, -8.0 / 100.0, 9.0 / 100.0), rw::math::RPY<>(1.9 * rw::math::Deg2Rad, -1.8 * rw::math::Deg2Rad, 1.7 * rw::math::Deg2Rad)));
 	artificialCalibration->getEndCalibration()->setCorrectionTransform(rw::math::Transform3D<>(rw::math::Vector3D<>(1.0 / 100.0, 2.0 / 100.0, -3.0 / 100.0), rw::math::RPY<>(-0.3 * rw::math::Deg2Rad, 0.2 * rw::math::Deg2Rad, 0.1 * rw::math::Deg2Rad)));
-	std::vector<DHParameterCalibration::Ptr> artificialInternalLinkCalibrations =
-		artificialCalibration->getInternalLinkCalibration()->getCalibrations();
-	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialInternalLinkCalibrations.size(); calibrationIndex++) {
-		DHParameterCalibration::Ptr calibration = artificialInternalLinkCalibrations[calibrationIndex];
-		CalibrationParameterSet parameterSet = calibration->getParameterSet();
-		if (parameterSet(DHParameterCalibration::PARAMETER_A).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_A) = 0.3 / 100.0;
-		if (parameterSet(DHParameterCalibration::PARAMETER_B).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_B) = -0.2 / 100.0;
-		if (parameterSet(DHParameterCalibration::PARAMETER_D).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_D) = -0.1 / 100.0;
-		if (parameterSet(DHParameterCalibration::PARAMETER_ALPHA).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_ALPHA) = -0.6 * rw::math::Deg2Rad;
-		if (parameterSet(DHParameterCalibration::PARAMETER_BETA).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_BETA) = 0.5 * rw::math::Deg2Rad;
-		if (parameterSet(DHParameterCalibration::PARAMETER_THETA).isEnabled())
-			parameterSet(DHParameterCalibration::PARAMETER_THETA) = 0.4 * rw::math::Deg2Rad;
-		calibration->setParameterSet(parameterSet);
+	CompositeCalibration<DHLinkCalibration>::Ptr artificialCompositeLinkCalibration = artificialCalibration->getLinkCalibration();
+	for (unsigned int calibrationIndex = 0; calibrationIndex < artificialCompositeLinkCalibration->getCalibrationCount(); calibrationIndex++) {
+		DHLinkCalibration::Ptr artificialLinkCalibration = artificialCompositeLinkCalibration->getCalibration(calibrationIndex);
+		CalibrationParameterSet parameterSet = artificialLinkCalibration->getParameterSet();
+		if (parameterSet(DHLinkCalibration::PARAMETER_A).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_A) = 0.3 / 100.0;
+		if (parameterSet(DHLinkCalibration::PARAMETER_B).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_B) = -0.2 / 100.0;
+		if (parameterSet(DHLinkCalibration::PARAMETER_D).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_D) = -0.1 / 100.0;
+		if (parameterSet(DHLinkCalibration::PARAMETER_ALPHA).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_ALPHA) = -0.6 * rw::math::Deg2Rad;
+		if (parameterSet(DHLinkCalibration::PARAMETER_BETA).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_BETA) = 0.5 * rw::math::Deg2Rad;
+		if (parameterSet(DHLinkCalibration::PARAMETER_THETA).isEnabled())
+			parameterSet(DHLinkCalibration::PARAMETER_THETA) = 0.4 * rw::math::Deg2Rad;
+		artificialLinkCalibration->setParameterSet(parameterSet);
 	}
 	std::cout << " Initialized." << std::endl;
 

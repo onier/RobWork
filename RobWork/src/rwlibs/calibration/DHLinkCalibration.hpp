@@ -1,12 +1,12 @@
 /*
- * DHParameterCalibration.hpp
+ * DHLinkCalibration.hpp
  *
  *  Created on: Aug 28, 2012
  *      Author: bing
  */
 
-#ifndef RWLIBS_CALIBRATION_DHPARAMETERCALIBRATION_HPP_
-#define RWLIBS_CALIBRATION_DHPARAMETERCALIBRATION_HPP_
+#ifndef RWLIBS_CALIBRATION_DHLINKCALIBRATION_HPP_
+#define RWLIBS_CALIBRATION_DHLINKCALIBRATION_HPP_
 
 #include "CalibrationBase.hpp"
 #include <rw/models.hpp>
@@ -15,26 +15,22 @@
 namespace rwlibs {
 namespace calibration {
 
-class DHParameterCalibration: public CalibrationBase {
+class DHLinkCalibration: public CalibrationBase {
 public:
 	static int PARAMETER_A, PARAMETER_B, PARAMETER_D, PARAMETER_ALPHA, PARAMETER_BETA, PARAMETER_THETA;
 
-	typedef rw::common::Ptr<DHParameterCalibration> Ptr;
+	typedef rw::common::Ptr<DHLinkCalibration> Ptr;
 
-	DHParameterCalibration(rw::models::Joint::Ptr joint);
+	DHLinkCalibration(rw::models::Joint::Ptr joint);
 
-	virtual ~DHParameterCalibration();
+	virtual ~DHLinkCalibration();
 
 	rw::models::Joint::Ptr getJoint() const;
-
-	//rw::math::Transform3D<> getCorrectionTransform() const;
 
 private:
 	virtual void doApply();
 
 	virtual void doRevert();
-
-	//static rw::math::Transform3D<> computeCorrectedTransform(const rw::models::DHParameterSet& dhParameterSet);
 
 	static rw::math::Transform3D<> computeTransform(const rw::models::DHParameterSet& dhParameterSet);
 
@@ -47,4 +43,4 @@ private:
 }
 }
 
-#endif /* RWLIBS_CALIBRATION_DHPARAMETERCALIBRATION_HPP_ */
+#endif /* RWLIBS_CALIBRATION_DHLINKCALIBRATION_HPP_ */

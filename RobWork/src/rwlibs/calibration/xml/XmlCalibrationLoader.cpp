@@ -15,8 +15,8 @@ namespace calibration {
 
 class ElementReader {
 public:
-	ElementReader(rw::kinematics::StateStructure::Ptr stateStructure) :
-			_stateStructure(stateStructure) {
+	ElementReader(rw::kinematics::StateStructure::Ptr stateStructure, rw::models::SerialDevice::Ptr serialDevice) :
+			_stateStructure(stateStructure), _serialDevice(serialDevice) {
 
 	}
 
@@ -25,6 +25,7 @@ public:
 
 private:
 	rw::kinematics::StateStructure::Ptr _stateStructure;
+	rw::models::SerialDevice::Ptr _serialDevice;
 };
 
 template<>
@@ -37,13 +38,14 @@ FixedFrameCalibration::Ptr ElementReader::readElement<FixedFrameCalibration::Ptr
 	if (fixedFrame.isNull())
 		RW_THROW("Frame \"" << frameName << "\" not found.");
 	
-	if (!element.hasAttribute("isPostCorrection"))
-		RW_THROW("\"isPostCorrection\" attribute missing.");
-	bool isPostCorrection = element.attribute("isPostCorrection").toInt();
-
 	QDomElement transformElement = element.namedItem("Transform").toElement();
 	if (transformElement.isNull())
 		RW_THROW("\"Transform\" element not found");
+
+	if (!transformElement.hasAttribute("isPostCorrection"))
+		RW_THROW("\"isPostCorrection\" attribute missing.");
+	bool isPostCorrection = transformElement.attribute("isPostCorrection").toInt();
+
 	QStringList txtTransformSplitted = transformElement.text().simplified().split(" ");
 	txtTransformSplitted.removeAll(" ");
 	if (txtTransformSplitted.count() != 12)
@@ -57,7 +59,7 @@ FixedFrameCalibration::Ptr ElementReader::readElement<FixedFrameCalibration::Ptr
 }
 
 template<>
-DHParameterCalibration::Ptr ElementReader::readElement<DHParameterCalibration::Ptr>(const QDomElement& element) {
+DHLinkCalibration::Ptr ElementReader::readElement<DHLinkCalibration::Ptr>(const QDomElement& element) {
 	if (!element.hasAttribute("joint"))
 		RW_THROW("\"joint\" attribute missing.");
 	std::string jointName = element.attribute("joint").toStdString();
@@ -66,38 +68,66 @@ DHParameterCalibration::Ptr ElementReader::readElement<DHParameterCalibration::P
 	if (joint.isNull())
 		RW_THROW("Joint \"" << jointName << "\" not found.");
 
-	DHParameterCalibration::Ptr calibration = rw::common::ownedPtr(new DHParameterCalibration(joint));
+	DHLinkCalibration::Ptr calibration = rw::common::ownedPtr(new DHLinkCalibration(joint));
 	CalibrationParameterSet parameterSet = calibration->getParameterSet();
 
 	if (!element.hasAttribute("a"))
-		parameterSet(DHParameterCalibration::PARAMETER_A).setEnabled(false);
+		parameterSet(DHLinkCalibration::PARAMETER_A).setEnabled(false);
 	else
-		parameterSet(DHParameterCalibration::PARAMETER_A) = element.attribute("a").toDouble();
+		parameterSet(DHLinkCalibration::PARAMETER_A) = element.attribute("a").toDouble();
 
 	if (!element.hasAttribute("b"))
-		parameterSet(DHParameterCalibration::PARAMETER_B).setEnabled(false);
+		parameterSet(DHLinkCalibration::PARAMETER_B).setEnabled(false);
 	else
-		parameterSet(DHParameterCalibration::PARAMETER_B) = element.attribute("b").toDouble();
+		parameterSet(DHLinkCalibration::PARAMETER_B) = element.attribute("b").toDouble();
 
 	if (!element.hasAttribute("d"))
-		parameterSet(DHParameterCalibration::PARAMETER_D).setEnabled(false);
+		parameterSet(DHLinkCalibration::PARAMETER_D).setEnabled(false);
 	else
-		parameterSet(DHParameterCalibration::PARAMETER_D) = element.attribute("d").toDouble();
+		parameterSet(DHLinkCalibration::PARAMETER_D) = element.attribute("d").toDouble();
 
 	if (!element.hasAttribute("alpha"))
-		parameterSet(DHParameterCalibration::PARAMETER_ALPHA).setEnabled(false);
+		parameterSet(DHLinkCalibration::PARAMETER_ALPHA).setEnabled(false);
 	else
-		parameterSet(DHParameterCalibration::PARAMETER_ALPHA) = element.attribute("alpha").toDouble();
+		parameterSet(DHLinkCalibration::PARAMETER_ALPHA) = element.attribute("alpha").toDouble();
 
 	if (!element.hasAttribute("beta"))
-		parameterSet(DHParameterCalibration::PARAMETER_BETA).setEnabled(false);
+		parameterSet(DHLinkCalibration::PARAMETER_BETA).setEnabled(false);
 	else
-		parameterSet(DHParameterCalibration::PARAMETER_BETA) = element.attribute("beta").toDouble();
+		parameterSet(DHLinkCalibration::PARAMETER_BETA) = element.attribute("beta").toDouble();
 
 	if (!element.hasAttribute("theta"))
-		parameterSet(DHParameterCalibration::PARAMETER_THETA).setEnabled(false);
+		parameterSet(DHLinkCalibration::PARAMETER_THETA).setEnabled(false);
 	else
-		parameterSet(DHParameterCalibration::PARAMETER_THETA) = element.attribute("theta").toDouble();
+		parameterSet(DHLinkCalibration::PARAMETER_THETA) = element.attribute("theta").toDouble();
+
+	calibration->setParameterSet(parameterSet);
+
+	return calibration;
+}
+
+template<>
+JointEncoderCalibration::Ptr ElementReader::readElement<JointEncoderCalibration::Ptr>(const QDomElement& element) {
+	if (!element.hasAttribute("joint"))
+		RW_THROW("\"joint\" attribute missing.");
+	std::string jointName = element.attribute("joint").toStdString();
+
+	rw::models::Joint::Ptr joint = (rw::models::Joint*) _stateStructure->findFrame(jointName);
+	if (joint.isNull())
+		RW_THROW("Joint \"" << jointName << "\" not found.");
+
+	JointEncoderCalibration::Ptr calibration = rw::common::ownedPtr(new JointEncoderCalibration(_serialDevice.cast<rw::models::JointDevice>(), joint));
+	CalibrationParameterSet parameterSet = calibration->getParameterSet();
+
+	if (!element.hasAttribute("tau"))
+		parameterSet(JointEncoderCalibration::PARAMETER_TAU).setEnabled(false);
+	else
+		parameterSet(JointEncoderCalibration::PARAMETER_TAU) = element.attribute("tau").toDouble();
+
+	if (!element.hasAttribute("sigma"))
+		parameterSet(JointEncoderCalibration::PARAMETER_SIGMA).setEnabled(false);
+	else
+		parameterSet(JointEncoderCalibration::PARAMETER_SIGMA) = element.attribute("sigma").toDouble();
 
 	calibration->setParameterSet(parameterSet);
 
@@ -117,30 +147,43 @@ SerialDeviceCalibration::Ptr XmlCalibrationLoader::load(rw::kinematics::StateStr
 	if (elmRoot.tagName() != "SerialDeviceCalibration")
 		RW_THROW("Element not found.");
 
-	ElementReader elementReader(stateStructure);
+	ElementReader elementReader(stateStructure, device);
 
-	// Load base frame calibration
+	// Load base calibration.
 	FixedFrameCalibration::Ptr baseCalibration;
-	QDomNode nodeBase = elmRoot.namedItem("BaseFrameCalibration");
+	QDomNode nodeBase = elmRoot.namedItem("BaseCalibration");
 	if (!nodeBase.isNull() && nodeBase.hasChildNodes())
 		baseCalibration = elementReader.readElement<FixedFrameCalibration::Ptr>(nodeBase.childNodes().at(0).toElement());
 
-	// Load end frame calibration
+	// Load end calibration.
 	FixedFrameCalibration::Ptr endCalibration;
-	QDomNode nodeEnd = elmRoot.namedItem("EndFrameCalibration");
+	QDomNode nodeEnd = elmRoot.namedItem("EndCalibration");
 	if (!nodeEnd.isNull() && nodeEnd.hasChildNodes())
 		endCalibration = elementReader.readElement<FixedFrameCalibration::Ptr>(nodeEnd.childNodes().at(0).toElement());
 
-	// Load DH calibrations
-	CompositeCalibration<DHParameterCalibration>::Ptr dhCalibrations = rw::common::ownedPtr(new CompositeCalibration<DHParameterCalibration>());
-	QDomNode nodeDH = elmRoot.namedItem("DHParameterCalibrations");
-	if (!nodeDH.isNull()) {
-		QDomNodeList nodes = nodeDH.childNodes();
-		for (int nodeIndex = 0; nodeIndex < nodes.size(); nodeIndex++)
-			dhCalibrations->addCalibration(elementReader.readElement<DHParameterCalibration::Ptr>(nodes.at(nodeIndex).toElement()));
+	// Load link calibrations.
+	CompositeCalibration<DHLinkCalibration>::Ptr compositeLinkCalibration = rw::common::ownedPtr(new CompositeCalibration<DHLinkCalibration>());
+	QDomNode nodeLinks = elmRoot.namedItem("LinkCalibrations");
+	if (!nodeLinks.isNull()) {
+		QDomNodeList nodes = nodeLinks.childNodes();
+		for (int nodeIndex = 0; nodeIndex < nodes.size(); nodeIndex++) {
+			DHLinkCalibration::Ptr linkCalibration = elementReader.readElement<DHLinkCalibration::Ptr>(nodes.at(nodeIndex).toElement());
+			compositeLinkCalibration->addCalibration(linkCalibration);
+		}
 	}
 
-	SerialDeviceCalibration::Ptr calibration = rw::common::ownedPtr(new SerialDeviceCalibration(device, baseCalibration, endCalibration, dhCalibrations));
+	// Load joint calibrations.
+	CompositeCalibration<JointEncoderCalibration>::Ptr compositeJointCalibration = rw::common::ownedPtr(new CompositeCalibration<JointEncoderCalibration>());
+	QDomNode nodeJoints = elmRoot.namedItem("JointCalibrations");
+	if (!nodeJoints.isNull()) {
+		QDomNodeList nodes = nodeJoints.childNodes();
+		for (int nodeIndex = 0; nodeIndex < nodes.size(); nodeIndex++) {
+			JointEncoderCalibration::Ptr jointCalibration = elementReader.readElement<JointEncoderCalibration::Ptr>(nodes.at(nodeIndex).toElement());
+			compositeJointCalibration->addCalibration(jointCalibration);
+		}
+	}
+
+	SerialDeviceCalibration::Ptr calibration = rw::common::ownedPtr(new SerialDeviceCalibration(device, baseCalibration, endCalibration, compositeLinkCalibration, compositeJointCalibration));
 
 	return calibration;
 }

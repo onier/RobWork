@@ -1,22 +1,22 @@
 /*
-* DHParameterCalibration.cpp
+* DHLinkCalibration.cpp
 *
 *  Created on: Aug 28, 2012
 *      Author: bing
 */
 
-#include "DHParameterCalibration.hpp"
+#include "DHLinkCalibration.hpp"
 
 namespace rwlibs {
 	namespace calibration {
-		int DHParameterCalibration::PARAMETER_A = 0;
-		int DHParameterCalibration::PARAMETER_B = 1;
-		int DHParameterCalibration::PARAMETER_D = 2;
-		int DHParameterCalibration::PARAMETER_ALPHA = 3;
-		int DHParameterCalibration::PARAMETER_BETA = 4;
-		int DHParameterCalibration::PARAMETER_THETA = 5;
+		int DHLinkCalibration::PARAMETER_A = 0;
+		int DHLinkCalibration::PARAMETER_B = 1;
+		int DHLinkCalibration::PARAMETER_D = 2;
+		int DHLinkCalibration::PARAMETER_ALPHA = 3;
+		int DHLinkCalibration::PARAMETER_BETA = 4;
+		int DHLinkCalibration::PARAMETER_THETA = 5;
 
-		DHParameterCalibration::DHParameterCalibration(rw::models::Joint::Ptr joint) : CalibrationBase(CalibrationParameterSet(6)), _joint(joint), _originalSet(*rw::models::DHParameterSet::get(joint.get())), _isParallel(_originalSet.isParallel()) {
+		DHLinkCalibration::DHLinkCalibration(rw::models::Joint::Ptr joint) : CalibrationBase(CalibrationParameterSet(6)), _joint(joint), _originalSet(*rw::models::DHParameterSet::get(joint.get())), _isParallel(_originalSet.isParallel()) {
 			CalibrationParameterSet parameterSet = getParameterSet();
 			if (_isParallel) {
 				parameterSet(PARAMETER_D).setEnabled(false);
@@ -34,15 +34,15 @@ namespace rwlibs {
 			}
 		}
 
-		DHParameterCalibration::~DHParameterCalibration() {
+		DHLinkCalibration::~DHLinkCalibration() {
 
 		}
 
-		rw::models::Joint::Ptr DHParameterCalibration::getJoint() const {
+		rw::models::Joint::Ptr DHLinkCalibration::getJoint() const {
 			return _joint;
 		}
 
-		//rw::math::Transform3D<> DHParameterCalibration::getCorrectionTransform() const {
+		//rw::math::Transform3D<> DHLinkCalibration::getCorrectionTransform() const {
 		//	rw::math::Transform3D<> original, corrected;
 		//	CalibrationParameterSet parameterSet = getParameterSet();
 		//	const double a = parameterSet(PARAMETER_A).isEnabled() ? (_originalSet.a() + parameterSet(PARAMETER_A)) : _originalSet.a();
@@ -62,7 +62,7 @@ namespace rwlibs {
 		//	}
 		//}
 
-		void DHParameterCalibration::doApply() {
+		void DHLinkCalibration::doApply() {
 			CalibrationParameterSet parameterSet = getParameterSet();
 			const double a = parameterSet(PARAMETER_A).isEnabled() ? (_originalSet.a() + parameterSet(PARAMETER_A)) : _originalSet.a();
 			const double alpha = parameterSet(PARAMETER_ALPHA).isEnabled() ? (_originalSet.alpha() + parameterSet(PARAMETER_ALPHA)) : _originalSet.alpha();
@@ -83,13 +83,13 @@ namespace rwlibs {
 			}
 		}
 
-		void DHParameterCalibration::doRevert() {
+		void DHLinkCalibration::doRevert() {
 			rw::models::DHParameterSet::set(_originalSet, _joint.get());
 			const rw::math::Transform3D<> correctedTransform = computeTransform(_originalSet);
 			_joint->setFixedTransform(correctedTransform);
 		}
 
-		rw::math::Transform3D<> DHParameterCalibration::computeTransform(const rw::models::DHParameterSet& dhParameterSet) {
+		rw::math::Transform3D<> DHLinkCalibration::computeTransform(const rw::models::DHParameterSet& dhParameterSet) {
 			if (dhParameterSet.isParallel())
 				return rw::math::Transform3D<double>::DHHGP(dhParameterSet.alpha(), dhParameterSet.a(), dhParameterSet.beta(), dhParameterSet.b());
 			else
