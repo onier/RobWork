@@ -34,6 +34,11 @@ SET(FILES_CPP
   OutputArchive.cpp
   INIArchive.cpp
   Serializable.cpp
+  
+  Extension.cpp
+  ExtensionPoint.cpp
+  ExtensionRegistry.cpp
+  Plugin.cpp
 )
 
 SET(FILES_HPP
@@ -73,6 +78,11 @@ SET(FILES_HPP
   OutputArchive.hpp
   INIArchive.hpp
   Serializable.hpp
+
+  Extension.hpp
+  ExtensionPoint.hpp
+  ExtensionRegistry.hpp
+  Plugin.hpp
 )
 
 FILE(GLOB SRC_FILES_CPP ${FILES_CPP})
