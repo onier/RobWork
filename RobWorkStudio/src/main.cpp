@@ -22,16 +22,13 @@
 #endif //#ifdef __WIN32
 #include <QApplication> 
 #include <QMainWindow>
-
+#include <rw/common/ProgramOptions.hpp>
 #include "RobWorkStudio.hpp"
-
 #include <rw/RobWork.hpp>
 #include <rw/common/PropertyMap.hpp>
 #include <rw/common/ProgramOptions.hpp>
-
 #include <RobWorkStudioConfig.hpp>
 #include <RobWorkConfig.hpp>
-
 #include <fstream>
 
 #include <rw/loaders/xml/XMLPropertyLoader.hpp>
@@ -39,6 +36,10 @@
 #include <rw/loaders/xml/XMLPropertyFormat.hpp>
 #include <rw/loaders/xml/XMLPathFormat.hpp>
 #include <boost/foreach.hpp>
+
+#ifdef __WIN32
+#include <omp.h> //Needed because otherwise Visual Studio results in run-time linking problems.
+#endif
 
 #ifdef RWS_USE_STATIC_LINK_PLUGINS
     #include <rwslibs/log/ShowLog.hpp>

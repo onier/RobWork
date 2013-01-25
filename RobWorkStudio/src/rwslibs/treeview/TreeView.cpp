@@ -28,7 +28,7 @@
 #include <QTreeWidgetItem>
 #include <QInputDialog>
 
-#include <rw/geometry/GeometryFactory.hpp>
+#include <rw/loaders/GeometryFactory.hpp>
 
 using namespace rw::graphics;
 using namespace rws;
@@ -37,6 +37,7 @@ using namespace rw::kinematics;
 using namespace rw::models;
 using namespace rw::common;
 using namespace rw::geometry;
+using namespace rw::loaders;
 
 using std::make_pair;
 
