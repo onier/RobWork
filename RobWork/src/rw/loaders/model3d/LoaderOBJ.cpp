@@ -25,6 +25,7 @@
 #include <rw/geometry/IndexedPolygon.hpp>
 #include <rw/geometry/Triangulate.hpp>
 
+using namespace rw::loaders;
 using namespace rw::graphics;
 using namespace rw::math;
 using namespace rw::common;
@@ -32,7 +33,7 @@ using namespace rw::geometry;
 
 
 namespace rw {
-namespace graphics {
+namespace loaders {
 
 /**
  * @brief Class for loading in OBJ files

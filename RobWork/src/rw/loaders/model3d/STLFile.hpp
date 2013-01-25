@@ -19,19 +19,22 @@
 #ifndef RW_GEOMETRY_STLFILE_HPP_
 #define RW_GEOMETRY_STLFILE_HPP_
 
-#include "TriMesh.hpp"
-#include "PlainTriMesh.hpp"
-
 #include <rw/common/macros.hpp>
 #include <rw/common/TimerUtil.hpp>
 #include <rw/math/Vector3D.hpp>
+
+#include <rw/geometry/TriMesh.hpp>
+#include <rw/geometry/PlainTriMesh.hpp>
+
+#include "../GeometryLoader.hpp"
+//#include "../MeshLoader.hpp"
 
 #include <vector>
 #include <iostream>
 #include <fstream>
 
 namespace rw {
-namespace geometry {
+namespace loaders {
 	//! @addtogroup geometry
 	// @{
 
@@ -48,7 +51,7 @@ namespace geometry {
 		 * @param mesh [in] the mesh that should be written to the STL file.
 		 * @param filename [in] the name of the file for which to write to.
 		 */
-		static void save(const TriMesh& mesh, const std::string& filename);
+		static void save(const rw::geometry::TriMesh& mesh, const std::string& filename);
 
 		/**
 		 * @brief reads a STL file with name \b filename into a plain
@@ -56,7 +59,7 @@ namespace geometry {
 		 * @param filename [in] the name of the file
 		 * @return triangle mesh if successfull, NULL otherwise.
 		 */
-		static PlainTriMeshN1F::Ptr load(const std::string& filename);
+		static rw::geometry::PlainTriMeshN1F::Ptr load(const std::string& filename);
 
 	};
 

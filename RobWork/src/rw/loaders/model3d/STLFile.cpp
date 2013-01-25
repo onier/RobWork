@@ -16,8 +16,8 @@
  ********************************************************************************/
 
 
-#include "STLFile.hpp"
-#include "TriangleUtil.hpp"
+#include <rw/loaders/model3d/STLFile.hpp>
+#include <rw/geometry/TriangleUtil.hpp>
 
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>
@@ -31,6 +31,7 @@
 #include <iomanip>
 #include <fstream>
 
+using namespace rw::loaders;
 using namespace rw::geometry;
 using namespace rw::common;
 using namespace rw::math;

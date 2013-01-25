@@ -18,14 +18,13 @@
 #include <fstream>
 #include <cctype>
 
-#include "DrawableFactory.hpp"
-#include "RenderGeometry.hpp"
-#include "RenderModel3D.hpp"
+#include "Model3DFactory.hpp"
 
 #include <rw/math/Constants.hpp>
 
 #include <rw/loaders/model3d/Loader3DS.hpp>
 #include <rw/loaders/model3d/LoaderAC3D.hpp>
+//#include <rw/graphics/ivg/LoaderIVG.hpp>
 #include <rw/loaders/model3d/LoaderOBJ.hpp>
 #include <rw/loaders/model3d/LoaderTRI.hpp>
 
@@ -37,7 +36,7 @@
 #include <rw/geometry/Geometry.hpp>
 #include <rw/loaders/GeometryFactory.hpp>
 #include <rw/loaders/model3d/STLFile.hpp>
-
+#include <rw/sensor/Image25D.hpp>
 #include <string>
 #include <istream>
 #include <sstream>
@@ -46,21 +45,15 @@
 #include <sys/stat.h>
 
 using namespace rw;
-using namespace rwlibs::opengl;
-using namespace rw::loaders;
 using namespace rw::common;
 using namespace rw::geometry;
 using namespace rw::graphics;
-
-//Due to a name conflict between our Drawable and a Drawable in X11/X.h on Linux, we need a small workaround.
-typedef rwlibs::opengl::Drawable::Ptr RWDrawablePtr;
-typedef rwlibs::opengl::Drawable RWDrawable;
-
-
+using namespace rw::sensor;
+using namespace rw::loaders;
 namespace
 {
     const std::string extensionsArray[] = {
-        ".TRI", ".AC", ".AC3D", ".3DS", ".OBJ", ".IVG", ".STL", ".STLA", ".STLB"
+        ".TRI", ".AC", ".AC3D", ".3DS", ".OBJ", ".IVG", ".STL", ".STLA", ".STLB", ".PCD"
     };
 
     const int extensionCount = sizeof(extensionsArray) / sizeof(extensionsArray[0]);
@@ -78,43 +71,44 @@ namespace
     }
 }
 
-RWDrawablePtr DrawableFactory::getDrawable(const std::string& str, const std::string& name)
+Model3D::Ptr Model3DFactory::getModel(const std::string& str, const std::string& name)
 {
     if (getCache().isInCache(str,"")) {
-    	return ownedPtr( new Drawable(getCache().get(str), name ) );
+        Model3D::Ptr res = ownedPtr( new Model3D( *getCache().get(str) ) );
+        res->setName( name );
+        return res;
     }
     if (str[0] == '#') {
         return constructFromGeometry(str, name);
     }
     else {
-        return loadDrawableFile(str, name);
+        return loadModel(str, name);
     }
 }
 
-RWDrawablePtr DrawableFactory::constructFromGeometry(const std::string& str, const std::string& name, bool useCache)
+Model3D::Ptr Model3DFactory::constructFromGeometry(const std::string& str, const std::string& name, bool useCache)
 {
     if( useCache ){
-    	if (getCache().isInCache(str,""))
-    		return ownedPtr(new Drawable(getCache().get(str), name));
+    	if (getCache().isInCache(str,"")){
+            Model3D::Ptr res = ownedPtr( new Model3D( *getCache().get(str) ) );
+            res->setName( name );
+            return res;
+    	}
     }
 	Geometry::Ptr geometry = GeometryFactory::getGeometry(str);
-    Render *render = new RenderGeometry(geometry);
+	Model3D *model = new Model3D(name);
+	model->addTriMesh( Model3D::Material("stlmat",0.6f,0.6f,0.6f), *geometry->getGeometryData()->getTriMesh() );
 
-    if( useCache ) {
-    	getCache().add(str, render, "");
-    	return ownedPtr(new Drawable(getCache().get(str), name));
-    }
-
-    return ownedPtr(new Drawable( ownedPtr(render), name));
+    return ownedPtr( model );
 }
 
-DrawableFactory::FactoryCache& DrawableFactory::getCache()
+Model3DFactory::FactoryCache& Model3DFactory::getCache()
 {
     static FactoryCache cache;
 	return cache;
 }
 
-RWDrawablePtr DrawableFactory::loadDrawableFile(const std::string &raw_filename, const std::string& name)
+Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const std::string& name)
 {
     const std::string& filename = IOUtil::resolveFileName(raw_filename, extensions);
     const std::string& filetype = StringUtil::toUpper(StringUtil::getFileExtension(filename));
@@ -130,7 +124,9 @@ RWDrawablePtr DrawableFactory::loadDrawableFile(const std::string &raw_filename,
 
     std::string moddate = getLastModifiedStr(filename);
     if ( getCache().isInCache(filename, moddate) ) {
-    	return ownedPtr( new Drawable(getCache().get(filename), name) );
+        Model3D::Ptr res = ownedPtr( new Model3D( *getCache().get(filename) ) );
+        res->setName( name );
+        return res;
     }
 
     // if not in cache then create new render
@@ -142,46 +138,39 @@ RWDrawablePtr DrawableFactory::loadDrawableFile(const std::string &raw_filename,
         PlainTriMeshN1F::Ptr data = STLFile::load(filename);
         //STLFile::save(*data,"test_badstl_stuff.stl");
 
-        Model3D::Ptr model = ownedPtr(new Model3D(name));
+        Model3D *model = new Model3D(name);
 
         model->addTriMesh(Model3D::Material("stlmat",0.6f,0.6f,0.6f), *data);
+        model->optimize(30*rw::math::Deg2Rad);
 
-        model->optimize(45*rw::math::Deg2Rad);
+        getCache().add(filename, model, moddate);
+        return getCache().get(filename);
+    } else if (filetype == ".PCD") {
+        Image25D::Ptr img = Image25D::load(filename );
 
-        Render *render = new RenderModel3D( model );
 
-        //Geometry::Ptr geom = GeometryFactory::getGeometry(filename);
-    	//RenderGeometry *render = new RenderGeometry( geom );
-
-        getCache().add(filename, render, moddate);
-        return ownedPtr( new Drawable(getCache().get(filename), name) );
     } else if (filetype == ".3DS") {
     	//std::cout << "loading 3ds file!" << std::endl;
     	Loader3DS loader;
 		Model3D::Ptr model = loader.load(filename);
-        Render *render = new RenderModel3D( model );
-        getCache().add(filename, render, moddate);
+        getCache().add(filename, model, moddate);
         //std::cout << "Creating drawable!" << std::endl;
-        return ownedPtr( new Drawable( getCache().get(filename), name ) );
+        return getCache().get(filename);
     } else if (filetype == ".AC" || filetype == ".AC3D") {
-
     	LoaderAC3D loader;
 		Model3D::Ptr model = loader.load(filename);
-        Render *render = new RenderModel3D( model );
-        getCache().add(filename, render, moddate);
-        return ownedPtr( new Drawable( getCache().get(filename), name ) );
+        getCache().add(filename, model, moddate);
+        return getCache().get(filename);
     } else if (filetype == ".TRI") {
     	LoaderTRI loader;
 		Model3D::Ptr model = loader.load(filename);
-        Render *render = new RenderModel3D( model );
-        getCache().add(filename, render, moddate);
-        return ownedPtr( new Drawable( getCache().get(filename), name ) );
+        getCache().add(filename, model, moddate);
+        return getCache().get(filename);
     } else if (filetype == ".OBJ") {
     	LoaderOBJ loader;
 		Model3D::Ptr model = loader.load(filename);
-        Render *render = new RenderModel3D( model );
-        getCache().add(filename, render, moddate);
-        return ownedPtr( new Drawable( getCache().get(filename), name ) );
+        getCache().add(filename, model, moddate);
+        return getCache().get(filename);
     /*
     } else if (filetype == ".IVG") {
     	LoaderIVG loader;

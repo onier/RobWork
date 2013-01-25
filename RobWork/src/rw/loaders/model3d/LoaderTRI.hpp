@@ -2,7 +2,7 @@
 #define RW_DRAWABLE_LOADERTRI_H
 
 #include <rw/graphics/Model3D.hpp>
-#include <rw/graphics/Model3DLoader.hpp>
+#include "../Model3DLoader.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -10,7 +10,7 @@
 #include <string>
 
 namespace rw {
-namespace graphics {
+namespace loaders {
     //! @addtogroup graphics
 	// @{
 
@@ -50,7 +50,7 @@ namespace graphics {
 		virtual ~LoaderTRI();
 
 		//! @copydoc Model3DLoader::load
-		Model3D::Ptr load(const std::string& name);
+		rw::graphics::Model3D::Ptr load(const std::string& name);
 
 	};
 

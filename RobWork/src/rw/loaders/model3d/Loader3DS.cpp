@@ -26,6 +26,8 @@
 #include <rw/math/RPY.hpp>
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>
+
+using namespace rw::loaders;
 using namespace rw::common;
 using namespace rw::math;
 using namespace rw::geometry;

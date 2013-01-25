@@ -16,16 +16,16 @@
  ********************************************************************************/
 
 
-#ifndef RW_GEOMETRY_GEOMETRYFACTORY_HPP_
-#define RW_GEOMETRY_GEOMETRYFACTORY_HPP_
+#ifndef RW_LOADERS_GEOMETRYFACTORY_HPP_
+#define RW_LOADERS_GEOMETRYFACTORY_HPP_
 
 #include <rw/common/Cache.hpp>
-#include "Geometry.hpp"
-#include "GeometryData.hpp"
+#include <rw/geometry/Geometry.hpp>
+#include <rw/geometry/GeometryData.hpp>
 
 //! @file rw/geometry/GeometryFactory.hpp
 
-namespace rw { namespace geometry {
+namespace rw { namespace loaders {
 
 
     /** @addtogroup geometry */
@@ -67,10 +67,10 @@ namespace rw { namespace geometry {
          * @param useCache [in] set true to return cached geometry if available
          * @return Pointer to a new geometry object
          */
-		static Geometry::Ptr load(const std::string& str, bool useCache=true);
+		static rw::geometry::Geometry::Ptr load(const std::string& str, bool useCache=true);
 
     	//! @copydoc load
-		static Geometry::Ptr getGeometry(const std::string& str, bool useCache=true);
+		static rw::geometry::Geometry::Ptr getGeometry(const std::string& str, bool useCache=true);
 
         /**
          * @brief loads collision geometry as specified by properties on the frame.
@@ -90,7 +90,7 @@ namespace rw { namespace geometry {
 		//static Geometry::Ptr loadCollisionGeometry(const rw::models::CollisionModelInfo& info);
 
     private:
-        typedef rw::common::Cache<std::string, GeometryData> Cache;
+        typedef rw::common::Cache<std::string, rw::geometry::GeometryData> Cache;
         static Cache& getCache();
 
     };

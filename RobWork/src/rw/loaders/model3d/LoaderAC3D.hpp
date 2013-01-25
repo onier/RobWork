@@ -20,19 +20,20 @@
 
 //! @file LoaderAC3D.hpp
 
-#include <rwlibs/os/rwgl.hpp>
-
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Rotation3D.hpp>
+
+#include <rw/graphics/TextureData.hpp>
 
 #include <list>
 #include <vector>
 #include <map>
 
-#include <rw/graphics/Model3DLoader.hpp>
 
 
-namespace rw { namespace graphics {
+#include "../Model3DLoader.hpp"
+
+namespace rw { namespace loaders {
 
     /** @addtogroup graphics */
     /*@{*/
@@ -247,8 +248,8 @@ namespace rw { namespace graphics {
         };
 
         struct ModelAC3D {
-            std::vector<TextureData> _textures;
-            std::map<int, TextureData*> _textureMap;
+            std::vector<rw::graphics::TextureData> _textures;
+            std::map<int, rw::graphics::TextureData*> _textureMap;
             AC3DObject* _object;
             std::vector<AC3DMaterial> _materials;
             std::string _currentDir;

@@ -1,8 +1,6 @@
 SET(FILES_CPP
-    STLFile.cpp
     Geometry.cpp
     GeometryData.cpp
-    GeometryFactory.cpp
     IndexedTriangle.cpp
     IndexedTriMesh.cpp
     PlainTriMesh.cpp
@@ -54,18 +52,15 @@ SET(FILES_CPP
 )
 
 SET(FILES_HPP
-    STLFile.hpp
     Geometry.hpp
     GeometryData.hpp
-    GeometryFactory.hpp
     IndexedTriangle.hpp
     IndexedTriMesh.hpp
     PlainTriMesh.hpp
     Triangle.hpp
     TriangleUtil.hpp
     TriMesh.hpp
-    GeometryUtil.hpp
-    
+    GeometryUtil.hpp    
     Primitive.hpp
     Box.hpp
     Cylinder.hpp

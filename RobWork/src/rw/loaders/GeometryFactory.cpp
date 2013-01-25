@@ -24,11 +24,11 @@
 
 #include <rw/graphics/Model3DFactory.hpp>
 
-#include "STLFile.hpp"
-#include "Box.hpp"
-#include "Cylinder.hpp"
-#include "Sphere.hpp"
-#include "PointCloud.hpp"
+#include "model3d/STLFile.hpp"
+#include <rw/geometry/Box.hpp>
+#include <rw/geometry/Cylinder.hpp>
+#include <rw/geometry/Sphere.hpp>
+#include <rw/geometry/PointCloud.hpp>
 
 /*
 #include "Line.hpp"
@@ -40,10 +40,13 @@
 */
 #include <boost/foreach.hpp>
 
+using namespace rw::loaders;
+
 using namespace rw::common;
 using namespace rw::geometry;
 using namespace rw::kinematics;
 using namespace rw::math;
+
 
 namespace
 {
@@ -191,7 +194,7 @@ Geometry::Ptr GeometryFactory::getGeometry(const std::string& raw_filename, bool
             return ownedPtr(new Geometry(getCache().get(filename)));
 
 		} else {
-			rw::graphics::Model3D::Ptr model = rw::graphics::Model3DFactory::loadModel(filename,"");
+			rw::graphics::Model3D::Ptr model = rw::loaders::Model3DFactory::loadModel(filename,"");
 
 			GeometryData::Ptr data = model->toGeometryData();
 			getCache().add(filename, data);

@@ -15,38 +15,49 @@
  * limitations under the License.
  ********************************************************************************/
 
-#ifndef RW_GRAPHICS_MODEL3DLOADER_HPP_
-#define RW_GRAPHICS_MODEL3DLOADER_HPP_
+#ifndef RW_GRAPHICS_LOADEROBJ_
+#define RW_GRAPHICS_LOADEROBJ_
 
-//! @file Model3DLoader.hpp
+//! @file LoaderOBJ.hpp
 
-#include "Model3D.hpp"
+#include <string>
+#include <vector>
+#include <cstring>
 
-namespace rw {
-namespace graphics {
+#include <rw/common/macros.hpp>
+#include <rw/math/Vector3D.hpp>
 
-	//! @addtogroup graphics
+#include "../Model3DLoader.hpp"
+
+namespace rw { namespace loaders {
+
+    //! @addtogroup graphics
 	// @{
 
-
 	/**
-	 * @brief interface for classes that are able to load 3d models
+	 * @brief Class for loading in IVG files.
+	 * TODO: add documentation on IVG format
 	 */
-    class Model3DLoader {
-    public:
-        //! destructor
-        virtual ~Model3DLoader(){};
-        /**
-         * @brief load a Model3D from file \b filename
-         * @param filename [in] name of file to load
-         * @return a model3d if loaded successfully else NULL (or exception)
-         */
-        virtual Model3D::Ptr load(const std::string& filename) = 0;
+	class LoaderOBJ: public Model3DLoader
+	{
+	public:
+	    /**
+	     * @brief constructor
+	     */
+		LoaderOBJ(){};
 
-        //virtual void save(Model3DPtr model, const std::string& filename) = 0;
+		/**
+		 * @brief destructor
+		 */
+		virtual ~LoaderOBJ(){};
 
-    };
-    //! @}
-}
-}
-#endif /* RW_GRAPHICS_MODEL3DLOADER_HPP_ */
+		//! @copydoc Model3DLoader::load
+		rw::graphics::Model3D::Ptr load(const std::string& name);
+
+	};
+
+	//! @}
+
+}}
+
+#endif //end include guard

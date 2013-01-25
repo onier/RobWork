@@ -1233,11 +1233,11 @@ public:
  *
  * *************************************************************************/
 
-class WorkCellLoader{
+class WorkCellFactory{
 public:
     static rw::common::Ptr<WorkCell> load(const std::string& filename);
 private:
-    WorkCellLoader();
+    WorkCellFactory();
 };
 
 

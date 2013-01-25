@@ -37,7 +37,7 @@
 #include <rw/models/ParallelLeg.hpp>
 #include <rw/models/DHParameterSet.hpp>
 
-#include <rw/geometry/GeometryFactory.hpp>
+#include <rw/loaders/GeometryFactory.hpp>
 
 #include <rw/math/Constants.hpp>
 #include <rw/math/EAA.hpp>

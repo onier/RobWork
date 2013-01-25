@@ -21,7 +21,7 @@
 //! @file Loader3DS.hpp
 
 #include <rw/graphics/Model3D.hpp>
-#include <rw/graphics/Model3DLoader.hpp>
+#include "../Model3DLoader.hpp"
 
 #include <cstdio>
 #include <cstring>
@@ -29,7 +29,7 @@
 #include <string>
 
 namespace rw {
-namespace graphics {
+namespace loaders {
 
     //! @addtogroup graphics
 	// @{
@@ -52,7 +52,7 @@ namespace graphics {
 		virtual ~Loader3DS(){};
 
 		//! @copydoc Model3DLoader::load
-		Model3D::Ptr load(const std::string& name); // Loads a model
+		rw::graphics::Model3D::Ptr load(const std::string& name); // Loads a model
 
 	private:
 		std::string _path; // The path of the model

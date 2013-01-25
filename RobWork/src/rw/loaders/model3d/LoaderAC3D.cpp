@@ -50,6 +50,7 @@
 
 #define streq(a,b)  ( (*(a)==*(b)) && !strcmp(a,b) )
 
+using namespace rw::loaders;
 using namespace rw::graphics;
 using namespace rw::math;
 using namespace rw::common;

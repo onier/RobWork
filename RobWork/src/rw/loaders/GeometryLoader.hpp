@@ -15,48 +15,39 @@
  * limitations under the License.
  ********************************************************************************/
 
-#ifndef RW_GRAPHICS_LOADEROBJ_
-#define RW_GRAPHICS_LOADEROBJ_
+#ifndef RW_LOADERS_GEOMETRYLOADER_HPP_
+#define RW_LOADERS_GEOMETRYLOADER_HPP_
 
-//! @file LoaderOBJ.hpp
+//! @file GeometryLoader.hpp
 
-#include <string>
-#include <vector>
-#include <cstring>
+#include <rw/geometry/Geometry.hpp>
 
-#include <rw/common/macros.hpp>
-#include <rw/graphics/Model3DLoader.hpp>
-#include <rw/math/Vector3D.hpp>
+namespace rw {
+namespace loaders {
 
-namespace rw { namespace graphics {
-
-    //! @addtogroup graphics
+	//! @addtogroup loaders
 	// @{
 
+
 	/**
-	 * @brief Class for loading in IVG files.
-	 * TODO: add documentation on IVG format
+	 * @brief interface for classes that are able to load 3d models
 	 */
-	class LoaderOBJ: public Model3DLoader
-	{
-	public:
-	    /**
-	     * @brief constructor
-	     */
-		LoaderOBJ(){};
+    class GeometryLoader {
+    public:
 
-		/**
-		 * @brief destructor
-		 */
-		virtual ~LoaderOBJ(){};
+    	//! destructor
+        virtual ~GeometryLoader(){};
 
-		//! @copydoc Model3DLoader::load
-		rw::graphics::Model3D::Ptr load(const std::string& name);
+    	/**
+         * @brief load a Geometry from file \b filename
+         * @param filename [in] name of file to load
+         * @return a model3d if loaded successfully else NULL (or exception)
+         */
+        virtual rw::geometry::Geometry::Ptr loadGeomtry(const std::string& filename) = 0;
 
-	};
 
-	//! @}
-
-}}
-
-#endif //end include guard
+    };
+    //! @}
+}
+}
+#endif /* RW_GRAPHICS_MODEL3DLOADER_HPP_ */

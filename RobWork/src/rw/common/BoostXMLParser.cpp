@@ -97,7 +97,7 @@ std::vector<double> BoostDOMElem::getValueAsDoubleList(int size){
     	double val = boost::lexical_cast<double>(str);
         values.push_back(val);
     }
-    if(values.size()!=size)
+    if(values.size()!= (size_t)size)
     	RW_THROW("Error parsing element \""<< _name <<"\" expected "<<size<< " doubles, got " << values.size());
     return values;
 }

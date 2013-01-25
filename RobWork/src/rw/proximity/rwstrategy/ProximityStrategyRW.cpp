@@ -21,8 +21,6 @@
 #include <float.h>
 #include <vector>
 #include <rw/geometry/TriMesh.hpp>
-#include <rw/geometry/GeometryFactory.hpp>
-#include <rw/geometry/GeometryUtil.hpp>
 #include <rw/kinematics/Frame.hpp>
 #include <rw/common/macros.hpp>
 #include <rw/common/Exception.hpp>

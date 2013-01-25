@@ -8,6 +8,7 @@
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>
 
+using namespace rw::loaders;
 using namespace rw::common;
 using namespace rw::graphics;
 using namespace rw::geometry;
