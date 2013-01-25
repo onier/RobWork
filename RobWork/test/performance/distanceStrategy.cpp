@@ -25,7 +25,7 @@
 
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
-#include <rw/loaders.hpp>
+#include <rw/loaders/WorkCellLoader.hpp>
 #include <rw/common/TimerUtil.hpp>
 
 #include <stdio.h>
@@ -197,8 +197,8 @@ void loadModelsData(CollisionTestSetup& setup, int nrModels, const std::string& 
 
 
     setup.modelDetail = geomDetail;
-    Geometry::Ptr geom = GeometryFactory::load( testFilePath().append( filename ) );
-    //Geometry::Ptr geom = Geometry::makeCylinder(0.1, 0.3);
+    //Geometry::Ptr geom = GeometryFactory::load( testFilePath().append( filename ) );
+    Geometry::Ptr geom = Geometry::makeCylinder(0.1, 0.3);
     //char istr[20];
     std::string istr;
     Timer time;
