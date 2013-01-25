@@ -507,7 +507,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
                 break;
             } else {
 
-            	if(i>2){
+            	if(i>5){
                     // if we allready tried reducing the timestep then set the inCollisionFlag
                     // and let the contact resolution use the cached contacts
                     _prevStepEndedInCollision = true;

@@ -79,7 +79,7 @@
 #include <rwlibs/control/JointController.hpp>
 
 #include <rw/geometry/Geometry.hpp>
-#include <rw/geometry/GeometryFactory.hpp>
+#include <rw/loaders/GeometryFactory.hpp>
 #include <rw/geometry/IndexedTriMesh.hpp>
 #include <rw/geometry/TriangleUtil.hpp>
 
@@ -1306,10 +1306,10 @@ namespace
         const string workcell_name =  child.get<string>("workcell");
 
         if(StringUtil::isAbsoluteFileName(workcell_name)){
-            state.wc = WorkCellLoader::load(workcell_name);
+            state.wc = WorkCellFactory::load(workcell_name);
         } else {
             std::string directory = StringUtil::getDirectoryName(state.dwcfile);
-            state.wc = WorkCellLoader::load(directory+workcell_name);
+            state.wc = WorkCellFactory::load(directory+workcell_name);
         }
     }
 
