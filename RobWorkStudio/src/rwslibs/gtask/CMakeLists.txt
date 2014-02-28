@@ -13,9 +13,9 @@ IF(build)
     IF(RWS_USE_QT5)
       RWS_QT5_WRAP_UI(UIS_OUT_H ${UIS_FILES})
     ELSE()
-      RWS_QT4_WRAP_UI(UIS_OUT_H ${UIS_FILES})
+      QT4_WRAP_UI(UIS_OUT_H ${UIS_FILES})
     ENDIF()
-    
+    include_directories(${CMAKE_CURRENT_BINARY_DIR})
     # Standard cpp files to compile:
     SET(SrcFiles GTaskVisPlugin.cpp)
     SET(SRC_FILES_HPP GTaskVisPlugin.hpp)

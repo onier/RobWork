@@ -5,7 +5,7 @@ SET(UIS_FILES AboutBox.ui propertyview/PropertyViewEditor.ui propertyview/Proper
 IF(RWS_USE_QT5)
 	RWS_QT5_WRAP_UI(UIS_OUT_H ${UIS_FILES})
 ELSE()
-	RWS_QT4_WRAP_UI(UIS_OUT_H ${UIS_FILES})
+	QT4_WRAP_UI(UIS_OUT_H ${UIS_FILES})
 ENDIF()
 
 # Standard files to compile:
@@ -56,6 +56,7 @@ SET(MocHeaderFiles
 
 set_source_files_properties(${SRC_FILES_CPP} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
 
+
 SET(MocSrcFiles)
 IF(RWS_USE_QT5)
 	QT5_WRAP_CPP(MocSrcFiles ${MocHeaderFiles} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
@@ -64,6 +65,8 @@ ELSE()
 ENDIF()
 set_source_files_properties(${MocSrcFiles} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
 
+#Add the cmake binary dir because this is where the ui files are placed
+include_directories(${CMAKE_CURRENT_BINARY_DIR}) 
 # Resource files to rcc and compile:
 IF(RWS_BUILD_SANDBOX)
     #SET(SandboxResourceFiles rwstudio_sandbox_resources.qrc)
