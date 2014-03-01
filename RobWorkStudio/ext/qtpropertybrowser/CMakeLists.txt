@@ -15,7 +15,7 @@ SET(SRC_FILES_CPP
     ${CMAKE_CURRENT_SOURCE_DIR}/src/qtbuttonpropertybrowser.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/qtgroupboxpropertybrowser.cpp 
     ${CMAKE_CURRENT_SOURCE_DIR}/src/qtpropertybrowserutils.cpp
-    ${CMAKE_CURRENT_BINARY_DIR}/src/moc_qtpropertybrowserutils_p.cpp
+  #  ${CMAKE_CURRENT_BINARY_DIR}/src/moc_qtpropertybrowserutils_p.cpp
   ${UIS_OUT_H})
 
 SET(SRC_FILES_HPP		
@@ -35,7 +35,7 @@ SET(SRC_FILES_HPP
 
 
 IF (RWS_USE_QT5)
-	RWS_QT5_WRAP_CPP(MocSrcFiles ${SRC_FILES_HPP})
+	QT5_WRAP_CPP(MocSrcFiles ${SRC_FILES_HPP})
 ELSE()
 	QT4_WRAP_CPP(MocSrcFiles ${SRC_FILES_HPP})	
 ENDIF()
@@ -64,13 +64,14 @@ set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/qtbuttonpropertybrow
     OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/src/moc_qtbuttonpropertybrowser.cxx")
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/qtgroupboxpropertybrowser.cpp PROPERTIES 
     OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/src/moc_qtgroupboxpropertybrowser.cxx")
-#set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/qtpropertybrowserutils.cpp PROPERTIES OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/src/moc_qtpropertybrowserutils.cpp")
+set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/src/qtpropertybrowserutils.cpp PROPERTIES 
+	OBJECT_DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/src/moc_qtpropertybrowserutils_p.cxx")
 
 # Resource files to rcc and compile:
 IF (RWS_USE_QT5)
-QT5_ADD_RESOURCES(ResourceFiles ${CMAKE_CURRENT_SOURCE_DIR}/src/qtpropertybrowser.qrc)
+	QT5_ADD_RESOURCES(ResourceFiles ${CMAKE_CURRENT_SOURCE_DIR}/src/qtpropertybrowser.qrc)
 ELSE()
-QT4_ADD_RESOURCES(ResourceFiles ${CMAKE_CURRENT_SOURCE_DIR}/src/qtpropertybrowser.qrc)
+	QT4_ADD_RESOURCES(ResourceFiles ${CMAKE_CURRENT_SOURCE_DIR}/src/qtpropertybrowser.qrc)
 ENDIF()
 
 # We create a static library named qtpropertybrowser that all plugins should link to. Our

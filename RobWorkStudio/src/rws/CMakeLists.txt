@@ -3,7 +3,7 @@
 SET(UIS_FILES AboutBox.ui propertyview/PropertyViewEditor.ui propertyview/PropertyViewDialog.ui)
 
 IF(RWS_USE_QT5)
-	RWS_QT5_WRAP_UI(UIS_OUT_H ${UIS_FILES})
+	QT5_WRAP_UI(UIS_OUT_H ${UIS_FILES})
 ELSE()
 	QT4_WRAP_UI(UIS_OUT_H ${UIS_FILES})
 ENDIF()
