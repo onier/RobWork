@@ -1,5 +1,5 @@
 SET(SUBSYS_NAME rws_luaeditor)
-set(SUBSYS_DESC "A jog plugin")
+set(SUBSYS_DESC "A lua editor plugin")
 SET(SUBSYS_DEPS rws rws_lua_s)
 
 SET(build ${RWS_HAVE_LUA})

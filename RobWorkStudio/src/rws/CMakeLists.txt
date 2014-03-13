@@ -56,6 +56,10 @@ SET(MocHeaderFiles
 
 set_source_files_properties(${SRC_FILES_CPP} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
 
+#Add the cmake binary dir because this is where the ui files are placed
+MESSAGE(STATUS "CMAKE_CURRENT_BINARY_DIR:  ${CMAKE_CURRENT_BINARY_DIR}")
+include_directories(${CMAKE_CURRENT_BINARY_DIR}) 
+
 
 SET(MocSrcFiles)
 IF(RWS_USE_QT5)
@@ -65,8 +69,6 @@ ELSE()
 ENDIF()
 set_source_files_properties(${MocSrcFiles} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
 
-#Add the cmake binary dir because this is where the ui files are placed
-include_directories(${CMAKE_CURRENT_BINARY_DIR}) 
 # Resource files to rcc and compile:
 IF(RWS_BUILD_SANDBOX)
     #SET(SandboxResourceFiles rwstudio_sandbox_resources.qrc)
