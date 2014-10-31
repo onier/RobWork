@@ -209,7 +209,16 @@ void Sensors::on_btnDisplay_clicked(bool checked) {
         Scan25DView* scanview = new Scan25DView();
         //scanview->makeCurrent();
         GLFrameGrabber25D::Ptr framegrabber25d = ownedPtr( new GLFrameGrabber25D(width, height,fovy) );
+        gldrawer->updateView();
         framegrabber25d->init(gldrawer);
+        gldrawer->updateView();
+        framegrabber25d->grab(frame, getRobWorkStudio()->getState());
+        gldrawer->updateView();
+        gldrawer->updateView();
+        const Image25D& img = framegrabber25d->getImage();
+        Image25D::save(img,"mytestfile.pcd");
+
+
         SimulatedScanner25D* simscan25 = new SimulatedScanner25D("SimulatedScanner25D", frame, framegrabber25d);
         sensor = simscan25;
 
@@ -234,6 +243,11 @@ void Sensors::on_btnDisplay_clicked(bool checked) {
         scanview->makeCurrent();
         GLFrameGrabber25D::Ptr framegrabber25d = ownedPtr( new GLFrameGrabber25D(1, cnt,fovy) );
         framegrabber25d->init(gldrawer);
+        framegrabber25d->grab(frame, getRobWorkStudio()->getState());
+        const Image25D& img = framegrabber25d->getImage();
+        Image25D::save(img,"mytestfile.pcd");
+
+
         SimulatedScanner2D* simscan2D = new SimulatedScanner2D("SimulatedScanner2D", frame, framegrabber25d);
         sensor = simscan2D;
         simscan2D->open();

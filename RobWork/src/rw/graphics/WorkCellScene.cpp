@@ -57,11 +57,12 @@ namespace
         // The information of drawables is located in SceneDescriptor and "model::Object"s
         // first check if there is any object with a frame "frame" in it
         std::vector<Object::Ptr> objs = wc->getObjects();
+        State state = wc->getDefaultState();
 
         BOOST_FOREACH(Object::Ptr obj, objs){
             // the collision info is the geometry and visualization is Model3D
             // in case no models are available the collision geometry will be used
-            std::vector<Geometry::Ptr> geoms = obj->getGeometry();
+            std::vector<Geometry::Ptr> geoms = obj->getGeometry(state);
             BOOST_FOREACH(Geometry::Ptr geom, geoms){
                 if(geom->getFrame()!=&frame)
                     continue;
@@ -277,6 +278,8 @@ void WorkCellScene::setState(const rw::kinematics::State& state){
             }
         }
     }
+
+    // also iterate through all deformable objects and update their geometries
 
 
 }

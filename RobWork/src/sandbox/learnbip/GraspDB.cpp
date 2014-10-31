@@ -16,7 +16,7 @@
 #include <rw/common/Exception.hpp>
 
 using namespace boost;
-using namespace boost::filesystem3;
+using namespace boost::filesystem;
 using namespace rw::common;
 using namespace rw::math;
 using namespace rwlibs::task;

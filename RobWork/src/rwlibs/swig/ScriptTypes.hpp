@@ -104,6 +104,7 @@ namespace swig {
 	typedef rw::geometry::PlainTriMesh<TriangleN1f> PlainTriMeshN1f;
 	typedef rw::geometry::ConvexHull3D ConvexHull3D;
 	typedef rw::geometry::Geometry Geometry;
+	typedef rw::geometry::PointCloud PointCloud;
 
 	// graphics
 	typedef rw::graphics::WorkCellScene WorkCellScene;

@@ -4,6 +4,8 @@
 #include <rwlibs/swig/ScriptTypes.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
+#include <rw/loaders/xml/XMLPropertyLoader.hpp>
+#include <rw/loaders/xml/XMLPropertySaver.hpp>
 #if defined (SWIGLUA)
 #include <rwlibs/swig/Lua.hpp>
 #endif
@@ -51,6 +53,12 @@ void writelog(const std::string& msg);
 %inline %{
     void sleep(double t){
         ::rw::common::TimerUtil::sleepMs( (int) (t*1000) );
+    }
+    double time(){
+        return ::rw::common::TimerUtil::currentTime( );
+    }
+    long long timeMs(){
+        return ::rw::common::TimerUtil::currentTimeMs( );
     }
     void info(const std::string& msg){
         ::rw::common::Log::infoLog() << msg;
@@ -122,11 +130,45 @@ public:
 };
 }}
 
+%template (PropertyMapPtr) rw::common::Ptr<PropertyMap>;
 class PropertyMap
 {
-};
+public:
+	PropertyMap();
+	bool has(const std::string& identifier) const;
+    size_t size() const;
+    bool empty() const;
+    bool erase(const std::string& identifier);
+    
+	%extend {
+		
+		std::string& getString(const std::string& id){ return $self->get<std::string>(id); }
+		void setString(const std::string& id, std::string val){  $self->set<std::string>(id,val); }
+		
+		std::vector<std::string>& getStringList(const std::string& id){ return $self->get<std::vector<std::string> >(id); }
+		void setStringList(const std::string& id, std::vector<std::string> val){ $self->set<std::vector<std::string> >(id,val); }
+		
+		Q& getQ(const std::string& id){ return $self->get<Q>(id); }
+		void setQ(const std::string& id, Q q){ $self->set<Q>(id, q); }
 
-%template (PropertyMapPtr) rw::common::Ptr<PropertyMap>;
+		Pose6D& getPose(const std::string& id){ return $self->get<Pose6D>(id); }
+		void setPose6D(const std::string& id, Pose6D p){  $self->set<Pose6D>(id, p); }
+		
+		Vector3D& getVector3D(const std::string& id){ return $self->get<Vector3D>(id); }
+		void setVector3D(const std::string& id, Vector3D p){  $self->set<Vector3D>(id, p); }
+
+		Transform3D& getTransform3D(const std::string& id){ return $self->get<Transform3D>(id); }
+		void setTransform3D(const std::string& id, Transform3D p){  $self->set<Transform3D>(id, p); }
+
+		PropertyMap& getMap(const std::string& id){ return $self->get<PropertyMap>(id); }
+		void setMap(const std::string& id, PropertyMap p){  $self->set<PropertyMap>(id, p); }
+		
+		void load(const std::string& filename){ *($self) = rw::loaders::XMLPropertyLoader::load(filename); }
+		void save(const std::string& filename){ rw::loaders::XMLPropertySaver::save( *($self), filename ); }
+		
+	}    
+
+};
 
 class ThreadPool {
 public:
@@ -348,6 +390,34 @@ class Triangle
 class Trianglef
 {
 };
+
+
+class PointCloud: public GeometryData {
+	public:
+        PointCloud();
+        PointCloud(int w, int h);
+
+/*
+		GeometryType getType() const;
+		size_t size() const;
+		bool isOrdered();
+	    std::vector<rw::math::Vector3D<float> >& getData();
+	    const std::vector<rw::math::Vector3D<float> >& getData() const;
+        const rw::math::Vector3D<float>& operator()(int x, int y) const;
+	    rw::math::Vector3D<float>& operator()(int x, int y);
+	    int getWidth() const;
+        int getHeight() const;
+	    void resize(int w, int h);
+
+		static rw::common::Ptr<PointCloud> loadPCD( const std::string& filename );
+
+        static void savePCD( const PointCloud& cloud,
+                                                    const std::string& filename ,
+                                                    const rw::math::Transform3D<float>& t3d =
+	                                                            rw::math::Transform3D<float>::identity());
+	                                                            */
+	};
+
 
 /********************************************
  * GRAPHICS
@@ -900,28 +970,31 @@ public:
 %template (QVector) std::vector<Q>;
 %template(QPair) std::pair<Q, Q>;
 
-class Vector2D
+namespace rw {
+namespace math {
+
+template<class T> class Vector2D
 {
 public:
     Vector2D();
     %feature("autodoc","1");
-    Vector2D(double x, double y);
+    Vector2D(T x, T y);
     size_t size() const;
 
-    double norm2();
-    double norm1();
-    double normInf();
+    T norm2();
+    T norm1();
+    T normInf();
 
     //double& operator[](unsigned int i) ;
     %rename(elem) operator[];
 
     %extend {
 #if (defined(SWIGLUA) || defined(SWIGPYTHON))
-        char *__str__() { return printCString<Vector2D>(*$self); }
+        char *__str__() { return printCString<rw::math::Vector2D<T> >(*$self); }
         double __getitem__(int i)const {return (*$self)[i]; }
         void __setitem__(int i,double d){ (*$self)[i] = d; }
 #elif defined(SWIGJAVA)
-        std::string toString() const { return toString<Vector2D>(*$self); }
+        std::string toString() const { return toString<rw::math::Vector2D<T> >(*$self); }
         double get(std::size_t i) const { return (*$self)[i]; }
         void set(std::size_t i,double d){ (*$self)[i] = d; }
 #endif
@@ -929,16 +1002,26 @@ public:
 
 };
 
-%template (Vector2DVector) std::vector<Vector2D>;
+}}
 
-class Vector3D
+%template (Vector2Df) rw::math::Vector2D<float>;
+%template (Vector2Dd) rw::math::Vector2D<double>;
+%template (Vector2DVector) std::vector<rw::math::Vector2D<double> >;
+%rename(Vector2Df) rw::math::Vector2D<float>;
+%rename(Vector2D) rw::math::Vector2D<double>;
+
+
+
+namespace rw { namespace math {
+
+template<class T> class Vector3D
 {
 public:
     Vector3D();
     %feature("autodoc","1");
-    Vector3D(double x, double y, double z);
+    Vector3D(T x, T y, T z);
     size_t size() const;
-    Vector3D operator*(double scale) const;
+    Vector3D operator*(T scale) const;
 #if defined(SWIGJAVA)
 	%rename(subtract) operator-(const Vector3D&) const;
 	%rename(add) operator+(const Vector3D&) const;
@@ -947,27 +1030,29 @@ public:
     Vector3D operator-(const Vector3D& other) const;
     bool operator==(const Vector3D& q);
 
-    double norm2();
-    double norm1();
-    double normInf();
+    T norm2();
+    T norm1();
+    T normInf();
 
     //double& operator[](unsigned int i) ;
     //%rename(elem) operator[];
     
     %extend {
 #if (defined(SWIGLUA) || defined(SWIGPYTHON))
-        char *__str__() { return printCString<Vector3D>(*$self); }
-        double __getitem__(int i)const {return (*$self)[i]; }
+        char *__str__() { return printCString<rw::math::Vector3D<T> >(*$self); }
+        T __getitem__(int i)const {return (*$self)[i]; }
         void __setitem__(int i,double d){ (*$self)[i] = d; }
 #elif defined(SWIGJAVA)
-        std::string toString() const { return toString<Vector3D>(*$self); }
-        double get(std::size_t i) const { return (*$self)[i]; }
+        std::string toString() const { return toString<rw::math::Vector3D<T> >(*$self); }
+        T get(std::size_t i) const { return (*$self)[i]; }
         void set(std::size_t i,double d){ (*$self)[i] = d; }
 #endif
     };
 };
+} }
+%template (Vector3Df) rw::math::Vector3D<float>;
+%template (Vector3DVector) std::vector<rw::math::Vector3D<double> >;
 
-%template (Vector3DVector) std::vector<Vector3D>;
 
 class Rotation3D
 {

@@ -17,49 +17,14 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 # The name of the project.
 PROJECT(PluginUIApp)
 
-# Used to resolve absolute path names
-SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 
-set(CMAKE_VERBOSE_MAKEFILE false)
-
-# Now set the RW/RWS root (edit this if necessary)
-
-    SET(RW_ROOT "${ROOT}/../../../RobWork")
-    SET(RWS_ROOT "${ROOT}/../../../RobWorkStudio")
-    SET(RWSIM_ROOT "${ROOT}/../../../RobWorkSim")
-
-# We use the settings that robwork studio uses
-#SET(CMAKE_BUILD_TYPE Release)
-
-#Include default settings for constructing a robwork dependent project
-#INCLUDE(${RW_ROOT}/build/FindRobWork.cmake)
-#INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIR} )
-#LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
-
-#Include default settings for constructing a robworkstudio dependent project
-#INCLUDE(${RWSTUDIO_ROOT}/build/FindRobWorkStudio.cmake)
-#INCLUDE_DIRECTORIES( ${ROBWORKSTUDIO_INCLUDE_DIR} )
-#LINK_DIRECTORIES( ${ROBWORKSTUDIO_LIBRARY_DIRS} )
-
-#Include RobWorkSim settings
-
-MESSAGE(" ${RWSIM_ROOT} --")
-SET(CMAKE_MODULE_PATH ${RWSIM_ROOT}/build ${CMAKE_MODULE_PATH})
+SET(RobWorkSim_DIR ../../cmake)
 FIND_PACKAGE(RobWorkSim REQUIRED)
 INCLUDE_DIRECTORIES( ${ROBWORKSIM_INCLUDE_DIR} )
 LINK_DIRECTORIES( ${ROBWORKSIM_LIBRARY_DIRS} )
 
+# now include macros from RobWorkStudio since we need them here
 
-# Set the output dir for generated libraries and binaries
-IF(MSVC)
-	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${ROOT}/bin" CACHE PATH "Runtime directory" FORCE)
-	SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${ROOT}/libs" CACHE PATH "Library directory" FORCE)
-	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${ROOT}/libs" CACHE PATH "Archive directory" FORCE)
-ELSE()
-	SET(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${ROOT}/bin/${CMAKE_BUILD_TYPE}" CACHE PATH "Runtime directory" FORCE)
-	SET(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${ROOT}/libs/${CMAKE_BUILD_TYPE}" CACHE PATH "Library directory" FORCE)
-	SET(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${ROOT}/libs/${CMAKE_BUILD_TYPE}" CACHE PATH "Archive directory" FORCE)
-ENDIF()
 
 # if we want to use ui files add them here
 SET(UIS_FILES SimTaskPlugin.ui )

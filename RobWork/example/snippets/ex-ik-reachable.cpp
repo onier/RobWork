@@ -55,6 +55,11 @@ int main(int argc, char** argv)
         exit(1);
     }
 
+    // input
+    Frame *gripperFrame;
+    Transform3D<> gripperTargetInWORLD;
+
+    // method
     WorkCell::Ptr workcell = WorkCellFactory::load(argv[1]);
     Device::Ptr device = workcell->getDevices().front();
     const State state = workcell->getDefaultState();
@@ -64,5 +69,28 @@ int main(int argc, char** argv)
 
     QConstraint::Ptr constraint = QConstraint::make(detector, device, state);
 
+    // create samplers
+    QIKSampler::Ptr ik_any = QIKSampler::make(device, state, NULL, NULL, 1000);
+    QIKSampler::Ptr ik_cfree = QIKSampler::makeConstrained(ik_any, constraint, 1000);
+
+    Transform3D<> wTgripperframe = gripperFrame->wTf(state);
+    Transform3D<> wTtcptarget = Kinematics::frameTframe(gripperFrame,device->getEnd(),state) * gripperTargetInWORLD;
+    Transform3D<> bTtcptarget = inverse( Kinematics::worldTframe(device->getBase(), state) ) * wTtcptarget;
+    const Q q = ik_cfree->sample(bTtcptarget);
+    bool isReachable = !q.empty();
+
+
+    // generate targets
+    const TransformPath targets = getRandomTargets(device, state, 10);
+
+    std::cout << "IK solutions found for targets:\n";
+    printReachableTargets(device, state, targets, *ik_any);
+
+    std::cout << "Collision free IK solutions found for targets:\n";
+    printReachableTargets(device, state, targets, *ik_cfree);
+
+
     invkinExample(*device, state, *constraint);
 }
+
+

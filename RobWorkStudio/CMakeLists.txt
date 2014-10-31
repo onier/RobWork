@@ -6,7 +6,7 @@ IF(DEFINED CMAKE_BUILD_TYPE)
 build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
 Release RelWithDebInfo MinSizeRel.")
 ELSE()
-   SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build,
+   SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING "Choose the type of build,
 options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release
 RelWithDebInfo MinSizeRel.")
 ENDIF()

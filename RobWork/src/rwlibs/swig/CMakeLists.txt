@@ -34,6 +34,7 @@ IF( build )
                               rw_pathoptimization
                               rw_simulation
                               rw_opengl
+                              rw_assembly
                               ${LUA_LIBRARIES}
                               rw_proximitystrategies
                               rw_task
@@ -67,6 +68,10 @@ IF( build )
     
     ADD_LIBRARY(rw_lua_s STATIC Lua.cpp ${swig_generated_sources} ${swig_other_sources})
     LINK_LIBRARIES(rw_lua_s rw)
+
+	# the dynamic version
+    #ADD_LIBRARY(rw_lua DYNAMIC Lua.cpp ${swig_generated_sources} ${swig_other_sources})
+    #LINK_LIBRARIES(rw_lua rw)
     
 	# this is used to indicate static linking to Visual Studio or mingw
 	IF (DEFINED MSVC) 

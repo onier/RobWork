@@ -116,7 +116,7 @@ int main(int argc, char** argv)
     }
 
     std::string outfile = vm["output"].as<std::string>();
-    if( boost::filesystem3::exists(outfile) ){
+    if( boost::filesystem::exists(outfile) ){
         std::cout << "Output allready exists! Skipping database generation." << std::endl;
         return 0;
     }
