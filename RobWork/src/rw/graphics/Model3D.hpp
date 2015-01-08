@@ -26,6 +26,7 @@
 #include <rw/geometry/IndexedTriMesh.hpp>
 #include <rw/geometry/IndexedTriangle.hpp>
 #include <rw/geometry/IndexedPolygon.hpp>
+#include <rw/geometry/Geometry.hpp>
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Vector2D.hpp>
 
@@ -149,6 +150,8 @@ namespace graphics {
             //! @brief test if the object is textured
             bool hasTexture() const{ return _hasTexture;};
 
+
+
             void addTriangle(const rw::geometry::IndexedTriangle<uint16_t>& tri){
                 _faces.push_back(tri);
                 _materialMap.back().size += 1;
@@ -258,6 +261,8 @@ namespace graphics {
             // these should be compiled
             //std::vector<MaterialFaces::Ptr> _matFaces;
             std::vector<MaterialPolys::Ptr> _matPolys;
+            // parameter that define if geometry is rigid (static) or if it changes
+
 
         };
 
@@ -283,6 +288,13 @@ namespace graphics {
          * @return
          */
         int addObject(Object3D::Ptr obj);
+
+        /**
+         * @brief add geometry to this model3d
+         * @param obj
+         * @return
+         */
+        void addGeometry(const Material& mat, rw::geometry::Geometry::Ptr geom);
 
         /**
          * @brief all objects in a model use the materials defined on the model
@@ -312,6 +324,10 @@ namespace graphics {
 
         rw::geometry::GeometryData::Ptr toGeometryData();
 
+        bool isDynamic() const { return _isDynamic;}
+        void setDynamic(bool dynamic) { _isDynamic = dynamic;}
+
+
     //private:
         rw::math::Transform3D<> _transform;
         std::vector<Material> _materials; // The array of materials
@@ -321,6 +337,7 @@ namespace graphics {
         int _mask;
         int totalVerts;			// Total number of vertices in the model
         int totalFaces;			// Total number of faces in the model
+        bool _isDynamic;
     };
     //! @}
 }

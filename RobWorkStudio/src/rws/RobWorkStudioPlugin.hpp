@@ -140,6 +140,8 @@ namespace rws {
 		 */
 		virtual void setLog(rw::common::Log::Ptr log);
 
+		const rw::kinematics::State& getState();
+
 	public slots:
 		/**
 		 * @brief toggles the visibility of the plugin

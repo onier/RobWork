@@ -100,8 +100,8 @@ void SamplePlugin::stateChangedListener(const State& state) {
     log().info() << "State changed!";
 }
 
-#if RWS_USE_QT5
+//#if RWS_USE_QT5
 Q_PLUGIN_METADATA(IID "dk.sdu.mip.Robwork.RobWorkStudioPlugin/0.1")
-#else
-Q_EXPORT_PLUGIN(SamplePlugin);
-#endif
+//#else
+//Q_EXPORT_PLUGIN(SamplePlugin);
+//#endif

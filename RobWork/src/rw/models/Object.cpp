@@ -34,3 +34,7 @@ const rw::kinematics::Frame* Object::getBase() const{
 const std::vector<rw::kinematics::Frame*>& Object::getFrames(){
     return _frames;
 }
+
+void Object::addFrame(rw::kinematics::Frame* frame){
+	_frames.push_back(frame);
+}

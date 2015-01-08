@@ -47,6 +47,11 @@ void RobWorkStudioPlugin::open(WorkCell* workcell) {
 
 }
 
+const rw::kinematics::State& RobWorkStudioPlugin::getState(){
+	return getRobWorkStudio()->getState();
+}
+
+
 RobWorkStudioPlugin::RobWorkStudioPlugin(const QString& name, const QIcon& icon) :
     QDockWidget(name),
     _showAction(icon, name, this),

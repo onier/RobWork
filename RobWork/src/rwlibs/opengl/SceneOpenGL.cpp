@@ -930,7 +930,7 @@ DrawableGeometryNode::Ptr SceneOpenGL::makeDrawable(const std::string& name,cons
 
 
 DrawableNode::Ptr SceneOpenGL::makeDrawable(const std::string& name, Model3D::Ptr model, int dmask){
-    RenderModel3D::Ptr render = ownedPtr(new RenderModel3D(model));
+	RenderModel3D::Ptr render = ownedPtr(new RenderModel3D(model));
     Drawable::Ptr drawable = ownedPtr( new Drawable(render, name, dmask) );
     return drawable;
 }

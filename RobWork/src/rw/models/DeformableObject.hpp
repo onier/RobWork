@@ -48,6 +48,10 @@ namespace rw { namespace models {
         //! constructor
         DeformableObject(rw::kinematics::Frame* baseframe, int nr_of_nodes);
 
+        DeformableObject(rw::kinematics::Frame* baseframe, rw::graphics::Model3D::Ptr model);
+
+        DeformableObject(rw::kinematics::Frame* baseframe, rw::geometry::Geometry::Ptr geom);
+
         //! destructor
         virtual ~DeformableObject();
 
@@ -60,6 +64,8 @@ namespace rw { namespace models {
         rw::math::Vector3D<float>& getNode(int id, rw::kinematics::State& state) const;
         const rw::math::Vector3D<float>& getNode(int id, const rw::kinematics::State& state) const;
 
+        void setNode(int id, const rw::math::Vector3D<float>& v, rw::kinematics::State& state);
+        size_t getNrNodes(const rw::kinematics::State& state) const ;
         /**
          * @brief get all faces of this soft body
          * @return
@@ -80,7 +86,7 @@ namespace rw { namespace models {
          * @param cstate
          * @return
          */
-        rw::geometry::IndexedTriMesh<>::Ptr getMesh(rw::kinematics::State& cstate);
+        rw::geometry::IndexedTriMesh<float>::Ptr getMesh(rw::kinematics::State& cstate);
 
 
         /**
@@ -95,6 +101,8 @@ namespace rw { namespace models {
           * @return models for visualization
           */
          const std::vector<rw::graphics::Model3D::Ptr>& getModels() const;
+
+         const std::vector<rw::graphics::Model3D::Ptr>& getModels(const rw::kinematics::State& state) const;
 
  	    /**
  	     * @brief get mass in Kg of this object
@@ -115,6 +123,13 @@ namespace rw { namespace models {
  	     */
  	    rw::math::InertiaMatrix<> getInertia(rw::kinematics::State& state) const;
 
+ 	    /**
+ 	     * @brief updates the model with the current state of the deformable model
+ 	     * @param model [in/out] model to be updated
+ 	     * @param state
+ 	     */
+ 	    void update(rw::graphics::Model3D::Ptr model, const rw::kinematics::State& state);
+
     protected:
         friend class WorkCell;
 
@@ -122,19 +137,28 @@ namespace rw { namespace models {
         public:
         	typedef rw::common::Ptr<DeformableObjectCache> Ptr;
         	std::vector<rw::math::Vector3D<float> > _nodes;
+        	std::vector<rw::graphics::Model3D::Ptr> _models;
 
         	DeformableObjectCache(int nr_of_nodes):
         		_nodes(nr_of_nodes, rw::math::Vector3D<float>(0,0,0) )
-        	{};
+        	{
+        	};
 
         	size_t size() const{ return _nodes.size()*3*sizeof(float); };
-            virtual rw::common::Ptr<StateCache> clone() const{ return rw::common::ownedPtr( new DeformableObjectCache(*this) ); };
+
+            virtual rw::common::Ptr<StateCache> clone() const{
+            	DeformableObjectCache::Ptr cache = rw::common::ownedPtr( new DeformableObjectCache(*this) );
+            	cache->_models.resize(0);
+            	return cache;
+            };
         };
 
 
     private:
         rw::kinematics::StatelessData<int> _rstate;
-        std::vector<rw::geometry::IndexedTriangle<> > _faces;
+
+        rw::common::Ptr<rw::geometry::IndexedTriMeshN0<float> > _mesh;
+
         std::vector<rw::geometry::Geometry::Ptr> _geoms;
         std::vector<rw::graphics::Model3D::Ptr> _models;
 

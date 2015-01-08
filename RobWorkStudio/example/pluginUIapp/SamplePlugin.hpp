@@ -5,6 +5,7 @@
 
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/State.hpp>
+#include <rw/models/DeformableObject.hpp>
 
 #include "ui_SamplePlugin.h"
 
@@ -31,6 +32,7 @@ private slots:
     void stateChangedListener(const rw::kinematics::State& state);
 
 private:
+    rw::models::DeformableObject::Ptr _dobj;
 };
 
 #endif /*RINGONHOOKPLUGIN_HPP_*/

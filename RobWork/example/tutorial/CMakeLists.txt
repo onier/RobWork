@@ -7,7 +7,9 @@ PROJECT(TutorialCollection)
 
 # optionally: point the find package in the direction of the robwork.
 SET(RobWork_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../cmake)
-FIND_PACKAGE(RobWork REQUIRED)
+FIND_PACKAGE(RobWork REQUIRED COMPONENTS rw)
+
+MESSAGE("RW_ LIBS: ${ROBWORK_LIBRARIES}")
 
 INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIRS} )
 LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )

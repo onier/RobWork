@@ -478,7 +478,7 @@ class WorkCellScene {
      void setState(const State& state);
 
      //rw::graphics::GroupNode::Ptr getWorldNode();
-     //void updateSceneGraph(rw::kinematics::State& state);
+     void updateSceneGraph(rw::kinematics::State& state);
      //void clearCache();
 
      void setVisible(bool visible, Frame* f);
@@ -498,7 +498,7 @@ class WorkCellScene {
 
      //DrawableGeometryNode::Ptr addLines( const std::string& name, const std::vector<rw::geometry::Line >& lines, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
      //DrawableGeometryNode::Ptr addGeometry(const std::string& name, rw::geometry::Geometry::Ptr geom, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
-     //DrawableNode::Ptr addFrameAxis(const std::string& name, double size, rw::kinematics::Frame* frame, int dmask=DrawableNode::Virtual);
+     DrawableNode::Ptr addFrameAxis(const std::string& name, double size, rw::kinematics::Frame* frame, int dmask=DrawableNode::Virtual);
      //DrawableNode::Ptr addModel3D(const std::string& name, Model3D::Ptr model, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
      //DrawableNode::Ptr addImage(const std::string& name, const rw::sensor::Image& img, rw::kinematics::Frame* frame, int dmask=DrawableNode::Virtual);
      //DrawableNode::Ptr addScan(const std::string& name, const rw::sensor::Scan2D& scan, rw::kinematics::Frame* frame, int dmask=DrawableNode::Virtual);
@@ -1050,7 +1050,8 @@ public:
     };
 };
 } }
-%template (Vector3Df) rw::math::Vector3D<float>;
+%template (Vector3f) rw::math::Vector3D<float>;
+%template (Vector3d) rw::math::Vector3D<double>;
 %template (Vector3DVector) std::vector<rw::math::Vector3D<double> >;
 
 
@@ -1466,6 +1467,7 @@ public:
     void addDAF(Frame* frame, Frame* parent=NULL);
     void remove(Frame* frame);
     void addDevice(rw::common::Ptr<Device> device);
+    
     Frame* findFrame(const std::string& name) const;
 
     %extend {
@@ -1473,6 +1475,8 @@ public:
         { return $self->rw::models::WorkCell::findFrame<MovableFrame>(name); }
         FixedFrame* findFixedFrame(const std::string& name)
         { return $self->rw::models::WorkCell::findFrame<FixedFrame>(name); }
+        void addObject(rw::common::Ptr<Object> object)
+        { $self->rw::models::WorkCell::add(object); }
     };
 
     std::vector<Frame*> getFrames() const;
@@ -1502,6 +1506,67 @@ private:
 };
 
 %template (WorkCellPtr) rw::common::Ptr<WorkCell>;
+
+class Object
+{
+public:
+    //! destructor
+    virtual ~Object();
+
+    const std::string& getName();
+
+    Frame* getBase();
+
+    const std::vector<Frame*>& getFrames();
+
+    void addFrame(Frame* frame);
+
+
+    const std::vector<rw::common::Ptr<Geometry> >& getGeometry() const;
+
+    // stuff that should be implemented by deriving classes
+    virtual const std::vector<rw::common::Ptr<Geometry> >& getGeometry(const State& state) const = 0;
+
+    virtual const std::vector<rw::common::Ptr<Model3D> >& getModels() const = 0;
+
+    virtual double getMass(State& state) const = 0;
+
+    virtual rw::math::Vector3D<> getCOM(State& state) const = 0;
+
+    virtual rw::math::InertiaMatrix<> getInertia(State& state) const = 0;
+};
+%template (ObjectPtr) rw::common::Ptr<Object>;
+
+class DeformableObject: public Object
+{
+public:
+     //! constructor
+    DeformableObject(Frame* baseframe, int nr_of_nodes);
+
+    //DeformableObject(Frame* baseframe, rw::common::Ptr<Model3D> model);
+
+    //DeformableObject(Frame* baseframe, rw::common::Ptr<Geometry> geom);
+
+    //! destructor
+    virtual ~DeformableObject();
+
+    rw::math::Vector3D<float>& getNode(int id, State& state) const;
+    void setNode(int id, const rw::math::Vector3D<float>& v, State& state);
+    
+    //const std::vector<rw::geometry::IndexedTriangle<> >& getFaces() const;
+    void addFace(unsigned int node1, unsigned int node2, unsigned int node3);
+    //rw::geometry::IndexedTriMesh<float>::Ptr getMesh(rw::kinematics::State& cstate);
+    const std::vector<rw::common::Ptr<Geometry> >& getGeometry(const State& state) const;
+    const std::vector<rw::common::Ptr<Model3D> >& getModels() const;
+    const std::vector<rw::common::Ptr<Model3D> >& getModels(const State& state) const;
+    
+    double getMass(State& state) const;
+    Vector3D getCOM(rw::kinematics::State& state) const;
+    InertiaMatrix getInertia(State& state) const;
+    void update(rw::graphics::Model3D::Ptr model, const State& state);
+};
+%template (DeformableObjectPtr) rw::common::Ptr<DeformableObject>;
+
 
 class Device
 {
