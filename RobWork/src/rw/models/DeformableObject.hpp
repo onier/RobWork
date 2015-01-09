@@ -116,7 +116,7 @@ namespace rw { namespace models {
 
         /**
          * @brief get all faces of this soft body
-         * @return
+         * @return list of indexed triangles - indeces point to vertices/nodes
          */
         const std::vector<rw::geometry::IndexedTriangle<> >& getFaces() const;
 
@@ -132,7 +132,6 @@ namespace rw { namespace models {
          * @brief return a triangle mesh representing the softbody in the current state
          * \b cstate
          * @param cstate
-         * @return
          */
         rw::geometry::IndexedTriMesh<float>::Ptr getMesh(rw::kinematics::State& cstate);
 
@@ -162,6 +161,8 @@ namespace rw { namespace models {
  	     * @param state
  	     */
  	    void update(rw::graphics::Model3D::Ptr model, const rw::kinematics::State& state);
+
+ 	    //void update(rw::geometry::Geometry::Ptr geom, const rw::kinematics::State& state);
 
     protected:
         friend class WorkCell;
