@@ -113,9 +113,11 @@ AssemblySimulator::AssemblySimulator(rw::common::Ptr<DynamicWorkCell> dwc, const
 	_postStopCancel(false),
 	_running(false),
 	_dt(0),
-	_maxSimTime(5)
+	_maxSimTime(5),
+	_startInApproach(false)
 {
 	setDt();
+	setStartInApproach();
 }
 
 AssemblySimulator::~AssemblySimulator() {
@@ -207,6 +209,7 @@ void AssemblySimulator::runSingle(std::size_t taskIndex) {
 	bool saveData;
 	double dt;
 	double maxRunTime;
+	bool startInApproach;
 	AssemblyTask::Ptr task;
 	AssemblyResult::Ptr result;
 	{
@@ -216,12 +219,12 @@ void AssemblySimulator::runSingle(std::size_t taskIndex) {
 		task = _tasks[taskIndex];
 		result = _results[taskIndex];
 		saveData = _storeExecutionData;
+		startInApproach = _startInApproach;
 	}
 
 	SimState simState;
 	simState.saveData = saveData;
 
-	simState.state = state;
 	if (task->malePoseController != "") {
 		simState.maleController = _dwc->findController<SerialDeviceController>(task->malePoseController);
 		if (simState.maleController == NULL) {
@@ -293,6 +296,66 @@ void AssemblySimulator::runSingle(std::size_t taskIndex) {
 		std::cout << "Simulation could NOT be started! - no FTSensor found." << std::endl;
 		running = false;
 	}
+
+	if (startInApproach) {
+		Transform3D<> approach = task->strategy->getApproach(task->parameters);
+		if (simState.maleDevice == NULL)
+			simState.baseTfemale = Kinematics::worldTframe(simState.femaleTCP,state);
+		else
+			simState.baseTfemale = Kinematics::frameTframe(simState.maleDevice->getBase(),simState.femaleTCP,state);
+		if (simState.maleDevice == NULL)
+			simState.maleTend = Kinematics::frameTframe(simState.maleTCP,simState.maleBodyControl->getBodyFrame(),state);
+		else
+			simState.maleTend = Kinematics::frameTframe(simState.maleTCP,simState.maleDevice->getEnd(),state);
+		approach = simState.baseTfemale*approach*simState.maleTend;
+		simState.maleApproach = approach;
+
+		if (simState.maleDevice != NULL) {
+			// Initialize invkin solver
+			InvKinSolver::Ptr solver = ownedPtr( new JacobianIKSolver(simState.maleDevice,simState.state));
+			Q qPegDev = simState.maleDevice->getQ(simState.state);
+			std::vector<Q> solutions = orderSolutions(solver->solve(approach, simState.state),qPegDev);
+			bool success = false;
+			if (solutions.size() > 0) {
+				BOOST_FOREACH(Q q, solutions) {
+					State state = simState.state;
+					if (q.size() == 7) {
+						q[5] += q[6];
+						q[6] = 0;
+					}
+					simState.maleDevice->setQ(q,state);
+					if (!_collisionDetector->inCollision(state)) {
+						simState.maleTarget = q;
+						success = true;
+						break;
+					}
+				}
+			}
+			if (success) {
+				simState.maleDevice->setQ(simState.maleTarget,simState.state);
+				simState.controlState = task->strategy->createState();
+				simState.phase = SimState::INSERTION;
+			} else {
+				std::cout << "Simulation could NOT be started! - no inverse kinematics solution found for approach." << std::endl;
+				running = false;
+			}
+		} else {
+			const RigidBody::Ptr rbody = simState.maleBodyControl.cast<RigidBody>();
+			const KinematicBody::Ptr kbody = simState.maleBodyControl.cast<KinematicBody>();
+		    Transform3D<> wTb = Transform3D<>::identity();
+		    if (simState.maleBodyControl->getParentFrame(state) != NULL) {
+		    	wTb = Kinematics::worldTframe(simState.maleBodyControl->getParentFrame(state), state);
+		    }
+			if (rbody != NULL) {
+				rbody->getMovableFrame()->setTransform(inverse(wTb)*approach,state);
+			} else if (kbody != NULL) {
+				kbody->getMovableFrame()->setTransform(inverse(wTb)*approach,state);
+			}
+			simState.controlState = task->strategy->createState();
+			simState.phase = SimState::INSERTION;
+		}
+	}
+	simState.state = state;
 
 	PhysicsEngine::Ptr pe = PhysicsEngine::Factory::makePhysicsEngine(_engineID,_dwc);
 	RW_ASSERT(pe != NULL);
@@ -411,7 +474,6 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 		ftSensorFemale = simState.femaleFTSensor;
 
 	AssemblyState realState;
-	AssemblyState assumedState;
 	realState.femaleTmale = Kinematics::frameTframe(simState.femaleTCP,simState.maleTCP,simState.state);
 	if (task->maleFlexFrames.size() > 0) {
 		for (std::size_t i = 1; i < task->maleFlexFrames.size(); i++) {
@@ -431,12 +493,6 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 		realState.ftSensorFemale = Wrench6D<>(ftSensorFemale->getForce(),ftSensorFemale->getTorque());
 	realState.contact = hasContact(simState.femaleContactSensor,simState.male);
 
-	// Add noise to the assumed readings to simulate uncertainty!
-	if (simState.maleFTSensor != NULL)
-		assumedState.ftSensorMale = Wrench6D<>(ftSensorMale->getForce(),ftSensorMale->getTorque());
-	if (simState.femaleFTSensor != NULL)
-		assumedState.ftSensorFemale = Wrench6D<>(ftSensorFemale->getForce(),ftSensorFemale->getTorque());
-
 	BOOST_FOREACH(const BodyContactSensor::Ptr &sensor, simState.bodyContactSensors) {
 		const std::vector<Contact3D>& contacts = sensor->getContacts();
 		BOOST_FOREACH(const Contact3D& c, contacts) {
@@ -450,6 +506,19 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 				realState.maxContactForce = force;
 		}
 	}
+
+	AssemblyState assumedState;
+	if (result->assumedState.size() > 0)
+		assumedState = result->assumedState.back().getValue();
+	else {
+		assumedState = realState;
+	}
+
+	// Add noise to the assumed readings to simulate uncertainty!
+	if (simState.maleFTSensor != NULL)
+		assumedState.ftSensorMale = Wrench6D<>(ftSensorMale->getForce(),ftSensorMale->getTorque());
+	if (simState.femaleFTSensor != NULL)
+		assumedState.ftSensorFemale = Wrench6D<>(ftSensorFemale->getForce(),ftSensorFemale->getTorque());
 
 	switch(simState.phase) {
 	case SimState::INIT:
@@ -579,12 +648,14 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 					bool ftControl = (response->type == AssemblyControlResponse::HYBRID_FT_POS);
 					VectorND<6,bool> selection = response->selection;
 					float sel[6];
-					for (std::size_t i = 0; i < 6; i++) {
-						if (selection[i]) {
-							ftControl = true;
-							sel[i] = 0;
-						} else
-							sel[i] = 1;
+					if (ftControl) {
+						for (std::size_t i = 0; i < 6; i++) {
+							if (selection[i]) {
+								ftControl = true;
+								sel[i] = 0;
+							} else
+								sel[i] = 1;
+						}
 					}
 					const Transform3D<> position = simState.baseTfemale * response->femaleTmaleTarget * simState.maleTend;
 					if (simState.maleController != NULL) {
@@ -722,4 +793,12 @@ bool AssemblySimulator::hasContact(BodyContactSensor::Ptr sensor, Body::Ptr body
 	}
 
 	return false;
+}
+
+bool AssemblySimulator::getStartInApproach() const {
+	return _startInApproach;
+}
+
+void AssemblySimulator::setStartInApproach(bool val) {
+	_startInApproach = val;
 }
