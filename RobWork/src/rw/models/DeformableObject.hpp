@@ -37,7 +37,12 @@ namespace rw { namespace models {
     /*@{*/
 
     /**
-       @brief The soft body is an object that contain a deformable mesh.
+       @brief The deformable object is an object that contain a deformable mesh. Deformations
+       are part of the state object and they are modeled/controlled through control nodes.
+       each control node correspond to a vertice in the mesh. All vertices are described relative to the base
+       frame of the object.
+
+
     */
     class DeformableObject: public Object
     {
@@ -45,11 +50,39 @@ namespace rw { namespace models {
     	//! smart pointer type
         typedef rw::common::Ptr<DeformableObject> Ptr;
 
-        //! constructor
+        /**
+         * @brief constructor - constructs a deformable mesh with a specific number of control nodes
+         * and without any faces. Both geometry and model are created based on nodes.
+         * @param baseframe [in] base frame of object
+         * @param nr_of_nodes [in] the number of controlling nodes in the deformable object
+         */
         DeformableObject(rw::kinematics::Frame* baseframe, int nr_of_nodes);
 
+        /**
+         * @brief constructor - control nodes are taken as vertices in the Model3D. Vertices that
+         * are equal are merged into the same control node. All faces of the model are used to
+         * define faces of the deformable object.
+         *
+         * geometry will be created based on model information
+         *
+         * @note only triangle faces are currently supported.
+         *
+         * @param baseframe [in] base frame of object
+         * @param model [in]
+         */
         DeformableObject(rw::kinematics::Frame* baseframe, rw::graphics::Model3D::Ptr model);
 
+        /**
+         * @brief constructor - control nodes are taken from a triangle mesh generated from triangulating the
+         * geometry. Vertices that
+         * are equal are merged into the same control node. All faces of the geometry are used to
+         * define faces of the deformable object.
+         *
+         * model will be created based on geometry information
+         *
+         * @param baseframe [in] base frame of object
+         * @param geom [in] geometry to define the faces and nodes
+         */
         DeformableObject(rw::kinematics::Frame* baseframe, rw::geometry::Geometry::Ptr geom);
 
         //! destructor
@@ -59,13 +92,28 @@ namespace rw { namespace models {
          * @brief get a specific node from the state
          * @param id [in] id of the node to fetch
          * @param state [in] current state
-         * @return
+         * @return handle to manipulate a node in the given state.
          */
         rw::math::Vector3D<float>& getNode(int id, rw::kinematics::State& state) const;
+        //! @copydoc getNode
         const rw::math::Vector3D<float>& getNode(int id, const rw::kinematics::State& state) const;
 
+        /**
+         * @brief set the value of a specific node in the state.
+         * @param id [in] id of the node
+         * @param v [in] value to set.
+         * @param state [in] state in which to set the value.
+         */
         void setNode(int id, const rw::math::Vector3D<float>& v, rw::kinematics::State& state);
+
+        /**
+         * get the number of controlling nodes of this deformable object.
+         * @param state [in]
+         * @return
+         */
         size_t getNrNodes(const rw::kinematics::State& state) const ;
+        size_t getNrNodes() const;
+
         /**
          * @brief get all faces of this soft body
          * @return
@@ -88,21 +136,6 @@ namespace rw { namespace models {
          */
         rw::geometry::IndexedTriMesh<float>::Ptr getMesh(rw::kinematics::State& cstate);
 
-
-        /**
-          * @brief get geometry of this object
-          * @return geometry for collision detection.
-          */
-         const std::vector<rw::geometry::Geometry::Ptr>& getGeometry(const rw::kinematics::State& state) const;
-
-
-         /**
-          * @brief get visualization models of this object
-          * @return models for visualization
-          */
-         const std::vector<rw::graphics::Model3D::Ptr>& getModels() const;
-
-         const std::vector<rw::graphics::Model3D::Ptr>& getModels(const rw::kinematics::State& state) const;
 
  	    /**
  	     * @brief get mass in Kg of this object
@@ -133,11 +166,15 @@ namespace rw { namespace models {
     protected:
         friend class WorkCell;
 
+        const std::vector<rw::geometry::Geometry::Ptr>& doGetGeometry(const rw::kinematics::State& state) const;
+        const std::vector<rw::graphics::Model3D::Ptr>& doGetModels(const rw::kinematics::State& state) const;
+
         class DeformableObjectCache: public rw::kinematics::StateCache {
         public:
         	typedef rw::common::Ptr<DeformableObjectCache> Ptr;
         	std::vector<rw::math::Vector3D<float> > _nodes;
         	std::vector<rw::graphics::Model3D::Ptr> _models;
+        	std::vector<rw::geometry::Geometry::Ptr> _geoms;
 
         	DeformableObjectCache(int nr_of_nodes):
         		_nodes(nr_of_nodes, rw::math::Vector3D<float>(0,0,0) )
@@ -155,14 +192,12 @@ namespace rw { namespace models {
 
 
     private:
+
         rw::kinematics::StatelessData<int> _rstate;
-
         rw::common::Ptr<rw::geometry::IndexedTriMeshN0<float> > _mesh;
-
-        std::vector<rw::geometry::Geometry::Ptr> _geoms;
-        std::vector<rw::graphics::Model3D::Ptr> _models;
-
         std::vector< std::pair<int,rw::kinematics::MovableFrame*> > _frames;
+        rw::graphics::Model3D::Ptr _model;
+        rw::geometry::Geometry::Ptr _geom;
     };
 
     /*@}*/

@@ -81,9 +81,20 @@ namespace rw { namespace models {
          */
         void addFrame(rw::kinematics::Frame* frame);
 
+        /**
+         * @brief get default geometries
+         * @return geometry for collision detection
+         */
+        const std::vector<rw::geometry::Geometry::Ptr>& getGeometry() const {
+        	return doGetGeometry(this->getStateStructure()->getDefaultState());
+        }
 
-        const std::vector<rw::geometry::Geometry::Ptr>& getGeometry() const{
-        	return getGeometry(this->getStateStructure()->getDefaultState());
+        /**
+         * @brief get the default models
+         * @return models for vizualization
+         */
+        const std::vector<rw::graphics::Model3D::Ptr>& getModels() const {
+        	return doGetModels(this->getStateStructure()->getDefaultState());
         }
 
         // stuff that should be implemented by deriving classes
@@ -91,13 +102,14 @@ namespace rw { namespace models {
          * @brief get geometry of this object
          * @return geometry for collision detection.
          */
-        virtual const std::vector<rw::geometry::Geometry::Ptr>& getGeometry(const rw::kinematics::State& state) const = 0;
+        const std::vector<rw::geometry::Geometry::Ptr>& getGeometry(const rw::kinematics::State& state) const{ return doGetGeometry(state); }
 
         /**
          * @brief get visualization models of this object
          * @return models for visualization
          */
-        virtual const std::vector<rw::graphics::Model3D::Ptr>& getModels() const = 0;
+        const std::vector<rw::graphics::Model3D::Ptr>& getModels(const rw::kinematics::State& state) const{ return doGetModels(state);}
+
 
 	    /**
 	     * @brief get mass in Kg of this object
@@ -120,6 +132,19 @@ namespace rw { namespace models {
 
     protected:
         friend class WorkCell;
+
+        /**
+         * @brief get geometry of this object
+         * @return geometry for collision detection.
+         */
+        virtual const std::vector<rw::geometry::Geometry::Ptr>& doGetGeometry(const rw::kinematics::State& state) const = 0;
+
+        /**
+         * @brief get visualization models of this object
+         * @return models for visualization
+         */
+        virtual const std::vector<rw::graphics::Model3D::Ptr>& doGetModels(const rw::kinematics::State& state) const = 0;
+
 
     private:
         rw::kinematics::Frame *_base;

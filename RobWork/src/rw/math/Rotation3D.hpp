@@ -211,10 +211,19 @@ namespace rw { namespace math {
         {
             return _m[row][column];
         }
+        
+        /**
+		 * @brief Returns the i'th row of the rotation matrix
+		 * @param i [in] Index of the row to return. Only valid indices are 0, 1 and 2.
+		 */
+        const Vector3D<T> getRow(size_t i) const {
+            RW_ASSERT(i < 3);
+            return Vector3D<T>(_m[i][0],_m[i][1],_m[i][2]);
+        }
 
 		/**
 		 * @brief Returns the i'th column of the rotation matrix
-		 * @param i [in] Index of the colum to return. Only valid indices are 0, 1 and 2.
+		 * @param i [in] Index of the column to return. Only valid indices are 0, 1 and 2.
 		 */
         const Vector3D<T> getCol(size_t i) const {
             RW_ASSERT(i < 3);
@@ -233,7 +242,7 @@ namespace rw { namespace math {
         bool operator==(const Rotation3D<T> &rhs) const {
             for (int i = 0; i<3; i++)
                 for (int j = 0; j<3; j++)
-                    if (_m[i][j] == rhs(i,j))
+                    if (!(_m[i][j] == rhs(i,j)))
                         return false;
             return true;
         }

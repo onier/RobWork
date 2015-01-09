@@ -8,43 +8,36 @@ using namespace rw::graphics;
 using namespace rw::models;
 using namespace rw::math;
 
-namespace {
-
-	int getNrOfNodes(rw::graphics::Model3D::Ptr model){
-		int nodes=0;
-		BOOST_FOREACH( Model3D::Object3D::Ptr obj, model->getObjects()){
-			nodes+=obj->_vertices.size();
-		}
-		return nodes;
-	}
-
-}
-
 
 DeformableObject::DeformableObject(rw::kinematics::Frame* baseframe, int nr_of_nodes):
 	Object(baseframe),_rstate(1, rw::common::ownedPtr( new DeformableObjectCache(nr_of_nodes)).cast<StateCache>() )
 {
 	add(_rstate);
-	_models.push_back( rw::common::ownedPtr( new rw::graphics::Model3D("Deform")) );
+	_model = rw::common::ownedPtr( new rw::graphics::Model3D(baseframe->getName()+"_M"));
+
 	Model3D::Material mat("gray",0.7,0.7,0.7);
-	int matId = _models.back()->addMaterial( mat );
+	int matId = _model->addMaterial( mat );
 	_mesh = rw::common::ownedPtr( new IndexedTriMeshN0<float>() );
 	_mesh->getVertices().resize(nr_of_nodes, Vector3D<float>(0,0,0));
 	_mesh->getNormals().resize(nr_of_nodes, Vector3D<float>(0,0,0));
-	Model3D::Object3D::Ptr obj = rw::common::ownedPtr( new Model3D::Object3D("MeshObj") );
+	Model3D::Object3D::Ptr obj = rw::common::ownedPtr( new Model3D::Object3D("Obj1") );
 	obj->_vertices.resize(nr_of_nodes, Vector3D<float>(0,0,0));
 	obj->_normals.resize(nr_of_nodes, Vector3D<float>(0,0,1));
 	obj->_faces.resize(0);
 	obj->_materialMap.push_back( Model3D::Object3D::MaterialMapData((uint16_t)matId,0,(uint16_t)0) );
-	_models[0]->addObject( obj );
+	_model->addObject( obj );
+	_geom = rw::common::ownedPtr( new rw::geometry::Geometry(_mesh, std::string(baseframe->getName()+"_G")) );
 }
 
 DeformableObject::DeformableObject(rw::kinematics::Frame* baseframe, rw::graphics::Model3D::Ptr model):
-		Object(baseframe),_rstate(1,rw::common::ownedPtr( new DeformableObjectCache(getNrOfNodes(model))).cast<StateCache>() )
+		Object(baseframe),_rstate(1,NULL )
 {
-
 	_mesh = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<float> >( *(model->toGeometryData()->getTriMesh(false)) ,0.000001 );
-	_models.push_back(model);
+	_model = model;
+	_rstate = rw::kinematics::StatelessData<int>(1,rw::common::ownedPtr( new DeformableObjectCache(_mesh->getVertices().size())).cast<StateCache>() );
+	add(_rstate);
+
+	_geom = rw::common::ownedPtr( new rw::geometry::Geometry(_mesh, std::string(baseframe->getName()+"_G")) );
 }
 
 DeformableObject::DeformableObject(rw::kinematics::Frame* baseframe, rw::geometry::Geometry::Ptr geom):
@@ -53,15 +46,18 @@ DeformableObject::DeformableObject(rw::kinematics::Frame* baseframe, rw::geometr
 	TriMesh::Ptr mesh = geom->getGeometryData()->getTriMesh(false);
 	// create IndexedTriMesh from the data
 	_mesh = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<float> >(*mesh,0.000001);
-   _rstate = rw::kinematics::StatelessData<int>( _mesh->getVertices().size() );
-   Geometry::Ptr ngeom = rw::common::ownedPtr( new Geometry(*geom) );
-   ngeom->setGeometryData(_mesh);
-   _geoms.push_back( ngeom );
+   _rstate = rw::kinematics::StatelessData<int>(1,rw::common::ownedPtr( new DeformableObjectCache(_mesh->getVertices().size())).cast<StateCache>() );
+   add(_rstate);
+   _geom = rw::common::ownedPtr( new rw::geometry::Geometry(_mesh, std::string(baseframe->getName()+"_G")) );
+   _model = rw::common::ownedPtr( new rw::graphics::Model3D(baseframe->getName()+"_M"));
+   Model3D::Material mat("gray",0.7,0.7,0.7);
+   _model->addGeometry(mat, _geom);
 }
 
 DeformableObject::~DeformableObject(){
 
 }
+
 
 rw::math::Vector3D<float>& DeformableObject::getNode(int id, rw::kinematics::State& state) const
 {
@@ -75,6 +71,11 @@ const rw::math::Vector3D<float>& DeformableObject::getNode(int id, const rw::kin
 size_t DeformableObject::getNrNodes(const rw::kinematics::State& state) const
 {
 	return _rstate.getStateCache<DeformableObjectCache>(state)->_nodes.size();
+}
+
+size_t DeformableObject::getNrNodes() const
+{
+	return _mesh->getVertices().size();
 }
 
 const std::vector<rw::geometry::IndexedTriangle<> >& DeformableObject::getFaces() const {
@@ -93,21 +94,25 @@ void DeformableObject::setNode(int id, const rw::math::Vector3D<float>& v, rw::k
 	_rstate.getStateCache<DeformableObjectCache>(state)->_nodes[id] = v;
 }
 
- const std::vector<rw::geometry::Geometry::Ptr>& DeformableObject::getGeometry(const rw::kinematics::State& state) const{
-	 return _geoms;
+ const std::vector<rw::geometry::Geometry::Ptr>& DeformableObject::doGetGeometry(const rw::kinematics::State& state) const{
+	 if(_rstate.getStateCache<DeformableObjectCache>(state)->_geoms.size()>0)
+		 return _rstate.getStateCache<DeformableObjectCache>(state)->_geoms;
+	 std::vector<rw::geometry::Geometry::Ptr> geoms;
+	 // get a copy of the models with the configuration from the state
+	 BOOST_FOREACH(rw::geometry::Geometry::Ptr geom, getGeometry()){
+	 	 geoms.push_back( rw::common::ownedPtr( new rw::geometry::Geometry(*geom)) );
+	 }
+	 _rstate.getStateCache<DeformableObjectCache>(state)->_geoms = geoms;
+	 return _rstate.getStateCache<DeformableObjectCache>(state)->_geoms;
  }
 
- const std::vector<rw::graphics::Model3D::Ptr>& DeformableObject::getModels() const{
-	 return _models;
- }
-
- const std::vector<rw::graphics::Model3D::Ptr>& DeformableObject::getModels(const rw::kinematics::State& state) const
+ const std::vector<rw::graphics::Model3D::Ptr>& DeformableObject::doGetModels(const rw::kinematics::State& state) const
  {
 	 if(_rstate.getStateCache<DeformableObjectCache>(state)->_models.size()>0)
 		 return _rstate.getStateCache<DeformableObjectCache>(state)->_models;
 	 std::vector<rw::graphics::Model3D::Ptr> models;
 	 // get a copy of the models with the configuration from the state
-	 BOOST_FOREACH(rw::graphics::Model3D::Ptr model, _models){
+	 BOOST_FOREACH(rw::graphics::Model3D::Ptr model, getModels()){
 	 	 models.push_back( rw::common::ownedPtr( new rw::graphics::Model3D(*model)) );
 	 }
 	 _rstate.getStateCache<DeformableObjectCache>(state)->_models = models;

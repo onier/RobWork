@@ -90,16 +90,11 @@ namespace rw { namespace models {
 	    //! @brief approximates inertia and center of mass based on geometry and mass properties
 	    void approximateInertiaCOM();
 
-
 	    //! @brief get geometry of this rigid object
 	    const std::vector<rw::geometry::Geometry::Ptr>& getGeometry() const ;
 	    //! @brief get visualization models for this rigid object
 	    const std::vector<rw::graphics::Model3D::Ptr>& getModels() const;
 
-	    //! @copydoc Object::getGeometry
-        const std::vector<rw::geometry::Geometry::Ptr>& getGeometry(const rw::kinematics::State& state) const { return getGeometry(); }
-        //! @copydoc Object::getModels
-        const std::vector<rw::graphics::Model3D::Ptr>& getModels(rw::kinematics::State& state) const { return getModels(); }
         //! @copydoc Object::getMass
 	    double getMass(rw::kinematics::State& state) const{ return getMass(); };
 	    //! @copydoc Object::getInertia
@@ -109,6 +104,11 @@ namespace rw { namespace models {
 
     protected:
         friend class WorkCell;
+
+	    //! @copydoc Object::getGeometry
+        const std::vector<rw::geometry::Geometry::Ptr>& doGetGeometry(const rw::kinematics::State& state) const { return getGeometry(); }
+        //! @copydoc Object::getModels
+        const std::vector<rw::graphics::Model3D::Ptr>& doGetModels(const rw::kinematics::State& state) const { return getModels(); }
 
     private:
         std::vector<rw::geometry::Geometry::Ptr> _geometry;
