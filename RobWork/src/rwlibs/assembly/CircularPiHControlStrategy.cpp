@@ -29,6 +29,8 @@ using namespace rw::kinematics;
 using namespace rw::sensor;
 using namespace rwlibs::assembly;
 
+#define GAP 0.01
+
 class CircularPiHControlStrategy::CircularControlState: public ControlState {
 public:
 	typedef rw::common::Ptr<CircularControlState> Ptr;
@@ -38,11 +40,15 @@ public:
 
 	enum Phase {
 		APPROACHING,
+		ROTATE,
 		INSERTION,
+		WAIT,
 		FINISHED
 	};
 	Phase phase;
 	rw::math::Transform3D<> approach;
+	rw::math::Vector3D<> rotVec;
+	VelocityScrew6D<> velocity;
 	unsigned int counter;
 };
 
@@ -58,13 +64,11 @@ CircularPiHControlStrategy::ControlState::Ptr CircularPiHControlStrategy::create
 }
 
 AssemblyControlResponse::Ptr CircularPiHControlStrategy::update(AssemblyParameterization::Ptr parameters, AssemblyState::Ptr real, AssemblyState::Ptr assumed, ControlState::Ptr controlState, State &state, FTSensor* ftSensor, double time) const {
-	static double zForceTarget = -5; // Newton
+	static double zForceTarget = 5; // Newton
 
 	VectorND<6,bool> selection;
 	for (std::size_t i = 0; i < 6; i++)
 		selection[i] = false; // default is position control
-
-	CircularControlState::Ptr cState = controlState.cast<CircularControlState>();
 
 	AssemblyControlResponse::Ptr response = ownedPtr(new AssemblyControlResponse());
 	response->done = false;
@@ -73,36 +77,49 @@ AssemblyControlResponse::Ptr CircularPiHControlStrategy::update(AssemblyParamete
 	response->selection = selection;
 
 	//Transform3D<> sensorTworld = inverse(Kinematics::worldTframe(ftSensor->getFrame(),state));
-	Transform3D<> sensorTworld = inverse(Kinematics::worldTframe(ftSensor->getSensorModel()->getFrame(),state));
+	if (ftSensor == NULL)
+		RW_THROW("CircularPiHControlStrategy needs a FTSensor (was null)");
+	//Transform3D<> sensorTworld = inverse(Kinematics::worldTframe(ftSensor->setSensorModel(),state));
 
 	CircularControlState::Ptr circularState = controlState.cast<CircularControlState>();
 	switch(circularState->phase) {
 	case CircularControlState::APPROACHING:
 	{
-		Vector3D<> force = sensorTworld*ftSensor->getForce();
+		std::cout << "approach" << std::endl;
+		//Vector3D<> force = sensorTworld.R()*ftSensor->getForce();
+		Vector3D<> force = ftSensor->getForce();
 		double error = zForceTarget-force[2];
-		std::cout << "Approaching: " << force << std::endl;
-		if (error > 0) {
-			circularState->phase = CircularControlState::INSERTION;
-		}
+		std::cout << "Approaching: " << force << " " << ftSensor->getForce() << std::endl;
 		if (circularState->counter < 15) {
 			circularState->counter++;
 			return NULL;
 		}
+		if (error < 0) {
+			circularState->phase = CircularControlState::ROTATE;
+			/*circularState->phase = CircularControlState::FINISHED;
+			response->type = AssemblyControlResponse::POSITION;
+			response->femaleTmaleTarget = real->femaleTmale;
+			response->femaleTmaleTarget.P() -= Vector3D<>::z()*0.005;*/
+		}
 		if (circularState->phase == CircularControlState::APPROACHING) {
 			circularState->counter = 0;
-			response->femaleTmaleTarget.P()[2] -= 0.002;
+			//response->femaleTmaleTarget.P()[2] -= 0.005;
+			response->type = AssemblyControlResponse::VELOCITY;
+			response->femaleTmaleVelocityTarget = VelocityScrew6D<>(-0.05*Vector3D<>::z(),EAA<>(0,0,0));
 		}
 		/*cState->approach = real->femaleTmale;
+		response->offset = inverse(real->femaleTmale.R());
 		response->femaleTmaleTarget = cState->approach;
+		response->femaleTmaleTarget.P() -= Vector3D<>::z()*0.01;
 		response->type = AssemblyControlResponse::HYBRID_FT_POS;
 		circularState->phase = CircularControlState::FINISHED;*/
 	}
 	break;
-	case CircularControlState::INSERTION:
+	case CircularControlState::ROTATE:
 	{
+		std::cout << "rotate" << std::endl;
 		//return NULL;
-		response->offset = inverse(real->femaleTmale.R()); // Control in female frame
+		/*response->offset = inverse(real->femaleTmale.R()); // Control in female frame
 		//response->offset = Rotation3D<>::identity(); // control in end coordinates (PegTCP)
 		selection[2] = true; // force control in z-direction
 		response->selection = selection;
@@ -113,17 +130,99 @@ AssemblyControlResponse::Ptr CircularPiHControlStrategy::update(AssemblyParamete
 		EAA<> EAAvert(response->femaleTmaleTarget.R().getCol(2),-Vector3D<>::z());
 		Vector3D<> rotVec = EAAvert.axis();
 		response->femaleTmaleTarget.R() = EAA<>(rotVec,1*Deg2Rad).toRotation3D()*response->femaleTmaleTarget.R();
-		response->femaleTmaleTarget.P() = normalize(cross(-Vector3D<>::z(),rotVec))*0.005;
+		response->femaleTmaleTarget.P() = normalize(cross(-Vector3D<>::z(),rotVec))*0.0025;
 		response->type = AssemblyControlResponse::HYBRID_FT_POS;
-		circularState->phase = CircularControlState::FINISHED;
+		circularState->phase = CircularControlState::FINISHED;*/
+
+		/*response->offset = inverse(real->femaleTmale.R()); // Control in female frame
+
+		if (circularState->rotVec == Vector3D<>::zero()) {
+			const Rotation3D<> rot = EAA<>(normalize(sensorTworld.R()*ftSensor->getTorque()),-1*Deg2Rad).toRotation3D();
+			const Rotation3D<> femaleRmaleTarget = rot*response->femaleTmaleTarget.R();
+			const EAA<> EAAvert(femaleRmaleTarget.getCol(2),-Vector3D<>::z());
+			circularState->rotVec = EAAvert.axis();
+		}
+
+		//Rotation3D<> rot = EAA<>(normalize(sensorTworld.R()*ftSensor->getTorque()),-1*Deg2Rad).toRotation3D();
+		//response->femaleTmaleTarget.R() = rot*response->femaleTmaleTarget.R();
+		std::cout << "circ: " << ftSensor->getTorque() << " " << circularState->rotVec << std::endl;
+		response->femaleTmaleTarget.R() = EAA<>(circularState->rotVec,1*Deg2Rad).toRotation3D()*response->femaleTmaleTarget.R();
+		response->femaleTmaleTarget.P() += normalize(cross(-Vector3D<>::z(),circularState->rotVec))*0.0025;
+		response->type = AssemblyControlResponse::POSITION;
+		//circularState->phase = CircularControlState::FINISHED;
+		 */
+		response->offset = inverse(real->femaleTmale.R()); // Control in female frame
+		//const Vector3D<> torqueDir = normalize(sensorTworld.R()*ftSensor->getTorque());
+		//const Vector3D<> torqueDir = normalize(sensorTworld.R()*(Vector3D<>::y()));
+		const Vector3D<> torqueDir = normalize(ftSensor->getTorque());
+		const Rotation3D<> rot = EAA<>(torqueDir,-1*Deg2Rad).toRotation3D();
+		const Rotation3D<> femaleRmaleTarget = rot*response->femaleTmaleTarget.R();
+		const EAA<> EAAvert(femaleRmaleTarget.getCol(2),-Vector3D<>::z());
+		circularState->rotVec = EAAvert.axis();
+		const Vector3D<> linVel = normalize(cross(Vector3D<>::z(),circularState->rotVec))*0.025+Vector3D<>::z()*0.01;
+		//const Vector3D<> linVel = normalize(cross(Vector3D<>::z(),circularState->rotVec))*0.045+Vector3D<>::z()*0.012;
+		const EAA<> angVel = EAA<>(torqueDir,30*Deg2Rad);
+		response->femaleTmaleVelocityTarget = VelocityScrew6D<>(linVel,angVel);
+		response->type = AssemblyControlResponse::VELOCITY;
+		circularState->phase = CircularControlState::INSERTION;
+		circularState->velocity = response->femaleTmaleVelocityTarget;
+	}
+	break;
+	case CircularControlState::INSERTION:
+	{
+		std::cout << "insertion" << std::endl;
+		response->offset = inverse(real->femaleTmale.R()); // Control in female frame
+		const double zOr = cross(real->femaleTmale.R().getCol(2),-Vector3D<>::z()).norm2();
+		const double pDist = Vector2D<>(real->femaleTmale.P()[0],real->femaleTmale.P()[1]).norm2();
+		std::cout << "FINTEST: " << zOr << " " << pDist << std::endl;
+		if (zOr < 0.03) {
+			response->femaleTmaleVelocityTarget = circularState->velocity;
+			response->femaleTmaleVelocityTarget = VelocityScrew6D<>(response->femaleTmaleVelocityTarget.linear(),EAA<>(0,0,0));
+			circularState->velocity = response->femaleTmaleVelocityTarget;
+			response->type = AssemblyControlResponse::VELOCITY;
+			if (pDist < 0.005) {
+				response->femaleTmaleVelocityTarget = VelocityScrew6D<>(Vector3D<>::zero(),response->femaleTmaleVelocityTarget.angular());
+				circularState->velocity = response->femaleTmaleVelocityTarget;
+				response->type = AssemblyControlResponse::VELOCITY;
+			}
+		}
+		if (zOr >= 0.03) {
+			return NULL;
+		}
+		if (zOr < 0.03 && pDist < 0.005) {
+			response->offset = inverse(real->femaleTmale.R()); // Control in female frame
+			response->femaleTmaleVelocityTarget = VelocityScrew6D<>(-Vector3D<>::z()*0.05,EAA<>(0,0,0));
+			circularState->velocity = response->femaleTmaleVelocityTarget;
+			response->type = AssemblyControlResponse::VELOCITY;
+			circularState->phase = CircularControlState::WAIT;
+		}
+	}
+	break;
+	case CircularControlState::WAIT:
+	{
+		std::cout << "wait" << std::endl;
+		response->offset = inverse(real->femaleTmale.R()); // Control in female frame
+		const double pDist = real->femaleTmale.P()[2];
+		std::cout << "WAIT: " << pDist << std::endl;
+		if (pDist < 0.005) {
+			response->offset = inverse(real->femaleTmale.R()); // Control in female frame
+			response->femaleTmaleVelocityTarget = VelocityScrew6D<>(Vector3D<>::zero(),EAA<>(0,0,0));
+			circularState->velocity = response->femaleTmaleVelocityTarget;
+			response->type = AssemblyControlResponse::VELOCITY;
+			circularState->phase = CircularControlState::FINISHED;
+		} else {
+			return NULL;
+		}
 	}
 	break;
 	case CircularControlState::FINISHED:
 	{
-		return NULL;
+		std::cout << "finished" << std::endl;
+		response->done = true;
 	}
 	break;
 	}
+	std::cout << "return" << std::endl;
 
 	return response;
 }
@@ -138,22 +237,19 @@ Transform3D<> CircularPiHControlStrategy::getApproach(AssemblyParameterization::
 	double r = par->pegRadius;
 	//double R = par->getHoleRadius();
 	double l = par->pegLength;
-	double L = par->holeLength;
 
 	const Vector3D<> z = Vector3D<>::z();
-	const double theta = Math::ran()*2*Pi;
+	const double theta = 0;//Math::ran()*2*Pi;
 	const Rotation3D<> rotZ = EAA<>(z,theta).toRotation3D();
 	const Vector3D<> x = normalize(rotZ*Vector3D<>::x());
 	const Vector3D<> y = normalize(rotZ*Vector3D<>::y());
 
-	Vector3D<> deepestPoint = x*dist1+y*dist2+z*(L+0.01);
+	Vector3D<> deepestPoint = x*dist1+y*dist2+z*GAP;
 	Vector3D<> cylDir = normalize(EAA<>(y,-angle).toRotation3D()*x);
 	Vector3D<> xc = normalize(cross(y,cylDir));
-	Vector3D<> P = deepestPoint+cylDir*l*0-xc*r;
+	Vector3D<> P = deepestPoint+cylDir*l/2-xc*r;
 
 	Rotation3D<> Rot(xc,normalize(cross(cylDir,xc)),cylDir);
-
-	//std::cout << "deepest: " << deepestPoint << " " << angle << " " << dist1 << " " << dist2 << " " << theta << std::endl;
 
 	return Transform3D<>(P,Rot);
 }

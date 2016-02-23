@@ -49,14 +49,13 @@ public:
 	/**
 	 * @brief Construct a new parameterization with the given values.
 	 * @param holeRadius [in] radius of the hole.
-	 * @param holeLength [in] length of the hole.
 	 * @param pegRadius [in] radius of the peg.
 	 * @param pegLength [in] length of the peg.
 	 * @param angle [in] the angle between the peg axis and the hole axis (default is 0).
 	 * @param distA [in] the distance of the deepest point of the peg to the hole axis in the direction of the peg axis (default is 0).
 	 * @param distB [in] the distance of the deepest point of the peg to the hole axis in perpendicular to the peg axis (default is 0).
 	 */
-	CircularPiHParameterization(double holeRadius, double holeLength, double pegRadius, double pegLength, double angle = 0, double distA = 0, double distB = 0);
+	CircularPiHParameterization(double holeRadius, double pegRadius, double pegLength, double angle = 0, double distA = 0, double distB = 0);
 
 	//! @brief Destructor.
 	virtual ~CircularPiHParameterization();
@@ -80,8 +79,6 @@ public:
 	///@{
 	//! @brief Radius of the hole (should be more than pegRadius).
 	double holeRadius;
-	//! @brief Length of the hole.
-	double holeLength;
 	//! @brief Radius of the peg (should be less than holeRadius).
 	double pegRadius;
 	//! @brief Length of the peg.

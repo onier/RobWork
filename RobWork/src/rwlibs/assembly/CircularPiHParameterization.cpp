@@ -26,9 +26,8 @@ CircularPiHParameterization::CircularPiHParameterization(const PropertyMap::Ptr 
 	reset(map);
 }
 
-CircularPiHParameterization::CircularPiHParameterization(double holeRadius, double holeLength, double pegRadius, double pegLength, double angle, double distA, double distB):
+CircularPiHParameterization::CircularPiHParameterization(double holeRadius, double pegRadius, double pegLength, double angle, double distA, double distB):
 	holeRadius(holeRadius),
-	holeLength(holeLength),
 	pegRadius(pegRadius),
 	pegLength(pegLength),
 	angle(angle),
@@ -43,7 +42,6 @@ CircularPiHParameterization::~CircularPiHParameterization() {
 PropertyMap::Ptr CircularPiHParameterization::toPropertyMap() const {
 	PropertyMap::Ptr map = ownedPtr(new PropertyMap());
 	map->set("HoleRadius",holeRadius);
-	map->set("HoleLength",holeLength);
 	map->set("PegRadius",pegRadius);
 	map->set("PegLength",pegLength);
 	map->set("Angle",angle);
@@ -53,7 +51,7 @@ PropertyMap::Ptr CircularPiHParameterization::toPropertyMap() const {
 }
 
 AssemblyParameterization::Ptr CircularPiHParameterization::clone() const {
-	return ownedPtr(new CircularPiHParameterization(holeRadius,holeLength,pegRadius,pegLength,angle,distanceA,distanceB));
+	return ownedPtr(new CircularPiHParameterization(holeRadius,pegRadius,pegLength,angle,distanceA,distanceB));
 }
 
 AssemblyParameterization::Ptr CircularPiHParameterization::make(const PropertyMap::Ptr pmap) const {
@@ -63,7 +61,6 @@ AssemblyParameterization::Ptr CircularPiHParameterization::make(const PropertyMa
 void CircularPiHParameterization::reset(const PropertyMap::Ptr pmap) {
 	_pmap = pmap;
 	holeRadius = pmap->get<double>("HoleRadius");
-	holeLength = pmap->get<double>("HoleLength");
 	pegRadius = pmap->get<double>("PegRadius");
 	pegLength = pmap->get<double>("PegLength");
 	angle = pmap->get<double>("Angle",0);
