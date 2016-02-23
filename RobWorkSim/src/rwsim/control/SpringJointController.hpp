@@ -1,67 +1,73 @@
-#ifndef RWSIM_CONTROL_SpringJointController_HPP_
-#define RWSIM_CONTROL_SpringJointController_HPP_
+/********************************************************************************
+ * Copyright 2014 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
 
-//! @file BeamJointController.hpp
+#ifndef RWSIM_CONTROL_SPRINGJOINTCONTROLLER_HPP_
+#define RWSIM_CONTROL_SPRINGJOINTCONTROLLER_HPP_
+
+/**
+ * @file SpringJointController.hpp
+ *
+ * \copydoc rwsim::control::SpringJointController
+ */
 
 #include <rwlibs/control/JointController.hpp>
 #include <rwlibs/simulation/SimulatedController.hpp>
 
-#include <rwsim/dynamics/RigidDevice.hpp>
-
 namespace rwsim {
+
+namespace dynamics { class RigidDevice; }
+
 namespace control {
 	//! @addtogroup rwsim_control
 	//! @{
 
 	/**
-	 * @brief
-	 *
+	 * @brief The spring joint controller controls a rigid device by applying a force in each of the joints.
 	 */
 	class SpringJointController: public rwlibs::control::JointController, public rwlibs::simulation::SimulatedController {
 	public:
-	    //! @brief parameters of a 1 dof spring
+	    //! @brief Parameters of a 1 dof spring.
 	    struct SpringParam {
-	        double elasticity; //
+	    	//! @brief Constructor.
+	    	SpringParam(): elasticity(0), dampening(0), offset(0) {}
+	    	//! @brief The coefficient that gives the force as a proportion of the relative displacement of the joint.
+	        double elasticity;
+	        //! @brief The coefficient that adds dampening based on the relative velocity in the joint.
 	        double dampening;
+	        //! @brief An offset to to the relative displacement.
 	        double offset;
 	    };
 
+	    //! @brief Smart pointer type.
 	    typedef rw::common::Ptr<SpringJointController> Ptr;
 
 		/**
-		 * @brief constructor
-		 * @param rdev [in] device that is to be controlled
-		 * @param state [in] target state
-		 * @param cmode [in] the control mode used
-		 * @param pdparams [in] list of pd parameters. must be same length as number of joints.
-		 * @param dt [in] the sampletime (time between samples in seconds) used in the control
-		 * loop, this should be larger than the expected update sample time.
+		 * @brief Constructor.
+		 * @param name [in] the name of the controller.
+		 * @param rdev [in] the rigid device to be controlled.
+		 * @param springParam [in] list of spring parameters. List must be the same length as the number of joints.
 		 */
 		SpringJointController(
 		        const std::string& name,
-		        dynamics::RigidDevice::Ptr rdev,
-				const std::vector<SpringParam>& springParam,
-				double dt
-				);
+		        rw::common::Ptr<rwsim::dynamics::RigidDevice> rdev,
+				const std::vector<SpringParam>& springParam);
 
-
-		/**
-		 * @brief destructor
-		 */
+		//! @brief Destructor.
 		virtual ~SpringJointController(){};
-
-
-		/**
-		 * @brief the time between samples
-		 * @return the sample time in seconds
-		 */
-		double getSampleTime();
-
-		/**
-		 * @brief set the time between samples in seconds
-		 * @param stime [in] sample time
-		 */
-		void setSampleTime(double stime);
 
 		//! @copydoc SimulatedController::update
 		void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
@@ -69,23 +75,23 @@ namespace control {
 		//! @copydoc SimulatedController::reset
 		void reset(const rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::getController
-		Controller* getController(){ return this; };
+		//! @copydoc SimulatedController::getControllerName
+		std::string getControllerName() { return getName(); }
 
-		std::string getControllerName(){ return getName(); };
+		//! @copydoc SimulatedController::setEnabled
+        void setEnabled(bool enabled) { _enabled = enabled; }
 
-        void setEnabled(bool enabled){ _enabled = enabled; };
-
-        bool isEnabled() const { return _enabled; } ;
+		//! @copydoc SimulatedController::isEnabled
+        bool isEnabled() const { return _enabled; }
 
 		////// inherited from JointController
 
 		/**
 		 * @copydoc JointController::getControlModes
 		 *
-		 * This controller supports both position and velocity control.
+		 * This controller supports only position control.
 		 */
-		unsigned int getControlModes(){return _mode;}
+		unsigned int getControlModes();
 
 		//! @copydoc JointController::setControlModes
 		void setControlMode(ControlMode mode);
@@ -103,24 +109,18 @@ namespace control {
 		rw::math::Q getQ(){ return _currentQ;}
 
 		//! @copydoc JointController::getQd
-		rw::math::Q getQd(){ return _currentVel;}
+		rw::math::Q getQd(){ return rw::math::Q();}
 
+		//! @copydoc SimulatedController::getControllerHandle
         rwlibs::control::Controller::Ptr getControllerHandle(rwlibs::simulation::Simulator::Ptr sim){ return this; }
-
 
 	private:
 		SpringJointController();
 
 	private:
-		//std::vector<rw::models::BeamJoint*> _beamJoints;
-
-		dynamics::RigidDevice::Ptr _ddev;
-		rw::math::Q _maxVel;
-		rw::math::Q _lastError, _target, _currentQ, _currentVel;
-		rw::math::Q _targetVel;
-		ControlMode _mode;
-		double _stime, _accTime; // sample time
-		rw::math::Q  _P, _D, _qError;
+		rw::common::Ptr<rwsim::dynamics::RigidDevice> _ddev;
+		rw::math::Q _target, _currentQ;
+		rw::math::Q _qError;
 		std::vector<SpringParam> _springParams;
 		bool _enabled;
 	};
@@ -129,4 +129,4 @@ namespace control {
 }
 }
 
-#endif /*BeamJointController_HPP_*/
+#endif /*RWSIM_CONTROL_SPRINGJOINTCONTROLLER_HPP_*/

@@ -30,13 +30,23 @@ namespace sensor {
 
 	/**
 	 * @brief A sensor that measures force and torque between two bodies around
-	 * some reference frame.
+	 * some reference frame. Keep in mind that there can be multiple constraints and contacts
+	 * between two bodies at the same time. The force measured by this sensor will be
+	 * the total force acting between the two bodies. It is not yet possible to measure
+	 * the effect of a single constraint. In this case the user must define only one constraint
+	 * between the body pair and disable collision detection.
 	 */
 	class SimulatedFTSensor: public SimulatedTactileSensor {
 	public:
 		typedef rw::common::Ptr<SimulatedFTSensor> Ptr;
+		
 		/**
-		 * @brief constructor - the forces will be described relative to body \b body1
+		 * @brief Constructor - the forces acting on \b body1 due to \b body will be stored.
+		 * The forces will be described relative to \b body1 if no reference \b \frame is given.
+		 *
+		 * In case one wants to measure the constraint force between a pair of objects, the
+		 * reference frame should be a frame located where the Constraint is acting.
+		 *
 		 * @param name [in] identifier
 		 * @param body [in] the first body
 		 * @param body1 [in] the second body

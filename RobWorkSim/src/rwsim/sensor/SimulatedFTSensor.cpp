@@ -119,9 +119,10 @@ void SimulatedFTSensor::addForce(const Vector3D<>& point,
               State& state,
               Body::Ptr body)
 {
+	const Vector3D<> com = _body1->getInfo().masscenter;
 	FTStateData &data = _sdata.get(state);
 	data._forceTmp += force;
-	data._torqueTmp += cross(point, force);
+	data._torqueTmp += cross(point-com, force);
 }
 
 void SimulatedFTSensor::addWrenchToCOM(
@@ -148,35 +149,27 @@ void SimulatedFTSensor::addWrenchWToCOM(
 
 
 void SimulatedFTSensor::update(const Simulator::UpdateInfo& info, State& state){
+	const Vector3D<> com = _body1->getInfo().masscenter;
 	// update aux variables
 	FTStateData &data = _sdata.get(state);
 	data._wTb = Kinematics::worldTframe( _body1->getBodyFrame(), state);
 	data._fTb = Kinematics::frameTframe( getSensorFrame(), _body1->getBodyFrame(), state);
 	data._bTw = inverse(data._wTb);
 
-	data._force = -  (data._fTb.R() * data._forceTmp );
-	data._torque = - (data._fTb.R() * (data._torqueTmp - cross(data._fTb.P(), data._forceTmp)) );
+	Transform3D<> fTcom = data._fTb;
+	fTcom.P() += fTcom.R()*com;
+
+	data._force = -  (data._fTb.R() * data._forceTmp);
+	data._torque = - (data._fTb.R() * data._torqueTmp) - cross(data._fTb.P()+data._fTb.R()*com, -data._forceTmp);
 
 	data._forceTmp = Vector3D<>();
 	data._torqueTmp = Vector3D<>();
 
     _ftmodel->setForce(data._force, state);
     _ftmodel->setTorque(data._torque, state);
-
-
-    //Vector3D<> wTforce = _wTb.R()*_force;
-    //Vector3D<> wTtorque = _wTb.R()*_torque;
-
-    // testing the output:
-    /*std::cout << info.time << "\t" << wTforce[0] << "\t" << wTforce[1] << "\t" << wTforce[2] << "\t"
-            << wTtorque[0] << "\t" << wTtorque[1] << "\t" << wTtorque[2] << "\n";
-            */
-
-    //std::cout << "Force : " << _wTb.R()*_force << std::endl;
-    //std::cout << "Torque: " << _wTb.R()*_force << std::endl;
 }
 
-void SimulatedFTSensor::reset(const State& state){
+void SimulatedFTSensor::reset(const State& state) {
 	FTStateData &data = _sdata.get(state);
 	data._wTb = Kinematics::worldTframe( _body1->getBodyFrame(), state);
 	data._fTb = Kinematics::frameTframe( getSensorFrame(), _body1->getBodyFrame(), state);
