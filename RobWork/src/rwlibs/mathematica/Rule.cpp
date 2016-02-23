@@ -165,6 +165,12 @@ PropertyBase::Ptr Rule::toProperty(const Mathematica::Expression& rule) {
 		const std::string& value = valueArg.cast<const Mathematica::Symbol>()->getName();
 		return ownedPtr(new Property<std::string>(name, "", value));
 	}
+	break;
+	case Mathematica::Expression::Array:
+	{
+		RW_THROW("Rule did not expect Array");
+	}
+	break;
 	}
 
 	return NULL;

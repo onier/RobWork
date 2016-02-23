@@ -131,8 +131,11 @@ public:
 		//! @brief Smart pointer to a link.
 		typedef rw::common::Ptr<const Link> Ptr;
 
-		//! @brief Constructor.
-		Link();
+		/**
+		 * @brief Constructor.
+		 * @param owner the owner of the link.
+		 */
+		Link(Mathematica* owner);
 
 		//! @brief Destructor.
 		~Link();
@@ -187,6 +190,9 @@ public:
 		 * @param result [out] a pointer to the retrieved packet.
 		 */
 		void operator>>(rw::common::Ptr<Packet>& result) const;
+
+	private:
+		Mathematica* const _owner;
 	};
 
 	//! @brief Constructor.
@@ -692,12 +698,11 @@ public:
 
 private:
 	static void put(rw::common::Ptr<const LinkImpl> link, const Expression& expression);
-	static void error(rw::common::Ptr<const LinkImpl> link);
+	void error(const Link* link);
 	static std::string readString(rw::common::Ptr<const LinkImpl> link, bool symbol);
 	static Expression::Ptr readExpression(rw::common::Ptr<const LinkImpl> link);
 	static void addExpression(Function::Ptr exp, rw::common::Ptr<const LinkImpl> link);
-	static void readRawByteArray(rw::common::Ptr<const LinkImpl> link, std::ostream& stream);
-	static int expectFunction(rw::common::Ptr<const LinkImpl> link, const std::string& name);
+	bool closeLink(const Link* const link, bool error);
 
 	struct Environment;
 

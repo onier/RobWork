@@ -68,6 +68,9 @@ struct Mathematica::LinkImpl {
 #else
 		lp = WSOpenArgv(env->ep, args.c_str(), &err);
 #endif
+		if (err != WSEOK) {
+			RW_THROW("Unknown error: " << err << " when creating link.");
+		}
 	}
 	~LinkImpl() {
 	}
@@ -93,8 +96,9 @@ public:
 	WSLINK lp;
 };
 
-Mathematica::Link::Link():
-	impl(NULL)
+Mathematica::Link::Link(Mathematica* owner):
+	impl(NULL),
+	_owner(owner)
 {
 }
 
@@ -151,8 +155,6 @@ void Mathematica::Link::operator>>(rw::common::Ptr<Packet>& result) const {
 	result = NULL;
 	wait();
 
-	if (link == NULL)
-		RW_THROW("The given link was NULL!");
 	if (!isOpen())
 		RW_THROW("Mathematica link is not open!");
 	const WSLINK& lp = impl->lp;
@@ -197,15 +199,11 @@ void Mathematica::Link::operator>>(rw::common::Ptr<Packet>& result) const {
 			break;
 		default:
 			RW_THROW("Got unknown packet type: " << pkt);
-			WSNewPacket(lp);
 			break;
 		}
-		if( WSError(lp)) {
-			error(impl);
-		}
+	} else {
+		_owner->error(this);
 	}
-	if (result == NULL)
-		RW_THROW("Did not get any packet.");
 }
 
 Mathematica::Mathematica():
@@ -243,7 +241,7 @@ Mathematica::Link::Ptr Mathematica::createLink(const std::string& name, LinkProt
 		args << "TCPIP";
 	}
 
-	const rw::common::Ptr<Link> link = ownedPtr(new Link());
+	const rw::common::Ptr<Link> link = ownedPtr(new Link(this));
 	link->name = name;
 	link->impl = ownedPtr(new LinkImpl(_env, args.str()));
 	if (link->isOpen()) {
@@ -264,7 +262,7 @@ Mathematica::Link::Ptr Mathematica::connectToLink(const std::string& name) {
 	if (name != "")
 		args << " -linkname \"" + name + "\"";
 
-	const rw::common::Ptr<Link> link = ownedPtr(new Link());
+	const rw::common::Ptr<Link> link = ownedPtr(new Link(this));
 	link->name = name;
 	link->impl = ownedPtr(new LinkImpl(_env, args.str()));
 	if (link->isOpen()) {
@@ -278,13 +276,13 @@ Mathematica::Link::Ptr Mathematica::launchKernel() {
 	if (_env == NULL)
 		return NULL;
 
-	const rw::common::Ptr<Link> link = ownedPtr(new Link());
+	const rw::common::Ptr<Link> link = ownedPtr(new Link(this));
 	link->impl = ownedPtr(new LinkImpl(_env, "-linklaunch -linkname 'math -wstp'"));
 	if (link->isOpen()) {
 		_links.push_back(link);
 		return link;
 	}
-	return NULL;
+	return link;
 }
 
 bool Mathematica::closeLink(Link::Ptr link) {
@@ -543,8 +541,8 @@ void Mathematica::addExpression(Function::Ptr exp, LinkImpl::Ptr link) {
 		exp->addArgument(ownedPtr(new Real(r)));
 		break;
 	case WSTKFUNC:
-		if( WSGetArgCount(link->lp, &len) == 0){
-			error(link);
+		if( WSGetArgCount(link->lp, &len) == 0) {
+			RW_THROW("Error happened when reading function.");
 		} else {
 			const std::string fctName = readString(link,true);
 			if (fctName == "RawArray") {
@@ -584,39 +582,22 @@ void Mathematica::addExpression(Function::Ptr exp, LinkImpl::Ptr link) {
 	}
 }
 
-int Mathematica::expectFunction(LinkImpl::Ptr link, const std::string& name) {
-	int len = 0;
-	if (WSGetNext(link->lp) == WSTKFUNC) {
-		if( WSGetArgCount(link->lp, &len) == 0) {
-			error(link);
-		} else {
-			const std::string fctName = readString(link,true);
-			if (fctName != name)
-				RW_THROW("Expected function of name \"" << name << "\" - not \"" << fctName << "\".");
-			len--;
+void Mathematica::error(const Link* const link) {
+	if(WSError(link->impl->lp)) {
+		const char* const msg = WSErrorMessage(link->impl->lp);
+		if (WSClearError(link->impl->lp))
+			RW_THROW("Error detected by WSTP: " << msg << ". Error cleared.");
+		else {
+			closeLink(link,true);
+			RW_THROW("Error detected by WSTP: " << msg << ". Link is dead.");
 		}
 	} else {
-		RW_THROW("Expected function!");
-	}
-	return len;
-}
-
-void Mathematica::error(LinkImpl::Ptr link) {
-	if(WSError(link->lp)) {
-		RW_THROW("Error detected by WSTP: " << WSErrorMessage(link->lp) << ".");
-	} else {
-		RW_THROW("Error detected by this program.");
+		RW_THROW("Some error happened.");
 	}
 }
 
 std::ostream& rwlibs::mathematica::operator<<(std::ostream& out, const Mathematica::Expression& expression) {
 	expression.out(out);
-	/*try {
-		const Mathematica::FunctionBase& fct = dynamic_cast<const Mathematica::FunctionBase&>(expression);
-		fct.out(out,0);
-	} catch(const std::bad_cast&) {
-		expression.out(out);
-	}*/
 	return out;
 }
 
@@ -637,3 +618,18 @@ Mathematica::AutoExpression::AutoExpression(const std::initializer_list<AutoExpr
 	}
 }
 #endif
+
+bool Mathematica::closeLink(const Link* const link, bool error) {
+	std::list<rw::common::Ptr<Link> >::iterator it;
+	for (it = _links.begin(); it != _links.end(); it++) {
+		if (it->get() == link) {
+			const rw::common::Ptr<Link> l = *it;
+			if (!error)
+				l->impl->close();
+			l->impl = NULL;
+			_links.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
