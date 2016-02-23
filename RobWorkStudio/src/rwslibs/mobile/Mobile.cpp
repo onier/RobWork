@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
+ * Copyright 2013 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +15,7 @@
  * limitations under the License.
  ********************************************************************************/
 
-#include "Jog.hpp"
+#include "Mobile.hpp"
 
 #include <iostream>
 #include <sstream>
@@ -33,7 +33,7 @@
 #include <rw/models/Joint.hpp>
 #include <rw/models/RevoluteJoint.hpp>
 #include <rw/models/PrismaticJoint.hpp>
-//#include <sandbox/models/BeamJoint.hpp>
+#include <rw/models/PseudoOmniDevice.hpp>
 
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -151,24 +151,19 @@ namespace {
     }
 }
 
-QIcon Jog::getIcon() {
+QIcon Mobile::getIcon() {
   //  Q_INIT_RESOURCE(resources);
-    return QIcon(":/jog.png");
+    return QIcon(":/mobile.png");
 }
 
-Jog::Jog():
-    RobWorkStudioPlugin("Jog", getIcon()),
+Mobile::Mobile():
+    RobWorkStudioPlugin("Mobile", getIcon()),
     _workcell(0),
     _selectedDevice(0),
-    _jointSliderWidget(0),
-    _selectedFrame(0),
-    _cartesianTab(0),
-    _cartesianDeviceTab(0),
     _updating(false),
     _cartesianBounds(Q::zero(6), Q::zero(6)),
     _rwsSettings(0)
 {
-
     QScrollArea *widg = new QScrollArea(this);
     widg->setWidgetResizable(true);
     QWidget* base = new QWidget(this);
@@ -235,28 +230,23 @@ Jog::Jog():
     //formLayout->addWidget(widg);
     //this->setLayout(formLayout);
     this->setWidget(widg);
-
 }
 
-Jog::~Jog()
+Mobile::~Mobile()
 {
- //   Q_CLEANUP_RESOURCE(resources);
 }
 
-void Jog::initialize()
+void Mobile::initialize()
 {
     getRobWorkStudio()->stateChangedEvent().add(
-    		boost::bind(&Jog::stateChangedListener, this, _1), this);
+    		boost::bind(&Mobile::stateChangedListener, this, _1), this);
 
     getRobWorkStudio()->frameSelectedEvent().add(
-    		boost::bind(&Jog::frameSelectedListener, this, _1), this);
-    		
-    getRobWorkStudio()->genericEvent().add(
-		boost::bind(&Jog::genericEventListener, this, _1), this);
+    		boost::bind(&Mobile::frameSelectedListener, this, _1), this);
 }
 
 
-void Jog::open(WorkCell* workcell)
+void Mobile::open(WorkCell* workcell)
 {
 	typedef std::vector<Device::Ptr>::const_iterator DevI;
     typedef std::vector<Frame*> FrameVector;
@@ -264,34 +254,22 @@ void Jog::open(WorkCell* workcell)
 	const std::vector<Device::Ptr>& devices = workcell->getDevices();
     close();
     _workcell = workcell;
-    
-    _workcell->workCellChangedEvent().add(boost::bind(&Jog::workcellChangedListener, this, _1), this);
-    
-    _selectedFrame = 0;
     if (workcell) {
         //std::cout<<"Get State"<<std::endl;
         _state = getRobWorkStudio()->getState();
         int qs_pos = 0;
         for (DevI it = devices.begin(); it != devices.end(); ++it, ++qs_pos) {
-            std::string name = (*it)->getName();
-            _items.push_back(std::make_pair((*it), (MovableFrame*)NULL));
-            _chosenTabs.push_back(0);
-            _frameToIndex[*((*it)->getBase())] = (int)_items.size()-1;
-            QVariant qvar((int)(_items.size()-1));
-            _cmbDevices->addItem(name.c_str(), qvar);
+        	if (const PseudoOmniDevice::Ptr mdev = (*it).cast<PseudoOmniDevice>()) {
+        		std::string name = mdev->getName();
+        		_items.push_back(mdev);
+        		_chosenTabs.push_back(0);
+        		_frameToIndex[*(mdev->getBase())] = _items.size()-1;
+        		QVariant qvar((int)(_items.size()-1));
+        		_cmbDevices->addItem(name.c_str(), qvar);
+        	}
         }
-        //std::cout<<"Device Initialized"<<std::endl;
-        FrameVector frames = Kinematics::findAllFrames(workcell->getWorldFrame(), _state);
-        for (FrameVector::iterator it = frames.begin(); it != frames.end(); ++it) {
-            MovableFrame* frame = dynamic_cast<MovableFrame*>(*it);
-            if (frame) {
-                _items.push_back(std::make_pair((Device*)NULL, frame));
-                _chosenTabs.push_back(0);
-                _frameToIndex[*frame] = (int)_items.size()-1;
-                _cmbDevices->addItem(frame->getName().c_str(), QVariant((int)(_items.size()-1)));
-            }
-        }
-
+        _renderICM = new RenderICM();
+        getRobWorkStudio()->getWorkCellScene()->addRender("MobileRenderICM",_renderICM,_workcell->getWorldFrame());
     } else {
         close();
     }
@@ -314,51 +292,39 @@ void Jog::open(WorkCell* workcell)
     }
 }
 
-void Jog::cmbChanged ( int index ) {
+void Mobile::cmbChanged ( int index ) {
     if(index<0)
         return;
     std::string str = _cmbDevices->currentText().toStdString();
     int n = _cmbDevices->itemData(index).toInt();
     disconnect(_tabWidget, 0, 0, 0);
-    if (_items[n].first != NULL) {
+    if (_items[n] != NULL) {
         removeTabs();
-        _selectedDevice = _items[n].first;
-        _selectedFrame = NULL;
+        _selectedDevice = _items[n];
         constructTabs(_selectedDevice);
-    } else if (_items[n].second != NULL) {
-        removeTabs();
-        _selectedDevice = NULL;
-        _selectedFrame = _items[n].second;
-        constructCartTab(_selectedFrame);
     }
     _tabWidget->setCurrentIndex(_chosenTabs[index]);
     connect(_tabWidget, SIGNAL(currentChanged(int)), this, SLOT(tabChanged(int)));
     updateUnit(_cmbAngleUnit->currentText().toStdString(), _cmbDistanceUnit->currentText().toStdString());
 }
 
-void Jog::tabChanged(int index) {
+void Mobile::tabChanged(int index) {
     _chosenTabs[_cmbDevices->currentIndex()] = (unsigned int)index;
 }
 
-void Jog::cmbUnitChanged( int index ) {
+void Mobile::cmbUnitChanged( int index ) {
     updateUnit(_cmbAngleUnit->currentText().toStdString(), _cmbDistanceUnit->currentText().toStdString());
 }
 
 /*
  * Update all sliders as well as the property map. If no such property exists, "set" will create it.
  */
-void Jog::updateUnit(const std::string& angles, const std::string& distances) {
+void Mobile::updateUnit(const std::string& angles, const std::string& distances) {
     // Create the unit data: a set of <string, double> pairs containing label
     std::pair<std::vector<std::string>, std::vector<double> > sliderUnitDataJoint = makeSliderUnitData(angles, distances, _angleUnitConverters, _distanceUnitConverters, _selectedDevice);
     std::pair<std::vector<std::string>, std::vector<double> > sliderUnitDataCartesian = makeSliderUnitData(angles, distances, _angleUnitConverters, _distanceUnitConverters, 0);
-    if(_jointSliderWidget) {
-        _jointSliderWidget->setUnits(sliderUnitDataJoint.second, sliderUnitDataJoint.first);
-    }
-    if(_cartesianTab) {
-        _cartesianTab->setUnits(sliderUnitDataCartesian.second, sliderUnitDataCartesian.first);
-    }
-    if(_cartesianDeviceTab) {
-        _cartesianDeviceTab->setUnits(sliderUnitDataCartesian.second, sliderUnitDataCartesian.first);
+    if(_mobileWidget) {
+    	_mobileWidget->setUnits(sliderUnitDataJoint.second, sliderUnitDataJoint.first);
     }
     if(_rwsSettings) {
         _rwsSettings->set<std::string>("AngleUnit", sliderUnitDataCartesian.first.front());
@@ -366,100 +332,102 @@ void Jog::updateUnit(const std::string& angles, const std::string& distances) {
     }
 }
 
-void Jog::removeTabs() {
+void Mobile::removeTabs() {
     while (_tabWidget->count() > 0) {
         QWidget* widget = _tabWidget->widget(0);
         _tabWidget->removeTab(0);
         delete widget;
     }
-    _jointSliderWidget = NULL;
-    _cartesianTab = NULL;
-    _cartesianDeviceTab = NULL;
+    _mobileWidget = NULL;
 }
 
-void Jog::constructCartTab(MovableFrame* frame) {
-    // Construct Cartesian tab for frames
-    _cartesianTab = new MovableFrameTab(_cartesianBounds, frame, _workcell, _state);
-    _cartesianTab->updateValues(_state);
-    _tabWidget->addTab(_cartesianTab, "Cartesian");
-    connect(_cartesianTab,
-            SIGNAL(stateChanged(const rw::kinematics::State&)),
-            this,
-            SLOT(stateChanged(const rw::kinematics::State&)));
-
-}
-
-void Jog::constructTabs(Device::Ptr device) {
-    // Construct joint tab for device
-    _jointSliderWidget = new JointSliderWidget();
+void Mobile::constructTabs(PseudoOmniDevice::Ptr device) {
+    // Construct mobile tab for device
+	_mobileWidget = new MobileWidget();
     std::vector<std::string> titles(device->getDOF());
     for(unsigned int i = 0; i < device->getDOF(); ++i) {
       std::stringstream ss;
       ss << "q" << i;
       titles[i] = ss.str();
     }
-    _jointSliderWidget->setup(titles, device->getBounds(), device->getQ(_state));    
+    _mobileWidget->setup(titles, device->getBounds(), device->getQ(_state), device->getControlls());
 
-    QPushButton* btnPasteQ = new QPushButton("Paste", _jointSliderWidget);
+    QPushButton* btnPasteQ = new QPushButton("Paste", _mobileWidget);
     QHBoxLayout* btnlayout = new QHBoxLayout();
     btnlayout->addWidget(new QLabel(""));
     btnlayout->addWidget(btnPasteQ);
-    connect(btnPasteQ, SIGNAL(clicked()), _jointSliderWidget, SLOT(paste()));
+    connect(btnPasteQ, SIGNAL(clicked()), _mobileWidget, SLOT(paste()));
     
     QVBoxLayout* tablayout = new QVBoxLayout();
     tablayout->addLayout(btnlayout);
-    tablayout->addWidget(_jointSliderWidget);
+    tablayout->addWidget(_mobileWidget);
 
     QWidget* tabWidget = new QWidget();
     tabWidget->setLayout(tablayout);
 
     //_tabWidget->addTab(_jointSliderWidget, "Joint");
-    _tabWidget->addTab(tabWidget, "Joint");
-    connect(_jointSliderWidget, SIGNAL(valueChanged(const rw::math::Q&)), this, SLOT(deviceConfigChanged(const rw::math::Q&)));
-
-    // Construct IK tab for serial devices only
-	SerialDevice::Ptr sdevice = device.cast<SerialDevice>();
-    if (sdevice != NULL) {
-        _cartesianDeviceTab = new CartesianDeviceTab(_cartesianBounds, sdevice, _workcell, _state);
-        _tabWidget->addTab(_cartesianDeviceTab, "InvKin");
-        connect(_cartesianDeviceTab,
-                SIGNAL(stateChanged(const rw::kinematics::State&)),
-                this,
-                SLOT(stateChanged(const rw::kinematics::State&)));
-    } else {
-        _cartesianDeviceTab = NULL;
-    }
-
+    _tabWidget->addTab(tabWidget, "Mobile");
+    connect(_mobileWidget, SIGNAL(valueChanged(const rw::math::Q&)), this, SLOT(deviceConfigChanged(const rw::math::Q&)));
+    connect(_mobileWidget, SIGNAL(modeChanged(rw::models::PseudoOmniDevice::MODE)), this, SLOT(deviceModeChanged(rw::models::PseudoOmniDevice::MODE)));
+    connect(_mobileWidget, SIGNAL(controlsChanged(int,int)), this, SLOT(deviceControlChanged(int,int)));
 }
 
-void Jog::stateChanged(const rw::kinematics::State& state) {
+void Mobile::stateChanged(const rw::kinematics::State& state) {
     if (_updating)
         return;
 
     getRobWorkStudio()->setState(state);
 }
 
-void Jog::deviceConfigChanged(const Q& q) {
+void Mobile::deviceConfigChanged(const Q& q) {
     if (_updating)
         return;
 
     if (_selectedDevice != NULL) {
         _selectedDevice->setQ(q, _state);
+        if (_selectedDevice->getMode() == PseudoOmniDevice::TURN) {
+        	Vector3D<> icm;
+        	if (_selectedDevice->findICM(icm,_state)) {
+        		Transform3D<> base = _selectedDevice->getBase()->getTransform(_state);
+        		_renderICM->setICM(base.R()*icm+base.P(),(icm-base.P()).norm2(),Vector3D<>::z());
+        	} else
+            	_renderICM->setInactive();
+        } else
+        	_renderICM->setInactive();
         getRobWorkStudio()->setState(_state);
     }
 }
 
-void Jog::frameConfigChanged(const rw::math::Transform3D<>& transform) {
+void Mobile::deviceModeChanged(rw::models::PseudoOmniDevice::MODE mode) {
     if (_updating)
         return;
 
-    if (_selectedFrame != NULL) {
-        _selectedFrame->setTransform(transform, _state);
+    if (_selectedDevice != NULL) {
+        _selectedDevice->setMode(mode,_state);
+        if (mode == PseudoOmniDevice::TURN) {
+        	Vector3D<> icm;
+        	if (_selectedDevice->findICM(icm,_state)) {
+        		Transform3D<> base = _selectedDevice->getBase()->getTransform(_state);
+        		_renderICM->setICM(base.R()*icm+base.P(),(icm-base.P()).norm2(),Vector3D<>::z());
+        	} else
+            	_renderICM->setInactive();
+        } else
+        	_renderICM->setInactive();
         getRobWorkStudio()->setState(_state);
     }
 }
 
-void Jog::close()
+void Mobile::deviceControlChanged(int ind1, int ind2) {
+    if (_updating)
+        return;
+
+    if (_selectedDevice != NULL) {
+        _selectedDevice->setControlls(ind1,ind2,_state);
+        getRobWorkStudio()->setState(_state);
+    }
+}
+
+void Mobile::close()
 {
     disconnect(_tabWidget, 0, 0, 0);
     _workcell = NULL;
@@ -468,32 +436,28 @@ void Jog::close()
     _chosenTabs.clear();
     removeTabs();
     _frameToIndex.clear();
+    if (_renderICM != NULL)
+    	_renderICM = new RenderICM();
 }
 
 
-void Jog::updateValues() {
+void Mobile::updateValues() {
     _updating = true;
-    if (_selectedDevice != NULL && _jointSliderWidget != NULL) {
+    if (_selectedDevice != NULL && _mobileWidget != NULL) {
         Q q = _selectedDevice->getQ(_state);
-        _jointSliderWidget->updateValues(q);
-        if (_cartesianDeviceTab != NULL) {
-            _cartesianDeviceTab->updateValues(_state);
-        }
-    }
-    if (_selectedFrame != NULL && _cartesianTab != NULL) {
-        _cartesianTab->updateValues(_state);
+        _mobileWidget->updateValues(q);
     }
     _updating = false;
 }
 
 
-void Jog::showEvent ( QShowEvent * event )
+void Mobile::showEvent ( QShowEvent * event )
 {
     _state = getRobWorkStudio()->getState();
     updateValues();
 }
 
-void Jog::stateChangedListener(const State& state)
+void Mobile::stateChangedListener(const State& state)
 {
     _state = state;
     if (isVisible() && !_updating) {
@@ -501,82 +465,7 @@ void Jog::stateChangedListener(const State& state)
     }
 }
 
-void Jog::update() {
-	typedef std::vector<Device::Ptr>::const_iterator DevI;
-    typedef std::vector<Frame*> FrameVector;
-
-	const std::vector<Device::Ptr>& devices = _workcell->getDevices();
-    disconnect(_tabWidget, 0, 0, 0);
-    _cmbDevices->clear();
-    _items.clear();
-    _chosenTabs.clear();
-    removeTabs();
-    _frameToIndex.clear();
-    WorkCell::Ptr workcell = _workcell;
-    
-    _selectedFrame = 0;
-    if (workcell) {
-        //std::cout<<"Get State"<<std::endl;
-        _state = getRobWorkStudio()->getState();
-        int qs_pos = 0;
-        for (DevI it = devices.begin(); it != devices.end(); ++it, ++qs_pos) {
-            std::string name = (*it)->getName();
-            _items.push_back(std::make_pair((*it), (MovableFrame*)NULL));
-            _chosenTabs.push_back(0);
-            _frameToIndex[*((*it)->getBase())] = (int)_items.size()-1;
-            QVariant qvar((int)(_items.size()-1));
-            _cmbDevices->addItem(name.c_str(), qvar);
-        }
-        //std::cout<<"Device Initialized"<<std::endl;
-        FrameVector frames = Kinematics::findAllFrames(workcell->getWorldFrame(), _state);
-        for (FrameVector::iterator it = frames.begin(); it != frames.end(); ++it) {
-            MovableFrame* frame = dynamic_cast<MovableFrame*>(*it);
-            if (frame) {
-                _items.push_back(std::make_pair((Device*)NULL, frame));
-                _chosenTabs.push_back(0);
-                _frameToIndex[*frame] = (int)_items.size()-1;
-                _cmbDevices->addItem(frame->getName().c_str(), QVariant((int)(_items.size()-1)));
-            }
-        }
-
-    } else {
-        disconnect(_tabWidget, 0, 0, 0);
-		_cmbDevices->clear();
-		_items.clear();
-		_chosenTabs.clear();
-		removeTabs();
-		_frameToIndex.clear();
-    }
-    _rwsSettings = getRobWorkStudio()->getPropertyMap().getPtr<rw::common::PropertyMap>("RobWorkStudioSettings");
-    if(_rwsSettings) {
-        // Find the unit properties if there are any
-        std::string unitDescAngle = _rwsSettings->get<std::string>("AngleUnit", "");
-        std::string unitDescDistance = _rwsSettings->get<std::string>("DistanceUnit", "");
-        // Update combo boxes
-        if(unitDescAngle.size()) {
-            updateUnitCB(_cmbAngleUnit, unitDescAngle);
-            unitDescAngle = _cmbAngleUnit->currentText().toStdString();
-        }
-        if(unitDescDistance.size()) {
-            updateUnitCB(_cmbDistanceUnit, unitDescDistance);
-            unitDescDistance = _cmbDistanceUnit->currentText().toStdString();
-        }
-
-        updateUnit(unitDescAngle, unitDescDistance);
-    }
-}
-
-void Jog::workcellChangedListener(int){
-    // we need to call the update slot, but since this is possibly from a non qt thread, we need to separate
-    // it through Qt::queue
-//     std::cout << "TreeView: WORKCELL CHANGED" << std::endl;
-
-    QMetaObject::invokeMethod(this, "update", Qt::QueuedConnection);
-
-}
-
-
-void Jog::frameSelectedListener(Frame* frame) {
+void Mobile::frameSelectedListener(Frame* frame) {
 	if(frame==NULL)
 		return;
 	if(_frameToIndex.has(*frame)){
@@ -584,16 +473,6 @@ void Jog::frameSelectedListener(Frame* frame) {
 	}
 }
 
-void Jog::genericEventListener(const std::string& event)
-{
-	if (event == "WorkcellUpdated") {
-		log().info() << "WorkcellUpdated event" << endl;
-		open(_workcell);
-	}
-}
-
 #ifndef RWS_USE_STATIC_LINK_PLUGINS
-#if !RWS_USE_QT5
-Q_EXPORT_PLUGIN2(Jog, Jog)
-#endif
+Q_EXPORT_PLUGIN2(Mobile, Mobile)
 #endif

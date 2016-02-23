@@ -21,7 +21,7 @@ IF(build)
     SET(SrcFiles GTaskVisPlugin.cpp)
     SET(SRC_FILES_HPP GTaskVisPlugin.hpp)
     
-    set_source_files_properties(${SrcFiles} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
+    #set_source_files_properties(${SrcFiles} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
     
     IF(RWS_USE_QT5)
     	QT5_WRAP_CPP(MocSrcFiles ${SRC_FILES_HPP} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)

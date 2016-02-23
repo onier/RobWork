@@ -508,7 +508,9 @@ namespace rws {
 
 		void showAboutBox();
 		void printCollisions();
-		void loadPlugin();
+		void loadRWPlugin();
+		void loadRWSPlugin();
+
 	protected:
 		//! Close Event inherited from QT
 		void closeEvent( QCloseEvent * e );

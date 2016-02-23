@@ -427,11 +427,14 @@ void RobWorkStudio::showPropertyEditor(){
 
 void RobWorkStudio::setupPluginsMenu()
 {
-	QAction* loadPluginAction = new QAction(QIcon(""), tr("Load plugin"), this);
-	connect(loadPluginAction, SIGNAL(triggered()), this, SLOT(loadPlugin()));
-	
+	QAction* loadRWSPluginAction = new QAction(QIcon(""), tr("Load RobWorkStudio plugin"), this);
+	QAction* loadRWPluginAction = new QAction(QIcon(""), tr("Load RobWork plugin"), this);
+	connect(loadRWSPluginAction, SIGNAL(triggered()), this, SLOT(loadRWSPlugin()));
+	connect(loadRWPluginAction, SIGNAL(triggered()), this, SLOT(loadRWPlugin()));
+
 	_pluginsMenu = menuBar()->addMenu(tr("&Plugins"));
-	_pluginsMenu->addAction(loadPluginAction);
+	_pluginsMenu->addAction(loadRWPluginAction);
+	_pluginsMenu->addAction(loadRWSPluginAction);
 	_pluginsMenu->addSeparator();
     _pluginsToolBar = addToolBar(tr("Plugins"));
     _pluginsToolBar->setObjectName("PluginsBar");
@@ -444,9 +447,62 @@ void RobWorkStudio::setupPluginsMenu()
     _toolMenu->addAction(printCollisionsAction);*/
 }
 
+void RobWorkStudio::loadRWPlugin()
+{
+	QString selectedFilter;
 
+	std::string previousOpenDirectory = _settingsMap->get<std::string>("PreviousOpenDirectory","");
+    const QString dir(previousOpenDirectory.c_str());
 
-void RobWorkStudio::loadPlugin()
+	QString pluginfilename = QFileDialog::getOpenFileName(
+        this,
+        "Open plugin file", // Title
+        dir, // Directory
+        "Plugin libraries ( *.so *.dll *.dylib )"
+        "\n All ( *.* )",
+        &selectedFilter);
+
+    if (!pluginfilename.isEmpty()) {
+		QFileInfo pluginInfo(pluginfilename);
+		QString pathname = pluginInfo.absolutePath();
+		QString filename = pluginInfo.baseName();
+
+		QString pfilename = pathname+ "/" + filename + "." + OS::getDLLExtension().c_str();
+		bool e1 = boost::filesystem::exists( filename.toStdString() );
+		if(!e1){
+			pfilename = pathname+ "/" + filename + ".so";
+			e1 = boost::filesystem::exists( pfilename.toStdString() );
+		}
+		if(!e1){
+			pfilename = pathname+ "/" + filename + ".dll";
+			e1 = boost::filesystem::exists( pfilename.toStdString() );
+		}
+		if(!e1){
+			pfilename = pathname+ "/" + filename + ".dylib";
+			e1 = boost::filesystem::exists( pfilename.toStdString() );
+		}
+
+		try {
+			rw::common::Ptr<Plugin> plugin = Plugin::load(pfilename.toStdString());
+			if (plugin == NULL) {
+				QMessageBox::information(
+						this,
+						"Unable to load Plugin",
+						pfilename + " was not loaded.\"",
+						QMessageBox::Ok);
+			}
+			ExtensionRegistry::getInstance()->registerExtensions(plugin);
+		} catch(rw::common::Exception &e) {
+			QMessageBox::information(
+					this,
+					"Unable to load Plugin",
+					pfilename + " was not loaded: \"" + QString::fromStdString(e.getMessage().getText()) + "\"",
+					QMessageBox::Ok);
+		}
+	}
+}
+
+void RobWorkStudio::loadRWSPlugin()
 {
 	QString selectedFilter;
 	
@@ -886,7 +942,8 @@ void RobWorkStudio::openFile(const std::string& file)
             } else if (filename.endsWith(".WU", Qt::CaseInsensitive)  ||
                        filename.endsWith(".WC", Qt::CaseInsensitive)  ||
                        filename.endsWith(".DEV", Qt::CaseInsensitive) ||
-                       filename.endsWith(".XML", Qt::CaseInsensitive) )
+                       filename.endsWith(".XML", Qt::CaseInsensitive) ||
+                       filename.endsWith(".URDF", Qt::CaseInsensitive) )
             {
                 Log::infoLog() << "Opening workcell file: " << filename.toStdString() << "\n";
                 openWorkCellFile(filename);
@@ -938,9 +995,10 @@ void RobWorkStudio::open()
         this,
         "Open WorkCell or Drawable", // Title
         dir, // Directory
-        "All supported ( *.wu *.wc *.xml *.wc.xml *.dev *.stl *.stla *.stlb *.3ds *.ac *.ac3d *.obj" + assimpExtensions + ")"
+        "All supported ( *.wu *.wc *.xml *.wc.xml *.dev *.urdf *.stl *.stla *.stlb *.3ds *.ac *.ac3d *.obj" + assimpExtensions + ")"
         "\nTUL files ( *.wu *.wc *.dev )"
         "\nRW XML files ( *.wc.xml *.xml)"
+        "\nURDF files ( *.urdf )"
         "\nDrawables ( *.stl *.stla *.stlb *.3ds *.ac *.ac3d *.obj" + assimpExtensions + ")"
         "\n All ( *.* )",
         &selectedFilter);
