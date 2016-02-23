@@ -236,7 +236,7 @@ namespace
     	sscanf(line+width,"%e %e %e",&(vertices(0)),&(vertices(1)),&(vertices(2)));
     }
 
-    void ReadAsciiSTL(
+    bool ReadAsciiSTL(
         std::istream& input_stream,
         PlainTriMesh<TriangleN1<float> >& result,
         ParserState &state)
@@ -310,12 +310,12 @@ namespace
             }
         }
         if(!endReached){
-        	RW_THROW("The 'endsolid' keyword was not found in end of file. "
-        			 "The file may be damaged or is a binary STL format. "
-        			 "A binary STL file must not have 'solid' keyword in header.");
+        	return false;
+        	//RW_THROW("The 'endsolid' keyword was not found in end of file. "
+        	//		 "The file may be damaged or is a binary STL format. ");
         }
         setlocale( LC_ALL, locale.c_str());
-        return;
+        return true;
     }
 
     void ReadSTLHelper(
@@ -324,16 +324,23 @@ namespace
         ParserState &state)
     {
         char solidkey[6];
-        // Determine if it's a binary or ASCII STL file. ASCII start with
-        // "solid" keyword
         streamIn.get(solidkey, 6);
         streamIn.seekg(0, std::ios::beg);
 
-        if(!strcmp(solidkey,"solid")){
-            ReadAsciiSTL(streamIn, result, state);
-        } else {
+        if(strcmp(solidkey,"solid")){
+        	// Header does not start with "solid" keyword - can only be binary
             Reader reader(&streamIn);
             ReadBinarySTL(reader, result);
+        } else {
+        	// Header can both indicate an ascii and binary file
+        	// First try Ascii
+        	if (!ReadAsciiSTL(streamIn, result, state)) {
+        		// Ascii failed - as a last resort try binary
+        		streamIn.clear();
+        		streamIn.seekg(0, std::ios::beg);
+        		Reader reader(&streamIn);
+        		ReadBinarySTL(reader, result);
+        	}
         }
     }
 

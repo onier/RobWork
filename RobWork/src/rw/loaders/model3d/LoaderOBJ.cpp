@@ -781,7 +781,7 @@ Model3D::Ptr LoaderOBJ::load(const std::string& name){
         	float r = matobj->_material->_Kd._v[0];
         	float g = matobj->_material->_Kd._v[1];
         	float b = matobj->_material->_Kd._v[2];
-            Model3D::Material mat(matobj->_material->_name, r, g, b);
+            Model3D::Material mat(matobj->_material->_name, r, g, b, matobj->_material->_d);
             currentMatIdx = model->addMaterial(mat);
             obj->setMaterial( currentMatIdx );
             //mface->_matIndex = currentMatIdx;
