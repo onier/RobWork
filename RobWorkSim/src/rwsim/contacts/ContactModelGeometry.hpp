@@ -55,6 +55,19 @@ public:
 
 		//! The frame
 		const rw::kinematics::Frame* frame;
+
+		//! @brief A class that can be subclassed by specific strategies to append data to the geometry model.
+		class CustomData {
+		public:
+			//! @brief Constructor.
+			CustomData() {};
+
+			//! @brief Destructor.
+			virtual ~CustomData() {};
+		};
+
+		//! Allows strategies to append custom data to the geometry model.
+		rw::common::Ptr<CustomData> customData;
 	};
 
 	//! @brief The type of GeometryModel for geometry A.
@@ -81,6 +94,60 @@ public:
 
 	//! @brief List of hole models belonging to this model.
 	std::vector<GeometryModel<B> > modelsB;
+};
+
+template <class M>
+class ContactModelGeometry<M, M>: public rwsim::contacts::ContactModel {
+public:
+	//! @brief smart pointer type to this class
+	typedef rw::common::Ptr<ContactModelGeometry<M, M> > Ptr;
+
+	//! @brief Model for the geometry.
+	struct GeometryModel {
+		//! The geometry id.
+		std::string geoId;
+
+		//! Pointer to the geometry.
+		M geo;
+
+		//! The location of the geometry.
+		rw::math::Transform3D<> transform;
+
+		//! The frame
+		const rw::kinematics::Frame* frame;
+
+		//! @brief A class that can be subclassed by specific strategies to append data to the geometry model.
+		class CustomData {
+		public:
+			//! @brief Constructor.
+			CustomData() {};
+
+			//! @brief Destructor.
+			virtual ~CustomData() {};
+		};
+
+		//! Allows strategies to append custom data to the geometry model.
+		rw::common::Ptr<CustomData> customData;
+	};
+
+	//! @brief The type of GeometryModel
+	typedef GeometryModel Type;
+
+	/**
+	 * @brief Construct new model for contacts between geometries.
+	 * @param owner [in] the strategy that owns this model.
+	 */
+	ContactModelGeometry(ContactStrategy *owner): ContactModel(owner) {}
+
+	//! @brief Destructor
+	virtual ~ContactModelGeometry() {};
+
+	//! @copydoc rwsim::contacts::ContactModel::getName
+	virtual std::string getName() const { return "ContactModelGeometry"; };
+
+public:
+	//! @brief List of geometry models belonging to this model.
+	std::vector<GeometryModel> models;
 };
 //! @}
 } /* namespace contacts */

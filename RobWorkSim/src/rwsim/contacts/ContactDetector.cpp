@@ -17,8 +17,13 @@
 
 #include "ContactDetector.hpp"
 #include "BallBallStrategy.hpp"
+#include "BallPlaneStrategy.hpp"
+#include "BoxPlaneStrategy.hpp"
 #include "ContactStrategyPQP.hpp"
 #include "ContactDetectorTracking.hpp"
+#include "ContactStrategyCylinderPlane.hpp"
+#include "ContactStrategyCylinderTube.hpp"
+#include "TubePlaneStrategy.hpp"
 
 #include <rw/proximity/BasicFilterStrategy.hpp>
 #include <rwsim/log/SimulatorLogScope.hpp>
@@ -85,6 +90,10 @@ void ContactDetector::initializeModels(StrategyTableRow &strategy) {
 			BOOST_FOREACH(Geometry::Ptr geoA, oA->getGeometry(state) ){
 				BOOST_FOREACH(Geometry::Ptr geoB, oB->getGeometry(state) ){
 					if (strategy.strategy->match(geoA->getGeometryData(),geoB->getGeometryData())) {
+						// First let FrameMap adjust its size if needed (important to do this before getting references)
+						strategy.models.has(*(geoA->getFrame()));
+						strategy.models.has(*(geoB->getFrame()));
+						// Do a lookup in the FrameMaps
 						std::map<std::string,ContactModel::Ptr>& mapA = strategy.models[*(geoA->getFrame())];
 						std::map<std::string,ContactModel::Ptr>& mapB = strategy.models[*(geoB->getFrame())];
 						if (mapA.find(geoA->getId()) == mapA.end()) {
@@ -227,26 +236,119 @@ void ContactDetector::setDefaultStrategies() {
 }
 
 void ContactDetector::setDefaultStrategies(const PropertyMap& map) {
-    std::vector<Object::Ptr> objects = _wc->getObjects();
-    State state = _wc->getDefaultState();
-    std::size_t spheres = 0;
-    BOOST_FOREACH(Object::Ptr object, objects) {
-        BOOST_FOREACH(Geometry::Ptr geom, object->getGeometry(state)){
-        	GeometryData::Ptr gdata = geom->getGeometryData();
-        	GeometryData::GeometryType gtype = gdata->getType();
-            if (gtype == GeometryData::SpherePrim) spheres++;
-        }
-    }
+    const std::vector<Object::Ptr> objects = _wc->getObjects();
+    const State state = _wc->getDefaultState();
+
+    typedef std::pair<GeometryData::GeometryType, GeometryData::GeometryType> GTypePair;
+    std::set<GTypePair> gtypes;
+
+	const BasicFilterStrategy::Ptr bfstrategy = ownedPtr(new BasicFilterStrategy(_wc));
+	const ProximityFilter::Ptr bfFilter = bfstrategy->update(state);
+	while(!bfFilter->isEmpty()) {
+		const FramePair frames = bfFilter->frontAndPop();
+		const Object::Ptr oA = _wc->findObject(frames.first->getName());
+		const Object::Ptr oB = _wc->findObject(frames.second->getName());
+		RW_ASSERT(!oA.isNull());
+		RW_ASSERT(!oB.isNull());
+		BOOST_FOREACH(Geometry::Ptr geoA, oA->getGeometry(state)) {
+			BOOST_FOREACH(Geometry::Ptr geoB, oB->getGeometry(state)) {
+	        	const GeometryData::GeometryType gtypeA = geoA->getGeometryData()->getType();
+	        	const GeometryData::GeometryType gtypeB = geoB->getGeometryData()->getType();
+	        	if (gtypeA < gtypeB)
+	        		gtypes.insert(std::make_pair(gtypeA,gtypeB));
+	        	else
+	        		gtypes.insert(std::make_pair(gtypeB,gtypeA));
+			}
+		}
+	}
+
+	/*
+	std::vector<Object::Ptr>::const_iterator itA;
+	for (itA = objects.begin(); itA < objects.end(); itA++) {
+		std::vector<Object::Ptr>::const_iterator itB = itA;
+		itB++;
+		for (; itB < objects.end(); itB++) {
+			const Object::Ptr oA = *itA;
+			const Object::Ptr oB = *itB;
+			BOOST_FOREACH(Geometry::Ptr geoA, oA->getGeometry(state)) {
+				BOOST_FOREACH(Geometry::Ptr geoB, oB->getGeometry(state)) {
+		        	const GeometryData::GeometryType gtypeA = geoA->getGeometryData()->getType();
+		        	const GeometryData::GeometryType gtypeB = geoB->getGeometryData()->getType();
+		        	if (gtypeA < gtypeB)
+		        		gtypes.insert(std::make_pair(gtypeA,gtypeB));
+		        	else
+		        		gtypes.insert(std::make_pair(gtypeB,gtypeA));
+				}
+			}
+		}
+	}
+	*/
+
     std::size_t pri = 0;
-    if (spheres > 1) {
+    std::set<GTypePair>::iterator it;
+    it = gtypes.find(std::make_pair(GeometryData::SpherePrim,GeometryData::SpherePrim));
+    if (it != gtypes.end()) {
     	ContactStrategy* strat = new BallBallStrategy();
     	strat->setPropertyMap(map);
     	addContactStrategy(ownedPtr(strat), pri);
     	pri++;
+    	gtypes.erase(it);
     }
-	ContactStrategy* strat = new ContactStrategyPQP();
-	strat->setPropertyMap(map);
-    addContactStrategy(ownedPtr(strat),pri);
+    it = gtypes.find(std::make_pair(GeometryData::SpherePrim,GeometryData::PlanePrim));
+    if (it == gtypes.end())
+    	it = gtypes.find(std::make_pair(GeometryData::PlanePrim,GeometryData::SpherePrim));
+    if (it != gtypes.end()) {
+    	ContactStrategy* strat = new BallPlaneStrategy();
+    	strat->setPropertyMap(map);
+    	addContactStrategy(ownedPtr(strat), pri);
+    	pri++;
+    	gtypes.erase(it);
+    }
+    it = gtypes.find(std::make_pair(GeometryData::BoxPrim,GeometryData::PlanePrim));
+    if (it == gtypes.end())
+    	it = gtypes.find(std::make_pair(GeometryData::PlanePrim,GeometryData::BoxPrim));
+    if (it != gtypes.end()) {
+    	ContactStrategy* strat = new BoxPlaneStrategy();
+    	strat->setPropertyMap(map);
+    	addContactStrategy(ownedPtr(strat), pri);
+    	pri++;
+    	gtypes.erase(it);
+    }
+    it = gtypes.find(std::make_pair(GeometryData::TubePrim,GeometryData::PlanePrim));
+    if (it == gtypes.end())
+    	it = gtypes.find(std::make_pair(GeometryData::PlanePrim,GeometryData::TubePrim));
+    if (it != gtypes.end()) {
+    	ContactStrategy* strat = new TubePlaneStrategy();
+    	strat->setPropertyMap(map);
+    	addContactStrategy(ownedPtr(strat), pri);
+    	pri++;
+    	gtypes.erase(it);
+    }
+    it = gtypes.find(std::make_pair(GeometryData::CylinderPrim,GeometryData::PlanePrim));
+    if (it == gtypes.end())
+    	it = gtypes.find(std::make_pair(GeometryData::PlanePrim,GeometryData::CylinderPrim));
+    if (it != gtypes.end()) {
+    	ContactStrategy* strat = new ContactStrategyCylinderPlane();
+    	strat->setPropertyMap(map);
+    	addContactStrategy(ownedPtr(strat), pri);
+    	pri++;
+    	gtypes.erase(it);
+    }
+    it = gtypes.find(std::make_pair(GeometryData::CylinderPrim,GeometryData::TubePrim));
+    if (it == gtypes.end())
+    	it = gtypes.find(std::make_pair(GeometryData::TubePrim,GeometryData::CylinderPrim));
+    if (it != gtypes.end()) {
+    	ContactStrategy* strat = new ContactStrategyCylinderTube();
+    	strat->setPropertyMap(map);
+    	addContactStrategy(ownedPtr(strat), pri);
+    	pri++;
+    	gtypes.erase(it);
+    }
+    if (gtypes.size() > 0) {
+    	ContactStrategy* strat = new ContactStrategyPQP();
+    	strat->setPropertyMap(map);
+    	addContactStrategy(ownedPtr(strat),pri);
+    }
 }
 
 std::vector<Contact> ContactDetector::findContacts(const State& state) {
@@ -492,6 +594,68 @@ std::vector<Contact> ContactDetector::updateContacts(const State& state, Contact
 		}
 	}
 	return res;
+}
+
+bool ContactDetector::maxPenetrationExceeded(const State& state, ContactDetectorData &data) {
+	ProximityFilter::Ptr filter = _bpfilter->update(state);
+	const FKTable fk(state);
+	while( !filter->isEmpty() ){
+		const FramePair& pair = filter->frontAndPop();
+
+		const Transform3D<> aT = fk.get(*pair.first);
+		const Transform3D<> bT = fk.get(*pair.second);
+
+		std::vector<Geometry::Ptr> unmatchedA = _frameToGeo[*pair.first];
+		std::vector<Geometry::Ptr> unmatchedB = _frameToGeo[*pair.second];
+		std::vector<std::pair<Geometry::Ptr,Geometry::Ptr> > geoPairs;
+		BOOST_FOREACH(Geometry::Ptr geoA, unmatchedA) {
+			BOOST_FOREACH(Geometry::Ptr geoB, unmatchedB) {
+				std::pair<Geometry::Ptr,Geometry::Ptr> pair;
+				pair.first = geoA;
+				pair.second = geoB;
+				geoPairs.push_back(pair);
+			}
+		}
+
+		std::list<StrategyTableRow>::const_iterator it;
+		for (it = _strategies.begin(); (it != _strategies.end()); it++) {
+			StrategyTableRow stratMatch = *it;
+			std::vector<ProximitySetupRule> rules = stratMatch.rules.getProximitySetupRules();
+			bool match = false;
+			BOOST_FOREACH(ProximitySetupRule &rule, rules) {
+				if (rule.match(pair.first->getName(),pair.second->getName()))
+					match = true;
+			}
+			if (match) {
+				std::vector<std::pair<Geometry::Ptr,Geometry::Ptr> >::iterator pairIt;
+				for (pairIt = geoPairs.begin(); pairIt < geoPairs.end(); pairIt++) {
+					Geometry::Ptr geoA = (*pairIt).first;
+					Geometry::Ptr geoB = (*pairIt).second;
+					if (stratMatch.strategy->match(geoA->getGeometryData(),geoB->getGeometryData())) {
+						std::map<std::string, ContactModel::Ptr> &mapA = stratMatch.models[*pair.first];
+						std::map<std::string, ContactModel::Ptr> &mapB = stratMatch.models[*pair.second];
+						if (mapA.find(geoA->getId())==mapA.end()) {
+							ProximityModel::Ptr model = stratMatch.strategy->createModel();
+							stratMatch.strategy->addGeometry(model.get(),geoA);
+						}
+						if (mapB.find(geoB->getId())==mapB.end()) {
+							ProximityModel::Ptr model = stratMatch.strategy->createModel();
+							stratMatch.strategy->addGeometry(model.get(),geoB);
+						}
+						ContactModel::Ptr modelA = mapA[geoA->getId()];
+						ContactModel::Ptr modelB = mapB[geoB->getId()];
+						ContactStrategyData& stratData = data.getStrategyData(modelA.get(),modelB.get());
+						if(stratMatch.strategy->maxPenetrationExceeded(modelA.get(), aT, modelB.get(), bT, stratData)) {
+							return true;
+						}
+						pairIt = geoPairs.erase(pairIt);
+						pairIt--;
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
 
 struct ContactDetector::Cell {

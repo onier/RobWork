@@ -155,6 +155,26 @@ public:
 			rwsim::log::SimulatorLogScope* log = NULL) const = 0;
 
 	/**
+	 * @brief Check if there are penetrations that will cause incorrect contacts to be detected.
+	 *
+	 * Strategies that can fail must override this.
+	 *
+	 * @param a [in] model a.
+	 * @param wTa [in] current transform of model a.
+	 * @param b [in] model b.
+	 * @param wTb [in] current transform of model b.
+	 * @param data [in/out] allows caching between contact detection calls,
+	 * and makes it possible for detection algorithms to exploit spatial and temporal coherence.
+	 * @return true if there are penetrations, false otherwise.
+	 */
+	virtual bool maxPenetrationExceeded(
+			rw::proximity::ProximityModel::Ptr a,
+			const rw::math::Transform3D<>& wTa,
+			rw::proximity::ProximityModel::Ptr b,
+			const rw::math::Transform3D<>& wTb,
+			ContactStrategyData& data);
+
+	/**
 	 * @brief Get the name of the strategy as a string.
 	 *
 	 * @return name of the strategy.

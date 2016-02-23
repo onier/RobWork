@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2013 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Copyright 2015 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,19 +15,19 @@
  * limitations under the License.
  ********************************************************************************/
 
-#ifndef RWSIM_CONTACTS_BALLBALLSTRATEGY_HPP_
-#define RWSIM_CONTACTS_BALLBALLSTRATEGY_HPP_
+#ifndef RWSIM_CONTACTS_TUBEPLANESTRATEGY_HPP_
+#define RWSIM_CONTACTS_TUBEPLANESTRATEGY_HPP_
 
 /**
- * @file BallBallStrategy.hpp
+ * @file TubePlaneStrategy.hpp
  *
- * \copydoc rwsim::contacts::BallBallStrategy
+ * \copydoc rwsim::contacts::TubePlaneStrategy
  */
 
-#include "ContactStrategy.hpp"
 #include "ContactStrategyGeometry.hpp"
 
-namespace rw { namespace geometry { class Sphere; } }
+namespace rw { namespace geometry { class Tube; } }
+namespace rw { namespace geometry { class Plane; } }
 
 namespace rwsim {
 namespace contacts {
@@ -35,20 +35,20 @@ namespace contacts {
 
 //! @{
 /**
- * @brief Detection of contacts between balls. Each model can consist of multiple balls.
+ * @brief Detection of contacts between a tube and a plane.
  */
-class BallBallStrategy: public ContactStrategyGeometry<rw::geometry::Sphere*, rw::geometry::Sphere*> {
+class TubePlaneStrategy: public ContactStrategyGeometry<rw::geometry::Tube*, rw::geometry::Plane*> {
 public:
 	//! @brief Create new strategy.
-	BallBallStrategy();
+	TubePlaneStrategy();
 
 	//! @brief Destructor
-	virtual ~BallBallStrategy();
+	virtual ~TubePlaneStrategy();
 
 	//! @copydoc rwsim::contacts::ContactStrategy::match
 	virtual bool match(rw::common::Ptr<const rw::geometry::GeometryData> geoA, rw::common::Ptr<const rw::geometry::GeometryData> geoB);
 
-	//! @copydoc rwsim::contacts::ContactStrategy::findContacts(rw::proximity::ProximityModel::Ptr,const rw::math::Transform3D<>&,rw::proximity::ProximityModel::Ptr,const rw::math::Transform3D<>&,ContactStrategyData&,ContactStrategyTracking&,rwsim::log::SimulatorLogScope* log) const
+	//! @copydoc rwsim::contacts::ContactStrategy::findContacts(rw::proximity::ProximityModel::Ptr,const rw::math::Transform3D<>&,rw::proximity::ProximityModel::Ptr,const rw::math::Transform3D<>&,ContactStrategyData&,ContactStrategyTracking&,rwsim::log::SimulatorLogScope*) const
 	virtual std::vector<Contact> findContacts(
 			rw::proximity::ProximityModel::Ptr a,
 			const rw::math::Transform3D<>& wTa,
@@ -70,25 +70,8 @@ public:
 
 	//! @copydoc rwsim::contacts::ContactStrategy::getName
 	virtual std::string getName();
-
-	/**
-	 * @brief Determine the contact between two spheres.
-	 * @param c [in/out] the contact to add information to.
-	 * @param a [in] the first sphere geometry.
-	 * @param wPa [in] the location of the center of the first sphere.
-	 * @param b [in] the second sphere geometry.
-	 * @param wPb [in] the location of the center of the second sphere.
-	 * @param distCheck [in] (optional) only detect contact if distance is low enough (default is true).
-	 * @return true if contact found, false otherwise.
-	 */
-	virtual bool findContact(Contact &c,
-			const rw::geometry::Sphere* a,	const rw::math::Vector3D<>& wPa,
-			const rw::geometry::Sphere* b,	const rw::math::Vector3D<>& wPb, bool distCheck = true) const;
-
-private:
-	class BallTracking;
 };
 //! @}
 } /* namespace contacts */
 } /* namespace rwsim */
-#endif /* RWSIM_CONTACTS_BALLBALLSTRATEGY_HPP_ */
+#endif /* RWSIM_CONTACTS_TUBEPLANESTRATEGY_HPP_ */

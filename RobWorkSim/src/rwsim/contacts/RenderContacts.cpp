@@ -23,12 +23,17 @@ using namespace rw::math;
 using namespace rw::graphics;
 using namespace rwsim::contacts;
 
-RenderContacts::RenderContacts() {
+RenderContacts::RenderContacts():
+	_colorPoint(1,0,0),
+	_colorNormal(0,0,0)
+{
 	_quadratic = gluNewQuadric();
 }
 
 RenderContacts::RenderContacts(const std::vector<Contact> &contacts):
-	_contacts(contacts)
+	_contacts(contacts),
+	_colorPoint(1,0,0),
+	_colorNormal(0,0,0)
 {
 	_quadratic = gluNewQuadric();
 }
@@ -55,12 +60,12 @@ void RenderContacts::draw(const DrawableNode::RenderInfo& info, DrawableNode::Dr
 
 		glPushMatrix();
 
-		glColor3f(1.0, 0.0, 0.0);
+		glColor3f(_colorPoint[0], _colorPoint[1], _colorPoint[2]);
 		glTranslatef((GLfloat)posA(0),(GLfloat)posA(1),(GLfloat)posA(2));// Center The Cone
 		gluSphere( _quadratic, SPHERE_RADIUS, 32, 32);    // Draw Our Sphere
 
 		glBegin(GL_LINES);
-		glColor3f(1.0, 0.0, 0.0);
+		glColor3f(_colorNormal[0], _colorNormal[1], _colorNormal[2]);
 		glVertex3d(0,0,0);
 		glVertex3d(n(0),n(1),n(2));
 		glEnd();
@@ -69,12 +74,12 @@ void RenderContacts::draw(const DrawableNode::RenderInfo& info, DrawableNode::Dr
 
 		glPushMatrix();
 
-		glColor3f(1.0, 0.0, 0.0);
+		glColor3f(_colorPoint[0], _colorPoint[1], _colorPoint[2]);
 		glTranslatef((GLfloat)posB(0),(GLfloat)posB(1),(GLfloat)posB(2));// Center The Cone
 		gluSphere( _quadratic, SPHERE_RADIUS, 32, 32);    // Draw Our Sphere
 
 		glBegin(GL_LINES);
-		glColor3f(1.0, 0.0, 0.0);
+		glColor3f(_colorNormal[0], _colorNormal[1], _colorNormal[2]);
 		glVertex3d(0,0,0);
 		glVertex3d(-n(0),-n(1),-n(2));
 		glEnd();

@@ -168,6 +168,15 @@ public:
 			ContactDetectorData &data, ContactDetectorTracking& tracking, rwsim::log::SimulatorLogScope* log = NULL);
 
 	/**
+	 * @brief Check if there are penetrations that will cause incorrect contacts to be detected.
+	 * @param state [in] the state to check.
+	 * @param data [in/out] allows caching between contact detection calls,
+	 * and makes it possible for detection algorithms to exploit spatial and temporal coherence.
+	 * @return true if there are penetrations, false otherwise.
+	 */
+	virtual bool maxPenetrationExceeded(const rw::kinematics::State& state, ContactDetectorData &data);
+
+	/**
 	 * @brief The broad-phase filter strategy used by the contact detector.
 	 */
 	virtual rw::proximity::ProximityFilterStrategy::Ptr getProximityFilterStrategy() const;

@@ -1,6 +1,8 @@
 
 SET(FILES_CPP
 	contacts/BallBallStrategy.cpp
+	contacts/BallPlaneStrategy.cpp
+	contacts/BoxPlaneStrategy.cpp
 	contacts/Contact.cpp
 	contacts/ContactDetector.cpp
 	contacts/ContactDetectorData.cpp
@@ -9,10 +11,13 @@ SET(FILES_CPP
 	contacts/ContactModelGeometry.cpp
 	contacts/ContactStrategy.cpp
 	contacts/ContactStrategyData.cpp
+	contacts/ContactStrategyCylinderPlane.cpp
+	contacts/ContactStrategyCylinderTube.cpp
 	contacts/ContactStrategyGeometry.cpp
 	contacts/ContactStrategyPQP.cpp
 	contacts/ContactStrategyTracking.cpp
 	contacts/RenderContacts.cpp
+	contacts/TubePlaneStrategy.cpp
 
 	dynamics/Body.cpp
 	dynamics/RigidBody.cpp
@@ -140,6 +145,8 @@ SET(FILES_CPP
 
 SET(FILES_HPP
 	contacts/BallBallStrategy.hpp
+	contacts/BallPlaneStrategy.hpp
+	contacts/BoxPlaneStrategy.hpp
 	contacts/Contact.hpp
 	contacts/ContactDetector.hpp
 	contacts/ContactDetectorData.hpp
@@ -150,6 +157,7 @@ SET(FILES_HPP
 	contacts/ContactStrategyGeometry.hpp
 	contacts/ContactStrategyPQP.hpp
 	contacts/RenderContacts.hpp
+	contacts/TubePlaneStrategy.hpp
 
 	dynamics/Body.hpp
 	dynamics/RigidBody.hpp

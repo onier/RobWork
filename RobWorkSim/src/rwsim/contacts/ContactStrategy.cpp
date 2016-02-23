@@ -24,20 +24,28 @@ using namespace rw::proximity;
 using namespace rwsim::contacts;
 
 std::vector<Contact> ContactStrategy::findContacts(
-		ProximityModel::Ptr a, const Transform3D<>& wTa,
-		ProximityModel::Ptr b, const Transform3D<>& wTb) const
+	ProximityModel::Ptr a, const Transform3D<>& wTa,
+	ProximityModel::Ptr b, const Transform3D<>& wTb) const
 {
 	ContactStrategyData data;
 	return findContacts(a,wTa,b,wTb,data);
 }
 
 std::vector<Contact> ContactStrategy::findContacts(
-		ProximityModel::Ptr a, const Transform3D<>& wTa,
-		ProximityModel::Ptr b, const Transform3D<>& wTb,
-		ContactStrategyData& data) const
+	ProximityModel::Ptr a, const Transform3D<>& wTa,
+	ProximityModel::Ptr b, const Transform3D<>& wTb,
+	ContactStrategyData& data) const
 {
 	ContactStrategyTracking tracking;
 	return findContacts(a,wTa,b,wTb,data,tracking);
+}
+
+bool ContactStrategy::maxPenetrationExceeded(
+	ProximityModel::Ptr a, const Transform3D<>& wTa,
+	ProximityModel::Ptr b, const Transform3D<>& wTb,
+	ContactStrategyData& data)
+{
+	return false;
 }
 
 PropertyMap& ContactStrategy::getPropertyMap() {

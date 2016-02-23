@@ -20,26 +20,10 @@
 
 #include <rw/geometry/Sphere.hpp>
 
-using namespace rw::common;
 using namespace rw::geometry;
 using namespace rw::proximity;
 using namespace rw::math;
 using namespace rwsim::contacts;
-
-struct BallBallStrategy::Model {
-	std::string geoId;
-	double radius;
-	rw::math::Vector3D<> center;
-	const rw::kinematics::Frame* frame;
-};
-
-class BallBallStrategy::BallModel: public ContactModel {
-public:
-	typedef rw::common::Ptr<BallModel> Ptr;
-	BallModel(ContactStrategy *owner): ContactModel(owner) {}
-	virtual std::string getName() const { return "BallModel"; }
-	std::vector<Model> models;
-};
 
 class BallBallStrategy::BallTracking: public ContactStrategyTracking::StrategyData {
 public:
@@ -107,37 +91,32 @@ bool BallBallStrategy::match(rw::common::Ptr<const GeometryData> geoA, rw::commo
 }
 
 bool BallBallStrategy::findContact(Contact &c,
-		const Model& a,	const Transform3D<>& wTa,
-		const Model& b,	const Transform3D<>& wTb, bool distCheck) const
+	const Sphere* a, const Vector3D<>& wPa,
+	const Sphere* b, const Vector3D<>& wPb, bool distCheck) const
 {
-	const Vector3D<> cA = wTa.R()*a.center+wTa.P();
-	const Vector3D<> cB = wTb.R()*b.center+wTb.P();
-	const Vector3D<> cVec = cB-cA;
+	const Vector3D<> cVec = wPb-wPa;
 	double cVecLen = cVec.norm2();
-	if (!distCheck || cVecLen <= a.radius + b.radius) {
+	if (!distCheck || cVecLen <= a->getRadius() + b->getRadius()) {
 		const Vector3D<> cVecNorm = cVec/cVecLen;
-		c.setFrameA(a.frame);
-		c.setFrameB(b.frame);
-		c.setPointA(cA+a.radius*cVecNorm);
-		c.setPointB(cB-b.radius*cVecNorm);
+		c.setPointA(wPa+a->getRadius()*cVecNorm);
+		c.setPointB(wPb-b->getRadius()*cVecNorm);
 		c.setNormal(cVecNorm);
-		c.setDepth(a.radius + b.radius - cVecLen);
-		c.setTransform(inverse(wTa)*wTb);
+		c.setDepth(a->getRadius() + b->getRadius() - cVecLen);
 		return true;
 	}
 	return false;
 }
 
 std::vector<Contact> BallBallStrategy::findContacts(
-		ProximityModel::Ptr a, const Transform3D<>& wTa,
-		ProximityModel::Ptr b, const Transform3D<>& wTb,
-		ContactStrategyData& data,
-		ContactStrategyTracking& tracking,
-		rwsim::log::SimulatorLogScope* log) const
+	ProximityModel::Ptr a, const Transform3D<>& wTa,
+	ProximityModel::Ptr b, const Transform3D<>& wTb,
+	ContactStrategyData& data,
+	ContactStrategyTracking& tracking,
+	rwsim::log::SimulatorLogScope* log) const
 {
 	std::vector<Contact> res;
-	const BallModel::Ptr mA = a.cast<BallModel>();
-	const BallModel::Ptr mB = b.cast<BallModel>();
+	const GeometryModel::Ptr mA = a.cast<GeometryModel>();
+	const GeometryModel::Ptr mB = b.cast<GeometryModel>();
 	RW_ASSERT(mA != NULL);
 	RW_ASSERT(mB != NULL);
 	if (!tracking.isInitialized())
@@ -150,20 +129,25 @@ std::vector<Contact> BallBallStrategy::findContacts(
 		for (std::size_t j = 0; j < mB->models.size(); j++) {
 			std::size_t oldId;
 			const bool oldContact = ballTracking->find(i,j,oldId);
-			const Model modelA = mA->models[i];
-			const Model modelB = mB->models[j];
+			const GeometryModel::Type modelA = mA->models[i];
+			const GeometryModel::Type modelB = mB->models[j];
+			const Transform3D<> poseA = wTa*modelA.transform;
+			const Transform3D<> poseB = wTb*modelB.transform;
 			Contact c;
-			if (findContact(c, modelA, wTa, modelB, wTb, !oldContact)) {
+			if (findContact(c, modelA.geo, poseA.P(), modelB.geo, poseB.P(), !oldContact)) {
+				c.setTransform(inverse(poseA)*poseB);
 				c.setModelA(mA);
 				c.setModelB(mB);
+				c.setFrameA(modelA.frame);
+				c.setFrameB(modelB.frame);
 				res.push_back(c);
-			}
-			if (oldContact) {
-				newModels.push_back(ballTracking->modelIDs[oldId]);
-				newUserData.push_back(ballTracking->userData[oldId]);
-			} else {
-				newModels.push_back(std::make_pair(i,j));
-				newUserData.push_back(NULL);
+				if (oldContact) {
+					newModels.push_back(ballTracking->modelIDs[oldId]);
+					newUserData.push_back(ballTracking->userData[oldId]);
+				} else {
+					newModels.push_back(std::make_pair(i,j));
+					newUserData.push_back(NULL);
+				}
 			}
 		}
 	}
@@ -173,15 +157,15 @@ std::vector<Contact> BallBallStrategy::findContacts(
 }
 
 std::vector<Contact> BallBallStrategy::updateContacts(
-		ProximityModel::Ptr a, const Transform3D<>& wTa,
-		ProximityModel::Ptr b, const Transform3D<>& wTb,
-		ContactStrategyData& data,
-		ContactStrategyTracking& tracking,
-		rwsim::log::SimulatorLogScope* log) const
+	ProximityModel::Ptr a, const Transform3D<>& wTa,
+	ProximityModel::Ptr b, const Transform3D<>& wTb,
+	ContactStrategyData& data,
+	ContactStrategyTracking& tracking,
+	rwsim::log::SimulatorLogScope* log) const
 {
 	std::vector<Contact> res;
-	const BallModel::Ptr mA = a.cast<BallModel>();
-	const BallModel::Ptr mB = b.cast<BallModel>();
+	const GeometryModel::Ptr mA = a.cast<GeometryModel>();
+	const GeometryModel::Ptr mB = b.cast<GeometryModel>();
 	RW_ASSERT(mA != NULL);
 	RW_ASSERT(mB != NULL);
 	if (!tracking.isInitialized())
@@ -190,73 +174,22 @@ std::vector<Contact> BallBallStrategy::updateContacts(
 	RW_ASSERT(ballTracking);
 	for (std::size_t i = 0; i < ballTracking->modelIDs.size(); i++) {
 		const std::pair<std::size_t, std::size_t>& modelIDs = ballTracking->modelIDs[i];
-		const Model modelA = mA->models[modelIDs.first];
-		const Model modelB = mB->models[modelIDs.second];
+		const GeometryModel::Type modelA = mA->models[modelIDs.first];
+		const GeometryModel::Type modelB = mB->models[modelIDs.second];
+		const Transform3D<> poseA = wTa*modelA.transform;
+		const Transform3D<> poseB = wTb*modelB.transform;
 		Contact c;
-		if (findContact(c, modelA, wTa, modelB, wTb, false)) {
-			c.setModelA(mA);
-			c.setModelB(mB);
-			res.push_back(c);
-		}
+		RW_ASSERT(findContact(c, modelA.geo, poseA.P(), modelB.geo, poseB.P(), false));
+		c.setTransform(inverse(poseA)*poseB);
+		c.setModelA(mA);
+		c.setModelB(mB);
+		c.setFrameA(modelA.frame);
+		c.setFrameB(modelB.frame);
+		res.push_back(c);
 	}
 	return res;
 }
 
 std::string BallBallStrategy::getName() {
 	return "BallBallStrategy";
-}
-
-ProximityModel::Ptr BallBallStrategy::createModel() {
-	return ownedPtr(new BallModel(this));
-}
-
-void BallBallStrategy::destroyModel(ProximityModel* model) {
-	BallModel* bmodel = dynamic_cast<BallModel*>(model);
-	RW_ASSERT(bmodel);
-	bmodel->models.clear();
-}
-
-bool BallBallStrategy::addGeometry(ProximityModel* model, const Geometry& geom) {
-	BallModel* bmodel = dynamic_cast<BallModel*>(model);
-	RW_ASSERT(bmodel);
-	GeometryData::Ptr geomData = geom.getGeometryData();
-	if (geomData->getType() != GeometryData::SpherePrim)
-		return false;
-	Sphere* sData = (Sphere*) geomData.get();
-	Model newModel;
-	newModel.geoId = geom.getId();
-	newModel.center = geom.getTransform().P();
-	newModel.radius = sData->getRadius()*geom.getScale();
-	newModel.frame = geom.getFrame();
-	bmodel->models.push_back(newModel);
-	return true;
-}
-
-bool BallBallStrategy::addGeometry(ProximityModel* model, Geometry::Ptr geom, bool forceCopy) {
-	return addGeometry(model, *geom);
-}
-
-bool BallBallStrategy::removeGeometry(ProximityModel* model, const std::string& geomId) {
-	BallModel* bmodel = dynamic_cast<BallModel*>(model);
-	RW_ASSERT(bmodel);
-	for (std::vector<Model>::iterator it = bmodel->models.begin(); it < bmodel->models.end(); it++) {
-		if ((*it).geoId == geomId) {
-			bmodel->models.erase(it);
-			return true;
-		}
-	}
-	return false;
-}
-
-std::vector<std::string> BallBallStrategy::getGeometryIDs(ProximityModel* model) {
-	BallModel* bmodel = dynamic_cast<BallModel*>(model);
-	RW_ASSERT(bmodel);
-	std::vector<std::string> res;
-	for (std::vector<Model>::iterator it = bmodel->models.begin(); it < bmodel->models.end(); it++)
-		res.push_back((*it).geoId);
-	return res;
-}
-
-void BallBallStrategy::clear() {
-	// Nothing to clear
 }
