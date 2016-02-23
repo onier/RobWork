@@ -32,31 +32,18 @@
 #include <QGLWidget>
 
 #include <QMouseEvent>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QImage>
 #include <QAction>
 #include <QToolBar>
 #include <QMenu>
 
-#include <rw/models/WorkCell.hpp>
-#include <rw/kinematics/State.hpp>
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Vector3D.hpp>
-#include <rw/proximity/CollisionDetector.hpp>
 
 #include <rw/graphics/WorkCellScene.hpp>
 #include <rwlibs/opengl/Drawable.hpp>
 #include <rw/graphics/Render.hpp>
-#include <rwlibs/opengl/DrawableUtil.hpp>
-
-#include <boost/shared_ptr.hpp>
 
 #include <rws/ArcBallController.hpp>
-#include <rws/RobWorkStudioPlugin.hpp>
-
-
-class RobWorkStudio;
 
 /**
  * @brief Class representing an OpenGL based QT Widget for 3D visualization of Drawables

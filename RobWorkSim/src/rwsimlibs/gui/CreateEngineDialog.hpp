@@ -25,6 +25,8 @@
 #include <QTimer>
 #include <QDialog>
 
+namespace rwsim { namespace log { class SimulatorLogScope; } }
+
 namespace Ui {
     class CreateEngineDialog;
 }
@@ -38,6 +40,8 @@ public:
 
 	rwsim::simulator::DynamicSimulator::Ptr getSimulator(){ return _sim; };
 
+	rw::common::Ptr<rwsim::log::SimulatorLogScope> getLog() const;
+
 private slots:
 	void btnPressed();
 	void changedEvent();
@@ -46,6 +50,7 @@ private:
 	Ui::CreateEngineDialog *_ui;
 	rwsim::simulator::DynamicSimulator::Ptr _sim;
 	rw::common::Ptr<rwsim::dynamics::DynamicWorkCell> _dwc;
+    rw::common::Ptr<rwsim::log::SimulatorLogScope> _log;
 };
 
 

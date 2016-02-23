@@ -398,6 +398,16 @@ NOTE: A wanted simulation speed cannot be guarenteed.</string>
              </layout>
             </widget>
            </item>
+           <item>
+            <widget class="QPushButton" name="_internalInfoBtn">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
+             <property name="text">
+              <string>Open Internal Info Dialog</string>
+             </property>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>

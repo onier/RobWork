@@ -16,12 +16,12 @@
 #include <rwsim/dynamics/RigidBody.hpp>
 
 #include <rwsim/simulator/PhysicsEngine.hpp>
-
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 
 #include <rw/loaders/path/PathLoader.hpp>
+#include <rwsim/log/SimulatorLogScope.hpp>
 
 #include "ui_CreateEngineDialog.h"
 
@@ -34,6 +34,7 @@ using namespace rw::kinematics;
 using namespace rw::common;
 using namespace rw::proximity;
 using namespace rwsim::dynamics;
+using namespace rwsim::log;
 using namespace rwsim::simulator;
 
 #define RW_DEBUGS( str ) std::cout << str  << std::endl;
@@ -45,7 +46,8 @@ namespace {
 
 CreateEngineDialog::CreateEngineDialog(Ptr<DynamicWorkCell> dwc, QWidget *parent):
     QDialog(parent),
-    _dwc(dwc)
+    _dwc(dwc),
+	_log(NULL)
 {
 	RW_ASSERT( _dwc );
 	_ui = new Ui::CreateEngineDialog();
@@ -71,6 +73,11 @@ void CreateEngineDialog::btnPressed(){
         std::string engineId = _ui->_spaceMethodBox->currentText().toStdString();
         try {
             PhysicsEngine::Ptr pengine = PhysicsEngine::Factory::makePhysicsEngine(engineId, _dwc);
+            if (_ui->_internalInfoCheck->isChecked()) {
+            	const SimulatorLogScope::Ptr log = ownedPtr(new SimulatorLogScope());
+            	pengine->setSimulatorLog(log);
+            	_log = log;
+            }
             _sim = ownedPtr( new DynamicSimulator(_dwc, pengine) );
         } catch(...) {
             QMessageBox::information(this, "Creating Engine", "Error creating Physics Engine!");
@@ -82,6 +89,7 @@ void CreateEngineDialog::btnPressed(){
         accept();
     } else if( obj == _ui->_cancelBtn ) {
     	_sim = NULL;
+    	_log = NULL;
     	reject();
     }
 }
@@ -92,3 +100,6 @@ void CreateEngineDialog::changedEvent(){
     //if( obj == _timer ){}
 }
 
+rw::common::Ptr<SimulatorLogScope> CreateEngineDialog::getLog() const {
+	return _log;
+}

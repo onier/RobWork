@@ -42,6 +42,7 @@
 #include <rwsimlibs/gui/SupportPoseAnalyserDialog.hpp>
 #include <rwsimlibs/gui/TactileSensorDialog.hpp>
 
+#include <rwsimlibs/gui/log/SimulatorLogWidget.hpp>
 
 using namespace rw::graspplanning;
 using namespace rw::loaders;
@@ -63,6 +64,8 @@ using namespace rwsim::loaders;
 using namespace rwsim::sensor;
 using namespace rwsim::simulator;
 using namespace rwsim::util;
+using namespace rwsimlibs::gui;
+
 using namespace rws;
 using rwsim::control::BeamJointController;
 //using rwsim::control::SuctionCupController;
@@ -77,6 +80,7 @@ RWSimPlugin::RWSimPlugin():
 	_debugRender(NULL),
 	_openCalled(false),
 	_tactileSensorDialog(NULL),
+	_logWidget(NULL),
 	_timerShot(NULL),
 	_openAction(NULL),
 	_planarPoseDistAction(NULL),
@@ -107,6 +111,7 @@ RWSimPlugin::RWSimPlugin():
     connect(_saveStatePathBtn,SIGNAL(pressed()), this, SLOT(btnPressed()) );
 
     connect(_tactileSensorBtn,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_internalInfoBtn,SIGNAL(pressed()), this, SLOT(btnPressed()) );
 
     connect(_openDeviceCtrlBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
 
@@ -237,6 +242,15 @@ void RWSimPlugin::btnPressed(){
     	if(sim==NULL)
     		return;
 
+    	const rw::common::Ptr<rwsim::log::SimulatorLogScope> info = eDialog.getLog();
+    	if (!(info == NULL)) {
+    		if( _logWidget==NULL )
+    			_logWidget = new SimulatorLogWidget(NULL);
+    		_logWidget->setDWC(_dwc);
+    		_logWidget->setLog(info);
+            _internalInfoBtn->setDisabled(false);
+    	}
+
     	_createSimulatorBtn->setDisabled(true);
     	_destroySimulatorBtn->setDisabled(false);
     	_simConfigBtn->setDisabled(false);
@@ -261,7 +275,6 @@ void RWSimPlugin::btnPressed(){
         _updateIntervalSpin->setValue( settings().get<double>("RWSimUpdateInterval", 0.1) );
 
 
-
     	_sim->setStepCallBack(cb);
     	_timer->start();
 
@@ -281,6 +294,7 @@ void RWSimPlugin::btnPressed(){
     	_destroySimulatorBtn->setDisabled(true);
     	_createSimulatorBtn->setDisabled(false);
     	_simConfigBtn->setDisabled(true);
+        _internalInfoBtn->setDisabled(true);
     	_timer->stop();
     } else if( obj == _simConfigBtn ) {
     	if(_sim==NULL){
@@ -300,8 +314,12 @@ void RWSimPlugin::btnPressed(){
     		_sim->stop();
 
     	_sim->step();
+    	stepCallBack(_sim->getState());
 
     	getRobWorkStudio()->setState(_sim->getState());
+
+    	if (_logWidget != NULL)
+    		_logWidget->updateInfo();
     } else if( obj == _startBtn ) {
         if(_sim==NULL){
             log().error() << "Simulator not created yet!\n" ;
@@ -320,6 +338,9 @@ void RWSimPlugin::btnPressed(){
     	_sim->stop();
     	_startBtn->setDisabled(false);
     	_stopBtn->setDisabled(true);
+
+    	if (_logWidget != NULL)
+    		_logWidget->updateInfo();
     } else if( obj == _resetBtn ) {
         if(_sim==NULL){
             log().error() << "Simulator not created yet!\n" ;
@@ -327,6 +348,9 @@ void RWSimPlugin::btnPressed(){
         }
 
     	_sim->reset( getRobWorkStudio()->getState() );
+
+    	if (_logWidget != NULL)
+    		_logWidget->updateInfo();
     } else if( obj == _saveStatePathBtn )  {
         getRobWorkStudio()->setTimedStatePath(_path);
     } else if( obj == _openDeviceCtrlBtn ){
@@ -389,6 +413,17 @@ void RWSimPlugin::btnPressed(){
         _tactileSensorDialog->show();
         _tactileSensorDialog->raise();
         _tactileSensorDialog->activateWindow();
+    } else if( obj==_internalInfoBtn ){
+        if( _logWidget==NULL )
+        	return;
+
+        _logWidget->updateInfo();
+
+        //connect(this,SIGNAL(updateDialog(const rw::kinematics::State&)),_tactileSensorDialog,SLOT(setState(const rw::kinematics::State&)) );
+
+        _logWidget->show();
+        _logWidget->raise();
+        _logWidget->activateWindow();
     } else if( obj== _planarPoseDistAction) {
 
     } else if( obj== _poseDistAction) {
@@ -663,6 +698,10 @@ void RWSimPlugin::close(){
 void RWSimPlugin::initialize(){
     getRobWorkStudio()->stateChangedEvent().add(
     		boost::bind(&RWSimPlugin::stateChangedListener, this, _1), this);
+
+    getRobWorkStudio()->genericAnyEvent().add(
+          boost::bind(&RWSimPlugin::genericAnyEventListener, this, _1, _2), this);
+
     Log::setLog( _log );
     _timerShot = NULL;
 
@@ -682,6 +721,21 @@ void RWSimPlugin::initialize(){
 
 void RWSimPlugin::stateChangedListener(const State& state){
     updateDialog(state);
+}
+
+void RWSimPlugin::genericAnyEventListener(const std::string& event, boost::any data){
+	if (_logWidget == NULL || _path.size() == 0)
+		return;
+    try{
+    	if (event == "PlayBack::TimeRelative") {
+    		const double timeRelative = boost::any_cast<double>(data);
+    		const double endTime = _path.back().getTime();
+    		const double time = timeRelative*endTime;
+    		_logWidget->setSelectedTime(time);
+    	}
+    } catch (...){
+        Log::warningLog() << "RWSimPlugin: Event \"" << event << "\" did not have the correct datatype or an error occured!\n";
+    }
 }
 
 #if !RWS_USE_QT5

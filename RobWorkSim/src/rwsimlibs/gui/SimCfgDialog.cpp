@@ -13,7 +13,7 @@
 
 #include <rwsim/dynamics/RigidBody.hpp>
 
-#include <rwsim/simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/simulator/PhysicsEngine.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
@@ -45,7 +45,7 @@ SimCfgDialog::SimCfgDialog(rw::common::Ptr<DynamicSimulator> sim, QWidget *paren
     connect(_ui->_cancelBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
 
 	std::vector<std::string> engineIDs =
-	PhysicsEngineFactory::getEngineIDs();
+	PhysicsEngine::Factory::getEngineIDs();
 
 	//std::string id = _sim->getID();
 	//_tabPane->addItem(id);

@@ -50,6 +50,8 @@ struct UserContext {
 	std::string _previousOpenDirectory;
 };
 
+namespace rwsimlibs { namespace gui { class SimulatorLogWidget; } }
+
 /**
  * @brief A plugin for loading dynamic workcells and for doing simple
  * dynamics simulation using different physics engines.
@@ -93,6 +95,8 @@ class RWSimPlugin : public rws::RobWorkStudioPlugin, private Ui::RWSimPlugin
          *
          */
         void stateChangedListener(const rw::kinematics::State& state);
+
+        void genericAnyEventListener(const std::string& event, boost::any data);
 
         /**
          * @brief opens a dynamic workcell with filename \b file.
@@ -148,6 +152,7 @@ class RWSimPlugin : public rws::RobWorkStudioPlugin, private Ui::RWSimPlugin
         bool _openCalled;
 
         TactileSensorDialog *_tactileSensorDialog;
+        rwsimlibs::gui::SimulatorLogWidget* _logWidget;
 
         QTimer *_timerShot;
 
