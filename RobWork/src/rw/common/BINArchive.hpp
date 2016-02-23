@@ -132,6 +132,8 @@ namespace common {
 		void doWrite(const std::vector<double>& val, const std::string& id){ writeValue(val,id);};
 		void doWrite(const std::vector<std::string>& val, const std::string& id);
 
+		void doWrite(const Eigen::MatrixXd& val, const std::string& id);
+
 		//template<class T>
 		//void write(const T& data, const std::string& id){ OutputArchive::write<T>(data,id); }
 
@@ -182,6 +184,8 @@ namespace common {
 		virtual void doRead(std::vector<float>& val, const std::string& id){readValue(val,id);}
 		virtual void doRead(std::vector<double>& val, const std::string& id){readValue(val,id);}
 		virtual void doRead(std::vector<std::string>& val, const std::string& id) ;
+
+		void doRead(Eigen::MatrixXd& val, const std::string& id);
 
         //template<class T>
         //void read(T& object, const std::string& id){

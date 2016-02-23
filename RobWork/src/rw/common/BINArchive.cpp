@@ -119,6 +119,19 @@ void BINArchive::doWrite(const std::vector<std::string>& val, const std::string&
      }
 }
 
+void BINArchive::doWrite(const Eigen::MatrixXd& val, const std::string& id) {
+	boost::uint32_t m = val.rows();
+	boost::uint32_t n = val.cols();
+    _ofs->write((char*)&m, sizeof(m) );
+    _ofs->write((char*)&n, sizeof(n) );
+    for (Eigen::MatrixXd::Index i = 0; i < val.rows(); i++) {
+    	for (Eigen::MatrixXd::Index j = 0; j < val.cols(); j++) {
+    		const double rval = val(i,j);
+    	    _ofs->write((char*)&rval, sizeof(rval) );
+    	}
+    }
+}
+
  void BINArchive::doRead(std::string& val, const std::string& id){
      boost::uint32_t s;
      (*_ifs) >> s;
@@ -142,4 +155,16 @@ void BINArchive::doWrite(const std::vector<std::string>& val, const std::string&
      }
  }
 
-
+void BINArchive::doRead(Eigen::MatrixXd& val, const std::string& id) {
+	boost::uint32_t m = 0;
+	boost::uint32_t n = 0;
+    _ifs->read((char*)&m, sizeof(boost::uint32_t) );
+    _ifs->read((char*)&n, sizeof(boost::uint32_t) );
+    val.resize(m,n);
+    for (Eigen::MatrixXd::Index i = 0; i < val.rows(); i++) {
+    	for (Eigen::MatrixXd::Index j = 0; j < val.cols(); j++) {
+    		double& tmp = val(i,j);
+    		_ifs->read((char*)& (tmp), sizeof(double) );
+    	}
+    }
+}
