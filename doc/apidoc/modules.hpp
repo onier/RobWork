@@ -103,6 +103,11 @@ namespace rwlibs {
 	namespace mathematica {}
 
 	/**
+	 * @brief Geometric surface library.
+	 */
+	namespace nurbs {}
+
+	/**
 	 * @brief Dynamic library loading
 	 */
 	namespace dll {}
