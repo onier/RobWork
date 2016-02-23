@@ -20,6 +20,7 @@
 
 #include <rw/loaders/tul/TULLoader.hpp>
 #include <rw/loaders/rwxml/XMLRWLoader.hpp>
+#include <rw/loaders/urdf/URDFLoader.hpp>
 #include <rw/common/StringUtil.hpp>
 #include "WorkCellFactory.hpp"
 
@@ -50,6 +51,8 @@ WorkCell::Ptr WorkCellLoader::Factory::load(const std::string& file)
     try{
         if (ext == ".WU" || ext == ".WC" || ext == ".TAG" || ext == ".DEV") {
             return TULLoader::load(file);
+        } else if (ext == ".URDF") {
+        	return URDFLoader::load(file);
         } else {
             return XMLRWLoader::load(file);
         }

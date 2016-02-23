@@ -29,6 +29,7 @@ SET(FILES_CPP
   
   dom/DOMBasisTypes.cpp
   dom/DOMPropertyMapLoader.cpp
+  dom/DOMPropertyMapSaver.cpp
   dom/DOMPathLoader.cpp
   dom/DOMPathSaver.cpp
   dom/DOMTrajectoryLoader.cpp
@@ -89,10 +90,12 @@ SET(FILES_HPP
 IF (RW_HAVE_ASSIMP)
 	set(FILES_CPP ${FILES_CPP}
   		model3d/LoaderAssimp.cpp
+  		model3d/SaverAssimp.cpp
   	)
 
     set(FILES_HPP ${FILES_HPP}
   		model3d/LoaderAssimp.hpp
+  		model3d/SaverAssimp.cpp
     )
 ENDIF()
 
