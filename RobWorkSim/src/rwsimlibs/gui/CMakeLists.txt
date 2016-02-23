@@ -23,9 +23,11 @@ SET(FILES_UI
 	log/SimulatorLogWidget.ui
 	log/BodyMotionWidget.ui
 	log/CollisionResultWidget.ui
-	log/ContactForceTorqueWidget.ui
+	log/ConstraintWidget.ui
+	log/ForceTorqueWidget.ui
 	log/ContactSetWidget.ui
 	log/ContactVelocitiesWidget.ui
+	log/EquationSystemWidget.ui
 	log/LogValuesWidget.ui
 	log/SimulatorStatisticsWidget.ui
 )
@@ -57,9 +59,11 @@ SET(SrcFiles_HPP
 	log/SimulatorLogEntryWidget.hpp
 	log/BodyMotionWidget.hpp
 	log/CollisionResultWidget.hpp
-	log/ContactForceTorqueWidget.hpp
+	log/ConstraintWidget.hpp
+	log/ForceTorqueWidget.hpp
 	log/ContactSetWidget.hpp
 	log/ContactVelocitiesWidget.hpp
+	log/EquationSystemWidget.hpp
 	log/LogValuesWidget.hpp
 	log/LogMessageWidget.hpp
 	log/SimulatorLogWidget.hpp
@@ -101,9 +105,11 @@ SET(SrcFiles
 	log/SimulatorLogWidget.cpp
 	log/BodyMotionWidget.cpp
 	log/CollisionResultWidget.cpp
-	log/ContactForceTorqueWidget.cpp
+	log/ConstraintWidget.cpp
+	log/ForceTorqueWidget.cpp
 	log/ContactSetWidget.cpp
 	log/ContactVelocitiesWidget.cpp
+	log/EquationSystemWidget.cpp
 	log/LogValuesWidget.cpp
 	log/LogMessageWidget.cpp
 	log/SimulatorLogWidget.cpp

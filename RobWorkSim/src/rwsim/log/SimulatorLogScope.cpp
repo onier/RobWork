@@ -31,7 +31,8 @@ using namespace rwsim::log;
 
 SimulatorLogScope::SimulatorLogScope(SimulatorLogScope* parent):
 	SimulatorLog(parent),
-	_line(std::make_pair<int,int>(-1,-1)) {
+	_line(std::make_pair<int,int>(-1,-1))
+{
 }
 
 SimulatorLogScope::~SimulatorLogScope() {
@@ -126,8 +127,20 @@ int SimulatorLogScope::lineEnd() const {
 
 void SimulatorLogScope::setLineBegin(int line) {
 	_line.first = line;
+	if (!_log.isNull()) {
+		std::ostringstream str;
+		str << StringUtil::getFileName(getFilename()) << ":" << _line.first << ": " << getDescription();
+		_log->setTabLevel(_level);
+		_log->writeln(str.str());
+	}
 }
 
 void SimulatorLogScope::setLineEnd(int line) {
 	_line.second = line;
+	if (!_log.isNull()) {
+		std::ostringstream str;
+		str << StringUtil::getFileName(getFilename()) << ":" << _line.first << "-" << _line.second;
+		_log->setTabLevel(_level);
+		_log->writeln(str.str());
+	}
 }

@@ -16,6 +16,7 @@
  ********************************************************************************/
 
 #include "SimulatorLog.hpp"
+#include "SimulatorLogScope.hpp"
 
 #include <rw/common/InputArchive.hpp>
 #include <rw/common/OutputArchive.hpp>
@@ -28,8 +29,19 @@ using namespace rwsim::log;
 #define LINE_WIDTH 64
 
 SimulatorLog::SimulatorLog(SimulatorLogScope* parent):
+	_level(0),
+	_log(NULL),
 	_parent(parent)
 {
+	const SimulatorLogScope* p = parent;
+	if (p != NULL) {
+		_level++;
+		while (p->getParent() != NULL) {
+			p = p->getParent();
+			_level++;
+		}
+		_log = p->_log;
+	}
 }
 
 SimulatorLog::~SimulatorLog() {
@@ -58,6 +70,12 @@ void SimulatorLog::write(class OutputArchive& oarchive, const std::string& id) c
 	if (endLine)
 		oarchive.write(str.substr(fullLines*LINE_WIDTH,std::string::npos),"Filename");
 	oarchive.write(_description,"Description");
+}
+
+void SimulatorLog::setLogWriter(LogWriter::Ptr writer) {
+	if (_level != 0)
+		RW_THROW("SimulatorLogScope (setLogWriter): can not set log writer on a child scope.");
+	_log = writer;
 }
 
 SimulatorLogScope* SimulatorLog::getParent() const {

@@ -93,9 +93,13 @@ SET(FILES_CPP
 	log/SimulatorLog.cpp
 	log/SimulatorLogEntry.cpp
 	log/LogCollisionResult.cpp
+	log/LogConstraintForceTorque.cpp
+	log/LogConstraints.cpp
 	log/LogContactForceTorque.cpp
 	log/LogContactSet.cpp
 	log/LogContactVelocities.cpp
+	log/LogEquationSystem.cpp
+	log/LogForceTorque.cpp
 	log/LogPositions.cpp
 	log/LogMessage.cpp
 	log/LogValues.cpp
@@ -108,7 +112,6 @@ SET(FILES_CPP
 	simulator/ThreadSimulator.cpp
 	simulator/PhysicsEngine.cpp
 	simulator/PhysicsEngineFactory.cpp
-	simulator/PhysicsEngine.cpp	
 	simulator/GraspTaskSimulator.cpp
 	simulator/AssemblySimulator.cpp
 	
@@ -227,9 +230,13 @@ SET(FILES_HPP
 	log/SimulatorLog.hpp
 	log/SimulatorLogEntry.hpp
 	log/LogCollisionResult.hpp
+	log/LogConstraintForceTorque.hpp
+	log/LogConstraints.hpp
 	log/LogContactForceTorque.hpp
 	log/LogContactSet.hpp
 	log/LogContactVelocities.hpp
+	log/LogEquationSystem.hpp
+	log/LogForceTorque.hpp
 	log/LogPositions.hpp
 	log/LogMessage.hpp
 	log/LogValues.hpp
@@ -240,6 +247,7 @@ SET(FILES_HPP
     
 	simulator/DynamicSimulator.hpp
 	simulator/ThreadSimulator.hpp
+	simulator/PhysicsEngine.hpp
 	simulator/PhysicsEngineFactory.hpp
 	simulator/GraspTaskSimulator.hpp
 	simulator/AssemblySimulator.hpp

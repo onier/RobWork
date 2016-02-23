@@ -61,6 +61,12 @@ public:
 	virtual void write(class rw::common::OutputArchive& oarchive, const std::string& id) const;
 
 	/**
+	 * @brief Output logging information to a LogWriter.
+	 * @param writer [in] the writer to log to.
+	 */
+	virtual void setLogWriter(rw::common::Ptr<rw::common::LogWriter> writer);
+
+	/**
 	 * @brief Get the parent of this log item.
 	 * @return the parent (NULL if no parent).
 	 */
@@ -107,6 +113,10 @@ public:
 	 * @param description [in] the description to set.
 	 */
 	virtual void setDescription(const std::string& description);
+
+protected:
+	unsigned int _level;
+	rw::common::Ptr<rw::common::LogWriter> _log;
 
 private:
 	SimulatorLogScope* const _parent;
