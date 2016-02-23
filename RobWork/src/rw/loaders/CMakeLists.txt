@@ -42,6 +42,10 @@ SET(FILES_CPP
   image/RGBLoader.cpp
   ImageFactory.cpp
   ImageLoader.cpp
+  
+  urdf/URDFLoader.cpp
+  urdf/URDFParser.cpp
+  urdf/URDFModel.cpp
 )
 
 SET(FILES_HPP
@@ -76,6 +80,10 @@ SET(FILES_HPP
   image/RGBLoader.hpp
   ImageFactory.hpp
   ImageLoader.hpp
+  
+  urdf/URDFLoader.hpp
+  urdf/URDFParser.hpp
+  urdf/URDFModel.hpp
 )
 
 IF (RW_HAVE_ASSIMP)
