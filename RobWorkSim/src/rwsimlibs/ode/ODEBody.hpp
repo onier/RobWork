@@ -132,6 +132,13 @@ namespace simulator {
 		void postupdate(rw::kinematics::State& state);
 
 		/**
+		 * @brief This method updates the \b state with position info of this ode object.
+		 * Which means that ode states are converted to rw states.
+		 * @param state [in/out] the state to update.
+		 */
+		void postupdatePosition(rw::kinematics::State& state);
+
+		/**
 		 * @brief resets the ODE body to the values of the RW body
 		 * @param state
 		 */

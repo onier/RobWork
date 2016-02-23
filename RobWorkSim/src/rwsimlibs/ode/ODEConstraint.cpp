@@ -155,9 +155,11 @@ void ODEConstraint::decomposeCompliance(const Eigen::MatrixXd &compliance, const
 		std::vector<double> angVec(spring.angComp,0);
 		std::vector<double> freeVec(spring.linComp+spring.angComp,0);
 
-		double linInfNorm = 0;
+/*		double linInfNorm = 0;
 		double angInfNorm = 0;
+		std::cout << "i " << i << std::endl;
 		for (Eigen::DenseIndex j = 0; j < vec.rows(); j++) {
+			std::cout << " " << j << "(" << vec(j) << ")";
 			if (j < spring.linComp) {
 				linVec[j] = vec(j);
 				if (vec(j) > linInfNorm)
@@ -169,10 +171,27 @@ void ODEConstraint::decomposeCompliance(const Eigen::MatrixXd &compliance, const
 			}
 			freeVec[j] = vec(j);
 		}
+		std::cout << std::endl;
+		std::cout << "linInfNorm: " << linInfNorm << std::endl;
+		std::cout << "angInfNorm: " << angInfNorm << std::endl;
 		if (linInfNorm < 1e-12)
 			lin = true;
 		if (angInfNorm < 1e-12)
 			ang = true;
+			*/
+
+		for (Eigen::DenseIndex j = 0; j < vec.rows(); j++) {
+			if (std::fabs((double)vec(j)) > 0) {
+				if (j < spring.linComp) {
+					lin = true;
+					linVec[j] = vec(j);
+				} else {
+					ang = true;
+					angVec[j-spring.linComp] = vec(j);
+				}
+				freeVec[j] = vec(j);
+			}
+		}
 
 		if (std::fabs((double)sigma(i)) < tolerance) {
 			if (lin && ang)
@@ -184,14 +203,20 @@ void ODEConstraint::decomposeCompliance(const Eigen::MatrixXd &compliance, const
 		} else {
 			free.push_back(freeVec);
 		}
+		std::cout << "i " << i << std::endl;
+		std::cout << "linFixed: " << linFixed.size() << std::endl;
+		std::cout << "angFixed: " << angFixed.size() << std::endl;
 
-		if (linInfNorm > 0 && linInfNorm < 1e-12) {
+		/*if (linInfNorm > 0 && linInfNorm < 1e-12) {
 			RW_WARN("ODEConstraint (decomposeCompliance): the null space of the compliance matrix gives a linear direction with a very small infinity norm (" << linInfNorm << ") - expected zero - the direction will be fixed anyway.");
 		}
 		if (angInfNorm > 0 && angInfNorm < 1e-12) {
 			RW_WARN("ODEConstraint (decomposeCompliance): the null space of the compliance matrix gives a angular direction with a very small infinity norm (" << linInfNorm << ") - expected zero - the direction will be fixed anyway.");
 		}
+		*/
 	}
+	std::cout << "linFixed: " << linFixed.size() << std::endl;
+	std::cout << "angFixed: " << angFixed.size() << std::endl;
 
 	// Clear previous directions
 	dec.linFixedDirs.clear();
@@ -334,6 +359,7 @@ void ODEConstraint::update(const Simulator::UpdateInfo& dt, State& state) {
 	std::vector<Vector3D<> > motorLinDirs;
 	for (unsigned int i = 0; i < _spring->cDec.linFixedDirs.size(); i++) {
 		const Vector3D<> axis = wTconstraint.R()*_spring->cDec.linFixedDirs[i];
+		std::cout << "fixing dir " << i << ": " << axis << std::endl;
 		motorLinDirs.push_back(axis);
 		if (newCompliance) {
 			dJointSetLMotorAxis(_spring->motorLin, i, 1, axis(0) , axis(1), axis(2));

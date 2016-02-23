@@ -114,17 +114,27 @@ void BtTactileSensor::addContactManifold(const Simulator::UpdateInfo& info, Stat
 				for (int i = 0; i < manifold->getNumContacts(); i++) {
 					const btManifoldPoint& point = manifold->getContactPoint(i);
 					const btScalar force = point.getAppliedImpulse()/info.dt;
+					const btScalar forceLat1 = point.m_appliedImpulseLateral1/info.dt;
+					const btScalar forceLat2 = point.m_appliedImpulseLateral2/info.dt;
 					const Vector3D<> pos = BtUtil::toVector3D(point.getPositionWorldOnA());
 					const Vector3D<> n = -BtUtil::toVector3D(point.m_normalWorldOnB);
-					_rwSensor->addForceW(pos,force*n,n,state,bodyA->getRwBody());
+					const Vector3D<> t1 = -BtUtil::toVector3D(point.m_lateralFrictionDir1);
+					const Vector3D<> t2 = -BtUtil::toVector3D(point.m_lateralFrictionDir2);
+					std::cout << "adding forces for " << tsensor->getFrame()->getName() << ": " << force << " " << forceLat1 << " " << forceLat2 << std::endl;
+					_rwSensor->addForceW(pos,force*n+forceLat1*t1+forceLat2*t2,n,state,bodyA->getRwBody());
 				}
 			} else if (bodyB->getRwBody()->getBodyFrame() == tsensor->getFrame()) {
 				for (int i = 0; i < manifold->getNumContacts(); i++) {
 					const btManifoldPoint& point = manifold->getContactPoint(i);
 					const btScalar force = point.getAppliedImpulse()/info.dt;
+					const btScalar forceLat1 = point.m_appliedImpulseLateral1/info.dt;
+					const btScalar forceLat2 = point.m_appliedImpulseLateral2/info.dt;
 					const Vector3D<> pos = BtUtil::toVector3D(point.getPositionWorldOnB());
 					const Vector3D<> n = BtUtil::toVector3D(point.m_normalWorldOnB);
-					_rwSensor->addForceW(pos,force*n,n,state,bodyB->getRwBody());
+					const Vector3D<> t1 = BtUtil::toVector3D(point.m_lateralFrictionDir1);
+					const Vector3D<> t2 = BtUtil::toVector3D(point.m_lateralFrictionDir2);
+					std::cout << "adding forces for " << tsensor->getFrame()->getName() << ": " << force << " " << forceLat1 << " " << forceLat2 << std::endl;
+					_rwSensor->addForceW(pos,force*n+forceLat1*t1+forceLat2*t2,n,state,bodyB->getRwBody());
 				}
 			}
 		}

@@ -39,12 +39,15 @@ public:
 
 public:
 	struct ODEModel {
+		ODEModel(): geo(NULL),frame(NULL),geomId(0),geomIdAlt(0),movable(false) {}
 		std::string geoId;
 		GeometryData* geo;
 		Transform3D<> transform;
 		const Frame* frame;
 		dGeomID geomId;
+		dGeomID geomIdAlt;
 		bool movable;
+		ODEUtil::TriMeshData::Ptr mesh;
 	};
 
 	std::vector<ODEModel> models;
@@ -106,16 +109,28 @@ ODEContactStrategy::ODEContactStrategy() {
 ODEContactStrategy::~ODEContactStrategy() {
 }
 
-bool ODEContactStrategy::match(GeometryData::Ptr geoA, GeometryData::Ptr geoB) {
+bool ODEContactStrategy::match(rw::common::Ptr<const GeometryData> geoA, rw::common::Ptr<const GeometryData> geoB) {
+	// Ball-Plane
+	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::SpherePrim)
+		return true;
+	if (geoA->getType() == GeometryData::SpherePrim && geoB->getType() == GeometryData::PlanePrim)
+		return true;
+	// Cylinder-Plane
 	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::CylinderPrim)
 		return true;
 	if (geoA->getType() == GeometryData::CylinderPrim && geoB->getType() == GeometryData::PlanePrim)
 		return true;
+	// Cylinder-Box
+	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::BoxPrim)
+		return true;
+	if (geoA->getType() == GeometryData::BoxPrim && geoB->getType() == GeometryData::PlanePrim)
+		return true;
+	// Tube-Plane
 	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::TubePrim)
 		return true;
 	if (geoA->getType() == GeometryData::TubePrim && geoB->getType() == GeometryData::PlanePrim)
 		return true;
-	return false;
+	return true;
 }
 
 std::vector<Contact> ODEContactStrategy::findContacts(
@@ -135,12 +150,18 @@ std::vector<Contact> ODEContactStrategy::findContacts(
 	RW_ASSERT(odeTracking);
 
 	BOOST_FOREACH(const ODEContactModel::ODEModel& model, mA->models) {
-		if (model.movable)
-			ODEUtil::setODEGeomT3D(model.geomId,wTa*model.transform);
+		if (!model.movable)
+			continue;
+		ODEUtil::setODEGeomT3D(model.geomId,wTa*model.transform);
+		if (model.geomIdAlt != 0)
+			ODEUtil::setODEGeomT3D(model.geomIdAlt,wTa*model.transform);
 	}
 	BOOST_FOREACH(const ODEContactModel::ODEModel& model, mB->models) {
-		if (model.movable)
-			ODEUtil::setODEGeomT3D(model.geomId,wTb*model.transform);
+		if (!model.movable)
+			continue;
+		ODEUtil::setODEGeomT3D(model.geomId,wTb*model.transform);
+		if (model.geomIdAlt != 0)
+			ODEUtil::setODEGeomT3D(model.geomIdAlt,wTb*model.transform);
 	}
 
 	ContactData contactData;
@@ -196,6 +217,7 @@ void ODEContactStrategy::destroyModel(ProximityModel* model) {
 }
 
 bool ODEContactStrategy::addGeometry(ProximityModel* model, const Geometry& geom) {
+	std::cout << "add: " << geom.getName() << std::endl;
 	ODEContactModel* bmodel = dynamic_cast<ODEContactModel*>(model);
 	RW_ASSERT(bmodel);
 	GeometryData::Ptr geomData = geom.getGeometryData();
@@ -207,19 +229,40 @@ bool ODEContactStrategy::addGeometry(ProximityModel* model, const Geometry& geom
 	newModel.frame = geom.getFrame();
 	if (const Cylinder* const geo = dynamic_cast<Cylinder*>(geomData.get())) {
 		newModel.movable = true;
-		newModel.geomId = dCreateCylinder(bmodel->space,geo->getRadius(),geo->getHeight());
+		newModel.mesh = ODEUtil::buildTriMesh(geomData,false);
+		newModel.geomId = dCreateTriMesh(bmodel->space, newModel.mesh->triMeshID, NULL, NULL, NULL);
+		//newModel.geomId = dCreateCylinder(bmodel->space,geo->getRadius(),geo->getHeight());
 		bmodel->models.push_back(newModel);
 		return true;
 	} else if (const Tube* const geo = dynamic_cast<Tube*>(geomData.get())) {
-		// Only valid for tube to plane
 		newModel.movable = true;
-		newModel.geomId = dCreateCylinder(bmodel->space,geo->getInnerRadius(),geo->getHeight());
+		newModel.mesh = ODEUtil::buildTriMesh(geomData,false);
+		newModel.geomId = dCreateTriMesh(bmodel->space, newModel.mesh->triMeshID, NULL, NULL, NULL);
+		//newModel.geomIdAlt = dCreateCylinder(bmodel->space,geo->getRadius(),geo->getHeight()); // Only valid for tube to plane (not yet handled)
 		bmodel->models.push_back(newModel);
 		return true;
 	} else if (const Plane* const geo = dynamic_cast<Plane*>(geomData.get())) {
 		newModel.movable = false;
 		const Vector3D<> n = geo->normal();
 		newModel.geomId = dCreatePlane(bmodel->space,n[0],n[1],n[2],geo->d());
+		//newModel.geomIdAlt = newModel.geomId;
+		bmodel->models.push_back(newModel);
+		return true;
+	} else if (const Sphere* const geo = dynamic_cast<Sphere*>(geomData.get())) {
+		newModel.movable = true;
+		newModel.geomId = dCreateSphere(bmodel->space,geo->getRadius());
+		bmodel->models.push_back(newModel);
+		return true;
+	} else if (const Box* const geo = dynamic_cast<Box*>(geomData.get())) {
+		const Q size = geo->getParameters();
+		newModel.movable = true;
+		newModel.geomId = dCreateBox(bmodel->space,size[0],size[1],size[2]);
+		bmodel->models.push_back(newModel);
+		return true;
+	} else {
+		newModel.mesh = ODEUtil::buildTriMesh(geomData,false);
+		newModel.movable = true;
+		newModel.geomId = dCreateTriMesh(bmodel->space, newModel.mesh->triMeshID, NULL, NULL, NULL);
 		bmodel->models.push_back(newModel);
 		return true;
 	}
@@ -267,27 +310,36 @@ void ODEContactStrategy::nearCallback(void *data, dGeomID o1, dGeomID o2) {
     std::vector<dContactGeom> contacts(MAX_CONTACTS);
 	const int numc = dCollide(o1, o2, MAX_CONTACTS-1, &contacts[0],	sizeof(dContactGeom));
 
-	if( numc >= MAX_CONTACTS-1 )
-		RW_THROW("ODEContactStrategy uses too small collision buffer!");
+	//if( numc >= MAX_CONTACTS-1 )
+//		RW_THROW("ODEContactStrategy uses too small collision buffer!");
 
 	const ODEContactModel::ODEModel* model1 = NULL;
 	const ODEContactModel::ODEModel* model2 = NULL;
+	//bool alt1 = false;
+	//bool alt2 = false;
 	BOOST_FOREACH(const ODEContactModel::ODEModel& model, contactData->mA->models) {
 		if (model1 != NULL)
 			break;
-		if (model.geomId == o1)
+		if (model.geomId == o1 || model.geomIdAlt == o1) {
+			//alt1 = model.geomIdAlt == o1;
 			model1 = &model;
+		}
 	}
 	BOOST_FOREACH(const ODEContactModel::ODEModel& model, contactData->mB->models) {
 		if (model2 != NULL)
 			break;
-		if (model.geomId == o2)
+		if (model.geomId == o2 || model.geomIdAlt == o2) {
+			//alt2 = model.geomIdAlt == o2;
 			model2 = &model;
+		}
 	}
+	if (model1->geomIdAlt != 0 && model2->geomIdAlt == 0 || model1->geomIdAlt == 0 && model2->geomIdAlt != 0)
+		return;
 	RW_ASSERT(model1 != NULL && model2 != NULL);
 
 	contactData->contacts.resize(numc);
 	RW_ASSERT(numc >= 0);
+	//std::cout << "ODE CS find: " << numc << std::endl;
 	for (size_t i = 0; i < (std::size_t)numc; i++) {
 		const dContactGeom& con = contacts[i];
 
@@ -301,7 +353,10 @@ void ODEContactStrategy::nearCallback(void *data, dGeomID o1, dGeomID o2) {
 		const Vector3D<> p = ODEUtil::toVector3D(con.pos);
 		point.setNormal(n);
 		if (model1->geo->getType() == GeometryData::PlanePrim || model2->geo->getType() == GeometryData::PlanePrim) {
-			if (model1->geo->getType() == GeometryData::TubePrim || model1->geo->getType() == GeometryData::CylinderPrim) {
+			if (model1->geo->getType() == GeometryData::TubePrim ||
+					model1->geo->getType() == GeometryData::CylinderPrim ||
+					model1->geo->getType() == GeometryData::BoxPrim ||
+					model1->geo->getType() == GeometryData::SpherePrim) {
 				point.setPointA(p);
 				point.setPointB(p-n*con.depth);
 			} else {
@@ -312,6 +367,7 @@ void ODEContactStrategy::nearCallback(void *data, dGeomID o1, dGeomID o2) {
 			point.setPointA(p);
 			point.setPointB(p-n*con.depth);
 		}
+		//std::cout << "ODE CS find: " << model1->frame->getName() << " " << model2->frame->getName() << " " << p << " " << n << con.depth << std::endl;
 		point.setDepth(con.depth);
 		point.setModelA(contactData->mA);
 		point.setModelB(contactData->mB);

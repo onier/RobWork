@@ -196,7 +196,8 @@ btRigidBody* BtBody::createRigidBody(
         btbody->setCollisionFlags( btbody->getCollisionFlags() | btCollisionObject::CF_KINEMATIC_OBJECT );
         btbody->setActivationState(DISABLE_DEACTIVATION);
 	} else if (_rwBodyDynamic) {
-    	btbody->setFlags(btbody->getFlags() | BT_ENABLE_GYROPSCOPIC_FORCE);
+    	btbody->setFlags(btbody->getFlags() | BT_ENABLE_GYROPSCOPIC_FORCE); // gyroscopic is default (and meaning has chanced) since Bullet 2.83
+		//btbody->setFlags(btbody->getFlags() | BT_ENABLE_GYROSCOPIC_FORCE_IMPLICIT_WORLD); // gyroscopic is default (and meaning has chanced) since Bullet 2.83
         btbody->setActivationState(DISABLE_DEACTIVATION);
 	}
 	btbody->setCollisionFlags(btbody->getCollisionFlags()  | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);// flag set to enable the CustomMaterialCombinerCallback to handle friction- and restitution coefficients

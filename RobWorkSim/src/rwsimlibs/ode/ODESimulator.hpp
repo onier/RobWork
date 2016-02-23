@@ -18,7 +18,7 @@
 #ifndef RWSIM_SIMULATOR_ODESIMULATOR_HPP_
 #define RWSIM_SIMULATOR_ODESIMULATOR_HPP_
 
-#define dDOUBLE 1
+//#define dDOUBLE 1
 
 #include <ode/ode.h>
 
@@ -52,11 +52,13 @@
 #include "ODETactileSensor.hpp"
 
 namespace rwsim { namespace contacts { class ContactDetector; }}
+namespace rwsim { namespace contacts { class ContactDetectorData; }}
 
 namespace rwsim {
 namespace simulator {
 
 	class ODEDebugRender;
+	class ODELog;
 
 	/**
 	 * @brief an implementation that use the physics engine ODE to implement
@@ -131,9 +133,7 @@ namespace simulator {
 		/**
 		 * @brief destructor
 		 */
-		virtual ~ODESimulator(){
-			delete _narrowStrategy;
-		}
+		virtual ~ODESimulator();
 
 		//! @copydoc PhysicsEngine::load
 		void load(rwsim::dynamics::DynamicWorkCell::Ptr dwc);
@@ -225,6 +225,9 @@ namespace simulator {
 
 		void attach(rwsim::dynamics::Body::Ptr b1, rwsim::dynamics::Body::Ptr b2);
 		void detach(rwsim::dynamics::Body::Ptr b1, rwsim::dynamics::Body::Ptr b2);
+
+		//! @copydoc PhysicsEngine::setSimulatorLog
+		virtual void setSimulatorLog(rw::common::Ptr<rwsim::log::SimulatorLogScope> log);
 
 		void disableCollision(rwsim::dynamics::Body::Ptr b1, rwsim::dynamics::Body::Ptr b2);
 
@@ -476,6 +479,7 @@ namespace simulator {
 		boost::mutex _contactMutex;
 
 		rw::common::Ptr<rwsim::contacts::ContactDetector> _detector;
+		rw::common::Ptr<rwsim::contacts::ContactDetectorData> _detectorData;
 
         bool _logContactingBodies;
         std::vector<boost::tuple<std::string, std::string, dynamics::ContactPoint> > _contactPoints, _contactPointsTmp;
@@ -504,7 +508,7 @@ namespace simulator {
 
 		std::map< std::pair<rw::kinematics::Frame*, rw::kinematics::Frame*>, dJointID > _attachConstraints;
 
-
+		ODELog* _log;
 	};
 
 }

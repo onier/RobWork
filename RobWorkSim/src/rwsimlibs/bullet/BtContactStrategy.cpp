@@ -36,7 +36,9 @@
 #include <bullet/BulletCollision/CollisionShapes/btBoxShape.h>
 #include <bullet/BulletCollision/CollisionShapes/btStaticPlaneShape.h>
 #include <bullet/BulletCollision/CollisionShapes/btTriangleMesh.h>
+#include <bullet/BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h>
 
+#include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 #include <bullet/BulletCollision/Gimpact/btGImpactShape.h>
 
 #include <bullet/BulletDynamics/Dynamics/btRigidBody.h>
@@ -128,6 +130,7 @@ private:
 BtContactStrategy::BtContactStrategy():
 	_dispatcher(new btCollisionDispatcher(new btDefaultCollisionConfiguration()))
 {
+	btGImpactCollisionAlgorithm::registerAlgorithm(_dispatcher);
 }
 
 BtContactStrategy::~BtContactStrategy() {
@@ -208,6 +211,8 @@ std::vector<Contact> BtContactStrategy::findContacts(
 			algorithm->processCollision(&obj0Wrap,&obj1Wrap,dispatchInfo,&contactPointResult);
 
 			const btPersistentManifold* const manifold = contactPointResult.getPersistentManifold();
+			if (!manifold) // if no contacts found
+				continue;
 			const bool swapped = (manifold->getBody0() == bodyA) ? false : true;
 			for (int i = 0; i < manifold->getNumContacts(); i++) {
 				const btManifoldPoint& c = manifold->getContactPoint(i);
@@ -272,12 +277,15 @@ bool BtContactStrategy::addGeometry(ProximityModel* model, const Geometry& geom)
 	newModel.transform = geom.getTransform();
 	newModel.frame = geom.getFrame();
 
+	const bool isStatic = (geom.getName() == "NutFeedergeo") ? true : false;
+
 	btCollisionShape* shape = NULL;
-	if(Cylinder* const cyl = dynamic_cast<Cylinder*>(geomData.get()) ){
-		const btVector3 halfExtents(cyl->getRadius(),0,cyl->getHeight()/2.);
-		shape = new btCylinderShapeZ(halfExtents);
-		newModel.movable = true;
-	} else if(Sphere* const sphere = dynamic_cast<Sphere*>(geomData.get()) ){
+	//if(Cylinder* const cyl = dynamic_cast<Cylinder*>(geomData.get()) ){
+	//	const btVector3 halfExtents(cyl->getRadius(),0,cyl->getHeight()/2.);
+	//	shape = new btCylinderShapeZ(halfExtents);
+	//	newModel.movable = true;
+	//} else
+	if(Sphere* const sphere = dynamic_cast<Sphere*>(geomData.get()) ){
 		shape = new btSphereShape(sphere->getRadius());
 		newModel.movable = true;
 	} else if(Box* const box = dynamic_cast<Box*>(geomData.get()) ){
@@ -295,9 +303,15 @@ bool BtContactStrategy::addGeometry(ProximityModel* model, const Geometry& geom)
 		for (size_t i=0; i<mesh->getSize(); i++)
 		{
 			const Triangle<> tri = mesh->getTriangle(i);
-			btVector3 v1(tri[0][0], tri[0][1], tri[0][2]);
-			btVector3 v2(tri[1][0], tri[1][1], tri[1][2]);
-			btVector3 v3(tri[2][0], tri[2][1], tri[2][2]);
+			//const Vector3D<> vertex1 = isStatic? geom.getTransform()*tri[0] : tri[0];
+			//const Vector3D<> vertex2 = isStatic? geom.getTransform()*tri[1] : tri[2];
+			//const Vector3D<> vertex3 = isStatic? geom.getTransform()*tri[1] : tri[2];
+			const Vector3D<> vertex1 = tri[0];
+			const Vector3D<> vertex2 = tri[2];
+			const Vector3D<> vertex3 = tri[2];
+			const btVector3 v1(vertex1[0], vertex1[1], vertex1[2]);
+			const btVector3 v2(vertex2[0], vertex2[1], vertex2[2]);
+			const btVector3 v3(vertex3[0], vertex3[1], vertex3[2]);
 			trimesh->addTriangle(v1, v2, v3);
 		}
 		if (trimesh->getNumTriangles() == 0) {
@@ -310,16 +324,27 @@ bool BtContactStrategy::addGeometry(ProximityModel* model, const Geometry& geom)
 		colShape->postUpdate();
 		colShape->updateBound();// Call this method once before doing collisions
 
-		shape = colShape;
-		newModel.movable = true;
+		if (isStatic) {
+			btBvhTriangleMeshShape* const colShape = new btBvhTriangleMeshShape(trimesh,true);
+			shape = colShape;
+			newModel.movable = false;
+		} else {
+			// create the collision shape from the trimesh data
+			btGImpactMeshShape* const colShape = new btGImpactMeshShape(trimesh);
+			colShape->postUpdate();
+			colShape->updateBound();// Call this method once before doing collisions
+
+			shape = colShape;
+			newModel.movable = true;
+		}
 	}
 	if (shape) {
-		//shape->setMargin(getThreshold());
-		shape->setMargin(0);
+		shape->setMargin(getThreshold()/2.);
+		//shape->setMargin(0);
 
 		// Create dummy body
 		btDefaultMotionState* const myMotionState = new btDefaultMotionState();
-		const double mass = 1.; // must be greater than zero to be non-static (to avoid warning)
+		const double mass = isStatic? 0 : 1.; // must be greater than zero to be non-static (to avoid warning)
 		const btVector3 principalInertia(0,0,0);
 		const btRigidBody::btRigidBodyConstructionInfo rbInfo = btRigidBody::btRigidBodyConstructionInfo(mass,myMotionState,shape,principalInertia);
 		btRigidBody* const btbody = new btRigidBody(rbInfo);
@@ -328,7 +353,7 @@ bool BtContactStrategy::addGeometry(ProximityModel* model, const Geometry& geom)
         newModel.body = btbody;
 
 		/*// Create alternative shapes
-		btCollisionShape* shapeAlt = NULL;
+		/*btCollisionShape* shapeAlt = NULL;
 		if(Tube* const tube = dynamic_cast<Tube*>(geomData.get()) ){
 			const btVector3 halfExtents(tube->getInnerRadius()+tube->getThickness(),0,tube->getHeight()/2.);
 			shapeAlt = new btCylinderShapeZ(halfExtents);

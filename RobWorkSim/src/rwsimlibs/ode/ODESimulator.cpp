@@ -16,6 +16,7 @@
  ********************************************************************************/
 
 #include "ODESimulator.hpp"
+#include "ODELog.hpp"
 
 #include <ode/ode.h>
 
@@ -60,6 +61,7 @@
 #include <rw/proximity/BasicFilterStrategy.hpp>
 
 #include <rwsim/contacts/ContactDetector.hpp>
+#include <rwsim/contacts/ContactDetectorData.hpp>
 #include <rwsim/dynamics/ContactPoint.hpp>
 #include <rwsim/dynamics/ContactCluster.hpp>
 #include <rwsim/dynamics/SuctionCup.hpp>
@@ -92,16 +94,16 @@ using namespace rwlibs::proximitystrategies;
 
 #define INITIAL_MAX_CONTACTS 1000
 
-#define RW_DEBUGS( str ) rw::common::Log::debugLog() << str  << std::endl;
-//#define RW_DEBUGS( str )
+//#define RW_DEBUGS( str ) std::cout << str  << std::endl;
+#define RW_DEBUGS( str )
 
-/*
-#define TIMING( str, func ) \
+
+//#define TIMING( str, func ) \
     { long start = rw::common::TimerUtil::currentTimeMs(); \
     func; \
      long end = rw::common::TimerUtil::currentTimeMs(); \
     std::cout << str <<":" << (end-start) <<"ms"<<std::endl;  }
-*/
+
 #define TIMING( str, func ) {func;}
 
 namespace {
@@ -186,7 +188,9 @@ ODESimulator::ODESimulator(DynamicWorkCell::Ptr dwc, rwsim::contacts::ContactDet
     _useRobWorkContactGeneration(true),
     _prevStepEndedInCollision(false),
     _detector(detector),
-    _logContactingBodies(false)
+	_detectorData(ownedPtr(new rwsim::contacts::ContactDetectorData())),
+    _logContactingBodies(false),
+	_log(NULL)
 {
 
     // verify that the linked ode library has the correct
@@ -232,7 +236,9 @@ ODESimulator::ODESimulator():
     _useRobWorkContactGeneration(true),
     _prevStepEndedInCollision(false),
     _detector(NULL),
-    _logContactingBodies(false)
+	_detectorData(NULL),
+    _logContactingBodies(false),
+	_log(NULL)
 {
 
     // verify that the linked ode library has the correct
@@ -254,6 +260,13 @@ ODESimulator::ODESimulator():
         _dwc->changedEvent().add( boost::bind(&ODESimulator::DWCChangedListener, this, _1, _2), this);
 }
 
+ODESimulator::~ODESimulator(){
+	delete _narrowStrategy;
+	if (_log) {
+		delete _log;
+		_log = NULL;
+	}
+}
 
 void ODESimulator::load(rwsim::dynamics::DynamicWorkCell::Ptr dwc){
     _dwc = dwc;
@@ -265,6 +278,7 @@ void ODESimulator::load(rwsim::dynamics::DynamicWorkCell::Ptr dwc){
 
 bool ODESimulator::setContactDetector(rwsim::contacts::ContactDetector::Ptr detector) {
 	_detector = detector;
+	_detectorData = ownedPtr(new rwsim::contacts::ContactDetectorData());
 	return true;
 }
 
@@ -418,9 +432,7 @@ void ODESimulator::restoreODEState(){
 	//}
 }
 
-void ODESimulator::step(double dt, rw::kinematics::State& state)
-
-{
+void ODESimulator::step(double dt, State& state) {
 	if(isInErrorGlobal)
 		return;
 	_stepState = &state;
@@ -428,6 +440,10 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 	//std::cout << "-------------------------- STEP --------------------------------" << std::endl;
 	//double dt = 0.001;
 	_maxPenetration = 0;
+	if (_log) {
+		_log->beginStep(_time,LOG_LOCATION);
+    	_log->addPositions("Positions before",_odeBodies,state,LOG_LOCATION);
+	}
     RW_DEBUGS("-------------------------- STEP --------------------------------");
     double lastDt = _time-_oldTime;
     if(lastDt<=0)
@@ -438,8 +454,12 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
     _allcontacts.clear();
     if( _useRobWorkContactGeneration ){
     	if (_detector == NULL) {
+    		if (_log)
+    			_log->log("Internal RW Contact Detector",LOG_LOCATION);
     		TIMING("Collision: ", detectCollisionsRW(state, false) );
     	} else {
+    		if (_log)
+    			_log->log("External RW Contact Detector",LOG_LOCATION);
     		TIMING("Collision: ", detectCollisionsContactDetector(state) );
     	}
         {
@@ -448,6 +468,8 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
         }
     } else {
         try {
+    		if (_log)
+    			_log->log("Internal ODE Contact Detector",LOG_LOCATION);
             TIMING("Collision: ", dSpaceCollide(_spaceId, this, &nearCallback) );
             _allcontactsTmp = _allcontacts;
         } catch ( ... ) {
@@ -455,6 +477,10 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
             Log::errorLog() << "******************** Caught exeption in collision function!*******************" << std::endl;
         }
     }
+    /*std::cout << "Contacts: " << _allcontactsTmp.size() << std::endl;
+    BOOST_FOREACH(const ContactPoint& p, _allcontactsTmp) {
+    	std::cout << " - " << p.p << " " << p.dist << " " << p.n << " " << p.penetration << std::endl;
+    }*/
 
     // we roll back to this point if there is any penetrations in the scene
     RW_DEBUGS("------------- Save state:");
@@ -462,7 +488,8 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
     State tmpState = state;
     double dttmp = dt;
     int i;
-    const int MAX_TIME_ITERATIONS = 10;
+    //const int MAX_TIME_ITERATIONS = 10;
+    const int MAX_TIME_ITERATIONS = 1;
     badLCPSolution = false;
     int badLCPcount = 0;
     for(i=0;i<MAX_TIME_ITERATIONS;i++){
@@ -482,6 +509,8 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
         conStepInfo.rollback = i>0;
         BOOST_FOREACH(SimulatedController::Ptr controller, _controllers ){
             controller->update(conStepInfo, tmpState);
+            if (_log)
+            	_log->log("Updating controller",LOG_LOCATION) << controller->getControllerName();
         }
 
         RW_DEBUGS("------------- Device pre-update:");
@@ -500,6 +529,8 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
         }
 
         // Step world
+        if (_log)
+        	_log->log("Trying to take step",LOG_LOCATION) << "Trying step dt=" << dttmp;
         RW_DEBUGS("------------- Step dt=" << dttmp <<" at " << _time << " :");
 
 		//TIMING("Step: ", dWorldStep(_worldId, dttmp));
@@ -555,17 +586,31 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 	        RW_THROW("ODESimulator caught exception.");
 	    }
 
+	    for(size_t i=0; i<_odeBodies.size(); i++){
+	        _odeBodies[i]->postupdatePosition(tmpState);
+	    }
+	    if (_log)
+	    	_log->addPositions("Positions after",_odeBodies,tmpState,LOG_LOCATION);
+
 	    // if the solution is bad then we need to reduce timestep
 	    if(!badLCPSolution){
             // this is onlu done to check that the stepsize was not too big
             //TIMING("Collision: ", dSpaceCollide(_spaceId, this, &nearCallback) );
             bool inCollision = false;
-            TIMING("Collision Resolution: ", inCollision = detectCollisionsRW(tmpState, true) );
+        	if (_detector == NULL && _useRobWorkContactGeneration) {
+                TIMING("Collision Resolution: ", inCollision = detectCollisionsRW(tmpState, true) );
+        	} else {
+        		TIMING("Collision Resolution: ", inCollision = _detector->maxPenetrationExceeded(tmpState,*_detectorData) );
+        	}
 
             if(!inCollision){
+            	if (_log)
+            		_log->log("No Collision",LOG_LOCATION);
                 //std::cout << "THERE IS NO PENETRATION" << std::endl;
                 break;
             } else {
+            	if (_log)
+            		_log->log("Collision",LOG_LOCATION);
 
             	if(i>5){
                     // if we allready tried reducing the timestep then set the inCollisionFlag
@@ -576,10 +621,17 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 
             }
 	    } else {
+        	if (_log)
+        		_log->log("Bad LCP",LOG_LOCATION);
+	    	std::cout << "bad lcp" << std::endl;
 	        badLCPcount++;
 	        if( i>5 ){
 	            bool inCollision = false;
-	            TIMING("Collision Resolution: ", inCollision = detectCollisionsRW(tmpState, true) );
+	        	if (_detector == NULL && _useRobWorkContactGeneration) {
+		            TIMING("Collision Resolution: ", inCollision = detectCollisionsRW(tmpState, true) );
+	        	} else {
+	        		TIMING("Collision Resolution: ", inCollision = _detector->maxPenetrationExceeded(tmpState,*_detectorData) );
+	        	}
 	            if(!inCollision){
 	                //std::cout << "THERE IS NO PENETRATION" << std::endl;
 	                break;
@@ -588,48 +640,52 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 	    }
 
 	    if( i==MAX_TIME_ITERATIONS-1){
+	    	std::stringstream lstr;
 
             // TODO: register the objects that are penetrating such that we don't check them each time
             restoreODEState();
             // print all information available:
-            Log::debugLog() << "----------------------- TOO LARGE PENETRATIONS --------------------\n";
-            Log::debugLog() << "-- objects : " << _collidingObjectsMsg << "\n";
-            Log::debugLog() << "-- time    : " << _time << "\n";
-            Log::debugLog() << "-- dt orig : " << dt << "\n";
-            Log::debugLog() << "-- dt div  : " << dttmp << "\n";
-            Log::debugLog() << "-- step divisions: " << i << "\n";
-            Log::debugLog() << "-- bad lcp count : " << badLCPcount << "\n";
-            Log::debugLog() << "-- Bodies state  : \n";
+            lstr << "----------------------- TOO LARGE PENETRATIONS --------------------\n";
+            lstr << "-- objects : " << _collidingObjectsMsg << "\n";
+            lstr << "-- time    : " << _time << "\n";
+            lstr << "-- dt orig : " << dt << "\n";
+            lstr << "-- dt div  : " << dttmp << "\n";
+            lstr << "-- step divisions: " << i << "\n";
+            lstr << "-- bad lcp count : " << badLCPcount << "\n";
+            lstr << "-- Bodies state  : \n";
             BOOST_FOREACH(dBodyID body, _allbodies){
                 dReal vec[4];
                 ODEBody *data = (ODEBody*) dBodyGetData(body);
                 if(data!=NULL){
-                    Log::debugLog() << "--- Body: " << data->getRwBody()->getName();
+                	lstr << "--- Body: " << data->getRwBody()->getName();
                 } else {
-                    Log::debugLog() << "--- Body: NoRWBODY";
+                	lstr << "--- Body: NoRWBODY";
                 }
                 drealCopy( dBodyGetPosition(body), vec, 3);
-                Log::debugLog() << "\n---- pos   : " << printArray(vec, 3);
+                lstr << "\n---- pos   : " << printArray(vec, 3);
                 drealCopy( dBodyGetQuaternion(body), vec, 4);
-                Log::debugLog() << "\n---- rot   : " << printArray(vec, 4);
+                lstr << "\n---- rot   : " << printArray(vec, 4);
                 drealCopy( dBodyGetLinearVel  (body), vec, 3);
-                Log::debugLog() << "\n---- linvel: " << printArray(vec, 3);
+                lstr << "\n---- linvel: " << printArray(vec, 3);
                 drealCopy( dBodyGetAngularVel (body), vec, 3);
-                Log::debugLog() << "\n---- angvel: " << printArray(vec, 3);
+                lstr << "\n---- angvel: " << printArray(vec, 3);
                 drealCopy( dBodyGetForce  (body), vec, 3);
-                Log::debugLog() << "\n---- force : " << printArray(vec, 3);
+                lstr << "\n---- force : " << printArray(vec, 3);
                 drealCopy( dBodyGetTorque (body), vec, 3);
-                Log::debugLog() << "\n---- torque: " << printArray(vec, 3);
-                Log::debugLog() << "\n";
+                lstr << "\n---- torque: " << printArray(vec, 3);
+                lstr << "\n";
             }
-            Log::debugLog() << "--\n-- contacts: \n";
+            lstr << "--\n-- contacts: \n";
             BOOST_FOREACH(ContactPoint p, _allcontactsTmp){
-                Log::debugLog() << "-- pos: "<< p.p << "\n";
-                Log::debugLog() << "-- normal: "<< p.n << "\n";
-                Log::debugLog() << "-- depth: "<< p.penetration << "\n";
+            	lstr << "-- pos: "<< p.p << "\n";
+                lstr << "-- normal: "<< p.n << "\n";
+                lstr << "-- depth: "<< p.penetration << "\n";
             }
 
-            Log::debugLog() << "----------------------- TOO LARGE PENETRATIONS --------------------" << std::endl;
+            lstr << "----------------------- TOO LARGE PENETRATIONS --------------------" << std::endl;
+            Log::debugLog() << lstr.str();
+        	if (_log)
+        		_log->log("Fatal Error",LOG_LOCATION) << lstr.str();
             RW_THROW("Too Large Penetrations!");
             break;
         }
@@ -655,20 +711,28 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
     conStepInfo.rollback = false;
 
 	RW_DEBUGS("------------- Device post update:");
+	if (_log)
+		_log->log("Device post update",LOG_LOCATION);
 	//std::cout << "Device post update:" << std::endl;
 	BOOST_FOREACH(ODEDevice *dev, _odeDevices){
 	    dev->postUpdate(state);
 	}
 
 	RW_DEBUGS("------------- Update robwork bodies:");
+	if (_log)
+		_log->log("Update robwork bodies",LOG_LOCATION);
 	//std::cout << "Update robwork bodies:" << std::endl;
     // now copy all state info into state/bodies (transform,vel,force)
     for(size_t i=0; i<_odeBodies.size(); i++){
         //std::cout << "POST Update: " << _odeBodies[i]->getFrame()->getName() << std::endl;
         _odeBodies[i]->postupdate(state);
     }
+    if (_log)
+    	_log->addPositions("Positions after",_odeBodies,state,LOG_LOCATION);
 
     RW_DEBUGS("------------- Sensor update :");
+	if (_log)
+		_log->log("Sensor update",LOG_LOCATION);
     //std::cout << "Sensor update :" << std::endl;
     // update all sensors with the values of the joints
     BOOST_FOREACH(ODETactileSensor *odesensor, _odeSensors){
@@ -681,12 +745,16 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
     _nextFeedbackIdx=0;
 
 	RW_DEBUGS("------------- Update trimesh prediction:");
+	if (_log)
+		_log->log("Update trimesh prediction",LOG_LOCATION);
 	BOOST_FOREACH(ODEUtil::TriGeomData *data, _triGeomDatas){
 	    if(!data->isGeomTriMesh)
 	        continue;
 	    dGeomID geom = data->geomId;
 	    //if( dGeomGetClass(geom) != dTriMeshClass )
 	    //    continue;
+	    if (!data->isPlaceable)
+	    	continue;
 	    const dReal* Pos = dGeomGetPosition(geom);
 	    const dReal* Rot = dGeomGetRotation(geom);
 
@@ -708,6 +776,8 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 	}
 	//std::cout << "e";
 	RW_DEBUGS("----------------------- END STEP --------------------------------");
+	if (_log)
+		_log->endStep(_time,__LINE__);
 	//std::cout << "-------------------------- END STEP --------------------------------" << std::endl;
 }
 
@@ -1446,7 +1516,7 @@ void ODESimulator::addSensor(rwlibs::simulation::SimulatedSensor::Ptr sensor, rw
 
         // we find any permanent constraints between sensor frame and other bodies that are not the parent frame
         const ODEBody* const nonstaticBody = (sensorOdeBody->getType() == ODEBody::FIXED) ? parentOdeBody : sensorOdeBody;
-        int nrJoints = dBodyGetNumJoints(nonstaticBody->getBodyID());
+        const int nrJoints = dBodyGetNumJoints(nonstaticBody->getBodyID());
 
         for(int i=0;i<nrJoints;i++){
             const dJointID joint = dBodyGetJoint(nonstaticBody->getBodyID(), i);
@@ -1591,7 +1661,9 @@ void ODESimulator::detectCollisionsContactDetector(const State& state) {
     //_contactPoints.clear();
     _contactingBodiesTmp.clear();
     
-	std::vector<rwsim::contacts::Contact> contacts = _detector->findContacts(state);
+	std::vector<rwsim::contacts::Contact> contacts = _detector->findContacts(state,*_detectorData);
+	if (_log)
+		_log->addContacts("Find Contacts",contacts,LOG_LOCATION);
     size_t numc = contacts.size();
     /*BOOST_FOREACH(rwsim::contacts::Contact &c, contacts) {
     	std::cout << "ModelA: " << c.getModelA()->getName() << " ModelB: " << c.getModelB()->getName() << " FrameA: " << c.getFrameA()->getName() << " FrameB: " << c.getFrameB()->getName() << " " << c.getNormal() << std::endl;
@@ -1615,17 +1687,17 @@ void ODESimulator::detectCollisionsContactDetector(const State& state) {
             continue;
         }
 
-		Vector3D<> n = -contact.getNormal();
-		Vector3D<> p = contact.getPointA() - n*contact.getDepth()/2.; // In global coordinates
+		const Vector3D<> n = -contact.getNormal();
+		//Vector3D<> p = contact.getPointA() - n*contact.getDepth()/2.; // In global coordinates
+		const Vector3D<> p = contact.getPointA();
 
 		ODEUtil::toODEVector(n, con.geom.normal);
 		ODEUtil::toODEVector(p, con.geom.pos);
 
-		if (contact.getDepth() < -_maxSepDistance)
-			continue;
+		//if (contact.getDepth() < -_maxSepDistance)
+			//continue;
 
-		double penDepth = _maxAllowedPenetration + contact.getDepth();
-		con.geom.depth = penDepth;
+		//con.geom.depth = contact.getDepth();
 
         if( _enabledMap[*a_data->getFrame()]==0 || _enabledMap[*b_data->getFrame()]==0 ) {
         	std::cout << "disabled" << std::endl;
@@ -1653,7 +1725,7 @@ void ODESimulator::detectCollisionsContactDetector(const State& state) {
 
 		point.n = normalize( ODEUtil::toVector3D(con.geom.normal) );
 		point.p = ODEUtil::toVector3D(con.geom.pos);
-		point.penetration = con.geom.depth;
+		point.penetration = contact.getDepth();
 		point.userdata = (void*) &(_contacts[ni]);
 
 		_allcontacts.push_back(point);
@@ -1703,10 +1775,9 @@ void ODESimulator::detectCollisionsContactDetector(const State& state) {
         _contactingBodies = _contactingBodiesTmp;
         //_contactPoints = _contactPointsTmp;
     //}
-
 }
 
-bool ODESimulator::detectCollisionsRW(rw::kinematics::State& state, bool onlyTestPenetration){
+bool ODESimulator::detectCollisionsRW(State& state, bool onlyTestPenetration){
     //
     //std::cout << "detectCollisionsRW" << onlyTestPenetration << std::endl;
     ProximityFilter::Ptr filter = _bpstrategy->update(state);
@@ -2483,7 +2554,9 @@ void ODESimulator::exitPhysics()
 
 	while (_odeBodies.size() > 0) {
 		ODEBody* body = _odeBodies[0];
-        if(!_dwc->inDevice(body->getRwBody()) )
+		if (body->getRwBody() == NULL) {
+			//delete body;
+		} else if(!_dwc->inDevice(body->getRwBody()) )
     		delete body;
 		std::vector<ODEBody*>::iterator it = _odeBodies.begin();
 		while (it < _odeBodies.end()) {
@@ -2505,4 +2578,13 @@ void ODESimulator::exitPhysics()
 	_frameToModels.clear();
 	_bpstrategy = NULL;
 
+}
+
+void ODESimulator::setSimulatorLog(rw::common::Ptr<rwsim::log::SimulatorLogScope> log) {
+	if (_log)
+		delete _log;
+	if (!log.isNull())
+		_log = new ODELog(log);
+	else
+		_log = NULL;
 }

@@ -288,8 +288,18 @@ void BtConstraint::createJoint() {
 				if (spring.compliance(dof,dof) > 0) {
 					btConstraint->enableSpring(dof,true);
 					btConstraint->setStiffness(dof,1./spring.compliance(dof,dof));
-					btConstraint->setDamping(dof,spring.damping(dof,dof));
+					if (spring.damping(dof,dof) <= 0.)
+						btConstraint->setDamping(dof,1.); // between 0 and 1 (1 is undamped)
+					else
+						btConstraint->setDamping(dof,0); // how to set this?!
+					btConstraint->setLinearLowerLimit(btVector3(1,1,1));
+					btConstraint->setLinearUpperLimit(btVector3(-1,-1,-1));
 				}
+			}
+			for (unsigned int dof = 0; dof < 3; dof++) {
+				const Transform3D<> constraintTchildP = inverse(comTconstraint)*inverse(wTp_com)*wTc_com;
+				btConstraint->setEquilibriumPoint(dof,-constraintTchildP.P()[dof]);
+				std::cout << "setDof: " << dof << " " << constraintTchildP.P()[dof] << std::endl;
 			}
 			_btConstraint = btConstraint;
 		}
