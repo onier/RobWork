@@ -1,12 +1,22 @@
-/*
- * OBRManifold.hpp
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
  *
- *  Created on: 16/12/2010
- *      Author: jimali
- */
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
 
-#ifndef OBRMANIFOLD_HPP_
-#define OBRMANIFOLD_HPP_
+#ifndef RWSIM_DYNAMICS_OBRMANIFOLD_HPP_
+#define RWSIM_DYNAMICS_OBRMANIFOLD_HPP_
 
 #include "ContactPoint.hpp"
 #include <rw/math/MetricUtil.hpp>
@@ -17,7 +27,8 @@
 
 namespace rwsim {
 namespace dynamics {
-
+	//! @addtogroup rwsim_dynamics
+	//! @{
     /**
      * @brief Contact manifold based on Oriented Bounding Rectangle, so in 2D.
      */
@@ -37,15 +48,29 @@ namespace dynamics {
             _nrOfContacts(0)
         {};
 
+        //! @brief Destructor.
         virtual ~OBRManifold(){};
 
         /**
-         * @brief adds and updates the manifold with a new point
-         * @param p
+         * @brief Adds and updates the manifold with a new point if it fits.
+         * @param p [in] the contact point to add.
+         * @return true if point fitted inside the manifold, false otherwise.
          */
-        bool addPoint(ContactPoint& p);
+        bool addPoint(const ContactPoint& p);
 
-        ContactPoint& getDeepestPoint(){
+        /**
+         * @brief Get the deepest penetrating point in the manifold.
+         * @return a reference to the point.
+         */
+        ContactPoint& getDeepestPoint() {
+            return _points[_deepestIdx];
+        }
+
+        /**
+         * @brief Get the deepest penetrating point in the manifold.
+         * @return a reference to the point.
+         */
+        const ContactPoint& getDeepestPoint() const {
             return _points[_deepestIdx];
         }
 
@@ -66,9 +91,18 @@ namespace dynamics {
             }
         }
 
-        int getNrOfContacts(){ return _nrOfContacts; };
+        /**
+         * @brief Get the current number of contacts in the manifold.
+         * @return the number of contacts - between 0 and 5.
+         */
+        int getNrOfContacts() const{ return _nrOfContacts; };
 
-        bool inManifold(ContactPoint& p){
+        /**
+         * @brief Check if point is in manifold.
+         * @param p
+         * @return
+         */
+        bool inManifold(const ContactPoint& p) const {
             using namespace rw::math;
             if( _nrOfContacts==0 ){
                 return true;
@@ -84,7 +118,6 @@ namespace dynamics {
             } else if( _nrOfContacts == 2 ){
                 // check distance to the line
                 const double dist = MetricUtil::dist2(p.p,_points[_deepestIdx].p);
-                //std::cout << "1: Dist too point: " << dist << std::endl;
                 if( dist <_sepThreshold ) return true;
                 else return false;
     /*            const Vector3D<> &p1 = p.p;
@@ -107,26 +140,26 @@ namespace dynamics {
          * @brief fits a new manifold to the list of contact points
          * @param p
          */
-        void fit(ContactPoint& p);
+        void fit(const ContactPoint& p);
 
-        rw::math::Vector3D<> getNormal(){
+        rw::math::Vector3D<> getNormal() const {
             return _normal;
         }
 
-        ContactPoint& getContact(int i){
+        ContactPoint& getContact(int i) {
             return _points[i];
         }
 
-        rw::math::Transform3D<> getTransform(){ return _t3d;};
-
-        rw::math::Vector3D<> getHalfLengths(){ return _h; };
-
-    private:
-        void updateDeepestPoint(){
-
+        const ContactPoint& getContact(int i) const {
+            return _points[i];
         }
 
-        bool isInsideOBB(rw::math::Vector3D<>& p){
+        rw::math::Transform3D<> getTransform() const { return _t3d;};
+
+        rw::math::Vector3D<> getHalfLengths() const { return _h; };
+
+    private:
+        bool isInsideOBB(const rw::math::Vector3D<>& p) const {
             rw::math::Vector3D<> pproj = inverse(_t3d) * p;
             if( fabs(pproj(0))<_h(0) && fabs(pproj(1))<_h(1) ){
                 return true;
@@ -151,8 +184,8 @@ namespace dynamics {
         double _threshold, _cosThreshold, _sepThreshold;
         int _deepestIdx,_nrOfContacts;
     };
-
+    //! @}
 }
 }
 
-#endif /* OBRMANIFOLD_HPP_ */
+#endif /* RWSIM_DYNAMICS_OBRMANIFOLD_HPP_ */

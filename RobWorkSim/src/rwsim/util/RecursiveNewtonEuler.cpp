@@ -17,7 +17,6 @@
 
 #include "RecursiveNewtonEuler.hpp"
 
-#include <rw/math/InertiaMatrix.hpp>
 #include <rw/models/PrismaticJoint.hpp>
 #include <rw/models/RevoluteJoint.hpp>
 #include <rw/models/SerialDevice.hpp>
@@ -31,11 +30,11 @@ using namespace rwsim::util;
 RecursiveNewtonEuler::RecursiveNewtonEuler(RigidDevice::Ptr device):
 	_rdev(device),
 	_jdev(device->getJointDevice()),
+	_valid(validate()),
 	_gravity(Vector3D<>::zero()),
 	_payloadCOM(Vector3D<>::zero()),
 	_payloadMass(0),
-	_payloadInertia(InertiaMatrix<>()),
-	_valid(validate())
+	_payloadInertia(InertiaMatrix<>())
 {
 }
 
@@ -43,46 +42,62 @@ RecursiveNewtonEuler::~RecursiveNewtonEuler() {
 }
 
 Vector3D<> RecursiveNewtonEuler::getGravity() const {
+	boost::mutex::scoped_lock(mutex);
 	return _gravity;
 }
 
 void RecursiveNewtonEuler::setGravity(const Vector3D<> &gravity) {
+	boost::mutex::scoped_lock(mutex);
 	_gravity = gravity;
 }
 
 Vector3D<> RecursiveNewtonEuler::getPayloadCOM() const {
+	boost::mutex::scoped_lock(mutex);
 	return _payloadCOM;
 }
 
 double RecursiveNewtonEuler::getPayloadMass() const {
+	boost::mutex::scoped_lock(mutex);
 	return _payloadMass;
 }
 
 InertiaMatrix<> RecursiveNewtonEuler::getPayloadInertia() const {
+	boost::mutex::scoped_lock(mutex);
 	return _payloadInertia;
 }
 
 void RecursiveNewtonEuler::setPayload(const Vector3D<> &com, double payload, const InertiaMatrix<> &inertia) {
+	boost::mutex::scoped_lock(mutex);
 	_payloadCOM = com;
 	_payloadMass = payload;
 	_payloadInertia = inertia;
 }
 
 Wrench6D<> RecursiveNewtonEuler::getEnvironment() const {
+	boost::mutex::scoped_lock(mutex);
 	return _environment;
 }
 
 void RecursiveNewtonEuler::setEnvironment(const Wrench6D<> &wrench) {
+	boost::mutex::scoped_lock(mutex);
 	_environment = wrench;
 }
 
 std::vector<RecursiveNewtonEuler::Motion> RecursiveNewtonEuler::getBodyMotion(const State &state, const Q &dq, const Q &ddq) const {
 	if (!_valid)
 		RW_THROW(invalidMsg());
+	InertiaMatrix<> payloadInertia;
+	Vector3D<> payloadCOM;
+	Vector3D<> gravity;
+	{
+		boost::mutex::scoped_lock(mutex);
+		payloadCOM = _payloadCOM;
+		gravity = _gravity;
+	}
 	std::vector<Motion> res(_jdev->getDOF()+1);
-	Transform3D<> baseTlink = Kinematics::frameTframe(_jdev->getBase(),_jdev->getJoints()[0]->getParent(),state);
+	Transform3D<> baseTlink = _jdev->baseTframe(_jdev->getJoints()[0]->getParent(),state);
 	Vector3D<> z;
-	Vector3D<> w, dw, v, dv = -_gravity; // acceleration must be opposite to the gravitational acceleration
+	Vector3D<> w, dw, v, dv = -gravity; // acceleration must be opposite to the gravitational acceleration
 	Vector3D<> tmp, tmp2;
 	Vector3D<> dr, pCur;
 	Vector3D<> rCOM, drCOM, ddrCOM;
@@ -127,7 +142,7 @@ std::vector<RecursiveNewtonEuler::Motion> RecursiveNewtonEuler::getBodyMotion(co
 		dv += cross(dw,dr)+cross(w,cross(w,dr));
 
 		// Find linear velocity and acceleration around center of mass
-		rCOM = baseTlink.R()*_payloadCOM;
+		rCOM = baseTlink.R()*payloadCOM;
 		drCOM = v + cross(w,rCOM);
 		ddrCOM = dv + cross(dw,rCOM) + cross(w,cross(w,rCOM));
 
@@ -141,6 +156,13 @@ std::vector<RecursiveNewtonEuler::Motion> RecursiveNewtonEuler::getBodyMotion(co
 std::vector<Wrench6D<> > RecursiveNewtonEuler::getBodyNetForces(const std::vector<RecursiveNewtonEuler::Motion> &motions, const State &state) const {
 	if (!_valid)
 		RW_THROW(invalidMsg());
+	InertiaMatrix<> payloadInertia;
+	double payloadMass;
+	{
+		boost::mutex::scoped_lock(mutex);
+		payloadInertia = _payloadInertia;
+		payloadMass = _payloadMass;
+	}
 	std::vector<Wrench6D<> > res(_jdev->getDOF()+1);
 	Transform3D<> baseTlink = Kinematics::frameTframe(_jdev->getBase(),_jdev->getJoints()[0]->getParent(),state);
 	for (std::size_t i = 0; i < _jdev->getDOF(); i++) {
@@ -169,8 +191,8 @@ std::vector<Wrench6D<> > RecursiveNewtonEuler::getBodyNetForces(const std::vecto
 		const VelocityScrew6D<> &acc = motion.acceleration;
 		Vector3D<> velAng(vel.angular().axis()*vel.angular().angle());
 		Vector3D<> accAng(acc.angular().axis()*acc.angular().angle());
-		Vector3D<> force = _payloadMass*acc.linear();
-		InertiaMatrix<> inertia = baseTlink.R()*_payloadInertia*inverse(baseTlink.R());
+		Vector3D<> force = payloadMass*acc.linear();
+		InertiaMatrix<> inertia = baseTlink.R()*payloadInertia*inverse(baseTlink.R());
 		Vector3D<> torque = inertia*accAng+cross(velAng,inertia*velAng);
 		res[_jdev->getDOF()] = Wrench6D<>(force,torque);
 	}
@@ -178,13 +200,20 @@ std::vector<Wrench6D<> > RecursiveNewtonEuler::getBodyNetForces(const std::vecto
 }
 
 std::vector<Wrench6D<> > RecursiveNewtonEuler::getJointForces(const std::vector<Wrench6D<> > &forces, const State &state) const {
+	Wrench6D<> environment;
+	Vector3D<> payloadCOM;
+	{
+		boost::mutex::scoped_lock(mutex);
+		environment = _environment;
+		payloadCOM = _payloadCOM;
+	}
 	std::vector<Wrench6D<> > res(_jdev->getDOF()+1);
 	// Handle tool
 	Transform3D<> baseTlink = Kinematics::frameTframe(_jdev->getBase(),_jdev->getEnd(),state);
 	{
 		std::size_t k = _jdev->getDOF();
-		Vector3D<> force = forces[k].force() + _environment.force();
-		Vector3D<> torque = forces[k].torque() - cross(baseTlink.R()*_payloadCOM,force) + _environment.torque();
+		Vector3D<> force = forces[k].force()-environment.force();
+		Vector3D<> torque = forces[k].torque() + cross(baseTlink.R()*payloadCOM,force+environment.force())-environment.torque();
 		res[k] = Wrench6D<>(force,torque);
 	}
 	Vector3D<> pNext;
@@ -210,16 +239,12 @@ std::vector<Wrench6D<> > RecursiveNewtonEuler::solve(const State &state, const Q
 	return getJointForces(forces,state);
 }
 
-std::vector<double> RecursiveNewtonEuler::solveMotorTorques(const State &state, const Q &dq, const Q &ddq) const {
-	if (!_valid)
-		RW_THROW(invalidMsg());
-	std::vector<Motion> motions = getBodyMotion(state,dq,ddq);
-	std::vector<Wrench6D<> > forces = getBodyNetForces(motions,state);
-	std::vector<Wrench6D<> > jointForces = getJointForces(forces,state);
-	std::vector<double> res(_jdev->getDOF()+1);
+Q RecursiveNewtonEuler::solveMotorTorques(const State &state, const Q &dq, const Q &ddq) const {
+	std::vector<Wrench6D<> > jointForces = solve(state,dq,ddq);
+	Q res(_jdev->getDOF());
 	Transform3D<> baseTlink = Kinematics::frameTframe(_jdev->getBase(),_jdev->getJoints()[0]->getParent(),state);
 	Vector3D<> z;
-	for (std::size_t k = 0; k < res.size()-1; k++) {
+	for (std::size_t k = 0; k < _jdev->getDOF(); k++) {
 		Joint* joint = _jdev->getJoints()[k];
 		if (k == 0)
 			baseTlink = baseTlink*joint->getTransform(state);
@@ -228,13 +253,12 @@ std::vector<double> RecursiveNewtonEuler::solveMotorTorques(const State &state, 
 		z = baseTlink.R().getCol(2);
 		res[k] = dot(jointForces[k].torque(),z);
 	}
-	res[res.size()-1] = dot(jointForces[res.size()-1].torque(),z);
 	return res;
 }
 
 bool RecursiveNewtonEuler::validate() const {
 	bool valid = false;
-	if (_jdev.cast<SerialDevice>())
+	if (!_jdev.cast<const SerialDevice>().isNull())
 		valid = true;
 	if (!valid)
 		return false;

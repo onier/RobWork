@@ -836,7 +836,6 @@ namespace
         //bool useSyncPD = readBool( tree.get_child("Sync") );
         //JointController::ControlMode controlType = readControlMode( tree.get_child("<xmlattr>"), "type" );
         std::vector<double> params_tmp = readArray( tree.get_child("SpringParams") );
-        double dt = tree.get<double>("TimeStep");
 
         RW_ASSERT(params_tmp.size()>1);
         SpringJointController::SpringParam sparam;
@@ -852,7 +851,7 @@ namespace
         RigidDevice::Ptr rdev = ddev.cast<RigidDevice>();
         if(rdev==NULL)
             RW_THROW("Spring controller can only control RigidDevice's!");
-        SpringJointController::Ptr controller = ownedPtr(new SpringJointController(controllername, rdev, params, dt) );
+        SpringJointController::Ptr controller = ownedPtr(new SpringJointController(controllername, rdev, params) );
         state.dwc->addController( controller );
     }
 

@@ -77,9 +77,11 @@ namespace dynamics {
 
         /**
          * @copydoc Body::calcEnergy
-         * @note RigidBody energy = 1/2 * mv^2 + 1/2 * Iw^2 + mgz
+         * @note RigidBody energy = 1/2 * mv^2 + 1/2 * Iw^2 + m*gravity*(p-potZero)
          */
-        double calcEnergy(const rw::kinematics::State& state);
+        double calcEnergy(const rw::kinematics::State& state,
+        		const rw::math::Vector3D<>& gravity = rw::math::Vector3D<>::zero(),
+				const rw::math::Vector3D<>& potZero = rw::math::Vector3D<>::zero()) const;
 
         //! @copydoc Body::setForce
         void setForce(const rw::math::Vector3D<>& f, rw::kinematics::State& state){
@@ -177,11 +179,11 @@ namespace dynamics {
         /**
          * @brief set the linear velocity.
          */
-        void setLinVel(const rw::math::Vector3D<> &lvel, rw::kinematics::State& state){
+        void setLinVel(const rw::math::Vector3D<> &lvel, rw::kinematics::State& state) {
             _rstate.get(state).linvel = lvel;
         }
 
-        void setLinVelW(const rw::math::Vector3D<> &lvel, rw::kinematics::State& state){
+        void setLinVelW(const rw::math::Vector3D<> &lvel, rw::kinematics::State& state) {
             setLinVel( inverse(getWTParent(state).R()) * lvel, state);
         }
 
@@ -206,7 +208,7 @@ namespace dynamics {
          */
         virtual void setAngVel(const rw::math::Vector3D<> &avel, rw::kinematics::State& state);
 
-        void setAngVelW(const rw::math::Vector3D<> &avel, rw::kinematics::State& state){
+        void setAngVelW(const rw::math::Vector3D<> &avel, rw::kinematics::State& state) {
             setAngVel(inverse(getWTParent(state).R())*avel, state);
         }
 
@@ -274,7 +276,7 @@ namespace dynamics {
         rw::math::InertiaMatrix<> calcInertiaTensor(const rw::kinematics::State& state) const;
 
 
-        rw::kinematics::MovableFrame* getMovableFrame(){
+        rw::kinematics::MovableFrame* getMovableFrame() const {
         	return _mframe;
         }
 

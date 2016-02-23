@@ -1,11 +1,9 @@
 #include "OBRManifold.hpp"
 
-using namespace boost::numeric;
 using namespace rw::math;
 using namespace rwsim::dynamics;
 
-
-bool OBRManifold::addPoint(ContactPoint& p){
+bool OBRManifold::addPoint(const ContactPoint& p){
     //if( !inManifold(p) )
     //    RW_THROW("Not in manifold");
 
@@ -103,9 +101,7 @@ bool OBRManifold::addPoint(ContactPoint& p){
     return true;
 }
 
-
-
-void OBRManifold::fit(ContactPoint& p){
+void OBRManifold::fit(const ContactPoint& p){
     // re-fit the bounding box
     Eigen::MatrixXd covar( Eigen::MatrixXd::Zero(2, 2) );
 

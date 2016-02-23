@@ -141,11 +141,11 @@ namespace dynamics {
         /**
          * @brief get all geometry associated with this body
          */
-        const std::vector<rw::geometry::Geometry::Ptr>& getGeometry(const rw::kinematics::State& state){
+        const std::vector<rw::geometry::Geometry::Ptr>& getGeometry(const rw::kinematics::State& state) const {
             return _obj->getGeometry(state);
         }
 
-        const std::vector<rw::geometry::Geometry::Ptr>& getGeometry(){
+        const std::vector<rw::geometry::Geometry::Ptr>& getGeometry() const {
         	return getGeometry( _obj->getStateStructure()->getDefaultState() );
         }
 
@@ -292,10 +292,16 @@ namespace dynamics {
         virtual void reset(rw::kinematics::State &state) = 0;
 
         /**
-         * @brief calculates and returns the total energy of this body
-         * @return
+         * @brief Calculates the total energy of the body.
+         * @param state [in] the state with position and velocity of the body.
+         * @param gravity [in] (optional) the gravity to use for calculation of potential energy
+         *  - if not specified, no potential energy is calculated.
+         * @param potZero [in] (optional) the zero point for calculation of potential energy.
+         * @return the total energy of the body.
          */
-        virtual double calcEnergy(const rw::kinematics::State& state) = 0;
+        virtual double calcEnergy(const rw::kinematics::State& state,
+        		const rw::math::Vector3D<>& gravity = rw::math::Vector3D<>::zero(),
+				const rw::math::Vector3D<>& potZero = rw::math::Vector3D<>::zero()) const = 0;
 
         /**
          * @brief Sets the force described in parent frame acting on
