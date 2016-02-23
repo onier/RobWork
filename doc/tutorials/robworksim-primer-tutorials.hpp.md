@@ -4,7 +4,37 @@ RobWorkSim - Dynamic Simulation in RobWork  {#pageRobWorkSimPrimer}
 [TOC]
 
 # Introduction #
+This page describes how to do dynamic simulation in C++. Please see the page about the \ref page_xml_dynamicworkcell_format "XML Dynamic WorkCell Format" for details on how to define objects, constraints, controllers, sensors and much more.
 
+# Instantiation of a Physics Engine #
+The following lines of code shows how to instantiate and step an \ref rwsim::simulator::ODESimulator "ODE" physics engine.
+~~~~{.cpp}
+    const DynamicWorkCell::Ptr dwc = DynamicWorkCellLoader::load("dynamic_workcell.dwc.xml");
+    if (dwc == NULL)
+    	RW_THROW("Error happened when loading dynamic workcell.");
+    const PhysicsEngine::Ptr engine = PhysicsEngine::Factory::makePhysicsEngine("ODE",dwc);
+    if (engine == NULL)
+    	RW_THROW("Engine could not be found.");
+    State state = dwc->getWorkcell()->getStateStructure()->getDefaultState();
+    engine->initPhysics(state);
+    for(int i=0; i<100; i++) {
+        engine->step(0.01, state);
+    }
+    engine->exitPhysics();
+~~~~
+The factory method for creating engines, uses the RobWork plugin structure. The plugins are in most cases loaded dynamically, hence the available engines can change depending on which plugins have been compiled and found.
+
+# Physics Engines #
+RobWorkSim allows using different physics engines. Examples of typical engines are:
+ - \ref rwsim::simulator::ODESimulator "ODE"
+ - \ref rwsimlibs::rwpe::RWPEPhysics "RWPEPhysics"
+ - \ref rwsimlibs::rwpe::RWPEWorld "RWPEWorld"
+ - \ref rwsimlibs::rwpe::RWPEIsland "RWPEIsland"
+ - \ref rwsim::simulator::RWSimulator "RWPhysics"
+ - \ref rwsim::simulator::BtSimulator "BtSimulator"
+
+## The RobWorkPhysicsEngines ##
+The \ref rwsimlibs::rwpe::RWPEPhysics "RWPEPhysics" engine is developed specifically for simulation of manipulation tasks characterized by few dynamic objects and few contacts.
 
 # Tutorial 1 - a simulation loop #
 
