@@ -49,7 +49,7 @@ struct result_closure: public boost::spirit::classic::closure<result_closure<Res
 
 typedef enum{Fixed=0,Movable,Prismatic,Revolute,DependRevolute,
              DependtPrismatic} FrameTypeInt;
-typedef enum{SerialType,ParallelType,TreeType,MobileType,
+typedef enum{SerialType,ParallelType,TreeType,MobileType,PseudoOmniType,
              CompositeType,ConveyorType} DeviceType;
 typedef enum{AccLimitType,VelLimitType,PosLimitType} LimitType;
 typedef enum{PolyType,CubeType,SphereType,ConeType, CylinderType, TubeType, CustomType} GeoType;
@@ -164,7 +164,10 @@ struct DummyFrame {
         _isDepend(false),
         _gain(0),
         _offset(0),
-        _hasDHparam(false)
+        _hasDHparam(false),
+        _wheelRadius(0),
+        _wheelOffset(0),
+        _wheelFrame("Wheel")
     {}
 
     std::string getScoped(std::string str){
@@ -207,6 +210,11 @@ struct DummyFrame {
     std::vector<DummyProperty> _properties;
     DHParam _dhparam;
     bool _hasDHparam;
+
+    // For wheels
+    double _wheelRadius;
+    double _wheelOffset;
+    std::string _wheelFrame;
 };
 
 struct QConfig {
@@ -378,7 +386,7 @@ struct AddFrameToDevice {
         }
 
         if( _device._frames.size()==0){
-            if( _device._type == MobileType ){
+            if( _device._type == MobileType || _device._type == PseudoOmniType ){
                 if( frame._refframe == "")
                     frame._refframe = absPath + _device._basename;
                 else
@@ -403,7 +411,7 @@ struct AddFrameToDevice {
             frame._refframe = absRefPath + lastFrame._name;
             _device._frames.push_back(frame);
         } else if( _device._type == TreeType || _device._type == ParallelType ||
-                   _device._type == MobileType )
+                   _device._type == MobileType || _device._type == PseudoOmniType )
         {
             if( frame._refframe == "" ){
                 frame._refframe = absRefPath + lastFrame._name;
@@ -411,6 +419,25 @@ struct AddFrameToDevice {
                 frame._refframe = absPath + frame._refframe;
             }
             _device._frames.push_back(frame);
+        }
+
+        if (frame._type.compare("Steered") == 0) {
+        	DummyFrame* wheel = new DummyFrame();
+        	*wheel = frame;
+        	wheel->_name = frame._wheelFrame;
+        	wheel->_type = "Fixed";
+        	wheel->_refframe = absPath + frame._name;
+        	wheel->_models.clear();
+        	for (std::vector<DummyModel>::iterator it = frame._models.begin(); it < frame._models.end(); it++) {
+        		if ((*it)._refframe.compare(frame._wheelFrame) == 0) {
+        			wheel->_models.push_back(*it);
+        			frame._models.erase(it);
+        			it--;
+        		}
+        	}
+        	_device._frames.back()._models = frame._models;
+        	_device._frames.back()._wheelFrame = absPath + _device._frames.back()._wheelFrame;
+        	_device._frames.push_back(*wheel);
         }
     }
 
@@ -456,11 +483,11 @@ struct AddDeviceToWorkcell {
         dev._scope = _scope;
         if( _workcell._framelist.size()!=0 && dev._refframe == "" ){
             dev._refframe = _workcell._framelist.back().getName();
-            dev._frames[0]._refframe = dev._refframe;
         } else if( _workcell._framelist.size()==0 && dev._refframe == "" ){
             dev._refframe = "WORLD";
-            dev._frames[0]._refframe = dev._refframe;
         }
+        if (dev._type != MobileType && dev._type != PseudoOmniType)
+        	dev._frames[0]._refframe = dev._refframe;
         _workcell._devlist.push_back(dev);
     }
 

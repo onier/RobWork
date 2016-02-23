@@ -37,6 +37,9 @@
 #include <rw/models/ParallelLeg.hpp>
 #include <rw/models/DHParameterSet.hpp>
 #include <rw/models/RigidObject.hpp>
+#include <rw/models/SteeredWheel.hpp>
+#include <rw/models/FixedWheel.hpp>
+#include <rw/models/PseudoOmniDevice.hpp>
 
 #include <rw/loaders/GeometryFactory.hpp>
 #include <boost/lexical_cast.hpp>
@@ -357,78 +360,110 @@ Frame *createFrame(DummyFrame& dframe, DummySetup &setup) {
 	Frame *frame = NULL;
 	//std::cout << "Depend: " << dframe._isDepend << std::endl;
 
-	if (dframe._isDepend) {
-		std::map<std::string, Frame*>::iterator res = setup.frameMap.find(dframe.getDependsOn());
-		if (res == setup.frameMap.end()) {
-			RW_WARN("The frame: " << dframe.getName() << " Depends on an unknown frame: " << dframe.getDependsOn());
-			return NULL;
-		}
-		// then the frame depends on another joint
-		Joint* owner = dynamic_cast<Joint*>((*res).second);
-		if (owner == NULL) {
-			RW_THROW("The frame: " << dframe.getName() << " Depends on an frame: " << dframe._dependsOn << " which is not a Joint");
-		}
-
-		if (dframe._type == "Revolute") {
-			frame = new DependentRevoluteJoint(dframe.getName(), dframe._transform, owner, dframe._gain, dframe._offset);
-		} else if (dframe._type == "Prismatic") {
-			frame = new DependentPrismaticJoint(dframe.getName(), dframe._transform, owner, dframe._gain, dframe._offset);
-		} else {
-			RW_THROW("Error: The type of frame: " << dframe.getName() << " cannot depend on another joint!!");
-		}
-		//Accessor::frameType().set(*frame, rw::kinematics::FrameType::DependentJoint);
-	} else if (dframe._type == "Fixed") {
-		frame = new FixedFrame(dframe.getName(), dframe._transform);
-		//Accessor::frameType().set(*frame, rw::kinematics::FrameType::FixedFrame);
-	} else if (dframe._type == "Movable") {
-		MovableFrame *mframe = new MovableFrame(dframe.getName());
-		frame = mframe;
-		//Accessor::frameType().set(*mframe, rw::kinematics::FrameType::MovableFrame);
-		MovableInitState *init = new MovableInitState(mframe, dframe._transform);
-		setup.actions.push_back(init);
-	} else if (dframe._type == "Prismatic") {
-		PrismaticJoint *j = new PrismaticJoint(dframe.getName(), dframe._transform);
-		addLimits(dframe._limits, j);
-		frame = j;
-		//Accessor::frameType().set(*frame, rw::kinematics::FrameType::PrismaticJoint);
-		if (dframe._state != ActiveState)
-			j->setActive(false);
-		//Accessor::activeJoint().set(*frame, true);
-		//std::cout << "Prismatic joint!! " << j->getName() << std::endl;
-	} else if (dframe._type == "Revolute") {
-		RevoluteJoint *j = new RevoluteJoint(dframe.getName(), dframe._transform);
-		addLimits(dframe._limits, j);
-		frame = j;
-		//Accessor::frameType().set(*frame, rw::kinematics::FrameType::RevoluteJoint);
-
-		if (dframe._state != ActiveState)
-			j->setActive(false);
-		//Accessor::activeJoint().set(*frame, true);
-	} else if (dframe._type == "EndEffector") {
-		frame = new FixedFrame(dframe.getName(), dframe._transform);
-		//Accessor::frameType().set(*frame, rw::kinematics::FrameType::FixedFrame);
-	} else {
-		RW_THROW("FRAME is of illegal type!! " << dframe._type);
-	}
-	// add dhparam as property to the frame if dh params was specified
-	if (dframe._hasDHparam) {
-		DHParam &param = dframe._dhparam;
-
-		if (param._dhtype == Revolute) {
-			if (param._type == "HGP" && param._hgptype == "parallel") {
-				rw::models::DHParameterSet dhset(param._alpha, param._a, param._offset, param._b, true);
-				DHParameterSet::set(dhset, frame);
-			} else {
-				rw::models::DHParameterSet dhset(param._alpha, param._a, param._d, param._offset, param._type);
-				DHParameterSet::set(dhset, frame);
+	if (dframe._wheelRadius > 0) {
+		if( dframe._isDepend ){
+			RW_THROW("Error: Wheel frames can not be dependent yet.");
+		} else if( dframe._type == "Fixed") {
+			std::map<std::string, Frame*>::iterator res =
+					setup.frameMap.find(dframe._refframe);
+			if( res != setup.frameMap.end() ){
+				SteeredWheel* steeredWheel = dynamic_cast<SteeredWheel*>( (*res).second );
+				if( steeredWheel!=NULL ){
+					Transform3D<> transform(Vector3D<>(0,dframe._wheelOffset,0),RPY<>(0,0,-Pi/2).toRotation3D());
+					dframe._transform = transform;
+				}
 			}
-		} else if (param._dhtype == Prismatic) {
-			if (param._type == "HGP" && param._hgptype == "parallel") {
-				rw::models::DHParameterSet dhset(param._alpha, param._a, param._beta, param._offset, true);
-				DHParameterSet::set(dhset, frame);
+
+			FixedWheel* j = new FixedWheel(dframe.getName(), dframe._transform, dframe._wheelRadius);
+			addLimits( dframe._limits, j );
+			frame = j;
+
+			if( dframe._state != ActiveState)
+				j->setActive(false);
+		} else if( dframe._type == "Steered") {
+			SteeredWheel* j = new SteeredWheel(dframe.getName(), dframe._transform, dframe._wheelFrame, dframe._wheelOffset);
+			addLimits( dframe._limits, j );
+			frame = j;
+
+			if( dframe._state != ActiveState)
+				j->setActive(false);
+		} else {
+			RW_THROW("FRAME is of illegal type!! " << dframe._type);
+		}
+	} else {
+		if (dframe._isDepend) {
+			std::map<std::string, Frame*>::iterator res = setup.frameMap.find(dframe.getDependsOn());
+			if (res == setup.frameMap.end()) {
+				RW_WARN("The frame: " << dframe.getName() << " Depends on an unknown frame: " << dframe.getDependsOn());
+				return NULL;
+			}
+			// then the frame depends on another joint
+			Joint* owner = dynamic_cast<Joint*>((*res).second);
+			if (owner == NULL) {
+				RW_THROW("The frame: " << dframe.getName() << " Depends on an frame: " << dframe._dependsOn << " which is not a Joint");
+			}
+
+			if (dframe._type == "Revolute") {
+				frame = new DependentRevoluteJoint(dframe.getName(), dframe._transform, owner, dframe._gain, dframe._offset);
+			} else if (dframe._type == "Prismatic") {
+				frame = new DependentPrismaticJoint(dframe.getName(), dframe._transform, owner, dframe._gain, dframe._offset);
 			} else {
-				rw::models::DHParameterSet dhset(param._alpha, param._a, param._offset, param._theta, param._type);
-				DHParameterSet::set(dhset, frame);
+				RW_THROW("Error: The type of frame: " << dframe.getName() << " cannot depend on another joint!!");
+			}
+			//Accessor::frameType().set(*frame, rw::kinematics::FrameType::DependentJoint);
+		} else if (dframe._type == "Fixed") {
+			frame = new FixedFrame(dframe.getName(), dframe._transform);
+			//Accessor::frameType().set(*frame, rw::kinematics::FrameType::FixedFrame);
+		} else if (dframe._type == "Movable") {
+			MovableFrame *mframe = new MovableFrame(dframe.getName());
+			frame = mframe;
+			//Accessor::frameType().set(*mframe, rw::kinematics::FrameType::MovableFrame);
+			MovableInitState *init = new MovableInitState(mframe, dframe._transform);
+			setup.actions.push_back(init);
+		} else if (dframe._type == "Prismatic") {
+			PrismaticJoint *j = new PrismaticJoint(dframe.getName(), dframe._transform);
+			addLimits(dframe._limits, j);
+			frame = j;
+			//Accessor::frameType().set(*frame, rw::kinematics::FrameType::PrismaticJoint);
+			if (dframe._state != ActiveState)
+				j->setActive(false);
+			//Accessor::activeJoint().set(*frame, true);
+			//std::cout << "Prismatic joint!! " << j->getName() << std::endl;
+		} else if (dframe._type == "Revolute") {
+			RevoluteJoint *j = new RevoluteJoint(dframe.getName(), dframe._transform);
+			addLimits(dframe._limits, j);
+			frame = j;
+			//Accessor::frameType().set(*frame, rw::kinematics::FrameType::RevoluteJoint);
+
+			if (dframe._state != ActiveState)
+				j->setActive(false);
+			//Accessor::activeJoint().set(*frame, true);
+		} else if (dframe._type == "EndEffector") {
+			frame = new FixedFrame(dframe.getName(), dframe._transform);
+			//Accessor::frameType().set(*frame, rw::kinematics::FrameType::FixedFrame);
+		} else {
+			RW_THROW("FRAME is of illegal type!! " << dframe._type);
+		}
+		// add dhparam as property to the frame if dh params was specified
+		if (dframe._hasDHparam) {
+			DHParam &param = dframe._dhparam;
+
+			if (param._dhtype == Revolute) {
+				if (param._type == "HGP" && param._hgptype == "parallel") {
+					rw::models::DHParameterSet dhset(param._alpha, param._a, param._offset, param._b, true);
+					DHParameterSet::set(dhset, frame);
+				} else {
+					rw::models::DHParameterSet dhset(param._alpha, param._a, param._d, param._offset, param._type);
+					DHParameterSet::set(dhset, frame);
+				}
+			} else if (param._dhtype == Prismatic) {
+				if (param._type == "HGP" && param._hgptype == "parallel") {
+					rw::models::DHParameterSet dhset(param._alpha, param._a, param._beta, param._offset, true);
+					DHParameterSet::set(dhset, frame);
+				} else {
+					rw::models::DHParameterSet dhset(param._alpha, param._a, param._offset, param._theta, param._type);
+					DHParameterSet::set(dhset, frame);
+				}
 			}
 		}
 	}
@@ -685,6 +720,44 @@ Device::Ptr createDevice(DummyDevice &dev, DummySetup &setup) {
 
 		State state = setup.tree->getDefaultState();
 		model = ownedPtr(new MobileDevice(base, left, right, state, dev.getName()));
+	} else if( dev._type==PseudoOmniType){
+		std::string tmpstr = createScopedName(dev._name, dev._scope)+"."+dev._basename;
+		MovableFrame *base = new MovableFrame(tmpstr);
+		setup.tree->addDAF(base, setup.tree->getRoot() );
+		MovableFrame *mframe = base;
+		//Accessor::frameType().set(*mframe, rw::kinematics::FrameType::MovableFrame);
+		MovableInitState *init = new MovableInitState(mframe,Transform3D<>::identity());
+		setup.actions.push_back(init);
+		setup.frameMap[tmpstr] = base;
+		addDevicePropsToFrame(dev, base->getName(), setup);
+
+		//std::cout << "Nr of frames in device: " << dev._frames.size() << std::endl;
+		std::vector<SteeredWheel*> steeredWheels;
+		BOOST_FOREACH(DummyFrame& dframe,dev._frames){
+			std::string pname = dframe.getRefFrame();
+
+			std::map<std::string, Frame*>::iterator res = setup.frameMap.find(pname);
+			if( res == setup.frameMap.end() ){
+				RW_THROW("Error: parent " << pname << " not found");
+			}
+			//std::cout << "Parent is: " << res->second->getName() << std::endl;
+			createFrame(dframe , setup);
+
+			Frame* frame = setup.frameMap.find(dframe.getName())->second;
+			if (SteeredWheel* wheel = dynamic_cast<SteeredWheel*>(frame)) {
+				steeredWheels.push_back(wheel);
+			}
+		}
+		addToStateStructure(base, setup);
+
+		BOOST_FOREACH(DummyFrame& dframe,dev._frames){
+			// Add properties defined in device context
+			addFrameProps(dframe, setup);
+			addDevicePropsToFrame(dev, dframe.getName(), setup);
+		}
+
+		State state = setup.tree->getDefaultState();
+		model = ownedPtr(new PseudoOmniDevice( base, steeredWheels, state, dev.getName() ));
 	} else if (dev._type == CompositeType) {
 		RW_THROW("CompositeDevice not supported yet");
 	} else {

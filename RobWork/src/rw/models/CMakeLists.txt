@@ -38,7 +38,10 @@ SET(FILES_CPP
   DeformableObject.cpp
   SE3Device.cpp
   
-  
+  Wheel.cpp
+  FixedWheel.cpp
+  SteeredWheel.cpp
+  PseudoOmniDevice.cpp
 )
 
 SET(FILES_HPP
@@ -76,6 +79,11 @@ SET(FILES_HPP
   DHParameterSet.hpp
   Object.hpp
   SE3Device.hpp
+  
+  Wheel.hpp
+  FixedWheel.hpp
+  SteeredWheel.hpp
+  PseudoOmniDevice.hpp
 )
 
 SOURCE_GROUP(models FILES ${FILES_CPP} ${FILES_HPP})

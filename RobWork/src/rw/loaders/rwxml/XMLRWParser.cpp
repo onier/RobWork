@@ -418,9 +418,9 @@ namespace {
             const QConfig emptyConfig;
             Transform3DParser t3d_p;
             rule<ScannerT> device_r, serialdevice_r, paralleldevice_r,
-                           treedevice_r, joint_r,dhjoint_r,depend_r,
+                           treedevice_r, joint_r,dhjoint_r,depend_r,wheel_r,
                            devicebody_r,chainbody_r,serialchain_r,
-                           jointstate_r, mobiledevice_r, configuration_r;
+                           jointstate_r, mobiledevice_r, pseudoomnidevice_r, configuration_r;
 
             //rule<ScannerT, result_closure<DummyConveyorSegment>::context_t> conveyorsegment_r
 
@@ -450,6 +450,7 @@ namespace {
                               | paralleldevice_r
                               | treedevice_r
                               | mobiledevice_r
+                              | pseudoomnidevice_r
                             )[ self.result_ = var( _dev ) ];
 
                 serialchain_r =
@@ -465,6 +466,8 @@ namespace {
                            | joint_r
                                 [ AddFrameToDevice( _frame, _dev, _scope) ]
                            | dhjoint_r
+                                [ AddFrameToDevice( _frame, _dev, _scope) ]
+                           | wheel_r
                                 [ AddFrameToDevice( _frame, _dev, _scope) ]
                            | model_p
                                 [ InsertModelInMap( _model , _model._refframe, _scope, _dev._modelMap ) ]
@@ -566,6 +569,17 @@ namespace {
                         XMLAttElem_p("RightWheel",
                             XMLAtt_p("name", attrstr_p[var(_dev._rightname)= arg1 ]),
                             eps_p) >>
+                        devicebody_r
+                    )[ LeaveScope(_scope) ];
+
+                pseudoomnidevice_r = eps_p[ var( _dev ) = construct_<DummyDevice>() ] >>
+                    XMLAttElem_p("PseudoOmniDevice",
+                        XMLAtt_p("name", attrstr_p
+                            [ var( _dev._name ) = arg1 ]
+                            [ var( _dev._type ) = PseudoOmniType ]
+                            [ EnterScope(_scope) ]) >>
+                        XMLAtt_p("basename", attrstr_p
+                            [ var( _dev._basename ) = arg1 ]),
                         devicebody_r
                     )[ LeaveScope(_scope) ];
 
@@ -705,6 +719,32 @@ namespace {
                         XMLAtt_p("offset",real_p[ var(_frame._offset) = arg1 ]),
                         eps_p
                     )[ var(_frame._isDepend) = true ];
+
+                wheel_r = eps_p[ var( _frame ) = construct_<DummyFrame>() ] >> // init _frame
+                    XMLAttElem_p("Wheel",
+                        XMLAtt_p("name",attrstr_p
+                            [ var(_frame._name) = arg1 ]) >>
+                        !(XMLAtt_p("refframe", attrstr_p
+                            [ var(_frame._refframe) = arg1 ] )) >>
+                        XMLAtt_p("type", attrstr_p
+                            [ var(_frame._type) = arg1 ]) >>
+                        !(XMLAtt_p("state", jointstate_r)) >>
+                        XMLAtt_p("wheelframe", attrstr_p
+                            [ var(_frame._wheelFrame) = arg1 ])
+                         ,
+                         XMLElem_p("Radius", real_p[ var(_frame._wheelRadius) = arg1]) >>
+                         XMLElem_p("Offset", real_p[ var(_frame._wheelOffset) = arg1]) >>
+                        !(t3d_p
+                            [ var(_frame._transform) = arg1 ]) >>
+                        *(
+                           jointlimit_r
+                                [ push_back_a( _frame._limits ) ]
+                          | property_p
+                                [ push_back_a( _frame._properties ) ]
+                          | model_p
+                                [ push_back_a( _frame._models ) ]
+                        )
+                    );
 
                 jointlimit_r = eps_p[ var( _limit ) = construct_<DummyLimit>() ] >>
                     ( XMLAttElem_p("PosLimit",
