@@ -116,7 +116,10 @@ BOOST_AUTO_TEST_CASE( MathematicaTest ){
 				x.push_back(i);
 				y.push_back(i*i);
 			}
-			std::list<Rule::Ptr> options = Rule::toRules(properties);
+			std::list<Mathematica::Expression::Ptr> options;
+			BOOST_FOREACH(const Rule::Ptr option, Rule::toRules(properties)) {
+				options.push_back(option);
+			}
 			List imageSize;
 			imageSize.add(400).add(250);
 			options.push_back(ownedPtr(new Rule("ImageSize",imageSize)));
@@ -154,6 +157,32 @@ BOOST_AUTO_TEST_CASE( MathematicaTest ){
 		}
 	} catch(const Exception& e) {
 		BOOST_ERROR("Could not parse result: " << e.what());
+	}
+}
+
+BOOST_AUTO_TEST_CASE( MathematicaExample ){
+	Mathematica m;
+	m.initialize();
+	const Mathematica::Link::Ptr l = m.launchKernel();
+	Mathematica::Packet::Ptr result;
+	*l >> result; // read the first In[1]:= prompt from kernel
+
+	const char* const cmd = "Solve[x^2 + 2 y^3 == 3681 && x > 0 && y > 0, {x, y}, Integers]";
+	*l << cmd;
+	*l >> result;
+	std::cout << "Result: " << *result << std::endl;
+	if (const ReturnPacket::Ptr packet = result.cast<ReturnPacket>()) {
+		const List::Ptr list = List::fromExpression(*packet->expression());
+		const std::list<rw::common::Ptr<const Mathematica::Expression> > sols = list->getArguments();
+		BOOST_FOREACH(const rw::common::Ptr<const Mathematica::Expression> sol, sols) {
+			const rw::common::Ptr<const Mathematica::FunctionBase> fct = sol.cast<const Mathematica::FunctionBase>();
+			const PropertyMap::Ptr map = Rule::toPropertyMap(fct->getArguments());
+			const int x = map->get<int>("x");
+			const int y = map->get<int>("y");
+			if (x*x+2*y*y*y == 3681 && x > 0 && y > 0) {
+				std::cout << "Found solution: x=" << x << " and y=" << y << std::endl;
+			}
+		}
 	}
 }
 

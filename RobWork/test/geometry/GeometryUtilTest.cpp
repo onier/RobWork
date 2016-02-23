@@ -483,3 +483,72 @@ BOOST_AUTO_TEST_CASE( EstimateInertiaCOGTest ){
 	BOOST_CHECK_CLOSE(dot(inertiaEst*Vector3D<>::y(),Vector3D<>::y()),Ix,2e-5);
 	BOOST_CHECK_CLOSE(dot(inertiaEst*Vector3D<>::z(),Vector3D<>::z()),Iz,2e-5);
 }
+
+BOOST_AUTO_TEST_CASE( CalculatePrincipalInertiaTest ){
+	{
+		const InertiaMatrix<> inertia(0.1,0.2,0.3);
+		const std::pair<Rotation3D<>, Vector3D<> > val = GeometryUtil::calculatePrincipalInertia(inertia);
+		const Vector3D<>& principalInertia = val.second;
+		const Rotation3D<>& rotation = val.first;
+		BOOST_CHECK_SMALL(principalInertia[0]-inertia(0,0),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[1]-inertia(1,1),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[2]-inertia(2,2),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(cross(Vector3D<>::x(),rotation.getCol(0)).norm2(),std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(cross(Vector3D<>::y(),rotation.getCol(1)).norm2(),std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(cross(Vector3D<>::z(),rotation.getCol(2)).norm2(),std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_CLOSE(rotation.e().determinant(),1,1e-12);
+	}
+	{
+		const InertiaMatrix<float> inertia(0.1,0.2,0.3);
+		const std::pair<Rotation3D<float>, Vector3D<float> > val = GeometryUtil::calculatePrincipalInertia(inertia);
+		const Vector3D<float>& principalInertia = val.second;
+		const Rotation3D<float>& rotation = val.first;
+		BOOST_CHECK_SMALL(principalInertia[0]-inertia(0,0),2*std::numeric_limits<float>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[1]-inertia(1,1),2*std::numeric_limits<float>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[2]-inertia(2,2),2*std::numeric_limits<float>::epsilon());
+		BOOST_CHECK_SMALL(cross(Vector3D<float>::x(),rotation.getCol(0)).norm2(),std::numeric_limits<float>::epsilon());
+		BOOST_CHECK_SMALL(cross(Vector3D<float>::y(),rotation.getCol(1)).norm2(),std::numeric_limits<float>::epsilon());
+		BOOST_CHECK_SMALL(cross(Vector3D<float>::z(),rotation.getCol(2)).norm2(),std::numeric_limits<float>::epsilon());
+		BOOST_CHECK_CLOSE(rotation.e().determinant(),1,1e-12);
+	}
+	{
+		const InertiaMatrix<> inertiaLocal(0.1,0.2,0.3);
+		const Rotation3D<> rot = EAA<>(0,0,Pi/4.).toRotation3D();
+		const InertiaMatrix<> inertia(rot*inertiaLocal*inverse(rot));
+		const std::pair<Rotation3D<>, Vector3D<> > val = GeometryUtil::calculatePrincipalInertia(inertia);
+		const Vector3D<>& principalInertia = val.second;
+		const Rotation3D<>& rotation = val.first;
+		BOOST_CHECK_SMALL(principalInertia[0]-inertiaLocal(0,0),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[1]-inertiaLocal(1,1),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[2]-inertiaLocal(2,2),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(cross(rot.getCol(0),rotation.getCol(0)).norm2(),std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(cross(rot.getCol(1),rotation.getCol(1)).norm2(),std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(cross(rot.getCol(2),rotation.getCol(2)).norm2(),std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_CLOSE(rotation.e().determinant(),1,1e-12);
+	}
+	{
+		const InertiaMatrix<> inertiaLocal(1.,1.,1.);
+		const Rotation3D<> rot = EAA<>(-0.1,0.2,-0.3).toRotation3D();
+		const InertiaMatrix<> inertia(rot*inertiaLocal*inverse(rot));
+		const std::pair<Rotation3D<>, Vector3D<> > val = GeometryUtil::calculatePrincipalInertia(inertia);
+		const Vector3D<>& principalInertia = val.second;
+		const Rotation3D<>& rotation = val.first;
+		BOOST_CHECK_SMALL(principalInertia[0]-inertiaLocal(0,0),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[1]-inertiaLocal(1,1),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[2]-inertiaLocal(2,2),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_CLOSE(rotation.e().determinant(),1,1e-12);
+	}
+	{
+		const InertiaMatrix<> inertiaLocal(0.1,0.2,0.3);
+		// The following rotation will give determinant of -1 if rotation matrix is not formed correctly based on the orthonormal basis!
+		const Rotation3D<> rot = EAA<>(0.484148, -2.73649, 1.4652).toRotation3D();
+		const InertiaMatrix<> inertia(rot*inertiaLocal*inverse(rot));
+		const std::pair<Rotation3D<>, Vector3D<> > val = GeometryUtil::calculatePrincipalInertia(inertia);
+		const Vector3D<>& principalInertia = val.second;
+		const Rotation3D<>& rotation = val.first;
+		BOOST_CHECK_SMALL(principalInertia[0]-inertiaLocal(0,0),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[1]-inertiaLocal(1,1),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_SMALL(principalInertia[2]-inertiaLocal(2,2),2*std::numeric_limits<double>::epsilon());
+		BOOST_CHECK_CLOSE(rotation.e().determinant(),1,1e-12);
+	}
+}

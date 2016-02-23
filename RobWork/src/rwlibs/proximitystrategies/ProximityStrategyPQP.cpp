@@ -370,6 +370,8 @@ bool ProximityStrategyPQP::doInCollision(ProximityModel::Ptr aModel,
 
     CollisionResult &data = pdata.getCollisionData();
     data.clear();
+	data.a = aModel;
+	data.b = bModel;
 
     size_t nrOfCollidingGeoms = 0, geoIdxA=0, geoIdxB=0;
     bool col_res = false;
@@ -390,8 +392,6 @@ bool ProximityStrategyPQP::doInCollision(ProximityModel::Ptr aModel,
             _numTriTests += qdata.cache->_collideResult.NumTriTests();
 
             if (qdata.cache->_collideResult.Colliding() != 0){
-            	data.a = aModel;
-            	data.b = bModel;
             	data._aTb = fromRapidTransform(qdata.cache->_collideResult.R,qdata.cache->_collideResult.T);
 
             	nrOfCollidingGeoms++;
