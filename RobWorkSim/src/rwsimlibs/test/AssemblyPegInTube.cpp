@@ -85,7 +85,7 @@ void AssemblyPegInTube::run(TestHandle::Ptr handle, const std::string& engineID,
 	const double distB = parameters.get<double>("DistanceB")/1000.;
 	const rw::common::Ptr<const Tube> tubeGeo = _dwc->getWorkcell()->findObject("Tube")->getGeometry()[0]->getGeometryData().cast<Tube>();
 	const rw::common::Ptr<const Cylinder> cylGeo = _dwc->getWorkcell()->findObject("Cylinder")->getGeometry()[0]->getGeometryData().cast<Cylinder>();
-	const CircularPiHParameterization::Ptr param = ownedPtr( new CircularPiHParameterization(tubeGeo->getInnerRadius(),tubeGeo->getHeight(),cylGeo->getRadius(),cylGeo->getHeight(),angle,distA,distB));
+	const CircularPiHParameterization::Ptr param = ownedPtr( new CircularPiHParameterization(tubeGeo->getInnerRadius(),cylGeo->getRadius(),cylGeo->getHeight(),angle,distA,distB));
 
 	// x, theta and phi is sampled
 	const AssemblyTask::Ptr task = ownedPtr(new AssemblyTask());

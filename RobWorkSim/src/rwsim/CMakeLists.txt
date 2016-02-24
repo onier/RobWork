@@ -16,6 +16,7 @@ SET(FILES_CPP
 	contacts/ContactStrategyGeometry.cpp
 	contacts/ContactStrategyPQP.cpp
 	contacts/ContactStrategyTracking.cpp
+	contacts/GeometricUtil.cpp
 	contacts/RenderContacts.cpp
 	contacts/TubePlaneStrategy.cpp
 
@@ -154,8 +155,11 @@ SET(FILES_HPP
 	contacts/ContactModelGeometry.hpp
 	contacts/ContactStrategy.hpp
 	contacts/ContactStrategyData.hpp
+	contacts/ContactStrategyCylinderPlane.hpp
+	contacts/ContactStrategyCylinderTube.hpp
 	contacts/ContactStrategyGeometry.hpp
 	contacts/ContactStrategyPQP.hpp
+	contacts/GeometricUtil.hpp
 	contacts/RenderContacts.hpp
 	contacts/TubePlaneStrategy.hpp
 

@@ -37,6 +37,8 @@
 #include "RestingPoseDialog.hpp"
 #include "GLViewRW.hpp"
 
+namespace rws { class RobWorkStudio; }
+
 namespace Ui {
     class SupportPoseAnalyserDialog;
 }
