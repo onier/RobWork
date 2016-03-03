@@ -83,7 +83,6 @@ public:
     //! read string
     std::string readString(const std::string& id) { std::string b; read(b,id); return b;};
 
-
     //
     template<class T>
     void read(T& object, const std::string& id){
@@ -140,6 +139,7 @@ protected:
     virtual void doRead(std::vector<std::string>& val, const std::string& id) = 0;
 
     virtual void doRead(Eigen::MatrixXd& val, const std::string& id) = 0;
+    virtual void doRead(Eigen::VectorXd& val, const std::string& id) = 0;
 
     // utils to handle arrays
     virtual void doReadEnterScope(const std::string& id) = 0;

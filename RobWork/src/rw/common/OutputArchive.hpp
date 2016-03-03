@@ -138,6 +138,7 @@ namespace common {
 		virtual void doWrite(const std::vector<std::string>& val, const std::string& id) = 0;
 
 		virtual void doWrite(const Eigen::MatrixXd& val, const std::string& id) = 0;
+		virtual void doWrite(const Eigen::VectorXd& val, const std::string& id) = 0;
 
 		/**
 		 * @brief handles serialization of an object. The object must either be a primitive type,

@@ -133,7 +133,8 @@ protected:
 		void doWrite(const std::vector<double>& val, const std::string& id){ writeValue(val,id);};
 		void doWrite(const std::vector<std::string>& val, const std::string& id){ writeValue(val,id);};
 
-		void doWrite(const Eigen::MatrixXd& val, const std::string& id);
+		void doWrite(const Eigen::MatrixXd& val, const std::string& id){ writeMatrix(val,id);}
+		void doWrite(const Eigen::VectorXd& val, const std::string& id){ writeMatrix(val,id);}
 
 		//template<class T>
 		//void doWrite(const T& data, const std::string& id){ OutputArchive::write<T>(data,id); }
@@ -148,6 +149,33 @@ protected:
 		template<class T>
 		void writeValue( const T&  val, const std::string& id ){
 			(*_ofs) << id << "=" << val << "\n";
+		}
+
+		template <class Derived>
+		void writeMatrix(const Eigen::MatrixBase<Derived>& val, const std::string& id) {
+			typedef typename Eigen::MatrixBase<Derived>::Index Index;
+			const int digits = _ofs->precision() < std::numeric_limits<double>::max_digits10 ? _ofs->precision() : std::numeric_limits<double>::max_digits10;
+			const int spacePerVal = digits+1+1+1+5; // including a space, sign, decimal seperator and exponential (e.g e+123)
+			const int maxVal = MAX_LINE_WIDTH/spacePerVal;
+			if (maxVal == 0)
+				RW_THROW("Please increase the MAX_LINE_WIDTH or decrease the streams precision to write matrix.");
+			(*_ofs) << id << "=[" << val.rows() << "x" << val.cols() << "]\n";
+			int printed = 0;
+			for (Index i = 0; i < val.rows(); i++) {
+				for (Index j = 0; j < val.cols(); j++) {
+					if (printed == 0)
+						(*_ofs) << val(i,j);
+					else
+						(*_ofs) << " " << val(i,j);
+					printed++;
+					if (printed == maxVal || j == val.cols()-1) {
+						printed = 0;
+						(*_ofs) << "\n";
+					}
+				}
+			}
+			if (printed != 0)
+				(*_ofs) << "\n";
 		}
 
 
@@ -202,7 +230,8 @@ protected:
 		virtual void doRead(std::vector<double>& val, const std::string& id){readValue(val,id);}
 		virtual void doRead(std::vector<std::string>& val, const std::string& id) ;
 
-		void doRead(Eigen::MatrixXd& val, const std::string& id);
+	    virtual void doRead(Eigen::MatrixXd& val, const std::string& id){ readMatrix(val,id); }
+	    virtual void doRead(Eigen::VectorXd& val, const std::string& id){ readMatrix(val,id); }
 
         //template<class T>
         //void doRead(T& object, const std::string& id){
@@ -237,6 +266,38 @@ protected:
 				RW_WARN("mismatched ids: " << id << " ---- " << valname.first);
 			//std::cout << "Reading: " << id << "= " << valname.second << "\n";
 			val = boost::lexical_cast<T>(valname.second);
+		 }
+
+		 template <class Derived>
+		 void readMatrix(Eigen::MatrixBase<Derived>& val, const std::string& id) {
+			 getLine();
+			 std::pair<std::string,std::string> valname = getNameValue();
+			 if(id!=valname.first)
+				 RW_WARN("mismatched ids: " << id << " ---- " << valname.first);
+			 // read from array
+			 std::vector<std::string> dims;
+			 boost::split(dims, valname.second, boost::is_any_of("[x]"));
+			 const int M = boost::lexical_cast<int>(dims[1]);
+			 const int N = boost::lexical_cast<int>(dims[2]);
+			 val.resize(M,N);
+			 Eigen::MatrixXd::Index i = 0;
+			 Eigen::MatrixXd::Index j = 0;
+			 for (int cur = 0; cur < M*N;) {
+				 getLine();
+				 std::vector<std::string> values;
+				 boost::split(values, _line, boost::is_any_of(" \n"));
+				 BOOST_FOREACH(std::string& rval, values) {
+					 if(rval.empty())
+						 continue;
+					 val(i,j) = boost::lexical_cast<double>(rval);
+					 j++;
+					 cur++;
+					 if (j == N) {
+						 i++;
+						 j = 0;
+					 }
+				 }
+			 }
 		 }
 
 		 bool getLine();

@@ -106,31 +106,6 @@ void INIArchive::doWrite(boost::uint8_t val, const std::string& id)
     //doWrite((boost::uint32_t)val,id);
 }
 
-void INIArchive::doWrite(const Eigen::MatrixXd& val, const std::string& id) {
-	const int digits = _ofs->precision() < std::numeric_limits<double>::max_digits10 ? _ofs->precision() : std::numeric_limits<double>::max_digits10;
-	const int spacePerVal = digits+1+1+1+5; // including a space, sign, decimal seperator and exponential (e.g e+123)
-	const int maxVal = MAX_LINE_WIDTH/spacePerVal;
-	if (maxVal == 0)
-		RW_THROW("Please increase the MAX_LINE_WIDTH or decrease the streams precision to write matrix.");
-	(*_ofs) << id << "=[" << val.rows() << "x" << val.cols() << "]\n";
-	int printed = 0;
-	for (Eigen::MatrixXd::Index i = 0; i < val.rows(); i++) {
-		for (Eigen::MatrixXd::Index j = 0; j < val.cols(); j++) {
-			if (printed == 0)
-				(*_ofs) << val(i,j);
-			else
-				(*_ofs) << " " << val(i,j);
-			printed++;
-			if (printed == maxVal || j == val.cols()-1) {
-				printed = 0;
-				(*_ofs) << "\n";
-			}
-		}
-	}
-	if (printed != 0)
-		(*_ofs) << "\n";
-}
-
 void INIArchive::doRead(bool& val, const std::string& id)
 {
     int res = readInt(id);
@@ -174,37 +149,6 @@ void INIArchive::doRead(std::vector<std::string>& val, const std::string& id)
     }
     // read from array
     boost::split(val, valname.second, boost::is_any_of("\t "));
-}
-
-void INIArchive::doRead(Eigen::MatrixXd& val, const std::string& id) {
-    getLine();
-	std::pair<std::string,std::string> valname = getNameValue();
-	if(id!=valname.first)
-		RW_WARN("mismatched ids: " << id << " ---- " << valname.first);
-	// read from array
-	std::vector<std::string> dims;
-	boost::split(dims, valname.second, boost::is_any_of("[x]"));
-	const int M = boost::lexical_cast<int>(dims[1]);
-	const int N = boost::lexical_cast<int>(dims[2]);
-	val.resize(M,N);
-	Eigen::MatrixXd::Index i = 0;
-	Eigen::MatrixXd::Index j = 0;
-	for (int cur = 0; cur < M*N;) {
-	    getLine();
-		std::vector<std::string> values;
-		boost::split(values, _line, boost::is_any_of(" \n"));
-		BOOST_FOREACH(std::string& rval, values) {
-			if(rval.empty())
-				continue;
-			val(i,j) = boost::lexical_cast<double>(rval);
-			j++;
-			cur++;
-			if (j == N) {
-				i++;
-				j = 0;
-			}
-		}
-	}
 }
 
 bool INIArchive::getLine()

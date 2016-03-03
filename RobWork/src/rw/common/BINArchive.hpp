@@ -132,7 +132,8 @@ namespace common {
 		void doWrite(const std::vector<double>& val, const std::string& id){ writeValue(val,id);};
 		void doWrite(const std::vector<std::string>& val, const std::string& id);
 
-		void doWrite(const Eigen::MatrixXd& val, const std::string& id);
+		void doWrite(const Eigen::MatrixXd& val, const std::string& id){ writeMatrix(val,id);}
+		void doWrite(const Eigen::VectorXd& val, const std::string& id){ writeMatrix(val,id);}
 
 		//template<class T>
 		//void write(const T& data, const std::string& id){ OutputArchive::write<T>(data,id); }
@@ -149,6 +150,21 @@ namespace common {
 		template<class T>
 		void writeValue( const T&  val, const std::string& id ){
 		    _ofs->write((char*)&val, sizeof(val) );
+		}
+
+		template <class Derived>
+		void writeMatrix(const Eigen::MatrixBase<Derived>& val, const std::string& id) {
+			typedef typename Eigen::MatrixBase<Derived>::Index Index;
+			boost::uint32_t m = val.rows();
+			boost::uint32_t n = val.cols();
+			_ofs->write((char*)&m, sizeof(m) );
+			_ofs->write((char*)&n, sizeof(n) );
+			for (Index i = 0; i < val.rows(); i++) {
+				for (Index j = 0; j < val.cols(); j++) {
+					const double rval = val(i,j);
+					_ofs->write((char*)&rval, sizeof(rval) );
+				}
+			}
 		}
 
 		//template<class T>
@@ -185,7 +201,8 @@ namespace common {
 		virtual void doRead(std::vector<double>& val, const std::string& id){readValue(val,id);}
 		virtual void doRead(std::vector<std::string>& val, const std::string& id) ;
 
-		void doRead(Eigen::MatrixXd& val, const std::string& id);
+	    virtual void doRead(Eigen::MatrixXd& val, const std::string& id){ readMatrix(val,id); }
+	    virtual void doRead(Eigen::VectorXd& val, const std::string& id){ readMatrix(val,id); }
 
         //template<class T>
         //void read(T& object, const std::string& id){
@@ -211,6 +228,21 @@ namespace common {
 		     //std::cout << val << " ";
 		 }
 
+		 template <class Derived>
+		 void readMatrix(Eigen::MatrixBase<Derived>& val, const std::string& id) {
+			 typedef typename Eigen::MatrixBase<Derived>::Index Index;
+			 boost::uint32_t m = 0;
+			 boost::uint32_t n = 0;
+			 _ifs->read((char*)&m, sizeof(boost::uint32_t) );
+			 _ifs->read((char*)&n, sizeof(boost::uint32_t) );
+			 val.resize(m,n);
+			 for (Index i = 0; i < val.rows(); i++) {
+				 for (Index j = 0; j < val.cols(); j++) {
+					 double& tmp = val(i,j);
+					 _ifs->read((char*)& (tmp), sizeof(double) );
+				 }
+			 }
+		 }
 
 	private:
 		std::string getScope(){
