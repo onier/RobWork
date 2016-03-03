@@ -27,6 +27,7 @@
 #include <rw/common/ExtensionPoint.hpp>
 
 namespace rw { namespace models { class WorkCell; } }
+namespace rwsim { namespace contacts { class ContactDetector; } }
 
 namespace rwsimlibs {
 namespace test {
@@ -54,6 +55,24 @@ public:
 	 */
 	virtual rw::common::Ptr<rw::models::WorkCell> getWC(const rw::common::PropertyMap& map) = 0;
 
+	/**
+	 * @brief Get predefined poses to use for test.
+	 * @param map [in] properties for test workcell.
+	 * @return the predefined poses as a map of labeled states.
+	 */
+	virtual std::map<std::string, rw::kinematics::State> getPoses(const rw::common::PropertyMap& map) = 0;
+
+	/**
+	 * @brief Get the contact detector.
+	 * @param map [in] properties for test workcell.
+	 * @return the contact detector.
+	 */
+	virtual rw::common::Ptr<rwsim::contacts::ContactDetector> getDetector(const rw::common::PropertyMap& map);
+
+	/**
+	 * @brief Get standard parameters for the test.
+	 * @return a property map.
+	 */
 	virtual rw::common::Ptr<rw::common::PropertyMap> getDefaultParameters() const;
 
 	/**

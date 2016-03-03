@@ -29,6 +29,11 @@
 
 class PropertyViewEditor;
 namespace rw { namespace models { class WorkCell; } }
+namespace rwsim { namespace contacts { class ContactDetectorData; } }
+namespace rwsim { namespace contacts { class ContactDetectorTracking; } }
+namespace rwsim { namespace log { class SimulatorLogScope; } }
+namespace rwsimlibs { namespace gui { class SimulatorLogWidget; } }
+
 namespace Ui { class ContactDetectionTestPlugin; }
 
 namespace rwsimlibs {
@@ -55,10 +60,17 @@ public:
 private slots:
 	void toolBoxChanged(int index);
 	void inputChanged();
+	void setPose(QListWidgetItem* item);
+	void buttonClick();
+	void updateGraphics();
+	void autoDetect(bool checked);
 
 private:
+	void buttonClick(const QObject* button);
 	void message(const std::string& msg);
 	void error(const std::string& msg);
+
+	void stateChangedListener(const rw::kinematics::State& state);
 
 private:
     Ui::ContactDetectionTestPlugin* const _ui;
@@ -66,6 +78,13 @@ private:
     rwsimlibs::test::ContactTest::Ptr _test;
     rw::common::Ptr<rw::common::PropertyMap> _input;
     rw::common::Ptr<rw::models::WorkCell> _wc;
+    std::map<std::string, rw::kinematics::State> _poses;
+    rw::common::Ptr<rwsim::contacts::ContactDetector> _detector;
+    rwsim::contacts::ContactDetectorData* const _data;
+    rwsim::contacts::ContactDetectorTracking* const _tracking;
+    rwsim::log::SimulatorLogScope* const _log;
+    rwsimlibs::gui::SimulatorLogWidget* _logWidget;
+    rw::common::Ptr<rw::graphics::GroupNode> _pluginGraphics;
 };
 //! @}
 } /* namespace plugins */

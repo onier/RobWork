@@ -40,6 +40,7 @@ ENDIF()
 # Moc the files:
 SET(MocSrcFiles )
 SET(SrcFiles_HPP
+    ContactTableWidget.hpp
     JointControlDialog.hpp
     JogGroup.hpp
     RestingPoseDialog.hpp
@@ -86,6 +87,7 @@ ELSE()
 ENDIF()
 
 SET(SrcFiles 
+    ContactTableWidget.cpp 
     JointControlDialog.cpp 
     JogGroup.cpp
     BodyControllerWidget.cpp

@@ -35,28 +35,45 @@ ContactPQPBoxPlaneTest::ContactPQPBoxPlaneTest() {
 ContactPQPBoxPlaneTest::~ContactPQPBoxPlaneTest() {
 }
 
+#define LAYER 1e-5
 WorkCell::Ptr ContactPQPBoxPlaneTest::getWC(const PropertyMap& map) {
-	if (_wc.isNull()) {
-		const WorkCell::Ptr wc = ownedPtr(new WorkCell("ContactPQPBoxPlaneTestWorkCell"));
+	const bool trimesh = map.get<bool>("Trimesh");
+	const double size = map.get<double>("Size");
+	const WorkCell::Ptr wc = ownedPtr(new WorkCell("ContactPQPBoxPlaneTestWorkCell"));
 
-		const static double RADIUS = 1.0;
+	WorkCellBuilder builder;
+	builder.addFloor(wc);
+	builder.addBox(wc,size,size,size,-1,"Box",trimesh);
 
-		WorkCellBuilder builder;
-		builder.addFloor(wc);
-		builder.addBox(wc,RADIUS,RADIUS,RADIUS,-1);
+	const StateStructure::Ptr stateStructure = wc->getStateStructure();
+	State state = stateStructure->getDefaultState();
+	wc->findFrame<MovableFrame>("Box")->setTransform(Transform3D<>(Vector3D<>::z()*(size/2.+LAYER/2.),EAA<>(-Pi/2.,0,0)),state);
+	stateStructure->setDefaultState(state);
 
-		const StateStructure::Ptr stateStructure = wc->getStateStructure();
-		State state = stateStructure->getDefaultState();
-		wc->findFrame<MovableFrame>("Box")->setTransform(Transform3D<>(Vector3D<>::z()*0.4,EAA<>(-Pi/2.,0,0)),state);
-		stateStructure->setDefaultState(state);
+	return wc;
+}
 
-		_wc = wc;
-	}
-	return _wc;
+std::map<std::string, State> ContactPQPBoxPlaneTest::getPoses(const PropertyMap& map) {
+	const double size = map.get<double>("Size");
+	std::map<std::string, State> poses;
+	const WorkCell::Ptr wc = getWC(map);
+	const State defState = wc->getDefaultState();
+	State state;
+	state = defState;
+	wc->findFrame<MovableFrame>("Box")->setTransform(Transform3D<>(Vector3D<>::z()*0.4*size,EAA<>(-Pi/2.,0,0)),state);
+	poses["Penetration"] = state;
+	wc->findFrame<MovableFrame>("Box")->setTransform(Transform3D<>(Vector3D<>::z()*(size/2.+LAYER/2.),EAA<>(-Pi/2.,0,0)),state);
+	poses["In Layer"] = state;
+	wc->findFrame<MovableFrame>("Box")->setTransform(Transform3D<>(Vector3D<>::z()*(size/2.+LAYER/2.),EAA<>(-Pi/2.,0,0)),state);
+	poses["In Track Layer"] = state;
+	wc->findFrame<MovableFrame>("Box")->setTransform(Transform3D<>(Vector3D<>::z()*0.6*size,EAA<>(-Pi/2.,0,0)),state);
+	poses["Increased Height"] = state;
+	return poses;
 }
 
 PropertyMap::Ptr ContactPQPBoxPlaneTest::getDefaultParameters() const {
 	const PropertyMap::Ptr map = ContactTest::getDefaultParameters();
-	//map->add("Timestep","Timestep in milliseconds.",DEFAULT_DT*1000);
+	map->add("Size","Side length of the box (in meters).",0.1);
+	map->add("Trimesh","Use trimesh representation for box.",true);
 	return map;
 }

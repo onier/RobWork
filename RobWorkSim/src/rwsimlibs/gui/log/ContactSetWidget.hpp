@@ -88,11 +88,6 @@ public:
 
 private slots:
 	void contactSetPairsChanged(const QItemSelection& newSelection, const QItemSelection& oldSelection);
-	void contactSetChanged(const QItemSelection& newSelection, const QItemSelection& oldSelection);
-
-private:
-	QString toQString(const rw::math::Vector3D<>& vec);
-	QString toQString(const rwsim::contacts::Contact& contact);
 
 private:
     Ui::ContactSetWidget* const _ui;

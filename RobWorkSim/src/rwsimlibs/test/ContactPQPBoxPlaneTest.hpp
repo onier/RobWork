@@ -45,11 +45,11 @@ public:
 	//! @copydoc ContactTest::getWC
 	virtual rw::common::Ptr<rw::models::WorkCell> getWC(const rw::common::PropertyMap& map);
 
+	//! @copydoc ContactTest::getPoses
+	virtual std::map<std::string, rw::kinematics::State> getPoses(const rw::common::PropertyMap& map);
+
 	//! @copydoc ContactTest::getDefaultParameters
 	virtual rw::common::Ptr<rw::common::PropertyMap> getDefaultParameters() const;
-
-private:
-	rw::common::Ptr<rw::models::WorkCell> _wc;
 };
 //! @}
 } /* namespace test */

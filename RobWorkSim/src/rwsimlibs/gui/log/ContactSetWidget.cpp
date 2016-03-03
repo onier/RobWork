@@ -21,7 +21,7 @@
 #include <rw/graphics/SceneGraph.hpp>
 #include <rwsim/contacts/RenderContacts.hpp>
 #include <rwsim/dynamics/DynamicWorkCell.hpp>
-#include "../../../rwsim/log/LogContactSet.hpp"
+#include <rwsim/log/LogContactSet.hpp>
 #include "ui_ContactSetWidget.h"
 
 using namespace rw::common;
@@ -42,22 +42,13 @@ ContactSetWidget::ContactSetWidget(rw::common::Ptr<const LogContactSet> entry, Q
 	connect(_ui->_contactBodyPairs->selectionModel(),
 			SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
 			this, SLOT(contactSetPairsChanged(const QItemSelection &, const QItemSelection &)));
-	connect(_ui->_contactTable->selectionModel(),
-			SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
-			this, SLOT(contactSetChanged(const QItemSelection &, const QItemSelection &)));
+	connect(_ui->_contactTable,	SIGNAL(graphicsUpdated()), this, SIGNAL(graphicsUpdated()));
 
 	QStringList headerLabels;
 	headerLabels.push_back("First");
 	headerLabels.push_back("Second");
 	headerLabels.push_back("Contacts");
 	_ui->_contactBodyPairs->setHorizontalHeaderLabels(headerLabels);
-
-	_ui->_contactTable->setColumnCount(3);
-	headerLabels.clear();
-	headerLabels.push_back("First");
-	headerLabels.push_back("Second");
-	headerLabels.push_back("Depth");
-	_ui->_contactTable->setHorizontalHeaderLabels(headerLabels);
 }
 
 ContactSetWidget::~ContactSetWidget() {
@@ -122,9 +113,12 @@ void ContactSetWidget::updateEntryWidget() {
 
 void ContactSetWidget::showGraphics(GroupNode::Ptr root, SceneGraph::Ptr graph) {
 	if (root == NULL && _root != NULL)
-		_root->removeChild("Bodies");
+		_root->removeChild("Contacts");
 	_root = root;
 	_graph = graph;
+	GroupNode::Ptr contactGroup = ownedPtr(new GroupNode("Contacts"));
+	GroupNode::addChild(contactGroup, _root);
+	_ui->_contactTable->showGraphics(contactGroup,graph);
 }
 
 std::string ContactSetWidget::getName() const {
@@ -159,95 +153,13 @@ void ContactSetWidget::contactSetPairsChanged(const QItemSelection&, const QItem
 		if (show)
 			contactsToShow.push_back(i);
 	}
-	_ui->_contactTable->clearSelection();
-	_ui->_contactTable->setRowCount(contactsToShow.size());
-	int row = 0;
-	_ui->_contactTable->setSortingEnabled(false);
+	std::vector<Contact> contactVec;
 	BOOST_FOREACH(const std::size_t i, contactsToShow) {
 		const Contact& c = _contactSet->getContact(i);
-		const std::string& nameA = c.getNameA();
-		const std::string& nameB = c.getNameB();
-		const QString hover = toQString(c);
-		// Note: setItem takes ownership of the QTableWidgetItems
-		QTableWidgetItem* itemA;
-		QTableWidgetItem* itemB;
-		QTableWidgetItem* itemC = new QTableWidgetItem(QString::number(c.getDepth()));
-		if (nameA < nameB) {
-			itemA = new QTableWidgetItem(QString::fromStdString(nameA));
-			itemB = new QTableWidgetItem(QString::fromStdString(nameB));
-		} else {
-			itemA = new QTableWidgetItem(QString::fromStdString(nameB));
-			itemB = new QTableWidgetItem(QString::fromStdString(nameA));
-		}
-		itemA->setData(Qt::ToolTipRole,hover);
-		itemB->setData(Qt::ToolTipRole,hover);
-		itemC->setData(Qt::ToolTipRole,hover);
-		if (c.getDepth() > 0) {
-			itemA->setData(Qt::ForegroundRole,Qt::red);
-			itemB->setData(Qt::ForegroundRole,Qt::red);
-			itemC->setData(Qt::ForegroundRole,Qt::red);
-		} else {
-			itemA->setData(Qt::ForegroundRole,Qt::green);
-			itemB->setData(Qt::ForegroundRole,Qt::green);
-			itemC->setData(Qt::ForegroundRole,Qt::green);
-		}
-		itemA->setData(Qt::UserRole,QVariant::fromValue(i));
-		_ui->_contactTable->setItem(row,0,itemA);
-		_ui->_contactTable->setItem(row,1,itemB);
-		_ui->_contactTable->setItem(row,2,itemC);
-		row++;
+		contactVec.push_back(c);
 	}
-	_ui->_contactTable->setSortingEnabled(true);
-	if (contactsToShow.size() > 0)
-		_ui->_contactTable->setRangeSelected(QTableWidgetSelectionRange(0,0,contactsToShow.size()-1,2),true);
-}
-
-void ContactSetWidget::contactSetChanged(const QItemSelection&, const QItemSelection&) {
-	const QModelIndexList indexes = _ui->_contactTable->selectionModel()->selectedIndexes();
-	std::vector<Contact> contactsPen;
-	std::vector<Contact> contactsNon;
-	foreach (QModelIndex index, indexes) {
-		if (index.column() > 0)
-			continue;
-		const std::size_t i = index.data(Qt::UserRole).toUInt();
-		const Contact& c = _contactSet->getContact(i);
-		if (c.getDepth() > 0)
-			contactsPen.push_back(c);
-		else
-			contactsNon.push_back(c);
-	}
-	_root->removeChild("Contacts");
-	GroupNode::Ptr contactGroup = ownedPtr(new GroupNode("Contacts"));
-	const RenderContacts::Ptr renderPen = ownedPtr(new RenderContacts());
-	const RenderContacts::Ptr renderNon = ownedPtr(new RenderContacts());
-	renderPen->setColorPoints(1,0,0);
-	renderNon->setColorPoints(0,1,0);
-	renderPen->setContacts(contactsPen);
-	renderNon->setContacts(contactsNon);
-	const DrawableNode::Ptr drawablePen = _graph->makeDrawable("Penetration",renderPen,DrawableNode::Physical);
-	const DrawableNode::Ptr drawableNon = _graph->makeDrawable("Non-Penetration",renderNon,DrawableNode::Physical);
-	GroupNode::addChild(drawablePen,contactGroup);
-	GroupNode::addChild(drawableNon,contactGroup);
-	GroupNode::addChild(contactGroup, _root);
-	drawablePen->setVisible(true);
-	drawableNon->setVisible(true);
-
-	emit graphicsUpdated();
-}
-
-QString ContactSetWidget::toQString(const Vector3D<>& vec) {
-	std::stringstream str;
-	str << vec;
-	return QString::fromStdString(str.str());
-}
-
-QString ContactSetWidget::toQString(const Contact& contact) {
-	const QString nameA = QString::fromStdString(contact.getNameA());
-	const QString nameB = QString::fromStdString(contact.getNameB());
-	return "Bodies: " + nameA + " - " + nameB + "<br/>"
-			+ "Points: " + toQString(contact.getPointA()) + " - " + toQString(contact.getPointB()) + "<br/>"
-			+ "Normal: " + toQString(contact.getNormal()) + "<br/>"
-			+ "Depth: " + QString::number(contact.getDepth());
+	_ui->_contactTable->setContacts(contactVec);
+	_ui->_contactTable->selectAll();
 }
 
 ContactSetWidget::Dispatcher::Dispatcher() {

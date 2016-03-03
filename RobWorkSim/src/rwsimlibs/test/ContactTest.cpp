@@ -18,7 +18,10 @@
 #include "ContactTest.hpp"
 #include "ContactPQPBoxPlaneTest.hpp"
 
+#include <rwsim/contacts/ContactDetector.hpp>
+
 using namespace rw::common;
+using namespace rwsim::contacts;
 using namespace rwsimlibs::test;
 
 ContactTest::ContactTest() {
@@ -29,6 +32,10 @@ ContactTest::~ContactTest() {
 
 PropertyMap::Ptr ContactTest::getDefaultParameters() const {
 	return ownedPtr(new PropertyMap());
+}
+
+ContactDetector::Ptr ContactTest::getDetector(const PropertyMap& map) {
+	return ContactDetector::makeDefault(getWC(map),map);
 }
 
 ContactTest::Factory::Factory():

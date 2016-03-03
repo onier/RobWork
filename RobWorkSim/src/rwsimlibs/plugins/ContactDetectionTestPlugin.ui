@@ -72,7 +72,7 @@
              <x>0</x>
              <y>0</y>
              <width>299</width>
-             <height>487</height>
+             <height>483</height>
             </rect>
            </property>
            <attribute name="label">
@@ -100,7 +100,7 @@
              <x>0</x>
              <y>0</y>
              <width>299</width>
-             <height>487</height>
+             <height>483</height>
             </rect>
            </property>
            <attribute name="label">
@@ -117,30 +117,26 @@
              <x>0</x>
              <y>0</y>
              <width>299</width>
-             <height>487</height>
+             <height>483</height>
             </rect>
            </property>
            <attribute name="label">
-            <string>Execution</string>
+            <string>Test Execution</string>
            </attribute>
            <layout class="QVBoxLayout" name="verticalLayout">
             <item>
-             <widget class="QGroupBox" name="runBox">
+             <widget class="QGroupBox" name="posesBox">
               <property name="title">
-               <string>Run</string>
+               <string>Predefined Poses</string>
               </property>
               <layout class="QHBoxLayout" name="horizontalLayout">
                <item>
-                <widget class="QPushButton" name="run">
-                 <property name="text">
-                  <string>Run</string>
+                <widget class="QListWidget" name="poses">
+                 <property name="editTriggers">
+                  <set>QAbstractItemView::NoEditTriggers</set>
                  </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QProgressBar" name="progress">
-                 <property name="value">
-                  <number>0</number>
+                 <property name="selectionMode">
+                  <enum>QAbstractItemView::SingleSelection</enum>
                  </property>
                 </widget>
                </item>
@@ -150,37 +146,75 @@
             <item>
              <widget class="QGroupBox" name="resultsBox">
               <property name="title">
-               <string>Results</string>
+               <string>Operations</string>
               </property>
-              <layout class="QVBoxLayout" name="verticalLayout_3">
-               <item>
-                <widget class="QTableWidget" name="results">
-                 <property name="editTriggers">
-                  <set>QAbstractItemView::NoEditTriggers</set>
+              <layout class="QFormLayout" name="formLayout">
+               <item row="2" column="0">
+                <widget class="QPushButton" name="_detectBtn">
+                 <property name="text">
+                  <string>New Detection</string>
                  </property>
-                 <property name="selectionMode">
-                  <enum>QAbstractItemView::NoSelection</enum>
-                 </property>
-                 <property name="columnCount">
-                  <number>2</number>
-                 </property>
-                 <attribute name="verticalHeaderVisible">
-                  <bool>false</bool>
-                 </attribute>
-                 <attribute name="verticalHeaderDefaultSectionSize">
-                  <number>20</number>
-                 </attribute>
-                 <column/>
-                 <column/>
                 </widget>
                </item>
-               <item>
-                <widget class="QPushButton" name="runVerbose">
+               <item row="5" column="0" colspan="2">
+                <widget class="QPushButton" name="_verbose">
                  <property name="enabled">
                   <bool>false</bool>
                  </property>
                  <property name="text">
                   <string>Show Verbose Output</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="2" column="1">
+                <widget class="QPushButton" name="_trackBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Track</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QPushButton" name="_trackDetectBtn">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Track + Detect</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QCheckBox" name="_autoDetect">
+                 <property name="toolTip">
+                  <string>Check to automatically repeat operation when state is changed in RobWorkStudio.</string>
+                 </property>
+                 <property name="text">
+                  <string>Auto-detect</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="contactsGroup">
+              <property name="title">
+               <string>Contacts</string>
+              </property>
+              <layout class="QGridLayout" name="gridLayout_4">
+               <item row="0" column="0">
+                <widget class="ContactTableWidget" name="_contacts"/>
+               </item>
+               <item row="1" column="0">
+                <widget class="QPushButton" name="_clear">
+                 <property name="enabled">
+                  <bool>false</bool>
+                 </property>
+                 <property name="text">
+                  <string>Clear</string>
                  </property>
                 </widget>
                </item>
@@ -211,6 +245,13 @@
    </layout>
   </widget>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ContactTableWidget</class>
+   <extends>QTableWidget</extends>
+   <header location="global">rwsimlibs/gui/ContactTableWidget.hpp</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="resources.qrc"/>
  </resources>

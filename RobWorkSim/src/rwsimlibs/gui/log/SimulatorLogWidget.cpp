@@ -340,7 +340,6 @@ void SimulatorLogWidget::currentChanged(const QModelIndex& newSelection, const Q
 		SimulatorLog* const entry = static_cast<SimulatorLog*>(newSelection.internalPointer());
 		if (entry == NULL)
 			return;
-		RW_ASSERT(_entryToWidgets.find(entry) == _entryToWidgets.end());
 		boost::filesystem::path p(entry->getFilename());
 		_ui->_file->setText(p.filename().string().c_str());
 		_ui->_file->setToolTip(QString::fromStdString(entry->getFilename()));

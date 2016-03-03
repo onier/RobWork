@@ -38,11 +38,16 @@ SimulatorStatisticsWidget::SimulatorStatisticsWidget(rw::common::Ptr<const Simul
 
 	typedef SimulatorStatistics::DataSeries Data;
 	const Data& data = stats->getSeries();
-	_ui->_list->clear();
+	_ui->_listX->clear();
+	_ui->_listY->clear();
 	for (Data::const_iterator it = data.begin(); it != data.end(); it++) {
-		_ui->_list->addItem(QString::fromStdString(it->first));
+		_ui->_listX->addItem(QString::fromStdString(it->first));
+		_ui->_listY->addItem(QString::fromStdString(it->first));
 	}
-	connect(_ui->_list->selectionModel(),
+	connect(_ui->_listX->selectionModel(),
+			SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
+			this, SLOT(changed(const QItemSelection &, const QItemSelection &)));
+	connect(_ui->_listY->selectionModel(),
 			SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
 			this, SLOT(changed(const QItemSelection &, const QItemSelection &)));
 
@@ -57,20 +62,58 @@ std::string SimulatorStatisticsWidget::getName() const {
 
 void SimulatorStatisticsWidget::changed(const QItemSelection&, const QItemSelection&) {
 	typedef SimulatorStatistics::DataSeries Data;
-	const QModelIndexList indexes = _ui->_list->selectionModel()->selectedIndexes();
+	const QModelIndexList indexesX = _ui->_listX->selectionModel()->selectedIndexes();
+	const QModelIndexList indexesY = _ui->_listY->selectionModel()->selectedIndexes();
 	const Data& data = _stats->getSeries();
-	Data selectedData;
-	foreach (const QModelIndex& index, indexes) {
+	RW_ASSERT(indexesX.size() == 0 || indexesX.size() == 1);
+
+	std::vector<double> selectedDataX;
+	if (indexesX.size() > 0) {
+		const QModelIndex& index = indexesX.at(0);
 		RW_ASSERT(index.column() == 0);
 		const std::string name = index.data().toString().toStdString();
 		RW_ASSERT(data.find(name) != data.end());
-		selectedData[name] = data.find(name)->second;
+		selectedDataX = data.find(name)->second;
+
+		// Disable the y entries with wrong dimensions
+		for (int row = 0; row < _ui->_listY->count(); row++) {
+			QListWidgetItem* const item = _ui->_listY->item(row);
+			const std::string name = item->text().toStdString();
+			RW_ASSERT(data.find(name) != data.end());
+			if (data.find(name)->second.size() != selectedDataX.size())
+				item->setFlags(Qt::NoItemFlags);
+		}
+	} else {
+		// Enable all y entries
+		for (int row = 0; row < _ui->_listY->count(); row++) {
+			QListWidgetItem* const item = _ui->_listY->item(row);
+			item->setFlags(Qt::ItemIsSelectable | Qt::ItemIsUserCheckable | Qt::ItemIsEnabled |Qt::ItemIsDragEnabled);
+		}
 	}
-	if (selectedData.size() == 1) {
-		const std::vector<double> values = selectedData.begin()->second;
-		std::vector<double> x(values.size());
-		for (std::size_t i = 0; i < values.size(); i++)
-			x[i] = i;
-		_mathematica->listPlot(x,values);
+
+	Data selectedDataY;
+	foreach (const QModelIndex& index, indexesY) {
+		RW_ASSERT(index.column() == 0);
+		const std::string name = index.data().toString().toStdString();
+		RW_ASSERT(data.find(name) != data.end());
+		selectedDataY[name] = data.find(name)->second;
+	}
+
+	if (selectedDataY.size() > 0) {
+		if (selectedDataX.size() == 0) {
+			Data::const_iterator it = selectedDataY.begin();
+			const std::vector<double> valuesY = it->second;
+			// TODO: allow more y-series than one
+			std::vector<double> x(valuesY.size());
+			for (std::size_t i = 0; i < valuesY.size(); i++)
+				x[i] = i;
+			_mathematica->listPlot(x,valuesY);
+		} else if (selectedDataX.size() > 1) {
+			Data::const_iterator it = selectedDataY.begin();
+			const std::vector<double> valuesY = it->second;
+			// TODO: allow more y-series than one
+			RW_ASSERT(selectedDataX.size() == valuesY.size());
+			_mathematica->listPlot(selectedDataX,valuesY);
+		}
 	}
 }
