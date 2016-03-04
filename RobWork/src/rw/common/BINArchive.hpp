@@ -153,8 +153,8 @@ namespace common {
 		}
 
 		template <class Derived>
-		void writeMatrix(const Eigen::MatrixBase<Derived>& val, const std::string& id) {
-			typedef typename Eigen::MatrixBase<Derived>::Index Index;
+		void writeMatrix(const Eigen::DenseCoeffsBase<Derived,Eigen::ReadOnlyAccessors>& val, const std::string& id) {
+			typedef typename Eigen::DenseCoeffsBase<Derived,Eigen::ReadOnlyAccessors>::Index Index;
 			boost::uint32_t m = val.rows();
 			boost::uint32_t n = val.cols();
 			_ofs->write((char*)&m, sizeof(m) );
@@ -229,8 +229,8 @@ namespace common {
 		 }
 
 		 template <class Derived>
-		 void readMatrix(Eigen::MatrixBase<Derived>& val, const std::string& id) {
-			 typedef typename Eigen::MatrixBase<Derived>::Index Index;
+		 void readMatrix(Eigen::PlainObjectBase<Derived>& val, const std::string& id) {
+			 typedef typename Eigen::PlainObjectBase<Derived>::Index Index;
 			 boost::uint32_t m = 0;
 			 boost::uint32_t n = 0;
 			 _ifs->read((char*)&m, sizeof(boost::uint32_t) );

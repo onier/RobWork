@@ -152,8 +152,8 @@ protected:
 		}
 
 		template <class Derived>
-		void writeMatrix(const Eigen::MatrixBase<Derived>& val, const std::string& id) {
-			typedef typename Eigen::MatrixBase<Derived>::Index Index;
+		void writeMatrix(const Eigen::DenseCoeffsBase<Derived,Eigen::ReadOnlyAccessors>& val, const std::string& id) {
+			typedef typename Eigen::DenseCoeffsBase<Derived,Eigen::ReadOnlyAccessors>::Index Index;
 			const int digits = _ofs->precision() < std::numeric_limits<double>::max_digits10 ? _ofs->precision() : std::numeric_limits<double>::max_digits10;
 			const int spacePerVal = digits+1+1+1+5; // including a space, sign, decimal seperator and exponential (e.g e+123)
 			const int maxVal = MAX_LINE_WIDTH/spacePerVal;
@@ -269,7 +269,8 @@ protected:
 		 }
 
 		 template <class Derived>
-		 void readMatrix(Eigen::MatrixBase<Derived>& val, const std::string& id) {
+		 void readMatrix(Eigen::PlainObjectBase<Derived>& val, const std::string& id) {
+			 typedef typename Eigen::PlainObjectBase<Derived>::Index Index;
 			 getLine();
 			 std::pair<std::string,std::string> valname = getNameValue();
 			 if(id!=valname.first)
@@ -280,8 +281,8 @@ protected:
 			 const int M = boost::lexical_cast<int>(dims[1]);
 			 const int N = boost::lexical_cast<int>(dims[2]);
 			 val.resize(M,N);
-			 Eigen::MatrixXd::Index i = 0;
-			 Eigen::MatrixXd::Index j = 0;
+			 Index i = 0;
+			 Index j = 0;
 			 for (int cur = 0; cur < M*N;) {
 				 getLine();
 				 std::vector<std::string> values;
