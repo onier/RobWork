@@ -289,6 +289,13 @@ void EngineTestPlugin::run() {
 		_log = NULL;
 		if (_ui->verboseCheck->isChecked()) {
 			_log = ownedPtr(new SimulatorLogScope());
+			if (_ui->logCheck->isChecked()) {
+				try {
+					_log->setLogWriter(ownedPtr(new LogFileWriter(_ui->logFile->text().toStdString())));
+				} catch(const Exception& e) {
+					error(e.getMessage().getFullText());
+				}
+			}
 		}
 		message("Running simulation...");
 		_threadPool = ownedPtr(new ThreadPool());
