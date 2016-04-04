@@ -239,37 +239,3 @@ ENDIF()
 # The shared library to build:
 ADD_LIBRARY(EngineTestPlugin MODULE ${SrcFiles} ${MocSrcFiles}  ${RccSrcFiles} ${UIS_OUT_H})
 TARGET_LINK_LIBRARIES(EngineTestPlugin rwsim_test rwsim_gui ${ROBWORKSIM_LIBRARIES} ${ROBWORKSTUDIO_LIBRARIES})
-
-
-################################################################
-# next compile ContactDetectionTestPlugin
-#
-
-IF(RWS_USE_QT5)
-	QT5_WRAP_UI(UIS_OUT_H ContactDetectionTestPlugin.ui)
-ELSE()
-	QT4_WRAP_UI(UIS_OUT_H ContactDetectionTestPlugin.ui)
-ENDIF()
-
-SET(SrcFiles ContactDetectionTestPlugin.cpp )
-#set_source_files_properties(${SrcFiles} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
-
-# Call the create_plugin macro for creating the plugin
-SET(MocSrcFiles )
-IF(RWS_USE_QT5)
-QT5_WRAP_CPP(MocSrcFiles ContactDetectionTestPlugin.hpp OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED OPTIONS -DBOOST_LEXICAL_CAST_INCLUDED)
-ELSE()
-QT4_WRAP_CPP(MocSrcFiles ContactDetectionTestPlugin.hpp OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED OPTIONS -DBOOST_LEXICAL_CAST_INCLUDED)
-ENDIF()
-
-# Rcc the files:
-SET(RccSrcFiles )
-IF(RWS_USE_QT5)
-	QT5_ADD_RESOURCES(RccSrcFiles resources.qrc)
-ELSE()
-	QT4_ADD_RESOURCES(RccSrcFiles resources.qrc)
-ENDIF()
-
-# The shared library to build:
-ADD_LIBRARY(ContactDetectionTestPlugin MODULE ${SrcFiles} ${MocSrcFiles}  ${RccSrcFiles} ${UIS_OUT_H})
-TARGET_LINK_LIBRARIES(ContactDetectionTestPlugin rwsim_test rwsim_gui ${ROBWORKSIM_LIBRARIES} ${ROBWORKSTUDIO_LIBRARIES})

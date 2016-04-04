@@ -92,6 +92,16 @@ void BtConstraint::createJoint() {
 	const Constraint::SpringParams spring = _rwConstraint->getSpringParams();
 	static const bool useLinearReferenceFrameA = true;
 	const Constraint::ConstraintType type = _rwConstraint->getType();
+
+	if (spring.enabled) {
+		if (!spring.compliance.isDiagonal(1e-8))
+			RW_THROW("Bullet does not support springs with non-diagonal compliance!");
+		if (!spring.damping.isDiagonal(1e-8))
+			RW_THROW("Bullet does not support springs with non-diagonal damping!");
+		if (spring.damping.diagonal().maxCoeff() > 0)
+			RW_THROW("Bullet spring damping is currently not implemented.");
+	}
+
 	/*if (type == Constraint::Fixed) {
 		btFixedConstraint* const btConstraint = new btFixedConstraint(second, first, BtUtil::makeBtTransform(frameInB), BtUtil::makeBtTransform(frameInA));
 		_btConstraint = btConstraint;
@@ -299,7 +309,6 @@ void BtConstraint::createJoint() {
 			for (unsigned int dof = 0; dof < 3; dof++) {
 				const Transform3D<> constraintTchildP = inverse(comTconstraint)*inverse(wTp_com)*wTc_com;
 				btConstraint->setEquilibriumPoint(dof,-constraintTchildP.P()[dof]);
-				std::cout << "setDof: " << dof << " " << constraintTchildP.P()[dof] << std::endl;
 			}
 			_btConstraint = btConstraint;
 		}

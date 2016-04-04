@@ -28,6 +28,7 @@ SET(FILES_CPP
   rwxml/XML.cpp
   
   dom/DOMBasisTypes.cpp
+  dom/DOMPropertyMapFormat.cpp
   dom/DOMPropertyMapLoader.cpp
   dom/DOMPropertyMapSaver.cpp
   dom/DOMPathLoader.cpp
@@ -68,7 +69,9 @@ SET(FILES_HPP
   rwxml/XML.hpp
   
   dom/DOMBasisTypes.hpp
+  dom/DOMPropertyMapFormat.hpp
   dom/DOMPropertyMapLoader.hpp
+  dom/DOMPropertyMapSaver.hpp
   dom/DOMPathLoader.hpp
   dom/DOMPathSaver.hpp
   dom/DOMTrajectoryLoader.hpp

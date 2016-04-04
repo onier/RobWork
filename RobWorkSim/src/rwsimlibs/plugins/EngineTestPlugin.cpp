@@ -289,13 +289,6 @@ void EngineTestPlugin::run() {
 		_log = NULL;
 		if (_ui->verboseCheck->isChecked()) {
 			_log = ownedPtr(new SimulatorLogScope());
-			if (_ui->logCheck->isChecked()) {
-				try {
-					_log->setLogWriter(ownedPtr(new LogFileWriter(_ui->logFile->text().toStdString())));
-				} catch(const Exception& e) {
-					error(e.getMessage().getFullText());
-				}
-			}
 		}
 		message("Running simulation...");
 		_threadPool = ownedPtr(new ThreadPool());
@@ -379,7 +372,7 @@ bool EngineTestPlugin::event(QEvent *event) {
 		const SimulationTimeEvent* const simEvent = static_cast<const SimulationTimeEvent*>(event);
     	const double fraction = simEvent->time / _test->getRunTime();
     	const double pct = fraction * 100;
-    	_ui->progress->setValue((int)pct);
+    	_ui->progress->setValue(static_cast<int>(pct));
     	if (!_simFailed) {
     		if (simEvent->failure) {
     			_simFailed = true;

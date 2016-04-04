@@ -293,7 +293,7 @@ namespace rw { namespace math {
          */
         friend double dot(const Vector2D<T>& v1, const Vector2D<T>& v2)
         {
-            return v1(0)*v2(0) + v1(1)*v2(0);
+            return v1(0)*v2(0) + v1(1)*v2(1);
         }
 
         /**
@@ -404,6 +404,19 @@ namespace rw { namespace math {
     template <class T>
     bool operator==(const Vector2D<T>& a, const Vector2D<T>& b)
     { return a[0] == b[0] && a[1] == b[1]; }
+
+    /**
+       @brief Compares \b a and \b b for inequality.
+
+       @relates Vector2D
+
+       @param a [in]
+       @param b [in]
+       @return True if a and b are different, false otherwise.
+    */
+    template <class T>
+    bool operator!=(const Vector2D<T>& a, const Vector2D<T>& b)
+    { return !(a == b); }
 
     /**@}*/
 }} // end namespaces

@@ -16,33 +16,23 @@
  ********************************************************************************/
 
 #include "EngineTest.hpp"
-#include "FreeMotionTest.hpp"
-#include "CollisionBouncingBallTest.hpp"
-#include "CollisionBouncingBoxTest.hpp"
-#include "CollisionBouncingCylinderTest.hpp"
-#include "ConstraintRevoluteTest.hpp"
-#include "BowlFeederDropTest.hpp"
-#include "BallDropTest.hpp"
-#include "StackingBallsTest.hpp"
+
+#include "IntegratorGravityTest.hpp"
 #include "IntegratorRotationTest.hpp"
 #include "IntegratorSpringTest.hpp"
-#include "FrictionSlidingTest.hpp"
-#include "FrictionStaticTest.hpp"
-#include "PiHCompliantTest.hpp"
-#include "TubePlaneTest.hpp"
-#include "KVMDropTest.hpp"
-#include "KVMNutPlaneTest.hpp"
-#include "KVMTest.hpp"
-#include "AssemblyPegInTube.hpp"
-#include "MotorTest.hpp"
-#include "TwoFingerGraspTest.hpp"
 
 #include <rw/common/ThreadTask.hpp>
 #include <rw/common/ThreadSafeVariable.hpp>
 
+#include <rwsim/simulator/DynamicSimulator.hpp>
+
 using namespace rw::common;
+using namespace rw::kinematics;
+using rw::math::Q;
 using namespace rw::trajectory;
+using namespace rwsim::dynamics;
 using namespace rwsim::log;
+using namespace rwsim::simulator;
 using namespace rwsimlibs::test;
 
 namespace {
@@ -86,10 +76,53 @@ public:
 };
 }
 
+EngineTest::Failure::Failure(const double time, const std::string& description):
+	time(time),
+	description(description)
+{
+}
+
 EngineTest::Result::Result(const std::string& name, const std::string& description):
 	name(name),
 	description(description)
 {
+}
+
+void EngineTest::Result::addValue(const double time, const double val) {
+	values.push_back(TimedQ(time,Q(1,val)));
+}
+
+void EngineTest::Result::addValues(const double time, const Q& vals) {
+	values.push_back(TimedQ(time,vals));
+}
+
+void EngineTest::Result::checkLastValues(const double expected, const double eps) {
+	const Q& val = values.back().getValue();
+	for (std::size_t i = 0; i < val.size(); i++) {
+		if (fabs(val[i]-expected) > eps) {
+			std::stringstream str;
+			str << "Value (" << val[i] << ") was not as expected (" << expected << ") - difference is " << val[i]-expected << ".";
+			failures.push_back(Failure(values.back().getTime(),str.str()));
+			break;
+		}
+	}
+}
+
+void EngineTest::Result::checkLastValuesBetween(const double expectedLow, const double expectedHigh, const double eps) {
+	const Q& val = values.back().getValue();
+	for (std::size_t i = 0; i < val.size(); i++) {
+		if (val[i]-expectedLow < -eps || val[i]-expectedHigh > eps) {
+			std::stringstream str;
+			str << "Value (" << val[i] << ") was not between " << expectedLow << " and " << expectedHigh << " as expected";
+			if (val[i]-expectedLow < -eps)
+				str << " - lower bound violated by " << val[i]-expectedLow;
+			if (val[i]-expectedHigh > eps)
+				str << " - higher bound violated by " << val[i]-expectedHigh;
+			str << ".";
+			failures.push_back(Failure(values.back().getTime(),str.str()));
+			break;
+		}
+	}
 }
 
 EngineTest::TestHandle::TestHandle():
@@ -114,6 +147,14 @@ const std::vector<EngineTest::Result>& EngineTest::TestHandle::getResults() cons
 	return _results;
 }
 
+EngineTest::Result& EngineTest::TestHandle::getResult(const std::string& name) {
+	BOOST_FOREACH(Result& result, _results) {
+		if(result.name == name)
+			return result;
+	}
+	RW_THROW("EngineTest::TestHandle::getResult: could not find result with that name!");
+}
+
 void EngineTest::TestHandle::setError(const std::string& error) {
 	_error = error;
 }
@@ -126,6 +167,10 @@ void EngineTest::TestHandle::append(const Result& result) {
 	_results.push_back(result);
 }
 
+void EngineTest::TestHandle::addResult(const std::string& name, const std::string& description) {
+	_results.push_back(Result(name,description));
+}
+
 bool EngineTest::TestHandle::isAborted() {
 	return _abort->getVariable();
 }
@@ -134,11 +179,21 @@ void EngineTest::TestHandle::abort() {
 	_abort->setVariable(true);
 }
 
-void EngineTest::TestHandle::setTimeCallback(TimeCallback cb) {
+bool EngineTest::TestHandle::success() const {
+	if (_error.size() > 0)
+		return false;
+	BOOST_FOREACH(const Result& result, _results) {
+		if (result.failures.size() > 0)
+			return false;
+	}
+	return true;
+}
+
+void EngineTest::TestHandle::setTimeCallback(const TimeCallback cb) {
 	_cb = cb;
 }
 
-void EngineTest::TestHandle::callback(double a,bool b,bool c) {
+void EngineTest::TestHandle::callback(const double a, const bool b, const bool c) {
 	if (!_cb.empty())
 		_cb(a,b,c);
 }
@@ -150,7 +205,7 @@ EngineTest::EngineTest()
 EngineTest::~EngineTest() {
 }
 
-EngineTest::TestHandle::Ptr EngineTest::runThread(const std::string& engineID, const PropertyMap& parameters, rw::common::Ptr<rwsim::log::SimulatorLogScope> verbose, ThreadTask::Ptr task) {
+EngineTest::TestHandle::Ptr EngineTest::runThread(const std::string& engineID, const PropertyMap& parameters, const rw::common::Ptr<rwsim::log::SimulatorLogScope> verbose, const ThreadTask::Ptr task) {
 	if (task == NULL) {
 		const TestHandle::Ptr handle = ownedPtr(new TestHandle());
 		run(handle, engineID, parameters, verbose);
@@ -175,26 +230,9 @@ std::vector<std::string> EngineTest::Factory::getTests() {
     std::vector<std::string> ids;
     EngineTest::Factory ep;
     std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-    ids.push_back("FreeMotion");
-    ids.push_back("CollisionBouncingBallTest");
-    ids.push_back("CollisionBouncingBoxTest");
-    ids.push_back("CollisionBouncingCylinderTest");
-    ids.push_back("ConstraintRevoluteTest");
-    ids.push_back("BowlFeederDrop");
-    ids.push_back("BallDropTest");
-    ids.push_back("StackingBallsTest");
+    ids.push_back("IntegratorGravityTest");
     ids.push_back("IntegratorRotationTest");
     ids.push_back("IntegratorSpringTest");
-    ids.push_back("FrictionSlidingTest");
-    ids.push_back("FrictionStaticTest");
-    ids.push_back("PiHCompliantTest");
-    ids.push_back("TubePlaneTest");
-    ids.push_back("KVMDropTest");
-    ids.push_back("KVMNutPlaneTest");
-    ids.push_back("KVMTest");
-    ids.push_back("AssemblyPegInTube");
-    ids.push_back("MotorTest");
-    ids.push_back("TwoFingerGraspTest");
     BOOST_FOREACH(Extension::Descriptor& ext, exts){
         ids.push_back( ext.getProperties().get("testID",ext.name) );
     }
@@ -202,45 +240,11 @@ std::vector<std::string> EngineTest::Factory::getTests() {
 }
 
 bool EngineTest::Factory::hasTest(const std::string& test) {
-    if(test == "FreeMotion")
-        return true;
-    else if(test == "CollisionBouncingBallTest")
-        return true;
-    else if(test == "CollisionBouncingBoxTest")
-        return true;
-    else if(test == "CollisionBouncingCylinderTest")
-        return true;
-    else if(test == "ConstraintRevoluteTest")
-        return true;
-    else if(test == "BowlFeederDrop")
-        return true;
-    else if(test == "BallDropTest")
-        return true;
-    else if(test == "StackingBallsTest")
+    if(test == "IntegratorGravityTest")
         return true;
     else if(test == "IntegratorRotationTest")
         return true;
     else if(test == "IntegratorSpringTest")
-        return true;
-    else if(test == "FrictionSlidingTest")
-        return true;
-    else if(test == "FrictionStaticTest")
-        return true;
-    else if(test == "PiHCompliantTest")
-        return true;
-    else if(test == "TubePlaneTest")
-        return true;
-    else if(test == "KVMDropTest")
-        return true;
-    else if(test == "KVMNutPlaneTest")
-        return true;
-    else if(test == "KVMTest")
-        return true;
-    else if(test == "AssemblyPegInTube")
-        return true;
-    else if(test == "MotorTest")
-        return true;
-    else if(test == "TwoFingerGraspTest")
         return true;
     EngineTest::Factory ep;
     std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
@@ -252,46 +256,12 @@ bool EngineTest::Factory::hasTest(const std::string& test) {
 }
 
 EngineTest::Ptr EngineTest::Factory::getTest(const std::string& test) {
-    if( test == "FreeMotion")
-        return new FreeMotionTest();
-    else if( test == "CollisionBouncingBallTest")
-        return new CollisionBouncingBallTest();
-    else if( test == "CollisionBouncingBoxTest")
-        return new CollisionBouncingBoxTest();
-    else if( test == "CollisionBouncingCylinderTest")
-        return new CollisionBouncingCylinderTest();
-    else if( test == "ConstraintRevoluteTest")
-        return new ConstraintRevoluteTest();
-    else if( test == "BowlFeederDrop")
-        return new BowlFeederDropTest();
-    else if( test == "BallDropTest")
-        return new BallDropTest();
-    else if( test == "StackingBallsTest")
-        return new StackingBallsTest();
+    if( test == "IntegratorGravityTest")
+        return ownedPtr(new IntegratorGravityTest());
     else if( test == "IntegratorRotationTest")
-        return new IntegratorRotationTest();
+        return ownedPtr(new IntegratorRotationTest());
     else if( test == "IntegratorSpringTest")
-        return new IntegratorSpringTest();
-    else if( test == "FrictionSlidingTest")
-    	return new FrictionSlidingTest();
-    else if( test == "FrictionStaticTest")
-    	return new FrictionStaticTest();
-    else if( test == "PiHCompliantTest")
-        return new PiHCompliantTest();
-    else if( test == "TubePlaneTest")
-        return new TubePlaneTest();
-    else if( test == "KVMDropTest")
-        return new KVMDropTest();
-    else if( test == "KVMNutPlaneTest")
-        return new KVMNutPlaneTest();
-    else if( test == "KVMTest")
-        return new KVMTest();
-    else if( test == "AssemblyPegInTube")
-        return new AssemblyPegInTube();
-    else if( test == "MotorTest")
-        return new MotorTest();
-    else if( test == "TwoFingerGraspTest")
-        return new TwoFingerGraspTest();
+        return ownedPtr(new IntegratorSpringTest());
     EngineTest::Factory ep;
 	std::vector<Extension::Ptr> exts = ep.getExtensions();
 	BOOST_FOREACH(Extension::Ptr& ext, exts){
@@ -301,4 +271,68 @@ EngineTest::Ptr EngineTest::Factory::getTest(const std::string& test) {
 		}
 	}
 	return NULL;
+}
+
+void EngineTest::runEngineLoop(const double dt, const TestHandle::Ptr handle, const std::string& engineID, const PropertyMap& parameters, const rw::common::Ptr<rwsim::log::SimulatorLogScope> verbose, const TestCallback callback, const InitCallback initialize) {
+	const DynamicWorkCell::Ptr dwc = getDWC(parameters);
+	if (dwc == NULL) {
+		handle->setError("Could not make dynamic workcell.");
+		return;
+	}
+	const PhysicsEngine::Ptr engine = PhysicsEngine::Factory::makePhysicsEngine(engineID);
+	if (engine == NULL) {
+		handle->setError("Could not make engine.");
+		return;
+	}
+	engine->setSimulatorLog(verbose);
+	engine->load(dwc);
+	const State state = dwc->getWorkcell()->getDefaultState();
+
+	State runState = state;
+	if (!initialize.empty())
+		initialize(dwc,runState);
+	engine->initPhysics(runState);
+
+	EngineLoopInfo info(handle,engineID,dwc,&runState,dt);
+	info.time = 0;
+
+	if (!callback.empty())
+		callback(info);
+
+	double time = 0;
+	double failTime = -1;
+	bool failed = false;
+	do {
+		try {
+			engine->step(dt,runState);
+		} catch(const Exception& e) {
+			failed = true;
+			failTime = engine->getTime();
+			handle->setError(e.what());
+			break;
+		} catch(...) {
+			failed = true;
+			failTime = engine->getTime();
+			handle->setError("unknown exception!");
+			break;
+		}
+		time = engine->getTime();
+
+		info.time = time;
+		if (!callback.empty())
+			callback(info);
+		failed = !handle->success();
+
+		handle->callback(time,failed,false);
+	} while (time <= getRunTime() && !handle->isAborted());
+
+	handle->callback(time,failed,true);
+
+	std::stringstream errString;
+	if (failed) {
+		errString << "failed at time " << failTime << ": " << handle->getError();
+		handle->setError(errString.str());
+	}
+
+	engine->exitPhysics();
 }

@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2015 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Copyright 2016 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -38,11 +38,11 @@ namespace Ui { class EngineTestPlugin; }
 
 namespace rwsimlibs {
 namespace plugins {
-//! @addtogroup INSERT_DOC_GROUP
+//! @addtogroup rwsimlibs_plugins
 
 //! @{
 /**
- * @brief INSERT_SHORT_DESCRIPTION
+ * @brief A plugin for interactive testing of physics engines.
  */
 class EngineTestPlugin: public rws::RobWorkStudioPlugin {
 	Q_OBJECT
@@ -51,9 +51,13 @@ class EngineTestPlugin: public rws::RobWorkStudioPlugin {
 		Q_PLUGIN_METADATA(IID "dk.sdu.mip.Robwork.RobWorkStudioPlugin/0.1" FILE "EngineTestPlugin.json")
 	#endif
 public:
+	//! @brief Constructor.
 	EngineTestPlugin();
+
+	//! @brief Destructor.
 	virtual ~EngineTestPlugin();
 
+	//! @copydoc rws::RobWorkStudioPlugin::initialize
 	void initialize();
 
 private slots:

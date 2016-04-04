@@ -77,7 +77,8 @@ namespace dynamics {
 
         /**
          * @copydoc Body::calcEnergy
-         * @note RigidBody energy = 1/2 * mv^2 + 1/2 * Iw^2 + m*gravity*(p-potZero)
+         * @note RigidBody energy is calculated as
+         * \f$ \frac12 m \mathbf{v}^2 + \frac12 \mathbf{I} \mathbf{w} \cdot \mathbf{w} - m \mathbf{g} \cdot (\mathbf{p}-\mathbf{p_0}) \f$
          */
         double calcEnergy(const rw::kinematics::State& state,
         		const rw::math::Vector3D<>& gravity = rw::math::Vector3D<>::zero(),

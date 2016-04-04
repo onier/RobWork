@@ -24,32 +24,33 @@
  * \copydoc rwsimlibs::test::IntegratorRotationTest
  */
 
-#include "EngineTest.hpp"
+#include "IntegratorTest.hpp"
 
 namespace rwsimlibs {
 namespace test {
-//! @addtogroup INSERT_DOC_GROUP
+//! @addtogroup rwsimlibs_test
 
 //! @{
 /**
- * @brief INSERT_SHORT_DESCRIPTION
+ * @brief Test for rotational motion.
+ *
+ * According to Euler's equations of motion, the rotation around a non-inertial axis of a
+ * body will cause a non-linear term in the equations of motion. The simulation is illustrated below:
+ *
+ * \image html tests/integrationRotation.gif "Motion of rotating body with no gravity."
+ *
+ * An analytical solution is NOT given for this type of motion. In this test the focus is on preservation of energy.
  */
-class IntegratorRotationTest: public EngineTest {
+class IntegratorRotationTest: public IntegratorTest {
 public:
 	//! @brief Smart pointer to IntegratorRotationTest.
 	typedef rw::common::Ptr<IntegratorRotationTest> Ptr;
 
-	/**
-	 * @brief Constructor.
-	 * @param integratorType [in] the type of integrator to use (optional).
-	 */
-	IntegratorRotationTest(const std::string& integratorType = "");
+	//! @brief Constructor.
+	IntegratorRotationTest();
 
 	//! @brief Destructor.
 	virtual ~IntegratorRotationTest();
-
-	//! @copydoc EngineTest::isEngineSupported
-	virtual bool isEngineSupported(const std::string& engineID) const;
 
 	//! @copydoc EngineTest::run
 	virtual void run(TestHandle::Ptr handle, const std::string& engineID, const rw::common::PropertyMap& parameters, rw::common::Ptr<rwsim::log::SimulatorLogScope> verbose = NULL);
@@ -57,22 +58,19 @@ public:
 	//! @copydoc EngineTest::getRunTime
 	virtual double getRunTime() const;
 
-	//! @copydoc EngineTest::getDWC
-	virtual rw::common::Ptr<rwsim::dynamics::DynamicWorkCell> getDWC(const rw::common::PropertyMap& map);
-
-	//! @copydoc EngineTest::getDefaultParameters
-	virtual rw::common::Ptr<rw::common::PropertyMap> getDefaultParameters() const;
+	//! @copydoc IntegratorTest::makeIntegratorDWC
+	virtual rw::common::Ptr<rwsim::dynamics::DynamicWorkCell> makeIntegratorDWC(const std::string& integratorType = "");
 
 	/**
 	 * @brief Get the expected kinetic energy.
 	 * @param dwc [in] the dynamic workcell.
 	 * @return the energy.
 	 */
-	double getExpectedEnergy(rw::common::Ptr<rwsim::dynamics::DynamicWorkCell> dwc) const;
+	static double getExpectedEnergy(rw::common::Ptr<const rwsim::dynamics::DynamicWorkCell> dwc);
 
 private:
-	const std::string _integratorType;
-	rw::common::Ptr<rwsim::dynamics::DynamicWorkCell> _dwc;
+	static void initialize(rw::common::Ptr<const rwsim::dynamics::DynamicWorkCell> dwc, rw::kinematics::State& state);
+	static void updateResults(const EngineLoopInfo& info);
 };
 //! @}
 } /* namespace test */

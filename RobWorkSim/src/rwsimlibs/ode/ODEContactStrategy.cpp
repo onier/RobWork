@@ -110,12 +110,6 @@ ODEContactStrategy::~ODEContactStrategy() {
 }
 
 bool ODEContactStrategy::match(rw::common::Ptr<const GeometryData> geoA, rw::common::Ptr<const GeometryData> geoB) {
-	// Ball-Plane
-	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::SpherePrim)
-		return true;
-	if (geoA->getType() == GeometryData::SpherePrim && geoB->getType() == GeometryData::PlanePrim)
-		return true;
-	// Cylinder-Plane
 	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::CylinderPrim)
 		return true;
 	if (geoA->getType() == GeometryData::CylinderPrim && geoB->getType() == GeometryData::PlanePrim)

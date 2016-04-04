@@ -78,11 +78,11 @@ DynamicWorkCellBuilder::DynamicWorkCellBuilder(const ColorScheme& colors):
 DynamicWorkCellBuilder::~DynamicWorkCellBuilder() {
 }
 
-void DynamicWorkCellBuilder::addFloor(DynamicWorkCell::Ptr dwc, const std::string& name, bool trimesh) const {
+void DynamicWorkCellBuilder::addFloor(const DynamicWorkCell::Ptr dwc, const std::string& name, const bool trimesh) const {
 	addPlane(dwc,Vector3D<>::z(),0,name, trimesh);
 }
 
-void DynamicWorkCellBuilder::addPlane(DynamicWorkCell::Ptr dwc, const rw::math::Vector3D<>& n, double d, const std::string& name, bool trimesh) const {
+void DynamicWorkCellBuilder::addPlane(const DynamicWorkCell::Ptr dwc, const rw::math::Vector3D<>& n, const double d, const std::string& name, const bool trimesh) const {
 	const WorkCell::Ptr wc = dwc->getWorkcell();
 
 	FixedFrame* const frame = new FixedFrame(name,Transform3D<>::identity());
@@ -108,7 +108,7 @@ void DynamicWorkCellBuilder::addPlane(DynamicWorkCell::Ptr dwc, const rw::math::
 	dwc->addBody(body);
 }
 
-void DynamicWorkCellBuilder::addBall(DynamicWorkCell::Ptr dwc, double radius, double density, const std::string& name, const std::string& parent) const {
+void DynamicWorkCellBuilder::addBall(const DynamicWorkCell::Ptr dwc, const double radius, const double density, const std::string& name, const std::string& parent) const {
 	const WorkCell::Ptr wc = dwc->getWorkcell();
 
 	Frame* const parentFrame = wc->findFrame(parent);
@@ -136,7 +136,7 @@ void DynamicWorkCellBuilder::addBall(DynamicWorkCell::Ptr dwc, double radius, do
 	dwc->addBody(body);
 }
 
-void DynamicWorkCellBuilder::addBallFixed(DynamicWorkCell::Ptr dwc, double radius, const std::string& name, const std::string& parent) const {
+void DynamicWorkCellBuilder::addBallFixed(const DynamicWorkCell::Ptr dwc, const double radius, const std::string& name, const std::string& parent) const {
 	const WorkCell::Ptr wc = dwc->getWorkcell();
 
 	Frame* const parentFrame = wc->findFrame(parent);
@@ -163,7 +163,7 @@ void DynamicWorkCellBuilder::addBallFixed(DynamicWorkCell::Ptr dwc, double radiu
 	dwc->addBody(body);
 }
 
-void DynamicWorkCellBuilder::addCylinder(DynamicWorkCell::Ptr dwc, double radius, double height, double density, const std::string& name, const std::string& parent, bool trimesh) const {
+void DynamicWorkCellBuilder::addCylinder(const DynamicWorkCell::Ptr dwc, const double radius, const double height, const double density, const std::string& name, const std::string& parent, const bool trimesh) const {
 	const WorkCell::Ptr wc = dwc->getWorkcell();
 
 	Frame* const parentFrame = wc->findFrame(parent);
@@ -193,7 +193,36 @@ void DynamicWorkCellBuilder::addCylinder(DynamicWorkCell::Ptr dwc, double radius
 	dwc->addBody(body);
 }
 
-void DynamicWorkCellBuilder::addTube(DynamicWorkCell::Ptr dwc, double radius, double thickness, double height, double density, const std::string& name, bool trimesh) const {
+void DynamicWorkCellBuilder::addCylinderFixed(const DynamicWorkCell::Ptr dwc, const double radius, const double height, const std::string& name, const std::string& parent, const bool trimesh) const {
+	const WorkCell::Ptr wc = dwc->getWorkcell();
+
+	Frame* const parentFrame = wc->findFrame(parent);
+	if (parentFrame == NULL)
+		RW_THROW("The given parent frame \"" << parent << "\"does not exist!");
+	FixedFrame* const frame = new FixedFrame(name,Transform3D<>());
+	wc->addFrame(frame,parentFrame);
+
+	GeometryData::Ptr geoData = ownedPtr(new Cylinder(radius,height));
+	if (trimesh)
+		geoData = geoData->getTriMesh(true);
+	Geometry::Ptr geo = ownedPtr(new Geometry(geoData, "Cylinder"));
+	const RigidObject::Ptr robject = ownedPtr(new RigidObject(frame));
+	robject->addGeometry(geo);
+
+	const Model3D::Material material("CylinderMaterial",_colors.dynamicBodies[0],_colors.dynamicBodies[1],_colors.dynamicBodies[2]);
+	const Model3D::Ptr model = ownedPtr(new Model3D("Cylinder"));
+	model->addTriMesh(material,*geoData->getTriMesh());
+	robject->addModel(model);
+
+	wc->add(robject);
+
+	BodyInfo info;
+	defaultInfo(info);
+	const Body::Ptr body = ownedPtr(new FixedBody(info,robject));
+	dwc->addBody(body);
+}
+
+void DynamicWorkCellBuilder::addTube(const DynamicWorkCell::Ptr dwc, const double radius, const double thickness, const double height, const double density, const std::string& name, const bool trimesh) const {
 	const WorkCell::Ptr wc = dwc->getWorkcell();
 
 	MovableFrame* const frame = new MovableFrame(name);
@@ -220,7 +249,7 @@ void DynamicWorkCellBuilder::addTube(DynamicWorkCell::Ptr dwc, double radius, do
 	dwc->addBody(body);
 }
 
-void DynamicWorkCellBuilder::addBox(DynamicWorkCell::Ptr dwc, double x, double y, double z, double density, const std::string& name, bool trimesh) const {
+void DynamicWorkCellBuilder::addBox(const DynamicWorkCell::Ptr dwc, const double x, const double y, const double z, const double density, const std::string& name, const bool trimesh) const {
 	const WorkCell::Ptr wc = dwc->getWorkcell();
 
 	MovableFrame* const frame = new MovableFrame(name);
@@ -253,7 +282,7 @@ void DynamicWorkCellBuilder::addBox(DynamicWorkCell::Ptr dwc, double x, double y
 	dwc->addBody(body);
 }
 
-void DynamicWorkCellBuilder::addBoxKin(DynamicWorkCell::Ptr dwc, double x, double y, double z, double density, const std::string& name, bool trimesh) const {
+void DynamicWorkCellBuilder::addBoxKin(const DynamicWorkCell::Ptr dwc, const double x, const double y, const double z, const std::string& name, const bool trimesh) const {
 	addBox(dwc,x,y,z,-1,name,trimesh);
 	std::vector<Model3D::Material>& material = dwc->getWorkcell()->findObject(name)->getModels()[0]->getMaterials();
 	material[0].rgb[0] = _colors.kinematicBodies[0];
@@ -273,22 +302,22 @@ void DynamicWorkCellBuilder::defaultInfo(BodyInfo& info) {
 	info.integratorType = "Heun";
 }
 
-void DynamicWorkCellBuilder::ballInfo(BodyInfo& info, double radius, double density) {
+void DynamicWorkCellBuilder::ballInfo(BodyInfo& info, const double radius, const double density) {
 	defaultInfo(info);
 	info.mass = 4./3.*Pi*radius*radius*radius*density;
 	const double inertia = 2.*info.mass*radius*radius/5.;
 	info.inertia = InertiaMatrix<>(inertia,inertia,inertia);
 }
 
-void DynamicWorkCellBuilder::cylinderInfo(BodyInfo& info, double radius, double height, double density) {
+void DynamicWorkCellBuilder::cylinderInfo(BodyInfo& info, const double radius, const double height, const double density) {
 	defaultInfo(info);
 	info.mass = Pi*radius*radius*height*density;
 	const double iZ = info.mass*radius*radius/2.;
-	const double i = info.mass*radius*radius/4.;
+	const double i = info.mass*(3*radius*radius+height*height)/12.;
 	info.inertia = InertiaMatrix<>(i,i,iZ);
 }
 
-void DynamicWorkCellBuilder::tubeInfo(BodyInfo& info, double radius, double thickness, double height, double density) {
+void DynamicWorkCellBuilder::tubeInfo(BodyInfo& info, const double radius, const double thickness, const double height, const double density) {
 	defaultInfo(info);
 	const double radius2 = radius*radius;
 	const double rOut = radius+thickness;
@@ -299,7 +328,7 @@ void DynamicWorkCellBuilder::tubeInfo(BodyInfo& info, double radius, double thic
 	info.inertia = InertiaMatrix<>(i,i,iZ);
 }
 
-void DynamicWorkCellBuilder::boxInfo(BodyInfo& info, double x, double y, double z, double density) {
+void DynamicWorkCellBuilder::boxInfo(BodyInfo& info, const double x, const double y, const double z, const double density) {
 	defaultInfo(info);
 	info.mass = x*y*z*density;
 	const double iX = info.mass*(y*y+z*z)/12.;
@@ -308,7 +337,7 @@ void DynamicWorkCellBuilder::boxInfo(BodyInfo& info, double x, double y, double 
 	info.inertia = InertiaMatrix<>(iX,iY,iZ);
 }
 
-void DynamicWorkCellBuilder::addMaterialData(DynamicWorkCell::Ptr dwc, double mu, double restitution) {
+void DynamicWorkCellBuilder::addMaterialData(const DynamicWorkCell::Ptr dwc, const double mu, const double restitution) {
 	dwc->getMaterialData().add("Plastic","");
 	FrictionData friction;
 	friction.type = Custom;
@@ -328,7 +357,7 @@ void DynamicWorkCellBuilder::addMaterialData(DynamicWorkCell::Ptr dwc, double mu
 	dwc->getContactData().addNewtonData("hardObj","hardObj",ndata);
 }
 
-void DynamicWorkCellBuilder::contactsExclude(DynamicWorkCell::Ptr dwc, const std::string& bodyA, const std::string& bodyB) {
+void DynamicWorkCellBuilder::contactsExclude(const DynamicWorkCell::Ptr dwc, const std::string& bodyA, const std::string& bodyB) {
 	const WorkCell::Ptr wc = dwc->getWorkcell();
 	ProximitySetup proximitySetup = ProximitySetup::get(wc);
 	proximitySetup.addProximitySetupRule(ProximitySetupRule::makeExclude(bodyA,bodyB));

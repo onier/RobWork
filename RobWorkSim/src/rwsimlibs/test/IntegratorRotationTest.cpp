@@ -16,140 +16,107 @@
  ********************************************************************************/
 
 #include "IntegratorRotationTest.hpp"
-#include "FreeMotionTest.hpp"
 
-#include <rwsim/contacts/ContactDetector.hpp>
-#include <rwsim/simulator/PhysicsEngine.hpp>
-#include <rwsim/simulator/DynamicSimulator.hpp>
+#include <rwsim/dynamics/DynamicWorkCell.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
 
-using namespace rw::common;
-using namespace rw::kinematics;
+using rw::common::PropertyMap;
+using rw::kinematics::State;
 using namespace rw::math;
-using namespace rw::trajectory;
-using namespace rwsim::contacts;
-using namespace rwsim::dynamics;
-using namespace rwsim::simulator;
-using namespace rwsimlibs::test;
+using rw::trajectory::TimedState;
+using rwsim::dynamics::DynamicWorkCell;
+using rwsim::dynamics::RigidBody;
+using rwsimlibs::test::IntegratorRotationTest;
 
-#define DEFAULT_DT 10 // in ms
-static const Vector3D<> ANGULAR_VELOCITY(0,0,4*Pi);
+#define ANGULAR_VELOCITY 4*Pi
 
-IntegratorRotationTest::IntegratorRotationTest(const std::string& integratorType):
-	_integratorType(integratorType)
-{
+IntegratorRotationTest::IntegratorRotationTest() {
 }
 
 IntegratorRotationTest::~IntegratorRotationTest() {
-	if (!(_dwc == NULL)) {
-		_dwc = NULL;
-	}
-}
-
-bool IntegratorRotationTest::isEngineSupported(const std::string& engineID) const {
-	if (engineID == "RWPhysics")
-		return false;
-	return true;
 }
 
 void IntegratorRotationTest::run(TestHandle::Ptr handle, const std::string& engineID, const PropertyMap& parameters, rw::common::Ptr<rwsim::log::SimulatorLogScope> verbose) {
+	static const InitCallback initCb( boost::bind(&IntegratorRotationTest::initialize, _1, _2) );
+	static const TestCallback cb( boost::bind(&IntegratorRotationTest::updateResults, _1) );
 	const double dt = parameters.get<double>("Timestep")/1000.;
 
-	const DynamicWorkCell::Ptr dwc = getDWC(parameters);
-	if (dwc == NULL) {
-		handle->setError("Could not make engine.");
-		return;
-	}
-	const PhysicsEngine::Ptr engine = PhysicsEngine::Factory::makePhysicsEngine(engineID);
-	if (engine == NULL) {
-		handle->setError("Could not make engine.");
-		return;
-	}
-	engine->setSimulatorLog(verbose);
-	engine->load(dwc);
-	if (engineID == "TNTIsland") {
-		const ContactDetector::Ptr detector = ContactDetector::makeDefault(_dwc->getWorkcell(),_dwc->getEngineSettings());
-		engine->setContactDetector(detector);
-	}
-	State state = dwc->getWorkcell()->getDefaultState();
-	const Body::Ptr body = dwc->findBody("Object");
-	RW_ASSERT(!body.isNull());
-	const RigidBody::Ptr rbody = body.cast<RigidBody>();
-	RW_ASSERT(!rbody.isNull());
-	rbody->setAngVelW(ANGULAR_VELOCITY,state);
+	// Initialize results with descriptions
+	handle->addResult("Distance",			"The distance of the center of mass from initial position.");
+	handle->addResult("Energy",				"The energy of the object.");
+	handle->addResult("Angular Velocity",	"The size of the angular velocity.");
 
-	DynamicSimulator::Ptr simulator = ownedPtr(new DynamicSimulator(dwc,engine));
-	simulator->init(state);
-
-	State runState = simulator->getState();
-	handle->append(TimedState(0,runState));
-
-	Result result("Energy","The energy of the object.");
-	Result velocity("Angular Velocity","The size of the angular velocity.");
-	result.values.push_back(TimedQ(0,Q(1,rbody->calcEnergy(state))));
-	velocity.values.push_back(TimedQ(0,Q(1,rbody->getAngVel(state).norm2())));
-
-	double time = 0;
-	double failTime = -1;
-	bool failed = false;
-	do {
-		try {
-			simulator->step(dt);
-			runState = simulator->getState();
-		} catch(const Exception& e) {
-			failed = true;
-			failTime = simulator->getTime();
-			handle->setError(e.what());
-			break;
-		} catch(...) {
-			failed = true;
-			failTime = simulator->getTime();
-			handle->setError("unknown exception!");
-			break;
-		}
-		time = simulator->getTime();
-		result.values.push_back(TimedQ(time,Q(1,rbody->calcEnergy(runState))));
-		velocity.values.push_back(TimedQ(time,Q(1,rbody->getAngVel(runState).norm2())));
-
-		handle->append(TimedState(time,runState));
-		handle->callback(time,failed,false);
-	} while (time <= getRunTime() && !handle->isAborted());
-	handle->append(result);
-	handle->append(velocity);
-	handle->callback(time,failed,true);
-
-	std::stringstream errString;
-	if (failed) {
-		errString << "failed at time " << failTime << ": " << handle->getError();
-		handle->setError(errString.str());
-	}
-
-	simulator->exitPhysics();
+	// Run standard loop
+	runEngineLoop(dt,handle,engineID,parameters,verbose,cb,initCb);
 }
 
 double IntegratorRotationTest::getRunTime() const {
 	return 30;
 }
 
-rw::common::Ptr<DynamicWorkCell> IntegratorRotationTest::getDWC(const PropertyMap& map) {
-	if (_dwc == NULL) {
-		_dwc = FreeMotionTest::makeDWC(_integratorType);
-		_dwc->setGravity(Vector3D<>(0,0,0));
-	}
-	return _dwc;
+DynamicWorkCell::Ptr IntegratorRotationTest::makeIntegratorDWC(const std::string& integratorType) {
+	const DynamicWorkCell::Ptr dwc = IntegratorTest::makeIntegratorDWC(integratorType);
+	dwc->setGravity(Vector3D<>::zero());
+	return dwc;
 }
 
-PropertyMap::Ptr IntegratorRotationTest::getDefaultParameters() const {
-	const PropertyMap::Ptr map = EngineTest::getDefaultParameters();
-	map->add<double>("Timestep","Default timestep size in ms.",DEFAULT_DT);
-	return map;
-}
-
-double IntegratorRotationTest::getExpectedEnergy(const DynamicWorkCell::Ptr dwc) const {
+double IntegratorRotationTest::getExpectedEnergy(const rw::common::Ptr<const DynamicWorkCell> dwc) {
 	State state = dwc->getWorkcell()->getDefaultState();
-	const Body::Ptr body = dwc->findBody("Object");
-	RW_ASSERT(!body.isNull());
-	const RigidBody::Ptr rbody = body.cast<RigidBody>();
+	const RigidBody::Ptr rbody = dwc->findBody<RigidBody>("Object");
 	RW_ASSERT(!rbody.isNull());
-	rbody->setAngVelW(ANGULAR_VELOCITY,state);
+	rbody->setAngVelW(Vector3D<>(0,0,ANGULAR_VELOCITY),state);
 	return rbody->calcEnergy(state);
+}
+
+void IntegratorRotationTest::initialize(rw::common::Ptr<const DynamicWorkCell> dwc, State& state) {
+	const RigidBody::Ptr rbody = dwc->findBody<RigidBody>("Object");
+	RW_ASSERT(!rbody.isNull());
+	rbody->setAngVelW(Vector3D<>(0,0,ANGULAR_VELOCITY),state);
+}
+
+void IntegratorRotationTest::updateResults(const EngineLoopInfo& info) {
+	// Extract info
+	const TestHandle::Ptr handle = info.handle;
+	const std::string& engineID = info.engineID;
+	const rw::common::Ptr<const DynamicWorkCell> dwc = info.dwc;
+	const State& state = *info.state;
+	const double time = info.time;
+
+	// Get required info
+	const RigidBody::Ptr rbody = dwc->findBody<RigidBody>("Object");
+	RW_ASSERT(!rbody.isNull());
+	const Transform3D<> T = rbody->getTransformW(state);
+
+	// Calculate result values
+	const double distance = T.P().norm2();
+	const double energy = rbody->calcEnergy(state);
+	const double velAng = rbody->getAngVel(state).norm2();
+
+	handle->addResult("Distance",			"The distance of the center of mass from initial position.");
+	handle->addResult("Energy",				"The energy of the object.");
+	handle->addResult("Angular Velocity",	"The size of the angular velocity.");
+
+	// Add results
+	handle->append(TimedState(time,state));
+	handle->getResult("Distance").addValue(time,distance);
+	handle->getResult("Energy").addValue(time,energy);
+	handle->getResult("Angular Velocity").addValue(time,velAng);
+
+	// Add failures if results were not as expected
+	const double expEnergy = getExpectedEnergy(dwc);
+	handle->getResult("Distance").checkLastValues(0);
+	handle->getResult("Energy").checkLastValuesBetween(expEnergy*0.325,expEnergy*1.0095); // lower: Bullet, higher: RWPE
+	handle->getResult("Angular Velocity").checkLastValuesBetween(ANGULAR_VELOCITY*0.705,ANGULAR_VELOCITY*1.0045); // lower: Bullet, higher: RWPE
+
+	// Engine specific tests
+	if (engineID == "ODE") {
+		handle->getResult("Energy").checkLastValuesBetween(expEnergy*0.915,expEnergy);
+		handle->getResult("Angular Velocity").checkLastValuesBetween(ANGULAR_VELOCITY*0.815,ANGULAR_VELOCITY);
+	} else if (engineID == "Bullet") {
+		handle->getResult("Energy").checkLastValuesBetween(expEnergy*0.325,expEnergy);
+		handle->getResult("Angular Velocity").checkLastValuesBetween(ANGULAR_VELOCITY*0.705,ANGULAR_VELOCITY);
+	} else if (engineID == "RWPEIsland") {
+		handle->getResult("Energy").checkLastValuesBetween(expEnergy*0.9985,expEnergy*1.0095);
+		handle->getResult("Angular Velocity").checkLastValuesBetween(ANGULAR_VELOCITY,ANGULAR_VELOCITY*1.0045);
+	}
 }

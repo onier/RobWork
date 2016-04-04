@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2015 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,135 +15,175 @@
  * limitations under the License.
  ********************************************************************************/
 
-#include "DOMPropertyMapSaver.hpp"
-#include "DOMBasisTypes.hpp"
+#include <rw/loaders/dom/DOMPropertyMapSaver.hpp>
+#include <rw/loaders/dom/DOMBasisTypes.hpp>
+#include <rw/loaders/dom/DOMPropertyMapFormat.hpp>
+#include <rw/loaders/dom/DOMPathSaver.hpp>
 
-#include <rw/common/DOMElem.hpp>
-#include <rw/common/DOMParser.hpp>
-#include <rw/common/PropertyMap.hpp>
-#include <rw/common/PropertyBase.hpp>
+#include <utility>
 
 using namespace rw::common;
 using namespace rw::loaders;
 using namespace rw::math;
+using namespace rw::trajectory;
 
-DOMPropertyMapSaver::DOMPropertyMapSaver() {
+void DOMPropertyMapSaver::save(const PropertyBase::Ptr property, DOMElem::Ptr parent) {
+    if (property->getType().getId() == PropertyType::Unknown) {
+        RW_THROW("The property type is unknown and therefore not supported!");
+    }
+
+    DOMElem::Ptr root = parent->addChild(DOMPropertyMapFormat::PropertyId);
+    DOMElem::Ptr element = DOMBasisTypes::createElement(DOMPropertyMapFormat::PropertyNameId, property->getIdentifier(), root);
+
+    if (!property->getDescription().empty()) {
+        element = DOMBasisTypes::createElement(DOMPropertyMapFormat::PropertyDescriptionId, property->getDescription(), root);
+    }
+
+    element = root->addChild(DOMPropertyMapFormat::PropertyValueId);
+    switch (property->getType().getId()) {
+    case PropertyType::Unknown:
+        RW_THROW("The property type is unknown and therefore not supported! Seeing this message means there is a bug within the function throwing this!");
+        break;
+    case PropertyType::PropertyMap: {
+        const Property<PropertyMap>* prop = toProperty<PropertyMap>(property);
+        save(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::String: {
+        const Property<std::string>* prop = toProperty<std::string>(property);
+        DOMBasisTypes::createString(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::StringList: {
+        const Property<std::vector<std::string> >* prop = toProperty<std::vector<std::string> >(property);
+        DOMBasisTypes::createStringList(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Float: {
+        const Property<float>* prop = toProperty<float>(property);
+        DOMBasisTypes::createDouble(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Double: {
+        const Property<double>* prop = toProperty<double>(property);
+        DOMBasisTypes::createDouble(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Int: {
+        const Property<int>* prop = toProperty<int>(property);
+        DOMBasisTypes::createInteger(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Bool: {
+        const Property<bool>* prop = toProperty<bool>(property);
+        DOMBasisTypes::createBoolean(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Vector3D: {
+        const Property<Vector3D<> >* prop = toProperty<Vector3D<> >(property);
+        DOMBasisTypes::createVector3D(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Vector2D: {
+        const Property<Vector2D<> >* prop = toProperty<Vector2D<> >(property);
+        DOMBasisTypes::createVector2D(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Q: {
+        const Property<Q>* prop = toProperty<Q>(property);
+        DOMBasisTypes::createQ(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Transform3D: {
+        const Property<Transform3D<> >* prop = toProperty<Transform3D<> >(property);
+        DOMBasisTypes::createTransform3D(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Rotation3D: {
+        const Property<Rotation3D<> >* prop = toProperty<Rotation3D<> >(property);
+        DOMBasisTypes::createRotation3D(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::EAA: {
+        const Property<EAA<> >* prop = toProperty<EAA<> >(property);
+        DOMBasisTypes::createEAA(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::RPY: {
+        const Property<RPY<> >* prop = toProperty<RPY<> >(property);
+        DOMBasisTypes::createRPY(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Quaternion: {
+        const Property<Quaternion<> >* prop = toProperty<Quaternion<> >(property);
+        DOMBasisTypes::createQuaternion(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Rotation2D: {
+        const Property<Rotation2D<> >* prop = toProperty<Rotation2D<> >(property);
+        DOMBasisTypes::createRotation2D(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::VelocityScrew6D: {
+        const Property<VelocityScrew6D<> >* prop = toProperty<VelocityScrew6D<> >(property);
+        DOMBasisTypes::createVelocityScrew6D(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::IntList: {
+        const Property<std::vector<int> >* prop = toProperty<std::vector<int> >(property);
+        DOMBasisTypes::createIntList(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::DoubleList: {
+        const Property<std::vector<double> >* prop = toProperty<std::vector<double> >(property);
+        DOMBasisTypes::createDoubleList(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::QPath: {
+        const Property<QPath>* prop = toProperty<QPath>(property);
+        DOMPathSaver::createQPath(prop->getValue(), element);
+        break;
+    }
+    case PropertyType::Transform3DPath: {
+        const Property<Transform3DPath>* prop = toProperty<Transform3DPath>(property);
+        DOMPathSaver::createTransform3DPath(prop->getValue(), element);
+        break;
+    }
+    default:
+        RW_THROW("The property type has no save implementation within DOMPropertyMapSaver!");
+    } //end switch(property.getType)
+
 }
 
-DOMPropertyMapSaver::~DOMPropertyMapSaver() {
+void DOMPropertyMapSaver::save(const rw::common::PropertyMap& map, DOMElem::Ptr parent) {
+    DOMElem::Ptr root = parent->addChild(DOMPropertyMapFormat::PropertyMapId);
+
+    std::pair<PropertyMap::iterator, PropertyMap::iterator> iterators = map.getProperties();
+    for (PropertyMap::iterator it = iterators.first; it != iterators.second; ++it) {
+        save(*it, root);
+    }
 }
 
-void DOMPropertyMapSaver::saveProperty(const rw::common::Ptr<const PropertyBase> property, DOMElem& element) {
-	const DOMElem::Ptr name = element.addChild("Name");
-	const DOMElem::Ptr description = element.addChild("Description");
-	const DOMElem::Ptr value = element.addChild("Value");
-	std::cout << "Adding property: " << property->getIdentifier() << std::endl;
+void DOMPropertyMapSaver::save(const rw::common::PropertyMap& map, const std::string& filename) {
+    /* DOMParser::make() as of this writing returns the default XML parser */
+    DOMParser::Ptr parser = DOMParser::make();
 
-	name->setValue(property->getIdentifier());
-	description->setValue(property->getDescription());
-
-	const PropertyType& type = property->getType();
-
-	std::cout << "k" << std::endl;
-	switch(type.getId()) {
-	case PropertyType::Q:
-		DOMBasisTypes::createQ(property.scast<const Property<Q> >()->getValue(), value);
-		break;
-	default:
-		//RW_THROW("DOMPropertyMapSaver (saveProperty): Property \"" << property->getIdentifier() << "\" could not be saved (id " << type.getId() << ") !");
-		break;
-	}
-	std::cout << "kk" << std::endl;
-/*
-	BOOST_FOREACH( DOMElem::Ptr child, element->getChildren() ){
-		if (child->isName("id") ) {
-			name = child->getValue();
-		} else if (child->isName("Description")) {
-			description = child->getValue();
-		} else if (child->isName("PropertyMap")) {
-			return ownedPtr(new Property<PropertyMap>(name, description, DOMPropertyMapLoader::readProperties(child, true)));
-		} else if (child->isName("String")) {
-			return ownedPtr(new Property<std::string>(name, description, DOMBasisTypes::readString(child)));
-		} else if (child->isName("StringList")) {
-			return ownedPtr(new Property<std::vector<std::string> >(name, description, DOMBasisTypes::readStringList(child)));
-		} else if (child->isName("IntList")) {
-			return ownedPtr(new Property<std::vector<int> >(name, description, DOMBasisTypes::readIntList(child)));
-		} else if (child->isName("DoubleList")) {
-			return ownedPtr(new Property<std::vector<double> >(name, description, DOMBasisTypes::readDoubleList(child)));
-		} else if (child->isName("Double")) {
-			return ownedPtr(new Property<double>(name, description, DOMBasisTypes::readDouble(child)));
-		} else if (child->isName("Float")) {
-			return ownedPtr(new Property<float>(name, description, DOMBasisTypes::readFloat(child)));
-		} else if (child->isName("Integer")) {
-			return ownedPtr(new Property<int>(name, description, DOMBasisTypes::readInt(child)));
-		} else if (child->isName("Boolean")) {
-			return ownedPtr(new Property<bool>(name, description, DOMBasisTypes::readBool(child)));
-		} else if (child->isName("Vector3D")){
-			return ownedPtr(new Property<Vector3D<> >(name, description, DOMBasisTypes::readVector3D(child)));
-		} else if (child->isName("Vector2D")) {
-			return ownedPtr(new Property<Vector2D<> >(name, description, DOMBasisTypes::readVector2D(child)));
-		} else if (child->isName("Q")) {
-			return ownedPtr(new Property<Q>(name, description, DOMBasisTypes::readQ(child)));
-		} else if (child->isName("Transform3D")) {
-			return ownedPtr(new Property<Transform3D<> >(name, description, DOMBasisTypes::readTransform3D(child)));
-		} else if (child->isName("Rotation3D")) {
-			return ownedPtr(new Property<Rotation3D<> >(name, description, DOMBasisTypes::readRotation3D(child)));
-		} else if (child->isName("EAA")) {
-			return ownedPtr(new Property<EAA<> >(name, description, DOMBasisTypes::readEAA(child)));
-		} else if (child->isName("RPY")) {
-			return ownedPtr(new Property<RPY<> >(name, description, DOMBasisTypes::readRPY(child)));
-		} else if (child->isName("Quaternion")) {
-			return ownedPtr(new Property<Quaternion<> >(name, description, DOMBasisTypes::readQuaternion(child)));
-		} else if (child->isName("Rotation2D")) {
-			return ownedPtr(new Property<Rotation2D<> >(name, description, DOMBasisTypes::readRotation2D(child)));
-		} else if (child->isName("VelocityScrew6D")) {
-			return ownedPtr(new Property<VelocityScrew6D<> >(name, description, DOMBasisTypes::readVelocityScrew6D(child)));
-		} else if (child->isName("QPath")){
-			DOMPathLoader loader(child);
-			return ownedPtr(new Property<QPath>(name, description,*loader.getQPath()));
-		} else if (child->isName("T3DPath")){
-			DOMPathLoader loader(child);
-			return ownedPtr(new Property<Transform3DPath >(name, description, *loader.getTransform3DPath()));
-		} else {
-			RW_THROW("Parse Error: data value not reqognized in property with id \""<< name << "\"!");
-		}
-	}*/
+    createDOMDocument(map, parser);
+    parser->save(filename);
 }
 
-void DOMPropertyMapSaver::saveProperties(const PropertyMap& map, DOMElem& element) {
-	BOOST_FOREACH(const rw::common::Ptr<const PropertyBase> property, map.getProperties()) {
-		const DOMElem::Ptr child = element.addChild("Property");
-		saveProperty(property, *child);
-		break;
-	}
+void DOMPropertyMapSaver::write(const rw::common::PropertyMap& map, std::ostream& outstream) {
+    /* DOMParser::make() as of this writing returns the default XML parser */
+    DOMParser::Ptr parser = DOMParser::make();
+
+    createDOMDocument(map, parser);
+    parser->save(outstream);
 }
 
-void DOMPropertyMapSaver::save(const PropertyMap& map, const std::string& filename, const std::string& schemaFileName) {
-	std::cout << "1" << std::endl;
-    const DOMParser::Ptr parser = DOMParser::make();
-	std::cout << "2" << std::endl;
-	const DOMElem::Ptr doc = parser->getRootElement();
-	std::cout << "3" << std::endl;
-	const DOMElem::Ptr root = doc->addChild("PropertyMap");
-	std::cout << "4" << std::endl;
-	try {
-	saveProperties(map,*root);
-	} catch (Exception& e) {
-		std::cout << "exception: " << e.what() << std::endl;
-	} catch (...) {
-		std::cout << "exception" << std::endl;
-	}
-	std::cout << "5: " << filename << std::endl;
-    std::ofstream stream(filename.c_str());
-	std::cout << "52" << std::endl;
-	parser->save(filename);
-	std::cout << "6" << std::endl;
-}
+DOMElem::Ptr DOMPropertyMapSaver::createDOMDocument(const rw::common::PropertyMap& map, DOMParser::Ptr parser) {
+    DOMElem::Ptr doc = parser->getRootElement();
 
-void DOMPropertyMapSaver::write(const PropertyMap& map, std::ostream& outstream, const std::string& schemaFileName) {
-    const DOMParser::Ptr parser = DOMParser::make();
-	const DOMElem::Ptr doc = parser->getRootElement();
-	const DOMElem::Ptr root = doc->addChild("PropertyMap");
-	saveProperties(map,*root);
-	parser->save(outstream);
+    save(map, doc);
+
+    return doc;
 }
