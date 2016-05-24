@@ -21,6 +21,9 @@
 
 #include "../TestSuiteConfig.hpp"
 
+#include <RobWorkSimConfig.hpp>
+#ifdef RWSIM_HAVE_ODE
+
 #include <rw/rw.hpp>
 #include <rwlibs/task.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
@@ -49,6 +52,7 @@ BOOST_AUTO_TEST_CASE( TactileArraySensorTest )
     RigidBody::Ptr body = dwc->findBody<RigidBody>("Tray");
 
     TactileArraySensor::Ptr sensor = dwc->findSensor<TactileArraySensor>("FTArraySensor");
+    BOOST_REQUIRE(!sensor.isNull());
     TimedStatePath tpath;
     // test that the control interface works
     odesim->initPhysics(state);
@@ -60,7 +64,7 @@ BOOST_AUTO_TEST_CASE( TactileArraySensorTest )
     	// print the ft sensor readings
     	TactileArrayModel::ValueMatrix values = sensor->getTexelData(state);
     	std::cout << odesim->getTime() << "\t";
-    	for(int x=0;x<values.cols();x++ )
+    	for(int x=0;x<values.rows();x++ )
     		for(int y=0;y<values.cols();y++ ){
     			std::cout << values(x,y) << "\t";
     		}
@@ -73,3 +77,9 @@ BOOST_AUTO_TEST_CASE( TactileArraySensorTest )
 
 
 }
+
+#else
+BOOST_AUTO_TEST_CASE( TactileArraySensorTest ) {
+	BOOST_FAIL("Not compiled with ODE simulator.");
+}
+#endif // RWSIM_HAVE_ODE

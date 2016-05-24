@@ -20,6 +20,7 @@
 
 #include <sstream>
 #include <boost/lexical_cast.hpp>
+#include <boost/tokenizer.hpp>
 
 #include <rw/common/IOUtil.hpp>
 #include <rw/common/StringUtil.hpp>
@@ -28,6 +29,19 @@ using namespace rw;
 using namespace rw::common;
 
 //////////////// stuff for loader
+
+BoostXMLParser::BoostInitializer::BoostInitializer() {
+	static bool done = false;
+	if (!done) {
+		done = true;
+		boost::property_tree::xml_parser::xmlattr<char>();
+		boost::property_tree::xml_parser::xmltext<char>();
+		boost::property_tree::xml_parser::xmlcomment<char>();
+		boost::property_tree::xml_parser::xmldecl<char>();
+	}
+}
+
+const BoostXMLParser::BoostInitializer BoostXMLParser::initializer;
 
 BoostXMLParser::BoostXMLParser():_debug(false){
 	_tree = ownedPtr( new boost::property_tree::ptree() );
@@ -85,10 +99,13 @@ void BoostXMLParser::save(std::ostream& output){
 }
 
 
-
-
 std::vector<std::string> BoostDOMElem::getValueAsStringList(char stringseperator) const {
-	return std::vector<std::string>();
+	const std::string value = _node->get_value<std::string>();
+    std::vector<std::string> values;
+    boost::char_separator<char> sep(std::string(1,stringseperator).c_str());
+    boost::tokenizer< boost::char_separator<char> > tok(value, sep);
+    values.assign(tok.begin(),tok.end());
+    return values;
 }
 
 std::vector<double> BoostDOMElem::getValueAsDoubleList() const {
