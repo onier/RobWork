@@ -21,10 +21,6 @@
 #include "IntegratorRotationTest.hpp"
 #include "IntegratorSpringTest.hpp"
 
-#include "CollisionBallTest.hpp"
-#include "CollisionBoxTest.hpp"
-#include "CollisionCylinderTest.hpp"
-
 #include <rw/common/ThreadTask.hpp>
 #include <rw/common/ThreadSafeVariable.hpp>
 
@@ -50,9 +46,6 @@ void makeInternalExtensions(std::vector<rw::common::Extension>& internal) {
 	ADD_EXTENSION(internal,IntegratorGravityTest);
 	ADD_EXTENSION(internal,IntegratorRotationTest);
 	ADD_EXTENSION(internal,IntegratorSpringTest);
-	ADD_EXTENSION(internal,CollisionBallTest);
-	ADD_EXTENSION(internal,CollisionBoxTest);
-	ADD_EXTENSION(internal,CollisionCylinderTest);
 }
 
 class RunTask: public ThreadTask {
