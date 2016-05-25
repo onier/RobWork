@@ -21,6 +21,10 @@
 #include "IntegratorRotationTest.hpp"
 #include "IntegratorSpringTest.hpp"
 
+#include "CollisionBallTest.hpp"
+#include "CollisionBoxTest.hpp"
+#include "CollisionCylinderTest.hpp"
+
 #include <rw/common/ThreadTask.hpp>
 #include <rw/common/ThreadSafeVariable.hpp>
 
@@ -46,6 +50,9 @@ void makeInternalExtensions(std::vector<rw::common::Extension>& internal) {
 	ADD_EXTENSION(internal,IntegratorGravityTest);
 	ADD_EXTENSION(internal,IntegratorRotationTest);
 	ADD_EXTENSION(internal,IntegratorSpringTest);
+	ADD_EXTENSION(internal,CollisionBallTest);
+	ADD_EXTENSION(internal,CollisionBoxTest);
+	ADD_EXTENSION(internal,CollisionCylinderTest);
 }
 
 class RunTask: public ThreadTask {
@@ -238,20 +245,18 @@ std::vector<PropertyMap::Ptr> EngineTest::getPredefinedParameters() const {
 	return parms;
 }
 
-std::vector<rw::common::Extension> EngineTest::Factory::_internal;
-
 EngineTest::Factory::Factory():
 	ExtensionPoint<EngineTest>(EP_NAME, "EngineTest extension point.")
 	{
-	if (_internal.size() == 0) {
-		makeInternalExtensions(_internal);
+	if (internalExtensions().size() == 0) {
+		makeInternalExtensions(internalExtensions());
 	}
 }
 
 std::vector<std::string> EngineTest::Factory::getTests() {
 	const EngineTest::Factory ep;
     std::vector<std::string> ids;
-    BOOST_FOREACH(const Extension& ext, ep._internal) {
+    BOOST_FOREACH(const Extension& ext, ep.internalExtensions()) {
     	ids.push_back(ext.getProperties().get<std::string>("testID"));
     }
     const std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
@@ -263,7 +268,7 @@ std::vector<std::string> EngineTest::Factory::getTests() {
 
 bool EngineTest::Factory::hasTest(const std::string& test) {
 	const EngineTest::Factory ep;
-    BOOST_FOREACH(Extension& ext, _internal) {
+    BOOST_FOREACH(Extension& ext, internalExtensions()) {
         if(ext.getProperties().get<std::string>("testID") == test)
             return true;
     }
@@ -277,7 +282,7 @@ bool EngineTest::Factory::hasTest(const std::string& test) {
 
 EngineTest::Ptr EngineTest::Factory::getTest(const std::string& test) {
 	const EngineTest::Factory ep;
-    BOOST_FOREACH(Extension& ext, _internal) {
+    BOOST_FOREACH(Extension& ext, internalExtensions()) {
         if(ext.getProperties().get<std::string>("testID") == test)
 			return ext.getObject().cast<EngineTest>();
     }
@@ -289,6 +294,11 @@ EngineTest::Ptr EngineTest::Factory::getTest(const std::string& test) {
 		}
 	}
 	return NULL;
+}
+
+std::vector<Extension>& EngineTest::Factory::internalExtensions() {
+	static std::vector<Extension> _internal;
+	return _internal;
 }
 
 void EngineTest::runEngineLoop(const double dt, const TestHandle::Ptr handle, const std::string& engineID, const PropertyMap& parameters, const rw::common::Ptr<rwsim::log::SimulatorLogScope> verbose, const TestCallback callback, const InitCallback initialize) {
