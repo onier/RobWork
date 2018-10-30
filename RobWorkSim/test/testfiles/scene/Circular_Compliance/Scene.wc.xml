@@ -5,7 +5,7 @@
 
     <Drawable name="Hole_geo">
 	<RPY>0 0 0</RPY><Pos>0 0 0.0</Pos>
-	<Polytope file="geometry/Hole_Ø32" />
+	<Polytope file="geometry/Hole_O32" />
     </Drawable>
 
     </Frame>
@@ -15,7 +15,7 @@
 	<RPY>0 0 0</RPY><Pos>0 0 0.25</Pos>
     <Drawable name="Cup_geo" >
 	<RPY>0 180 0</RPY><Pos>0 0 0</Pos>
-	<Polytope file="geometry/Hole_Ø31" />
+	<Polytope file="geometry/Hole_O31" />
     </Drawable>
     </Frame>
 
@@ -25,7 +25,7 @@
 
     <Drawable name="Peg_geo">
 	<RPY>0 0 -90</RPY><Pos>0 0 0.128</Pos>
-	<Polytope file="geometry/Circular_Ø32_tool" />  
+	<Polytope file="geometry/Circular_O32_tool" />  
     </Drawable>
 
     </Frame>
