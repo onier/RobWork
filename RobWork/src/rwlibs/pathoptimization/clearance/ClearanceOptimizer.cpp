@@ -266,7 +266,13 @@ void ClearanceOptimizer::subDivideAndAugmentPath(const QPath& path, AugmentedPat
 #endif
 		}
 #ifdef RW_HAVE_OMP
+#ifndef __GNUC__
 		result.insert(result.cend(), tmp_res.cbegin(), tmp_res.cend());
+#elif __GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ > 8)
+		result.insert(result.cend(), tmp_res.cbegin(), tmp_res.cend());
+#else
+		result.insert(result.end(), tmp_res.cbegin(), tmp_res.cend());
+#endif
 #endif
 	}
 //	std::cout<<"SubDivide Finished "<<result.size()<<std::endl;
