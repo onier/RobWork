@@ -32,6 +32,7 @@
 
 #include "SliderTab.hpp"
 
+#include <rw/math/Constants.hpp>
 #include <rw/math/RPY.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
@@ -49,6 +50,7 @@ using namespace rw::kinematics;
 using namespace rw::models;
 using namespace rw::invkin;
 using namespace rw::proximity;
+using namespace std;
 
 namespace
 {
@@ -140,17 +142,10 @@ Slider::Slider(const std::string& title,
     layout->addWidget(_slider, row, col++); // own _slider
     layout->addWidget(_highLabel, row, col++); // own highLabel
     layout->addWidget(_box, row, col); // own _box
-    /*
-    layout->addWidget(_lowLabel, row, 0, Qt::AlignRight); // own lowLabel
-    layout->addWidget(_lowLabel, row, 0); // own lowLabel
-    layout->addWidget(_slider, row, 1); // own _slider
-    layout->addWidget(_highLabel, row, 2); // own highLabel
-    layout->addWidget(_box, row, 3); // own _box
-    */
 
     std::stringstream sstr;
     sstr << "Limits: [" << _low  << ";" << _high << "]" << _desc;
-    this->setToolTip(sstr.str().c_str());
+    setToolTip(sstr.str().c_str());
 
     connect(_box,
             SIGNAL(valueChanged(double)),
@@ -163,6 +158,15 @@ Slider::Slider(const std::string& title,
             SLOT(sliderValueChanged(int)));
 
     setValue((_low + _high) / 2);
+}
+
+Slider::~Slider() {
+	// As the layout is not owned by this widget, we have to remove the following widgets explicitly:
+    delete _title;
+    delete _lowLabel;
+    delete _highLabel;
+    delete _slider;
+    delete _box;
 }
 
 void Slider::unitUpdated() {
@@ -193,7 +197,7 @@ void Slider::unitUpdated() {
 
     std::stringstream sstr;
     sstr << "Limits: [" << lowUnit  << ";" << highUnit << "]" << _desc;
-    this->setToolTip(sstr.str().c_str());
+    setToolTip(sstr.str().c_str());
 }
 
 void Slider::boxValueChanged(double val)
@@ -280,26 +284,6 @@ void Slider::setValue(double val)
     _boxChanged = false;
 }
 
-
-namespace {
-
-    Q transform2q(const Transform3D<>& transform) {
-        Q q(6);
-        RPY<> rpy(transform.R());
-        for (size_t i = 0; i<3; i++) {
-            q(i) = transform.P()(i);
-            q(i+3) = rpy(i);
-        }
-        return q;
-    }
-
-    Transform3D<> q2transform(const Q& q) {
-        return Transform3D<>(Vector3D<>(q(0), q(1), q(2)), RPY<>(q(3), q(4), q(5)));
-    }
-
-}
-
-
 MovableFrameTab::MovableFrameTab(const std::pair<rw::math::Q, rw::math::Q>& bounds,
                            MovableFrame* frame,
                            rw::models::WorkCell* workcell,
@@ -362,8 +346,6 @@ void MovableFrameTab::refFrameChanged(int index) {
     doUpdateValues();
 }
 
-
-
 void MovableFrameTab::updateValues(const State& state) {
     _state = state;
     doUpdateValues();
@@ -405,8 +387,8 @@ void JointSliderWidget::setup(const std::vector<std::string>& titles,
 	_enableAngularCombined = enableAngularCombined;
   
   // Hack so that we can move the first slider with mouse
-	QLabel* lbl = new QLabel("");
-	_layout->addWidget(lbl, 0,1 ); // own _slider
+    //QLabel* lbl = new QLabel("");
+    //_layout->addWidget(lbl, 0,1 ); // own _slider
 	
   
   /*
@@ -414,12 +396,25 @@ void JointSliderWidget::setup(const std::vector<std::string>& titles,
 	_layout->addWidget(btnPasteQ, 0,0);
 	connect(btnPasteQ, SIGNAL(clicked()), this, SLOT(paste()));
   */
-  
-    for (size_t i = 0; i<bounds.first.size(); i++) {
+    for(std::size_t i = 0; i < _sliders.size(); i++) {
+        if(_sliders[i] != NULL) {
+            delete _sliders[i];
+        }
+    }
+    for(std::size_t i = 0; i < _enablers.size(); i++) {
+        if(_enablers[i] != NULL) {
+            delete _enablers[i];
+        }
+    }
+    _sliders.clear();
+    _enablers.clear();
+    for (size_t i = 0; i < bounds.first.size(); i++) {
         Slider* slider = new Slider(titles[i], bounds.first(i), bounds.second(i), _layout, (int)i+2, this);
         slider->setValue(q(i));
+        slider->unitUpdated();
         connect(slider, SIGNAL(valueChanged()), this, SLOT(valueChanged()));
         _sliders.push_back(slider);
+
         if (enablers) {
         	QCheckBox* enabler = new QCheckBox(this);
         	enabler->setChecked(true);
@@ -431,7 +426,7 @@ void JointSliderWidget::setup(const std::vector<std::string>& titles,
         	_enablers.push_back(enabler);
         }
     }
-	_layout->addWidget(new QLabel(""), (int)bounds.first.size()+2,1 ); // own _slider
+    //_layout->addWidget(new QLabel(""), (int)bounds.first.size()+2,1 ); // own _slider
 	_layout->setRowStretch((int)bounds.first.size()+2, 1);
 }
 
@@ -503,9 +498,13 @@ void JointSliderWidget::updateValues(const rw::math::Q& q) {
 void JointSliderWidget::updateInactiveValues(const Q& q) {
 	for (std::size_t i = 0; i < _enablers.size(); i++) {
 		if (!_enablers[i]->isChecked()) {
-	        _sliders[i]->setValue(q(i));
+			_sliders[i]->setValue(q(i));
 		}
 	}
+}
+
+void JointSliderWidget::updateSpecificValue(std::size_t i, double q) {
+	_sliders[i]->setValue(q);
 }
 
 rw::math::Q JointSliderWidget::getQ() {
@@ -535,10 +534,34 @@ void JointSliderWidget::angularChanged(int state) {
     }
 }
 
+namespace {
 
-TransformSliderWidget::TransformSliderWidget(const std::pair<rw::math::Q, rw::math::Q>& bounds, const rw::math::Transform3D<>& transform, bool useRPY, bool enablers):
+    Q transform2q(const Transform3D<>& transform) {
+        Q q(6);
+        RPY<> rpy(transform.R());
+        for (size_t i = 0; i<3; i++) {
+            q(i) = transform.P()(i);
+            q(i+3) = rpy(i);
+        }
+        return q;
+    }
+
+    Transform3D<> q2transform(const Q& q) {
+        return Transform3D<>(Vector3D<>(q(0), q(1), q(2)), RPY<>(q(3), q(4), q(5)));
+    }
+
+}
+
+TransformSliderWidget::TransformSliderWidget(const std::pair<rw::math::Q, rw::math::Q>& bounds,
+		const rw::math::Transform3D<>& transform,
+		AngleType angleType,
+		bool enablers
+):
     _updating(false),
-	_useRPY(useRPY)
+    _angleType(RPYtype),
+    _carteasianbounds(bounds),
+    _enablers(enablers),
+    _lastChangedId(0)
 {
     QGridLayout* tablayout = new QGridLayout(this); //owned
 
@@ -546,67 +569,140 @@ TransformSliderWidget::TransformSliderWidget(const std::pair<rw::math::Q, rw::ma
     Q q = transform2q(transform);
     std::vector<std::string> titles(6);
     titles[0] = "x"; titles[1] = "y"; titles[2] = "z";
-    if (useRPY) {
-    	titles[3] = "R"; titles[4] = "P"; titles[5] = "Y";
-    } else {
-    	titles[3] = "EAA x"; titles[4] = "EAA y"; titles[5] = "EAA z";
-    }
+    titles[3] = "R"; titles[4] = "P"; titles[5] = "Y";
 
-    _jointSliderWidget->setup(titles, bounds, q, enablers, useRPY);
+    _jointSliderWidget->setup(titles, bounds, q, enablers, _angleType);
+    _last_q = _jointSliderWidget->getQ();
     connect(_jointSliderWidget,
             SIGNAL(valueChanged(const rw::math::Q&)),
             this,
             SLOT(valueChanged(const rw::math::Q&)));
     tablayout->addWidget(_jointSliderWidget, 0, 0);
+
+    if(angleType != RPYtype) {
+        _converters = {1,1,1};
+        _descriptions = {"meters", "meters", "meters"};
+        angleTypeChanged(angleType);
+    }
 }
 
 
 void TransformSliderWidget::setUnits(const std::vector<double>& converters, const std::vector<std::string>& descriptions) {
-    _jointSliderWidget->setUnits(converters, descriptions);
+    _converters = converters;
+    _descriptions = descriptions;
+    if(_angleType == EAAtype) {
+        std::vector<double> con = _converters;
+        std::vector<std::string> des = _descriptions;
+        con.push_back(con[5]);
+        des.push_back(des[5]);
+        _jointSliderWidget->setUnits(con, des);
+    } else if(_angleType == QUAtype) {
+        std::vector<double> con;
+        std::vector<std::string> des;
+        for(std::size_t i = 0; i<3; i++) {
+            con.push_back(converters[i]);
+            des.push_back(descriptions[i]);
+        }
+        for(std::size_t i = 3; i<7; i++) {
+            con.push_back(1);
+            des.push_back("Quaternion");
+        }
+        _jointSliderWidget->setUnits(con, des);
+    } else {
+        _jointSliderWidget->setUnits(_converters, _descriptions);
+    }
+
 }
 
+Q TransformSliderWidget::qFromTransform(const rw::math::Transform3D<> &transform) {
+    Q q(6);
+    if (_angleType == QUAtype) {
+        q = Q(7);
+        Quaternion<double> qua(transform.R());
+        for(std::size_t i = 0; i<3; i++){
+            q[i] = transform.P()[i];
+        }
+        if(Quaternion<double>(qua+_QUAfromSliders).getLength() < Quaternion<double>(qua-_QUAfromSliders).getLength()){
+            qua = -qua;
+        }
+        q[3] = qua.getQx();
+        q[4] = qua.getQy();
+        q[5] = qua.getQz();
+        q[6] = qua.getQw();
+
+    } else if(_angleType == EAAtype) {
+        q = Q(7);
+        EAA<> eaa(transform.R());
+        if(_EAAfromSliders.angle() > Pi) {
+            eaa = EAA<>(eaa.axis()*(-1), _EAAfromSliders.angle());
+        } else if(_EAAfromSliders.angle() > 0) {
+            eaa = EAA<>(eaa.axis(), _EAAfromSliders.angle());
+        }
+
+
+        for (std::size_t i = 0; i < 3; i++) {
+            q[i] = transform.P()[i];
+            q[i+3] = eaa[i];
+        }
+        q[6] = eaa.angle();
+    } else {
+        q = transform2q(transform);
+    }
+    return q;
+}
 void TransformSliderWidget::updateValues(const Transform3D<>& transform) {
     if (_updating)
         return;
-    Q q(6);
-    if (_useRPY) {
-    	q = transform2q(transform);
-    } else {
-    	EAA<> eaa(transform.R());
-    	for (std::size_t i = 0; i < 3; i++) {
-    		q[i] = transform.P()[i];
-    		q[i+3] = eaa[i];
-    	}
-    }
     _updating = true;
-    _jointSliderWidget->updateValues(q);
+    _jointSliderWidget->updateValues(qFromTransform(transform));
     _updating = false;
+    _last_q = _jointSliderWidget->getQ();
 }
 
 void TransformSliderWidget::updateInactiveValues(const Transform3D<>& transform) {
     if (_updating)
         return;
-    Q q(6);
-    if (_useRPY) {
-    	q = transform2q(transform);
-    } else {
-    	EAA<> eaa(transform.R());
-    	for (std::size_t i = 0; i < 3; i++) {
-    		q[i] = transform.P()[i];
-    		q[i+3] = eaa[i];
-    	}
-    }
     _updating = true;
-    _jointSliderWidget->updateInactiveValues(q);
+    Q values = _jointSliderWidget->getQ();
+    const Q newValues = qFromTransform(transform);
+    _jointSliderWidget->updateInactiveValues(newValues);
+    switch(_angleType) {
+    case QUAtype:
+        if (_lastChangedId == 3) {
+            _jointSliderWidget->updateSpecificValue(4,newValues[4]);
+            _jointSliderWidget->updateSpecificValue(5,newValues[5]);
+            _jointSliderWidget->updateSpecificValue(6,newValues[6]);
+        } else if (_lastChangedId > 3) {
+            _jointSliderWidget->updateSpecificValue(3,newValues[3]);
+        }
+        break;
+    case EAAtype:
+        if (_lastChangedId == 6) {
+            _jointSliderWidget->updateSpecificValue(3,newValues[3]);
+            _jointSliderWidget->updateSpecificValue(4,newValues[4]);
+            _jointSliderWidget->updateSpecificValue(5,newValues[5]);
+        } else if (_lastChangedId >= 3) {
+            _jointSliderWidget->updateSpecificValue(6,newValues[6]);
+        }
+        break;
+    case RPYtype:
+        break;
+    }
     _updating = false;
+    _last_q = _jointSliderWidget->getQ();
 }
 
 rw::math::Transform3D<> TransformSliderWidget::getTransform() {
     Q q = _jointSliderWidget->getQ();
-    if (_useRPY)
-    	return q2transform(q);
-    else {
-    	return Transform3D<>(Vector3D<>(q[0],q[1],q[2]),EAA<>(q[3],q[4],q[5]));
+    switch(_angleType) {
+    case QUAtype:
+        return Transform3D<>(Vector3D<>(q[0],q[1],q[2]), Quaternion<double>(q[3],q[4],q[5],q[6]));
+    case EAAtype:
+        return Transform3D<>(Vector3D<>(q[0],q[1],q[2]), EAA<>(q[3],q[4],q[5]));
+    case RPYtype:
+        return q2transform(q);
+    default:
+    	RW_THROW("The type of angle has not been fully implemented.");
     }
 }
 
@@ -624,16 +720,161 @@ VectorND<6, bool> TransformSliderWidget::enabledState() const {
 	return res;
 }
 
+TransformSliderWidget::AngleType TransformSliderWidget::toAngleType(const int i) {
+    switch(i) {
+    case TransformSliderWidget::RPYtype:
+    	return TransformSliderWidget::RPYtype;
+    case TransformSliderWidget::EAAtype:
+    	return TransformSliderWidget::EAAtype;
+    case TransformSliderWidget::QUAtype:
+    	return TransformSliderWidget::QUAtype;
+    default:
+    	RW_THROW("The type of angle is not supported!");
+    }
+}
+
 void TransformSliderWidget::valueChanged(const rw::math::Q& q) {
     if (_updating)
         return;
     Transform3D<> transform;
-    if (_useRPY)
-    	transform = q2transform(q);
-    else
-    	transform = Transform3D<>(Vector3D<>(q[0],q[1],q[2]),EAA<>(q[3],q[4],q[5]));
+    switch(_angleType) {
+    case QUAtype:
+        if(_lastTransformType == QUAtype) {
+            std::size_t changed = 0;
+            for(std::size_t i= 3; i<7;i++) {
+                if(_last_q[i] != q[i]) {
+                    changed = i;
+                }
+            }
+            Q q_mod = q;
 
+            if(changed>=3) {
+                double length(0);
+                for(std::size_t i= 3; i<7;i++){
+                    length+= q[i]*q[i];
+                }
+                double contribution = q[changed]*q[changed];
+                double factor = std::sqrt((1-contribution)/(length - contribution));
+
+                if(factor == INFINITY) {
+                    int sign = -1*(q_mod[changed]<0)+(q_mod[changed]>0);
+                    for(std::size_t i = 3; i < 7; i++) {
+                        if(i!= changed) {
+                            q_mod[i] = sign*0.1;
+                            _last_q[i] = sign*0.1;
+                        }
+                    }
+                    valueChanged(q_mod);
+                    return;
+                }
+                
+                for(std::size_t i = 3; i < 7; i++) {
+                    if(i != changed){
+                        q_mod[i]*= factor;
+                    }
+                }
+            }
+            _QUAfromSliders = Quaternion<double>(q_mod[3],q_mod[4],q_mod[5],q_mod[6]);
+            transform = Transform3D<>(Vector3D<>(q[0],q[1],q[2]), _QUAfromSliders);
+            _lastChangedId = changed;
+        } else {
+            _lastChangedId = 0;
+            _lastTransformType = QUAtype;
+            transform = Transform3D<>(Vector3D<>(q[0],q[1],q[2]), Quaternion<double>(q[3],q[4],q[5],q[6]));
+        }
+        break;
+    case EAAtype:
+        if(_lastTransformType == EAAtype) {
+            std::size_t changed = 0;
+            for(std::size_t i= 3; i<7;i++) {
+                if(_last_q[i] != q[i]) {
+                    changed = i;
+                }
+            }
+            if(changed == 6) {
+                EAA<> eaa(q[3],q[4],q[5]);
+                _EAAfromSliders = EAA<>(eaa.axis(),q[6]);
+                // ########### Make sure values not out of bound ##############
+                QPair bounds =getBounds();
+                size_t not_zero = 0;
+                double largestReduction = 1;
+                for(size_t i = 0; i < 3; i++) {
+                    if(_EAAfromSliders[i]!=0) not_zero++;
+                    double reduction = 1;
+                    if(_EAAfromSliders[i] < bounds.first[3+i] ) {
+                        reduction = bounds.first[3+i]/_EAAfromSliders[i];
+                    } else if(_EAAfromSliders[i] > bounds.second[3+i]) {
+                        reduction = bounds.second[3+i]/_EAAfromSliders[i];
+                    }
+                    if(reduction < largestReduction) largestReduction = reduction;
+                }
+                if(largestReduction< 1) {
+                    if(not_zero == 1) {
+                        largestReduction*=0.9999;
+                    }
+                    for(size_t i = 0; i < _EAAfromSliders.size(); i++) {
+                        _EAAfromSliders[i]*= largestReduction;
+                    }
+                }
+                // ########### Hack for propper conversion to transform ##############
+                transform = Transform3D<>(Vector3D<>(q[0],q[1],q[2]), _EAAfromSliders);
+                if(_EAAfromSliders.angle() > Pi) {
+                    eaa = EAA<>(transform.R());
+                    eaa= EAA<>(_EAAfromSliders.axis()*-1,eaa.angle());
+                    transform = Transform3D<>(Vector3D<>(q[0],q[1],q[2]), eaa);
+                }
+            } else if(changed >= 3) {
+                EAA<> angle(q[3],q[4],q[5]);
+                double length = angle.angle();
+                while(length > Pi) {
+                    length -= Pi;
+                }
+                if(length < 0) length = 0;
+                _EAAfromSliders = angle;
+                transform = Transform3D<>(Vector3D<>(q[0],q[1],q[2]), EAA<>(angle.axis(),length));
+            } else {
+               _EAAfromSliders = EAA<>(q[3],q[4],q[5]);
+                transform = Transform3D<>(Vector3D<>(q[0],q[1],q[2]), _EAAfromSliders);
+            }
+            _lastChangedId = changed;
+        } else {
+            _lastChangedId = 0;
+            _lastTransformType = EAAtype;
+            transform = Transform3D<>(Vector3D<>(q[0],q[1],q[2]), EAA<>(q[3],q[4],q[5]));
+        }
+        break;
+    case RPYtype:
+        transform = q2transform(q);
+        _lastChangedId = 0;
+        _lastTransformType = RPYtype;
+        break;
+    }
     valueChanged(transform);
+}
+
+void TransformSliderWidget::angleTypeChanged(int type){
+    const AngleType newAngleType = toAngleType(type);
+    Q q = getQ(_angleType,newAngleType);
+    std::vector<std::string> titles(6);
+    titles[0] = "x"; titles[1] = "y"; titles[2] = "z";
+    switch(newAngleType) {
+    case QUAtype:
+        _QUAfromSliders = Quaternion<>();
+        titles[3] = "1"; titles[4] = "i"; titles[5] = "j";
+        titles.push_back("k");
+        break;
+    case EAAtype:
+        _EAAfromSliders = EAA<>();
+        titles[3] = "EAA x"; titles[4] = "EAA y"; titles[5] = "EAA z";
+        titles.push_back("Scale");
+        break;
+    case RPYtype:
+        titles[3] = "R"; titles[4] = "P"; titles[5] = "Y";
+        break;
+    }
+    _jointSliderWidget->setup(titles, getBounds(), q, _enablers);
+    _last_q = _jointSliderWidget->getQ();
+    setUnits(_converters, _descriptions);
 }
 
 void TransformSliderWidget::paste() {
@@ -642,6 +883,60 @@ void TransformSliderWidget::paste() {
 
 void TransformSliderWidget::copy() {
   _jointSliderWidget->copy();
+}
+
+TransformSliderWidget::QPair TransformSliderWidget::getBounds(){
+    switch(_angleType) {
+    case QUAtype:
+    {
+        QPair bounds;
+        Q first(7);
+        Q second(7);
+        bounds.first = first;
+        bounds.second = second;
+        for(int i =0;i<3;i++) {
+            bounds.first[i] = _carteasianbounds.first[i];
+            bounds.second[i] = _carteasianbounds.second[i];
+        }
+        for(int i =3; i < 7; i++) {
+            bounds.first[i] = -1;
+            bounds.second[i] = 1;
+        }
+
+        return bounds;
+    }
+    case EAAtype:
+    {
+        vector<double> first = _carteasianbounds.first.toStdVector();
+        vector<double> second = _carteasianbounds.second.toStdVector();
+        double bound7 = 0;
+        for(size_t i = 3; i < 6;i++) bound7 += second[i]*second[i];
+        bound7 = std::sqrt(bound7);
+        second.push_back(bound7);
+        first.push_back(0);
+        QPair bounds;
+        bounds.first = Q(first);
+        bounds.second = Q(second);
+        return bounds;
+    }
+    case RPYtype:
+        return _carteasianbounds;
+    default:
+    	RW_THROW("The type of angle has not been fully implemented.");
+    }
+}
+
+Q TransformSliderWidget::getQ(const AngleType fromType, const AngleType toType){
+    Q q;
+    if(fromType != toType) {
+        _angleType = fromType;
+        Transform3D<> transform = getTransform();
+        _angleType = toType;
+        q = qFromTransform(transform);
+    } else {
+        q = _jointSliderWidget->getQ();
+    }
+    return q;
 }
 
 CartesianDeviceTab::CartesianDeviceTab(const std::pair<rw::math::Q, rw::math::Q>& bounds,
@@ -679,6 +974,12 @@ CartesianDeviceTab::CartesianDeviceTab(const std::pair<rw::math::Q, rw::math::Q>
 
     _cmbTcpFrame->setCurrentIndex(_cmbTcpFrame->findText(_tcpFrame->getName().c_str()));
     _cmbRefFrame->setCurrentIndex(_cmbRefFrame->findText(_refFrame->getName().c_str()));
+    _cmbAngleType = new QComboBox();
+    QStringList text;
+    text.append("RPY angle");
+    text.append("EAA angle");
+    text.append("Quaternions");
+    _cmbAngleType->addItems(text);
 
     toplayout->addWidget(new QLabel("TCP Frame: "), 0,0);
     toplayout->addWidget(_cmbTcpFrame, 0,1);
@@ -686,12 +987,16 @@ CartesianDeviceTab::CartesianDeviceTab(const std::pair<rw::math::Q, rw::math::Q>
     toplayout->addWidget(new QLabel("Ref. Frame: "), 1,0);
     toplayout->addWidget(_cmbRefFrame, 1,1);
 
+    toplayout->addWidget(new QLabel("Angle Type: "),2,0);
+    toplayout->addWidget(_cmbAngleType,2,1);
 
     tablayout->addWidget(toppanel, 0, 0);
 
     const bool enablers = !_device.cast<ParallelDevice>().isNull();
-    _transformSliderWidget = new TransformSliderWidget(bounds, Kinematics::frameTframe(_refFrame, _tcpFrame, _state), !enablers, enablers);
-    
+    const TransformSliderWidget::AngleType angleType = TransformSliderWidget::toAngleType(_cmbAngleType->currentIndex());
+    _transformSliderWidget = new TransformSliderWidget(bounds, Kinematics::frameTframe(_refFrame, _tcpFrame, _state), angleType, enablers);
+    connect(_cmbAngleType, SIGNAL(currentIndexChanged(int)), _transformSliderWidget, SLOT(angleTypeChanged(int)));
+
     QPushButton* btnPasteQ = new QPushButton("Paste", _transformSliderWidget);
     QPushButton* btnCopyQ = new QPushButton("Copy", _transformSliderWidget);
     QHBoxLayout* btnlayout = new QHBoxLayout();
@@ -732,7 +1037,6 @@ void CartesianDeviceTab::tcpFrameChanged(int index) {
 
     doUpdateValues();
 }
-
 
 void CartesianDeviceTab::refFrameChanged(int index) {
     _refFrame = _frames[index];

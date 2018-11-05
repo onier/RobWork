@@ -27,6 +27,7 @@
 #include <rw/math/Q.hpp>
 
 #include <rw/common/Ptr.hpp>
+#include <string>
 
 namespace rw { namespace invkin { class IterativeIK; } }
 namespace rw { namespace kinematics { class MovableFrame; } }
@@ -61,6 +62,9 @@ public:
            QGridLayout* layout,
            int row,
            QWidget* parent);
+
+    //! @brief Destructor
+    virtual ~Slider();
 
     //! @brief Adjust the values after a change in units.
     void unitUpdated();
@@ -101,10 +105,6 @@ public:
         _desc = str;
     }
 
-    //void showEndLabel(bool enabled){
-    //    _endlabelEnabled = enabled;
-    //}
-
 private slots:
     void boxValueChanged(double val);
     void sliderValueChanged(int val);
@@ -131,8 +131,6 @@ private:
 
     double _toUnit;
     std::string _desc;
-
-    //bool _endlabelEnabled;
 };
 
 //! Widget for a set of joint sliders.
@@ -177,6 +175,13 @@ public:
     void updateInactiveValues(const rw::math::Q& q);
 
     /**
+     * @brief Set the value of a specific joint.
+     * @param i [in] value to update.
+     * @param q [in] new joint value.
+     */
+    void updateSpecificValue(std::size_t i, double q);
+
+    /**
      * @brief Get the current values of joints.
      * @return the current values.
      */
@@ -218,15 +223,22 @@ private:
 class TransformSliderWidget: public QWidget {
     Q_OBJECT
 public:
+	//! @brief The type of angle to use.
+	typedef enum AngleType {
+		RPYtype = 0, //!< Roll-Pitch-Yaw (RPY) angles.
+	    EAAtype = 1, //!< Equivalent Angle Axis (EAA) angles.
+	    QUAtype = 2  //!< Quaternions.
+	} AngleType;
+
 	/**
 	 * @brief Construct new widget.
 	 * @param bounds [in] the lower and upper bounds - 6 elements of each corresponding to x,y,z,R,P and Y.
 	 * @param transform [in] the initial transform.
-	 * @param useRPY [in] (optional) set to true to use RPY values, false to use EAA values (default is RPY).
+	 * @param angleType [in] (optional) set the type of angle to use (default is RPY).
      * @param enablers [in] (optional) set to true to show a checkbox for each slider.
      * It is only possible to check/uncheck checkboxes for EAA values (not RPY).
 	 */
-    TransformSliderWidget(const std::pair<rw::math::Q, rw::math::Q>& bounds, const rw::math::Transform3D<>& transform, bool useRPY = true, bool enablers = false);
+    TransformSliderWidget(const std::pair<rw::math::Q, rw::math::Q>& bounds, const rw::math::Transform3D<>& transform, AngleType angleType = RPYtype, bool enablers = false);
 
     //! @copydoc JointSliderWidget::setUnits
     void setUnits(const std::vector<double>& converters, const std::vector<std::string>& descriptions);
@@ -255,14 +267,24 @@ public:
      */
     rw::math::VectorND<6, bool> enabledState() const;
 
+    /**
+     * @brief Convert an integer to correct AngleType.
+     * @param i [in] the integer.
+     * @return the corresponding AngleType.
+     * @throws Exception if there is no AngleType with this integer value.
+     */
+    static AngleType toAngleType(int i);
+
 signals:
 	/**
 	 * @brief Emitted when the transform is changed.
 	 * @param transform [in] the new transform.
 	 */
     void valueChanged(const rw::math::Transform3D<>& transform);
-    
+
 public slots:
+    //! @brief updates the sliders to represent the new angle type
+    void angleTypeChanged(int index);
 	//! @brief Opens up dialog for easy pasting of a new pose.
     void paste();
     //! @brief Copys the pose into the clipboard.
@@ -271,10 +293,25 @@ private slots:
     void valueChanged(const rw::math::Q& q);
     
 private:
+    typedef std::pair<rw::math::Q, rw::math::Q> QPair;
+    QPair getBounds();
+    rw::math::Q qFromTransform(const rw::math::Transform3D<>& transform);
+    rw::math::Q getQ(AngleType,AngleType);
+
     JointSliderWidget* _jointSliderWidget;
 
     bool _updating;
-    const bool _useRPY;
+    AngleType _angleType;
+    AngleType _lastTransformType;
+    const QPair _carteasianbounds;
+    bool _enablers;
+
+    std::vector<double> _converters;
+    std::vector<std::string> _descriptions;
+    rw::math::Q _last_q;
+    rw::math::Quaternion<double> _QUAfromSliders;
+    rw::math::EAA<double> _EAAfromSliders;
+    std::size_t _lastChangedId;
 };
 
 
@@ -368,6 +405,7 @@ private slots:
 private:
     QComboBox* _cmbRefFrame;
     QComboBox* _cmbTcpFrame;
+    QComboBox* _cmbAngleType;
 
     rw::kinematics::State _state;
 	rw::common::Ptr<rw::models::Device> _device;
