@@ -18,8 +18,6 @@
 #ifndef RWSIM_SIMULATOR_ODESIMULATOR_HPP_
 #define RWSIM_SIMULATOR_ODESIMULATOR_HPP_
 
-#define dDOUBLE 1
-
 #include <ode/ode.h>
 
 #include <rw/kinematics/FrameMap.hpp>
@@ -279,7 +277,7 @@ namespace simulator {
 	public:
 		/// Enables logging of the contact points
         void setContactLoggingEnabled(bool enable) { _logContactingBodies = enable; }
-        
+
         /// Returns a map of contacting body frame names and their contact points
         boost::unordered_map<std::pair<std::string,std::string>, bool > getContactingBodies() {
 			return _contactingBodies;
@@ -288,7 +286,7 @@ namespace simulator {
 
 		/**
 		 * @brief Returns a vector of all contact points
-		 * 
+		 *
 		 * @return vector of tuples (name1, name2, contact point)
 		 */ /*
         std::vector<boost::tuple<std::string, std::string, dynamics::ContactPoint> > getContactPoints() const {

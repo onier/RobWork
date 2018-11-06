@@ -112,7 +112,7 @@ BOOST_AUTO_TEST_CASE( GraspTaskSimulatorTest )
     BOOST_FOREACH(TStateMap::value_type val, paths ){
     	// take each timed state from the map
 		BOOST_FOREACH(TStateMap2::value_type val2, val.second ){
-			for(int i=0;i<val2.second.size();i++){
+			for(std::size_t i = 0; i < val2.second.size(); i++) {
 				spath.push_back( val2.second[i] );
 				spath.back().getTime() = spath.back().getTime()+timeOffset;
 			}

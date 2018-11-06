@@ -386,7 +386,7 @@ void AssemblySimulator::runSingle(std::size_t taskIndex, SimulatorLogScope::Ptr 
 				simulator->addSensor(sensor, state);
 		}
 	}
-	
+
 	if (!_contactDetector.isNull()) {
 		const bool setCD = pe->setContactDetector(_contactDetector);
 		if (!setCD)
@@ -490,8 +490,8 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 	// Note: for now only male object is actuated (should be expanded later for hole on peg type simulation)
 	State defState = _dwc->getWorkcell()->getDefaultState();
 
-	FTSensor* ftSensorMale;
-	FTSensor* ftSensorFemale;
+	FTSensor* ftSensorMale = NULL;
+	FTSensor* ftSensorFemale = NULL;
 	if (simState.maleFTSensor != NULL)
 		ftSensorMale = simState.maleFTSensor.get();
 	if (simState.femaleFTSensor != NULL)

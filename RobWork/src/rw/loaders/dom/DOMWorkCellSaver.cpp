@@ -254,7 +254,7 @@ namespace {
                         polytope_element->addAttribute("file")->setValue(geom->getFilePath());
                     } else {
                         //Resolve type of geometry
-                        if (rw::geometry::Plane *const plane = dynamic_cast<rw::geometry::Plane *>(geom->getGeometryData().get())) {
+                        if (dynamic_cast<rw::geometry::Plane *>(geom->getGeometryData().get())) {
                             DOMElem::Ptr plane_element = mod_element->addChild("Plane");
                         } else if (rw::geometry::Box *const box = dynamic_cast<rw::geometry::Box *>(geom->getGeometryData().get())) {
                             DOMElem::Ptr box_element = mod_element->addChild("Box");
@@ -378,7 +378,7 @@ namespace {
                             polytope_element->addAttribute("file")->setValue(geom->getFilePath());
                         } else {
                             //Resolve type of geometry
-                            if (rw::geometry::Plane *const plane = dynamic_cast<rw::geometry::Plane *>(geom->getGeometryData().get())) {
+                            if (dynamic_cast<rw::geometry::Plane *>(geom->getGeometryData().get())) {
                                 DOMElem::Ptr plane_element = var_element->addChild("Plane");
                             } else if (rw::geometry::Box *const box = dynamic_cast<rw::geometry::Box *>(geom->getGeometryData().get())) {
                                 DOMElem::Ptr box_element = var_element->addChild("Box");
@@ -630,7 +630,7 @@ namespace {
                             polytope_element->addAttribute("file")->setValue(geom->getFilePath());
                         } else {
                             //Resolve type of geometry
-                            if (rw::geometry::Plane *const plane = dynamic_cast<rw::geometry::Plane *>(geom->getGeometryData().get())) {
+                            if (dynamic_cast<rw::geometry::Plane *>(geom->getGeometryData().get())) {
                                 DOMElem::Ptr plane_element = mod_element->addChild("Plane");
                             } else if (rw::geometry::Box *const box = dynamic_cast<rw::geometry::Box *>(geom->getGeometryData().get())) {
                                 DOMElem::Ptr box_element = mod_element->addChild("Box");
@@ -907,7 +907,7 @@ namespace {
         else if(RevoluteJoint *rj = dynamic_cast<RevoluteJoint*>(frame)) {
             //std::cout << "The frame type was RevoluteJoint" << std::endl;
             creator.createElement<RevoluteJoint*>(rj, workcell, state, dev, parent);
-        }
+        }/*
         else if(PrismaticJoint *pj = dynamic_cast<PrismaticJoint*>(frame)) {
             //std::cout << "The frame type was PrismaticJoint" << std::endl;
         }
@@ -920,7 +920,7 @@ namespace {
         else
         {
             //std::cout << "The frame type could not be serialized" << std::endl;
-        }
+        }*/
     }
 
     void writeFrame(Frame* frame, ElementCreator& creator, rw::common::Ptr<const rw::models::WorkCell> workcell, const State state,
@@ -936,7 +936,7 @@ namespace {
         else if(RevoluteJoint *rj = dynamic_cast<RevoluteJoint*>(frame)) {
             //std::cout << "The frame type was RevoluteJoint" << std::endl;
             creator.createElement<RevoluteJoint*>(rj, workcell, state, parent);
-        }
+        }/*
         else if(PrismaticJoint *pj = dynamic_cast<PrismaticJoint*>(frame)) {
             //std::cout << "The frame type was PrismaticJoint" << std::endl;
         }
@@ -949,7 +949,7 @@ namespace {
         else
         {
             //std::cout << "The frame type could not be serialized" << std::endl;
-        }
+        }*/
     }
 
     void createDOMDocument(DOMElem::Ptr rootDoc, rw::common::Ptr<const rw::models::WorkCell> workcell, const State state) {
@@ -1076,4 +1076,3 @@ void DOMWorkCellSaver::save(rw::common::Ptr<const rw::models::WorkCell> workcell
     // save to stream
     doc->save( ostream );
 }
-
