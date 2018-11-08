@@ -3,7 +3,7 @@ Installation on Ubuntu {#page_rw_installation_ubuntu}
 [TOC]
 
 # Introduction # {#sec_rw_install_ubuntu_intro}
-At the moment, no precompiled Debian packages are available for download. Therefore, RobWork needs to be built by the user. This guide shows the steps for doing this in Ubuntu 16.04 and 14.04. The guide has been tested on a fresh install of Ubuntu 14.04.5, 16.04.3, 17.04 and 17.10 in October 2017. If you have any suggestions or additions to the guide, please post it on the issue tracker https://gitlab.com/caro-sdu/RobWork/issues .
+At the moment, no precompiled Debian packages are available for download. Therefore, RobWork needs to be built by the user. This guide shows the steps for doing this in Ubuntu 14.04, 16.04, 18.04 and 18.10. The compilation on these platforms are tested weekly. If you have any suggestions or additions to the guide, please post it on the issue tracker https://gitlab.com/caro-sdu/RobWork/issues . This guide was last revised in November 2018.
 
 RobWork is basically multiple projects:
 - RobWork : is the core part including math, kinematics, planning and so on.
@@ -88,7 +88,7 @@ Open a terminal, go to the ode folder (with the bootstrap file in it) and run:
 
 This will make sure that ODE is built with 4 threads with double precision as a shared library.
 
-Bullet Physics can also be installed through the package manager. Ubuntu 14.04 comes with Bullet 2.81, Ubuntu 16.04 with 2.83.6, Ubuntu 17.04 with 2.83.7 and Ubuntu 17.10 with 2.86.1. The bullet packages can be installed with the following command:
+Bullet Physics can also be installed through the package manager. Ubuntu 14.04 comes with Bullet 2.81, Ubuntu 16.04 with 2.83.6, and Ubuntu 18.04/18.10 with 2.87. The bullet packages can be installed with the following command:
 
 	sudo apt-get install libbullet-dev libbullet-extras-dev
 

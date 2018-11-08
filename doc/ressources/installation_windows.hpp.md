@@ -4,7 +4,7 @@ Installation on Windows {#page_rw_installation_windows}
 
 # Introduction # {#sec_rw_install_win_intro}
 This guide shows the steps for building the RobWork packages on a Windows platform.
-The guide is written based on a setup with Windows 10 and Visual Studio 2017 and the guide is last revised in March 2018.
+The guide is written based on a setup with Windows 10 and Visual Studio 2017 and the guide is last revised in November 2018.
 If you have any suggestions or additions to the guide, please post them on the issue tracker at https://gitlab.com/caro-sdu/RobWork/issues .
 
 RobWork is basically multiple projects:
@@ -121,6 +121,8 @@ The following table gives an overview of the version numbers for future referenc
 
 | Visual Studio Name | Visual Studio Version | Visual C++ Compiler Toolset | Visual C/C++ Compiler Version |
 |--------------------|-----------------------|-----------------------------|-------------------------------|
+| Visual Studio 2017 | 15.8                  | 14.15                       | 19.15                         |
+| Visual Studio 2017 | 15.7                  | 14.14                       | 19.14                         |
 | Visual Studio 2017 | 15.6                  | 14.13                       | 19.13                         |
 | Visual Studio 2017 | 15.5                  | 14.12                       | 19.12                         |
 | Visual Studio 2017 | 15.3 & 15.4           | 14.11                       | 19.11                         |
@@ -141,10 +143,10 @@ If you already have an older version of CMake installed, please check that it is
 
 | CMake Version | Maximum Visual Studio Version Supported | Maximum Boost Version Supported |
 |---------------|-----------------------------------------|---------------------------------|
-| 3.11.0        | Visual Studio 15 2017                   | 1.66.0                          |
-| 3.10.2*       | Visual Studio 15 2017                   | 1.65.1                          |
-| 3.9.3         | Visual Studio 15 2017                   | 1.65.1                          |
-| 3.8.0         | Visual Studio 15 2017                   | 1.64.0                          |
+| 3.12.0-3.12.4*| Visual Studio 15 2017                   | 1.68.0                          |
+| 3.11.0-3.11.4 | Visual Studio 15 2017                   | 1.67.0                          |
+| 3.9.3-3.10.3  | Visual Studio 15 2017                   | 1.65.1                          |
+| 3.8.0-3.9.2   | Visual Studio 15 2017                   | 1.64.0                          |
 | 3.7.2         | Visual Studio 15 2017                   | 1.63.0                          |
 | 3.7.0-3.7.1   | Visual Studio 15 2017                   | 1.62.0                          |
 | 3.5.0-3.6.3   | Visual Studio 14 2015                   | 1.61.0                          |
@@ -172,6 +174,8 @@ Choose the newest precompiled library version, based on your Visual C++ toolset 
 
 | Boost Version   | Maximum Visual C++ Toolset (Source) | Maximum Visual C++ Toolset (Precompiled) |
 |-----------------|-------------------------------------|------------------------------------------|
+| 1.68.0          | 14.12 (VS 15.5)                     | 14.1                                     |
+| 1.67.0          | 14.11 (VS 15.4)                     | 14.1                                     |
 | 1.66.0          | 14.11 (VS 15.4)                     | 14.1                                     |
 | 1.65.1          | 14.11 (VS 15.3)                     | 14.1                                     |
 | 1.64.0 - 1.65.0 | 14.10                               | 14.1                                     |
@@ -183,7 +187,7 @@ Choose the newest precompiled library version, based on your Visual C++ toolset 
 In this table, the "Maximum Visual C++ Toolset (Source)" version is the maximum supported version in the Boost source.
 The newest Visual Studio versions will not be recognized as safe/tested versions by Boost, which means that Boost will issue a lot of warnings while compiling RobWork.
 Usually, these warnings can simply be ignored, and things will work fine anyway. As shown in the table, the precompiled libraries for new Visual Studio versions, is built a while after they are introduced
-in the code. If you want to use Visual Studio 2017, the table shows that you must choose Boost 1.64 if you want to use precompiled libraries (or 1.63 if you compile Boost yourself).
+in the code. If you want to use Visual Studio 2017, the table shows that you must choose at least Boost 1.64 if you want to use precompiled libraries (or 1.63 if you compile Boost yourself).
 
 The file to download has a name with a format similar to "boost_1_66_0-msvc-14.1-64.exe".
 Here 1_66_0 refers to Boost version 1.66.0, msvc-14.1 refers to the Visual C++ toolset version 14.1 (Visual Studio 2017), and 64 means the 64 bit version of Boost.
