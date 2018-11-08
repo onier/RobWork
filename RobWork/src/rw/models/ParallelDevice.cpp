@@ -159,20 +159,17 @@ void updateActuatedJacobian(
 					continue;
 				// determine if joint j is an active joint
 				const Joint* depJoint = NULL;
-				double scale = 1;
 				int DOFs = joint->getDOF();
 				bool active = joint->isActive();
 				if (const DependentJoint* const djoint = dynamic_cast<const DependentJoint*>(*iter)) {
 					if (const DependentRevoluteJoint* const drjoint = dynamic_cast<const DependentRevoluteJoint*>(djoint)) {
 						depJoint = &drjoint->getOwner();
-						scale = drjoint->getScale();
 						DOFs = depJoint->getDOF();
-						active = active && depJoint->isActive();
+						active = active || depJoint->isActive();
 					} else if (const DependentPrismaticJoint* const dpjoint = dynamic_cast<const DependentPrismaticJoint*>(djoint)) {
 						depJoint = &dpjoint->getOwner();
-						scale = dpjoint->getScale();
 						DOFs = depJoint->getDOF();
-						active = active && depJoint->isActive();
+						active = active || depJoint->isActive();
 					} else {
 						RW_WARN("ParallelDevice only supports dependent joints if they are of revolute or prismatic type. Dependent joint is ignored.");
 					}
@@ -190,7 +187,7 @@ void updateActuatedJacobian(
 					if(i != legs.size()-1) {
 						for (int d = 0; d < DOFs; d++) {
 							if (enabled[j_enabler+d]) {
-								jacobian.block(row,ja_column+cntEn,6,1) = leg_jacobian.col(j+d)*scale;
+								jacobian.block(row,ja_column+cntEn,6,1) = leg_jacobian.col(j+d);
 								cntEn++;
 							}
 						}
@@ -199,7 +196,7 @@ void updateActuatedJacobian(
 						cntEn = 0;
 						for (int d = 0; d < DOFs; d++) {
 							if (enabled[j_enabler+d]) {
-								jacobian.block(row-6,ja_column+cntEn,6,1) = -leg_jacobian.col(j+d)*scale;
+								jacobian.block(row-6,ja_column+cntEn,6,1) = -leg_jacobian.col(j+d);
 								cntEn++;
 							}
 						}
@@ -234,20 +231,17 @@ void updateUnactuatedJacobian(
 				if( joint == NULL )
 					continue;
 				const Joint* depJoint = NULL;
-				double scale = 1;
 				int DOFs = joint->getDOF();
 				bool active = joint->isActive();
 				if (const DependentJoint* const djoint = dynamic_cast<const DependentJoint*>(*iter)) {
 					if (const DependentRevoluteJoint* const drjoint = dynamic_cast<const DependentRevoluteJoint*>(djoint)) {
 						depJoint = &drjoint->getOwner();
-						scale = drjoint->getScale();
 						DOFs = depJoint->getDOF();
-						active = active && depJoint->isActive();
+						active = active || depJoint->isActive();
 					} else if (const DependentPrismaticJoint* const dpjoint = dynamic_cast<const DependentPrismaticJoint*>(djoint)) {
 						depJoint = &dpjoint->getOwner();
-						scale = dpjoint->getScale();
 						DOFs = depJoint->getDOF();
-						active = active && depJoint->isActive();
+						active = active || depJoint->isActive();
 					} else {
 						RW_WARN("ParallelDevice only supports dependent joints if they are of revolute or prismatic type. Dependent joint is ignored.");
 					}
@@ -263,7 +257,7 @@ void updateUnactuatedJacobian(
 					if (i != legs.size()-1) {
 						for (int d = 0; d < DOFs; d++) {
 							if (!enabled[j_enabler+d]) {
-								jacobian.block(row,jua_column+cntDis,6,1) = leg_jacobian.col(j+d)*scale;
+								jacobian.block(row,jua_column+cntDis,6,1) += leg_jacobian.col(j+d);
 								cntDis++;
 							}
 						}
@@ -272,7 +266,7 @@ void updateUnactuatedJacobian(
 						cntDis = 0;
 						for (int d = 0; d < DOFs; d++) {
 							if (!enabled[j_enabler+d]) {
-								jacobian.block(row-6,jua_column+cntDis,6,1) = -leg_jacobian.col(j+d)*scale;
+								jacobian.block(row-6,jua_column+cntDis,6,1) -= leg_jacobian.col(j+d);
 								cntDis++;
 							}
 						}
@@ -295,20 +289,17 @@ void updateUnactuatedJacobian(
 				if( joint == NULL )
 					continue;
 				const Joint* depJoint = NULL;
-				double scale = 1;
 				int DOFs = joint->getDOF();
 				bool active = joint->isActive();
 				if (const DependentJoint* const djoint = dynamic_cast<const DependentJoint*>(*iter)) {
 					if (const DependentRevoluteJoint* const drjoint = dynamic_cast<const DependentRevoluteJoint*>(djoint)) {
 						depJoint = &drjoint->getOwner();
-						scale = drjoint->getScale();
 						DOFs = depJoint->getDOF();
-						active = active && depJoint->isActive();
+						active = active || depJoint->isActive();
 					} else if (const DependentPrismaticJoint* const dpjoint = dynamic_cast<const DependentPrismaticJoint*>(djoint)) {
 						depJoint = &dpjoint->getOwner();
-						scale = dpjoint->getScale();
 						DOFs = depJoint->getDOF();
-						active = active && depJoint->isActive();
+						active = active || depJoint->isActive();
 					} else {
 						RW_WARN("ParallelDevice only supports dependent joints if they are of revolute or prismatic type. Dependent joint is ignored.");
 					}
@@ -319,14 +310,14 @@ void updateUnactuatedJacobian(
 					if (depJoint != NULL) {
 						jua_column = qIndexUnactuated[*depJoint];
 					}
-					if(i != legs.size()-1){
+					if(i != legs.size()-1) {
 						for (int d = 0; d < DOFs; d++) {
-							jacobian.block(row,jua_column+d,6,1) = leg_jacobian.block(0,j+d,6,1)*scale;
+							jacobian.block(row,jua_column+d,6,1) += leg_jacobian.block(0,j+d,6,1);
 						}
 					}
-					if(i!=0){
+					if(i != 0) {
 						for (int d = 0; d < DOFs; d++) {
-							jacobian.block(row-6,jua_column+d,6,1) = -leg_jacobian.block(0,j+d,6,1)*scale;
+							jacobian.block(row-6,jua_column+d,6,1) -= leg_jacobian.block(0,j+d,6,1);
 						}
 					}
 				}
@@ -341,7 +332,8 @@ void updateUnactuatedJacobian(
 
 void ParallelDevice::setQ(const Q& q, const std::vector<bool>& enabled, State& s) const {
     // default MAX_ITERATIONS.
-    const int MAX_ITERATIONS = 20;
+    const int MAX_ITERATIONS = 35;
+    const double LIN_SCALE = 1.; // Factor 1: 1 mm error similar to 0.057 degree error
 
     std::size_t cntDisabled = 0;
     for (std::size_t i = 0; i < q.size(); i++) {
@@ -454,6 +446,13 @@ void ParallelDevice::setQ(const Q& q, const std::vector<bool>& enabled, State& s
     // initialize configuration vector
 	updateActuatedJacobian(_junctions, qIndexActuatedAll, qIndexActuatedEnabled, enabled, state, aJointJ);
 	updateUnactuatedJacobian(_junctions, qIndexActuatedAll, qIndexActuatedEnabled, qIndexUnactuated, enabled, state, uaJointJ);
+	for (std::size_t i = 0; i < _junctions.size(); i++) {
+		Eigen::MatrixXd::Index row = 0;
+		for (std::size_t j = 0; j < _junctions[i].size()-1; j++) {
+			uaJointJ.block(row,0,3,uaJointJ.cols()) *= LIN_SCALE;
+			row += 6;
+		}
+	}
 
     double e = 1e-6;
     Q deltaQA(Q::zero(aDOFs-cntDisabled));
@@ -509,7 +508,15 @@ void ParallelDevice::setQ(const Q& q, const std::vector<bool>& enabled, State& s
             }
     	}
 
+        uaJointJ = Eigen::MatrixXd::Zero(nCon*6, uaDOFs+cntDisabled);
     	updateUnactuatedJacobian(_junctions, qIndexActuatedAll, qIndexActuatedEnabled, qIndexUnactuated, enabled, state, uaJointJ);
+    	for (std::size_t i = 0; i < _junctions.size(); i++) {
+    		Eigen::MatrixXd::Index row = 0;
+    		for (std::size_t j = 0; j < _junctions[i].size()-1; j++) {
+    			uaJointJ.block(row,0,3,uaJointJ.cols()) *= LIN_SCALE;
+    			row += 6;
+    		}
+    	}
 
         // update deltaY
         int row = 0;
@@ -525,9 +532,9 @@ void ParallelDevice::setQ(const Q& q, const std::vector<bool>& enabled, State& s
         		EAA<> orin = bTe.R()*(EAA<>( inverse(bTe.R())*bTe_1.R() ) );
         		// copy it into deltaY
 
-        		deltaY[row+0] = pos(0);
-        		deltaY[row+1] = pos(1);
-        		deltaY[row+2] = pos(2);
+        		deltaY[row+0] = pos(0)*LIN_SCALE;
+        		deltaY[row+1] = pos(1)*LIN_SCALE;
+        		deltaY[row+2] = pos(2)*LIN_SCALE;
 
         		deltaY[row+3] = orin(0);
         		deltaY[row+4] = orin(1);
@@ -588,16 +595,13 @@ Jacobian ParallelDevice::baseJend(const State& state) const {
     			if(joint == NULL)
     				continue;
 				const Joint* depJoint = NULL;
-				double scale = 1;
 				int DOFs = joint->getDOF();
 				if (const DependentJoint* const djoint = dynamic_cast<const DependentJoint*>(*iter)) {
 					if (const DependentRevoluteJoint* const drjoint = dynamic_cast<const DependentRevoluteJoint*>(djoint)) {
 						depJoint = &drjoint->getOwner();
-						scale = drjoint->getScale();
 						DOFs = depJoint->getDOF();
 					} else if (const DependentPrismaticJoint* const dpjoint = dynamic_cast<const DependentPrismaticJoint*>(djoint)) {
 						depJoint = &dpjoint->getOwner();
-						scale = dpjoint->getScale();
 						DOFs = depJoint->getDOF();
 					} else {
 						RW_WARN("ParallelDevice only supports dependent joints if they are of revolute or prismatic type. Dependent joint is ignored.");
@@ -609,10 +613,10 @@ Jacobian ParallelDevice::baseJend(const State& state) const {
 					j_column = qIndex[*depJoint];
 				}
     			if(i != legs.size()-1) {
-					m.block(row,j_column,6,DOFs) = leg_jacobian.block(0,j,6,DOFs)*scale;
+					m.block(row,j_column,6,DOFs) = leg_jacobian.block(0,j,6,DOFs);
     			}
     			if(i != 0) {
-					m.block(row-6,j_column,6,DOFs) = -leg_jacobian.block(0,j,6,DOFs)*scale;
+					m.block(row-6,j_column,6,DOFs) = -leg_jacobian.block(0,j,6,DOFs);
     			}
     			j += DOFs;
     		}
@@ -702,7 +706,7 @@ std::pair<Q, Q> ParallelDevice::getAllBounds() const {
     	}
     }
     */
-	for (std::size_t ji = 0; ji < _joints.size(); ji++) {
+	for (std::size_t ji = 0; ji < _joints.size() && i < static_cast<int>(q.size()); ji++) {
         const std::pair<Q, Q> pair = _joints[ji]->getBounds();
         bounds.first.setSubPart(i,pair.first);
         bounds.second.setSubPart(i, pair.second);

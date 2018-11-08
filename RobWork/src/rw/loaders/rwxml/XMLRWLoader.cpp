@@ -761,7 +761,14 @@ Device::Ptr createDevice(DummyDevice &dev, DummySetup &setup) {
 					const std::map<std::string, std::size_t>::const_iterator legIndex = nameToChainIndex.find(split[k]);
 					if (legIndex == nameToChainIndex.end())
 						RW_THROW("Could not find SerialChain with the name " << split[k] << " when creating junction.");
-					totalChain.insert(totalChain.end(),chains[legIndex->second].begin(),chains[legIndex->second].end());
+					std::vector<Frame*>::iterator firstFrameIt = chains[legIndex->second].begin();
+					// Avoid duplications when stitching together chain segments
+					if (totalChain.size() > 0) {
+						if (totalChain.back() == *firstFrameIt) {
+							firstFrameIt++;
+						}
+					}
+					totalChain.insert(totalChain.end(),firstFrameIt,chains[legIndex->second].end());
 				}
 				junctionChains.push_back(new ParallelLeg(totalChain));
 			}
