@@ -43,7 +43,8 @@ const DOMPropertyMapSaver::Initializer DOMPropertyMapSaver::initializer;
 
 void DOMPropertyMapSaver::save(const PropertyBase::Ptr property, DOMElem::Ptr parent) {
 	if (property->getType().getId() == PropertyType::Unknown) {
-		RW_THROW("The property type is unknown and therefore not supported!");
+		RW_WARN("The property with name \"" << property->getIdentifier() << "\" has type 'Unknown' and was ignored as it can not be saved!");
+		return;
 	}
 
     DOMElem::Ptr root = parent->addChild(DOMPropertyMapFormat::idProperty());
@@ -56,7 +57,7 @@ void DOMPropertyMapSaver::save(const PropertyBase::Ptr property, DOMElem::Ptr pa
     element = root->addChild(DOMPropertyMapFormat::idPropertyValue());
     switch (property->getType().getId()) {
     case PropertyType::Unknown:
-        RW_THROW("The property type is unknown and therefore not supported! Seeing this message means there is a bug within the function throwing this!");
+    	// Already handled above
         break;
     case PropertyType::PropertyMap: {
         const Property<PropertyMap>* prop = toProperty<PropertyMap>(property);
