@@ -80,6 +80,7 @@ RWSimPlugin::RWSimPlugin():
 
     connect(_openDwcBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_openLastDwcBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_closeDwcBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_editDwcBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_createSimulatorBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_destroySimulatorBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
@@ -209,7 +210,7 @@ void RWSimPlugin::btnPressed(){
     	_closeDwcBtn->setDisabled(true);
     	_openDwcBtn->setDisabled(false);
     	_openLastDwcBtn->setDisabled(false);
-    	getRobWorkStudio()->setWorkcell( NULL );
+    	getRobWorkStudio()->postCloseWorkCell();
     	_dwc = NULL;
     } else if( obj == _editDwcBtn ) {
 
@@ -629,7 +630,7 @@ void RWSimPlugin::openDwc(const std::string& file){
     _dwc = dwc;
     // adding the DynamicWorkcell to the propertymap such that others can use it
 
-    getRobWorkStudio()->getPropertyMap().add<DynamicWorkCell::Ptr>(
+    getRobWorkStudio()->getPropertyMap().addForce<DynamicWorkCell::Ptr>(
             "DynamicWorkcell",
             "A workcell with dynamic description",
             _dwc );

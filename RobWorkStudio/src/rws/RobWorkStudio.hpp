@@ -116,6 +116,11 @@ namespace rws {
 		 * @param string [in] the filename.
 		 */
 		void postOpenWorkCell(const std::string& string);
+    
+    /**
+		 * @brief Request closing a workcell. Use this if request comes from non-GUI thread.
+		 */
+		void postCloseWorkCell();
 
 		/**
 		 * @brief Returns the workcell opened in RobWorkStudio

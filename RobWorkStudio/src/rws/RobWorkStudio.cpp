@@ -220,7 +220,6 @@ void RobWorkStudio::propertyChangedListener(PropertyBase* base){
 
 void RobWorkStudio::closeEvent( QCloseEvent * e ){
     // save main window settings
-    //std::cout << "closeEvent" << std::endl;
     //settings.setValue("pos", pos());
     //settings.setValue("size", size());
     //settings.setValue("state", saveState());
@@ -1117,8 +1116,9 @@ namespace {
         static const QEvent::Type ExitEvent = (QEvent::Type)1204;
         static const QEvent::Type SetWorkCell = (QEvent::Type)1205;
         static const QEvent::Type OpenWorkCell = (QEvent::Type)1206;
-        static const QEvent::Type GenericEvent = (QEvent::Type)1207;
-        static const QEvent::Type GenericAnyEvent = (QEvent::Type)1208;
+        static const QEvent::Type CloseWorkCell = (QEvent::Type)1207;
+        static const QEvent::Type GenericEvent = (QEvent::Type)1208;
+        static const QEvent::Type GenericAnyEvent = (QEvent::Type)1209;
 
         boost::any _anyData;
         rw::common::Ptr<bool> _hs;
@@ -1241,6 +1241,12 @@ void RobWorkStudio::postOpenWorkCell(const std::string& filename){
     event->wait();
 }
 
+void RobWorkStudio::postCloseWorkCell(){
+    RobWorkStudioEventHS *event = new RobWorkStudioEventHS(RobWorkStudioEvent::CloseWorkCell, NULL);
+    QApplication::postEvent( this, event->event );
+    event->wait();
+}
+
 void RobWorkStudio::postGenericEvent(const std::string& id){
 	RobWorkStudioEventHS *event = new RobWorkStudioEventHS(RobWorkStudioEvent::GenericEvent, id);
     QApplication::postEvent( this, event->event );
@@ -1299,6 +1305,10 @@ bool RobWorkStudio::event(QEvent *event)
     } else if (event->type() == RobWorkStudioEvent::OpenWorkCell){
         std::string str = boost::any_cast<std::string>(rwse->_anyData);
         openWorkCellFile( str.c_str() );
+        rwse->done();
+        return true;
+    } else if (event->type() == RobWorkStudioEvent::CloseWorkCell){
+        closeWorkCell();
         rwse->done();
         return true;
     } else if (event->type() == RobWorkStudioEvent::GenericEvent){
