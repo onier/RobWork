@@ -364,7 +364,7 @@ namespace rw { namespace kinematics {
         {
 			if (first.size() == 0) 
 				return std::make_pair(
-					const_iterator(iterator(&next, next.begin(), &next)),
+					const_iterator(iterator(&next, next.begin(), NULL)),
 					const_iterator(iterator(&next, next.end(), NULL)));
 			else
 				return std::make_pair(
@@ -397,6 +397,9 @@ namespace rw { namespace kinematics {
 	   @brief A list of frames
 	*/
 	typedef std::vector<kinematics::Frame*> FrameList;
+
+	//! @brief A list of const frames
+	typedef std::vector<const rw::kinematics::Frame*> ConstFrameList;
 
 	/**
 	   @brief A set of frame pairs.

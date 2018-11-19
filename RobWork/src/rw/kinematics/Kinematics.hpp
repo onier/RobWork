@@ -212,9 +212,25 @@ namespace rw { namespace kinematics {
 
         /**
          * @brief Get static frame groups.
-         * @warning This is not implemented - will always return an empty list!
+         *
+         * A static frame group consist of frames that are fixed with respect to the other frames in the group.
+         * A Dynamically Attachable Frame (DAF) or a MovableFrame will divide a static group.
+         * @param root [in] the root frame of the tree to search.
+         * @param state [in] containing information about the current tree state and the Dynamically Attachable Frames (DAF).
+         * @return vector with the frame groups.
          */
-		static std::vector<FrameList> getStaticFrameGroups(Frame* root, const State& state);
+        static std::vector<FrameList> getStaticFrameGroups(Frame* root, const State& state);
+
+        /**
+         * @brief Get static frame groups.
+         *
+         * A static frame group consist of frames that are fixed with respect to the other frames in the group.
+         * A Dynamically Attachable Frame (DAF) or a MovableFrame will divide a static group.
+         * @param root [in] the root frame of the tree to search.
+         * @param state [in] containing information about the current tree state and the Dynamically Attachable Frames (DAF).
+         * @return vector with the frame groups.
+         */
+        static std::vector<ConstFrameList> getStaticFrameGroups(const Frame* root, const State& state);
     };
 
     /*@}*/

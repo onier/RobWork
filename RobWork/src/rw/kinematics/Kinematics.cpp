@@ -238,44 +238,49 @@ void Kinematics::gripFrame(MovableFrame* item, Frame* gripper, State& state)
 
 
 namespace {
-	
-    bool isNonDafAndFixed(const Frame& frame)
-    {
+	bool isNonDafAndFixed(const Frame& frame){
 		return !Kinematics::isDAF(&frame) && Kinematics::isFixedFrame(&frame);
-    }
+	}
 
-    //// The set of all frames of type FixedFrame that are not a DAF.
-    //FrameSet findNonDafAndFixedFrameSet(const WorkCell& workcell, const State& state)
-    //{
-    //    FrameSet result;
-    //    BOOST_FOREACH(Frame* frame, Models::findAllFrames(workcell, state)) {
-    //        if (!isDAF(*frame) && isFixedFrame(*frame)) 
-				//result.insert(frame);
-    //    }
-    //    return result;
-    //}
-
-
-	void createStaticFrameGroups(Frame& root, FrameList& group, std::vector<FrameList>& groups, const State& state) {	
+	void createStaticFrameGroups(Frame& root, FrameList& group, std::vector<FrameList>& staticGroups, const State& state) {
 		group.push_back(&root);
 		BOOST_FOREACH(Frame& frame, root.getChildren(state)) {
 			if (isNonDafAndFixed(frame)) {
-				createStaticFrameGroups(frame, group, groups, state);			
+				createStaticFrameGroups(frame, group, staticGroups, state);
 			} else {
 				FrameList group;
-				createStaticFrameGroups(frame, group, groups, state);
-				groups.push_back(group);
+				createStaticFrameGroups(frame, group, staticGroups, state);
+				staticGroups.push_back(group);
 			}
 		}
 	}
 
+	void createStaticFrameGroups(const Frame& root, ConstFrameList& group, std::vector<ConstFrameList>& staticGroups, const State& state) {
+		group.push_back(&root);
+		BOOST_FOREACH(const Frame& frame, root.getChildren(state)) {
+			if (isNonDafAndFixed(frame)) {
+				createStaticFrameGroups(frame, group, staticGroups, state);
+			} else {
+				ConstFrameList group;
+				createStaticFrameGroups(frame, group, staticGroups, state);
+				staticGroups.push_back(group);
+			}
+		}
+	}
 }
-std::vector<FrameList > Kinematics::getStaticFrameGroups(Frame* root, const State& state) {
-	//TODO Identify all groups with static frames
 
-	std::vector<FrameList> groups;
+std::vector<FrameList> Kinematics::getStaticFrameGroups(Frame* root, const State& state) {
+	std::vector<FrameList> staticGroups;
 	FrameList group;
-	createStaticFrameGroups(*root, group, groups, state);
+	createStaticFrameGroups(*root, group, staticGroups, state);
+	staticGroups.push_back(group);
+	return staticGroups;
+}
 
-	return std::vector<FrameList>();
+std::vector<ConstFrameList> Kinematics::getStaticFrameGroups(const Frame* root, const State& state) {
+	std::vector<ConstFrameList> staticGroups;
+	ConstFrameList group;
+	createStaticFrameGroups(*root, group, staticGroups, state);
+	staticGroups.push_back(group);
+	return staticGroups;
 }

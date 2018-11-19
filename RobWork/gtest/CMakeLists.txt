@@ -134,6 +134,22 @@ TARGET_LINK_LIBRARIES( rw_invkin-gtest ${INVKIN_TEST_LIBRARIES})
 ADD_RW_GTEST(rw_invkin-gtest)
 
 ########################################################################
+# Kinematics
+########################################################################
+
+SET(KINEMATICS_TEST_LIBRARIES
+  ${GTEST_BOTH_LIBRARIES}
+  rw
+)
+
+SET(KINEMATICS_TEST_SRC
+  kinematics/StaticFrameGroupsTest.cpp
+)
+ADD_EXECUTABLE( rw_kinematics-gtest ${KINEMATICS_TEST_SRC})       
+TARGET_LINK_LIBRARIES( rw_kinematics-gtest ${KINEMATICS_TEST_LIBRARIES})
+ADD_RW_GTEST(rw_kinematics-gtest)
+
+########################################################################
 # Loaders
 ########################################################################
 
