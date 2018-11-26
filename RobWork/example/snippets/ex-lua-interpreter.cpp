@@ -1,7 +1,6 @@
 #include <rwlibs/swig/lua/Lua.hpp>
 
 #include <iostream>
-#include <string>
 
 int main(int argc, char** argv)
 {
@@ -10,9 +9,8 @@ int main(int argc, char** argv)
         return 1;
     }
 
-    lua_State *L = lua_open();
+    lua_State *L = luaL_newstate();
     luaL_openlibs(L);
-
 
     rwlibs::swig::openLuaLibRW(L);
 

@@ -1,6 +1,6 @@
 SET(SUBSYS_NAME rwsim_bullet)
 set(SUBSYS_DESC "Bullet based physics engine plugin for RobWorkSim")
-SET(SUBSYS_DEPS rwsim rw)
+SET(SUBSYS_DEPS rwsim) # mband: The target 'rw' was not found, so removed it from this dependency list
 
 SET(build FALSE)
 set(DEFAULT ${RWSIM_HAVE_BULLET})
@@ -58,6 +58,7 @@ IF(build)
     	MESSAGE( STATUS "Bullet will be compiled with double precision." )
     ELSE()
     	MESSAGE( STATUS "Testing Bullet for use of double precision..." )
+	    SET(CMAKE_TRY_COMPILE_CONFIGURATION ${CMAKE_BUILD_TYPE})
 	    TRY_COMPILE( COMPILE_SUCCESS ${CMAKE_BINARY_DIR}
 	        ${CMAKE_CURRENT_SOURCE_DIR}/BtPrecisionTest.cpp
 	        CMAKE_FLAGS
@@ -83,7 +84,7 @@ IF(build)
 
     RW_ADD_LIBRARY(${SUBSYS_NAME} rwsim_bullet ${SRC_FILES} ${SRC_FILES_HPP})
     RW_ADD_INCLUDES(rwsim_bullet "rwsimlibs/bullet" ${SRC_FILES_HPP}) 
-    TARGET_LINK_LIBRARIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
+    TARGET_LINK_LIBRARIES(${SUBSYS_NAME} ${SUBSYS_DEPS} ${BULLET_LIBRARIES})
     ADD_DEPENDENCIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
     
     ADD_LIBRARY(bt_plugin.rwplugin MODULE BtPlugin.cpp BtPlugin.hpp)

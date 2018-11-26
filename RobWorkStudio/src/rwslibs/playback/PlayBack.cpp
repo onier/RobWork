@@ -17,18 +17,25 @@
 
 
 #include "PlayBack.hpp"
+#include "Player.hpp"
 
 #include <QVBoxLayout>
 #include <QLabel>
+#include <QSlider>
+#include <QCheckBox>
+#include <QKeyEvent>
+#include <QMessageBox>
+#include <QDoubleSpinBox>
+#include <QFileDialog>
+#include <QToolBar>
 
 #include <rws/RobWorkStudio.hpp>
 
 #include <rw/common/StringUtil.hpp>
-#include <rw/trajectory/TrajectoryFactory.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
-#include <rw/trajectory/Path.hpp>
+#include <rw/loaders/path/PathLoaderCSV.hpp>
 
-#include <boost/foreach.hpp>
+#include <boost/bind.hpp>
 
 #include "StateDraw.hpp"
 
@@ -57,7 +64,7 @@ PlayBack::PlayBack()
     :
     RobWorkStudioPlugin("PlayBack", QIcon(":/playback.png")),
     _workcell(0),
-    _player(makeEmptyPlayer()),
+    _player(Player::makeEmptyPlayer()),
     _inSliderSet(false),
     _inRelativePositionChanged(false)
 {
@@ -225,7 +232,7 @@ void PlayBack::close()
     _workcell = 0;
     //_workcellGLDrawer = 0;
 
-    _player = makeEmptyPlayer();
+    _player = Player::makeEmptyPlayer();
     _file = "";
 
     setInfoLabel();
@@ -342,12 +349,13 @@ void PlayBack::openPath()
     const QString dir(_previousOpenSaveDirectory.c_str());
     QString selectedFilter;
     QString filename = QFileDialog::getOpenFileName(
-        this,
-        "Open playback file", // Title
-        dir, // Directory
-        "Playback files ( *.rwplay )"
-        " \n All ( *.* )",
-        &selectedFilter);
+                this,
+                "Open playback file", // Title
+                dir, // Directory
+                "Playback files ( *.rwplay )"
+                " \n Comma separated values ( *.csv )"
+                " \n All ( *.* )",
+                &selectedFilter);
 
     if (!filename.isEmpty()) {
         _previousOpenSaveDirectory = StringUtil::getDirectoryName(filename.toStdString());
@@ -360,38 +368,65 @@ void PlayBack::savePath()
 {
 	const QString dir(_previousOpenSaveDirectory.c_str());
 	QString filename = QFileDialog::getSaveFileName(
-        this, "Save playback file", dir, "Playback files ( *.rwplay )");
+			this, "Save playback file", dir, "Playback files ( *.rwplay )");
 
 	if (!filename.isEmpty()) {
 		_previousOpenSaveDirectory =
-            StringUtil::getDirectoryName(filename.toStdString());
+				StringUtil::getDirectoryName(filename.toStdString());
 
 		if (StringUtil::getFileExtension(filename.toStdString()) != ".rwplay")
 			filename += ".rwplay";
 
 		PathLoader::storeTimedStatePath(
-            *_workcell,
-            getRobWorkStudio()->getTimedStatePath(),
-            filename.toStdString());
+				*_workcell,
+				getRobWorkStudio()->getTimedStatePath(),
+				filename.toStdString());
 	}
 }
 
 void PlayBack::openPlayFile(const std::string& file)
 {
-    try {
-        rawOpenPlayFile(file);
-    } catch (const Exception& exc) {
-        std::stringstream buf;
-        buf << "Can't open playback file";
+    //Check file extension:
+    std::string filetype = file.substr(file.find_last_of('.',file.length()));
 
-        QMessageBox::information(
-            NULL,
-            buf.str().c_str(),
-            exc.getMessage().getText().c_str(),
-            QMessageBox::Ok);
 
-        // We shouldn't need to have to close() anything. rawOpenPlayFile()
-        // should behave sensibly with respect to exceptions.
+    if (!filetype.compare(".csv"))
+    {
+        try {
+            csvOpenPlayFile(file);
+        } catch (const Exception& exc) {
+            std::stringstream buf;
+            buf << "Can't open playback file in CSV format";
+
+            QMessageBox::information(
+                        NULL,
+                        buf.str().c_str(),
+                        exc.getMessage().getText().c_str(),
+                        QMessageBox::Ok);
+
+            // We shouldn't need to have to close() anything. csvOpenPlayFile()
+            // should behave sensibly with respect to exceptions.
+        }
+    }
+    else if(!filetype.compare(".rwplay")) {
+        try {
+            rawOpenPlayFile(file);
+        } catch (const Exception& exc) {
+            std::stringstream buf;
+            buf << "Can't open playback file in rwplay format";
+
+            QMessageBox::information(
+                        NULL,
+                        buf.str().c_str(),
+                        exc.getMessage().getText().c_str(),
+                        QMessageBox::Ok);
+
+            // We shouldn't need to have to close() anything. rawOpenPlayFile()
+            // should behave sensibly with respect to exceptions.
+        }
+    }
+    else {
+        RW_THROW("Unknown file extension - expected either .csv or .rwplay!");
     }
 }
 
@@ -400,7 +435,7 @@ void PlayBack::stateTrajectoryChangedListener(const TimedStatePath& path)
 
     if (!path.empty()) {
         // Reset the player.
-        _player = makePlayer(
+        _player = Player::makePlayer(
             path,
             makeMyStateDraw(),
             timerInterval,
@@ -433,7 +468,7 @@ void PlayBack::stateTrajectoryChangedListener(const TimedStatePath& path)
         interpolateChanged(_interpolate->checkState());
 
     } else {
-        _player = makeEmptyPlayer();
+        _player = Player::makeEmptyPlayer();
         setInfoLabel();
     }
 }
@@ -442,12 +477,21 @@ void PlayBack::rawOpenPlayFile(const std::string& file)
 {
     if (!file.empty() && _workcell) {
         // Load the sequence of states.
-        std::auto_ptr<TimedStatePath> path =
-            PathLoader::loadTimedStatePath(
-                *_workcell,
-                file);
+        TimedStatePath path = PathLoader::loadTimedStatePath(*_workcell, file);
 
-        getRobWorkStudio()->setTimedStatePath(*path);
+        getRobWorkStudio()->setTimedStatePath(path);
+
+        // Store the file name.
+        _file = file;
+    }
+}
+void PlayBack::csvOpenPlayFile(const std::string& file)
+{
+    if (!file.empty() && _workcell) {
+        // Load the sequence of states.
+        TimedStatePath path = PathLoaderCSV::loadTimedStatePath(*_workcell, file);
+
+        getRobWorkStudio()->setTimedStatePath(path);
 
         // Store the file name.
         _file = file;
@@ -497,6 +541,7 @@ void PlayBack::keyPressEvent(QKeyEvent* e){
 //----------------------------------------------------------------------
 #ifndef RWS_USE_STATIC_LINK_PLUGINS
 #if !RWS_USE_QT5
+#include <QtCore/qplugin.h>
 Q_EXPORT_PLUGIN2(PlayBack, PlayBack)
 #endif
 #endif

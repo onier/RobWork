@@ -21,10 +21,6 @@
 #include "State.hpp"
 #include "TreeState.hpp"
 
-#include <rw/common/macros.hpp>
-#include <rw/common/Property.hpp>
-
-#include <rw/kinematics/FKRange.hpp>
 #include "Kinematics.hpp"
 using namespace rw::math;
 using namespace rw::common;
@@ -39,7 +35,7 @@ Frame::Frame(int dof, const std::string& name) :
 
 Frame* Frame::getParent(const State& state)
 {
-    Frame* f1 = getParent();
+    Frame* const f1 = getParent();
     if (f1)
         return f1;
     else
@@ -48,7 +44,7 @@ Frame* Frame::getParent(const State& state)
 
 const Frame* Frame::getParent(const State& state) const
 {
-    const Frame* f1 = getParent();
+    const Frame* const f1 = getParent();
     if (f1)
         return f1;
     else
@@ -112,7 +108,7 @@ rw::math::Transform3D<> Frame::wTf(const rw::kinematics::State& state) const
     return Kinematics::worldTframe( this, state );
 }
 
-rw::math::Transform3D<> Frame::fTf(Frame* to, const rw::kinematics::State& state) const
+rw::math::Transform3D<> Frame::fTf(const Frame* to, const rw::kinematics::State& state) const
 {
     return Kinematics::frameTframe( this, to, state );
 }

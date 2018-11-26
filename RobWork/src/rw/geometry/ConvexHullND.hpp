@@ -18,11 +18,7 @@
 #ifndef RW_GEOMETRY_CONVEXHULLHULLND_HPP_
 #define RW_GEOMETRY_CONVEXHULLHULLND_HPP_
 
-#include <stack>
-#include <set>
 #include <vector>
-#include <float.h>
-#include <boost/numeric/ublas/vector.hpp>
 #include <rw/math/VectorND.hpp>
 #include <rw/common/Ptr.hpp>
 
@@ -87,7 +83,14 @@ namespace geometry {
 		 */
 		virtual rw::math::VectorND<N> getCentroid() = 0;
 
-	};
+		/**
+		 * @brief Returns the point on the convex hull closest to the \b vertex .
+		 * @param vertex [in] the vertex.
+		 * @return the closest point.
+		 */
+		virtual rw::math::VectorND<N> getClosestPoint(const rw::math::VectorND<N>& vertex) = 0;
+
+    };
 
 	//! @}
 

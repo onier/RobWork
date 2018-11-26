@@ -17,13 +17,15 @@
 
 #include "ODEKinematicDevice.hpp"
 
-#include "ODEJoint.hpp"
 #include "ODEUtil.hpp"
 #include "ODESimulator.hpp"
 #include <ode/ode.h>
 #include <boost/foreach.hpp>
 #include <rw/math/Math.hpp>
+#include <rwsim/dynamics/KinematicDevice.hpp>
 
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/vector_proxy.hpp>
 
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -54,7 +56,7 @@ ODEKinematicDevice::ODEKinematicDevice(rwsim::dynamics::KinematicDevice *kdev,
     }
 }
 
-ODEKinematicDevice::~ODEKinematicDevice(){};
+ODEKinematicDevice::~ODEKinematicDevice(){}
 
 void ODEKinematicDevice::reset(rw::kinematics::State& state){
     std::vector<Body::Ptr> bodies = _kdev->getLinks();

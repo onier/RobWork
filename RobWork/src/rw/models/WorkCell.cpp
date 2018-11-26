@@ -20,8 +20,9 @@
 
 #include "Device.hpp"
 #include <rw/kinematics/StateStructure.hpp>
-#include <rw/kinematics/Kinematics.hpp>
 #include <rw/proximity/CollisionSetup.hpp>
+
+#include <boost/bind.hpp>
 
 using namespace rw::models;
 using namespace rw::kinematics;
@@ -94,10 +95,12 @@ void WorkCell::addDevice(Device::Ptr device)
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::addFrame(Frame* frame, Frame* parent){
-    if(parent==NULL)
-        parent = getWorldFrame();
-    _tree->addFrame(frame, parent);
+void WorkCell::addFrame(Frame* const frame, Frame* const parent){
+    if(parent==NULL) {
+        _tree->addFrame(frame, getWorldFrame());
+    } else {
+        _tree->addFrame(frame, parent);
+    }
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 

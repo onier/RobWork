@@ -18,15 +18,12 @@
 
 #include "PieperSolver.hpp"
 #include <rw/common/macros.hpp>
-#include <rw/common/Timer.hpp>
 #include <rw/models/Joint.hpp>
-#include <rw/math/Constants.hpp>
+#include <rw/models/DHParameterSet.hpp>
+#include <rw/models/SerialDevice.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 #include <rw/kinematics/Kinematics.hpp>
-
-#include <boost/foreach.hpp>
-
-#include <complex>
+#include <rw/kinematics/Frame.hpp>
 
 using namespace rw::invkin;
 using namespace rw::math;
@@ -967,4 +964,8 @@ void PieperSolver::setupCoefficients(double r, double z) const {
                                Power(d4,2)*(-1 + 2*Power(calpha3*salpha2 + calpha2*salpha3,2))) -
              4*calpha1*(d2 + calpha2*(d3 + calpha3*d4) - d4*salpha2*salpha3)*z + 2*Power(z,2)))/
          Power(salpha1,2))/4.;
+}
+
+rw::kinematics::Frame::CPtr PieperSolver::getTCP() const {
+    return nullptr;
 }

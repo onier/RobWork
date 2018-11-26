@@ -26,8 +26,6 @@
 #include <string>
 
 #include <rw/math/Transform3D.hpp>
-#include <rw/kinematics/Frame.hpp>
-#include <rw/kinematics/State.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/common/ExtensionPoint.hpp>
 #include <rw/kinematics/FrameMap.hpp>
@@ -35,19 +33,16 @@
 
 
 #include "ProximityStrategy.hpp"
-#include "CollisionToleranceStrategy.hpp"
 //#include "ProximityStrategyData.hpp"
 
+namespace rw { namespace kinematics { class Frame; } }
+
 namespace rw { namespace proximity {
+	class CollisionToleranceStrategy;
 
     /** @addtogroup proximity */
     /*@{*/
-#ifdef RW_USE_DEPRECATED
-    class CollisionStrategy;
 
-    //! A pointer to a CollisionStrategy.
-    typedef rw::common::Ptr<CollisionStrategy> CollisionStrategyPtr;
-#endif
     /**
      * @brief An interface that defines methods to test collision between
      * two objects.
@@ -90,7 +85,7 @@ namespace rw { namespace proximity {
                 int startIdx, size;
             };
 
-            //! @breif transformation from a to b
+            //! @brief transformation from a to b
             rw::math::Transform3D<> _aTb;
 
             //! @brief the collision pairs
@@ -111,6 +106,9 @@ namespace rw { namespace proximity {
              * @brief clear all result values
              */
             void clear(){
+                a = NULL;
+                b = NULL;
+                _aTb = rw::math::Transform3D<>::identity();
                 _collisionPairs.clear();
                 _geomPrimIds.clear();
                 _nrBVTests = 0;
@@ -218,7 +216,7 @@ namespace rw { namespace proximity {
            be in collision if \b strategy claim they are in collision for a
            tolerance of \b tolerance.
         */
-		static CollisionStrategy::Ptr make(CollisionToleranceStrategy::Ptr strategy,
+		static CollisionStrategy::Ptr make(rw::common::Ptr<CollisionToleranceStrategy> strategy,
                          double tolerance);
 
         /**
@@ -229,36 +227,53 @@ namespace rw { namespace proximity {
            be in collision if \b strategy claim they are in collision for a
            tolerance of \b tolerance.
         */
-        static CollisionStrategy::Ptr make(CollisionToleranceStrategy::Ptr strategy,
+        static CollisionStrategy::Ptr make(rw::common::Ptr<CollisionToleranceStrategy> strategy,
                          const rw::kinematics::FrameMap<double>& frameToTolerance,
                          double defaultTolerance);
 
-
-
-
     	/**
     	 * @addtogroup extensionpoints
-    	 * @extensionpoint{rw::loaders::WorkCellSaver::Factory, rw::loaders::WorkCellSaver, rw.loaders.WorkCellSaver}
- 	 	 */
+    	 * @extensionpoint{rw::proximity::CollisionStrategy::Factory,rw::proximity::CollisionStrategy,rw.proximity.CollisionStrategy}
+    	 */
 
-		/**
-		 * @brief a factory for WorkCellSaver. This factory also defines an
-		 * extension point for workcell savers.
-		 */
-        class Factory: public rw::common::ExtensionPoint<CollisionStrategy> {
-	    public:
-	    	//! constructor
-	        Factory():rw::common::ExtensionPoint<CollisionStrategy>("rw.proximity.CollisionStrategy",
-	        														 "Extensions to create collision strategies"){};
+    	/**
+    	 * @brief A factory for a CollisionStrategy. This factory also defines an ExtensionPoint.
+    	 *
+    	 * Extensions providing a CollisionStrategy implementation can extend this factory by registering
+    	 * the extension using the id "rw.proximity.CollisionStrategy".
+    	 *
+    	 * Typically one or more of the following CollisionStrategy types will be available:
+    	 *  - RW - rw::proximity::ProximityStrategyRW - Internal RobWork proximity strategy
+    	 *  - Bullet - rwlibs::proximitystrategies::ProximityStrategyBullet - Bullet Physics
+    	 *  - PQP - rwlibs::proximitystrategies::ProximityStrategyPQP - Proximity Query Package
+    	 *  - FCL - rwlibs::proximitystrategies::ProximityStrategyFCL - Flexible Collision Library
+    	 *  - Yaobi - rwlibs::proximitystrategies::ProximityStrategyYaobi - Yaobi
+    	 */
+    	class Factory: public rw::common::ExtensionPoint<CollisionStrategy> {
+    	public:
+    		//! @brief Constructor.
+    		Factory();
 
-	        /**
-	         * @brief create
-	         * @return
-	         */
-	        //static rw::common::Ptr<CollisionStrategy> getCollisionStrategy(const std::string& strategy_hint);
+    		/**
+    		 * @brief Get the available strategies.
+    		 * @return a vector of identifiers for strategies.
+    		 */
+    		static std::vector<std::string> getStrategies();
 
-	    };
+    		/**
+    		 * @brief Check if strategy is available.
+    		 * @param strategy [in] the name of the strategy.
+    		 * @return true if available, false otherwise.
+    		 */
+    		static bool hasStrategy(const std::string& strategy);
 
+    		/**
+    		 * @brief Create a new strategy.
+    		 * @param strategy [in] the name of the strategy.
+    		 * @return a pointer to a new CollisionStrategy.
+    		 */
+    		static CollisionStrategy::Ptr makeStrategy(const std::string& strategy);
+    	};
 
     protected:
 

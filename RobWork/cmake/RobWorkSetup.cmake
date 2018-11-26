@@ -80,6 +80,7 @@ IF(DEFINED UNIX)
   
 ELSEIF(DEFINED WIN32)
   SET(Boost_USE_STATIC_LIBS ON)
+  SET(BOOST_ALL_DYN_LINK OFF)
   FIND_PACKAGE(Boost COMPONENTS filesystem regex serialization system thread program_options)
   SET(Boost_LIBRARIES_TMP ${Boost_LIBRARIES_TMP} ${Boost_LIBRARIES})
   # If static libraries for Windows were not found, try searching again for the shared ones
@@ -88,6 +89,7 @@ ELSEIF(DEFINED WIN32)
     SET(Boost_USE_STATIC_LIBS OFF)
     FIND_PACKAGE(Boost REQUIRED filesystem regex serialization system thread program_options)
     SET(Boost_LIBRARIES_TMP ${Boost_LIBRARIES_TMP} ${Boost_LIBRARIES})
+    SET(BOOST_ALL_DYN_LINK ON)
   ENDIF()
   
   # Test libraries are optional
@@ -161,11 +163,12 @@ INCLUDE(CMakeDependentOption)
 # For some of the xml parsing we need xerces, though it is OPTIONAL
 #
 SET(RW_HAVE_XERCES False)
-FIND_PACKAGE(XercesC REQUIRED)
+FIND_PACKAGE(XercesC QUIET)
 IF( XERCESC_FOUND )
     SET(RW_HAVE_XERCES True)
+    MESSAGE(STATUS "RobWork: XERCES ENABLED! FOUND!")
 ELSE ()
-    MESSAGE(SEND_ERROR "RobWork: Xerces NOT FOUND! Check if XERCESC_INCLUDE_DIR and XERCESC_LIB_DIR is set correctly!")
+    MESSAGE(STATUS "RobWork: Xerces NOT FOUND! Xerces code disabled! (Check if XERCESC_ROOT or XERCESC_INCLUDE_DIR and XERCESC_LIB_DIR is set correctly if you need it)!")
 ENDIF ()
 
 #
@@ -216,34 +219,57 @@ ELSE ()
     SET(PQP_INCLUDE_DIR "")
 ENDIF()
 
+#
+# If the user wants to use FCL then search for it, OPTIONAL
+#
+SET(RW_HAVE_FCL False)
+CMAKE_DEPENDENT_OPTION(RW_USE_FCL "Set to ON to include FCL support." ON "NOT RW_DISABLE_FCL" OFF)
+IF(RW_USE_FCL)
+  FIND_PACKAGE(FCL QUIET)
+  IF(FCL_FOUND)
+    MESSAGE(STATUS "RobWork: Native FCL installation FOUND! - version ${FCL_VERSION}")
+    SET(RW_HAVE_FCL True)
+  ELSE()
+    SET(RW_ENABLE_INTERNAL_FCL_TARGET ON)
+    INCLUDE(${RW_ROOT}/ext/fcl/fcl/CMakeModules/FCLVersion.cmake)
+    MESSAGE(STATUS "RobWork: native FCL installation NOT FOUND! Using RobWork ext FCL ${FCL_VERSION}.")
+    SET(FCL_INCLUDE_DIRS "${RW_ROOT}/ext/fcl/fcl/include")
+    SET(FCL_LIBRARIES "fcl")
+    SET(FCL_LIBRARY_DIRS ${RW_LIBRARY_OUT_DIR})
+    SET(RW_HAVE_FCL TRUE)
+  ENDIF()
+ELSE()
+  MESSAGE(STATUS "RobWork: FCL DISABLED!")
+ENDIF()
+
 #FIND_PACKAGE(Eigen3 3.1.0 QUIET)
 FIND_PACKAGE(Eigen3 QUIET)
 IF( EIGEN3_FOUND )
-    MESSAGE(STATUS "RobWork: EIGEN3 installation FOUND!")
+    MESSAGE(STATUS "RobWork: EIGEN3 installation FOUND! - version ${EIGEN3_VERSION}")
+	IF(EIGEN3_VERSION VERSION_LESS 3.1.0)
+		# We need to add this to enable compilation on default ubuntu 12.04 eigen
+		# (only for Eigen versions lower than 3.1.0)
+		ADD_DEFINITIONS("-DEIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET=1")
+	ENDIF()
 ELSE ()
     SET(RW_ENABLE_INTERNAL_EIGEN_TARGET ON)
     MESSAGE(STATUS "RobWork: EIGEN3 installation NOT FOUND! Using RobWork ext EIGEN3.")
     SET(EIGEN3_INCLUDE_DIR "${RW_ROOT}/ext/eigen3")
 ENDIF ()
-# We need to add this to enable compilation on default ubuntu 12.04 eigen
-ADD_DEFINITIONS("-DEIGEN_YES_I_KNOW_SPARSE_MODULE_IS_NOT_STABLE_YET=1")
 
 
-
-FIND_PACKAGE(Qhull QUIET)
-IF( QHULL_FOUND )
-    MESSAGE(STATUS "RobWork: QHULL installation FOUND!")
-ELSE ()
+# find package disabled, in order to use reentrant qhull
+#FIND_PACKAGE(Qhull QUIET)
+#IF( QHULL_FOUND )
+#    MESSAGE(STATUS "RobWork: QHULL installation FOUND!")
+#ELSE ()
     SET(RW_ENABLE_INTERNAL_QHULL_TARGET ON)
     MESSAGE(STATUS "RobWork: QHULL installation NOT FOUND! Using RobWork ext QHULL.")
     
     SET(QHULL_INCLUDE_DIRS "${RW_ROOT}/ext/qhull/src")
     SET(QHULL_LIBRARIES "rw_qhull")
     SET(QHULL_DEFINITIONS "")
-
-    SET(HAVE_QHULL_2011 ON)
-    
-ENDIF ()
+#ENDIF ()
 
 # CSGJS
 MESSAGE(STATUS "Using CsgJs.")
@@ -280,16 +306,30 @@ CMAKE_DEPENDENT_OPTION(RW_USE_LUA "Set to ON to include PQP support.
     ON "SWIG_FOUND;NOT RW_DISABLE_LUA" OFF)
     
 IF(RW_USE_LUA)
-    FIND_PACKAGE(Lua51 QUIET)
-    IF( LUA51_FOUND )
-        MESSAGE(STATUS "RobWork: External lua FOUND!")
-    ELSE ()
-        SET(RW_ENABLE_INTERNAL_LUA_TARGET ON)
-        MESSAGE(STATUS "RobWork:  External lua NOT FOUND! Using RobWork native Lua.")
-        SET(LUA_INCLUDE_DIR "${RW_ROOT}/ext/lua/src/")
-        SET(LUA_LIBRARIES "lua51")
-        SET(LUA_LIBRARY_DIRS ${RW_LIBRARY_OUT_DIR})
+	SET(RW_FOUND_LUA FALSE)
+	IF(${CMAKE_VERSION} VERSION_LESS "3.0.0")
+    	FIND_PACKAGE(Lua51 QUIET)
+    	IF( LUA51_FOUND )
+        	MESSAGE(STATUS "RobWork: External lua ${LUA_VERSION_STRING} FOUND!")
+        	SET (RW_FOUND_LUA TRUE)
+        ENDIF()
+    ELSE()
+    	FIND_PACKAGE(Lua QUIET)
+    	IF( LUA_FOUND )
+    		IF (LUA_VERSION_MAJOR GREATER "5" OR LUA_VERSION_MINOR GREATER "0")
+        		MESSAGE(STATUS "RobWork: External lua ${LUA_VERSION_STRING} FOUND!")
+        		SET(RW_FOUND_LUA TRUE)
+        	ENDIF()
+    	ENDIF ()
+	ENDIF()
+    IF(NOT RW_FOUND_LUA)
+       	SET(RW_ENABLE_INTERNAL_LUA_TARGET ON)
+       	MESSAGE(STATUS "RobWork:  External lua NOT FOUND! Using RobWork native Lua.")
+       	SET(LUA_INCLUDE_DIR "${RW_ROOT}/ext/lua/src/")
+       	SET(LUA_LIBRARIES "lua51")
+       	SET(LUA_LIBRARY_DIRS ${RW_LIBRARY_OUT_DIR})
     ENDIF ()
+    UNSET(RW_FOUND_LUA)
 
     IF( SWIG_FOUND )
         MESSAGE(STATUS "RobWork: LUA ENABLED! Both SWIG and Lua FOUND!")
@@ -353,6 +393,9 @@ CMAKE_DEPENDENT_OPTION(RW_USE_ASSIMP "Set to ON to include Assimp support.
                 to specify your own Assimp else RobWork Assimp will 
                 be used!"
       ON "NOT RW_DISABLE_ASSIMP" OFF)
+
+SET(ASSIMP_INCLUDE_DIRS "")
+SET(ASSIMP_LIBRARIES "")
 IF(RW_USE_ASSIMP)
 	# Now try to find Assimp
 	FIND_PACKAGE(Assimp 3.0 QUIET)
@@ -414,8 +457,10 @@ CMAKE_DEPENDENT_OPTION(RW_USE_GTEST "Set to ON to include Google Test support.
       ON "NOT RW_DISABLE_GTEST" OFF)
 IF(RW_USE_GTEST)
 	# Now try to find Google Test
+	SET(gtest_force_shared_crt ON CACHE BOOL "Use /MD on Windows systems.")
 	FIND_PACKAGE(GTest QUIET)
 	IF( GTEST_FOUND )
+		SET(GTEST_SHARED_LIBS ${BUILD_SHARED_LIBS})
 		MESSAGE(STATUS "RobWork: Google Test installation FOUND!")
 		SET(RW_HAVE_GTEST TRUE)
 	ELSE()
@@ -471,33 +516,124 @@ RW_IS_RELEASE(IS_RELEASE)
 # Set extra compiler flags. The user should be able to change this
 # 
 
+IF( "${RW_C_FLAGS}" STREQUAL "")
+    # GCC and MinGW
+    IF ( (CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang") )
+      # Necessary Linux-GCC flag
+      IF(DEFINED UNIX)
+        SET(RW_C_FLAGS_TMP "${RW_C_FLAGS_TMP} -fPIC")
+      ENDIF()
+    ENDIF ()
+
+	IF(DEFINED RW_C_FLAGS_EXTRA)
+	  SET(RW_C_FLAGS_TMP "${RW_C_FLAGS_TMP} ${RW_C_FLAGS_EXTRA}")
+	ENDIF()
+        
+	SET(RW_C_FLAGS "${RW_C_FLAGS_TMP}"
+		CACHE STRING "Change this to force using your own 
+					  flags and not those of RobWork" FORCE
+	)
+ENDIF()
+
 IF( "${RW_CXX_FLAGS}" STREQUAL "")
     # GCC and MinGW
     IF ( (CMAKE_COMPILER_IS_GNUCXX) OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") )
       # Turn off annoying GCC warnings
-      SET(RW_CXX_FLAGS_TMP "-Wall" "-Wno-strict-aliasing" "-Wno-unused-function" "-Wno-pragmas")
+      SET(RW_CXX_FLAGS_TMP "-Wall -Wno-strict-aliasing -Wno-unused-function -Wno-pragmas")
       IF ( CMAKE_CXX_COMPILER_ID STREQUAL "Clang" )
-      	SET(RW_CXX_FLAGS_TMP "-Wall" "-Wno-strict-aliasing" "-Wno-unused-function")
+      	SET(RW_CXX_FLAGS_TMP "-Wall -Wno-strict-aliasing -Wno-unused-function")
       ENDIF()
-
-      MESSAGE("GNUCXX ${RW_CXX_FLAGS_TMP}")
-      IF(IS_RELEASE)
-          LIST(APPEND RW_CXX_FLAGS_TMP "-DBOOST_DISABLE_ASSERTS")
-      ENDIF() 
       
       # Necessary Linux-GCC flag
       IF(DEFINED UNIX)
-        LIST(APPEND RW_CXX_FLAGS_TMP "-fPIC")
-      ENDIF()
-	  
-      IF(DEFINED MINGW AND AMD64)
-        LIST(APPEND RW_CXX_FLAGS_TMP "-DBOOST_USE_WINDOWS_H")
+        SET(RW_CXX_FLAGS_TMP "${RW_CXX_FLAGS_TMP} -fPIC")
       ENDIF()
     ENDIF ()
     
     # Setup crucial MSVC flags, without these RobWork does not compile
     IF (DEFINED MSVC)
-      SET(RW_CXX_FLAGS_TMP # Remove the min()/max() macros or else RobWork won't compile.
+      SET(RW_CXX_FLAGS_TMP "-EHa -bigobj /MP")
+    ENDIF ()
+
+	# Set C++11 standard (except if user has specified this explicitly in the RW_CXX_FLAGS_EXTRA variable).
+	SET(RW_CXX_FLAGS_SET_STD FALSE)
+	IF(CMAKE_COMPILER_IS_GNUCXX)
+		IF(CMAKE_CXX_COMPILER_VERSION VERSION_LESS "6.1.0") # from GNU 6.1 gnu++14 should be the default
+			SET(RW_CXX_FLAGS_SET_STD TRUE)
+			FOREACH(flag ${RW_CXX_FLAGS_EXTRA})
+				STRING(REGEX MATCH ".*-std=.*" flag ${flag})
+				IF(flag)
+					SET(RW_CXX_FLAGS_SET_STD FALSE)
+				ENDIF()
+			ENDFOREACH()
+		ENDIF()
+	ENDIF()
+	IF(RW_CXX_FLAGS_SET_STD)
+		SET(RW_CXX_FLAGS_TMP "${RW_CXX_FLAGS_TMP} -std=c++11")
+	ENDIF()
+
+	IF(DEFINED RW_CXX_FLAGS_EXTRA)
+	  SET(RW_CXX_FLAGS_TMP "${RW_CXX_FLAGS_TMP} ${RW_CXX_FLAGS_EXTRA}")
+	ENDIF()
+        
+	SET(RW_CXX_FLAGS "${RW_CXX_FLAGS_TMP}"
+		CACHE STRING "Change this to force using your own 
+					  flags and not those of RobWork" FORCE
+	)
+ENDIF()
+
+#
+# Enable the use of OMP definitions.
+#
+OPTION(RW_ENABLE_OMP "Enables use of OpenMP #pragmas: on|off" ON)
+IF( RW_ENABLE_OMP )
+    MESSAGE(STATUS "RobWork: OpenMP enabled.")
+    FIND_PACKAGE(OpenMP QUIET)
+    IF(${CMAKE_VERSION} VERSION_LESS "3.9")
+		IF( OPENMP_FOUND )
+			IF(${CMAKE_VERSION} VERSION_LESS "3.7")
+				MESSAGE(STATUS "RobWork: OpenMP CXX FOUND!")
+			ELSE()
+				MESSAGE(STATUS "RobWork: OpenMP CXX FOUND! - Specification date ${OpenMP_CXX_SPEC_DATE}")
+			ENDIF()
+			SET(RW_HAVE_OMP TRUE)
+			SET(RW_CXX_FLAGS "${RW_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+		ELSE ()
+			MESSAGE( STATUS "RobWork: OpenMP CXX NOT FOUND!" )
+			SET(RW_HAVE_OMP FALSE)
+		ENDIF()
+    ELSE() # CMake 3.9 and newer
+		IF( OpenMP_CXX_FOUND )
+			MESSAGE(STATUS "RobWork: OpenMP ${OpenMP_CXX_VERSION} CXX FOUND! - Specification date ${OpenMP_CXX_SPEC_DATE}")
+			SET(RW_HAVE_OMP TRUE)
+			SET(RW_CXX_FLAGS "${RW_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+			# Todo: use OpenMP_CXX_LIB_NAMES, OpenMP_CXX_LIBRARY and/or OpenMP_CXX_LIBRARIES ?
+		ELSE ()
+			MESSAGE( STATUS "RobWork: OpenMP CXX NOT FOUND!" )
+			SET(RW_HAVE_OMP FALSE)
+		ENDIF()
+	ENDIF()
+ELSE ()
+    MESSAGE(STATUS "RobWork: OpenMP disabled.")
+ENDIF ()
+
+IF( "${RW_DEFINITIONS}" STREQUAL "")
+    # GCC and MinGW
+    IF ( (CMAKE_COMPILER_IS_GNUCXX) OR (CMAKE_CXX_COMPILER_ID STREQUAL "Clang") )
+      SET(RW_DEFINITIONS_TMP)
+
+      IF(IS_RELEASE)
+          LIST(APPEND RW_DEFINITIONS_TMP "-DBOOST_DISABLE_ASSERTS")
+      ENDIF()
+
+      IF(DEFINED MINGW AND AMD64)
+        LIST(APPEND RW_DEFINITIONS_TMP "-DBOOST_USE_WINDOWS_H")
+      ENDIF()
+    ENDIF ()
+    
+    # Setup crucial MSVC flags, without these RobWork does not compile
+    IF (DEFINED MSVC)
+      SET(RW_DEFINITIONS_TMP # Remove the min()/max() macros or else RobWork won't compile.
                            "-DNOMINMAX" 
                            # Without this define for boost-bindings we can't link with lapack.
                            "-DBIND_FORTRAN_LOWERCASE_UNDERSCORE"
@@ -506,33 +642,33 @@ IF( "${RW_CXX_FLAGS}" STREQUAL "")
                            "-D_SCL_SECURE_NO_WARNINGS"
                            "-D_CRT_SECURE_NO_WARNINGS"
                            "-D_CRT_SECURE_NO_DEPRECATE"
-                           "-EHa"
-                           "-bigobj"
-                           "/MP"
       )
-      
+
       IF(BOOST_TEST_NO_LIB)
-        LIST(APPEND RW_CXX_FLAGS_TMP "-DBOOST_TEST_NO_LIB")
+        LIST(APPEND RW_DEFINITIONS_TMP "-DBOOST_TEST_NO_LIB")
+      ENDIF()
+      IF(BOOST_ALL_DYN_LINK)
+        LIST(APPEND RW_DEFINITIONS_TMP "-DBOOST_ALL_DYN_LINK")
       ENDIF()
 
       # Current issues addressed for MSVC 64 bit:
       # 	- MSVC 64-bit does not support __asm keyword which is used by default in Yaobi.
       # 	  Therefore, we only define YAOBI_USE_FCOMI in ext/yaobi/yaobi_settings.h for 32 bit architectures.
       IF(AMD64)
-        LIST(APPEND RW_CXX_FLAGS_TMP "-DMSVC_AMD64")
+        LIST(APPEND RW_DEFINITIONS_TMP "-DMSVC_AMD64")
       ENDIF()
     ENDIF ()
 
 	# Set necessary options for Win32 environments if static version of Xerces is used
-	IF(XERCES_USE_STATIC_LIBS)
-		LIST(APPEND RW_CXX_FLAGS_TMP "-DXERCES_STATIC_LIBRARY")
+	IF(RW_HAVE_XERCES AND XERCES_USE_STATIC_LIBS)
+		LIST(APPEND RW_DEFINITIONS_TMP "-DXERCES_STATIC_LIBRARY")
 	ENDIF()
 
-	IF(DEFINED RW_CXX_FLAGS_EXTRA)
-	  LIST(APPEND RW_CXX_FLAGS_TMP ${RW_CXX_FLAGS_EXTRA})
+	IF(DEFINED RW_DEFINITIONS_EXTRA)
+	  SET(RW_DEFINITIONS_EXTRA_TMP "${RW_DEFINITIONS_EXTRA_TMP} ${RW_DEFINITIONS_EXTRA_EXTRA}")
 	ENDIF()
 
-	SET(RW_CXX_FLAGS "${RW_CXX_FLAGS_TMP}"
+	SET(RW_DEFINITIONS "${RW_DEFINITIONS_TMP}"
 		CACHE STRING "Change this to force using your own 
 					  flags and not those of RobWork" FORCE
 	)
@@ -542,20 +678,26 @@ IF( "${RW_CXX_FLAGS}" STREQUAL "")
 	MESSAGE(WARNING "Something might be wrong. No CXX FLAGS have been specified. You may be using an unsupported compiler!!")
 ENDIF()
 
-ADD_DEFINITIONS(${RW_CXX_FLAGS})
+ADD_DEFINITIONS(${RW_DEFINITIONS})
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RW_CXX_FLAGS}")
+SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${RW_C_FLAGS}")
+MESSAGE(STATUS "RobWork: RW C flags: ${RW_C_FLAGS}")
 MESSAGE(STATUS "RobWork: RW CXX flags: ${RW_CXX_FLAGS}")
+MESSAGE(STATUS "RobWork: RW definitions: ${RW_DEFINITIONS}")
 
 #
 # Set extra linker flags. The user should be able to change this
 #
 IF(NOT DEFINED RW_LINKER_FLAGS)
 	# Set necessary linker options for Win32 environments if static version of Xerces is used
-	IF(MSVC AND XERCES_USE_STATIC_LIBS)
-	    IF(NOT IS_RELEASE)
-          SET(RW_LINKER_FLAGS "/NODEFAULTLIB:LIBCMTD")
-        ELSE()
-          SET(RW_LINKER_FLAGS "/NODEFAULTLIB:LIBCMT")
-        ENDIF()
+	IF(RW_HAVE_XERCES)
+		IF(MSVC AND XERCES_USE_STATIC_LIBS)
+			IF(NOT IS_RELEASE)
+				SET(RW_LINKER_FLAGS "/NODEFAULTLIB:LIBCMTD")
+			ELSE()
+				SET(RW_LINKER_FLAGS "/NODEFAULTLIB:LIBCMT")
+			ENDIF()
+		ENDIF()
 	ENDIF()
 ENDIF()
 SET(RW_BUILD_WITH_LINKER_FLAGS "${RW_LINKER_FLAGS}") 
@@ -569,14 +711,12 @@ MESSAGE(STATUS "RobWork: RW linker flags: ${RW_LINKER_FLAGS}")
 #MESSAGE(" ${Boost_MAJOR_VERSION} ${Boost_MINOR_VERSION} ")
 IF(${Boost_MINOR_VERSION} VERSION_LESS 41 ) 
     # proerty tree is not included in earlier versions 1.41 of boost
-    # so we include it from our own
-    SET(ADDITIONAL_BOOST_BINDINGS "${RW_ROOT}/ext/deprecated")
-    MESSAGE(STATUS "RobWork: Boost ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION} found, no support for property_tree. Adding from ext!")   
+    MESSAGE(FATAL_ERROR "RobWork: Boost ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION} found, no support for property_tree. Please choose Boost version 1.41 or newer!")   
 ENDIF()
 
-IF(${Boost_MINOR_VERSION} VERSION_LESS 44 ) 
+IF(${Boost_MINOR_VERSION} VERSION_LESS 44 )
     ADD_DEFINITIONS("-DBOOST_FILESYSTEM_VERSION=2")
-ELSE()
+ELSEIF(${Boost_MINOR_VERSION} VERSION_LESS 46) # version 3 is the default for Boost 1.46 and later
     ADD_DEFINITIONS("-DBOOST_FILESYSTEM_VERSION=3")
 ENDIF()
 
@@ -612,7 +752,7 @@ SET(ROBWORK_INCLUDE_DIR
     ${QHULL_INCLUDE_DIRS}
     ${CSGJS_INCLUDE_DIRS}
     ${ZLIB_INCLUDE_DIRS}
-    ${MINIZIP_INCLUDE_DIRS}
+#    ${MINIZIP_INCLUDE_DIRS} # Do not include this overall as there is a conflict with another crypt.h that Python includes.
     ${ASSIMP_INCLUDE_DIRS}
     ${Mathematica_WSTP_INCLUDE_DIR}
 )
@@ -625,9 +765,10 @@ SET(ROBWORK_LIBRARY_DIRS
     ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY} 
     ${RW_CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
     ${Boost_LIBRARY_DIRS}
-    ${XERCESC_LIBRARY_DIRS}
+    ${XERCESC_LIB_DIR}
     ${YAOBI_LIBRARY_DIRS}
     ${PQP_LIBRARY_DIRS}
+    ${FCL_LIBRARY_DIRS}
     ${LUA_LIBRARY_DIRS}
     ${BULLET_LIBRARY_DIRS}
     ${TOLUA_LIBRARY_DIRS}
@@ -646,6 +787,8 @@ SET(ROBWORK_LIBRARY_DIRS
 # 
 SET(ROBWORK_LIBRARIES_TMP
   ${SANDBOX_LIB}
+  ${RW_LUA_LIBS}
+  ${LUA_LIBRARIES}
   rw_algorithms
   rw_pathplanners
   rw_pathoptimization
@@ -655,12 +798,12 @@ SET(ROBWORK_LIBRARIES_TMP
   rw_task
   rw_calibration
   rw_csg
+  rw_control
   ${RW_MATHEMATICA_LIB}
-  ${RW_LUA_LIBS}
-  ${LUA_LIBRARIES}
   rw_proximitystrategies
   ${YAOBI_LIBRARIES}
-  ${PQP_LIBRARIES}  
+  ${PQP_LIBRARIES}
+  ${FCL_LIBRARIES}
   rw
   ${SOFTBODY_LIB}
   ${OPENGL_LIBRARIES}

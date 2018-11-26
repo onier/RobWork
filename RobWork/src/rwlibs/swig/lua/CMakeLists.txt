@@ -1,5 +1,5 @@
 SET(SUBSYS_NAME rw_lua )
-SET(SUBSYS_DESC "Interface for accessing RobWorkSim from lua." )
+SET(SUBSYS_DESC "Interface for accessing RobWork from lua." )
 SET(SUBSYS_DEPS rw )
 
 # make sure that SDH can be found
@@ -31,48 +31,32 @@ IF( build )
 	
 	# lua interface generation
 	SET(SWIG_MODULE_rw_lua_EXTRA_DEPS ../rwmath.i ../rwplanning.i)
-	STRING(REPLACE "rw_lua" "" LIBS_WITHOUT_RW_LUA ${ROBWORK_LIBRARIES})
-    SWIG_ADD_MODULE(rw_lua lua ../rw.i ../ScriptTypes.cpp LuaState.cpp)
-	
-	SWIG_LINK_LIBRARIES(rw_lua rw_algorithms
-                              rw_pathplanners
-                              rw_pathoptimization
-                              rw_simulation
-                              rw_opengl
-                              rw_assembly
-                              ${LUA_LIBRARIES}
-                              rw_proximitystrategies
-                              rw_task
-                              ${YAOBI_LIBRARIES}
-                              ${PQP_LIBRARIES}  
-                              rw
-                              ${OPENGL_LIBRARIES}
-                              ${XERCESC_LIBRARIES}
-                              ${ASSIMP_LIBRARIES}
-                              ${ZLIB_LIBRARIES}
-                              ${MINIZIP_LIBRARIES}
-                              ${Boost_LIBRARIES}
-                              ${LAPACK_LIBRARIES} 
-                              ${BLAS_LIBRARIES}
-                              rw_qhull)
-    ADD_DEPENDENCIES(rw_lua rw_algorithms
-                          rw_pathplanners
-                          rw_pathoptimization
-                          rw_simulation
-                          rw_opengl
-                          rw_proximitystrategies
-                          rw_task
-                          ${YAOBI_LIBRARIES}
-                          ${PQP_LIBRARIES}  
-                          rw
-                          rw_qhull
-                          ${ASSIMP_LIBRARIES}
-                          ${ZLIB_LIBRARIES}
-                          ${MINIZIP_LIBRARIES}
-)
-    
-    ADD_LIBRARY(rw_lua_s STATIC Lua.cpp LuaState.cpp ${swig_generated_sources} ${swig_other_sources})
-    LINK_LIBRARIES(rw_lua_s rw)
+	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
+		SWIG_ADD_LIBRARY(rw_lua TYPE MODULE LANGUAGE lua SOURCES ../rw.i ../ScriptTypes.cpp Lua.cpp LuaState.cpp)
+	ELSE()
+		SWIG_ADD_MODULE(rw_lua lua ../rw.i ../ScriptTypes.cpp Lua.cpp LuaState.cpp)
+	ENDIF()
+
+    SWIG_LINK_LIBRARIES(rw_lua
+    	rw_pathplanners
+    	rw_pathoptimization
+    	rw_assembly
+    	rw_task
+    	rw_proximitystrategies
+    	rw
+		${LUA_LIBRARIES}
+    )
+    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+      SET_TARGET_PROPERTIES(${SWIG_MODULE_rw_jni_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+    ENDIF()
+
+    IF ((CMAKE_VERSION VERSION_GREATER 3.12.0) OR (CMAKE_VERSION VERSION_EQUAL 3.12.0))
+        SWIG_ADD_LIBRARY(rw_lua_s TYPE STATIC LANGUAGE lua SOURCES ../rw.i ../ScriptTypes.cpp Lua.cpp LuaState.cpp)
+    ELSE()
+        ADD_LIBRARY(rw_lua_s STATIC Lua.cpp LuaState.cpp ${swig_generated_sources} ${swig_other_sources})
+        ADD_DEPENDENCIES(rw_lua_s rw_lua) # avoid using the source files before they have been generated
+    ENDIF()
+    TARGET_LINK_LIBRARIES(rw_lua_s rw_pathplanners rw_assembly rw)
 
 	# the dynamic version
     #ADD_LIBRARY(rw_lua DYNAMIC Lua.cpp ${swig_generated_sources} ${swig_other_sources})

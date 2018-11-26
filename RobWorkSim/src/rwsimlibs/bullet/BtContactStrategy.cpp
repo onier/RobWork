@@ -26,24 +26,26 @@
 #include <rw/geometry/Box.hpp>
 #include <rw/geometry/Plane.hpp>
 
-#include <bullet/BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
+#include <rwsim/contacts/ContactModel.hpp>
 
-#include <bullet/BulletCollision/CollisionDispatch/btCollisionDispatcher.h>
-#include <bullet/BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h>
+#include <BulletCollision/BroadphaseCollision/btCollisionAlgorithm.h>
 
-#include <bullet/BulletCollision/CollisionShapes/btCylinderShape.h>
-#include <bullet/BulletCollision/CollisionShapes/btSphereShape.h>
-#include <bullet/BulletCollision/CollisionShapes/btBoxShape.h>
-#include <bullet/BulletCollision/CollisionShapes/btStaticPlaneShape.h>
-#include <bullet/BulletCollision/CollisionShapes/btTriangleMesh.h>
+#include <BulletCollision/CollisionDispatch/btCollisionDispatcher.h>
+#include <BulletCollision/CollisionDispatch/btDefaultCollisionConfiguration.h>
 #include <bullet/BulletCollision/CollisionShapes/btBvhTriangleMeshShape.h>
 
 #include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
-#include <bullet/BulletCollision/Gimpact/btGImpactShape.h>
+#include <BulletCollision/CollisionShapes/btCylinderShape.h>
+#include <BulletCollision/CollisionShapes/btSphereShape.h>
+#include <BulletCollision/CollisionShapes/btBoxShape.h>
+#include <BulletCollision/CollisionShapes/btStaticPlaneShape.h>
+#include <BulletCollision/CollisionShapes/btTriangleMesh.h>
 
-#include <bullet/BulletDynamics/Dynamics/btRigidBody.h>
+#include <BulletCollision/Gimpact/btGImpactShape.h>
 
-#include <bullet/LinearMath/btDefaultMotionState.h>
+#include <BulletDynamics/Dynamics/btRigidBody.h>
+
+#include <LinearMath/btDefaultMotionState.h>
 
 using namespace rw::common;
 using namespace rw::geometry;
@@ -202,7 +204,12 @@ std::vector<Contact> BtContactStrategy::findContacts(
 			const btCollisionObjectWrapper obj0Wrap(0,bodyA->getCollisionShape(),bodyA,transformA);
 			const btCollisionObjectWrapper obj1Wrap(0,bodyB->getCollisionShape(),bodyB,transformB);
 #endif
-			btCollisionAlgorithm* algorithm = _dispatcher->findAlgorithm(&obj0Wrap,&obj1Wrap);
+#if BT_BULLET_VERSION >= 286
+			btPersistentManifold* dummyManifold = 0;
+			btCollisionAlgorithm* algorithm = _dispatcher->findAlgorithm(&obj0Wrap,&obj1Wrap, dummyManifold, ebtDispatcherQueryType::BT_CONTACT_POINT_ALGORITHMS);
+#else
+			btCollisionAlgorithm* algorithm = _dispatcher->findAlgorithm(&obj0Wrap, &obj1Wrap);
+#endif
 			btManifoldArray manifolds;
 			algorithm->getAllContactManifolds(manifolds);
 			for (int i = 0; i < manifolds.size(); i++) {

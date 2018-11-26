@@ -34,7 +34,6 @@
 #include "Device.hpp"
 #include "Object.hpp"
 #include <vector>
-#include <map>
 #include <string>
 #include <ostream>
 
@@ -51,12 +50,6 @@ namespace rw { namespace models {
     /** @addtogroup models */
     /*@{*/
 
-#ifdef RW_USE_DEPRECATED
-    class WorkCell;
-
-    //! A pointer to a WorkCell.
-    typedef rw::common::Ptr<WorkCell> WorkCellPtr;
-#endif
     /**
      * @brief WorkCell keeps track of devices, obstacles and objects in the
      * scene.
@@ -72,8 +65,10 @@ namespace rw { namespace models {
     class WorkCell {
     public:
 
-		//! @brief smart pointer type to this class
+		//! @brief Smart pointer type to a WorkCell object
 		typedef rw::common::Ptr<WorkCell> Ptr;
+		//! @brief Smart pointer type to a constant WorkCell object
+		typedef rw::common::Ptr<const WorkCell> CPtr;
 
 		typedef enum{STATE_DATA_ADDED,STATE_DATA_REMOVED,WORKCELL_CHANGED} WorkCellEventType;
 
@@ -276,7 +271,7 @@ namespace rw { namespace models {
 		std::vector<rw::common::Ptr<T> > findDevices() const{
 			std::vector<rw::common::Ptr<T> > result;
         	BOOST_FOREACH(rw::common::Ptr<Device> dev, _devices){
-				rw::common::Ptr<T> res = dev.cast<T>(dev);
+				rw::common::Ptr<T> res = dev.cast<T>();
         		if(res!=NULL)
         			result.push_back(res);
         	}
@@ -478,6 +473,11 @@ namespace rw { namespace models {
          */
         rw::common::PropertyMap& getPropertyMap(){ return _map;}
 
+        /**
+         * @brief Properties of this workcell
+         */
+        const rw::common::PropertyMap& getPropertyMap() const { return _map;}
+
 		/**
 		 * @brief Returns collision setup associated to work cell
 		 *
@@ -518,7 +518,7 @@ namespace rw { namespace models {
 		 *
 		 * @param calibrationFilename [in] Filename of calibration file with path relative to the work cell path.
 		 */
-		void setCalibrationFilename(const std::string& calibrationFilename); 
+		void setCalibrationFilename(const std::string& calibrationFilename);
 
     protected:
         void stateDataAddedListener(const rw::kinematics::StateData* data);

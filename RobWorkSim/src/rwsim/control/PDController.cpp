@@ -1,6 +1,7 @@
 #include "PDController.hpp"
 
 #include <rw/common/macros.hpp>
+#include <rwsim/dynamics/DynamicDevice.hpp>
 
 using namespace rwsim::control;
 using namespace rwsim::dynamics;
@@ -77,7 +78,7 @@ void PDController::setTargetVel(const rw::math::Q& vals){
     _targetVel = vals;
 }
 
-void PDController::setTargetAcc(const rw::math::Q& vals){};
+void PDController::setTargetAcc(const rw::math::Q& vals){}
 
 std::vector<PDParam> PDController::getParameters(){
 	return _pdparams;

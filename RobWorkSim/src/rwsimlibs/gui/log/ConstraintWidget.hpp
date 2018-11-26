@@ -92,7 +92,7 @@ private slots:
 	void constraintSetChanged(const QItemSelection& newSelection, const QItemSelection& oldSelection);
 
 private:
-	QString toQString(const rw::math::Vector3D<>& vec);
+	QString toQString(const rw::math::Vector3D<double>& vec);
 
 private:
     Ui::ConstraintWidget* const _ui;

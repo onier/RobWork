@@ -18,17 +18,21 @@
 #ifndef PROPERTYVIEWDIALOG_HPP_
 #define PROPERTYVIEWDIALOG_HPP_
 
-#include <rw/common/Log.hpp>
 #include <rw/common/PropertyMap.hpp>
 
 #include <QDialog>
 
 class Ui_PropertyViewDialog;
 
+//! @brief Qt dialog for showing properties in a PropertyMap.
 class PropertyViewDialog : public QDialog {
 Q_OBJECT
 public:
-
+	/**
+	 * Make new dialog.
+	 * @param map [in] the property map to show.
+	 * @param parent [in] the parent widget that owns the dialog.
+	 */
 	PropertyViewDialog(rw::common::PropertyMap::Ptr map, QWidget *parent);
 
 private slots:

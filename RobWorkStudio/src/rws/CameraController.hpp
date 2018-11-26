@@ -21,10 +21,12 @@
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Vector2D.hpp>
-#include <rw/math/Quaternion.hpp>
 #include <rw/common/Ptr.hpp>
 
-#include <QMouseEvent>
+#include <QEvent>
+
+namespace rw { namespace kinematics { class State; }}
+namespace rw { namespace models { class WorkCell; }}
 
 namespace rws {
 
@@ -38,7 +40,7 @@ namespace rws {
 
 
 		//! @brief destructor
-		virtual ~CameraController() { };
+		virtual ~CameraController() {}
 
 		/**
 		 * @brief set the bounds that define the area where the 2d point
@@ -52,7 +54,7 @@ namespace rws {
 		/**
 		 * @brief update the center of rotation and screen center
 		 * @param center [in] center of rotation in world coordinates
-		 * @param centerScreen [in] center of rotation in screen coordinates
+		 * @param screenCenter [in] center of rotation in screen coordinates
 		 */
 		virtual void setCenter(const rw::math::Vector3D<>& center,
 		                          const rw::math::Vector2D<>& screenCenter) = 0;
@@ -85,6 +87,26 @@ namespace rws {
 		 * @brief draw the camera control.
 		 */
 		virtual void draw() = 0;
+
+		/**
+		 * @brief Zoom by amount specified by amount.
+		 *
+		 * Calling this method moves the camera along its Z-axis.
+		 * @param amount [in] Meters to zoom the camera
+		 */
+		virtual void zoom(double amount) = 0;
+
+		/**
+		 * @brief Zooms the camera to fit all devices into the camera view.
+		 *
+		 * Useful when working with robots smaller or larger than standard.
+		 * Calling this method moves the camera along its Z-axis.
+		 * @param workcell [in] The autozoom functions fits all frames of workcell in the viewport
+		 * @param state [in] state with the current positions of the frames. If NULL, the default workcell state is used.
+		 * @param fovy [in] the field of view in the vertical direction (in radians).
+		 * @param aspectRatio [in] the aspect ratio of (width divided by height).
+		 */
+		virtual void autoZoom(rw::common::Ptr<rw::models::WorkCell> workcell, rw::common::Ptr<const rw::kinematics::State> state, double fovy, double aspectRatio) = 0;
 
 	};
 

@@ -20,8 +20,11 @@
 #include "SimulatorLogEntryWidget.hpp"
 #include "SimulatorStatisticsWidget.hpp"
 
+#include <rw/geometry/Line.hpp>
+
 #include <rwsim/dynamics/DynamicWorkCell.hpp>
 #include <rws/SceneOpenGLViewer.hpp>
+#include <RobWorkStudioConfig.hpp>
 
 #include "ui_SimulatorLogWidget.h"
 
@@ -31,9 +34,10 @@
 #include <rwsim/log/SimulatorLogEntry.hpp>
 #include <rwsim/log/SimulatorStatistics.hpp>
 
-#include <iostream>
 #include <queue>
-#include "../../../rwsim/log/LogStep.hpp"
+#include <rwsim/log/LogStep.hpp>
+
+#include <QItemSelection>
 
 using namespace rw::common;
 using namespace rw::geometry;
@@ -77,7 +81,11 @@ SimulatorLogWidget::SimulatorLogWidget(QWidget* parent):
 
 	// Left Tree Selector
 	_ui->_tree->setModel(_model);
+#if RWS_USE_QT5
+	_ui->_tree->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
 	_ui->_tree->header()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
 	connect(_ui->_tree->selectionModel(), SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
 			this, SLOT(selectionChanged(const QItemSelection &, const QItemSelection &)));
 	connect(_ui->_tree->selectionModel(), SIGNAL(currentRowChanged (const QModelIndex &, const QModelIndex &)),
@@ -107,6 +115,10 @@ void SimulatorLogWidget::setLog(rw::common::Ptr<SimulatorLogScope> log) {
 	_ui->_tree->selectionModel()->clearSelection();
 	_log = log;
 	_model->setRoot(_log);
+}
+
+void SimulatorLogWidget::compare(rw::common::Ptr<const rwsim::log::SimulatorLogScope> info) {
+	_model->compare(info);
 }
 
 void SimulatorLogWidget::setSelectedTime(double time) {
@@ -205,7 +217,7 @@ void SimulatorLogWidget::selectionChanged(const QItemSelection& selected, const 
 					search = _ui->_tree->indexAbove(search);
 					if (search.isValid()) {
 						const SimulatorLog* const searchEntry = static_cast<const SimulatorLog*>(search.internalPointer());
-						if (searchEntry == dep)
+						if (searchEntry == dep.get())
 							found = true;
 					}
 				}
@@ -301,7 +313,7 @@ void SimulatorLogWidget::selectionChanged(const QItemSelection& selected, const 
 					search = _ui->_tree->indexAbove(search);
 					if (search.isValid()) {
 						const SimulatorLog* const searchEntry = static_cast<const SimulatorLog*>(search.internalPointer());
-						if (searchEntry == dep)
+						if (searchEntry == dep.get())
 							found = true;
 					}
 				}

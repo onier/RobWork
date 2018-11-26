@@ -20,8 +20,6 @@
 #ifndef RWLIBS_TASK_TYPEREPOSITORY_HPP
 #define RWLIBS_TASK_TYPEREPOSITORY_HPP
 
-#include <rw/math/Q.hpp>
-#include <rw/math/Transform3D.hpp>
 #include <rw/common/macros.hpp>
 //#include <tr1/unordered_map>
 #include <map>
@@ -140,9 +138,8 @@ public:
      * @return Reference to the global TypeRepository
      */
     static TypeRepository& instance() {
-        if (_repository == NULL)
-            _repository = new TypeRepository();
-        return *_repository;
+        static TypeRepository repository;
+        return repository;
     }
 
 
@@ -153,16 +150,7 @@ private:
 
     TypeMap _typeMap;
     int _next;
-    TypeRepository() {
-        _typeMap[typeid(rw::math::Q).name()] = Type::Q;
-        _typeMap[typeid(rw::math::Transform3D<>).name()] = Type::Transform3D;
-        _next = Type::User;
-
-    }
-
-    static TypeRepository* _repository;
-
-
+    TypeRepository();
 };
 
 /** @} */

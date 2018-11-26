@@ -10,6 +10,7 @@ SET(FILES_CPP
   MetricFactory.cpp
   MetricUtil.cpp
   Polynomial.cpp
+  PolynomialND.cpp
   PolynomialSolver.cpp
   Pose6D.cpp
   Q.cpp
@@ -32,6 +33,7 @@ SET(FILES_CPP
   Pose2D.cpp
   Wrench6D.cpp
   ProjectionMatrix.cpp
+  Random.cpp
   #serialization.cpp
 )
 
@@ -47,6 +49,7 @@ SET(FILES_HPP
   MetricFactory.hpp
   MetricUtil.hpp
   Polynomial.hpp
+  PolynomialND.hpp
   PolynomialSolver.hpp
   Pose6D.hpp
   Q.hpp
@@ -65,6 +68,7 @@ SET(FILES_HPP
   PerspectiveTransform2D.hpp
   EigenDecomposition.hpp
   ProjectionMatrix.hpp
+  Random.hpp
 )
 
 SOURCE_GROUP(math FILES ${FILES_CPP} ${FILES_HPP})

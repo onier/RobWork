@@ -23,15 +23,13 @@
 
 #include <boost/foreach.hpp>
 
-#include <iostream>
-
 using namespace boost;
 using namespace rw::common;
 
 BOOST_AUTO_TEST_CASE( PropertyTest )
 {
     //Test basic functionality
-    BOOST_MESSAGE("- PropertyTest");
+	BOOST_TEST_MESSAGE("- PropertyTest");
     Property<double>::Ptr propA = ownedPtr(new Property<double>("A", "propA", 123.456));
     BOOST_CHECK(propA->getIdentifier() == "A");
     BOOST_CHECK(propA->getDescription() == "propA");

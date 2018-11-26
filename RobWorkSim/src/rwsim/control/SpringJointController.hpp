@@ -27,7 +27,7 @@
 #include <rwlibs/control/JointController.hpp>
 #include <rwlibs/simulation/SimulatedController.hpp>
 
-namespace rwsim {
+namespace rwsim { namespace dynamics { class RigidDevice; } }
 
 namespace dynamics { class RigidDevice; }
 
@@ -64,7 +64,8 @@ namespace control {
 		SpringJointController(
 		        const std::string& name,
 		        rw::common::Ptr<rwsim::dynamics::RigidDevice> rdev,
-				const std::vector<SpringParam>& springParam);
+				const std::vector<SpringParam>& springParam
+				);
 
 		//! @brief Destructor.
 		virtual ~SpringJointController(){};

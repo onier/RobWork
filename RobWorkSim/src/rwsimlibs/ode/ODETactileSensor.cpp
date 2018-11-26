@@ -17,9 +17,11 @@
 
 
 #include "ODETactileSensor.hpp"
-#include <rw/math/MetricUtil.hpp>
+//#include <rw/math/MetricUtil.hpp>
+#include <rwsim/dynamics/Body.hpp>
 #include <rwsim/dynamics/FixedBody.hpp>
 #include <rwsim/sensor/BodyContactSensor.hpp>
+#include <rwsim/sensor/SimulatedTactileSensor.hpp>
 
 #include "ODEUtil.hpp"
 

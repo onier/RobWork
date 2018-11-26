@@ -28,10 +28,8 @@
 #include "Event.hpp"
 
 #include <boost/function.hpp>
-#include <boost/bind.hpp>
 
 #include <string>
-#include <vector>
 
 namespace rw { namespace common {
 
@@ -97,6 +95,8 @@ namespace rw { namespace common {
          * @brief Method signature for a callback function
          */
         typedef boost::function<void(PropertyBase*)> PropertyListener;
+
+        //! @brief Type for changed property events.
         typedef rw::common::Event<PropertyListener, PropertyBase*> ChangedEvent;
 
         /**
@@ -140,10 +140,6 @@ namespace rw { namespace common {
     };
 
     /** @} */
-#ifdef RW_USE_DEPRECATED
-    //! smartpointer for propertybase
-    typedef rw::common::Ptr<PropertyBase> PropertyBasePtr;
-#endif
 }} // end namespaces
 
 #endif // end include guard

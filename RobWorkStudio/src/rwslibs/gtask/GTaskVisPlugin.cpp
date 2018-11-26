@@ -6,14 +6,18 @@
 #include <rw/geometry/Box.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rwlibs/opengl/DrawableUtil.hpp>
-#include <rwlibs/opengl/Drawable.hpp>
 #include <rwlibs/task/GraspTask.hpp>
 
 #include <rws/RobWorkStudio.hpp>
+
+#include <QFileDialog>
 #include <QPushButton>
-#include <boost/lexical_cast.hpp>
-#include <fstream>
-#include <iostream>
+#include <QMessageBox>
+#include <QTimer>
+
+#include <boost/bind.hpp>
+
+#include <sstream>
 
 //#define PHOENIX_LIMIT 15
 
@@ -101,17 +105,6 @@ namespace {
         rw::geometry::TriMesh::Ptr mesh;
 
     };
-
-
-    class FrameComboBox {
-    public:
-        FrameComboBox(QComboBox* box):_box(box){}
-
-
-    private:
-        QComboBox* _box;
-    };
-
 }
 
 GTaskVisPlugin::GTaskVisPlugin():
@@ -153,8 +146,8 @@ void GTaskVisPlugin::initialize() {
     getRobWorkStudio()->stateChangedEvent().add(
             boost::bind(&GTaskVisPlugin::stateChangedListener, this, _1), this);
 
-    getRobWorkStudio()->genericEvent().add(
-          boost::bind(&GTaskVisPlugin::genericEventListener, this, _1), this);
+    //getRobWorkStudio()->genericEvent().add(
+    //      boost::bind(&GTaskVisPlugin::genericEventListener, this, _1), this);
 
     getRobWorkStudio()->genericAnyEvent().add(
           boost::bind(&GTaskVisPlugin::genericAnyEventListener, this, _1, _2), this);
@@ -609,11 +602,6 @@ void GTaskVisPlugin::genericAnyEventListener(const std::string& event, boost::an
     }
 }
 
-void GTaskVisPlugin::genericEventListener(const std::string& event){
-
-}
-
-
 void GTaskVisPlugin::on_btnRecordVideo_clicked() {
 	for (size_t i = 0; i<63; i++) {
 		Transform3D<> Tcam = getRobWorkStudio()->getView()->getSceneViewer()->getTransform();	
@@ -643,5 +631,6 @@ void GTaskVisPlugin::on_btnRecordVideo_clicked() {
 }
 
 #if !RWS_USE_QT5
-Q_EXPORT_PLUGIN(GTaskVisPlugin);
+#include <QtCore/qplugin.h>
+Q_EXPORT_PLUGIN(GTaskVisPlugin)
 #endif

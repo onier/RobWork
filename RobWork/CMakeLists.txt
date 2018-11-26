@@ -1,5 +1,15 @@
 # Test CMake version
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
+
+if(POLICY CMP0045)
+  cmake_policy(SET CMP0045 NEW)
+endif()
+if(POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif()
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
 
 IF(DEFINED CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
@@ -190,14 +200,19 @@ ENDIF()
 
 # And if possible we would also like to install all the dll's and stuff that we use
 # this will configure the dependency file that will be used if install is invoked
-GET_TARGET_PROPERTY(rw_executable_name loader-test LOCATION)
+#GET_TARGET_PROPERTY(rw_executable_name loader-test LOCATION) # not allowed anymore - must use generator expressions instead
 CONFIGURE_FILE(
    "${RW_ROOT}/cmake/dependencies.cmake.in"
-   "${RW_ROOT}/cmake/dependencies.cmake"
+   "${RW_ROOT}/cmake/dependencies.cmake.gen"
    @ONLY
 )
 
-INSTALL(SCRIPT "${RW_ROOT}/cmake/dependencies.cmake")
+# Disabled generation of the dependencies file (problem with multi-configuration generators like Visual Studio)
+#FILE(GENERATE
+#    OUTPUT "${RW_ROOT}/cmake/dependencies.cmake"
+#    INPUT "${RW_ROOT}/cmake/dependencies.cmake.gen"
+#)
+#INSTALL(SCRIPT "${RW_ROOT}/cmake/dependencies.cmake")
 
 # Install the example directories
 INSTALL(DIRECTORY "${RW_ROOT}/example/" DESTINATION "${RW_INSTALL_DIR}/example/"
@@ -220,42 +235,6 @@ ENDIF()
 
 # Packaging
 INCLUDE(cmake/packing.cmake)
-
-# Check for supported MSVC compilers
-# TODO: relocate to test/CMakeLists.txt?
-IF(RW_BUILD_TESTS)
-  IF(MSVC)
-    IF(${MSVC_VERSION} EQUAL 1400)
-      SET(MSVC_SOLUTION_DIR ${RW_ROOT}/projects/VisualStudio2005/RobWork)
-    ELSEIF(${MSVC_VERSION} EQUAL 1500)
-      SET(MSVC_SOLUTION_DIR ${RW_ROOT}/projects/VisualStudio2008/RobWork)
-    ELSEIF(${MSVC_VERSION} EQUAL 1600)
-      SET(MSVC_SOLUTION_DIR ${RW_ROOT}/projects/VisualStudio2010/RobWork)
-    ENDIF()
-    SET(MSVC_SOLUTION_FILE ${MSVC_SOLUTION_DIR}/RobWork.sln) 
-    
-    # Set up tests for enclosed solutions
-    IF(EXISTS ${MSVC_SOLUTION_FILE})
-      MESSAGE(STATUS "Adding MSVC solution test...")
-      # 64-bit not supported for MSVC 2005 yet
-      IF(AMD64 AND NOT ${MSVC_VERSION} EQUAL 1400)
-        ADD_TEST(NAME msvc-solution-test
-                 CONFIGURATIONS Release
-                 COMMAND devenv ${MSVC_SOLUTION_FILE} /Rebuild "Release|x64")
-        SET_TESTS_PROPERTIES(msvc-solution-test PROPERTIES TIMEOUT 2000)
-      ELSE()
-        ADD_TEST(NAME msvc-solution-test
-                 CONFIGURATIONS Release
-                 COMMAND devenv ${MSVC_SOLUTION_FILE} /Rebuild "Release|Win32")
-        SET_TESTS_PROPERTIES(msvc-solution-test PROPERTIES TIMEOUT 2000)
-      ENDIF()
-    ENDIF()
-  ENDIF()
-ENDIF()
-
-
-
-
 
 string(REPLACE ";" "\n" TOFILE_DST "$ENV{RW_LIB_FILES_CPP}")
 file(WRITE "source_files" "${TOFILE_DST}")

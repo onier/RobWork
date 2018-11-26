@@ -29,11 +29,15 @@
 #include <rw/math/Q.hpp>
 #include <rw/math/Wrench6D.hpp>
 #include <rw/math/VelocityScrew6D.hpp>
-#include <rwsim/dynamics/RigidDevice.hpp>
+#include <rw/math/InertiaMatrix.hpp>
 
 #include <boost/thread/mutex.hpp>
 
 #include <vector>
+
+namespace rw { namespace kinematics { class State; } }
+namespace rw { namespace models { class JointDevice; } }
+namespace rwsim { namespace dynamics { class RigidDevice; } }
 
 namespace rwsim {
 namespace util {
@@ -62,7 +66,7 @@ public:
 	 * @note Currently this class supports only devices of type SerialDevice.
 	 * @param device [in] a rigid device.
 	 */
-	RecursiveNewtonEuler(rwsim::dynamics::RigidDevice::Ptr device);
+	RecursiveNewtonEuler(rw::common::Ptr<rwsim::dynamics::RigidDevice> device);
 
 	//! @brief Destructor.
 	virtual ~RecursiveNewtonEuler();
@@ -203,7 +207,6 @@ private:
 	const rw::common::Ptr<rwsim::dynamics::RigidDevice> _rdev;
 	const rw::common::Ptr<const rw::models::JointDevice> _jdev;
 	const bool _valid;
-
 	rw::math::Vector3D<> _gravity;
 	rw::math::Vector3D<> _payloadCOM;
 	double _payloadMass;

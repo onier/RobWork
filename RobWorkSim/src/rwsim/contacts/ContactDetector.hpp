@@ -24,25 +24,26 @@
  * \copydoc rwsim::contacts::ContactDetector
  */
 
-#include "ContactDetectorData.hpp"
-#include "ContactStrategy.hpp"
-#include "ContactModel.hpp"
 #include "Contact.hpp"
 
 #include <rw/common/Ptr.hpp>
 #include <rw/kinematics/FrameMap.hpp>
-#include <rw/models/WorkCell.hpp>
 #include <rw/proximity/ProximitySetupRule.hpp>
 #include <rw/proximity/ProximitySetup.hpp>
 #include <rw/proximity/ProximityFilterStrategy.hpp>
 
+namespace rw { namespace geometry { class GeometryData; } }
+namespace rw { namespace models { class WorkCell; } }
 namespace rwsim { namespace log { class SimulatorLogScope; } }
 
 namespace rwsim {
 namespace contacts {
 
 // Forward declarations
+class ContactDetectorData;
 class ContactDetectorTracking;
+class ContactModel;
+class ContactStrategy;
 
 //! @addtogroup rwsim_contacts
 
@@ -84,10 +85,10 @@ public:
 		rw::proximity::ProximitySetup rules;
 
 		//! The contact strategy to use when the rules match.
-		ContactStrategy::Ptr strategy;
+		rw::common::Ptr<ContactStrategy> strategy;
 
 		//! A map of ContactModels for use with this strategy. ContactModels are specific for the used strategy.
-		rw::kinematics::FrameMap<std::map<std::string, ContactModel::Ptr> > models;
+		rw::kinematics::FrameMap<std::map<std::string, rw::common::Ptr<ContactModel> > > models;
 	};
 
 	//! @brief Type for the strategy table.
@@ -103,7 +104,7 @@ public:
 	 * @param workcell [in] the workcell.
 	 * @param filter [in] broad-phase filter to remove frames that are obviously not colliding.
 	 */
-	ContactDetector(rw::models::WorkCell::Ptr workcell,
+	ContactDetector(rw::common::Ptr<rw::models::WorkCell> workcell,
 			rw::proximity::ProximityFilterStrategy::Ptr filter = NULL);
 
 	/**
@@ -229,7 +230,7 @@ public:
 	 * @param strategy [in/out] The strategy to add. Relevant ContactModels are automatically created.
 	 * @param priority [in] the priority of the new strategy (default is maximum priority - 0).
 	 */
-	virtual void addContactStrategy(ContactStrategy::Ptr strategy, std::size_t priority = 0);
+	virtual void addContactStrategy(rw::common::Ptr<ContactStrategy> strategy, std::size_t priority = 0);
 
 	/**
 	 * @brief Add a strategy that is only used for frames matching one rule.
@@ -239,17 +240,17 @@ public:
 	 * @param priority [in] the priority of the new strategy (default is maximum priority - 0).
 	 */
 	virtual void addContactStrategy(rw::proximity::ProximitySetupRule rule,
-			ContactStrategy::Ptr strategy, std::size_t priority = 0);
+			rw::common::Ptr<ContactStrategy> strategy, std::size_t priority = 0);
 
 	/**
 	 * @brief Add a strategy that is used for frames that match a set of rules.
 	 *
-	 * @param rule [in] The rules for the frame names that this strategy applies to.
+	 * @param rules [in] The rules for the frame names that this strategy applies to.
 	 * @param strategy [in/out] The strategy to add. Relevant ContactModels are automatically created.
 	 * @param priority [in] the priority of the new strategy (default is maximum priority - 0).
 	 */
 	virtual void addContactStrategy(rw::proximity::ProximitySetup rules,
-			ContactStrategy::Ptr strategy, std::size_t priority = 0);
+			rw::common::Ptr<ContactStrategy> strategy, std::size_t priority = 0);
 
 	/**
 	 * @brief Add a strategy from an existing strategy table rule.
@@ -313,7 +314,7 @@ public:
 	 * @param workcell [in] the workcell to create detector for.
 	 * @return a new contact detector.
 	 */
-	static ContactDetector::Ptr makeDefault(rw::models::WorkCell::Ptr workcell);
+	static ContactDetector::Ptr makeDefault(rw::common::Ptr<rw::models::WorkCell> workcell);
 
 	/**
 	 * @brief Create a default workcell from a workcell, where the default strategies has been set.
@@ -321,7 +322,7 @@ public:
 	 * @param map [in] the map to take properties from.
 	 * @return a new contact detector.
 	 */
-	static ContactDetector::Ptr makeDefault(rw::models::WorkCell::Ptr workcell, const rw::common::PropertyMap& map);
+	static ContactDetector::Ptr makeDefault(rw::common::Ptr<rw::models::WorkCell> workcell, const rw::common::PropertyMap& map);
 
 	/**
 	 * @brief Stream operator.
@@ -355,11 +356,13 @@ private:
 	void initializeGeometryMap();
 	void initializeModels(StrategyTableRow &strategy);
 
-	rw::models::WorkCell::Ptr _wc;
+	rw::common::Ptr<rw::models::WorkCell> _wc;
 	rw::proximity::ProximityFilterStrategy::Ptr _bpfilter;
+	struct OrderFramePairs;
+	const OrderFramePairs* const _orderFramePairs;
 	StrategyTable _strategies;
 
-	rw::kinematics::FrameMap<std::vector<rw::geometry::Geometry::Ptr> > _frameToGeo;
+	rw::kinematics::FrameMap<std::vector<rw::common::Ptr<rw::geometry::Geometry> > > _frameToGeo;
 
 	double _timer;
 };

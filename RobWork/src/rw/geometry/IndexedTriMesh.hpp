@@ -212,6 +212,14 @@ namespace geometry {
          */
         void* getIndices() {return (void*)_triIdxArr;}
 
+
+		//! @copydoc TriMesh::scale
+		void scale(double scale) {
+			for (size_t i = 0; i<_vertices->size(); i++) {
+				_vertices->at(i) *= static_cast<T>(scale);
+			}
+		}
+
     private:
         IndexedTriMesh(IndexedTriMesh<T>& mesh): _vertices(NULL), _normals(NULL), _triIdxArr(NULL), _stride(0), _idxsize(0) {} // this is illegal
 
@@ -376,39 +384,39 @@ namespace geometry {
 
         //! @copydoc IndexedTriMesh::getVertexNormal
         const rw::math::Vector3D<T>& getVertexNormal(size_t i, VertexIdx vidx) const {
-            const uint32_t idx = this->_stride*i+vidx*this->_idxsize; // this is the unmasked idx
+            const uint32_t idx = static_cast<uint32_t>(this->_stride*i+vidx*this->_idxsize); // this is the unmasked idx
             const S uidx =  *((S*)&(this->_triIdxArr[ idx ]));
             return (*this->_normals)[ uidx ];
         }
 
         //! @copydoc IndexedTriMesh::getVertexNormal
         rw::math::Vector3D<T>& getVertexNormal(size_t i, VertexIdx vidx) {
-            const uint32_t idx = this->_stride*i+vidx*this->_idxsize; // this is the unmasked idx
+            const uint32_t idx = static_cast<uint32_t>(this->_stride*i+vidx*this->_idxsize); // this is the unmasked idx
             const S uidx =  *((S*)&(this->_triIdxArr[ idx ]));
             return (*this->_normals)[ uidx ];
         }
 
         //! @copydoc IndexedTriMesh::getVertex(size_t,VertexIdx)
         const rw::math::Vector3D<T>& getVertex(size_t i, VertexIdx vidx) const{
-        	const uint32_t idx = this->_stride*i+vidx*this->_idxsize; // this is the unmasked idx
+        	const uint32_t idx = static_cast<uint32_t>(this->_stride*i+vidx*this->_idxsize); // this is the unmasked idx
         	const S uidx =  *((S*)&(this->_triIdxArr[ idx ]));
         	return (*this->_vertices)[ uidx ];
         }
 
         //! @copydoc IndexedTriMesh::getVertex(size_t,VertexIdx)
         rw::math::Vector3D<T>& getVertex(size_t i, VertexIdx vidx){
-        	const uint32_t idx = (uint32_t)(this->_stride*i+vidx*this->_idxsize); // this is the unmasked idx
+        	const uint32_t idx = static_cast<uint32_t>(this->_stride*i+vidx*this->_idxsize); // this is the unmasked idx
         	const S uidx =  *((S*)&(this->_triIdxArr[ idx ]));
         	return (*this->_vertices)[ uidx ];
         }
 
         //! @copydoc IndexedTriMesh::getIndexedTriangle
         IndexedTriangle<uint32_t> getIndexedTriangle(size_t i) const {
-        	const uint32_t idx = (uint32_t)(this->_stride*i); // this is the unmasked idx
+        	const uint32_t idx = static_cast<uint32_t>(this->_stride*i); // this is the unmasked idx
         	const S v1 = *((S*)&(this->_triIdxArr[ idx ]));
         	const S v2 = *((S*)&(this->_triIdxArr[ idx+this->_idxsize ]));
         	const S v3 = *((S*)&(this->_triIdxArr[ idx+2*this->_idxsize ]));
-        	return IndexedTriangle<uint32_t>(v1,v2,v3);
+        	return IndexedTriangle<uint32_t>(static_cast<uint32_t>(v1),static_cast<uint32_t>(v2),static_cast<uint32_t>(v3));
         }
 
         //! @copydoc TriMesh::getTriangle

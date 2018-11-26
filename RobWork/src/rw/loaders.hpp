@@ -26,7 +26,7 @@
 #include "./loaders/colsetup/CollisionSetupLoader.hpp"
 #include "./loaders/image/PGMLoader.hpp"
 #include "./loaders/image/RGBLoader.hpp"
-#include "./loaders/ImageFactory.hpp"
+#include "./loaders/ImageLoader.hpp"
 #include "./loaders/path/PathLoader.hpp"
 #include "./loaders/rwxml/DependencyGraph.hpp"
 #include "./loaders/rwxml/MultipleFileIterator.hpp"
@@ -43,13 +43,20 @@
 #include "./loaders/rwxml/XML.hpp"
 #include "./loaders/rwxml/XMLErrorHandler.hpp"
 #include "./loaders/rwxml/XMLParser.hpp"
-#include "./loaders/WorkCellLoader.hpp"
 #include "./loaders/xml/XMLPropertyLoader.hpp"
 #include "./loaders/xml/XMLPropertySaver.hpp"
 #include "./loaders/xml/XMLPathLoader.hpp"
 #include "./loaders/xml/XMLPathSaver.hpp"
 #include "./loaders/xml/XMLTrajectoryLoader.hpp"
 #include "./loaders/xml/XMLTrajectorySaver.hpp"
+
+#include "./loaders/dom/DOMBasisTypes.hpp"
+#include "./loaders/dom/DOMPathLoader.hpp"
+#include "./loaders/dom/DOMPathSaver.hpp"
+#include "./loaders/dom/DOMPropertyMapLoader.hpp"
+#include "./loaders/dom/DOMProximitySetupLoader.hpp"
+#include "./loaders/dom/DOMTrajectoryLoader.hpp"
+#include "./loaders/dom/DOMTrajectorySaver.hpp"
 
 
 #endif /* LOADERS_HPP_ */

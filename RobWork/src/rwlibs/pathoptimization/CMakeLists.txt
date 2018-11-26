@@ -1,6 +1,6 @@
 SET(SUBSYS_NAME rw_pathoptimization)
 set(SUBSYS_DESC "Path optimization algorithms")
-SET(SUBSYS_DEPS rw)
+SET(SUBSYS_DEPS rw_proximitystrategies rw)
 
 SET(build TRUE)
 set(DEFAULT TRUE)
@@ -25,6 +25,10 @@ IF(build)
     
     RW_ADD_LIBRARY(${SUBSYS_NAME} pathoptimization ${SRC_FILES} ${SRC_FILES_HPP})
     RW_ADD_INCLUDES(pathoptimization "rwlibs/pathoptimization" ${SRC_FILES_HPP}) 
-    TARGET_LINK_LIBRARIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
+    TARGET_LINK_LIBRARIES(${SUBSYS_NAME} PRIVATE rw_proximitystrategies PUBLIC rw)
     ADD_DEPENDENCIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
+
+	IF(CMAKE_VERSION VERSION_GREATER 3.3)
+		SET_TARGET_PROPERTIES(${SUBSYS_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+	ENDIF()
 ENDIF()

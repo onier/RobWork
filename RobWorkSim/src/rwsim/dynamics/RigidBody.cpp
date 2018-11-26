@@ -17,13 +17,8 @@
 
 #include "RigidBody.hpp"
 
-#include <boost/numeric/ublas/matrix.hpp>
-
 #include <rw/geometry/GeometryUtil.hpp>
-#include <rw/math/LinearAlgebra.hpp>
 #include <rw/kinematics/Kinematics.hpp>
-
-using namespace boost::numeric;
 
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -47,7 +42,6 @@ RigidBody::RigidBody(const BodyInfo& info,rw::models::Object::Ptr obj):
         _mass( info.mass ),
         _massInv( getInvMassImpl(info.mass) ),
         _mframe( NULL ),
-        _bodyType(0),
         _Ibody(info.inertia),
         _IbodyInv( inverse(info.inertia) ),
         _IbodyPrincipal(GeometryUtil::calculatePrincipalInertia(info.inertia))
@@ -59,7 +53,7 @@ RigidBody::RigidBody(const BodyInfo& info,rw::models::Object::Ptr obj):
     }
 
     add(_rstate);
-};
+}
 
 rw::math::InertiaMatrix<> RigidBody::calcInertiaTensor(const rw::kinematics::State& state) const {
 	Transform3D<> pTb = Kinematics::frameTframe(getParent(state), _mframe, state);

@@ -17,21 +17,24 @@
 
 #ifndef RWSIM_SIMULATOR_ODESUCTIONCUPDEVICE_HPP_
 #define RWSIM_SIMULATOR_ODESUCTIONCUPDEVICE_HPP_
-#include <rwlibs/simulation/SimulatedController.hpp>
-#include <rwsim/dynamics/SuctionCup.hpp>
-#include <rwsim/dynamics/Body.hpp>
-#include <rwsim/dynamics/RigidDevice.hpp>
 
-#include <rw/rw.hpp>
-#include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
+#include <rw/geometry/TriMesh.hpp>
+#include <rw/proximity/ProximityStrategyData.hpp>
 
-#include <rw/kinematics/State.hpp>
 #include <ode/ode.h>
 #include "ODEBody.hpp"
 #include "ODEDevice.hpp"
-#include "ODESimulator.hpp"
+
+namespace rw { namespace kinematics { class State; } }
+namespace rw { namespace proximity { class ProximityModel; } }
+namespace rwlibs { namespace proximitystrategies { class ProximityStrategyPQP; } }
+namespace rwsim { namespace dynamics { class Body; } }
+namespace rwsim { namespace dynamics { class SuctionCup; } }
+namespace rwsim { namespace sensor { class BodyContactSensor; } }
+
 namespace rwsim {
 namespace simulator {
+	class ODESimulator;
 
 	/**
 	 * @brief interface for classes (ODEDevices) that control a set of ode bodies
@@ -39,20 +42,32 @@ namespace simulator {
 	 */
 	class ODESuctionCupDevice : public ODEDevice {
 	public:
-
+		/**
+		 * @brief Constructor.
+		 * @param base [in] the base body of the device.
+		 * @param dev [in] the RobWork SuctionCup device.
+		 * @param odesim [in] the simulator.
+		 * @param state [in] the state.
+		 */
 	    ODESuctionCupDevice(
 	                        ODEBody *base,
 	                        rwsim::dynamics::SuctionCup* dev,
 	                        ODESimulator *odesim,
 	                        rw::kinematics::State& state);
 
+	    /**
+	     * @brief Initialize the device.
+		 * @param base [in] the base body of the device.
+		 * @param dev [in] the RobWork SuctionCup device.
+		 * @param odesim [in] the simulator.
+		 * @param state [in] the state.
+	     */
 	    void init(ODEBody *base,
 	              rwsim::dynamics::SuctionCup* dev,
                             ODESimulator *odesim,
                             rw::kinematics::State& state);
-		/**
-		 * @brief destructor
-		 */
+
+		//! @brief Destructor.
 		virtual ~ODESuctionCupDevice();
 
 		/**
@@ -82,13 +97,21 @@ namespace simulator {
 		 */
 		virtual void postUpdate(rw::kinematics::State& state);
 
+		//static ODESuctionCupDevice* makeSuctionCup(rwsim::dynamics::SuctionCup* scup, ODESimulator *sim, rw::kinematics::State &state);
 
-		static ODESuctionCupDevice* makeSuctionCup(rwsim::dynamics::SuctionCup* scup, ODESimulator *sim, rw::kinematics::State &state);
-
+		/**
+		 * @brief Get spiked mesh.
+		 * @return the mesh.
+		 */
 		rw::geometry::TriMesh::Ptr getSpikedMesh(){ return _spikedCupMesh; }
 
+		/**
+		 * @brief Get the end body.
+		 * @return the end body.
+		 */
 		ODEBody* getEndBody(){ return _odeEnd; }
 
+		//! @copydoc ODEDevice::getBodies
         std::vector<ODEBody*> getBodies(){ return _ode_bodies; };
 
 	private:
@@ -102,19 +125,19 @@ namespace simulator {
         //std::vector<std::pair<rwsim::dynamics::Body*,rwsim::dynamics::Body*> > _bodyPairs;
         //std::vector<rw::math::Transform3D<> > _bodyTransforms;
         std::string _name;
-        rwsim::dynamics::SuctionCup::Ptr _dev;
-        rwsim::sensor::BodyContactSensor::Ptr _sensor;
-        rwsim::dynamics::Body::Ptr _tcp;
+        rw::common::Ptr<rwsim::dynamics::SuctionCup> _dev;
+        rw::common::Ptr<rwsim::sensor::BodyContactSensor> _sensor;
+        rw::common::Ptr<rwsim::dynamics::Body> _tcp;
         double _v;
 
         bool _isInContact;
-        rwsim::dynamics::Body::Ptr _object;
+        rw::common::Ptr<rwsim::dynamics::Body> _object;
 
-        rw::geometry::PlainTriMesh<>::Ptr  _spikedCupMesh;
+        rw::geometry::TriMesh::Ptr  _spikedCupMesh;
         rw::geometry::Geometry::Ptr _spikedCup;
-        rw::proximity::ProximityModel::Ptr _spikedCupModel;
+        rw::common::Ptr<rw::proximity::ProximityModel> _spikedCupModel;
 
-        rwlibs::proximitystrategies::ProximityStrategyPQP::Ptr _narrowStrategy;
+        rw::common::Ptr<rwlibs::proximitystrategies::ProximityStrategyPQP> _narrowStrategy;
         rw::proximity::ProximityStrategyData _pdata;
         ODESimulator* _odesim;
         dWorldID _worldId;

@@ -15,23 +15,29 @@
  * limitations under the License.
  ********************************************************************************/
 
-#include <rw/rw.hpp>
-#include <rwlibs/task.hpp>
-#include <rwlibs/task/GraspTask.hpp>
-#include <rwsim/loaders/DynamicWorkCellLoader.hpp>
-#include <rwsim/simulator/GraspTaskSimulator.hpp>
-
-USE_ROBWORK_NAMESPACE
-using namespace std;
-using namespace robwork;
-
 #include "../TestSuiteConfig.hpp"
+
+#include <RobWorkSimConfig.hpp>
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/floating_point_comparison.hpp>
 
-using namespace rwsim::loaders;
-using namespace rwsim::simulator;
+#include <rw/loaders/path/PathLoader.hpp>
+#include <rwlibs/task/GraspTask.hpp>
+#include <rwsim/loaders/DynamicWorkCellLoader.hpp>
+#include <rwsim/simulator/GraspTaskSimulator.hpp>
+
+#if RWSIM_HAVE_ODE
+#include <rwsimlibs/ode/ODEThreading.hpp>
+using rwsim::simulator::ODEThreading;
+#endif
+
+using namespace rw::common;
+using rw::kinematics::State;
+using rw::models::WorkCell;
+using rwlibs::task::GraspTask;
+using rwsim::loaders::DynamicWorkCellLoader;
+using rwsim::simulator::GraspTaskSimulator;
 using namespace rwsim::dynamics;
 
 BOOST_AUTO_TEST_CASE( SimpleParallelGraspAndHoldStabilityTest )
@@ -66,7 +72,15 @@ BOOST_AUTO_TEST_CASE( GraspTaskSimulatorTest )
     WorkCell::Ptr wc = dwc->getWorkcell();
 
     // create GraspTaskSimulator
-    GraspTaskSimulator::Ptr graspSim = ownedPtr( new GraspTaskSimulator(dwc, 2) );
+    GraspTaskSimulator::Ptr graspSim;
+#if RWSIM_HAVE_ODE
+    if (ODEThreading::isSupported())
+        graspSim = ownedPtr( new GraspTaskSimulator(dwc, 2) );
+    else
+        graspSim = ownedPtr( new GraspTaskSimulator(dwc, 1) );
+#else
+    graspSim = ownedPtr( new GraspTaskSimulator(dwc, 2) );
+#endif
 
     GraspTask::Ptr grasptask = GraspTask::load( grasptask_file );
     graspSim->setStoreTimedStatePaths(true);
@@ -98,7 +112,7 @@ BOOST_AUTO_TEST_CASE( GraspTaskSimulatorTest )
     BOOST_FOREACH(TStateMap::value_type val, paths ){
     	// take each timed state from the map
 		BOOST_FOREACH(TStateMap2::value_type val2, val.second ){
-			for(int i=0;i<val2.second.size();i++){
+			for(std::size_t i = 0; i < val2.second.size(); i++) {
 				spath.push_back( val2.second[i] );
 				spath.back().getTime() = spath.back().getTime()+timeOffset;
 			}

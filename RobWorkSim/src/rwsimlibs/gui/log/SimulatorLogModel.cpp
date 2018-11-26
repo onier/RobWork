@@ -36,7 +36,45 @@ SimulatorLogModel::~SimulatorLogModel() {
 
 void SimulatorLogModel::setRoot(rw::common::Ptr<const SimulatorLog> root) {
 	_root = root;
-	reset();
+	beginResetModel();
+}
+
+void SimulatorLogModel::compare(rw::common::Ptr<const SimulatorLog> info) {
+	compare(_root,info);
+}
+
+void SimulatorLogModel::compare(rw::common::Ptr<const SimulatorLog> a, rw::common::Ptr<const SimulatorLog> b) {
+	const rw::common::Ptr<const SimulatorLogScope> aScope = a.cast<const SimulatorLogScope>();
+	const rw::common::Ptr<const SimulatorLogScope> bScope = b.cast<const SimulatorLogScope>();
+	if (*a != *b)
+		_bgColor[a.get()] = QColor(255,0,0);
+	if (aScope.isNull())
+		return;
+	if (!bScope.isNull()) {
+		const std::vector<SimulatorLog::Ptr> aChildren = aScope->getChildren();
+		const std::vector<SimulatorLog::Ptr> bChildren = bScope->getChildren();
+		for (std::size_t i = 0; i < std::min(aChildren.size(),bChildren.size()); i++) {
+			compare(aChildren[i],bChildren[i]);
+		}
+		if (aChildren.size() > bChildren.size()) {
+			for (std::size_t i = bChildren.size(); i < aChildren.size(); i++) {
+				compareFailSubTree(aChildren[i]);
+			}
+		}
+	} else {
+		compareFailSubTree(aScope);
+	}
+}
+
+void SimulatorLogModel::compareFailSubTree(rw::common::Ptr<const SimulatorLog> a) {
+	_bgColor[a.get()] = QColor(255,0,0);
+	const rw::common::Ptr<const SimulatorLogScope> aScope = a.cast<const SimulatorLogScope>();
+	if (!aScope.isNull()) {
+		const std::vector<SimulatorLog::Ptr> aChildren = aScope->getChildren();
+		BOOST_FOREACH(const SimulatorLog::Ptr child, aChildren) {
+			compareFailSubTree(child);
+		}
+	}
 }
 
 int SimulatorLogModel::rowCount(const QModelIndex &parent) const {
@@ -47,7 +85,10 @@ int SimulatorLogModel::rowCount(const QModelIndex &parent) const {
 	if (!parentNode) {
 		return 0;
 	}
-	return parentNode->children();
+	const int nrOfChildren = static_cast<int>(parentNode->children());
+	if (parentNode->children() > static_cast<std::size_t>(nrOfChildren))
+		RW_THROW("There are too many children for the log model to handle!");
+	return nrOfChildren;
 }
 
 int SimulatorLogModel::columnCount(const QModelIndex &parent) const {
@@ -126,7 +167,7 @@ QModelIndex SimulatorLogModel::parent(const QModelIndex &child) const {
 }
 
 void SimulatorLogModel::update() {
-	reset();
+	beginResetModel();
 }
 
 bool SimulatorLogModel::setData(const QModelIndex& index, const QVariant& value, int role) {
@@ -136,7 +177,7 @@ bool SimulatorLogModel::setData(const QModelIndex& index, const QVariant& value,
 	if (value.isValid()) {
 		_bgColor[entry] = value.value<QColor>();
 	} else {
-		_bgColor.erase(entry);
+		//_bgColor.erase(entry);
 	}
 	return true;
 }

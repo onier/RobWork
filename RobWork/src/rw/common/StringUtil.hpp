@@ -26,7 +26,6 @@
 
 #include <string>
 #include <vector>
-#include <rw/math/Math.hpp>
 
 namespace rw { namespace common {
 
@@ -68,6 +67,21 @@ namespace rw { namespace common {
          * @return The directory name for the path.
          */
         static std::string getDirectoryName(const std::string& path);
+
+        /**
+         * @brief The directory part of a path name relative to a root directory.
+         *
+         * The function returns everything up to and including the last slash
+         * or backslash. If there is no such slash or backslash, the empty string is
+         * returned.
+         *
+         * @param path [in] The path name.
+         *
+         * @param dir_name [in] The root directory name.
+         *
+         * @return The relative directory name for the path.
+         */
+        static std::string getRelativeDirectoryName(const std::string& path, std::string dir_name);
 
         /**
          * @brief Extract the file name (including extension) from a string containing full name including the directory.
@@ -207,16 +221,20 @@ namespace rw { namespace common {
 		 * @param prefix
 		 * @return
 		 */
-        static std::string ranName(const std::string& prefix){
-            int ri = rw::math::Math::ranI(0xFF,0xFFFFFF);
-            std::stringstream sstr;
-            sstr << prefix << "_" << ri;
-            return sstr.str();
-        }
+        static std::string ranName(const std::string& prefix);
 
 	};
 
+    /**
+     * @brief Convenient definition of a pair of strings.
+     * @relatesalso rw::common::StringUtil
+     */
     typedef std::pair<std::string, std::string> StringPair;
+
+    /**
+     * @brief Convenient definition of a list of string pairs.
+     * @relatesalso rw::common::StringUtil
+     */
     typedef std::vector<StringPair> StringPairList;
 
 	/**@}*/

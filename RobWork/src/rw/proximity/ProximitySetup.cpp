@@ -17,23 +17,25 @@
 
 
 #include "ProximitySetup.hpp"
-#include <rw/common/StringUtil.hpp>
+#include "CollisionSetup.hpp"
+
+#include <rw/models/WorkCell.hpp>
+
 #include <boost/foreach.hpp>
 
 using namespace rw::common;
 using namespace rw::proximity;
 
-
-
-
 ProximitySetup::ProximitySetup():
 _useIncludeAll(true),
-_useExcludeStaticPairs(true)
+_useExcludeStaticPairs(true),
+_loadedFromFile(false)
 {}
 
 ProximitySetup::ProximitySetup(const CollisionSetup& csetup):
 		_useIncludeAll(true),
-		_useExcludeStaticPairs(true)
+		_useExcludeStaticPairs(true),
+		_loadedFromFile(false)
 {
 	BOOST_FOREACH(rw::common::StringPair pair, csetup.getExcludeList()) {
 		addProximitySetupRule(ProximitySetupRule::makeExclude(pair.first, pair.second));
@@ -51,7 +53,7 @@ void ProximitySetup::addProximitySetupRule(const ProximitySetupRule& rule) {
 
 void ProximitySetup::removeProximitySetupRule(const ProximitySetupRule& rule) {
 	for (std::vector<ProximitySetupRule>::iterator it = _rules.begin(); it != _rules.end(); ++it) {
-		ProximitySetupRule r = *it;
+		ProximitySetupRule& r = *it;
 		if ( r == rule) {
 			_rules.erase(it); 
 			break;

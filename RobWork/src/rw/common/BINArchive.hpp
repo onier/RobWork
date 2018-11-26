@@ -18,18 +18,8 @@
 #ifndef RW_COMMON_BINARCHIVE_HPP
 #define RW_COMMON_BINARCHIVE_HPP
 
-#include <cstdlib>
-#include <cmath>
 #include <string>
-
-#include <boost/any.hpp>
-#include <cstdio>
-#include <fstream>
-#include <rw/common/macros.hpp>
-#include <boost/any.hpp>
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string.hpp>
+#include <iosfwd>
 
 #include "InputArchive.hpp"
 #include "OutputArchive.hpp"
@@ -46,6 +36,10 @@ namespace common {
 		//! @brief constructor
 		BINArchive():_ofs(NULL),_ifs(NULL),_fstr(NULL),_iostr(NULL),_isopen(false){}
 
+		/**
+		 * @brief Constructor.
+		 * @param ofs [out] output stream to write to.
+		 */
 		BINArchive(std::ostream& ofs):_ofs(NULL),_ifs(NULL),_fstr(NULL),_iostr(NULL),_isopen(false)
         {
             open(ofs);
@@ -66,39 +60,26 @@ namespace common {
 
 
 	protected:
-
-		static const int MAX_LINE_WIDTH = 1000;
-
 		void doOpenArchive(const std::string& filename);
 
 		void doOpenArchive(std::iostream& stream);
 
-		void doOpenOutput(std::ostream& ofs){
-			_fstr = NULL;
-			_iostr = NULL;
-			_ofs = &ofs;
-			_isopen = true;
-		}
+		void doOpenOutput(std::ostream& ofs);
 
-		void doOpenInput(std::istream& ifs){
-			_fstr = NULL;
-			_iostr = NULL;
-			_ifs = &ifs;
-			_isopen = true;
-		}
+		void doOpenInput(std::istream& ifs);
 
 		//////////////////// SCOPE
 			// utils to handle arrays
-			//! \copydoc OutputArchive::writeEnterScope
+			//! \copydoc OutputArchive::doWriteEnterScope
 			void doWriteEnterScope(const std::string& id);
 
-			//! \copydoc OutputArchive::writeLeaveScope
+			//! \copydoc OutputArchive::doWriteLeaveScope
 			void doWriteLeaveScope(const std::string& id);
 
-			//! \copydoc InputArchive::readEnterScope
+			//! \copydoc InputArchive::doReadEnterScope
 			void doReadEnterScope(const std::string& id);
 
-			//! \copydoc OutputArchive::readLeaveScope
+			//! \copydoc InputArchive::doReadLeaveScope
 			void doReadLeaveScope(const std::string& id);
 
 		///////////////////////// WRITING
@@ -132,31 +113,46 @@ namespace common {
 		void doWrite(const std::vector<double>& val, const std::string& id){ writeValue(val,id);};
 		void doWrite(const std::vector<std::string>& val, const std::string& id);
 
+		//! @copydoc OutputArchive::doWrite(const Eigen::MatrixXd&, const std::string&)
 		void doWrite(const Eigen::MatrixXd& val, const std::string& id){ writeMatrix(val,id);}
+
+		//! @copydoc OutputArchive::doWrite(const Eigen::VectorXd&, const std::string&)
 		void doWrite(const Eigen::VectorXd& val, const std::string& id){ writeMatrix(val,id);}
 
 		//template<class T>
 		//void write(const T& data, const std::string& id){ OutputArchive::write<T>(data,id); }
 
+		//! @copydoc OutputArchive::doWrite(const std::vector<bool>&,const std::string&)
 		template<class T>
 		void writeValue( const std::vector<T>& val, const std::string& id ){
-		    boost::uint32_t s = val.size();
+		    boost::uint32_t s = static_cast<boost::uint32_t>(val.size());
+		    if (val.size() != static_cast<std::size_t>(s))
+		    	RW_THROW("BINArchive could not write values, as the vector is too long!");
 		    _ofs->write((char*)&s, sizeof(s) );
-			BOOST_FOREACH(const T& rval, val){
+		    for (boost::uint32_t i = 0; i < s; i++) {
+				const T& rval = val[i];
 			    _ofs->write((char*)&rval, sizeof(rval) );
 			}
 		}
 
+		//! @copydoc OutputArchive::doWrite(bool,const std::string&)
 		template<class T>
 		void writeValue( const T&  val, const std::string& id ){
 		    _ofs->write((char*)&val, sizeof(val) );
 		}
 
+		/**
+		 * @brief Write a generic Eigen matrix to output.
+		 * @param val [in] the matrix to output.
+		 * @param id [in] (not used)
+		 */
 		template <class Derived>
 		void writeMatrix(const Eigen::DenseCoeffsBase<Derived,Eigen::ReadOnlyAccessors>& val, const std::string& id) {
 			typedef typename Eigen::DenseCoeffsBase<Derived,Eigen::ReadOnlyAccessors>::Index Index;
-			boost::uint32_t m = val.rows();
-			boost::uint32_t n = val.cols();
+			boost::uint32_t m = static_cast<boost::uint32_t>(val.rows());
+			boost::uint32_t n = static_cast<boost::uint32_t>(val.cols());
+		    if (val.rows() != static_cast<Index>(m) || val.cols() != static_cast<Index>(n))
+		    	RW_THROW("BINArchive could not write matrix, as it is too big!");
 			_ofs->write((char*)&m, sizeof(m) );
 			_ofs->write((char*)&n, sizeof(n) );
 			for (Index i = 0; i < val.rows(); i++) {
@@ -201,7 +197,10 @@ namespace common {
 		virtual void doRead(std::vector<double>& val, const std::string& id){readValue(val,id);}
 		virtual void doRead(std::vector<std::string>& val, const std::string& id) ;
 
+		//! @copydoc InputArchive::doRead(const Eigen::MatrixXd&, const std::string&)
 	    virtual void doRead(Eigen::MatrixXd& val, const std::string& id){ readMatrix(val,id); }
+
+		//! @copydoc InputArchive::doRead(const Eigen::VectorXd&, const std::string&)
 	    virtual void doRead(Eigen::VectorXd& val, const std::string& id){ readMatrix(val,id); }
 
         //template<class T>
@@ -209,6 +208,7 @@ namespace common {
         //    ((InputArchive*)this)->read<T>(object, id);
         //}
 
+	     //! @copydoc InputArchive::doRead(std::vector<bool>&,const std::string&)
 		 template<class T>
 		 void readValue(std::vector<T>& val, const std::string& id){
             boost::uint32_t s = 0;
@@ -221,13 +221,18 @@ namespace common {
 			}
 		 }
 
-
+		 //! @copydoc InputArchive::doRead(bool&,const std::string&)
 		 template<class T>
 		 void readValue(T& val, const std::string& id){
 		     _ifs->read((char*)&val, sizeof(val) );
 		     //std::cout << val << " ";
 		 }
 
+		 /**
+		  * @brief Read a generic Eigen matrix.
+		  * @param val [out] the result.
+		  * @param id [in] (not used)
+		  */
 		 template <class Derived>
 		 void readMatrix(Eigen::PlainObjectBase<Derived>& val, const std::string& id) {
 			 typedef typename Eigen::PlainObjectBase<Derived>::Index Index;
@@ -245,15 +250,8 @@ namespace common {
 		 }
 
 	private:
-		std::string getScope(){
-			if(_scope.size()==0)
-				return "";
-			std::stringstream sstr;
-			for(size_t i=0;i<_scope.size()-1;i++)
-				sstr << _scope[i] << ".";
-			sstr << _scope.back();
-			return sstr.str();
-		}
+		std::string getScope();
+
 	private:
 		std::ostream *_ofs;
 		std::istream *_ifs;
@@ -261,7 +259,6 @@ namespace common {
 		std::iostream *_iostr;
 
 
-		char _line[MAX_LINE_WIDTH];
 		bool _isopen;
 		std::vector<std::string> _scope;
 	};

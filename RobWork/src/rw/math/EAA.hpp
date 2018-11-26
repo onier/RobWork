@@ -30,9 +30,12 @@
 #include <rw/common/Serializable.hpp>
 
 namespace rw { namespace math {
-
     /** @addtogroup math */
     /*@{*/
+
+	// Forward declare cross function
+	template<class T> class EAA;
+	template<class T> const Vector3D<T> cross(const Vector3D<T>& v, const EAA<T>& eaa);
 
     /**
      * @brief A class for representing an equivalent angle-axis rotation
@@ -304,7 +307,10 @@ namespace rw { namespace math {
             return !(*this == rhs);
         }
 
-
+        /**
+         * @brief Get the size of the EAA.
+         * @return the size (always 3).
+         */
         size_t size() const { return 3; }
 
         /**
@@ -338,27 +344,36 @@ namespace rw { namespace math {
          * @param eaa [in] a 3D eaa vector
          * @return the resulting 3D vector
          */
-        friend const Vector3D<T> cross(const Vector3D<T>& v, const EAA<T>& eaa)
-        {
-            return cross(v, eaa._eaa);
-        }
-
-        /**
-         * @brief Casts EAA<T> to EAA<Q>
-         * @param eaa [in] EAA with type T
-         * @return EAA with type Q
-         */
-        template<class Q>
-        friend const EAA<Q> cast(const EAA<T>& eaa) {
-            return EAA<Q>(
-                static_cast<Q>(eaa(0)),
-                static_cast<Q>(eaa(1)),
-                static_cast<Q>(eaa(2)));
-        }
+		friend const Vector3D<T> cross<T>(const Vector3D<T>& v, const EAA<T>& eaa);
 
     private:
         Vector3D<T> _eaa;
     };
+
+	/**
+	* @brief Calculates the cross product
+	* @param v [in] a 3D vector
+	* @param eaa [in] a 3D eaa vector
+	* @return the resulting 3D vector
+	*/
+	template<class T>
+	const Vector3D<T> cross(const Vector3D<T>& v, const EAA<T>& eaa)
+	{
+		return cross(v, eaa._eaa);
+	}
+
+	/**
+	* @brief Casts EAA<T> to EAA<Q>
+	* @param eaa [in] EAA with type T
+	* @return EAA with type Q
+	*/
+	template<class Q, class T>
+	const EAA<Q> cast(const EAA<T>& eaa) {
+		return EAA<Q>(
+			static_cast<Q>(eaa(0)),
+			static_cast<Q>(eaa(1)),
+			static_cast<Q>(eaa(2)));
+	}
 
     /*@}*/
 
@@ -367,10 +382,29 @@ namespace rw { namespace math {
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;
 namespace serialization {
-    template<> void write(const rw::math::EAA<double>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template<> void write(const rw::math::EAA<float>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template<> void read(rw::math::EAA<double>& tmp, rw::common::InputArchive& iar, const std::string& id);
-    template<> void read(rw::math::EAA<float>& tmp, rw::common::InputArchive& iar, const std::string& id);
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::EAA
+	 */
+	template<> void write(const rw::math::EAA<double>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::EAA
+	 */
+    template<> void write(const rw::math::EAA<float>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::EAA
+	 */
+    template<> void read(rw::math::EAA<double>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::EAA
+	 */
+    template<> void read(rw::math::EAA<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
 #endif // end include guard

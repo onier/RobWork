@@ -358,27 +358,25 @@ namespace rw { namespace math {
                 << "}";
         }
 
-        /**
-         * @brief Casts Rotation2D<T> to Rotation2D<Q>
-         * @param rot [in] Rotation2D with type T
-         * @return Rotation2D with type R
-         */
-        template<class R>
-        friend const Rotation2D<R> cast(const Rotation2D<T>& rot)
-        {
-            Rotation2D<R> res(Rotation2D<R>::identity());
-            for (size_t i = 0; i < 2; i++)
-                for (size_t j = 0; j < 2; j++)
-                    res(i, j) = static_cast<R>(rot(i, j));
-            return res;
-        }
-
-
-
     private:
 		T _m[2][2];
         //Base _atrix;
     };
+
+	/**
+	* @brief Casts Rotation2D<T> to Rotation2D<Q>
+	* @param rot [in] Rotation2D with type T
+	* @return Rotation2D with type R
+	*/
+	template<class R, class T>
+	const Rotation2D<R> cast(const Rotation2D<T>& rot)
+	{
+		Rotation2D<R> res(Rotation2D<R>::identity());
+		for (size_t i = 0; i < 2; i++)
+			for (size_t j = 0; j < 2; j++)
+				res(i, j) = static_cast<R>(rot(i, j));
+		return res;
+	}
 
     /**
      * @brief The inverse @f$ \robabx{b}{a}{\mathbf{R}} =
@@ -417,14 +415,29 @@ namespace rw { namespace math {
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;
 namespace serialization {
-    template <>
-    void write(const rw::math::Rotation2D<double>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template <>
-    void read(rw::math::Rotation2D<double>& tmp, rw::common::InputArchive& iar, const std::string& id);
-    template <>
-    void write(const rw::math::Rotation2D<float>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template <>
-    void read(rw::math::Rotation2D<float>& tmp, rw::common::InputArchive& iar, const std::string& id);
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::Rotation2D
+	 */
+    template <> void write(const rw::math::Rotation2D<double>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::Rotation2D
+	 */
+    template <> void write(const rw::math::Rotation2D<float>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::Rotation2D
+	 */
+    template <> void read(rw::math::Rotation2D<double>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::Rotation2D
+	 */
+    template <> void read(rw::math::Rotation2D<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 
 
 }}} // end namespaces

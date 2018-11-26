@@ -30,11 +30,23 @@ IF( build )
 	SET_SOURCE_FILES_PROPERTIES(../rwsim.i PROPERTIES SWIG_FLAGS "-includeall")
 	
 	# lua interface generation
-    SWIG_ADD_MODULE(rwsim_lua lua ../rwsim.i ../ScriptTypes.cpp Lua.cpp)
-	SWIG_LINK_LIBRARIES(rwsim_lua rw ${ROBWORKSIM_LIBRARIES} ${ROBWORK_LIBRARIES})
+	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
+		SWIG_ADD_LIBRARY(rwsim_lua TYPE MODULE LANGUAGE lua SOURCES ../rwsim.i ../ScriptTypes.cpp Lua.cpp)
+	ELSE()
+		SWIG_ADD_MODULE(rwsim_lua lua ../rwsim.i ../ScriptTypes.cpp Lua.cpp)
+	ENDIF()
+	SWIG_LINK_LIBRARIES(rwsim_lua ${RWSIM_ODE_LIBRARY} rwsim ${ROBWORK_LIBRARIES})
+    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+      SET_TARGET_PROPERTIES(${SWIG_MODULE_rwsim_lua_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+    ENDIF()
 
-    ADD_LIBRARY(rwsim_lua_s STATIC Lua.cpp ${swig_generated_sources} ${swig_other_sources})
-    LINK_LIBRARIES(rwsim_lua_s rw ${ROBWORKSIM_LIBRARIES} ${ROBWORK_LIBRARIES})
+    IF ((CMAKE_VERSION VERSION_GREATER 3.12.0) OR (CMAKE_VERSION VERSION_EQUAL 3.12.0))
+        SWIG_ADD_LIBRARY(rwsim_lua_s TYPE STATIC LANGUAGE lua SOURCES ../rwsim.i ../ScriptTypes.cpp Lua.cpp)
+    ELSE()
+        ADD_LIBRARY(rwsim_lua_s STATIC Lua.cpp ${swig_generated_sources} ${swig_other_sources})
+        ADD_DEPENDENCIES(rwsim_lua_s rwsim_lua) # avoid using the source files before they have been generated
+    ENDIF()
+	TARGET_LINK_LIBRARIES(rwsim_lua_s ${RWSIM_ODE_LIBRARY} rwsim ${ROBWORK_LIBRARIES})
 	# this is used to indicate static linking to Visual Studio or mingw
 	IF (DEFINED MSVC) 
 	    SET_TARGET_PROPERTIES(rwsim_lua_s PROPERTIES COMPILE_FLAGS "/DSTATIC_LINKED")
@@ -43,7 +55,10 @@ IF( build )
 	ENDIF()
 	
 	ADD_LIBRARY(rwsimlua_plugin.rwplugin MODULE LuaPlugin.cpp LuaPlugin.hpp)
-    TARGET_LINK_LIBRARIES(rwsimlua_plugin.rwplugin rwsim_lua_s ${ROBWORKSIM_LIBRARIES})
+    TARGET_LINK_LIBRARIES(rwsimlua_plugin.rwplugin rwsim_lua_s ${ROBWORK_LIBRARIES})
+    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+      SET_TARGET_PROPERTIES(rwsimlua_plugin.rwplugin PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+    ENDIF()
 	
 	
 ENDIF()

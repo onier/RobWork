@@ -28,10 +28,10 @@
 #include <rw/math/Q.hpp>
 #include <vector>
 
-#include <rw/models/DHParameterSet.hpp>
-#include <rw/models/SerialDevice.hpp>
-
 #include "ClosedFormIK.hpp"
+
+namespace rw { namespace models { class DHParameterSet; } }
+namespace rw { namespace models { class SerialDevice; } }
 
 namespace rw { namespace invkin {
 
@@ -90,6 +90,11 @@ namespace rw { namespace invkin {
          * @copydoc InvKinSolver::setCheckJointLimits
          */
         virtual void setCheckJointLimits(bool check);
+        
+        /**
+         * @copydoc InvKinSolver::getTCP
+         */
+        virtual rw::common::Ptr< const rw::kinematics::Frame > getTCP() const;            
 
     private:
         std::vector<rw::models::DHParameterSet> _dhparams;
@@ -97,7 +102,6 @@ namespace rw { namespace invkin {
         rw::math::Transform3D<> _0Tbase;
 
         rw::math::Transform3D<> _endTjoint6;
-        bool _checkJointLimits;
 
         void init();
 

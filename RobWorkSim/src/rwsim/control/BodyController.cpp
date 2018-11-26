@@ -23,7 +23,6 @@
 #include <rw/trajectory/InterpolatorTrajectory.hpp>
 #include <rw/trajectory/RampInterpolator.hpp>
 #include <rwsim/dynamics/KinematicBody.hpp>
-#include <rwsim/dynamics/RigidBody.hpp>
 
 using namespace rw::common;
 using namespace rw::kinematics;
@@ -222,7 +221,7 @@ void BodyController::disableBodyControl(){
 void BodyController::reset(const State& state) {
 }
 
-void BodyController::setTarget(Body::Ptr body, const Transform3D<>& target, const State& state) {
+void BodyController::setTarget(Body::Ptr body, const Transform3D<>& target, const State& state, double maxLinVel, double maxLinAcc, double maxAngVel, double maxAngAcc) {
 	boost::mutex::scoped_lock lock(_mutex);
 
     // create a trajectory using a velocity ramp function
@@ -239,7 +238,7 @@ void BodyController::setTarget(Body::Ptr body, const Transform3D<>& target, cons
     data._type = TargetData::Pose6DController;
 
     RampInterpolator<Transform3D<> >::Ptr ramp =
-            rw::common::ownedPtr( new RampInterpolator<Transform3D<> >( from , target, 0.5, 1, 0.4, 1));
+            rw::common::ownedPtr( new RampInterpolator<Transform3D<> >( from , target, maxLinVel, maxLinAcc, maxAngVel, maxAngAcc));
     InterpolatorTrajectory<Transform3D<> >::Ptr traj =
             rw::common::ownedPtr( new InterpolatorTrajectory<Transform3D<> >() );
     traj->add(ramp);

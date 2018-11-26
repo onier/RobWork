@@ -18,10 +18,13 @@
 #include "EquationSystemWidget.hpp"
 #include "ui_EquationSystemWidget.h"
 
+#include <RobWorkStudioConfig.hpp>
+
 #include <rwsim/log/LogEquationSystem.hpp>
 
 #include <QMenu>
 #include <QClipboard>
+#include <QMessageBox>
 
 using namespace rwsim::log;
 using namespace rwsimlibs::gui;
@@ -33,12 +36,21 @@ EquationSystemWidget::EquationSystemWidget(rw::common::Ptr<const LogEquationSyst
 {
 	_ui->setupUi(this);
 
+#if RWS_USE_QT5
+	_ui->_A->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	_ui->_A->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	_ui->_b->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	_ui->_b->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	_ui->_x->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+	_ui->_x->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+#else
 	_ui->_A->verticalHeader()->setResizeMode(QHeaderView::Stretch);
 	_ui->_A->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 	_ui->_b->verticalHeader()->setResizeMode(QHeaderView::Stretch);
 	_ui->_b->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 	_ui->_x->verticalHeader()->setResizeMode(QHeaderView::Stretch);
 	_ui->_x->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
+#endif
 
 	_ui->_A->setContextMenuPolicy(Qt::CustomContextMenu);
 	_ui->_b->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -71,6 +83,10 @@ rw::common::Ptr<const SimulatorLog> EquationSystemWidget::getEntry() const {
 	return _system;
 }
 
+int EquationSystemWidget::colorFunction(double value, double maxAbs) const {
+	return 255-(int)(std::pow(std::log(std::fabs(value)/maxAbs+1),0.25)*140);
+}
+
 void EquationSystemWidget::updateEntryWidget() {
 	const Eigen::MatrixXd& A = _system->A();
 	const Eigen::VectorXd& x = _system->x();
@@ -89,21 +105,34 @@ void EquationSystemWidget::updateEntryWidget() {
 	_ui->_A->setColumnCount(A.cols());
 	_ui->_x->setRowCount(x.rows());
 	_ui->_b->setRowCount(b.rows());
+	double maxValue = 0;
+	if (A.rows() > 0 && A.cols() > 0)
+		maxValue = A.cwiseAbs().maxCoeff();
+	if (b.size() > 0)
+		maxValue = std::max(maxValue,b.cwiseAbs().maxCoeff());
+	if (x.size() > 0)
+		maxValue = std::max(maxValue,x.cwiseAbs().maxCoeff());
 	for (Eigen::MatrixXd::Index i = 0; i < A.rows(); i++) {
 		for (Eigen::MatrixXd::Index j = 0; j < A.cols(); j++) {
 			QTableWidgetItem* item = new QTableWidgetItem(QString::number(A(i,j)));
 			item->setData(Qt::ToolTipRole,QString::number(A(i,j)));
+			const int colorVal = colorFunction(A(i,j),maxValue);
+			item->setBackgroundColor(QColor(colorVal,colorVal,colorVal));
 			_ui->_A->setItem(i,j,item);
 		}
 	}
 	for (Eigen::VectorXd::Index i = 0; i < x.rows(); i++) {
 		QTableWidgetItem* item = new QTableWidgetItem(QString::number(x[i]));
 		item->setData(Qt::ToolTipRole,QString::number(x[i]));
+		const int colorVal = colorFunction(x[i],maxValue);
+		item->setBackgroundColor(QColor(colorVal,colorVal,colorVal));
 		_ui->_x->setItem(i,0,item);
 	}
 	for (Eigen::VectorXd::Index i = 0; i < b.rows(); i++) {
 		QTableWidgetItem* item = new QTableWidgetItem(QString::number(b[i]));
 		item->setData(Qt::ToolTipRole,QString::number(b[i]));
+		const int colorVal = colorFunction(b[i],maxValue);
+		item->setBackgroundColor(QColor(colorVal,colorVal,colorVal));
 		_ui->_b->setItem(i,0,item);
 	}
 
@@ -184,14 +213,42 @@ void EquationSystemWidget::showContextMenu(const QPoint& pos) {
 	RW_ASSERT(widget);
 	const QPoint globalPos = widget->mapToGlobal(pos);
 	QMenu myMenu;
+#if RWS_USE_QT5
+	if (_ui->_A->verticalHeader()->sectionResizeMode(0) == QHeaderView::Stretch)
+		myMenu.addAction("&Expanded Mode");
+	else
+		myMenu.addAction("&Compact Mode");
+#else
 	if (_ui->_A->verticalHeader()->resizeMode(0) == QHeaderView::Stretch)
 		myMenu.addAction("&Expanded Mode");
 	else
 		myMenu.addAction("&Compact Mode");
+#endif
 	myMenu.addAction("Copy as &Mathematica");
+	myMenu.addAction("Copy as MAT&LAB");
+	myMenu.addAction("Color &Information");
 
 	const QAction* const selectedItem = myMenu.exec(globalPos);
 	if (selectedItem == myMenu.actions()[0]) {
+#if RWS_USE_QT5
+		if (_ui->_A->verticalHeader()->sectionResizeMode(0) == QHeaderView::Stretch) {
+			// To expanded mode
+			_ui->_A->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+			_ui->_A->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+			_ui->_b->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+			_ui->_b->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+			_ui->_x->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+			_ui->_x->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+		} else {
+			// To compact mode
+			_ui->_A->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+			_ui->_A->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+			_ui->_b->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+			_ui->_b->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+			_ui->_x->verticalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+			_ui->_x->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+		}
+#else
 		if (_ui->_A->verticalHeader()->resizeMode(0) == QHeaderView::Stretch) {
 			// To expanded mode
 			_ui->_A->verticalHeader()->setResizeMode(QHeaderView::ResizeToContents);
@@ -209,6 +266,7 @@ void EquationSystemWidget::showContextMenu(const QPoint& pos) {
 			_ui->_x->verticalHeader()->setResizeMode(QHeaderView::Stretch);
 			_ui->_x->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 		}
+#endif
 	} else if (selectedItem == myMenu.actions()[1]) {
 		// Output the equation system in Mathematica format to clipboard
 		const Eigen::MatrixXd& A = _system->A();
@@ -256,5 +314,52 @@ void EquationSystemWidget::showContextMenu(const QPoint& pos) {
 		}
 		QClipboard* clip = QApplication::clipboard();
 		clip->setText(QString::fromStdString(mstr));
+	} else if (selectedItem == myMenu.actions()[2]) {
+		// Output the equation system in MATLAB format to clipboard
+		const Eigen::MatrixXd& A = _system->A();
+		const Eigen::VectorXd& x = _system->x();
+		const Eigen::VectorXd& b = _system->b();
+		std::stringstream fmt;
+		fmt << "A=[";
+		for (Eigen::MatrixXd::Index i = 0; i < A.rows(); i++) {
+			for (Eigen::MatrixXd::Index j = 0; j < A.cols(); j++) {
+				if (j == A.cols()-1)
+					fmt << A(i,j);
+				else
+					fmt << A(i,j) << " ";
+			}
+			if (i != A.rows()-1)
+				fmt << ";" << std::endl;
+		}
+		fmt << "];" << std::endl;
+		fmt << "b=[";
+		for (Eigen::MatrixXd::Index i = 0; i < b.rows(); i++) {
+			if (i == b.rows()-1)
+				fmt << b[i];
+			else
+				fmt << b[i] << ";";
+		}
+		fmt << "];" << std::endl;
+		if (x.size() > 0) {
+			fmt << "x=[";
+			for (Eigen::MatrixXd::Index i = 0; i < x.rows(); i++) {
+				if (i == x.rows()-1)
+					fmt << x[i];
+				else
+					fmt << x[i] << ";";
+			}
+			fmt << "];" << std::endl;
+		}
+		std::string mstr = fmt.str();
+		/*size_t pos = mstr.find("e");
+		while (pos != std::string::npos) {
+			mstr.replace(pos, 1, "*^");
+			pos = mstr.find("e");
+		}*/
+		QClipboard* clip = QApplication::clipboard();
+		clip->setText(QString::fromStdString(mstr));
+	} else if (selectedItem == myMenu.actions()[3]) {
+		// Show information about the color scaling
+		QMessageBox::information(this,"Color Function","(ln(|v|/max+1))^(1/4)");
 	}
 }

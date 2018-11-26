@@ -26,12 +26,11 @@
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Transform3D.hpp>
 
-#include "XercesErrorHandler.hpp"
-#include "XMLBasisTypes.hpp"
-#include "XercesUtils.hpp"
+#include <xercesc/util/XercesDefs.hpp>
 
+//#include "XercesErrorHandler.hpp"
 
-#include <xercesc/dom/DOMElement.hpp>
+/*
 #include <xercesc/dom/DOM.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMDocumentType.hpp>
@@ -44,8 +43,12 @@
 
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/XMLUni.hpp>
-#include <xercesc/util/XMLDouble.hpp>
+*/
 #include <string>
+
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMElement;
+XERCES_CPP_NAMESPACE_END
 
 namespace rw {
 namespace loaders {
@@ -153,8 +156,24 @@ public:
      */
 	rw::trajectory::Transform3DTrajectory::Ptr getTransform3DTrajectory();
 
+	/**
+	 * @brief Utility class which initializes local static variables.
+	 *
+	 * If the XMLTrajectoryLoader is used outside main (as a part of global initialization/destruction), the Initializer
+	 * should be used explicitly to control the static initialization/destruction order.
+	 *
+	 * Notice that the Initializer is automatically defined as a global variable, hence it should not
+	 * be necessary to specify the initializer explicitly if XMLTrajectoryLoader is to be used in local static
+	 * initialization/destruction.
+	 */
+	class Initializer {
+	public:
+	    //! @brief Initializes when constructed.
+		Initializer();
+	};
 
 private:
+	static const Initializer initializer;
 
    /* template<class T>
     void initialize(T t, const std::string& schemaFileName) {

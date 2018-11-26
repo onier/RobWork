@@ -17,35 +17,18 @@
 
 #include "../TestSuiteConfig.hpp"
 
-#include <rw/geometry/GeometryUtil.hpp>
 #include <rw/geometry/TriangleUtil.hpp>
 #include <rw/geometry/Box.hpp>
-#include <rw/geometry/Cone.hpp>
-#include <rw/geometry/Cylinder.hpp>
-#include <rw/geometry/Pyramid.hpp>
-#include <rw/geometry/Sphere.hpp>
-#include <rw/geometry/Tube.hpp>
 #include <rw/geometry/Plane.hpp>
 #include <rw/math/Vector3D.hpp>
 
-#if RW_HAVE_ASSIMP
-#include <rw/loaders/model3d/LoaderAssimp.hpp>
-using namespace rw::graphics;
-#else
-#include <rw/loaders/model3d/STLFile.hpp>
-#endif
-
-using namespace rw::common;
 using namespace rw::geometry;
-using namespace rw::kinematics;
-using namespace rw::loaders;
-using namespace rw::math;
-
+using rw::math::Vector3D;
 
 BOOST_AUTO_TEST_CASE( DivideTriMeshBox ){
 	Box box;
 	TriMesh::Ptr trimesh = box.getTriMesh();
-	Plane plane(Vector3D<>(0,0,1), 0);
+	Plane plane(Vector3D<>(0,0,1), 0.1);
 	std::pair<TriMesh::Ptr, TriMesh::Ptr> frontAndBack = TriangleUtil::divide<Triangle<> >(trimesh, &plane);
 	//With the current algorithm for dividing we expect there to be 14 triangles in front and behind (after they have been cut)
 	BOOST_CHECK(frontAndBack.first->getSize() == 14);

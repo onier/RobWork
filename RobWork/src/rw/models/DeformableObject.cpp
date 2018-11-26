@@ -15,16 +15,16 @@ DeformableObject::DeformableObject(rw::kinematics::Frame* baseframe, int nr_of_n
 	add(_rstate);
 	_model = rw::common::ownedPtr( new rw::graphics::Model3D(baseframe->getName()+"_M"));
 
-	Model3D::Material mat("gray",0.7,0.7,0.7);
+	Model3D::Material mat("gray",0.7f,0.7f,0.7f);
 	int matId = _model->addMaterial( mat );
 	_mesh = rw::common::ownedPtr( new IndexedTriMeshN0<float>() );
 	_mesh->getVertices().resize(nr_of_nodes, Vector3D<float>(0,0,0));
 	_mesh->getNormals().resize(nr_of_nodes, Vector3D<float>(0,0,0));
-	Model3D::Object3D::Ptr obj = rw::common::ownedPtr( new Model3D::Object3D("Obj1") );
+	Model3D::Object3D<uint16_t>::Ptr obj = rw::common::ownedPtr( new Model3D::Object3D<uint16_t>("Obj1") );
 	obj->_vertices.resize(nr_of_nodes, Vector3D<float>(0,0,0));
 	obj->_normals.resize(nr_of_nodes, Vector3D<float>(0,0,1));
 	obj->_faces.resize(0);
-	obj->_materialMap.push_back( Model3D::Object3D::MaterialMapData((uint16_t)matId,0,(uint16_t)0) );
+	obj->_materialMap.push_back( Model3D::Object3D<uint16_t>::MaterialMapData((uint16_t)matId,0,(uint16_t)0) );
 	_model->addObject( obj );
 	_geom = rw::common::ownedPtr( new rw::geometry::Geometry(_mesh, std::string(baseframe->getName()+"_G")) );
 }
@@ -34,7 +34,10 @@ DeformableObject::DeformableObject(rw::kinematics::Frame* baseframe, rw::graphic
 {
 	_mesh = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<float> >( *(model->toGeometryData()->getTriMesh(false)) ,0.000001 );
 	_model = model;
-	_rstate = rw::kinematics::StatelessData<int>(1,rw::common::ownedPtr( new DeformableObjectCache(_mesh->getVertices().size())).cast<StateCache>() );
+	const int nrOfVertices = static_cast<int>(_mesh->getVertices().size());
+	if (_mesh->getVertices().size() != static_cast<std::size_t>(nrOfVertices))
+		RW_THROW("There are too many vertices in the mesh to create a DeformableObject.");
+	_rstate = rw::kinematics::StatelessData<int>(1,rw::common::ownedPtr( new DeformableObjectCache(nrOfVertices)).cast<StateCache>() );
 	add(_rstate);
 
 	_geom = rw::common::ownedPtr( new rw::geometry::Geometry(_mesh, std::string(baseframe->getName()+"_G")) );
@@ -46,11 +49,14 @@ DeformableObject::DeformableObject(rw::kinematics::Frame* baseframe, rw::geometr
 	TriMesh::Ptr mesh = geom->getGeometryData()->getTriMesh(false);
 	// create IndexedTriMesh from the data
 	_mesh = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<float> >(*mesh,0.000001);
-   _rstate = rw::kinematics::StatelessData<int>(1,rw::common::ownedPtr( new DeformableObjectCache(_mesh->getVertices().size())).cast<StateCache>() );
+	const int nrOfVertices = static_cast<int>(_mesh->getVertices().size());
+	if (_mesh->getVertices().size() != static_cast<std::size_t>(nrOfVertices))
+		RW_THROW("There are too many vertices in the mesh to create a DeformableObject.");
+   _rstate = rw::kinematics::StatelessData<int>(1,rw::common::ownedPtr( new DeformableObjectCache(nrOfVertices)).cast<StateCache>() );
    add(_rstate);
    _geom = rw::common::ownedPtr( new rw::geometry::Geometry(_mesh, std::string(baseframe->getName()+"_G")) );
    _model = rw::common::ownedPtr( new rw::graphics::Model3D(baseframe->getName()+"_M"));
-   Model3D::Material mat("gray",0.7,0.7,0.7);
+   Model3D::Material mat("gray",0.7f,0.7f,0.7f);
    _model->addGeometry(mat, _geom);
 }
 
@@ -139,17 +145,17 @@ void DeformableObject::setNode(int id, const rw::math::Vector3D<float>& v, rw::k
  void DeformableObject::update(rw::graphics::Model3D::Ptr model, const rw::kinematics::State& state){
 	 // check what model it is and update it with the nodes.
 	 // for now we assume only one model.
-	 typedef Vector3D<float> Vector3Df;
+	//  typedef Vector3D<float> Vector3Df;
 	 const std::vector<Vector3D<float> > &nodes = _rstate.getStateCache<DeformableObjectCache>(state)->_nodes;
-	 std::vector<Model3D::Object3D::Ptr> objects = model->getObjects();
+	 std::vector<Model3D::Object3DGeneric::Ptr> objects = model->getObjects();
 	 int objIndex=0, offset=0;
-	 for( int i = 0; i<nodes.size(); i++){
-		 if(objects[objIndex]->_vertices.size()>(i-offset)){
+	 for (int i = 0; i < static_cast<int>(nodes.size()); i++) {
+		 if(static_cast<int>(objects[objIndex]->_vertices.size()) > (i - offset)){
 			 objects[objIndex]->_vertices[i - offset] = nodes[i];
 			 std::cout << objects[objIndex]->_vertices[i - offset] << std::endl;
 		 } else {
 			 // check to see if the object should be changed
-			 if(objects.size()<objIndex+1){
+			 if(static_cast<int>(objects.size()) < objIndex + 1){
 				 objIndex++;
 				 offset = i;
 			 }
@@ -157,15 +163,16 @@ void DeformableObject::setNode(int id, const rw::math::Vector3D<float>& v, rw::k
 	 }
 
 	 // check if the number of faces has changed
-	 if( objects[0]->_faces.size() != _mesh->getNrTris() ){
+	 const Model3D::Object3D<uint16_t>::Ptr firstObject = objects[0].scast<Model3D::Object3D<uint16_t> >();
+	 if (static_cast<int>(firstObject->_faces.size()) != _mesh->getNrTris() ){
 		 // copy all ids
-		 objects[0]->_faces.resize( _mesh->getNrTris() );
+		 firstObject->_faces.resize( _mesh->getNrTris() );
 		 for(int i=0;i<_mesh->getNrTris();i++){
-			 objects[0]->_faces[i][0] = _mesh->getIndexedTriangle(i)[0];
-			 objects[0]->_faces[i][1] = _mesh->getIndexedTriangle(i)[1];
-			 objects[0]->_faces[i][2] = _mesh->getIndexedTriangle(i)[2];
+			 firstObject->_faces[i][0] = _mesh->getIndexedTriangle(i)[0];
+			 firstObject->_faces[i][1] = _mesh->getIndexedTriangle(i)[1];
+			 firstObject->_faces[i][2] = _mesh->getIndexedTriangle(i)[2];
 		 }
 		 // remember to also set size of last material thingy
-		 objects[0]->_materialMap.back().size = _mesh->getNrTris();
+		 firstObject->_materialMap.back().size = _mesh->getNrTris();
 	 }
  }

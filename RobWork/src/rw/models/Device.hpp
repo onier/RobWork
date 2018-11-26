@@ -24,16 +24,15 @@
  */
 
 #include <rw/common/Ptr.hpp>
+#include <rw/common/PropertyMap.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/math/Transform3D.hpp>
-#include <rw/math/VelocityScrew6D.hpp>
-#include <rw/kinematics/StateStructure.hpp>
 #include <rw/kinematics/Stateless.hpp>
 #include "JacobianCalculator.hpp"
 
 
 #include <string>
-#include <ostream>
+#include <iosfwd>
 
 namespace rw { namespace math { class Jacobian; }}
 
@@ -43,18 +42,8 @@ namespace rw { namespace kinematics {
 }}
 
 namespace rw { namespace models {
-
-    class Joint;
-
     /** @addtogroup models */
     /*@{*/
-
-#ifdef RW_USE_DEPRECATED
-    class Device;
-
-    //! A pointer to a Device.
-    typedef rw::common::Ptr<Device> DevicePtr;
-#endif
 
     /**
      * @brief An abstract device class
@@ -69,6 +58,8 @@ namespace rw { namespace models {
     public:
 		//! @brief smart pointer type to this class
 		typedef rw::common::Ptr<Device> Ptr;
+		//! @brief const smart pointer type to this class
+		typedef rw::common::Ptr< const Device > CPtr;
 
         //! Lower and upper corner of a box shaped configuration space.
         typedef std::pair<math::Q, math::Q> QBox;

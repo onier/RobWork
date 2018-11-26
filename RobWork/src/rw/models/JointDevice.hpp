@@ -25,13 +25,11 @@
 
 #include "Device.hpp"
 #include "JacobianCalculator.hpp"
-#include "Joint.hpp"
 #include <vector>
 
 namespace rw { namespace models {
 
-    //class Joint;
-
+    class Joint;
 
     /** @addtogroup models */
     /*@{*/
@@ -55,6 +53,8 @@ namespace rw { namespace models {
     public:
 		//! @brief smart pointer type to this class
 		typedef rw::common::Ptr<JointDevice> Ptr;
+		//! @brief smart pointer type to this class
+		typedef rw::common::Ptr< const JointDevice > CPtr;
 
         /**
          @brief Construct the device for a sequence of joints.
@@ -152,10 +152,6 @@ namespace rw { namespace models {
         JacobianCalculatorPtr _baseJCend;
     };
 
-#ifdef RW_USE_DEPRECATED
-    //! deprecated smart pointer type
-    typedef rw::common::Ptr<JointDevice> JointDevicePtr;
-#endif
     /*@}*/
 }} // end namespaces
 

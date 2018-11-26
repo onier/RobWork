@@ -1,12 +1,26 @@
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
+
 #include "URCallBackInterface.hpp"
 #include "URCommon.hpp"
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/EAA.hpp>
-#include <rw/math/Statistics.hpp>
-#include <rw/common/StringUtil.hpp>
-#include <rw/common/TimerUtil.hpp>
-#include <rw/common/Timer.hpp>
 #include <rw/common/Log.hpp>
+#include <fstream>
 
 #include "urscript.hpp"
 
@@ -17,17 +31,23 @@ using namespace boost::asio::ip;
 
 namespace {
 	const double FLOAT_TO_INT_SCALE = 10000;
+    const double NORMALIZE_PERCENTAGE = 0.01;
 }
 
 URCallBackInterface::URCallBackInterface():
+    _cb(CB3),
+    _thread(NULL),
+    _callbackPort(33334),
     _stopServer(false),
     _robotStopped(true),
-    _isMoving(false)
+    _isMoving(false),
+    _isServoing(false),
+	_isConnected(false)
 {
+//	_urPrimary = new URPrimaryInterface();
     /* Set the global loglevel to debug */
-    Log::log().setLevel(Log::Debug);
+    //Log::log().setLevel(Log::Debug);
 }
-
 
 bool URCallBackInterface::isMoving() const {
     return _isMoving;
@@ -39,6 +59,11 @@ double URCallBackInterface::driverTime() const {
 
 void URCallBackInterface::connect(const std::string& host, const unsigned int port) {
     _urPrimary.connect(host, port);
+}
+
+bool URCallBackInterface::isConnected() const
+{
+	return _isConnected;
 }
 
 /* Deprecated function */
@@ -87,7 +112,7 @@ void URCallBackInterface::startCommunication(const std::string& callbackIP, cons
 	
     // replace PORT placeholder with correct port value
     std::stringstream sstr_port;
-    int n = script.find("PORT");
+    std::size_t n = script.find("PORT");
     if (n == std::string::npos) {
         RW_WARN("Unable to find PORT in script");
         sstr_port << script;
@@ -145,12 +170,29 @@ void URCallBackInterface::startCommunication(const std::string& callbackIP, cons
         RW_LOG_ERROR("Was not successful in sending the script to the robot.");
     }
     _urPrimary.start();
+	_isConnected = true;
 }
 
 
 
 void URCallBackInterface::stopCommunication() {
+	
     _stopServer = true;
+	_urPrimary.disconnect();
+	_urPrimary.stop();
+	std::cout << "URCallBackInterface::stopCommunication " << _thread << std::endl;
+	if (_thread != NULL) {
+		// Give the thread one second to stop
+		if (!_thread->timed_join(boost::posix_time::seconds(1))) {
+			// Failure, interrupt
+			RW_WARN("Interrupting URCallBackInterface thread...");
+			_thread->interrupt();
+			if (!_thread->timed_join(boost::posix_time::seconds(1)))
+				RW_WARN("Failed to interrupt URCallBackInterface thread");
+		}
+		_thread = NULL;
+	}
+	_isConnected = false;
 }
 
 
@@ -173,61 +215,61 @@ namespace {
 		const Vector3D<>& p = transform.P();
 		EAA<> eaa(transform.R());
     
-        integers[offset] = p(0)*FLOAT_TO_INT_SCALE;
-        integers[offset+1] = p(1)*FLOAT_TO_INT_SCALE;
-        integers[offset+2] = p(2)*FLOAT_TO_INT_SCALE;
-        integers[offset+3] = eaa(0)*FLOAT_TO_INT_SCALE;
-        integers[offset+4] = eaa(1)*FLOAT_TO_INT_SCALE;
-        integers[offset+5] = eaa(2)*FLOAT_TO_INT_SCALE;
+        integers[offset] = static_cast<int>(p(0)*FLOAT_TO_INT_SCALE);
+        integers[offset+1] = static_cast<int>(p(1)*FLOAT_TO_INT_SCALE);
+        integers[offset+2] = static_cast<int>(p(2)*FLOAT_TO_INT_SCALE);
+        integers[offset+3] = static_cast<int>(eaa(0)*FLOAT_TO_INT_SCALE);
+        integers[offset+4] = static_cast<int>(eaa(1)*FLOAT_TO_INT_SCALE);
+        integers[offset+5] = static_cast<int>(eaa(2)*FLOAT_TO_INT_SCALE);
 
     }
 
 
     void vector3d2intVector(const Vector3D<>& vec, std::vector<int>& integers, int offset) {
-		RW_ASSERT(offset+2 < integers.size());
-        integers[offset] = vec[0]*FLOAT_TO_INT_SCALE;
-		integers[offset+1] = vec[1]*FLOAT_TO_INT_SCALE;
-		integers[offset+2] = vec[2]*FLOAT_TO_INT_SCALE;
+	RW_ASSERT(offset+2 < integers.size());
+	integers[offset] = static_cast<int>(vec[0]*FLOAT_TO_INT_SCALE);
+	integers[offset+1] = static_cast<int>(vec[1]*FLOAT_TO_INT_SCALE);
+	integers[offset+2] = static_cast<int>(vec[2]*FLOAT_TO_INT_SCALE);
     }
 
 
     void wrench2intVector(const Wrench6D<>& wrench, std::vector<int>& integers, int offset) {
-		RW_ASSERT(offset+5 < integers.size());
-		integers[offset] = wrench.force()(0)*FLOAT_TO_INT_SCALE;
-		integers[offset+1] = wrench.force()(1)*FLOAT_TO_INT_SCALE;
-		integers[offset+2] = wrench.force()(2)*FLOAT_TO_INT_SCALE;
-		integers[offset+3] = wrench.torque()(0)*FLOAT_TO_INT_SCALE;
-		integers[offset+4] = wrench.torque()(1)*FLOAT_TO_INT_SCALE;
-		integers[offset+5] = wrench.torque()(2)*FLOAT_TO_INT_SCALE;
+	RW_ASSERT(offset+5 < integers.size());
+	integers[offset] = static_cast<int>(wrench.force()(0)*FLOAT_TO_INT_SCALE);
+	integers[offset+1] = static_cast<int>(wrench.force()(1)*FLOAT_TO_INT_SCALE);
+	integers[offset+2] = static_cast<int>(wrench.force()(2)*FLOAT_TO_INT_SCALE);
+	integers[offset+3] = static_cast<int>(wrench.torque()(0)*FLOAT_TO_INT_SCALE);
+	integers[offset+4] = static_cast<int>(wrench.torque()(1)*FLOAT_TO_INT_SCALE);
+	integers[offset+5] = static_cast<int>(wrench.torque()(2)*FLOAT_TO_INT_SCALE);
     }
 
 }
 
 
 void URCallBackInterface::sendStop(tcp::socket& socket) {
-    std::vector<int> integers(8);
+    std::vector<int> integers(9);
     integers[0] = URScriptCommand::STOP;
     URCommon::send(&socket, integers);    
 }
  
 void URCallBackInterface::handleCmdRequest(tcp::socket& socket) {
-    RW_LOG_DEBUG("Handling command request - obtaining lock...");
+    //RW_LOG_DEBUG("Handling command request - obtaining lock...");
     boost::mutex::scoped_lock lock(_mutex);
-    RW_LOG_DEBUG("Obtained lock");
+    //RW_LOG_DEBUG("Obtained lock");
 
-    std::vector<int> integers(8);
+    std::vector<int> integers(9);
 
     if (_commands.size() == 0 || (_isMoving && !_isServoing)) {		
         integers[0] = URScriptCommand::DO_NOTHING;
         URCommon::send(&socket, integers);
-        RW_LOG_DEBUG("Do nothing");
+        // RW_LOG_DEBUG("Do nothing");
         return;
     }
 
 	//std::cout<<"Handle Cmd Request ="<<_commands.size()<<std::endl;
 
     URScriptCommand cmd = _commands.front();
-    RW_LOG_DEBUG("Command type: " << cmd._type);
+    //RW_LOG_DEBUG("Command type: " << cmd._type);
     _isServoing = false;
     integers[0] = cmd._type;
     switch (cmd._type) {
@@ -235,12 +277,14 @@ void URCallBackInterface::handleCmdRequest(tcp::socket& socket) {
         break;
     case URScriptCommand::MOVEQ:
         q2intVector(cmd._q, integers, 1);
-        integers[7] = cmd._speed*FLOAT_TO_INT_SCALE;
+        integers[7] = static_cast<int>((cmd._speed*NORMALIZE_PERCENTAGE)*FLOAT_TO_INT_SCALE);
+        integers[8] = static_cast<int>((cmd._blend)*FLOAT_TO_INT_SCALE);
         _isMoving = true;
         break;
     case URScriptCommand::MOVET: 
         t2intVector(cmd._transform, integers, 1);
-        integers[7] = cmd._speed*FLOAT_TO_INT_SCALE;
+        integers[7] = static_cast<int>((cmd._speed*NORMALIZE_PERCENTAGE)*FLOAT_TO_INT_SCALE);
+        integers[8] = static_cast<int>((cmd._blend)*FLOAT_TO_INT_SCALE);
         _isMoving = true;
         break;
     case URScriptCommand::SERVOQ:
@@ -274,7 +318,7 @@ void URCallBackInterface::handleCmdRequest(tcp::socket& socket) {
 		integers[2] = cmd._bValue;
 		break;
     case URScriptCommand::SET_PAYLOAD:
-		integers[1] = cmd._mass*FLOAT_TO_INT_SCALE;
+		integers[1] = static_cast<int>(cmd._mass*FLOAT_TO_INT_SCALE);
 		vector3d2intVector(cmd._centerOfGravity, integers, 2);
         break;    
 	default:
@@ -282,9 +326,10 @@ void URCallBackInterface::handleCmdRequest(tcp::socket& socket) {
         RW_THROW("Unsupported command type: " << cmd._type);
         break;
     }
-    RW_LOG_DEBUG("Sending command to robot...");
+    //RW_LOG_DEBUG("Sending command to robot...");
+    //std::cout<<"Speed="<<integers.at(7)<<" Blend="<<integers.at(8)<<std::endl;
     URCommon::send(&socket, integers);
-    RW_LOG_DEBUG("Command to robot sent");
+    //RW_LOG_DEBUG("Command to robot sent");
 
     if (cmd._type != URScriptCommand::SERVOQ) {                
         RW_LOG_DEBUG("Popping commands as the command type was not SERVOQ");
@@ -312,7 +357,7 @@ void URCallBackInterface::run() {
 			//Timer timer2;
             //timer.resetAndResume();  
 			//Statistics<double> stats;
-			int cnt = 0;
+			//int cnt = 0;
             while (!_stopServer) {
 			//  std::cout<<"\b\b\b\b\bm = "<<_isMoving;
 //          std::cout<<"Time = "<<TimerUtil::currentTimeUs()<<std::endl; 
@@ -343,10 +388,10 @@ void URCallBackInterface::run() {
 					//timer2.resetAndResume();
 
                
-                    RW_LOG_DEBUG("Received the byte/char '" << ch << "' from the connection.");
+                    //RW_LOG_DEBUG("Received the byte/char '" << ch << "' from the connection.");
 
                     if (_robotStopped) {
-                        RW_LOG_DEBUG("Robot is stopped, going to send stop.");
+                        //RW_LOG_DEBUG("Robot is stopped, going to send stop.");
                         sendStop(socket);
                     } else {
                         if (ch == 0) {
@@ -394,13 +439,33 @@ void URCallBackInterface::popAllUpdateCommands() {
     }
 }
 
-void URCallBackInterface::moveQ(const rw::math::Q& q, float speed) {
-    RW_LOG_DEBUG("rwhw::URCallBackInterface::moveQ("<<q<<","<<speed<<")");
+void URCallBackInterface::moveQ(const rw::math::Q& q, float speed, float blend) {
+    RW_LOG_DEBUG("rwhw::URCallBackInterface::moveQ("<<q<<","<<speed<<","<<blend<<")");
     boost::mutex::scoped_lock lock(_mutex);
     
     popAllUpdateCommands();
 
-    _commands.push(URScriptCommand(URScriptCommand::MOVEQ, q, speed));
+    _commands.push(URScriptCommand(URScriptCommand::MOVEQ, q, speed, blend));
+    _robotStopped = false;
+}
+
+void URCallBackInterface::moveQ(const rw::math::Q& q, float speed) {
+  RW_LOG_DEBUG("rwhw::URCallBackInterface::moveQ("<<q<<","<<speed<<")");
+  boost::mutex::scoped_lock lock(_mutex);
+
+  popAllUpdateCommands();
+
+  _commands.push(URScriptCommand(URScriptCommand::MOVEQ, q, speed));
+  _robotStopped = false;
+}
+
+void URCallBackInterface::moveT(const rw::math::Transform3D<>& transform, float speed, float blend) {
+    RW_LOG_DEBUG("rwhw::URCallBackInterface::moveT("<<transform<<","<<speed<<","<<blend<<")");
+    boost::mutex::scoped_lock lock(_mutex);
+
+    popAllUpdateCommands();
+
+    _commands.push(URScriptCommand(URScriptCommand::MOVET, transform, speed, blend));
     _robotStopped = false;
 }
 
@@ -420,7 +485,7 @@ void URCallBackInterface::servo(const rw::math::Q& q) {
 
     popAllUpdateCommands();
 	
-    _commands.push(URScriptCommand(URScriptCommand::SERVOQ, q, 1));
+    _commands.push(URScriptCommand(URScriptCommand::SERVOQ, q, 1.0));
     _robotStopped = false;
 	 
 }
@@ -445,7 +510,6 @@ void URCallBackInterface::forceModeUpdate(const rw::math::Wrench6D<>& wrench) {
 
 }
 
-
 void URCallBackInterface::forceModeEnd() {
 	RW_LOG_DEBUG("rwhw::URCallBackInterface::forceModeEnd()");
     boost::mutex::scoped_lock lock(_mutex);
@@ -453,7 +517,6 @@ void URCallBackInterface::forceModeEnd() {
 	URScriptCommand cmd(URScriptCommand::FORCE_MODE_END);
     _commands.push(cmd);
 }
-
 
 void URCallBackInterface::teachModeStart() {
 	RW_LOG_DEBUG("rwhw::URCallBackInterface::teachModeStart()");
@@ -489,4 +552,13 @@ void URCallBackInterface::setPayload(double mass, const Vector3D<>& centerOfGrav
 
     _commands.push(URScriptCommand(URScriptCommand::SET_PAYLOAD, mass, centerOfGravity));
     _robotStopped = false;
+}
+
+void URCallBackInterface::setTCPTransform(const Transform3D<>& endTtcp) {
+	RW_LOG_DEBUG("rwhw::URCallBackInterface::setTCPTransform("<< endTtcp << ")");
+	boost::mutex::scoped_lock lock(_mutex);
+	popAllUpdateCommands();
+
+	_commands.push(URScriptCommand(URScriptCommand::SET_TCP, endTtcp));
+	_robotStopped = false;
 }

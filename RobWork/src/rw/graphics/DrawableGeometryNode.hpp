@@ -10,15 +10,18 @@
 
 #include <vector>
 #include <rw/math/Vector3D.hpp>
-#include <rw/geometry/Line.hpp>
-#include <rw/geometry/Geometry.hpp>
 #include "DrawableNode.hpp"
+
+namespace rw { namespace geometry { class Geometry; } }
+namespace rw { namespace geometry { class Line; } }
 
 namespace rw {
 namespace graphics {
 
+//! @brief A specific type of DrawableNode that is able to draw a rw::geometry::Geometry.
 class DrawableGeometryNode: public rw::graphics::DrawableNode {
 public:
+	//! @brief Smart pointer type for DrawableGeometryNode.
     typedef rw::common::Ptr<DrawableGeometryNode> Ptr;
 
     /**
@@ -71,7 +74,7 @@ public:
      * @brief add a geometry to this render
      * @param geom [in] a geometry that should be rendered
      */
-    virtual void addGeometry(rw::geometry::Geometry::Ptr geom) = 0;
+    virtual void addGeometry(rw::common::Ptr<class rw::geometry::Geometry> geom) = 0;
 
     /**
      * @brief add a frame axis to this geometry
@@ -80,6 +83,10 @@ public:
     virtual void addFrameAxis(double size) = 0;
 
 protected:
+    /**
+     * @brief Construct new drawable geometry node.
+     * @param name [in] name of the node.
+     */
     DrawableGeometryNode(const std::string& name):DrawableNode(name){}
 };
 

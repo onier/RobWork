@@ -20,6 +20,8 @@
 
 #include <rw/math/Math.hpp>
 #include <rw/math/MetricUtil.hpp>
+#include <rw/pathplanning/QConstraint.hpp>
+#include <rw/proximity/CollisionDetector.hpp>
 
 using namespace rw::invkin;
 
@@ -157,4 +159,8 @@ void IKMetaSolver::setProximityLimit(double limit) {
               
 void IKMetaSolver::setCheckJointLimits(bool check) {
     _checkForLimits = check;
+}
+
+rw::kinematics::Frame::CPtr IKMetaSolver::getTCP() const {
+    return _iksolver->getTCP();
 }

@@ -4,9 +4,6 @@
 #include <rw/graphics/Model3D.hpp>
 #include "../Model3DLoader.hpp"
 
-#include <cstdio>
-#include <cstring>
-#include <vector>
 #include <string>
 
 namespace rw {
@@ -50,7 +47,7 @@ namespace loaders {
 		virtual ~LoaderTRI();
 
 		//! @copydoc Model3DLoader::load
-		rw::graphics::Model3D::Ptr load(const std::string& name);
+		rw::graphics::Model3D::Ptr load(const std::string& filename);
 
 	};
 

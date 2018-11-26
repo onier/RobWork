@@ -20,11 +20,9 @@
 #include "PPMLoader.hpp"
 
 #include <rw/common/StringUtil.hpp>
-#include <rw/common/IOUtil.hpp>
 #include <rw/common/macros.hpp>
 #include <boost/cstdint.hpp>
 //#include <ctype.h>
-#include <iostream>
 #include <fstream>
 #include <string>
 #include <locale>
@@ -260,6 +258,12 @@ rw::sensor::Image::Ptr PPMLoader::loadImage(const std::string& filename){
     return PPMLoader::load(filename);
 }
 
+std::vector<std::string> PPMLoader::getImageFormats() {
+	std::vector<std::string> formats;
+	formats.push_back("PPM");
+	return formats;
+}
+
 rw::sensor::Image::Ptr PPMLoader::load(const std::string& filename)
 {
 	RW_DEBUG("PPMLoader start to load " << StringUtil::quote(filename) );
@@ -281,7 +285,7 @@ rw::sensor::Image::Ptr PPMLoader::load(const std::string& filename)
 	else if(pixelMax < 65536) {
 		depth = Image::Depth16U;
 	}
-	else if(pixelMax < 4294967296) {
+	else if(pixelMax <= 4294967295) {
 		depth = Image::Depth32S;
 	}
 	else {

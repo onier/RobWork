@@ -59,7 +59,7 @@ void LogConstraints::write(OutputArchive& oarchive, const std::string& id) const
 		oarchive.write(c.frameB,"NameB");
 		oarchive.write(c.type,"Type");
 		oarchive.write(c.posA,"PosA");
-		oarchive.write(c.posB,"posB");
+		oarchive.write(c.posB,"PosB");
 		oarchive.write(c.rotAlin,"RotAlin");
 		oarchive.write(c.rotBlin,"RotBlin");
 		oarchive.write(c.rotAang,"RotAang");
@@ -70,6 +70,36 @@ void LogConstraints::write(OutputArchive& oarchive, const std::string& id) const
 
 std::string LogConstraints::getType() const {
 	return getTypeID();
+}
+
+bool LogConstraints::Constraint::operator==(const Constraint &b) const {
+	if (frameA != b.frameA)
+		return false;
+	if (frameB != b.frameB)
+		return false;
+	if (type != b.type)
+		return false;
+	if (posA != b.posA)
+		return false;
+	if (posB != b.posB)
+		return false;
+	if (rotAlin != b.rotAlin)
+		return false;
+	if (rotBlin != b.rotBlin)
+		return false;
+	if (rotAang != b.rotAang)
+		return false;
+	if (rotBang != b.rotBang)
+		return false;
+	return true;
+}
+
+bool LogConstraints::operator==(const SimulatorLog &b) const {
+	if (const LogConstraints* const entry = dynamic_cast<const LogConstraints*>(&b)) {
+		if (_constraints != entry->_constraints)
+			return false;
+	}
+	return SimulatorLogEntry::operator==(b);
 }
 
 std::list<SimulatorLogEntry::Ptr> LogConstraints::getLinkedEntries() const {

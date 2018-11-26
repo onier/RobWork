@@ -19,29 +19,12 @@
 
 #include "PGMLoader.hpp"
 
-//#include <boost/spirit.hpp>
-//#include <boost/spirit/core.hpp>
-//#include <boost/spirit/actor.hpp>
-//#include <boost/spirit/dynamic.hpp>
-//#include <boost/spirit/symbols.hpp>
-//#include <boost/spirit/phoenix.hpp>
-//#include <boost/spirit/error_handling.hpp>
-//#include <boost/spirit/iterator.hpp>
-
+#include <complex>
 #include <boost/spirit/include/classic.hpp>
-#include <boost/spirit/include/classic_core.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp>
-#include <boost/spirit/include/classic_symbols.hpp>
-#include <boost/spirit/include/classic_error_handling.hpp>
-#include <boost/spirit/include/classic_common.hpp>
-#include <boost/spirit/include/classic_ast.hpp>
-#include <boost/spirit/include/classic_parse_tree.hpp>
-#include <boost/spirit/include/classic_position_iterator.hpp>
 #include <boost/spirit/include/classic_dynamic.hpp>
 #include <boost/spirit/include/classic_actor.hpp>
 #include <boost/spirit/include/phoenix1.hpp>
 
-#include <rw/common/StringUtil.hpp>
 #include <rw/common/IOUtil.hpp>
 #include <rw/common/macros.hpp>
 
@@ -51,7 +34,6 @@ using namespace rw::loaders;
 using namespace rw::sensor;
 
 using namespace boost::spirit::classic;
-//using namespace boost::spirit;
 using namespace phoenix;
 
 
@@ -83,7 +65,7 @@ namespace {
 
         template < typename IteratorT >
         void operator()(IteratorT const& first, IteratorT const& last) const {
-        	std::cout << "Resizeing to: " << _width*_height*_factor << " factor: " << _factor << std::endl;
+        	//std::cout << "Resizeing to: " << _width*_height*_factor << " factor: " << _factor << std::endl;
 	    	_v.resize(_width*_height*_factor);
 	    }
 
@@ -187,18 +169,24 @@ rw::sensor::Image::Ptr PGMLoader::loadImage(const std::string& filename){
     return PGMLoader::load(filename);
 }
 
+std::vector<std::string> PGMLoader::getImageFormats() {
+	std::vector<std::string> formats;
+	formats.push_back("PGM");
+	return formats;
+}
+
 rw::sensor::Image::Ptr PGMLoader::load(const std::string& filename)
 {
     typedef std::vector<char> V;
 
     V input;
     IOUtil::readFile(filename, input);
-    std::cout << "Size of input: " << input.size() << std::endl;
+    //std::cout << "Size of input: " << input.size() << std::endl;
 
     typedef position_iterator<V::const_iterator> iterator_t;
     iterator_t first(input.begin(),input.end());
     iterator_t last;
-    std::auto_ptr<V> output(new V());
+    rw::common::Ptr<V> output = rw::common::ownedPtr(new V());
     PGMParser p(*output);
 
     parse_info<iterator_t> info =
@@ -212,11 +200,10 @@ rw::sensor::Image::Ptr PGMLoader::load(const std::string& filename)
     if(p.maxgrayval<256)
     	depth = Image::Depth8U;
 
-    std::vector<char> *vec = output.release();
-    char *data = new char[vec->size()];
-    for(size_t i=0;i<vec->size();i++)
-    	data[i] = (*vec)[i];
-    return ownedPtr(
-        new Image(data, p.width, p.height, coding, depth));
+    char *data = new char[output->size()];
+    for (size_t i = 0; i < output->size(); i++) {
+    	data[i] = (*output)[i];
+    }
 
+    return ownedPtr(new Image(data, p.width, p.height, coding, depth));
 }

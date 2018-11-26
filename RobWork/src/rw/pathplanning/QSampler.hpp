@@ -23,16 +23,14 @@
    @file QSampler.hpp
 */
 
-#include "QConstraint.hpp"
-#include "QNormalizer.hpp"
 #include <rw/common/Ptr.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/math/Transform3D.hpp>
 #include <rw/models/Device.hpp>
-#include <rw/invkin/IterativeIK.hpp>
-#include <memory>
 
 namespace rw { namespace pathplanning {
+	class QConstraint;
+	class QNormalizer;
 
     /** @addtogroup pathplanning */
     /** @{*/
@@ -40,12 +38,6 @@ namespace rw { namespace pathplanning {
     // Forward declaration.
     class QIKSampler;
 
-#ifdef RW_USE_DEPRECATED
-    class QSampler;
-
-    //! A pointer to a QSampler.
-    typedef rw::common::Ptr<QSampler> QSamplerPtr;
-#endif
     /**
        @brief Interface for the sampling a configuration.
     */
@@ -54,6 +46,8 @@ namespace rw { namespace pathplanning {
     public:
 		//! @brief smart pointer type to this class
 		typedef rw::common::Ptr<QSampler> Ptr;
+		//! @brief smart pointer type to this const class
+		typedef rw::common::Ptr< const QSampler > CPtr;
 
         /**
            @brief Sample a configuration.
@@ -129,7 +123,7 @@ namespace rw { namespace pathplanning {
         /**
            @brief Uniform random sampling for a device.
         */
-		static QSampler::Ptr makeUniform(rw::models::Device::Ptr device);
+		static QSampler::Ptr makeUniform(rw::models::Device::CPtr device);
 
         /**
            @brief Map a sampler of standard configurations into a sampler of
@@ -161,7 +155,7 @@ namespace rw { namespace pathplanning {
         */
 		static QSampler::Ptr makeConstrained(
 			QSampler::Ptr sampler,
-			QConstraint::Ptr constraint,
+			rw::common::Ptr<const QConstraint> constraint,
             int maxAttempts = -1);
 
         /**

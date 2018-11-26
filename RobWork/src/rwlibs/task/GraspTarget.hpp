@@ -8,10 +8,6 @@
 #ifndef SRC_RWLIBS_TASK_GRASPTARGET_HPP_
 #define SRC_RWLIBS_TASK_GRASPTARGET_HPP_
 
-
-#include <vector>
-#include <rw/common/Ptr.hpp>
-#include <rw/math/Q.hpp>
 #include <rw/math/Transform3D.hpp>
 #include "GraspResult.hpp"
 
@@ -53,7 +49,9 @@ public:
 	}
 
 public:
+	//! @brief The pose of the grasp.
 	rw::math::Transform3D<> pose;
+	//! @brief The result of execution of this target.
 	GraspResult::Ptr result;
 };
 

@@ -23,10 +23,10 @@
 #include "FrameGrabber25D.hpp"
 
 #include <rw/graphics/SceneViewer.hpp>
-#include <rw/math/Constants.hpp>
 #include <rw/math/Transform3D.hpp>
-#include <rw/kinematics/Frame.hpp>
-#include <rw/kinematics/State.hpp>
+
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace kinematics { class State; } }
 
 namespace rwlibs { namespace simulation {
     //! @addtogroup simulation
@@ -49,7 +49,7 @@ namespace rwlibs { namespace simulation {
     class GLFrameGrabber25D : public FrameGrabber25D
     {
     public:
-
+    	//! @brief Smart pointer type for GLFrameGrabber25D.
         typedef rw::common::Ptr<GLFrameGrabber25D> Ptr;
 
         /**
@@ -57,6 +57,8 @@ namespace rwlibs { namespace simulation {
          * @param width [in] width of image
          * @param height [in] height of image
          * @param fov [in] the vertical field of view angle in degree
+         * @param mindepth [in] the minimum depth of camera.
+         * @param maxdepth [in] the maximum depth of camera.
          */
         GLFrameGrabber25D(int width, int height, double fov, double mindepth=0.1, double maxdepth=10.0);
 
@@ -69,8 +71,9 @@ namespace rwlibs { namespace simulation {
          * @brief initialize the grabber with a scene viewer. This registers the grabber
          * as a camera in the scene and enables rendering.
          * @param drawer [in] the scene viewer
+         * @return true if initialization succeeded, false otherwise (depends on the capabilities of the SceneViewer).
          */
-        void init(rw::graphics::SceneViewer::Ptr drawer);
+        bool init(rw::graphics::SceneViewer::Ptr drawer);
 
         /**
          * @brief set the maximum depth that is percieved by this frame grabber.
@@ -101,21 +104,16 @@ namespace rwlibs { namespace simulation {
         /**
          * @copydoc FrameGrapper25D::getFieldOfViewY
          */
-        virtual double getFieldOfViewY() {
-            return _fieldOfView * rw::math::Deg2Rad;
-        }
+        virtual double getFieldOfViewY();
 
     private:
         double _fieldOfView; // in the y-axis
-        double _near, _far;
         rw::graphics::SceneViewer::Ptr _drawer;
         rw::math::Transform3D<double> _perspTrans;
         rw::graphics::SceneViewer::View::Ptr _view;
 
         double _minDepth, _maxDepth;
         std::vector<float> _depthData;
-
-        GLuint _fbId,_renderId,_renderDepthId,textureId;
 
     };
 

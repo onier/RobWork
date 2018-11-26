@@ -4,72 +4,58 @@
 #include <windows.h>
 #endif
 
-#include <iostream>
-
-#include <QMenuBar>
+#include <sstream>
 
 #include <boost/foreach.hpp>
 
 #include <RobWorkStudio.hpp>
 
-#include <rw/rw.hpp>
-#include <rwsim/dynamics/RigidBody.hpp>
-#include <rwsim/loaders/DynamicWorkCellLoader.hpp>
-#include <rwsim/drawable/SimulatorDebugRender.hpp>
+#include <rw/models/JointDevice.hpp> 
 
-#include <rwsim/dynamics/KinematicDevice.hpp>
-#include <rwsim/dynamics/RigidDevice.hpp>
-
-#include <rw/sensor/TactileArray.hpp>
 #include <rwlibs/opengl/TactileArrayRender.hpp>
 #include <rwlibs/simulation/SimulatedController.hpp>
 #include <rwlibs/simulation/SimulatedSensor.hpp>
 #include <rwlibs/control/JointController.hpp>
+#include <rwlibs/opengl/Drawable.hpp>
 
-#include <rw/graspplanning/GraspTable.hpp>
 #include <rwsim/control/BodyController.hpp>
-#include "rwsim/control/BeamJointController.hpp"
-//#include <rwsim/dynamics/SuctionCup.hpp>
-//#include <rwsim/control/SuctionCupController1.hpp>
+#include <rwsim/loaders/DynamicWorkCellLoader.hpp>
+#include <rwsim/sensor/TactileArraySensor.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
 
+#include <rwsimlibs/gui/BodyControllerWidget.hpp>
+#include <rwsimlibs/gui/CreateEngineDialog.hpp>
+#include <rwsimlibs/gui/GraspRestingPoseDialog.hpp>
+#include <rwsimlibs/gui/GraspSelectionDialog.hpp>
 #include <rwsimlibs/gui/JointControlDialog.hpp>
 #include <rwsimlibs/gui/SimCfgDialog.hpp>
-#include <rwsimlibs/gui/CreateEngineDialog.hpp>
-#include <rwsimlibs/gui/BodyControllerWidget.hpp>
-#include <rwsimlibs/gui/GraspRestingPoseDialog.hpp>
-
-#include <rwsimlibs/gui/GraspSelectionDialog.hpp>
+#include <rwsimlibs/gui/RestingPoseDialog.hpp>
 #include <rwsimlibs/gui/SupportPoseAnalyserDialog.hpp>
 #include <rwsimlibs/gui/TactileSensorDialog.hpp>
 
 #include <rwsimlibs/gui/log/SimulatorLogWidget.hpp>
 
-using namespace rw::graspplanning;
-using namespace rw::loaders;
-using namespace rw::models;
-using namespace rw::trajectory;
-using namespace rw::math;
-using namespace rw::kinematics;
-using namespace rw::common;
-using namespace rw::proximity;
-using namespace rw::sensor;
-using namespace rw::graphics;
+#include <QFileDialog>
+#include <QMenuBar>
+#include <QMessageBox>
+#include <QTimer>
+
+using rw::models::JointDevice;
+using rw::trajectory::TimedState;
+using rw::math::Math;
+using rw::kinematics::State;
+using rw::graphics::Render;
 using namespace rwlibs::opengl;
 using namespace rwlibs::simulation;
-using namespace rwlibs::control;
+using rwlibs::control::JointController;
 
 using namespace rwsim::dynamics;
-using namespace rwsim::drawable;
-using namespace rwsim::loaders;
-using namespace rwsim::sensor;
+using rwsim::loaders::DynamicWorkCellLoader;
+using rwsim::sensor::TactileArraySensor;
 using namespace rwsim::simulator;
-using namespace rwsim::util;
 using namespace rwsimlibs::gui;
 
 using namespace rws;
-using rwsim::control::BeamJointController;
-//using rwsim::control::SuctionCupController;
-#define RW_DEBUGS( str ) //std::cout << str  << std::endl;
 
 RWSimPlugin::RWSimPlugin():
 	RobWorkStudioPlugin("RWSimPlugin", QIcon(":/rwsimplugin/SimulationIcon.png")),
@@ -99,6 +85,7 @@ RWSimPlugin::RWSimPlugin():
 
     connect(_openDwcBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_openLastDwcBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_closeDwcBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_editDwcBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_createSimulatorBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
     connect(_destroySimulatorBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
@@ -137,7 +124,7 @@ RWSimPlugin::~RWSimPlugin(){
 	if(_timerShot!=NULL)
         _timerShot->stop();
     _timer->stop();
-};
+}
 
 namespace {
 }
@@ -229,7 +216,7 @@ void RWSimPlugin::btnPressed(){
     	_closeDwcBtn->setDisabled(true);
     	_openDwcBtn->setDisabled(false);
     	_openLastDwcBtn->setDisabled(false);
-    	getRobWorkStudio()->setWorkcell( NULL );
+    	getRobWorkStudio()->postCloseWorkCell();
     	_dwc = NULL;
     } else if( obj == _editDwcBtn ) {
 
@@ -372,7 +359,7 @@ void RWSimPlugin::btnPressed(){
         if(!ctrl){
             if(ctrlname==_sim->getSimulator()->getBodyController()->getControllerName()){
                 rwsim::control::BodyController::Ptr bcont = _sim->getSimulator()->getBodyController();
-                BodyControlDialog *dialog = new BodyControlDialog(_dwc, bcont, this);
+                BodyControlDialog *dialog = new BodyControlDialog(/*_dwc,*/ bcont, this);
                 dialog->show();
                 dialog->raise();
                 dialog->activateWindow();
@@ -391,7 +378,7 @@ void RWSimPlugin::btnPressed(){
                     RW_WARN("No support for this controller type!");
                 }
             } else if( rwsim::control::BodyController::Ptr bcont = ctrl.cast<rwsim::control::BodyController>() ){
-                BodyControlDialog *dialog = new BodyControlDialog(_dwc, bcont, this);
+                BodyControlDialog *dialog = new BodyControlDialog(/*_dwc,*/ bcont, this);
                 dialog->show();
                 dialog->raise();
                 dialog->activateWindow();
@@ -679,7 +666,7 @@ void RWSimPlugin::openDwc(const std::string& file){
     _dwc = dwc;
     // adding the DynamicWorkcell to the propertymap such that others can use it
 
-    getRobWorkStudio()->getPropertyMap().add<DynamicWorkCell::Ptr>(
+    getRobWorkStudio()->getPropertyMap().addForce<DynamicWorkCell::Ptr>(
             "DynamicWorkcell",
             "A workcell with dynamic description",
             _dwc );
@@ -739,5 +726,6 @@ void RWSimPlugin::genericAnyEventListener(const std::string& event, boost::any d
 }
 
 #if !RWS_USE_QT5
-Q_EXPORT_PLUGIN(RWSimPlugin);
+#include <QtCore/qplugin.h>
+Q_EXPORT_PLUGIN(RWSimPlugin)
 #endif

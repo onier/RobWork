@@ -17,13 +17,11 @@
 
 
 #include "GeometryFactory.hpp"
+#include "Model3DFactory.hpp"
 
 #include <rw/common/IOUtil.hpp>
 #include <rw/common/StringUtil.hpp>
 #include <rw/common/Extension.hpp>
-#include <rw/math/Transform3D.hpp>
-
-#include <rw/graphics/Model3DFactory.hpp>
 
 #include "model3d/STLFile.hpp"
 #include <rw/geometry/Plane.hpp>
@@ -281,4 +279,8 @@ GeometryFactory::GeometryFactory() :
 GeometryFactory::Cache& GeometryFactory::getCache(){
     static Cache cache;
     return cache;
+}
+
+void GeometryFactory::clearGeometryCache(){
+	getCache().clear();
 }

@@ -30,7 +30,7 @@ using namespace rwlibs::algorithms;
 double PlaneModel::fitError(const rw::math::Vector3D<>& sample) const
 {
 	// return a distance of the sample to the model
-	return _model.distance(sample);
+	return std::fabs(_model.distance(sample));
 }
 
 
@@ -56,9 +56,9 @@ double PlaneModel::refit(const std::vector<rw::math::Vector3D<> >& samples)
 		double sample_error = fitError(*i);
 		error += sample_error * sample_error;
 	}
-	
-	int n = _data.size();
-	error /= (n > 0 ? n : 1);
+
+	const std::size_t n = _data.size();
+	error /= static_cast<double>(n > 0 ? n : 1);
 	setQuality(error);
 	
 	return error;

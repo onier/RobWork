@@ -26,6 +26,9 @@
 
 #include "SimulatorLogEntry.hpp"
 
+#include <rw/math/Rotation3D.hpp>
+#include <rw/math/Vector3D.hpp>
+
 namespace rwsim {
 namespace log {
 //! @addtogroup rwsim_log
@@ -53,6 +56,9 @@ public:
 
 	//! @copydoc SimulatorLogEntry::getType
 	virtual std::string getType() const;
+
+	//! @copydoc SimulatorLogEntry::operator==
+	virtual bool operator==(const SimulatorLog &b) const;
 
 	//! @copydoc SimulatorLogEntry::getLinkedEntries
 	virtual std::list<SimulatorLogEntry::Ptr> getLinkedEntries() const;
@@ -95,6 +101,12 @@ public:
 		rw::math::Rotation3D<> rotAang;
 		//! @brief The coordinate frames for the angular rotation constraint on the child.
 		rw::math::Rotation3D<> rotBang;
+		/**
+		 * @brief Check if equal to other Constraint struct.
+		 * @param b [in] other constraints.
+		 * @return true if equal, false otherwise.
+		 */
+		bool operator==(const Constraint &b) const;
 	};
 
 	/**

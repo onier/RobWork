@@ -29,23 +29,22 @@
 
 #include <QGLWidget>
 
-#include <QMouseEvent>
-
 #include <rw/common/PropertyMap.hpp>
-#include <rw/models/WorkCell.hpp>
-#include <rw/kinematics/State.hpp>
 #include <rw/math/Vector3D.hpp>
 
 #include <rwlibs/opengl/SceneOpenGL.hpp>
-#include <rwlibs/opengl/Drawable.hpp>
 
-#include <rw/graphics/Render.hpp>
 #include <rw/graphics/SceneCamera.hpp>
-
-#include <boost/thread/mutex.hpp>
 
 #include "CameraController.hpp"
 #include "SceneViewerWidget.hpp"
+
+namespace rw { namespace graphics { class Render; } }
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace models { class WorkCell; } }
+namespace rwlibs { namespace opengl { class SceneOpenGL; } }
+
+class QMouseEvent;
 
 namespace rws {
 
@@ -65,103 +64,121 @@ class RobWorkStudio;
  *
  */
 class SceneOpenGLViewer: public QGLWidget, public SceneViewerWidget {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
-
+	//! @brief Smart pointer type for SceneOpenGLViewer.
     typedef rw::common::Ptr<SceneOpenGLViewer> Ptr;
 
+    /**
+     * @brief Constructor.
+     * @param parent [in] the parent widget (the owner of this widget).
+     */
     SceneOpenGLViewer(QWidget* parent = 0);
 
     /**
-     * @brief Constructs an OpenGL based QT Widget
-     * @param rwStudio [in] robworkstudio
-     * @param parent [in] Parent widget
+     * @brief Constructs an OpenGL based QT Widget.
+     * @param pmap [in] propertyies for the viewer.
+     * @param parent [in] the parent widget (the owner of this widget).
      */
     SceneOpenGLViewer(rw::common::PropertyMap& pmap, QWidget* parent = 0);
 
-    /**
-     * @brief destructor
-     */
+    //! @brief Destructor.
     virtual ~SceneOpenGLViewer();
 
-    // ----------------- WorkCellViewer interface --------------------
-    rw::graphics::SceneGraph::Ptr getScene(){ return _scene; }
+    // ----------------- SceneViewerWidget interface --------------------
+    //! @copydoc SceneViewerWidget::getRenderInfo
+    rw::graphics::SceneGraph::RenderInfo& getRenderInfo(){ return _renderInfo; }
 
-    rw::common::PropertyMap& getPropertyMap(){return _pmap->getValue();}
+    //! @copydoc SceneViewerWidget::getPivotDrawable
+    rw::graphics::DrawableNode::Ptr getPivotDrawable(){ return _pivotDrawable; }
 
-    virtual rw::graphics::SceneCamera::Ptr getViewCamera() { return _mainCam; }
-
-    void setWorldNode(rw::graphics::GroupNode::Ptr wnode);
-
-    rw::graphics::GroupNode::Ptr getWorldNode(){ return _worldNode; }
-
-
-    virtual View::Ptr createView(const std::string& name, bool enableBackground=false);
-    virtual View::Ptr getMainView(){ return _mainView; }
-    virtual void destroyView(View::Ptr view);
-    virtual void selectView(View::Ptr view);
-    virtual View::Ptr getCurrentView(){ return _currentView; };
-    virtual std::vector<View::Ptr> getViews(){ return _views; };
-    void renderView(View::Ptr);
-
-    rw::graphics::DrawableNode::Ptr getPivotDrawable(){
-        return _pivotDrawable;
-    }
-
-    // get/create a slave camera
-    //virtual rwlibs::drawable::SceneCamera::Ptr getSlaveCamera(const std::string& name){ return _cameraViews[0]; }
-    //virtual int getNrSlaveCameras(){ return _cameraViews.size(); }
-    //virtual std::vector<std::string> getSlaveCameraNames(){ return std::vector<std::string>(); }
-
-    //virtual rwlibs::drawable::SceneCamera::Ptr addSlaveCamera(const std::string& name){ return NULL;}
-    //virtual void removeSlaveCamera(const std::string& name){ }
-
-    //virtual rwlibs::drawable::SceneCamera::Ptr addSlaveCamera(const std::string& name){ return NULL;}
-    /**
-     * @brief the current camera can be either the view camera or one of the slave cameras
-     * @return
-     */
-    //virtual rwlibs::drawable::SceneCamera::Ptr getCurrentCamera(){ return _cameraViews[0];}
-    //virtual void setCurrentCamera(const std::string& name){};
-
-    void updateState(const rw::kinematics::State& state) {
-        if(_state==NULL)
-            _state = rw::common::ownedPtr(new rw::kinematics::State());
-        *_state = state;
-        _renderInfo._state = _state.get();
-    }
-
-    void updateView(){
-        updateGL();
-    }
-
+    //! @copydoc SceneViewerWidget::getWidget
     QWidget* getWidget(){ return this; }
 
+    // ----------------- SceneViewer interface --------------------
+    //! @copydoc SceneViewer::getScene
+    rw::graphics::SceneGraph::Ptr getScene(){ return _scene; }
 
-    /**
-     * @brief Clears the list of Drawables and WorkCells
-     */
-    void clear();
+    //! @copydoc SceneViewer::getPropertyMap
+    rw::common::PropertyMap& getPropertyMap(){return _pmap->getValue();}
 
-    /**
-     * @brief Saves the current 3D view to disk as either jpg, bmp or png.
-     *
-     * If failing a std::string is thrown with a detailed description of what
-     * when wrong.
-     *
-     * @param filename [in] Path and name of the file. The filename extension
-     * should be either ".jpg", ".bmp" or ".png" to specify which format to use.
-     * @param fillR [in] Fill color if viewport is smaller than image, red component [0,255]
-     * @param fillG [in] Fill color if viewport is smaller than image, green component [0,255]
-     * @param fillB [in] Fill color if viewport is smaller than image, blue component [0,255]
-     */
-    void saveBufferToFile(const std::string& stdfilename,
+    //! @copydoc SceneViewer::getViewCamera
+    virtual rw::graphics::SceneCamera::Ptr getViewCamera() { return _mainCam; }
+
+    //! @copydoc SceneViewer::setWorldNode
+    void setWorldNode(rw::graphics::GroupNode::Ptr wnode);
+
+    //! @copydoc SceneViewer::getWorldNode
+    rw::graphics::GroupNode::Ptr getWorldNode(){ return _worldNode; }
+
+    //! @copydoc SceneViewer::createView
+    virtual View::Ptr createView(const std::string& name, bool enableBackground=false);
+
+    //! @copydoc SceneViewer::getMainView
+    virtual View::Ptr getMainView(){ return _mainView; }
+
+    //! @copydoc SceneViewer::destroyView
+    virtual void destroyView(View::Ptr view);
+
+    //! @copydoc SceneViewer::selectView
+    virtual void selectView(View::Ptr view);
+
+    //! @copydoc SceneViewer::getCurrentView
+    virtual View::Ptr getCurrentView(){ return _currentView; }
+
+    //! @copydoc SceneViewer::getViews
+    virtual std::vector<View::Ptr> getViews(){ return _views; }
+
+    //! @copydoc SceneViewer::renderView
+    void renderView(View::Ptr);
+
+    //! @copydoc SceneViewer::updateState
+    void updateState(const rw::kinematics::State& state);
+
+    //! @copydoc SceneViewer::updateView
+    void updateView(){
+        update();
+    }
+
+    //! @copydoc SceneViewer::getViewCenter
+    rw::math::Vector3D<> getViewCenter(){
+        return _cameraCtrl->getCenter();
+    }
+
+    //! @copydoc SceneViewer::setLogo
+    void setLogo(const std::string& string) {
+        _viewLogo = string;
+        update();
+    }
+
+    //! @copydoc SceneViewer::getLogo
+    const std::string& getLogo() const{ return _viewLogo;}
+
+    //! @copydoc SceneViewer::setTransform
+    virtual void setTransform(const rw::math::Transform3D<>& t3d){
+        _cameraCtrl->setTransform(t3d);
+        getViewCamera()->setTransform(t3d);
+        //updateGL();
+    }
+
+    //! @copydoc SceneViewer::pickDrawable(int,int)
+    rw::graphics::DrawableNode::Ptr pickDrawable(int x, int y);
+
+    //! @copydoc SceneViewer::pickDrawable(rw::graphics::SceneGraph::RenderInfo&,int,int)
+    rw::graphics::DrawableNode::Ptr pickDrawable(rw::graphics::SceneGraph::RenderInfo& info, int x, int y);
+
+    //! @copydoc rw::graphics::SceneViewer::saveBufferToFile
+    void saveBufferToFile(const std::string& filename,
                           const int fillR, const int fillG, const int fillB);
+
+    //! @brief Clears the list of Drawables and WorkCells
+    void clear();
 
     /**
      * @brief key pressed listener function. Key events in the opengl view
      * will trigger this method.
+     * @param e [in] the event.
      */
     void keyPressEvent(QKeyEvent *e);
 
@@ -186,28 +203,6 @@ public:
      * @param base
      */
     void propertyChangedListener(rw::common::PropertyBase* base);
-
-    const std::string& getLogo() const{ return _viewLogo;}
-
-    rw::math::Vector3D<> getViewCenter(){
-        return _cameraCtrl->getCenter();
-    }
-
-    void setLogo(const std::string& string) {
-        _viewLogo = string;
-        updateGL();
-    }
-
-    virtual void setTransform(const rw::math::Transform3D<>& t3d){
-        _cameraCtrl->setTransform(t3d);
-        getViewCamera()->setTransform(t3d);
-        //updateGL();
-    };
-
-
-    rw::graphics::DrawableNode::Ptr pickDrawable(int x, int y);
-    rw::graphics::DrawableNode::Ptr pickDrawable(rw::graphics::SceneGraph::RenderInfo& info, int x, int y);
-    rw::graphics::SceneGraph::RenderInfo& getRenderInfo(){ return _renderInfo; };
     
     /**
      * @brief picks the frame that has drawables that intersect the ray cast into the screen from
@@ -243,25 +238,28 @@ protected:
     //! Overridden from QGLWidget
     void wheelEvent(QWheelEvent* event);
 
-    void setWorkCellScene(rw::graphics::WorkCellScene::Ptr wcscene){
+    //! @copydoc SceneViewer::setWorkCellScene
+    void setWorkCellScene(rw::common::Ptr<rw::graphics::WorkCellScene> wcscene){
         _wcscene = wcscene;
     }
+
+    //! @copydoc SceneViewer::zoom
+    void zoom(double amount);
+
+    //! @copydoc SceneViewer::autoZoom
+    void autoZoom();
 
 private:
     void init();
 
 	void propertyUpdated(rw::common::PropertyBase* base);
 
-	//void drawGLBackground();
-	//void drawGLForeground();
-    //void drawRWLogo();
-
     void setupCameraView(int camNr, bool setupViewport = true);
 
 private:
 
 	rwlibs::opengl::SceneOpenGL::Ptr _scene;
-	rw::graphics::WorkCellScene::Ptr _wcscene;
+	rw::common::Ptr<rw::graphics::WorkCellScene> _wcscene;
 
 	// the main camera which is controlled by the gui
     rw::graphics::SceneCamera::Ptr _mainCam, _backCam, frontCam;
@@ -272,9 +270,6 @@ private:
 
     rw::common::Ptr<rw::kinematics::State> _state;
 
-    rw::models::WorkCell::Ptr _wc;
-
-    QFont _logoFont;
     std::string _viewLogo;
 
     int _width, _height;
@@ -290,8 +285,6 @@ private:
     rw::graphics::DrawableGeometryNode::Ptr _pivotDrawable;
     rw::graphics::GroupNode::Ptr _worldNode;
     rw::graphics::SceneGraph::RenderInfo _renderInfo;
-    boost::mutex _renderMutex;
-
 };
 
 }

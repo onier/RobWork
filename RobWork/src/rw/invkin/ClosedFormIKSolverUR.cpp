@@ -19,8 +19,7 @@
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/models/Models.hpp>
 #include <rw/models/SerialDevice.hpp>
-
-#include <iomanip>
+#include <rw/models/Joint.hpp>
 
 using namespace rw::common;
 using namespace rw::math;
@@ -304,4 +303,8 @@ Vector3D<> ClosedFormIKSolverUR::getPerpendicularVector(const Vector3D<> &vec) {
 	} else {
 		return cross(vec,Vector3D<>(0,0,1));
 	}
+}
+
+rw::kinematics::Frame::CPtr ClosedFormIKSolverUR::getTCP() const {
+    return _device->getEnd();
 }

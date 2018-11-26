@@ -27,9 +27,6 @@
 #include "SimulatorLog.hpp"
 
 #include <rw/common/ExtensionPoint.hpp>
-#include <rw/math/Transform3D.hpp>
-#include <rw/math/VelocityScrew6D.hpp>
-#include <rwsim/contacts/Contact.hpp>
 
 namespace rwsim {
 namespace log {
@@ -71,6 +68,9 @@ public:
 
 	//! @copydoc SimulatorLog::children
 	virtual std::size_t children() const;
+
+	//! @copydoc SimulatorLog::operator==
+	virtual bool operator==(const SimulatorLog &b) const;
 
 	/**
 	 * @brief Get the line number in the file where this entry was added.

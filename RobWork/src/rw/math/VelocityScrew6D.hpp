@@ -82,6 +82,10 @@ namespace rw { namespace math {
          */
         VelocityScrew6D(T vx, T vy, T vz, T wx, T wy, T wz);
 
+        /**
+         * @brief Construct from Eigen vector representation.
+         * @param v [in] Eigen matrix with either one row or one column.
+         */
 		template <class R>
 		VelocityScrew6D(const Eigen::MatrixBase<R>& v) {
 			if (v.cols() != 1 || v.rows() != 6)
@@ -278,8 +282,6 @@ namespace rw { namespace math {
 
         /**
          * @brief Scales velocity screw and returns scaled version
-         *
-         * @param screw [in] Screw to scale
          * @param s [in] scaling value
          * @return Scales screw
          */
@@ -455,8 +457,6 @@ namespace rw { namespace math {
          * @brief Adds two velocity screws together @f$
          * \mathbf{\nu}_{12}=\mathbf{\nu}_1+\mathbf{\nu}_2 @f$
          *
-         * @param screw1 [in] @f$ \mathbf{\nu}_1 @f$
-         *
          * @param screw2 [in] @f$ \mathbf{\nu}_2 @f$
          *
          * @return the velocity screw @f$ \mathbf{\nu}_{12} @f$
@@ -475,7 +475,6 @@ namespace rw { namespace math {
          * @brief Subtracts two velocity screws
          * \f$\mathbf{\nu}_{12}=\mathbf{\nu}_1-\mathbf{\nu}_2\f$
          *
-         * \param screw1 [in] \f$\mathbf{\nu}_1\f$
          * \param screw2 [in] \f$\mathbf{\nu}_2\f$
          * \return the velocity screw \f$\mathbf{\nu}_{12} \f$
          */
@@ -505,43 +504,16 @@ namespace rw { namespace math {
          * @brief Takes the 1-norm of the velocity screw. All elements both
          * angular and linear are given the same weight.
          *
-         * @param screw [in] the velocity screw
-         * @return the 1-norm
-         */
-        friend T norm1(const VelocityScrew6D& screw)
-        {
-            return screw.norm1();
-        }
-
-        /**
-         * @brief Takes the 1-norm of the velocity screw. All elements both
-         * angular and linear are given the same weight.
-         *
-         * @param screw [in] the velocity screw
          * @return the 1-norm
          */
         T norm1() const {
 			return fabs(_screw[0])+fabs(_screw[1])+fabs(_screw[2])+fabs(_screw[3])+fabs(_screw[4])+fabs(_screw[5]);
         }
 
-
         /**
          * @brief Takes the 2-norm of the velocity screw. All elements both
          * angular and linear are given the same weight
          *
-         * @param screw [in] the velocity screw
-         * @return the 2-norm
-         */
-        friend T norm2(const VelocityScrew6D& screw)
-        {
-            return screw.norm2();
-        }
-
-        /**
-         * @brief Takes the 2-norm of the velocity screw. All elements both
-         * angular and linear are given the same weight
-         *
-         * @param screw [in] the velocity screw
          * @return the 2-norm
          */
         T norm2() const {
@@ -552,42 +524,10 @@ namespace rw { namespace math {
          * @brief Takes the infinite norm of the velocity screw. All elements
          * both angular and linear are given the same weight.
          *
-         * @param screw [in] the velocity screw
-         *
-         * @return the infinite norm
-         */
-        friend T normInf(const VelocityScrew6D& screw)
-        {			
-            return screw.normInf();
-        }
-
-        /**
-         * @brief Takes the infinite norm of the velocity screw. All elements
-         * both angular and linear are given the same weight.
-         *
          * @return the infinite norm
          */
         T normInf() const {
 			return std::max(fabs(_screw[0]), std::max(fabs(_screw[1]), std::max(fabs(_screw[2]), std::max(fabs(_screw[3]), std::max(fabs(_screw[4]),fabs(_screw[5]))))));
-        }
-
-        /**
-         * @brief Casts VelocityScrew6D<T> to VelocityScrew6D<Q>
-         *
-         * @param vs [in] VelocityScrew6D with type T
-         *
-         * @return VelocityScrew6D with type Q
-         */
-        template<class Q>
-        friend const VelocityScrew6D<Q> cast(const VelocityScrew6D<T>& vs)
-        {
-            return VelocityScrew6D<Q>(
-                static_cast<Q>(vs(0)),
-                static_cast<Q>(vs(1)),
-                static_cast<Q>(vs(2)),
-                static_cast<Q>(vs(3)),
-                static_cast<Q>(vs(4)),
-                static_cast<Q>(vs(5)));
         }
 
         /**
@@ -629,6 +569,65 @@ namespace rw { namespace math {
 
     };
 
+	/**
+	* @brief Takes the 1-norm of the velocity screw. All elements both
+	* angular and linear are given the same weight.
+	*
+	* @param screw [in] the velocity screw
+	* @return the 1-norm
+	*/
+	template <class T>
+	T norm1(const VelocityScrew6D<T>& screw)
+	{
+		return screw.norm1();
+	}
+
+	/**
+	* @brief Takes the 2-norm of the velocity screw. All elements both
+	* angular and linear are given the same weight
+	*
+	* @param screw [in] the velocity screw
+	* @return the 2-norm
+	*/
+	template <class T>
+	T norm2(const VelocityScrew6D<T>& screw)
+	{
+		return screw.norm2();
+	}
+
+	/**
+	* @brief Takes the infinite norm of the velocity screw. All elements
+	* both angular and linear are given the same weight.
+	*
+	* @param screw [in] the velocity screw
+	*
+	* @return the infinite norm
+	*/
+	template <class T>
+	T normInf(const VelocityScrew6D<T>& screw)
+	{
+		return screw.normInf();
+	}
+
+	/**
+	* @brief Casts VelocityScrew6D<T> to VelocityScrew6D<Q>
+	*
+	* @param vs [in] VelocityScrew6D with type T
+	*
+	* @return VelocityScrew6D with type Q
+	*/
+	template<class Q, class T>
+	const VelocityScrew6D<Q> cast(const VelocityScrew6D<T>& vs)
+	{
+		return VelocityScrew6D<Q>(
+			static_cast<Q>(vs(0)),
+			static_cast<Q>(vs(1)),
+			static_cast<Q>(vs(2)),
+			static_cast<Q>(vs(3)),
+			static_cast<Q>(vs(4)),
+			static_cast<Q>(vs(5)));
+	}
+
     /*@}*/
 }} // end namespaces
 
@@ -636,10 +635,29 @@ namespace rw { namespace math {
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;
 namespace serialization {
-    template<> void write(const rw::math::VelocityScrew6D<double>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template<> void write(const rw::math::VelocityScrew6D<float>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template<> void read(rw::math::VelocityScrew6D<double>& tmp, rw::common::InputArchive& iar, const std::string& id);
-    template<> void read(rw::math::VelocityScrew6D<float>& tmp, rw::common::InputArchive& iar, const std::string& id);
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::VelocityScrew6D
+	 */
+    template<> void write(const rw::math::VelocityScrew6D<double>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::VelocityScrew6D
+	 */
+    template<> void write(const rw::math::VelocityScrew6D<float>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::VelocityScrew6D
+	 */
+    template<> void read(rw::math::VelocityScrew6D<double>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::VelocityScrew6D
+	 */
+    template<> void read(rw::math::VelocityScrew6D<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
 #endif // end include guard

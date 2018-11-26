@@ -26,25 +26,15 @@
 #include "InvKinSolver.hpp"
 
 #include <rw/common/Ptr.hpp>
-#include <rw/math/Q.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/models/Device.hpp>
-#include <rw/math/Transform3D.hpp>
 #include <rw/common/PropertyMap.hpp>
 
-#include <vector>
+namespace rw { namespace kinematics { class State; } }
+namespace rw { namespace models { class Device; } }
 
 namespace rw { namespace invkin {
 
     /** \addtogroup invkin */
     /*@{*/
-
-#ifdef RW_USE_DEPRECATED
-    class IterativeIK;
-
-    //! A pointer to a IterativeIK solver.
-    typedef rw::common::Ptr<IterativeIK> IterativeIKPtr;
-#endif
 
     /**
      * @brief Interface for iterative inverse kinematics algorithms
@@ -64,6 +54,8 @@ namespace rw { namespace invkin {
 
 		//! @brief smart pointer type to this class
 		typedef rw::common::Ptr<IterativeIK> Ptr;
+		//! @brief smart pointer type to this const class
+		typedef rw::common::Ptr< const IterativeIK > CPtr;
 
 		/**
 		 * @brief Destructor
@@ -118,7 +110,7 @@ namespace rw { namespace invkin {
            @param device [in] Device for which to solve IK.
            @param state [in] Fixed state for which IK is solved.
         */
-		static IterativeIK::Ptr makeDefault(rw::models::Device::Ptr device,
+		static IterativeIK::Ptr makeDefault(rw::common::Ptr<rw::models::Device> device,
                                             const rw::kinematics::State& state);
 
     protected:

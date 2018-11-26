@@ -35,14 +35,11 @@
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/RPY.hpp>
 #include <rw/math/VelocityScrew6D.hpp>
-#include <rw/math/Math.hpp>
 #include <rw/math/MetricFactory.hpp>
 
-using namespace rw;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::models;
-using namespace boost::numeric::ublas;
 
 namespace
 {
@@ -85,12 +82,12 @@ namespace
 
 BOOST_AUTO_TEST_CASE(JointTest)
 {
-    std::auto_ptr<RevoluteJoint> rjoint(new RevoluteJoint("RevoluteJointA", Transform3D<>::identity()));
+    rw::common::Ptr<RevoluteJoint> rjoint = rw::common::ownedPtr(new RevoluteJoint("RevoluteJointA", Transform3D<>::identity()));
 
     BOOST_CHECK(rjoint->getBounds().first(0) < -1000000.0);
     BOOST_CHECK(rjoint->getBounds().second(0) > 1000000.0);
 
-	std::auto_ptr<PrismaticJoint> pjoint(new PrismaticJoint("PrismaticJointB",Transform3D<>::identity()));
+    rw::common::Ptr<PrismaticJoint> pjoint = rw::common::ownedPtr(new PrismaticJoint("PrismaticJointB",Transform3D<>::identity()));
     BOOST_CHECK(pjoint->getBounds().first(0) < -1000000.0);
     BOOST_CHECK(pjoint->getBounds().second(0) > 1000000.0);
 }
@@ -151,7 +148,7 @@ BOOST_AUTO_TEST_CASE(forwardKinematicsTest)
     // frames added to the tree.
     // Which means they have to be allocated with new
     // Define the world frame and construct the frame Tree
-    BOOST_MESSAGE("- testing serialdevice forward kinematics ");
+    BOOST_TEST_MESSAGE("- testing serialdevice forward kinematics ");
     boost::shared_ptr<StateStructure> tree =
         boost::shared_ptr<StateStructure>(new StateStructure());
     Frame *world = tree->getRoot();

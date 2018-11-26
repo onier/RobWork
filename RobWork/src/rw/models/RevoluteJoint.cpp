@@ -18,9 +18,6 @@
 
 #include "RevoluteJoint.hpp"
 
-#include <rw/math/EAA.hpp>
-#include <rw/kinematics/State.hpp>
-
 using namespace rw::common;
 using namespace rw::models;
 using namespace rw::kinematics;
@@ -375,7 +372,7 @@ rw::math::Transform3D<> RevoluteJoint::RevoluteJointBasic::getTransform(double q
 
 rw::math::Transform3D<> RevoluteJoint::RevoluteJointBasic::getFixedTransform() const{
     return _transform;
-};
+}
 
 ////////////////////////////////////////////////////////////////////////////////////////
 /////// RevoluteJointZeroOffsetImpl

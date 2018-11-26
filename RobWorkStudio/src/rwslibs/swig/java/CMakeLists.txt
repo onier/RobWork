@@ -36,19 +36,25 @@ IF( build )
     # Put java files in different directory suitable for JAR generation later on
     SET(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/java_src/dk/robwork)
     # SWIG
-    SWIG_ADD_MODULE(rws_jni java ../rws.i)
-    SWIG_LINK_LIBRARIES(rws_jni rws rws_rwstudioapp 
-        ${RWS_COMPONENT_LIBRARIES} 
-        ${RWS_PLUGIN_LIBRARIES} 
-        ${ROBWORKSTUDIO_LIBRARIES}
+	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
+		SWIG_ADD_LIBRARY(rws_jni MODULE LANGUAGE java SOURCES ../rws.i ../ScriptTypes.cpp)
+	ELSE()
+		SWIG_ADD_MODULE(rws_jni java ../rws.i ../ScriptTypes.cpp)
+	ENDIF()
+    SWIG_LINK_LIBRARIES(rws_jni 
+        ${RWS_COMPONENT_LIBRARIES}
+        ${RWS_PLUGIN_LIBRARIES}
+        rws
         ${ROBWORK_LIBRARIES} )
-    ADD_DEPENDENCIES(rws_jni rws_luaeditor rws_rwstudioapp)
+    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+      SET_TARGET_PROPERTIES(${SWIG_MODULE_rws_jni_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+    ENDIF()
     # Force removal of previous Java compilation and source when interface file changes
     # This is required as types may be removed or change name
     # (in this case previous java classes would interfere with current compilation).
 	ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CleanDep
-        COMMAND cmake -E remove_directory java_src
-        COMMAND cmake -E touch ${CMAKE_CURRENT_BINARY_DIR}/CleanDep
+        COMMAND ${CMAKE_COMMAND} -E remove_directory java_src
+        COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/CleanDep
         DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../rws.i"
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Removing old Java source..."
@@ -58,18 +64,18 @@ IF( build )
     # Compile java code and create JAR and Javadoc
 	ADD_CUSTOM_COMMAND(TARGET rws_jni
 		POST_BUILD
-		COMMAND cmake -E echo "Removing old Java compilation..."
-        COMMAND cmake -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/java_build"
-    	COMMAND cmake -E remove_directory "${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc"
-		COMMAND cmake -E echo "Copying Java source..."
-        COMMAND cmake -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRWS.java java_src/dk/robwork/LoaderRWS.java
-		COMMAND cmake -E echo "Compiling Java files..."
-        COMMAND cmake -E make_directory java_build/dk/robwork
+		COMMAND ${CMAKE_COMMAND} -E echo "Removing old Java compilation..."
+        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/java_build"
+    	COMMAND ${CMAKE_COMMAND} -E remove_directory "${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc"
+		COMMAND ${CMAKE_COMMAND} -E echo "Copying Java source..."
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRWS.java java_src/dk/robwork/LoaderRWS.java
+		COMMAND ${CMAKE_COMMAND} -E echo "Compiling Java files..."
+        COMMAND ${CMAKE_COMMAND} -E make_directory java_build/dk/robwork
         COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${RW_LIBS}/rw_java.jar -d ${CMAKE_CURRENT_BINARY_DIR}/java_build java_src/dk/robwork/*.java
-        COMMAND cmake -E echo "Creating jar file..."
+        COMMAND ${CMAKE_COMMAND} -E echo "Creating jar file..."
         COMMAND ${Java_JAR_EXECUTABLE} cvf ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rws_java.jar  -C java_build .
-		COMMAND cmake -E echo "Creating Javadoc..."
-    	COMMAND cmake -E make_directory ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc
+		COMMAND ${CMAKE_COMMAND} -E echo "Creating Javadoc..."
+    	COMMAND ${CMAKE_COMMAND} -E make_directory ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc
     	COMMAND ${Java_JAVADOC_EXECUTABLE}
     					-classpath ${RW_LIBS}/rw_java.jar
     					-d ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc

@@ -1,18 +1,20 @@
 #include "GraspTask.hpp"
 
-#include <rwlibs/task/loader/XMLTaskSaver.hpp>
-#include <rwlibs/task/loader/XMLTaskLoader.hpp>
+#include <rw/math/Quaternion.hpp>
+#include <rw/trajectory/Path.hpp>
+
+#include <rwlibs/task/loader/DOMTaskSaver.hpp>
+#include <rwlibs/task/loader/DOMTaskLoader.hpp>
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
 
-#include <rw/rw.hpp>
-USE_ROBWORK_NAMESPACE
-using namespace robwork;
-using namespace std;
+using namespace rw::common;
+using namespace rw::math;
+using namespace rw::trajectory;
+using namespace rwlibs::task;
 using namespace boost::numeric;
 using namespace boost::property_tree;
-using namespace rwlibs::task;
 
 namespace {
 void writeOutcome(std::ostream& out, GraspTarget& target) {
@@ -27,7 +29,7 @@ void writeOutcome(std::ostream& out, GraspTarget& target) {
 	// if success we write all informal qualities
 
 	if (status == GraspResult::Success || status == GraspResult::ObjectSlipped) {
-		for (size_t i = 0; i < quality.size(); i++) {
+		for (std::size_t i = 0; i < quality.size(); i++) {
 			out << "     <informal uri=\"rwgq" << i << "\" quality=\""
 					<< quality[i] << "\" />\n";
 		}
@@ -101,7 +103,7 @@ void writeUIBK(GraspTask::Ptr gtask, const std::string& outfile) {
 	//rwlibs::task::CartesianTask::Ptr grasptask = gtask->getRootTask();
 
 	std::ofstream fstr(outfile.c_str());
-	fstr << setprecision(16);
+	fstr << std::setprecision(16);
 	fstr << "<?xml version=\"1.0\"?> \n"
 			<< "<experiments xmlns=\"http://iis.uibk.ac.at/ns/grasping\">\n";
 	fstr
@@ -188,6 +190,8 @@ rwlibs::task::CartesianTask::Ptr GraspTask::toCartesianTask() {
 		subtask->getPropertyMap().set<Q>("CloseQ", stask.closeQ);
 		subtask->getPropertyMap().set<Q>("TauMax", stask.tauMax);
 		subtask->setId(stask.getTaskID());
+		if (stask.objectID != "")
+			subtask->getPropertyMap().set<std::string>("ObjectID", stask.objectID);
 
 		//std::cout << "Size targets: " << stask.targets.size() << std::endl;
 		BOOST_FOREACH(GraspTarget &gtarget, stask.targets) {
@@ -290,8 +294,9 @@ rwlibs::task::CartesianTask::Ptr GraspTask::toCartesianTask() {
 						GraspResult::ObjectDropped);
 			}
 
-			ctarget->getPropertyMap().set<std::vector<rw::math::Transform3D<> > >(
-					"InterferenceTs", result->interferenceTs);
+
+			ctarget->getPropertyMap().set<Transform3DPath>(
+					"InterferenceTs", Transform3DPath(result->interferenceTs));
 			ctarget->getPropertyMap().set<std::vector<double> >(
 					"InterferenceDistances", result->interferenceDistances);
 			ctarget->getPropertyMap().set<std::vector<double> >(
@@ -310,22 +315,25 @@ rwlibs::task::CartesianTask::Ptr GraspTask::toCartesianTask() {
 
 void GraspTask::saveRWTask(GraspTask::Ptr task, const std::string& name) {
 	std::ofstream outfile(name.c_str());
+	saveRWTask(task,outfile);
+	outfile.close();
+}
+
+void GraspTask::saveRWTask(GraspTask::Ptr task, std::ostream& stream) {
 	rwlibs::task::CartesianTask::Ptr ctask = task->toCartesianTask();
 	try {
-		XMLTaskSaver saver;
-		saver.save(ctask, outfile);
+		DOMTaskSaver saver;
+		saver.save(ctask, stream);
 	} catch (const Exception& exp) {
 		RW_THROW("Unable to save task: " << exp.what());
 	}
-
-	outfile.close();
 }
 
 void GraspTask::saveText(GraspTask::Ptr gtask, const std::string& name) {
 	std::ofstream outfile(name.c_str());
 	if (!outfile.is_open())
 		RW_THROW("Could not open file: " << name);
-	outfile << setprecision(16);
+	outfile << std::setprecision(16);
 	//int gripperDim = 0;
 	std::string sep(";");
 	// outfile << "// Description: {target.pos(3), target.rpy(3), TestStatus(1), GripperConfiguration("<<gripperDim<<"), "
@@ -471,7 +479,7 @@ public:
 bool isName(const std::string& elemName, const std::string& matchName) {
 	// first we extract the name without namespaces (xmlns)
 	std::string elem = elemName;
-	size_t found = elemName.find_last_of(':');
+	std::size_t found = elemName.find_last_of(':');
 	if (found != std::string::npos) {
 		elem = elemName.substr(found + 1);
 	}
@@ -488,26 +496,26 @@ bool has_child(PTree& tree, const std::string& name) {
 
 std::pair<bool, double> toDouble(const std::string& str) {
 	std::pair<bool, double> nothing(false, 0);
-	istringstream buf(str);
+	std::istringstream buf(str);
 	double x;
 	buf >> x;
 	if (!buf)
 		return nothing;
-	string rest;
+	std::string rest;
 	buf >> rest;
 	if (buf)
 		return nothing;
 	else
-		return make_pair(true, x);
+		return std::make_pair(true, x);
 }
 
 std::vector<double> readArray(PTree& tree) {
-	istringstream buf(tree.get_value<string>());
+	std::istringstream buf(tree.get_value<std::string>());
 	std::vector<double> values;
 
 	std::string str;
 	while (buf >> str) {
-		const pair<bool, double> okNum = toDouble(str);
+		const std::pair<bool, double> okNum = toDouble(str);
 		if (!okNum.first)
 			RW_THROW("Number expected. Got \"" << str << "\" ");
 		values.push_back(okNum.second);
@@ -582,7 +590,7 @@ rwlibs::task::CartesianTarget::Ptr readGrasp(PTree& tree, ParserState& state) {
 			//ctask->getPropertyMap().set<std::string>("GripperName", gripperType);
 			target->get() = Transform3D<>(pos, rot);
 		} else if (isName(p->first, "prediction")) {
-			double prediction = toDouble(p->second.get_value<string>()).second;
+			double prediction = toDouble(p->second.get_value<std::string>()).second;
 			//double squal = p->second.get<double>("quality",0.0);
 			qualities.push_back(prediction);
 
@@ -665,13 +673,13 @@ rwlibs::task::CartesianTask::Ptr readExperiment(PTree& tree,
 
 		//std::cout << p->first << "\n";
 		if (isName(p->first, "gripper")) {
-			string gripperType = p->second.get_child("<xmlattr>").get<
+			std::string gripperType = p->second.get_child("<xmlattr>").get<
 					std::string>("type");
 			Q params = readQ(p->second.get_child("params"));
 			ctask->getPropertyMap().set<std::string>("Gripper", gripperType);
 			// TODO: get notes
 		} else if (isName(p->first, "object")) {
-			string objectName =
+			std::string objectName =
 					p->second.get_child("<xmlattr>").get<std::string>("type");
 			ctask->getPropertyMap().set<std::string>("Object", objectName);
 			// TODO: get notes
@@ -751,7 +759,7 @@ GraspTask::Ptr GraspTask::load(const std::string& filename) {
 	rwlibs::task::CartesianTask::Ptr grasptask;
 
 	if (firstelem == "CartesianTask") {
-		XMLTaskLoader loader;
+		DOMTaskLoader loader;
 		loader.load(file);
 		grasptask = loader.getCartesianTask();
 	} else {
@@ -791,7 +799,7 @@ GraspTask::Ptr GraspTask::load(std::istringstream& inputStream) {
 	rwlibs::task::CartesianTask::Ptr grasptask;
 
 	if (firstelem == "CartesianTask") {
-		XMLTaskLoader loader;
+		DOMTaskLoader loader;
 		loader.load(inputStream);
 		grasptask = loader.getCartesianTask();
 	} else {
@@ -842,6 +850,7 @@ GraspTask::GraspTask(rwlibs::task::CartesianTask::Ptr task) {
 		_subtasks[i].closeQ = stask->getPropertyMap().get<Q>("CloseQ", Q());
 		_subtasks[i].tauMax = stask->getPropertyMap().get<Q>("TauMax", Q());
 		_subtasks[i].setTaskID(stask->getId());
+		_subtasks[i].objectID = stask->getPropertyMap().get<std::string>("ObjectID", "");
 
 		_subtasks[i].targets.resize(stask->getTargets().size());
 		// std::cout << "Targets size: " <<  stask->getTargets().size() << std::endl;
@@ -917,6 +926,12 @@ GraspTask::GraspTask(rwlibs::task::CartesianTask::Ptr task) {
 					result->contactsLift.push_back(contact);
 				}
 			}
+
+			result->interferenceTs = ctarget->getPropertyMap().get<Transform3DPath>("InterferenceTs",Transform3DPath());
+			result->interferenceDistances = ctarget->getPropertyMap().get<std::vector<double> >("InterferenceDistances",std::vector<double>());
+			result->interferenceAngles = ctarget->getPropertyMap().get<std::vector<double> >("InterferenceAngles",std::vector<double>());
+			result->interferences = ctarget->getPropertyMap().get<std::vector<double> >("Interferences",std::vector<double>());
+			result->interference = ctarget->getPropertyMap().get<double>("Interference",0);
 
 		}
 	}

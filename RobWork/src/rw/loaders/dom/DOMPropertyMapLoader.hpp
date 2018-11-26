@@ -22,7 +22,7 @@
 #include <rw/common/PropertyMap.hpp>
 #include <rw/common/PropertyBase.hpp>
 
-#include <rw/common/DOMElem.hpp>
+namespace rw { namespace common { class DOMElem; } }
 
 namespace rw {
 namespace loaders {
@@ -50,7 +50,7 @@ public:
      * @param checkHeader [in] True to check that the header of \b element matches XMLPropertyFormat::PropertyId
      * @return Pointer to the property
      */
-	static rw::common::PropertyBase::Ptr readProperty(rw::common::DOMElem::Ptr element, bool checkHeader = true);
+	static rw::common::PropertyBase::Ptr readProperty(rw::common::Ptr<rw::common::DOMElem> element, bool checkHeader = true);
 
 
     /**
@@ -62,8 +62,8 @@ public:
      * @param checkHeader [in] True to check that the header of \b element matches XMLPropertyFormat::PropertyMapId
      * @return Loaded PropertyMap
      */
-    static rw::common::PropertyMap readProperties(rw::common::DOMElem::Ptr element, bool checkHeader = true);
-    static bool hasProperties(rw::common::DOMElem::Ptr element);
+    static rw::common::PropertyMap readProperties(rw::common::Ptr<rw::common::DOMElem> element, bool checkHeader = true);
+    static bool hasProperties(rw::common::Ptr<rw::common::DOMElem> element);
 
     /**
      * @brief Read in rw::common::PropertyMap from file
@@ -87,7 +87,25 @@ public:
      */
     static rw::common::PropertyMap load(std::istream& instream, const std::string& schemaFileName = "");
 
+	/**
+	 * @brief Utility class which initializes local static variables.
+	 *
+	 * If the DOMPropertyMapLoader is used outside main (as a part of global initialization/destruction), the Initializer
+	 * should be used explicitly to control the static initialization/destruction order.
+	 *
+	 * Notice that the Initializer is automatically defined as a global variable, hence it should not
+	 * be necessary to specify the initializer explicitly if DOMPropertyMapLoader is to be used in local static
+	 * initialization/destruction.
+	 */
+	class Initializer {
+	public:
+	    //! @brief Initializes when constructed.
+		Initializer();
+	};
+
 private:
+	static const Initializer initializer;
+
     DOMPropertyMapLoader();
     virtual ~DOMPropertyMapLoader();
 

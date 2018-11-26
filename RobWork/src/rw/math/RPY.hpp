@@ -101,7 +101,7 @@ namespace rw { namespace math {
         /**
          * @brief Returns a const reference the an element
          *
-         * @param index [in] index of element
+         * @param i [in] index of element
          *
          * @return const reference to the element
          */
@@ -110,7 +110,7 @@ namespace rw { namespace math {
         /**
           * @brief Returns reference to the element
           *
-          * @param index [in] index of element
+          * @param i [in] index of element
           *
           * @return reference to the element
           */
@@ -162,24 +162,24 @@ namespace rw { namespace math {
             //return os << rpy._rpy;
         }
 
-        /**
-         * @brief Casts RPY<T> to RPY<Q>
-         *
-         * @param rpy [in] RPY with type T
-         *
-         * @return RPY with type Q
-         */
-        template<class Q>
-        friend const RPY<Q> cast(const RPY<T>& rpy) {
-            return RPY<Q>(
-                static_cast<Q>(rpy(0)),
-                static_cast<Q>(rpy(1)),
-                static_cast<Q>(rpy(2)));
-        }
-
     private:
         Vector3D<T> _rpy;
     };
+
+	/**
+	* @brief Casts RPY<T> to RPY<Q>
+	*
+	* @param rpy [in] RPY with type T
+	*
+	* @return RPY with type Q
+	*/
+	template<class Q, class T>
+	const RPY<Q> cast(const RPY<T>& rpy) {
+		return RPY<Q>(
+			static_cast<Q>(rpy(0)),
+			static_cast<Q>(rpy(1)),
+			static_cast<Q>(rpy(2)));
+	}
 
     /*@}*/
 }} // end namespaces
@@ -188,14 +188,29 @@ namespace rw { namespace math {
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;
 namespace serialization {
-    template<>
-    void write(const rw::math::RPY<double>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template<>
-    void read(rw::math::RPY<double>& tmp, rw::common::InputArchive& iar, const std::string& id);
-    template<>
-    void write(const rw::math::RPY<float>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template<>
-    void read(rw::math::RPY<float>& tmp, rw::common::InputArchive& iar, const std::string& id);
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::RPY
+	 */
+    template<> void write(const rw::math::RPY<double>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::RPY
+	 */
+    template<> void write(const rw::math::RPY<float>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::RPY
+	 */
+    template<> void read(rw::math::RPY<double>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::RPY
+	 */
+    template<> void read(rw::math::RPY<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
 

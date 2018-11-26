@@ -83,12 +83,20 @@ public:
     //! read string
     std::string readString(const std::string& id) { std::string b; read(b,id); return b;};
 
-    //
+    /**
+     * @brief Read \b object with identifier \b id from archive.
+     * @param object [out] the object from archive.
+     * @param id [in] the identifier.
+     */
     template<class T>
     void read(T& object, const std::string& id){
     	doRead(object, id);
     }
 
+    /**
+     * @copydoc read
+     * @param idDefault [in] (optional) default identifier used if \b id is an empty string.
+     */
     template<class T>
     void read(T& object, const std::string& id, const std::string& idDefault){
     	if(!id.empty())
@@ -97,6 +105,11 @@ public:
     		doRead(object, idDefault);
     }
 
+    /**
+     * @brief Stream operator for streaming from archive to object.
+     * @param dst [out] the object from archive.
+     * @return a reference to the archive for chaining.
+     */
     template<class T>
     InputArchive& operator>> (T& dst){
     	read<T>(dst,"");
@@ -104,47 +117,96 @@ public:
     }
 
 protected:
-
-
+    //! @copydoc read
     template<class T>
     void doRead(T& object, const std::string& id){
     	readImpl(object, id);
     }
 
     // reading primitives to archive
+    /**
+     * @brief Read value \b val with identifier \b id from archive.
+     * @param val [out] the value from archive.
+     * @param id [in] the identifier.
+     */
     virtual void doRead(bool& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(boost::int8_t& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(boost::uint8_t& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(boost::int16_t& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(boost::uint16_t& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(boost::int32_t& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(boost::uint32_t& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(boost::int64_t& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(boost::uint64_t& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(float& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(double& val, const std::string& id) = 0;
+    //! @copydoc doRead(bool&,const std::string&)
     virtual void doRead(std::string& val, const std::string& id) = 0;
 
+    /**
+     * @brief Read vector \b val with identifier \b id from archive.
+     * @param val [out] the vector from archive.
+     * @param id [in] the identifier.
+     */
     virtual void doRead(std::vector<bool>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<boost::int8_t>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<boost::uint8_t>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<boost::int16_t>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<boost::uint16_t>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<boost::int32_t>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<boost::uint32_t>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<boost::int64_t>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<boost::uint64_t>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<float>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<double>& val, const std::string& id) = 0;
+    //! @copydoc doRead(std::vector<bool>&,const std::string&)
     virtual void doRead(std::vector<std::string>& val, const std::string& id) = 0;
 
+	/**
+	 * @brief Read an Eigen matrix from input.
+	 * @param val [out] the result.
+	 * @param id [in] identifier for the matrix.
+	 */
     virtual void doRead(Eigen::MatrixXd& val, const std::string& id) = 0;
+
+	/**
+	 * @brief Read an Eigen vector from input.
+	 * @param val [out] the result.
+	 * @param id [in] identifier for the matrix.
+	 */
     virtual void doRead(Eigen::VectorXd& val, const std::string& id) = 0;
 
-    // utils to handle arrays
+    /**
+     * @brief Enter a scope.
+     * @param id [in] identifier for the scope.
+     */
     virtual void doReadEnterScope(const std::string& id) = 0;
-    virtual void doReadLeaveScope(const std::string& id) = 0;
 
+    /**
+     * @brief Leave a scope.
+     * @param id [in] identifier for the scope.
+     */
+    virtual void doReadLeaveScope(const std::string& id) = 0;
 
 private:
     template<class T>

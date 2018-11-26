@@ -22,6 +22,8 @@
 
 #include <rw/common/DOMParser.hpp>
 
+#include <rw/models/WorkCell.hpp>
+
 #include <rw/trajectory/Trajectory.hpp>
 #include <rw/trajectory/LinearInterpolator.hpp>
 #include <rw/trajectory/CircularInterpolator.hpp>
@@ -39,17 +41,75 @@ using namespace rw::loaders;
 using namespace rw::kinematics;
 using namespace rw::models;
 
-const std::string DOMPathLoader::QPathId("QPath");
-const std::string DOMPathLoader::V3DPathId("V3DPath");
-const std::string DOMPathLoader::R3DPathId("R3DPath");
-const std::string DOMPathLoader::T3DPathId("T3DPath");
-const std::string DOMPathLoader::StatePathId("StatePath");
-const std::string DOMPathLoader::TimedQPathId("TimedQPath");
-const std::string DOMPathLoader::TimedStatePathId("TimedStatePath");
-const std::string DOMPathLoader::TimedStateId("TimedState");
-const std::string DOMPathLoader::TimedQId("TimedQ");
-const std::string DOMPathLoader::TimeId("Time");
+DOMPathLoader::Initializer::Initializer() {
+	static bool done = false;
+	if (!done) {
+		DOMBasisTypes::Initializer init;
+		idQPath();
+		idV3DPath();
+		idR3DPath();
+		idT3DPath();
+		idStatePath();
+		idTimedQPath();
+		idTimedState();
+		idTimedQ();
+		idTimedStatePath();
+		idTime();
+		done = true;
+	}
+}
 
+const DOMPathLoader::Initializer DOMPathLoader::initializer;
+
+const std::string& DOMPathLoader::idQPath() {
+	static const std::string id("QPath");
+	return id;
+}
+
+const std::string& DOMPathLoader::idV3DPath() {
+	static const std::string id("V3DPath");
+	return id;
+}
+
+const std::string& DOMPathLoader::idR3DPath() {
+	static const std::string id("R3DPath");
+	return id;
+}
+
+const std::string& DOMPathLoader::idT3DPath() {
+	static const std::string id("T3DPath");
+	return id;
+}
+
+const std::string& DOMPathLoader::idStatePath() {
+	static const std::string id("StatePath");
+	return id;
+}
+
+const std::string& DOMPathLoader::idTimedQPath() {
+	static const std::string id("TimedQPath");
+	return id;
+}
+
+const std::string& DOMPathLoader::idTimedState() {
+	static const std::string id("TimedState");
+	return id;
+}
+
+const std::string& DOMPathLoader::idTimedQ() {
+	static const std::string id("TimedQ");
+	return id;
+}
+
+const std::string& DOMPathLoader::idTimedStatePath() {
+	static const std::string id("TimedStatePath");
+	return id;
+}
+
+const std::string& DOMPathLoader::idTime() {
+	static const std::string id("Time");
+	return id;
+}
 
 DOMPathLoader::DOMPathLoader(const std::string& filename, rw::models::WorkCell::Ptr workcell, const std::string& schemaFileName)
 {
@@ -58,17 +118,24 @@ DOMPathLoader::DOMPathLoader(const std::string& filename, rw::models::WorkCell::
     parser->setSchema(schemaFileName);
     parser->load(filename);
     DOMElem::Ptr elementRoot = parser->getRootElement();
-    readPath(elementRoot);
+	DOMElem::IteratorPair itpair = elementRoot->getChildren();
+	for (DOMElem::Iterator it = itpair.first; it != itpair.second; ++it) {
+		readPath(*it);
+	}
+	//	readPath(elementRoot);
 }
 
 
 DOMPathLoader::DOMPathLoader(std::istream& instream, rw::models::WorkCell::Ptr workcell, const std::string& schemaFileName) {
-    _workcell = workcell;
-    DOMParser::Ptr parser = DOMParser::make();
-    parser->setSchema(schemaFileName);
-    parser->load(instream);
-    DOMElem::Ptr elementRoot = parser->getRootElement();
-    readPath(elementRoot);
+	_workcell = workcell;
+	DOMParser::Ptr parser = DOMParser::make();
+	parser->setSchema(schemaFileName);
+	parser->load(instream);
+	DOMElem::Ptr elementRoot = parser->getRootElement();
+	DOMElem::IteratorPair itpair = elementRoot->getChildren();
+	for (DOMElem::Iterator it = itpair.first; it != itpair.second; ++it) {
+		readPath(*it);
+	}
 }
 
 
@@ -121,9 +188,9 @@ namespace {
         double time = 0.0;
         Q q;
         BOOST_FOREACH(DOMElem::Ptr child, element->getChildren()){
-			if (element->isName(DOMPathLoader::TimeId)) {
+			if (element->isName(DOMPathLoader::idTime())) {
 				time = element->getValueAsDouble();
-			} else if (element->isName(DOMBasisTypes::QId)) {
+			} else if (element->isName(DOMBasisTypes::idQ())) {
 				q = DOMBasisTypes::readQ(child, false);
 			}
         }
@@ -134,9 +201,9 @@ namespace {
         double time = 0.0;
         State state;
         BOOST_FOREACH(DOMElem::Ptr child, element->getChildren()){
-			if (element->isName(DOMPathLoader::TimeId)) {
+			if (element->isName(DOMPathLoader::idTime())) {
 				time = element->getValueAsDouble();
-			} else if (element->isName(DOMBasisTypes::StateId)) {
+			} else if (element->isName(DOMBasisTypes::idState())) {
 				state = DOMBasisTypes::readState(child, _workcell, false);
 			}
         }
@@ -216,31 +283,31 @@ rw::trajectory::TimedStatePath::Ptr DOMPathLoader::getTimedStatePath() {
 
 
 void DOMPathLoader::readPath(DOMElem::Ptr element) {
-    if (element->isName(QPathId)) {
+    if (element->isName(idQPath())) {
         _qPath = ownedPtr(new QPath());
 		read<Q, QPath::Ptr>(element, _qPath);
         _type = QType;
-    } else if (element->isName(V3DPathId)) {
+    } else if (element->isName(idV3DPath())) {
         _v3dPath = ownedPtr(new Vector3DPath());
 		read<Vector3D<>, Vector3DPath::Ptr>(element, _v3dPath);
         _type = Vector3DType;
-    } else if (element->isName(R3DPathId)) {
+    } else if (element->isName(idR3DPath())) {
         _r3dPath = ownedPtr(new Rotation3DPath());
 		read<Rotation3D<>, Rotation3DPath::Ptr>(element, _r3dPath);
         _type = Rotation3DType;
-    } else if (element->isName(T3DPathId)) {
+    } else if (element->isName(idT3DPath())) {
         _t3dPath = ownedPtr(new Transform3DPath());
 		read<Transform3D<>, Transform3DPath::Ptr>(element, _t3dPath);
         _type = Transform3DType;
-    } else if(element->isName(StatePathId)) {
+    } else if(element->isName(idStatePath())) {
         _statePath = ownedPtr(new StatePath());
 		read<State, StatePath::Ptr>(element, _statePath, _workcell);
         _type = StateType;
-    } else if(element->isName(TimedQPathId)) {
+    } else if(element->isName(idTimedQPath())) {
         _timedQPath = ownedPtr(new TimedQPath());
 		read<TimedQ, TimedQPath::Ptr>(element, _timedQPath, _workcell);
         _type = TimedQType;
-    } else if(element->isName(TimedStatePathId)) {
+    } else if(element->isName(idTimedStatePath())) {
         _timedStatePath = ownedPtr(new TimedStatePath());
 		read<TimedState, TimedStatePath::Ptr>(element, _timedStatePath, _workcell);
         _type = TimedStateType;

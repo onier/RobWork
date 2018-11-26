@@ -21,12 +21,12 @@
 
 #include <rwsim/dynamics/Constraint.hpp>
 
-#include <bullet/BulletDynamics/Dynamics/btDynamicsWorld.h>
-#include <bullet/BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h>
-#include <bullet/BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h>
-#include <bullet/BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h>
-#include <bullet/BulletDynamics/ConstraintSolver/btHingeConstraint.h>
-#include <bullet/BulletDynamics/ConstraintSolver/btSliderConstraint.h>
+#include <BulletDynamics/Dynamics/btDynamicsWorld.h>
+#include <BulletDynamics/ConstraintSolver/btGeneric6DofConstraint.h>
+#include <BulletDynamics/ConstraintSolver/btGeneric6DofSpringConstraint.h>
+#include <BulletDynamics/ConstraintSolver/btPoint2PointConstraint.h>
+#include <BulletDynamics/ConstraintSolver/btHingeConstraint.h>
+#include <BulletDynamics/ConstraintSolver/btSliderConstraint.h>
 
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -110,7 +110,7 @@ void BtConstraint::createJoint() {
 		// Note: from Bullet 2.82 there is a dedicated fixed constraint type!
 		btGeneric6DofConstraint* const btConstraint = new btGeneric6DofConstraint(first, second, BtUtil::makeBtTransform(frameInA), BtUtil::makeBtTransform(frameInB), useLinearReferenceFrameA);
 		// Fix all linear and angular axes by setting higher and lower limits equal
-		for (std::size_t i = 0; i < 6; i++) {
+		for (int i = 0; i < 6; i++) {
 			btConstraint->setParam(BT_CONSTRAINT_CFM,0,i);
 			btConstraint->setParam(BT_CONSTRAINT_STOP_CFM,0,i); // Default is m_globalCfm set in BtSimulator (which is default 0)
 			btConstraint->setParam(BT_CONSTRAINT_STOP_ERP,0.2,i); // Default is m_erp set in BtSimulator (which is default 0.2)

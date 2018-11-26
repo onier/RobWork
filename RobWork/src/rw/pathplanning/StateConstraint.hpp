@@ -24,20 +24,17 @@
 */
 
 #include <rw/common/Ptr.hpp>
-#include <rw/common/Log.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/proximity/CollisionDetector.hpp>
+
+#include <vector>
+
+namespace rw { namespace common { class Log; } }
+namespace rw { namespace proximity { class CollisionDetector; } }
+namespace rw { namespace kinematics { class State; } }
 
 namespace rw { namespace pathplanning {
 
     /** @addtogroup pathplanning */
     /** @{*/
-#ifdef RW_USE_DEPRECATED
-    class StateConstraint;
-
-    //! A pointer to a StateConstraint.
-    typedef rw::common::Ptr<StateConstraint> StateConstraintPtr;
-#endif
     /**
        @brief Interface for the checking for collisions for work cell states.
     */
@@ -46,13 +43,14 @@ namespace rw { namespace pathplanning {
     public:
 		//! @brief smart pointer type to this class
 		typedef rw::common::Ptr<StateConstraint> Ptr;
-
+		//! @brief smart pointer type to this class
+		typedef rw::common::Ptr< const StateConstraint > CPtr;
 
 		/**
 		 * @brief Set the log to be used for writing debug info
 		 * @param log [in] Log to which debug information is to be written
 		 */
-		virtual void setLog(rw::common::Log::Ptr log);
+		virtual void setLog(rw::common::Ptr<rw::common::Log> log);
 
         /**
            @brief True if the work cell is considered to be in collision for the
@@ -71,7 +69,7 @@ namespace rw { namespace pathplanning {
            @brief Map a collision detector to a state constraint.
         */
 		static StateConstraint::Ptr make(
-			rw::proximity::CollisionDetector::Ptr detector);
+			rw::common::Ptr<rw::proximity::CollisionDetector> detector);
 
         /**
            @brief Combine a set of state constraints into a single state
@@ -86,7 +84,11 @@ namespace rw { namespace pathplanning {
         */
         virtual bool doInCollision(const rw::kinematics::State& state) const = 0;
 
-		virtual void doSetLog(rw::common::Log::Ptr log) = 0;
+        /**
+         * @brief Set a log.
+         * @param log [in] the log.
+         */
+		virtual void doSetLog(rw::common::Ptr<rw::common::Log> log) = 0;
 
         /**
            @brief Constructor

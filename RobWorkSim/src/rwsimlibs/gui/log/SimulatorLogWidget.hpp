@@ -27,7 +27,8 @@
 #include <rw/common/Ptr.hpp>
 
 #include <QWidget>
-#include <QItemSelection>
+
+#include <map>
 
 namespace rw { namespace graphics { class GroupNode; } }
 namespace rwlibs { namespace opengl { class Drawable; } }
@@ -39,6 +40,9 @@ namespace rws { class SceneOpenGLViewer; }
 
 class GLViewRW;
 namespace Ui { class SimulatorLogWidget; }
+
+class QItemSelection;
+class QModelIndex;
 
 namespace rwsimlibs {
 namespace gui {
@@ -72,6 +76,12 @@ public:
 	 * @param info [in/out] the simulation log (might be updated with statistics).
 	 */
 	void setLog(rw::common::Ptr<rwsim::log::SimulatorLogScope> info);
+
+	/**
+	 * @brief Compare with a different log.
+	 * @param info [in] the other simulation log.
+	 */
+	void compare(rw::common::Ptr<const rwsim::log::SimulatorLogScope> info);
 
 	/**
 	 * @brief Try to find a specific simulation time.

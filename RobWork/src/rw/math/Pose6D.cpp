@@ -23,8 +23,8 @@
 
 using namespace rw::math;
 
-template class Pose6D<double>;
-template class Pose6D<float>;
+template class rw::math::Pose6D<double>;
+template class rw::math::Pose6D<float>;
 
 
 namespace rw{ namespace common {namespace serialization {
@@ -49,9 +49,9 @@ namespace rw{ namespace common {namespace serialization {
     }
 
     // some explicit template specifications
-    template<> void write(const rw::math::Pose6D<double>& tmp, rw::common::OutputArchive& oar, const std::string& id){writeImpl(tmp,oar,id);};
-    template<> void write(const rw::math::Pose6D<float>& tmp, rw::common::OutputArchive& oar, const std::string& id){writeImpl(tmp,oar,id);};
-    template<> void read(rw::math::Pose6D<double>& tmp, rw::common::InputArchive& iar, const std::string& id){readImpl(tmp,iar,id);};
-    template<> void read(rw::math::Pose6D<float>& tmp, rw::common::InputArchive& iar, const std::string& id){readImpl(tmp,iar,id);};
+    template<> void write(const rw::math::Pose6D<double>& tmp, rw::common::OutputArchive& oar, const std::string& id){writeImpl(tmp,oar,id);}
+    template<> void write(const rw::math::Pose6D<float>& tmp, rw::common::OutputArchive& oar, const std::string& id){writeImpl(tmp,oar,id);}
+    template<> void read(rw::math::Pose6D<double>& tmp, rw::common::InputArchive& iar, const std::string& id){readImpl(tmp,iar,id);}
+    template<> void read(rw::math::Pose6D<float>& tmp, rw::common::InputArchive& iar, const std::string& id){readImpl(tmp,iar,id);}
 
 }}} // end namespaces

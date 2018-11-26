@@ -27,29 +27,32 @@
 #include <vector>
 
 #include <QObject>
-#include <QString>
-
 #include <QGLWidget>
-
-#include <QMouseEvent>
-#include <QAction>
-#include <QToolBar>
-#include <QMenu>
 
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Vector3D.hpp>
 
-#include <rw/graphics/WorkCellScene.hpp>
-#include <rwlibs/opengl/Drawable.hpp>
 #include <rw/graphics/Render.hpp>
 
 #include <rws/ArcBallController.hpp>
+
+namespace rw { namespace graphics { class WorkCellScene; } }
+namespace rw { namespace kinematics { class Frame; } }
+namespace rwlibs { namespace opengl { class Drawable; } }
+
+class RobWorkStudio;
+
+class QString;
+class QMouseEvent;
+class QAction;
+class QToolBar;
+class QMenu;
 
 /**
  * @brief Class representing an OpenGL based QT Widget for 3D visualization of Drawables
  */
 class GLViewRW: public QGLWidget {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
     /**
@@ -159,7 +162,8 @@ private:
     rw::graphics::Render::DrawType _drawType;
     float _alpha;
 
-    GLUquadricObj* _sphereObj;
+    struct GLData;
+    const GLData* const _gl;
 
     bool _showPivotPoint;
     int _width, _height;

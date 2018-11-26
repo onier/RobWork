@@ -1,6 +1,5 @@
 SET(FILES_CPP
   WorkCellLoader.cpp
-  WorkCellFactory.cpp
 
   model3d/LoaderAC3D.cpp
   model3d/Loader3DS.cpp
@@ -11,9 +10,9 @@ SET(FILES_CPP
   Model3DFactory.cpp
   Model3DLoader.cpp
   GeometryFactory.cpp
-  GeometryLoader.cpp
 
   path/PathLoader.cpp
+  path/PathLoaderCSV.cpp
   tul/Tag.cpp
   tul/TULLoader.cpp
 
@@ -36,13 +35,15 @@ SET(FILES_CPP
   dom/DOMTrajectoryLoader.cpp
   dom/DOMTrajectorySaver.cpp
   dom/DOMProximitySetupLoader.cpp
+  dom/DOMProximitySetupSaver.cpp
+  dom/DOMWorkCellSaver.cpp
+
   
   colsetup/CollisionSetupLoader.cpp
   
   image/PGMLoader.cpp
   image/PPMLoader.cpp
   image/RGBLoader.cpp
-  ImageFactory.cpp
   ImageLoader.cpp
   
   urdf/URDFLoader.cpp
@@ -52,9 +53,9 @@ SET(FILES_CPP
 
 SET(FILES_HPP
   WorkCellLoader.hpp
-  WorkCellFactory.hpp
   
   path/PathLoader.hpp
+  path/PathLoaderCSV.hpp
   tul/Tag.hpp
   tul/TULLoader.hpp
 
@@ -77,12 +78,13 @@ SET(FILES_HPP
   dom/DOMTrajectoryLoader.hpp
   dom/DOMTrajectorySaver.hpp
   dom/DOMProximitySetupLoader.hpp
+  dom/DOMProximitySetupSaver.hpp
+  dom/DOMWorkCellSaver.hpp
 
   colsetup/CollisionSetupLoader.hpp
   image/PGMLoader.hpp
   image/PPMLoader.hpp
   image/RGBLoader.hpp
-  ImageFactory.hpp
   ImageLoader.hpp
   
   urdf/URDFLoader.hpp

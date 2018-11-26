@@ -1,8 +1,10 @@
 #include "SyncPDController.hpp"
 
+#include <rwsim/dynamics/RigidDevice.hpp>
+
 using namespace rwsim::control;
 
-SyncPDController::SyncPDController(const std::string& name, dynamics::RigidDevice* rdev, const rw::kinematics::State& state):
+SyncPDController::SyncPDController(const std::string& name, rwsim::dynamics::RigidDevice* rdev, const rw::kinematics::State& state):
 	JointController(name, &rdev->getModel()),
 	SimulatedController(rw::common::ownedPtr(new rw::models::ControllerModel(name,rdev->getKinematicModel()->getBase()))),
 	_ddev(rdev),
@@ -31,7 +33,7 @@ void SyncPDController::setTargetVel(const rw::math::Q& vals){
 	_targetVel = vals;
 }
 
-void SyncPDController::setTargetAcc(const rw::math::Q& vals){};
+void SyncPDController::setTargetAcc(const rw::math::Q& vals){}
 
 /**
  * @brief updates the state of the dynamicdevice

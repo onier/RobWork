@@ -19,8 +19,10 @@
 
 #include <QApplication>
 #include <QSplashScreen>
+#include <QMessageBox>
 
 #include <rw/common/ProgramOptions.hpp>
+#include <RobWorkConfig.hpp>
 #include <RobWorkStudioConfig.hpp>
 #ifdef RWS_USE_STATIC_LINK_PLUGINS
     #include <rwslibs/log/ShowLog.hpp>
@@ -35,7 +37,8 @@
 #endif
 #endif
 
-#include <rw/rw.hpp>
+#include <boost/program_options/parsers.hpp>
+
 USE_ROBWORK_NAMESPACE
 using namespace robwork;
 

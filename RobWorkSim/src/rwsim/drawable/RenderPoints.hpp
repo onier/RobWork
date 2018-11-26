@@ -3,13 +3,10 @@
 
 //! @file RenderPoints.hpp
 
-#include <list>
-#include <vector>
-
 #include <rw/math/Vector3D.hpp>
-#include <rw/kinematics/State.hpp>
-
 #include <rw/graphics/Render.hpp>
+
+#include <vector>
 
 namespace rwsim {
 namespace drawable {
@@ -66,7 +63,8 @@ namespace drawable {
 		          rw::graphics::DrawableNode::DrawType type,
 		          double alpha) const;
 	private:
-		GLUquadricObj* _sphereObj;
+		struct GLData;
+		const GLData* const _gl;
 		std::vector<rw::math::Vector3D<> > _points;
 		float _color[3];
 	};

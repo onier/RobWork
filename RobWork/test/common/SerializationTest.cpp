@@ -17,11 +17,7 @@
 
 #include "../TestSuiteConfig.hpp"
 
-
-#include <rw/common/StringUtil.hpp>
-#include <boost/foreach.hpp>
 #include <iostream>
-#include <rw/common/Timer.hpp>
 #include <rw/common/Ptr.hpp>
 
 #include <rw/common/INIArchive.hpp>
@@ -29,6 +25,8 @@
 
 #include <rw/common/Serializable.hpp>
 
+#include <rw/math/Math.hpp>
+#include <rw/math/Vector2D.hpp>
 
 using namespace rw::common;
 using namespace rw::math;
@@ -81,7 +79,6 @@ public:
 
 
 
-#include <rw/math/Vector2D.hpp>
 /*
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;

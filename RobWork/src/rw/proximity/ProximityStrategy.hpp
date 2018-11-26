@@ -25,14 +25,14 @@
 
 #include <string>
 
-#include <rw/math/Transform3D.hpp>
-#include <rw/kinematics/Frame.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/geometry/Geometry.hpp>
+#include <rw/common/ExtensionPoint.hpp>
 #include <rw/kinematics/FrameMap.hpp>
-#include <rw/models/Object.hpp>
 
 #include "ProximityModel.hpp"
+
+namespace rw { namespace geometry { class Geometry; } }
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace models { class Object; } }
 
 namespace rw { namespace proximity {
 
@@ -67,7 +67,7 @@ namespace rw { namespace proximity {
          * with the frame; false otherwise.
          */
         //virtual bool addModel(const kinematics::Frame* frame);
-        virtual bool addModel(models::Object::Ptr object);
+        virtual bool addModel(rw::common::Ptr<rw::models::Object> object);
 
         /**
          * @brief Adds a Proximity model to a frame where the geometry is copied
@@ -99,7 +99,7 @@ namespace rw { namespace proximity {
          */
         virtual bool addModel(
             const rw::kinematics::Frame* frame,
-            rw::geometry::Geometry::Ptr faces,
+            rw::common::Ptr<rw::geometry::Geometry> faces,
             bool forceCopy = false
             );
 
@@ -121,7 +121,7 @@ namespace rw { namespace proximity {
         virtual void clearFrame(const rw::kinematics::Frame* frame);
 
         /**
-           @brief Clear (remove all) model information for frame \b frame.
+           @brief Clear (remove all) model information for all frames.
          */
         virtual void clearFrames();
 
@@ -133,8 +133,6 @@ namespace rw { namespace proximity {
          * @param frame [in] frame for which an proximitymodel is associated
          */
         ProximityModel::Ptr getModel(const rw::kinematics::Frame* frame);
-
-        rw::kinematics::Frame* getFrame(ProximityModel::Ptr);
 
         //// this is the new interface based on CollisionModelInfo
         /**
@@ -164,7 +162,7 @@ namespace rw { namespace proximity {
          * @param forceCopy
          * @return
          */
-        virtual bool addGeometry(ProximityModel* model, rw::geometry::Geometry::Ptr geom, bool forceCopy=false) = 0;
+        virtual bool addGeometry(ProximityModel* model, rw::common::Ptr<rw::geometry::Geometry> geom, bool forceCopy=false) = 0;
 
         /**
          * @brief removes a geometry from a specific proximity model
@@ -183,6 +181,50 @@ namespace rw { namespace proximity {
          * @brief Clears any stored model information
          */
         virtual void clear() = 0;
+
+    	/**
+    	 * @addtogroup extensionpoints
+    	 * @extensionpoint{rw::proximity::ProximityStrategy::Factory,rw::proximity::ProximityStrategy,rw.proximity.ProximityStrategy}
+    	 */
+
+    	/**
+    	 * @brief A factory for a ProximityStrategy. This factory also defines an ExtensionPoint.
+    	 *
+    	 * Extensions providing a ProximityStrategy implementation can extend this factory by registering
+    	 * the extension using the id "rw.proximity.ProximityStrategy".
+    	 *
+    	 * Typically one or more of the following ProximityStrategy types will be available:
+    	 *  - RW - rw::proximity::ProximityStrategyRW - Internal RobWork proximity strategy
+    	 *  - Bullet - rwlibs::proximitystrategies::ProximityStrategyBullet - Bullet Physics
+    	 *  - PQP - rwlibs::proximitystrategies::ProximityStrategyPQP - Proximity Query Package
+    	 *  - FCL - rwlibs::proximitystrategies::ProximityStrategyFCL - Flexible Collision Library
+    	 *  - Yaobi - rwlibs::proximitystrategies::ProximityStrategyYaobi - Yaobi
+    	 */
+    	class Factory: public rw::common::ExtensionPoint<ProximityStrategy> {
+    	public:
+    		/**
+    		 * @brief Get the available strategies.
+    		 * @return a vector of identifiers for strategies.
+    		 */
+    		static std::vector<std::string> getStrategies();
+
+    		/**
+    		 * @brief Check if strategy is available.
+    		 * @param strategy [in] the name of the strategy.
+    		 * @return true if available, false otherwise.
+    		 */
+    		static bool hasStrategy(const std::string& strategy);
+
+    		/**
+    		 * @brief Create a new strategy.
+    		 * @param strategy [in] the name of the strategy.
+    		 * @return a pointer to a new CollisionStrategy.
+    		 */
+    		static ProximityStrategy::Ptr makeStrategy(const std::string& strategy);
+
+    	private:
+    		Factory();
+    	};
 
     private:
         ProximityStrategy(const ProximityStrategy&);

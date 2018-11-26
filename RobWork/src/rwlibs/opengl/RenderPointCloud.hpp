@@ -21,8 +21,6 @@
 //! @file RenderPointCloud.hpp
 
 #include <rw/math/Vector3D.hpp>
-#include <rw/geometry/Line.hpp>
-#include <list>
 
 #include <rw/graphics/Render.hpp>
 
@@ -130,7 +128,6 @@ namespace rwlibs { namespace opengl {
 
         std::string _id;
 		std::vector<rw::math::Vector3D<float> > _points;
-        GLuint _displayListId;
 
         float _r;
         float _g;
@@ -139,6 +136,10 @@ namespace rwlibs { namespace opengl {
         float _pointSize;
     };
 
+    /**
+     * @brief Legacy type of a smart pointer for RenderPointCloud.
+     * @deprecated Use RenderPointCloud::Ptr instead. This type will be removed sometime in the future.
+     */
     typedef rw::common::Ptr<RenderPointCloud> RenderPointCloudPtr;
 //! @}
 }} // end namespaces

@@ -15,8 +15,8 @@
  * limitations under the License.
  ********************************************************************************/
 
-#ifndef RW_LOADERS_PATHLOADER_HPP
-#define RW_LOADERS_PATHLOADER_HPP
+#ifndef RW_LOADERS_XMLPATHLOADER_HPP
+#define RW_LOADERS_XMLPATHLOADER_HPP
 
 
 #include <rw/trajectory/Path.hpp>
@@ -25,10 +25,15 @@
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Transform3D.hpp>
 
-#include <rw/models/WorkCell.hpp>
+#include <xercesc/util/XercesDefs.hpp>
 
-#include <xercesc/dom/DOMElement.hpp>
 #include <string>
+
+namespace rw { namespace models { class WorkCell; } }
+
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMElement;
+XERCES_CPP_NAMESPACE_END
 
 namespace rw {
 namespace loaders {
@@ -63,7 +68,7 @@ public:
      * @param filename [in] The file to load
      * @param schemaFileName [in] Name of the schema to use. If empty it will use the schema specified in the XML-file if available.
      */
-	XMLPathLoader(const std::string& filename, rw::models::WorkCell::Ptr workcell = NULL, const std::string& schemaFileName = "");
+	XMLPathLoader(const std::string& filename, rw::common::Ptr<rw::models::WorkCell> workcell = NULL, const std::string& schemaFileName = "");
 
 
     /**
@@ -77,7 +82,7 @@ public:
      * @param instream [in] The input stream to read from
      * @param schemaFileName [in] Name of the schema to use. If empty it will use the schema specified in the XML-file if available.
      */
-	XMLPathLoader(std::istream& instream, rw::models::WorkCell::Ptr workcell = NULL, const std::string& schemaFileName = "");
+	XMLPathLoader(std::istream& instream, rw::common::Ptr<rw::models::WorkCell> workcell = NULL, const std::string& schemaFileName = "");
 
 
     /**
@@ -179,8 +184,24 @@ public:
      */
 	rw::trajectory::TimedStatePath::Ptr getTimedStatePath();
 
-private:
+	/**
+	 * @brief Utility class which initializes local static variables.
+	 *
+	 * If the XMLPathLoader is used outside main (as a part of global initialization/destruction), the Initializer
+	 * should be used explicitly to control the static initialization/destruction order.
+	 *
+	 * Notice that the Initializer is automatically defined as a global variable, hence it should not
+	 * be necessary to specify the initializer explicitly if XMLPathLoader is to be used in local static
+	 * initialization/destruction.
+	 */
+	class Initializer {
+	public:
+	    //! @brief Initializes when constructed.
+		Initializer();
+	};
 
+private:
+	static const Initializer initializer;
 
    void readPath(xercesc::DOMElement* element);
 
@@ -193,7 +214,7 @@ private:
    rw::trajectory::TimedStatePath::Ptr _timedStatePath;
 
     Type _type;
-	rw::models::WorkCell::Ptr _workcell;
+    rw::common::Ptr<rw::models::WorkCell> _workcell;
 };
 
 /** @} */

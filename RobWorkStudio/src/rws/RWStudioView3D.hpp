@@ -27,32 +27,26 @@
 #include <vector>
 
 #include <QObject>
-#include <QString>
+#include <QWidget>
 
-#include <QMouseEvent>
-#include <QMessageBox>
-#include <QFileDialog>
-#include <QImage>
-#include <QAction>
-#include <QToolBar>
-#include <QMenu>
-
-#include <rw/models/WorkCell.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/math/Rotation3D.hpp>
-#include <rw/math/Vector3D.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
-#include <rw/graphics/DrawableGeometryNode.hpp>
 #include <rw/graphics/SceneViewer.hpp>
 #include <rw/graphics/WorkCellScene.hpp>
-#include <rwlibs/opengl/RenderCameraFrustum.hpp>
-#include <rw/graphics/SceneViewer.hpp>
 
-//#include "RobWorkStudioPlugin.hpp"
-#include "SceneViewerWidget.hpp"
+namespace rw { namespace graphics { class DrawableGeometryNode; } }
+namespace rw { namespace kinematics { class State; } }
+namespace rw { namespace models { class WorkCell; } }
+namespace rwlibs { namespace opengl { class RenderCameraFrustum; } }
+
+class QAction;
+class QMainWindow;
+class QMenu;
+class QMouseEvent;
+class QString;
 
 namespace rws {
 class RobWorkStudio;
+class SceneViewerWidget;
 
     //! @addtogroup rws
     //! @{ 
@@ -67,7 +61,7 @@ class RWStudioView3D: public QWidget {
     Q_OBJECT
 
 public:
-
+	//! @brief Smart pointer type for RWStudioView3D.
     typedef rw::common::Ptr<RWStudioView3D> Ptr;
 
     /**
@@ -77,14 +71,12 @@ public:
      */
     RWStudioView3D(RobWorkStudio* rwStudio, QWidget* parent);
 
-    /**
-     * @brief destructor
-     */
+    //! @brief Destructor.
     virtual ~RWStudioView3D();
 
     /**
-     * @brief
-     * @param visible
+     * @brief Set the widget used for visualization of the scene.
+     * @param viewer [in] the widget for visualization of the scene.
      */
     void setSceneViewerWidget(SceneViewerWidget* viewer);
 
@@ -117,16 +109,16 @@ public:
 
     /**
      * @brief picks a drawable in the scene.
-     * @param x
-     * @param y
-     * @return
+     * @param x [in] x coordinate
+     * @param y [in] y coordinate
+     * @return the drawable that was selected, Null if no frames where selected.
      */
     rw::graphics::DrawableNode::Ptr pick(int x, int y);
 
     //! @brief updates the 3d view
     void update(){
         _view->updateView();
-    };
+    }
 
     /**
      * @brief set the state of the view
@@ -140,26 +132,59 @@ public:
      */
     rw::common::PropertyMap& getPropertyMap(){ return _pmap->getValue(); }
 
+    /**
+     * @brief Get the scene.
+     * @return the scene.
+     */
+    rw::graphics::WorkCellScene::Ptr getWorkCellScene(){ return _wcscene;}
 
-
-    rw::graphics::WorkCellScene::Ptr getWorkCellScene(){ return _wcscene;};
-
+    /**
+     * @brief Get the scene viewer.
+     * @return the scene viewer.
+     */
     rw::graphics::SceneViewer::Ptr getSceneViewer(){ return _view; }
 
-    void setWorkCell(rw::models::WorkCell::Ptr workcell);
+    /**
+     * @brief Set the workcell.
+     * @param workcell [in] the workcell.
+     */
+    void setWorkCell(rw::common::Ptr<rw::models::WorkCell> workcell);
 
+    //! @brief Clear the view.
     void clear();
 
+    //! @copydoc SceneOpenGLViewer::saveBufferToFile
     void saveBufferToFile(const QString& filename, const int fillR=0, const int fillG=0, const int fillB=0){
         _view->saveBufferToFile(filename.toStdString(), fillR, fillG, fillB);
     }
 
     //// events inherited from QtWidget
-    void keyPressEvent(QKeyEvent *e);
-    void mouseDoubleClickEvent(QMouseEvent* event);
 
-    void saveSettings();
-    void restoreSettings();
+    /**
+     * @brief Handle key press events.
+     *
+     * The following is supported:
+     *
+     * | Keys       | Function                                          |
+     * |------------|---------------------------------------------------|
+     * | CTRL+G     | Save current view to file (file dialog is opened) |
+     * | CTRL+Left  | Switch to previous scene camera                   |
+     * | CTRL+Right | Switch to next scene camera                       |
+     * | CTRL+1...9 | Switch to scene camera number n                   |
+     *
+     * @param e [in] the event.
+     */
+    void keyPressEvent(QKeyEvent *e);
+
+    /**
+     * @brief Handle double mouse click events.
+     *
+     * If CTRL key is pressed while double clicking the left mouse button,
+     * a frame can be selected.
+     *
+     * @param event [in] the event.
+     */
+    void mouseDoubleClickEvent(QMouseEvent* event);
 
     //! get current draw mask
     int getDrawMask();
@@ -168,6 +193,9 @@ private slots:
     void setDrawTypeSlot();
     void setTransparentSlot();
     void showPivotPointSlot();
+    void zoomInSlot();
+    void zoomOutSlot();
+    void zoomAutoSlot();
     void setCheckForCollision(bool);
     void setCheckAction();
     void setMaskCheckAction();
@@ -187,7 +215,7 @@ private:
             _far(f),
             _frame(fra),
             _action(NULL)
-        {};
+        {}
         rw::graphics::SceneViewer::View::Ptr _view;
         double _fovy, _width, _height, _near, _far;
         rw::kinematics::Frame *_frame;
@@ -203,18 +231,17 @@ private:
 
     SensorCameraView makeCameraView(const std::string& name,double fovy, double w, double h, double n, double f, rw::kinematics::Frame* frame);
 
-protected:
+//protected:
+    //void contextMenuEvent ( QContextMenuEvent * event );
 
-    void contextMenuEvent ( QContextMenuEvent * event );
-
-protected:
+private:
     rws::SceneViewerWidget* _viewWidget;
     rw::graphics::SceneViewer* _view;
     rw::graphics::WorkCellScene::Ptr _wcscene;
-    rw::models::WorkCell::Ptr _wc;
+    rw::common::Ptr<rw::models::WorkCell> _wc;
     RobWorkStudio *_rws;
 
-    rw::graphics::DrawableGeometryNode::Ptr _floorDrawable;
+    rw::common::Ptr<rw::graphics::DrawableGeometryNode> _floorDrawable;
 
     rw::common::Property<rw::common::PropertyMap>::Ptr _pmap;
     std::string _viewLogo;
@@ -244,13 +271,15 @@ protected:
             *_user3MaskEnabled,
             *_user4MaskEnabled;
 
+    QAction *_zoomInAction, *_zoomOutAction, *_zoomAutoAction;
+
 
     QMenu *_customViewMenu, *_cameraViewMenu, *_drawMaskMenu;
 
     std::vector<std::pair<QAction*,rw::math::Transform3D<> > > _customViews;
     rw::proximity::CollisionDetector::QueryResult _qryResult;
 
-    std::vector<std::pair<SensorCameraView, rwlibs::opengl::RenderCameraFrustumPtr> > _sensorCameraViews;
+    std::vector<std::pair<SensorCameraView, rw::common::Ptr<rwlibs::opengl::RenderCameraFrustum> > > _sensorCameraViews;
 };
 
 //! @}

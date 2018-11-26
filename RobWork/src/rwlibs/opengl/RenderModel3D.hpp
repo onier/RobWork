@@ -24,9 +24,8 @@
 #include <rw/graphics/Model3D.hpp>
 #include <rw/graphics/Render.hpp>
 
-#include "RWGLTexture.hpp"
-
 namespace rwlibs { namespace opengl {
+	class RWGLTexture;
 
 //! @addtogroup opengl
 // @{
@@ -71,8 +70,9 @@ namespace rwlibs { namespace opengl {
          * @brief Fast drawing of model using drawelements array. This draw method require that
          * textured objects use texture coordinates that are mapped to vertices and not
          * faces. Also this method only works on triangle meshes
-         * @param type [in]
-         * @param alpha [in]
+         * @param info [in] state and rendering specific info
+         * @param type [in] the drawtype which is being used
+         * @param alpha [in] the alpha value to render with
          */
         void drawUsingArrays(const rw::graphics::DrawableNode::RenderInfo& info, DrawType type, double alpha) const;
 
@@ -80,27 +80,31 @@ namespace rwlibs { namespace opengl {
          * @brief Slower drawing of model using simple opengl draw calls. This draw
          * method is slower than the array method but it is more general and does not
          * requre texture coordinates to be ordered specifically
-         * @param type [in]
-         * @param alpha [in]
+         * @param info [in] state and rendering specific info
+         * @param type [in] the drawtype which is being used
+         * @param alpha [in] the alpha value to render with
          */
         void drawUsingSimple(const rw::graphics::DrawableNode::RenderInfo& info, DrawType type, double alpha) const;
 
         //void drawUsingList(DrawType type, double alpha) const;
 
     private:
-        void drawUsingArrays(const rw::graphics::DrawableNode::RenderInfo& info,
-                             const rw::graphics::Model3D::Object3D& obj,
+        template <class T>
+        void drawUsingSimpleFct(const rw::graphics::DrawableNode::RenderInfo& info,
+                             const rw::graphics::Model3D::Object3D<T> &obj,
                              rw::graphics::DrawableNode::DrawType type,
                              double alpha) const;
-        void drawUsingSimple(const rw::graphics::DrawableNode::RenderInfo& info,
-                             const rw::graphics::Model3D::Object3D& obj,
+
+        template <class T>
+        void drawUsingArraysFct(const rw::graphics::DrawableNode::RenderInfo& info,
+                             const rw::graphics::Model3D::Object3D<T> &obj,
                              rw::graphics::DrawableNode::DrawType type,
                              double alpha) const;
 
         void useMaterial(const rw::graphics::Model3D::Material& mat, rw::graphics::DrawableNode::DrawType type, double alpha) const;
 
     private:
-        std::vector<rwlibs::opengl::RWGLTexture::Ptr> _textures;
+        std::vector<rw::common::Ptr<rwlibs::opengl::RWGLTexture> > _textures;
         //bool _shownormals;
     };
 

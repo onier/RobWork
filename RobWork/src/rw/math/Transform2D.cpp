@@ -26,8 +26,8 @@ using namespace rw::common;
 using namespace rw::math;
 
 // Explicit template instantiations.
-template class Transform2D<double>;
-template class Transform2D<float>;
+template class rw::math::Transform2D<double>;
+template class rw::math::Transform2D<float>;
 
 namespace rw{ namespace common { namespace serialization {
 
@@ -39,7 +39,7 @@ namespace rw{ namespace common { namespace serialization {
 
     template<class T>
     void readImpl(Transform2D<T>& tmp, InputArchive& iar, const std::string& id){
-        std::vector<double> data;
+        std::vector<T> data;
         iar.read(data, id);
         Math::fromStdVectorToMat(data, tmp, 2, 3 );
     }

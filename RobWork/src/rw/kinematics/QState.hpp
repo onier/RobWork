@@ -24,7 +24,6 @@
  */
 
 #include <boost/shared_ptr.hpp>
-#include <vector>
 #include <rw/math/Q.hpp>
 #include <rw/common/macros.hpp>
 
@@ -182,6 +181,11 @@ namespace rw { namespace kinematics {
 
         //void copy(const QState& qstate);
 
+        /**
+         * @brief Assignment operator.
+         * @param rhs [in] the other QState to assign to this.
+         * @return a reference to this QState.
+         */
         QState& operator=(const QState &rhs);
 
 
@@ -190,11 +194,17 @@ namespace rw { namespace kinematics {
          */
         size_t size() const { return _contents.size(); }
 
+        /**
+         * @brief Get element of state.
+         * @param index [in] the index.
+         * @return the value at given index.
+         */
         double& operator()(size_t index) {
             RW_ASSERT(index<size());
             return _contents(index);
         }
 
+        //! @copydoc operator()
         const double& operator()(size_t index) const {
             RW_ASSERT(index<size());
             return _contents(index);

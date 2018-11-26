@@ -23,17 +23,14 @@
  * @file JacobianIKSolver.hpp
  */
 
+#include <rw/common/Ptr.hpp>
 #include <rw/invkin/IterativeIK.hpp>
-#include <rw/math/Q.hpp>
-#include <rw/models/Device.hpp>
-#include <rw/common/PropertyMap.hpp>
 #include <rw/kinematics/FKRange.hpp>
-#include <rw/models/JacobianCalculator.hpp>
-#include <rw/trajectory/Interpolator.hpp>
 #include <vector>
 
 namespace rw { namespace models {
     class Device;
+    class JacobianCalculator;
 }} // end namespaces
 
 namespace rw { namespace invkin {
@@ -87,21 +84,30 @@ namespace rw { namespace invkin {
     class JacobianIKSolver : public IterativeIK
     {
     public:
+		//! @brief smart pointer type to this class
+		typedef rw::common::Ptr<JacobianIKSolver> Ptr;
+		//! @brief smart pointer type to this const class
+		typedef rw::common::Ptr< const JacobianIKSolver > CPtr;
+
         //! @brief the type of jacobian solver
         typedef enum{Transpose, SVD, DLS, SDLS} JacobianSolverType;
 
         /**
-         * @brief Constructs JacobianIKSolver for device \b device, where the
-         * @param device [in] the Device that
+         * @brief Constructs JacobianIKSolver for device \b device.
+         * @param device [in] the device to do inverse kinematics for.
+         * @param state [in] the initial state.
          */
-        JacobianIKSolver(models::Device::Ptr device, const kinematics::State& state);
+        JacobianIKSolver(rw::common::Ptr< const rw::models::Device > device, const kinematics::State& state);
 
         /**
          * @brief Constructs JacobianIKSolver for device, where the frame \b foi will
          * be used as end effector.
+         * @param device [in] the device to do inverse kinematics for.
+         * @param foi [in] end effector frame.
+         * @param state [in] the initial state.
          */
-        JacobianIKSolver(models::Device::Ptr device,
-                     rw::kinematics::Frame *foi,
+        JacobianIKSolver(rw::common::Ptr< const rw::models::Device > device,
+                     const rw::kinematics::Frame *foi,
                      const kinematics::State& state);
 
         /**
@@ -113,8 +119,7 @@ namespace rw { namespace invkin {
         /**
          * @brief sets the maximal step length that is allowed on the
          * local search towards the solution.
-         * @param qlength [in] maximal step length in quaternion
-         * @param plength [in] maximal step length in position
+         * @param interpolatorStep [in] the interpolation step.
          */
         void setInterpolatorStep(double interpolatorStep){ _interpolationStep = interpolatorStep; }
 
@@ -161,8 +166,13 @@ namespace rw { namespace invkin {
             _checkJointLimits = check;
         }
 
+        /**
+         * @copydoc InvKinSolver::getTCP
+         */
+        virtual rw::common::Ptr< const rw::kinematics::Frame > getTCP() const;            
+
     private:
-        models::Device::Ptr _device;
+        rw::common::Ptr< const rw::models::Device > _device;
         double _interpolationStep;
         kinematics::FKRange _fkrange;
         rw::common::Ptr<models::JacobianCalculator> _devJac;

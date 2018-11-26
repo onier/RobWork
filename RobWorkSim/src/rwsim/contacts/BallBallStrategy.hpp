@@ -85,6 +85,24 @@ public:
 			const rw::geometry::Sphere* a,	const rw::math::Vector3D<>& wPa,
 			const rw::geometry::Sphere* b,	const rw::math::Vector3D<>& wPb, bool distCheck = true) const;
 
+	//! @copydoc rwsim::contacts::ContactStrategy::destroyModel
+    virtual void destroyModel(rw::proximity::ProximityModel* model);
+
+	//! @copydoc rwsim::contacts::ContactStrategy::addGeometry(rw::proximity::ProximityModel*,const rw::geometry::Geometry&)
+	virtual bool addGeometry(rw::proximity::ProximityModel* model, const rw::geometry::Geometry& geom);
+
+	//! @copydoc rwsim::contacts::ContactStrategy::addGeometry(rw::proximity::ProximityModel*,rw::common::Ptr<rw::geometry::Geometry>,bool)
+    virtual bool addGeometry(rw::proximity::ProximityModel* model, rw::common::Ptr<rw::geometry::Geometry> geom, bool forceCopy=false);
+
+	//! @copydoc rwsim::contacts::ContactStrategy::removeGeometry
+    virtual bool removeGeometry(rw::proximity::ProximityModel* model, const std::string& geomId);
+
+	//! @copydoc rwsim::contacts::ContactStrategy::getGeometryIDs
+    virtual std::vector<std::string> getGeometryIDs(rw::proximity::ProximityModel* model);
+
+	//! @copydoc rwsim::contacts::ContactStrategy::clear
+    virtual void clear();
+
 private:
 	class BallTracking;
 };

@@ -18,13 +18,19 @@
 #ifndef RW_GEOMETRY_INTERSECTUTIL_HPP_
 #define RW_GEOMETRY_INTERSECTUTIL_HPP_
 
+/**
+ * @file
+ * @copydoc rw::geometry::IntersectUtil
+ */
+
 #include <rw/math/Vector3D.hpp>
-#include "Plane.hpp"
-#include "Line.hpp"
 #include "Triangle.hpp"
 
 namespace rw {
 namespace geometry {
+	class Plane;
+	class Line;
+
 	//! @addtogroup geometry
 	// @{
     //! @file rw/geometry/IntersectUtil.hpp

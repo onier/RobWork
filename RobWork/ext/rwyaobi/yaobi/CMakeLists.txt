@@ -1,3 +1,8 @@
+cmake_minimum_required(VERSION 2.8)
+if(POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif()
+
 project(yaobi)
 
 SET(YAOBI_HPP_FILES
@@ -24,6 +29,10 @@ add_library(yaobi
 	yaobi_tri_overlap.cpp
 	yaobi.cpp
 )
+
+IF(CMAKE_VERSION VERSION_GREATER 3.3)
+	SET_TARGET_PROPERTIES(yaobi PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+ENDIF()
 
 CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/yaobi_config.h.cmake 
 			   ${CMAKE_CURRENT_SOURCE_DIR}/yaobi_config.h)

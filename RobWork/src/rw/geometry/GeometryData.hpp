@@ -47,9 +47,10 @@ namespace rw { namespace geometry {
 					  SpherePrim, BoxPrim, OBBPrim, AABBPrim,
 					  LinePrim, PointPrim, PyramidPrim, ConePrim,
 					  TrianglePrim, CylinderPrim, TubePrim, PlanePrim, RayPrim,
+					  Quadratic,
 					  UserType} GeometryType;
 	    //! @brief Destructor
-		virtual ~GeometryData(){};
+		virtual ~GeometryData(){}
 
 		/**
 		 * @brief the type of this primitive
@@ -73,7 +74,7 @@ namespace rw { namespace geometry {
 		 * @brief test if this geometry data is convex
 		 * @return
 		 */
-		virtual bool isConvex(){ return false;};
+		virtual bool isConvex(){ return false;}
 
 		/**
 		 * @brief format GeometryType to string
@@ -81,10 +82,6 @@ namespace rw { namespace geometry {
 		 */
 		static std::string toString(GeometryType type);
 	};
-#ifdef RW_USE_DEPRECATED
-	//! @brief Ptr to GeometryData
-	typedef rw::common::Ptr<GeometryData> GeometryDataPtr;
-#endif
 	//! @}
 }
 }

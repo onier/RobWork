@@ -24,7 +24,9 @@
  */
 
 #include <rw/sensor/Image.hpp>
-#include <rw/kinematics/Frame.hpp>
+
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace kinematics { class State; } }
 
 namespace rwlibs { namespace simulation {
     /** @addtogroup simulation */
@@ -37,7 +39,7 @@ namespace rwlibs { namespace simulation {
     class FrameGrabber
     {
     public:
-
+    	//! @brief Smart pointer type for FrameGrabber.
         typedef rw::common::Ptr<FrameGrabber> Ptr;
 
         /**
@@ -71,7 +73,7 @@ namespace rwlibs { namespace simulation {
          * @return the height of the image
          */
         int getHeight() { return _img->getHeight(); }
-
+		
         /**
          * @brief resizes the image that this frameGrabber use. The colorcode will
          * default to the one that FrameGrabber was initialized with.

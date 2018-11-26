@@ -22,18 +22,16 @@
 
 #include <vector>
 
-#include <rw/kinematics/Frame.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/math/InertiaMatrix.hpp>
-#include <rw/math/Transform3D.hpp>
-
-#include <rw/geometry/Geometry.hpp>
-
-#include "DynamicWorkCell.hpp"
 #include "RigidBody.hpp"
+
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace kinematics { class State; } }
 
 namespace rwsim {
 namespace dynamics {
+	class DynamicDevice;
+	class DynamicWorkCell;
+
 	//! @addtogroup drawable
 	//! @{
 
@@ -79,14 +77,30 @@ namespace dynamics {
 		 */
 		static std::vector<RigidBody::Ptr> getRigidBodies(DynamicWorkCell& dwc);
 
-
-		static bool isResting(DynamicWorkCell::Ptr dwc,
+		/**
+		 * @brief Check if the dynamic workcell has reached a steady state where objects are in rest.
+		 * @param dwc [in] the dynamic workcell.
+		 * @param state [in] the current state.
+		 * @param max_linvel [in] (optional) the linear velocity threshold. Default is 0.02 m/s.
+		 * @param max_angvel [in] (optional) the angular velocity threshold. Default is 0.1 rad/s.
+		 * @param max_jointvel [in] (optional) the joint velocity threshold. Default is 0.05 rad/s.
+		 * @return
+		 */
+		static bool isResting(rw::common::Ptr<DynamicWorkCell> dwc,
 		                      const rw::kinematics::State& state,
 		                      double max_linvel = 0.02,
 		                      double max_angvel = 0.1,
 		                      double max_jointvel = 0.05);
 
-        static bool isResting(DynamicDevice::Ptr dev,
+		/**
+		 * @brief Check if a device has reached a steady state where it is in rest.
+		 * @param dev [in] the device.
+		 * @param state [in] the current state.
+		 * @param max_linjointvel [in] (optional) the linear joint velocity threshold. Default is 0.02 m/s.
+		 * @param max_jointvel [in] (optional) the angular joint velocity threshold. Default is 0.05 rad/s.
+		 * @return
+		 */
+        static bool isResting(rw::common::Ptr<DynamicDevice> dev,
                               const rw::kinematics::State& state,
                               double max_linjointvel = 0.02,
                               double max_jointvel = 0.05);

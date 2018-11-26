@@ -17,6 +17,11 @@
 
 #include "IntersectUtil.hpp"
 
+#include "Plane.hpp"
+#include "Line.hpp"
+
+#include <rw/math/Math.hpp>
+
 using namespace rw::geometry;
 using namespace rw::math;
 
@@ -83,10 +88,10 @@ bool IntersectUtil::intersetPtRayPlane(
 	Vector3D<> ab = p2-p1;
 	// project c onto ab, computing parameterizated pos
 	//double t = (p.d() - dot(p.normal() - p1, p1)) / dot(p.normal(),ab);
-	double t = (p.d() - dot(p.normal(), p1)) / dot(p.normal(),ab);
+	double t = (-p.d() - dot(p.normal(), p1)) / dot(p.normal(),ab);
 
 	// if abs(t) is very large then the ray is parallel to plane
-	if(10000000<fabs(t))
+	if(10000000<fabs(t) || Math::isNaN(t))
 		return false;
 	// compute projected position
 	dst = p1 + t*ab;
@@ -147,7 +152,7 @@ bool IntersectUtil::intersetPtLinePlane(
 	Vector3D<> ab = p2-p1;
 	// project c onto ab, computing parameterizated pos
 	//double t = (p.d() - dot(p.normal() - p1, p1)) / dot(p.normal(),ab);
-	double t = (p.d() - dot(p.normal(), p1)) / dot(p.normal(),ab);
+	double t = (-p.d() - dot(p.normal(), p1)) / dot(p.normal(),ab);
 
 	// if abs(t) is very large then the ray is parallel to plane
 	if(10000000<fabs(t))

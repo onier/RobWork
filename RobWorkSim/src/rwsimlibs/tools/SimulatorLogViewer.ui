@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>1264</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="_menuFile">
@@ -29,6 +29,8 @@
     </property>
     <addaction name="_actionOpen"/>
     <addaction name="_actionClose"/>
+    <addaction name="separator"/>
+    <addaction name="_actionCompare"/>
     <addaction name="separator"/>
     <addaction name="_actionExit"/>
    </widget>
@@ -102,6 +104,14 @@
     <string>E</string>
    </property>
   </action>
+  <action name="_actionCompare">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Compare</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>
@@ -155,9 +165,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>_actionCompare</sender>
+   <signal>triggered()</signal>
+   <receiver>SimulatorLogViewer</receiver>
+   <slot>openCompare()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>631</x>
+     <y>299</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>631</x>
+     <y>299</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>closeDWC()</slot>
   <slot>openDWC()</slot>
+  <slot>openCompare()</slot>
  </slots>
 </ui>

@@ -25,12 +25,10 @@
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Transform3D.hpp>
 
-#include <rw/models/WorkCell.hpp>
-
-#include <rw/common/DOMParser.hpp>
-#include <rw/common/DOMElem.hpp>
-
 #include <string>
+
+namespace rw { namespace common { class DOMElem; } }
+namespace rw { namespace models { class WorkCell; } }
 
 namespace rw {
 namespace loaders {
@@ -65,7 +63,7 @@ public:
      * @param filename [in] The file to load
      * @param schemaFileName [in] Name of the schema to use. If empty it will use the schema specified in the XML-file if available.
      */
-	DOMPathLoader(const std::string& filename, rw::models::WorkCell::Ptr workcell = NULL, const std::string& schemaFileName = "");
+	DOMPathLoader(const std::string& filename, rw::common::Ptr<rw::models::WorkCell> workcell = NULL, const std::string& schemaFileName = "");
 
 
     /**
@@ -79,7 +77,7 @@ public:
      * @param instream [in] The input stream to read from
      * @param schemaFileName [in] Name of the schema to use. If empty it will use the schema specified in the XML-file if available.
      */
-	DOMPathLoader(std::istream& instream, rw::models::WorkCell::Ptr workcell = NULL, const std::string& schemaFileName = "");
+	DOMPathLoader(std::istream& instream, rw::common::Ptr<rw::models::WorkCell> workcell = NULL, const std::string& schemaFileName = "");
 
 
     /**
@@ -91,7 +89,7 @@ public:
      *
      * @param element [in] DOMElement representing the path
      */
-    DOMPathLoader(rw::common::DOMElem::Ptr element);
+    DOMPathLoader(rw::common::Ptr<rw::common::DOMElem> element);
 
 
     /**
@@ -181,41 +179,86 @@ public:
      */
 	rw::trajectory::TimedStatePath::Ptr getTimedStatePath();
 public:
+	/**
+	 * @brief Identifier for rw::trajectory::QPath in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idQPath();
 
-    /** @brief Identifier for rw::trajectory::QPath in the XML format  */
-    static const std::string QPathId;
+	/**
+	 * @brief Identifier for rw::trajectory::Vector3DPath in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idV3DPath();
 
-    /** @brief Identifier for rw::trajectory::Vector3DPath in the XML format  */
-    static const std::string V3DPathId;
+	/**
+	 * @brief Identifier for rw::trajectory::Rotation3DPath in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idR3DPath();
 
-    /** @brief Identifier for rw::trajectory::Rotation3DPath in the XML format  */
-    static const std::string R3DPathId;
+	/**
+	 * @brief Identifier for rw::trajectory::Transform3DPath in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idT3DPath();
 
-    /** @brief Identifier for rw::trajectory::Transform3DPath in the XML format  */
-    static const std::string T3DPathId;
+	/**
+	 * @brief Identifier for rw::trajectory::StatePath in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idStatePath();
 
-    /** @brief Identifier for rw::trajectory::StatePath in the XML format  */
-    static const std::string StatePathId;
+	/**
+	 * @brief Identifier for rw::trajectory::TimedQPath in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idTimedQPath();
 
-    /** @brief Identifier for rw::trajectory::TimedQPath in the XML format  */
-    static const std::string TimedQPathId;
+	/**
+	 * @brief Identifier for rw::trajectory::TimedState in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idTimedState();
 
-    /** @brief Identifier for rw::trajectory::TimedState in the XML format  */
-    static const std::string TimedStateId;
+	/**
+	 * @brief Identifier for rw::trajectory::TimedQ in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idTimedQ();
 
-    /** @brief Identifier for rw::trajectory::TimedQ in the XML format  */
-    static const std::string TimedQId;
+	/**
+	 * @brief Identifier for rw::trajectory::TimedStatePath in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idTimedStatePath();
 
-    /** @brief Identifier for rw::trajectory::TimedStatePath in the XML format  */
-    static const std::string TimedStatePathId;
+	/**
+	 * @brief Identifier for time attribute used for rw::trajectory::TimedQPath and rw::trajectory::TimedStatePath in the XML format.
+	 * @return the identifier.
+	 */
+	static const std::string& idTime();
 
-    /** @brief Identifier for time attribute used for rw::trajectory::TimedQPath and rw::trajectory::TimedStatePath in the XML format  */
-    static const std::string TimeId;
+	/**
+	 * @brief Utility class which initializes local static variables.
+	 *
+	 * If the DOMPathLoader is used outside main (as a part of global initialization/destruction), the Initializer
+	 * should be used explicitly to control the static initialization/destruction order.
+	 *
+	 * Notice that the Initializer is automatically defined as a global variable, hence it should not
+	 * be necessary to specify the initializer explicitly if DOMPathLoader is to be used in local static
+	 * initialization/destruction.
+	 */
+	class Initializer {
+	public:
+	    //! @brief Initializes when constructed.
+		Initializer();
+	};
 
 private:
+	static const Initializer initializer;
 
-
-   void readPath(rw::common::DOMElem::Ptr element);
+   void readPath(rw::common::Ptr<rw::common::DOMElem> element);
 
    rw::trajectory::QPath::Ptr _qPath;
    rw::trajectory::Vector3DPath::Ptr _v3dPath;
@@ -226,7 +269,7 @@ private:
    rw::trajectory::TimedStatePath::Ptr _timedStatePath;
 
     Type _type;
-	rw::models::WorkCell::Ptr _workcell;
+    rw::common::Ptr<rw::models::WorkCell> _workcell;
 };
 
 /** @} */

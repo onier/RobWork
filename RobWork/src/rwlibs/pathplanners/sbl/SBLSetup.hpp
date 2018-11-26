@@ -24,11 +24,11 @@
 */
 
 #include "SBLOptions.hpp"
-#include "SBLExpand.hpp"
-#include <rw/pathplanning/PlannerConstraint.hpp>
-#include <rw/models/Device.hpp>
+
+namespace rw { namespace models { class Device; } }
 
 namespace rwlibs { namespace pathplanners {
+class SBLExpand;
 
     /** @addtogroup pathplanners */
     /*@{*/
@@ -58,6 +58,8 @@ namespace rwlibs { namespace pathplanners {
 
            @param constraint [in] Planning constraint.
 
+           @param edgeConstraint [in] Planning constraint for edges.
+
            @param expansion [in] Expansion strategy for insertion of new nodes.
            The nodes returned by the expansion strategy must be collision free
            or empty. If an empty configuration is returned, the planner tries to
@@ -72,7 +74,7 @@ namespace rwlibs { namespace pathplanners {
         SBLSetup make(
 			rw::pathplanning::QConstraint::Ptr constraint,
 			rw::pathplanning::QEdgeConstraintIncremental::Ptr edgeConstraint,
-            SBLExpandPtr expansion,
+            rw::common::Ptr<SBLExpand> expansion,
 			rw::math::QMetric::Ptr metric,
             double connectRadius);
 
@@ -96,6 +98,8 @@ namespace rwlibs { namespace pathplanners {
 
            @param constraint [in] Planning constraint.
 
+           @param edgeConstraint [in] Planning constraint for edges.
+
            @param device [in] Device for which planning is done.
 
            @param expandRadius [in] Node expansion radius.
@@ -107,7 +111,7 @@ namespace rwlibs { namespace pathplanners {
 			rw::pathplanning::QConstraint::Ptr constraint,
 			rw::pathplanning::QEdgeConstraintIncremental::Ptr edgeConstraint,
 //            const rw::pathplanning::PlannerConstraint& constraint,
-			rw::models::Device::Ptr device,
+			rw::common::Ptr<rw::models::Device> device,
             double expandRadius = -1,
             double connectRadius = -1);
 
@@ -115,6 +119,7 @@ namespace rwlibs { namespace pathplanners {
         SBLSetup(const SBLOptions& options) : options(options) {}
 
     public:
+        //! @brief Internal options to use.
         SBLOptions options;
         friend class SBLInternal;
     };

@@ -25,12 +25,9 @@
 
 #include "JointDevice.hpp"
 
-#include <rw/math/Transform3D.hpp>
 #include <vector>
 
 namespace rw { namespace models {
-
-    class Joint;
 
     /** @addtogroup models */
     /*@{*/
@@ -47,6 +44,8 @@ namespace rw { namespace models {
     public:
 		//! @brief smart pointer type to this class
 		typedef rw::common::Ptr<SerialDevice> Ptr;
+		//! @brief smart pointer type to this const class
+		typedef rw::common::Ptr< const SerialDevice > CPtr;
 
         /**
          * @brief Constructor
@@ -93,13 +92,6 @@ namespace rw { namespace models {
     private:
         std::vector<kinematics::Frame*> _kinematicChain;
     };
-
-#ifdef RW_USE_DEPRECATED
-    /**
-     * @brief Definition of rw::common::Ptr to a SerialDevice
-     */
-    typedef rw::common::Ptr<SerialDevice> SerialDevicePtr;
-#endif
 
     /*@}*/
 }} // end namespaces

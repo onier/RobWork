@@ -6,6 +6,10 @@ using namespace rwsim::simulator;
 using namespace rwsim::dynamics;
 using namespace rw::common;
 
+PhysicsEngine::Factory::Factory():
+		ExtensionPoint<Dispatcher>("rwsim.simulator.PhysicsEngine", "Example extension point")
+{
+}
 
 std::vector<std::string> PhysicsEngine::Factory::getEngineIDs(){
     std::vector<std::string> ids;
@@ -33,7 +37,7 @@ bool PhysicsEngine::Factory::hasEngineID(const std::string& engineID){
     return false;
 }
 
-PhysicsEngine::Ptr PhysicsEngine::Factory::makePhysicsEngine(DynamicWorkCell::Ptr dwc)
+PhysicsEngine::Ptr PhysicsEngine::Factory::makePhysicsEngine(rw::common::Ptr<DynamicWorkCell> dwc)
 {
     // select an engine ID
     std::vector<std::string> ids = getEngineIDs();
@@ -54,15 +58,15 @@ PhysicsEngine::Ptr PhysicsEngine::Factory::makePhysicsEngine(const std::string& 
     std::vector<Extension::Ptr> exts = ep.getExtensions();
     BOOST_FOREACH(Extension::Ptr& ext, exts){
         if(ext->getProperties().get("engineID",ext->getName() ) == engineID){
-            PhysicsEngine::Ptr engine =  ext->getObject().cast<PhysicsEngine>();
+            const rw::common::Ptr<const Dispatcher> dispatch = ext->getObject().cast<Dispatcher>();
             // optionally add any properties options...
-            return engine;
+            return dispatch->makePhysicsEngine();
         }
     }
     return NULL;
 }
 
-PhysicsEngine::Ptr PhysicsEngine::Factory::makePhysicsEngine(const std::string& engineID, DynamicWorkCell::Ptr dwc)
+PhysicsEngine::Ptr PhysicsEngine::Factory::makePhysicsEngine(const std::string& engineID, rw::common::Ptr<DynamicWorkCell> dwc)
 {
     if( engineID == "RWPhysics"){
         rwsim::simulator::RWSimulator::Ptr rwphys = ownedPtr( new rwsim::simulator::RWSimulator(dwc) );
@@ -73,7 +77,8 @@ PhysicsEngine::Ptr PhysicsEngine::Factory::makePhysicsEngine(const std::string& 
     std::vector<Extension::Ptr> exts = ep.getExtensions();
     BOOST_FOREACH(Extension::Ptr& ext, exts){
         if(ext->getProperties().get("engineID",ext->getName() ) == engineID){
-            PhysicsEngine::Ptr engine =  ext->getObject().cast<PhysicsEngine>();
+            const rw::common::Ptr<const Dispatcher> dispatch = ext->getObject().cast<Dispatcher>();
+            PhysicsEngine::Ptr engine = dispatch->makePhysicsEngine();
             engine->load(dwc);
             // optionally add any properties options...
             return engine;

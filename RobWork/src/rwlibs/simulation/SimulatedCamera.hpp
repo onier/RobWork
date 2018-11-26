@@ -26,15 +26,16 @@
 #include <rw/common/Ptr.hpp>
 #include <rw/sensor/Camera.hpp>
 #include <rw/sensor/Image.hpp>
-#include <rw/sensor/CameraModel.hpp>
 
 #include <rwlibs/simulation/SimulatedSensor.hpp>
-#include "FrameGrabber.hpp"
 
 #include <string>
-#include <cmath>
+
+namespace rw { namespace sensor { class CameraModel; } }
 
 namespace rwlibs { namespace simulation {
+	class FrameGrabber;
+
     /** @addtogroup simulation */
     /* @{ */
 
@@ -49,15 +50,17 @@ namespace rwlibs { namespace simulation {
     class SimulatedCamera : public SimulatedSensor
     {
     public:
+		//! @brief Smart pointer type for a SimulatedCamera.
         typedef rw::common::Ptr<SimulatedCamera> Ptr;
 
         /**
          * @brief creates a simulated pinhole camera,
          * @param name [in] name of sensor
+         * @param fov [in] field of view for the camera.
          * @param frame [in] frame to which the camera is attached
          * @param frameGrabber [in] the frameGrabber from which this Camera should grab images
          */
-        SimulatedCamera(const std::string& name, double fov, rw::kinematics::Frame* frame, FrameGrabber::Ptr frameGrabber);
+        SimulatedCamera(const std::string& name, double fov, rw::kinematics::Frame* frame, rw::common::Ptr<FrameGrabber> frameGrabber);
 
         /**
          * @brief constructor
@@ -65,7 +68,7 @@ namespace rwlibs { namespace simulation {
          * @param frameGrabber [in] the frameGrabber from which this Camera should grab
          * images.
          */
-        SimulatedCamera(rw::sensor::CameraModel::Ptr model, FrameGrabber::Ptr frameGrabber);
+        SimulatedCamera(rw::common::Ptr<rw::sensor::CameraModel> model, rw::common::Ptr<FrameGrabber> frameGrabber);
 
         /**
          * @brief destructor
@@ -115,12 +118,12 @@ namespace rwlibs { namespace simulation {
         /**
          * @copydoc rw::sensor::Camera::getWidth
          */
-        virtual unsigned int getWidth() const {return _frameGrabber->getWidth();}
+        virtual unsigned int getWidth() const;
 
         /**
          * @copydoc rw::sensor::Camera::getHeight
          */
-        virtual unsigned int getHeight() const {return _frameGrabber->getHeight();}
+        virtual unsigned int getHeight() const;
 
         /**
          * @copydoc SimulatedSensor::update
@@ -136,6 +139,11 @@ namespace rwlibs { namespace simulation {
          * @copydoc SimulatedSensor::getSensor
          */
         rw::sensor::Sensor::Ptr getSensor(){ return _csensor; };
+
+        /**
+         * @brief Get the camera sensor.
+         * @return the sensor.
+         */
         rw::sensor::Camera::Ptr getCameraSensor(){ return _csensor; };
 
     private:
@@ -144,7 +152,7 @@ namespace rwlibs { namespace simulation {
     private:
         double _frameRate;
         double _dtSum;
-        FrameGrabber::Ptr _frameGrabber;
+        rw::common::Ptr<FrameGrabber> _frameGrabber;
         bool _isAcquired;
         bool _started;
         bool _initialized;

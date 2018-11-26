@@ -17,17 +17,14 @@
 
 #include "../TestSuiteConfig.hpp"
 #include <rw/math/RPY.hpp>
-#include <rw/math/Vector3D.cpp>
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Constants.hpp>
-
-#include <iostream>
 
 using namespace rw::math;
 
 BOOST_AUTO_TEST_CASE(RPYTest)
 {
-    BOOST_MESSAGE("- Testing RPY");
+    BOOST_TEST_MESSAGE("- Testing RPY");
     //Test default constructor
     RPY<> rpy0;
     BOOST_CHECK(rpy0(0) == 0.);
@@ -66,9 +63,13 @@ BOOST_AUTO_TEST_CASE(RPYTest)
     rpy1(0) = -2.5;
     rpy1(1) = 0.4;
     rpy1(2) = 4.2;
-    RPY<float> rpyf = cast<float>(rpy1);
-    for (size_t i = 0; i<3; i++)
-        BOOST_CHECK(rpyf(i) == (float)rpy1(i));
+	RPY<float> rpyf;
+	rpyf = cast<float>(rpy1);
+	for (size_t i = 0; i<3; i++)
+		BOOST_CHECK(rpyf(i) == (float)rpy1(i));
+	rpyf = rw::math::cast<float>(rpy1); // qualified lookup
+	for (size_t i = 0; i<3; i++)
+		BOOST_CHECK(rpyf(i) == (float)rpy1(i));
 
     /* Test comparison operators operator== and operator!= */
     const RPY<double> comp1(1.1, -2.2, 3.3);

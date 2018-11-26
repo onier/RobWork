@@ -18,16 +18,10 @@
 #ifndef RW_PROXIMITY_OBVTREECOLLIDERDFS_HPP_
 #define RW_PROXIMITY_OBVTREECOLLIDERDFS_HPP_
 
-#include <rw/geometry/OBB.hpp>
-#include <rw/geometry/OBBCollider.hpp>
-#include <rw/geometry/TriTriIntersectDeviller.hpp>
-#include <rw/proximity/ProximityStrategyData.hpp>
-
-#include <boost/foreach.hpp>
-
 #include "BVTree.hpp"
-#include "BinaryBVTree.hpp"
 #include "BVTreeCollider.hpp"
+
+#include <rw/math/Transform3D.hpp>
 
 namespace rw {
 namespace proximity {
@@ -166,7 +160,7 @@ namespace proximity {
         typedef typename Traits<BVTREE>::BVType BVType;
         typedef typename Traits<BVTREE>::PRIMType PRIMType;
         typedef typename Traits<BVType>::value_type value_type;
-        typedef typename Traits<BVType>::value_type T;
+        // typedef typename Traits<BVType>::value_type T;
 
         using namespace rw::math;
         using namespace rw::geometry;
@@ -306,7 +300,7 @@ namespace proximity {
         //          << " incollision:" << incollision
         //          << " _nrOfPrimTests: " << _nrOfPrimTests << std::endl;
         return incollision;
-    };
+    }
 
 }
 }

@@ -21,6 +21,7 @@
 #include <rw/common/ThreadPool.hpp>
 #include <rw/common/ThreadTask.hpp>
 
+#include <RobWorkStudioConfig.hpp>
 #include <rws/RobWorkStudio.hpp>
 #include <rws/propertyview/PropertyViewEditor.hpp>
 
@@ -31,6 +32,8 @@
 #include <rwsimlibs/gui/log/MathematicaPlotWidget.hpp>
 
 #include "ui_EngineTestPlugin.h"
+
+#include <QListWidgetItem>
 
 using namespace rw::common;
 using namespace rw::math;
@@ -97,7 +100,11 @@ EngineTestPlugin::EngineTestPlugin():
     header.push_back("Name");
     header.push_back("View");
     _ui->results->setHorizontalHeaderLabels(header);
+#if RWS_USE_QT5
+	_ui->results->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
 	_ui->results->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
 	_ui->results->horizontalHeader()->setStretchLastSection(true);
 
     // Test
@@ -264,6 +271,8 @@ void EngineTestPlugin::testChanged(QListWidgetItem* current) {
 	}
 	const std::string testName = current->text().toStdString();
 	const EngineTest::Ptr test = EngineTest::Factory::getTest(testName);
+	if (test.isNull())
+		RW_THROW("Could not get EngineTest with name " << testName << "!");
 	for (int i = 0; i < _ui->testList->count(); i++) {
 		QListWidgetItem* const item = _ui->testList->item(i);
 		item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
@@ -440,7 +449,14 @@ bool EngineTestPlugin::event(QEvent *event) {
     		}
     	}
     	if (simEvent->done) {
-            getRobWorkStudio()->setTimedStatePath(_testHandle->getTimedStatePath());
+    		const DynamicWorkCell::Ptr dwc = _testHandle->getDynamicWorkCell();
+    		getRobWorkStudio()->getPropertyMap().add<DynamicWorkCell::Ptr>(
+    				"DynamicWorkcell",
+					"A workcell with dynamic description",
+					dwc );
+    		getRobWorkStudio()->genericEvent().fire("DynamicWorkCellLoaded");
+    		getRobWorkStudio()->setWorkcell( dwc->getWorkcell() );
+    		getRobWorkStudio()->setTimedStatePath(_testHandle->getTimedStatePath());
     		_ui->run->setText("Run");
     		_ui->run->setEnabled(true);
     		bool verbose = false;
@@ -452,10 +468,13 @@ bool EngineTestPlugin::event(QEvent *event) {
     			_ui->runVerbose->setEnabled(true);
 
     		const std::vector<EngineTest::Result>& results = _testHandle->getResults();
-    	    _ui->results->setRowCount(results.size());
-    	    for (std::size_t i = 0; i < results.size(); i++) {
-    			_ui->results->setItem(i,0,new QTableWidgetItem(QString::fromStdString(results[i].name)));
-    			_ui->results->item(i,0)->setData(Qt::ToolTipRole,QString::fromStdString(results[i].description));
+    		const int nrOfEntries = static_cast<int>(results.size());
+    		if (results.size() > static_cast<std::size_t>(nrOfEntries))
+    			RW_THROW("There are too many simulation results for the plugin to handle!");
+    	    _ui->results->setRowCount(nrOfEntries);
+    	    for (int i = 0; i < nrOfEntries; i++) {
+    			_ui->results->setItem(i,0,new QTableWidgetItem(QString::fromStdString(results[static_cast<std::size_t>(i)].name)));
+    			_ui->results->item(i,0)->setData(Qt::ToolTipRole,QString::fromStdString(results[static_cast<std::size_t>(i)].description));
     	    	QPushButton* const button = new QPushButton("Show");
     	        connect(button, SIGNAL(pressed()), this, SLOT(resultShow()) );
     	    	_ui->results->setCellWidget(i,1,button);
@@ -530,5 +549,6 @@ void EngineTestPlugin::genericAnyEventListener(const std::string& event, boost::
 }
 
 #if !RWS_USE_QT5
-Q_EXPORT_PLUGIN(EngineTestPlugin);
+#include <QtCore/qplugin.h>
+Q_EXPORT_PLUGIN(EngineTestPlugin)
 #endif

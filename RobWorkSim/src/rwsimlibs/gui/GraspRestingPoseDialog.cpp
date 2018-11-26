@@ -2,12 +2,23 @@
 
 #include <boost/foreach.hpp>
 
-#include <rw/rw.hpp>
+#include <rw/loaders/path/PathLoader.hpp>
+#include <rw/loaders/dom/DOMPropertyMapLoader.hpp>
+#include <rw/loaders/dom/DOMPropertyMapSaver.hpp>
+#include <rw/graspplanning/CMDistCCPMeasure3D.hpp>
+#include <rw/graspplanning/WrenchMeasure3D.hpp>
+#include <rw/proximity/CollisionDetector.hpp>
 
+#include <rwsim/control/PDController.hpp>
+#include <rwsim/dynamics/DynamicWorkCell.hpp>
 #include <rwsim/dynamics/RigidBody.hpp>
-#include <rwsim/simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
+#include <rwsim/simulator/PhysicsEngine.hpp>
 #include <rwsim/loaders/ScapePoseFormat.hpp>
+#include <rwsim/sensor/BodyContactSensor.hpp>
 #include <rwsim/sensor/TactileArraySensor.hpp>
+#include <rwsim/simulator/DynamicSimulator.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
 
 #include <boost/filesystem/operations.hpp>
 #include <iostream>
@@ -15,6 +26,8 @@
 #include <string>
 
 #include "ui_GraspRestingPoseDialog.h"
+
+#include <QTimer>
 
 using namespace rwsim::dynamics;
 using namespace rwsim::simulator;
@@ -335,7 +348,7 @@ GraspRestingPoseDialog::GraspRestingPoseDialog(const rw::kinematics::State& stat
 
     XMLPropertySaver::save(map, "GraspTableConfig.xml");
 */
-    map = XMLPropertyLoader::load( "GraspTableConfig.xml" );
+    map = DOMPropertyMapLoader::load( "GraspTableConfig.xml" );
     _ui->_lowRollSpin->setValue(map.get<int>("R_low",-180));
     _ui->_highRollSpin->setValue(map.get<int>("R_high",180));
     _ui->_lowPitchSpin->setValue(map.get<int>("P_low",-180));
@@ -399,21 +412,21 @@ void GraspRestingPoseDialog::initializeStart(){
 
     std::ofstream file( filename.str().c_str() );
     if(!file.is_open())
-        RW_THROW("CANNOT OPEN FILE! "<< filename);
+        RW_THROW("CANNOT OPEN FILE! " << filename.str());
 
     pmap_filename << pathPre << "/progress.xml";
 
 
     PropertyMap pmap;
     try {
-    	pmap = XMLPropertyLoader::load( pmap_filename.str() );
+    	pmap = DOMPropertyMapLoader::load( pmap_filename.str() );
     } catch(...){
     	std::cout << "File not found!" << std::endl;
     }
     int progressid = pmap.get<int>("PROGRESS_COUNT",0);
     progressid++;
     pmap.set<int>("PROGRESS_COUNT",progressid);
-    XMLPropertySaver::save( pmap, pmap_filename.str() );
+    DOMPropertyMapSaver::save( pmap, pmap_filename.str() );
 
     std::stringstream sstemp;
     sstemp << progressid;
@@ -539,7 +552,7 @@ void GraspRestingPoseDialog::initializeStart(){
         state = _defstate;
         // create simulator
         RW_DEBUGS("-- sim nr " << i);
-        PhysicsEngine::Ptr pengine = PhysicsEngineFactory::makePhysicsEngine("ODE",_dwc);
+        PhysicsEngine::Ptr pengine = PhysicsEngine::Factory::makePhysicsEngine("ODE",_dwc);
         DynamicSimulator::Ptr sim = ownedPtr(new DynamicSimulator(_dwc, pengine));
         RW_DEBUGS("-- Initialize simulator " << i);
         sim->init(state);

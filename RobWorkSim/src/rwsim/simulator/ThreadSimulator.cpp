@@ -11,9 +11,6 @@
 #include <boost/thread/mutex.hpp>
 #include <boost/bind.hpp>
 
-#include <rw/kinematics/State.hpp>
-
-#include <rw/common/macros.hpp>
 #include <rw/common/TimerUtil.hpp>
 
 using namespace rw::common;
@@ -69,7 +66,7 @@ ThreadSimulator::ThreadSimulator(rwlibs::simulation::Simulator::Ptr simulator):
 ThreadSimulator::~ThreadSimulator(){
     if(isRunning())
         stop();
-};
+}
 
 /*
 void ThreadSimulator::setPeriodMs(long period){

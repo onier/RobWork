@@ -18,18 +18,12 @@
 #ifndef RWSIM_DYNAMICS_KINEMATICBODY_HPP_
 #define RWSIM_DYNAMICS_KINEMATICBODY_HPP_
 
-#include <rw/models/Joint.hpp>
 #include <rw/kinematics/Frame.hpp>
-#include <rw/math/Q.hpp>
-#include <rw/math/Jacobian.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/models/Device.hpp>
 
 #include <rw/kinematics/Kinematics.hpp>
 
 #include <rw/math/VelocityScrew6D.hpp>
 #include <rw/math/Vector3D.hpp>
-#include <rw/math/Rotation3D.hpp>
 
 #include "Body.hpp"
 
@@ -50,15 +44,22 @@ namespace dynamics {
     class KinematicBody : public Body
     {
     public:
+    	//! @brief Smart pointer type for a KinematicBody.
         typedef rw::common::Ptr<KinematicBody> Ptr;
 
+        //! @copydoc Body::Body()
         KinematicBody(const BodyInfo& info, rw::models::Object::Ptr obj);
 
+        //! @brief Destructor.
     	virtual ~KinematicBody();
 
     public: // functions that need to be implemented by specialized class
 
-    	rw::kinematics::MovableFrame* getMovableFrame() const { return _base; };
+    	/**
+    	 * @brief Get the body frame as a movable frme.
+    	 * @return a pointer to a movable frame.
+    	 */
+    	rw::kinematics::MovableFrame* getMovableFrame() const { return _base; }
 
         /**
          * @copydoc Body::getPointVelW
@@ -143,6 +144,11 @@ namespace dynamics {
             _kstate.get(state).linvel = vel;
         }
 
+        /**
+         * @brief Set the linear velocity described in world frame.
+         * @param vel [in] the linear velocity.
+         * @param state the state giving the current pose of the body.
+         */
         void setLinVelW(const rw::math::Vector3D<>& vel, rw::kinematics::State& state) {
             setLinVel( rw::math::inverse(rw::kinematics::Kinematics::worldTframe(getParentFrame(state), state)).R() * vel, state);
         }
@@ -154,13 +160,21 @@ namespace dynamics {
             _kstate.get(state).angvel = vel;
         }
 
+        /**
+         * @brief Set the angular velocity described in world frame.
+         * @param vel [in] the angular velocity.
+         * @param state the state giving the current pose of the body.
+         */
         void setAngVelW(const rw::math::Vector3D<>& vel, rw::kinematics::State& state) {
             setAngVel( rw::math::inverse(rw::kinematics::Kinematics::worldTframe(getParentFrame(state), state)).R() * vel, state);
         }
 
     protected:
+        //! @brief State data for a kinematic body.
         struct KinematicBodyState {
+        	//! @brief The linear velocity of the body.
             rw::math::Vector3D<> linvel;
+        	//! @brief The angular velocity of the body.
             rw::math::Vector3D<> angvel;
         };
 

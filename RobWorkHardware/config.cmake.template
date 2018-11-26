@@ -9,8 +9,8 @@
 #SET(BUILD_camera ON)
 #SET(BUILD_CAN OFF)
 #SET(BUILD_CRSA465 OFF)
-#SET(BUILD_DOCKWELDER OFF)
-#SET(BUILD_fanucdevice OFF)
+#SET(BUILD_dockwelder OFF)
+#SET(BUILD_fanucdriver OFF)
 #SET(BUILD_katana ON)
 #SET(BUILD_motomanIA20 ON)
 #SET(BUILD_netft ON)
@@ -28,7 +28,7 @@
 #SET(BUILD_robotiq ON)
 
 # set to ON to build shared libraries
-SET(PROJECT_SHARED_LIBS ON CACHE BOOL "" FORCE)
+OPTION(PROJECT_SHARED_LIBS "Set to ON to build shared libraries." ON)
 
 # we need the location of RobWork
 SET(RW_ROOT ${ROOT}/../RobWork/)

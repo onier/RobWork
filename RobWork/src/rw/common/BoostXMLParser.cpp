@@ -17,13 +17,14 @@
 
 #include "BoostXMLParser.hpp"
 
-
-#include <sstream>
+#include <boost/property_tree/xml_parser.hpp>
+#include <boost/version.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/tokenizer.hpp>
 
-#include <rw/common/IOUtil.hpp>
 #include <rw/common/StringUtil.hpp>
+
+#include <sstream>
 
 using namespace rw;
 using namespace rw::common;
@@ -34,11 +35,18 @@ BoostXMLParser::BoostInitializer::BoostInitializer() {
 	static bool done = false;
 	if (!done) {
 		done = true;
-		boost::property_tree::xml_parser::xmlattr<char>();
-		boost::property_tree::xml_parser::xmltext<char>();
-		boost::property_tree::xml_parser::xmlcomment<char>();
-		boost::property_tree::xml_parser::xmldecl<char>();
-	}
+#if (BOOST_VERSION<105600)
+                boost::property_tree::xml_parser::xmlattr<char>();
+                boost::property_tree::xml_parser::xmltext<char>();
+                boost::property_tree::xml_parser::xmlcomment<char>();
+                boost::property_tree::xml_parser::xmldecl<char>();
+#else
+                boost::property_tree::xml_parser::xmlattr<std::string>();
+                boost::property_tree::xml_parser::xmltext<std::string>();
+                boost::property_tree::xml_parser::xmlcomment<std::string>();
+                boost::property_tree::xml_parser::xmldecl<std::string>();
+#endif
+        }
 }
 
 const BoostXMLParser::BoostInitializer BoostXMLParser::initializer;
@@ -80,8 +88,12 @@ void BoostXMLParser::load(std::istream& input){
 
 void BoostXMLParser::save(const std::string& filename){
     try {
+#if (BOOST_VERSION<105600)
     	boost::property_tree::xml_writer_settings<char> settings(' ', 1);
-    	write_xml(filename, *_tree, std::locale(), settings);
+#else
+        boost::property_tree::xml_writer_settings<std::string> settings(' ', 1);
+#endif
+       write_xml(filename, *_tree, std::locale(), settings);
     } catch (const boost::property_tree::ptree_error& e) {
         // Convert from parse errors to RobWork errors.
         RW_THROW(e.what());
@@ -90,7 +102,11 @@ void BoostXMLParser::save(const std::string& filename){
 
 void BoostXMLParser::save(std::ostream& output){
     try {
+#if (BOOST_VERSION<105600)
     	boost::property_tree::xml_writer_settings<char> settings(' ', 1);
+#else
+    	boost::property_tree::xml_writer_settings<std::string> settings(' ', 1);
+#endif
         write_xml(output, *_tree, settings);
     } catch (const boost::property_tree::ptree_error& e) {
         // Convert from parse errors to RobWork errors.
@@ -98,6 +114,43 @@ void BoostXMLParser::save(std::ostream& output){
     }
 }
 
+class BoostDOMElem::ElemIterImpl: public DOMElem::ItImpl {
+public:
+	boost::property_tree::ptree::iterator _begin,_end;
+	rw::common::Ptr< boost::property_tree::ptree > _parent,_root;
+	BoostXMLParser *_parser;
+
+	ElemIterImpl(boost::property_tree::ptree::iterator begin,
+			boost::property_tree::ptree::iterator end,
+			rw::common::Ptr< boost::property_tree::ptree > parent,
+			rw::common::Ptr< boost::property_tree::ptree > root,
+			BoostXMLParser *parser):
+				_begin(begin),_end(end),_parent(parent),_root(root),_parser(parser)
+	{
+		while(_begin!=_end && _begin->first=="<xmlattr>")
+			_begin++;
+	}
+
+	ItImpl* clone(){
+		return new ElemIterImpl(_begin, _end, _parent, _root,_parser);
+	}
+
+	void increment(){
+		_begin++;
+		while(_begin!=_end && _begin->first=="<xmlattr>")
+			_begin++;
+	}
+
+	//void add(int right){ _begin+=right; }
+
+	DOMElem::Ptr getElem(){
+		return rw::common::ownedPtr( new BoostDOMElem( _begin->first, &(_begin->second), _parent, _root, _parser) );
+	}
+
+	bool equal(ItImpl* iter) const{
+		return _begin == ((ElemIterImpl*)iter)->_begin;
+	}
+};
 
 std::vector<std::string> BoostDOMElem::getValueAsStringList(char stringseperator) const {
 	const std::string value = _node->get_value<std::string>();
@@ -272,4 +325,3 @@ DOMElem::Iterator BoostDOMElem::end(){
 bool BoostDOMElem::hasChildren() const{
 	return !_node->empty();
 }
-

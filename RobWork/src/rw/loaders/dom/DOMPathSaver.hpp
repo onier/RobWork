@@ -18,18 +18,10 @@
 #ifndef RW_LOADERS_DOMPATHSAVER_HPP
 #define RW_LOADERS_DOMPATHSAVER_HPP
 
-
-#include <rw/loaders/dom/DOMBasisTypes.hpp>
-
+#include <rw/common/DOMElem.hpp>
 
 #include <rw/trajectory/Path.hpp>
 #include <rw/trajectory/Timed.hpp>
-
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMElement.hpp>
-#include <xercesc/util/OutOfMemoryException.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
-
 
 #include <string>
 
@@ -219,7 +211,25 @@ public:
      */
     static rw::common::DOMElem::Ptr createQPath(const rw::trajectory::QPath &path, rw::common::DOMElem::Ptr doc);
 
+	/**
+	 * @brief Utility class which initializes local static variables.
+	 *
+	 * If the DOMPathSaver is used outside main (as a part of global initialization/destruction), the Initializer
+	 * should be used explicitly to control the static initialization/destruction order.
+	 *
+	 * Notice that the Initializer is automatically defined as a global variable, hence it should not
+	 * be necessary to specify the initializer explicitly if DOMPathSaver is to be used in local static
+	 * initialization/destruction.
+	 */
+	class Initializer {
+	public:
+	    //! @brief Initializes when constructed.
+		Initializer();
+	};
+
 private:
+	static const Initializer initializer;
+
     DOMPathSaver() {};
 };
 

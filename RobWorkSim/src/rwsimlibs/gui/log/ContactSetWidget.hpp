@@ -25,13 +25,16 @@
  */
 
 #include "SimulatorLogEntryWidget.hpp"
-#include <QItemSelection>
+
+#include <rw/math/Vector3D.hpp>
 
 namespace rwsim { namespace contacts { class Contact; } }
 namespace rwsim { namespace log { class LogContactSet; } }
 namespace rwsim { namespace log { class LogPositions; } }
 
 namespace Ui { class ContactSetWidget; }
+
+class QItemSelection;
 
 namespace rwsimlibs {
 namespace gui {

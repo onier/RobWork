@@ -14,21 +14,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ********************************************************************************/
- 
- 
- 
+
 #include "StablePose1DModel.hpp"
 
-#include <cmath>
-#include <algorithm>
+#include <rw/geometry/Plane.hpp>
+#include <rw/math/Math.hpp>
+
 #include <boost/foreach.hpp>
 
-#include "PlaneModel.hpp"
-
-
-
 using namespace std;
-using namespace boost;
 using namespace rw::math;
 using namespace rw::geometry;
 using namespace rwlibs::algorithms;
@@ -70,7 +64,7 @@ bool StablePose1DModel::invalid() const
 double StablePose1DModel::refit(const std::vector<rw::math::Rotation3D<> >& samples)
 {
 	_data = samples;
-	int n = _data.size();
+	const std::size_t n = _data.size();
 
 	// find x, y, z versor positions on the sphere
 	vector<Vector3D<> > x_points, y_points, z_points;
@@ -122,11 +116,11 @@ double StablePose1DModel::refit(const std::vector<rw::math::Rotation3D<> >& samp
 		BOOST_FOREACH (const Vector3D<>& p, x_points) {
 			c += p;
 		}
-		c /= x_points.size();
+		c /= static_cast<double>(x_points.size());
 		
 		_dx = dot(c, _normal);
 	} else {
-		_dx = x_plane.d();
+		_dx = -x_plane.d();
 	}
 	
 	if (best_plane != &y_plane) {
@@ -134,11 +128,11 @@ double StablePose1DModel::refit(const std::vector<rw::math::Rotation3D<> >& samp
 		BOOST_FOREACH (const Vector3D<>& p, y_points) {
 			c += p;
 		}
-		c /= y_points.size();
+		c /= static_cast<double>(y_points.size());
 		
 		_dy = dot(c, _normal);
 	} else {
-		_dy = y_plane.d();
+		_dy = -y_plane.d();
 	}
 	
 	if (best_plane != &z_plane) {
@@ -146,11 +140,11 @@ double StablePose1DModel::refit(const std::vector<rw::math::Rotation3D<> >& samp
 		BOOST_FOREACH (const Vector3D<>& p, z_points) {
 			c += p;
 		}
-		c /= z_points.size();
+		c /= static_cast<double>(z_points.size());
 		
 		_dz = dot(c, _normal);
 	} else {
-		_dz = z_plane.d();
+		_dz = -z_plane.d();
 	}
 	
 	// calculate fitting error
@@ -160,7 +154,7 @@ double StablePose1DModel::refit(const std::vector<rw::math::Rotation3D<> >& samp
 		error += sample_error * sample_error;
 	}
 
-	error /= (n > 0 ? n : 1);
+	error /= static_cast<double>(n > 0 ? n : 1);
 	setQuality(error);
 	
 	return error;

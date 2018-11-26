@@ -21,30 +21,21 @@
 
 #define QT_NO_EMIT
 
-#include <map>
-#include <fstream>
-
-
 #include <QObject>
-#include <QtGui>
-#include <QTimer>
-#include <QComboBox>
-#include <QCheckBox>
 
-
-#include <rw/math/Vector3D.hpp>
-#include <rw/models/Device.hpp>
-#include <rw/models/WorkCell.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/kinematics/MovableFrame.hpp>
 #include <rw/trajectory/Path.hpp>
 
-#include <QTextEdit>
-
 #include <rws/RobWorkStudioPlugin.hpp>
+
+namespace rw { namespace models { class Device; } }
+namespace rw { namespace models { class WorkCell; } }
+
+class QComboBox;
+class QCheckBox;
+
 namespace rws {
 
-
+//! @brief Planning plugin for basic pathplanning.
 class Planning: public RobWorkStudioPlugin {
 Q_OBJECT
 #ifndef RWS_USE_STATIC_LINK_PLUGINS
@@ -54,10 +45,16 @@ Q_PLUGIN_METADATA(IID "dk.sdu.mip.Robwork.RobWorkStudioPlugin/0.1" FILE "plugin.
 #endif
 #endif
 public:
+	//! @brief Constructor.
     Planning();
 
+    //! @brief Destructor.
     virtual ~Planning();
+
+    //! @copydoc RobWorkStudioPlugin::open
     virtual void open(rw::models::WorkCell* workcell);
+
+    //! @copydoc RobWorkStudioPlugin::close
     virtual void close();
 
 private slots:
@@ -75,8 +72,8 @@ private slots:
 
 private:
     rw::models::WorkCell* _workcell;
-	rw::models::Device::Ptr _device;
-    std::auto_ptr<rw::models::Device> _compositeDevice;
+	rw::common::Ptr<rw::models::Device> _device;
+	rw::common::Ptr<rw::models::Device> _compositeDevice;
 
     QComboBox* _cmbDevices;
     QCheckBox* _planAllDev;
@@ -90,7 +87,7 @@ private:
 
     rw::trajectory::QPath _path;
 
-	rw::models::Device::Ptr getDevice();
+    rw::common::Ptr<rw::models::Device> getDevice();
 
     void setAsTimedStatePath();
 

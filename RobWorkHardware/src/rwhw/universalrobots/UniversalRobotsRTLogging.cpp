@@ -1,7 +1,22 @@
-/* */
+/********************************************************************************
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ ********************************************************************************/
+
 #include "UniversalRobotsRTLogging.hpp"
 #include "URCommon.hpp"
-
 
 using namespace rwhw;
 using namespace rw::math;
@@ -9,11 +24,13 @@ using namespace rw::common;
 
 UniversalRobotsRTLogging::UniversalRobotsRTLogging():
 	_socket(NULL),
-   _thread(NULL),
+   	_thread(NULL),
 	_connected(false),
-	_hasData(false)
+	_hasData(false),
+	_lostConnection(false),
+	_lastPackageTime(0),
+	_stop(false)
 {
-
 }
 
 UniversalRobotsRTLogging::~UniversalRobotsRTLogging() {
@@ -49,7 +66,7 @@ void UniversalRobotsRTLogging::run() {
 		if (readRTInterfacePacket())
 			_hasData = true;
 
-		// TODO: check when last package was recieved. If this is more than 100 miliseconds then
+		// TODO: check when last package was received. If this is more than 100 milliseconds then
 		// something bad probably happened
 		if(_connected){
 			long time = TimerUtil::currentTimeMs();
@@ -85,8 +102,16 @@ void UniversalRobotsRTLogging::connect(const std::string& host, unsigned int por
 
 void UniversalRobotsRTLogging::disconnect() {
 	if(_socket != NULL) {
-		_socket->shutdown(boost::asio::socket_base::shutdown_both);
-		_socket->close();
+		try {
+			_socket->shutdown(boost::asio::socket_base::shutdown_both);
+			_socket->close();
+		}
+		catch (const boost::system::system_error& exp) {
+			RW_WARN("Boost System Error exception: " << exp.what());
+		} 
+		catch (const std::exception& exp) {
+			RW_WARN("Exception trying to shutdown socket " << exp.what());
+		}
 		delete _socket;
 		_connected = false;
 	   _socket = NULL;
@@ -140,7 +165,6 @@ bool UniversalRobotsRTLogging::readRTInterfacePacket() {
     Q m_target = URCommon::getQ(_socket, 6, offset);
 
     Q q_actual = URCommon::getQ(_socket, 6, offset);
-   // std::cout<<"q = "<<q_actual<<std::endl;
     Q dq_actual = URCommon::getQ(_socket, 6, offset);
     Q i_actual = URCommon::getQ(_socket, 6, offset);
 
@@ -179,7 +203,7 @@ bool UniversalRobotsRTLogging::readRTInterfacePacket() {
 		_data.tcpForce = tcp_force;
 		_data.toolPose = tool_pose;
 		_data.tcpSpeed = tcp_speed;
-		_data.digIn = digin;
+		_data.digIn = static_cast<int64_t>(digin);
     }
 
     _lastPackageTime = TimerUtil::currentTimeMs();

@@ -172,6 +172,11 @@ public:
            RW_THROW("Unable to initialize Xerces used for parsing XML-files. Error Msg: "<<XMLStr(e.getMessage()).str());
         }
     }
+
+    //! @brief Terminate Xerces when destructed.
+    ~XercesInitializer() {
+    	xercesc::XMLPlatformUtils::Terminate();
+    }
 };
 
 

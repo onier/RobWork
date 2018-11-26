@@ -24,13 +24,10 @@
  * @copydoc rw::sensor::Image
  */
 
-#include <utility>
 #include <string>
-#include <vector>
 #include <rw/common/Ptr.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
-#include <boost/mpl/comparison.hpp>
 #include <rw/common/types.hpp>
 #include <rw/common/macros.hpp>
 
@@ -607,9 +604,6 @@ protected:
 
 };
 
-#ifdef RW_USE_DEPRECATED
-typedef rw::common::Ptr<Image> ImagePtr;
-#endif
 /* @} */
 }
 } // end namespaces

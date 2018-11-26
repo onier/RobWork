@@ -23,7 +23,6 @@
  * @file State.hpp
  */
 
-#include <boost/shared_ptr.hpp>
 #include <vector>
 
 #include "QState.hpp"
@@ -37,7 +36,7 @@
 namespace rw { namespace kinematics {
 
     class Frame;
-    class StateSetup;
+    //class StateSetup;
 	class StateStructure;
 
     /** @addtogroup kinematics */
@@ -67,6 +66,7 @@ namespace rw { namespace kinematics {
     class State: public rw::common::Serializable
     {
     public:
+    	//! @brief Smart pointer type to State.
     	typedef rw::common::Ptr<State> Ptr;
         //! Value type.
         typedef double value_type;
@@ -195,7 +195,7 @@ namespace rw { namespace kinematics {
 
         /**
          * @brief performs a deep copy of \b src into this state.
-         * @param state [in] the state that is to be cloned
+         * @param src [in] the state that is to be cloned
          */
         void clone( const State& src );
 
@@ -272,15 +272,19 @@ namespace rw { namespace kinematics {
          */
 		rw::common::Ptr<StateStructure> getStateStructure() const;
 
-		/**
-		 * @brief
-		 * @param obj
-		 */
 		//void add(Stateless& obj);
 
+		//! @copydoc rw::common::Serializable::read
         void read(class rw::common::InputArchive& iarchive, const std::string& id);
-        void write(class rw::common::OutputArchive& iarchive, const std::string& id) const;
 
+		//! @copydoc rw::common::Serializable::write
+        void write(class rw::common::OutputArchive& oarchive, const std::string& id) const;
+
+        /**
+         * @brief Get default.
+         * @param data [in] the state data.
+         * @return default state.
+         */
         static const State& getDefault( StateData* data );
 
     private:

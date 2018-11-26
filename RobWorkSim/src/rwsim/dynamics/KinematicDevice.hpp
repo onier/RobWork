@@ -19,10 +19,10 @@
 #define RWSIM_DYNAMICS_KINEMATICDEVICE_HPP_
 
 #include <rw/models/JointDevice.hpp>
-#include <rw/models/Object.hpp>
 
 #include "DynamicDevice.hpp"
-#include "KinematicBody.hpp"
+
+namespace rw { namespace models { class Object; } }
 
 namespace rwsim {
 namespace dynamics {
@@ -42,8 +42,14 @@ namespace dynamics {
 	 */
 	class KinematicDevice: public DynamicDevice {
 	public:
+		/**
+		 * @brief Construct new kinematic device.
+		 * @param base [in] base of the device.
+		 * @param objects [in] vector of links. Each linksis given as the dynamic body parameters and the object geometry.
+		 * @param dev [in] the kinematic model.
+		 */
 		KinematicDevice(dynamics::Body::Ptr base,
-	                    const std::vector<std::pair<BodyInfo,rw::models::Object::Ptr> >& objects,
+	                    const std::vector<std::pair<BodyInfo,rw::common::Ptr<rw::models::Object> > >& objects,
 						rw::models::JointDevice::Ptr dev);
 
 		//! @brief destructor
@@ -70,13 +76,36 @@ namespace dynamics {
 		const std::vector<Body::Ptr>& getLinks(){ return _links; }
 
 		// parameters for velocity profile
+		/**
+		 * @brief Set maximum acceleration for the joints.
+		 * @param acc [in] the maximum accelerations.
+		 */
 		void setMaxAcc(const rw::math::Q& acc);
+
+		/**
+		 * @brief Get the maximum joint accelerations.
+		 * @return the maximum accelerations.
+		 */
 		rw::math::Q getMaxAcc();
 
+		/**
+		 * @brief Set the maximum joint velocities.
+		 * @param vel [in] the maximum velocities.
+		 */
 		void setMaxVel(const rw::math::Q& vel);
+
+		/**
+		 * @brief Get the maximum joint velocities.
+		 * @return the maximum velocities.
+		 */
 		rw::math::Q getMaxVel();
 
+		/**
+		 * @brief Get the kinematic model.
+		 * @return the kinematic model of the device.
+		 */
 		rw::models::JointDevice::Ptr getJointDevice(){ return _jdev; }
+
 	private:
 		std::vector<Body::Ptr> _links;
 		rw::math::Q _maxVel, _maxAcc;

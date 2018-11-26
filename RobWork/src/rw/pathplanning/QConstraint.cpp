@@ -17,10 +17,14 @@
 
 
 #include "QConstraint.hpp"
+#include "QNormalizer.hpp"
 #include "StateConstraint.hpp"
 
 #include <rw/models/Models.hpp>
+#include <rw/models/WorkCell.hpp>
 #include <rw/common/macros.hpp>
+#include <rw/kinematics/State.hpp>
+#include <rw/proximity/CollisionDetector.hpp>
 #include <boost/foreach.hpp>
 
 using namespace rw::math;
@@ -36,7 +40,7 @@ namespace
     {
     public:
         StateConstraintWrapper(StateConstraint::Ptr detector,
-			Device::Ptr device,
+			Device::CPtr device,
             const State& state)
             :
             _detector(detector),
@@ -65,7 +69,7 @@ namespace
 
     private:
 		StateConstraint::Ptr _detector;
-		Device::Ptr _device;
+		Device::CPtr _device;
         State _state;
     };
 
@@ -201,7 +205,7 @@ QConstraint::Ptr QConstraint::makeFixed(bool value)
 
 QConstraint::Ptr QConstraint::make(
 	StateConstraint::Ptr detector,
-	Device::Ptr device,
+	Device::CPtr device,
     const State& state)
 {
     return ownedPtr(
@@ -211,8 +215,8 @@ QConstraint::Ptr QConstraint::make(
             state));
 }
 
-QConstraint::Ptr QConstraint::make(CollisionDetector::Ptr detector,
-	Device::Ptr device,
+QConstraint::Ptr QConstraint::make(rw::common::Ptr<CollisionDetector> detector,
+	Device::CPtr device,
     const State& state)
 {
     return make(

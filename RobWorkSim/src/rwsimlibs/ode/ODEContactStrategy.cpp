@@ -18,7 +18,15 @@
 #include "ODEContactStrategy.hpp"
 #include "ODEUtil.hpp"
 
+#include <rw/geometry/Cylinder.hpp>
+#include <rw/geometry/Geometry.hpp>
+#include <rw/geometry/Plane.hpp>
+#include <rw/geometry/Tube.hpp>
+
+#include <rwsim/contacts/ContactModel.hpp>
 #include <rwsim/contacts/ContactStrategyTracking.hpp>
+
+#include <ode/collision.h>
 
 using namespace rw::common;
 using namespace rw::geometry;

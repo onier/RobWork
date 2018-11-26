@@ -19,7 +19,9 @@
 #ifndef RW_PROXIMITY_PROXIMITYCACHE_HPP
 #define RW_PROXIMITY_PROXIMITYCACHE_HPP
 
-#include "ProximityStrategy.hpp"
+#include <rw/common/Ptr.hpp>
+
+#include <cstddef>
 
 namespace rw {
 namespace proximity {
@@ -61,9 +63,6 @@ namespace proximity {
 		void *_owner;
 	};
 
-#ifdef RW_USE_DEPRECATEd
-	typedef rw::common::Ptr<ProximityCache> ProximityCachePtr;
-#endif
 }
 }
 

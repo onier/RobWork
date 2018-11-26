@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Copyright 2017 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,13 +15,17 @@
  * limitations under the License.
  ********************************************************************************/
 
-#ifndef RWLIBS_CALIBRATION_XMLCALIBRATIONSAVER_HPP_
-#define RWLIBS_CALIBRATION_XMLCALIBRATIONSAVER_HPP_
+#ifndef RWLIBS_CALIBRATION_XMLCALIBRATIONSAVER_HPP
+#define RWLIBS_CALIBRATION_XMLCALIBRATIONSAVER_HPP
 
-#include <rwlibs/calibration/WorkCellCalibration.hpp>
+#include <rw/common/Ptr.hpp>
+
+#include <iosfwd>
+#include <string>
 
 namespace rwlibs {
 namespace calibration {
+class WorkCellCalibration;
 
 /** @addtogroup calibration */
 /*@{*/
@@ -32,18 +36,18 @@ namespace calibration {
 class XmlCalibrationSaver {
 public:
 	/**
-	 * @brief Saves \bworkcellCalibration to the file \bfileName
+	 * @brief Saves \b workcellCalibration to the file \b fileName
 	 * @param workcellCalibration [in] workcellCalibration to store
 	 * @param fileName [in] Name of the file to which to write.
 	 */
-	static void save(WorkCellCalibration::Ptr workcellCalibration, std::string fileName);
+	static void save(rw::common::Ptr<WorkCellCalibration> workcellCalibration, std::string fileName);
 
 	/**
-	 * @brief Writes \bworkcellCalibration to stream.
+	 * @brief Writes \b workcellCalibration to stream.
 	 * @param workcellCalibration [in] workcellCalibration to write
 	 * @param ostream [in] Stream to write to
 	 */
-	static void save(WorkCellCalibration::Ptr workcellCalibration, std::ostream& ostream);
+	static void save(rw::common::Ptr<WorkCellCalibration> workcellCalibration, std::ostream& ostream);
 };
 
 /* @} */
@@ -51,4 +55,4 @@ public:
 }
 }
 
-#endif /* RWLIBS_CALIBRATION_XMLCALIBRATIONSAVER_HPP_ */
+#endif /* RWLIBS_CALIBRATION_XMLCALIBRATIONSAVER_HPP */

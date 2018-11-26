@@ -20,6 +20,7 @@
 
 #include <rw/common/macros.hpp>
 #include <rw/math/Math.hpp>
+#include <rw/models/Device.hpp>
 
 using namespace rw::math;
 using namespace rw::models;
@@ -28,8 +29,7 @@ using namespace rw::control;
 SyncVelocityRamp::SyncVelocityRamp(Device* device):
     _taus(Q::zero(device->getDOF())),
     _qstart(Q::zero(device->getDOF())),
-    _qend(Q::zero(device->getDOF())),
-    _maxtime(0)
+    _qend(Q::zero(device->getDOF()))
 {
     _vellimits = device->getVelocityLimits();
     _acclimits = device->getAccelerationLimits();
@@ -41,8 +41,7 @@ SyncVelocityRamp::SyncVelocityRamp(const rw::math::Q& vellimits, const rw::math:
     _acclimits(acclimits),
     _taus(Q::zero(vellimits.size())),
     _qstart(Q::zero(vellimits.size())),
-    _qend(Q::zero(vellimits.size())),
-    _maxtime(0)
+    _qend(Q::zero(vellimits.size()))
 {
 }
 

@@ -88,6 +88,7 @@ public:
 
 private slots:
 	void showContextMenu(const QPoint& pos);
+	int colorFunction(double value, double maxAbs) const;
 
 private:
     Ui::EquationSystemWidget* const _ui;

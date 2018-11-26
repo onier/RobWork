@@ -26,8 +26,8 @@
 
 #include <rw/common/Ptr.hpp>
 
-#include <bullet/BulletCollision/CollisionDispatch/btCollisionConfiguration.h>
-#include <bullet/LinearMath/btScalar.h>
+#include <BulletCollision/CollisionDispatch/btCollisionConfiguration.h>
+#include <LinearMath/btScalar.h>
 
 namespace rwsim { namespace contacts { class ContactDetector; } }
 
@@ -81,6 +81,16 @@ public:
 	 * @return the collision algorithm allocator.
 	 */
 	virtual btCollisionAlgorithmCreateFunc* getCollisionAlgorithmCreateFunc(int proxyType0, int proxyType1);
+
+#if BT_BULLET_VERSION >= 286
+	/**
+	* @brief Get the algorithm allocator to use.
+	* @param proxyType0 [in] the type of first object.
+	* @param proxyType1 [in] the type of second object.
+	* @return the collision algorithm allocator.
+	*/
+	virtual btCollisionAlgorithmCreateFunc* getClosestPointsAlgorithmCreateFunc(int proxyType0, int proxyType1);
+#endif
 
 private:
 	btCollisionAlgorithmCreateFunc*	m_compoundCompoundCreateFunc;

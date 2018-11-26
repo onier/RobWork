@@ -9,7 +9,6 @@
 #define RWLIBS_TASK_GRASPTASK_HPP_
 
 #include <rw/common/Ptr.hpp>
-#include <rw/sensor/Contact3D.hpp>
 #include "Task.hpp"
 #include "GraspSubTask.hpp"
 
@@ -109,6 +108,13 @@ public:
 	 * @param name
 	 */
 	static void saveRWTask(GraspTask::Ptr task, const std::string& name);
+
+	/**
+	 * @brief Save a task in RobWork XML format.
+	 * @param task [in] the task to write.
+	 * @param stream [out] the stream to write to.
+	 */
+	static void saveRWTask(GraspTask::Ptr task, std::ostream& stream);
 
 	/**
 	 * @brief save grasp task in a comma seperated format

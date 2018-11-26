@@ -23,7 +23,6 @@
 #include <rw/graphics/Render.hpp>
 
 #include <rw/geometry/Geometry.hpp>
-#include <rw/geometry/TriMesh.hpp>
 
 namespace rwlibs {
 namespace opengl {
@@ -56,7 +55,7 @@ namespace opengl {
          *
          * @param mesh [in] the triangle mesh to draw
          */
-        RenderGeometry(rw::geometry::TriMesh::Ptr mesh);
+        RenderGeometry(rw::common::Ptr<rw::geometry::TriMesh> mesh);
 
         /**
          * @brief Destructor
@@ -77,6 +76,10 @@ namespace opengl {
          */
 		void setGeometry(rw::geometry::Geometry::Ptr geom);
 
+		/**
+		 * @brief Get the geometry that is being rendered.
+		 * @return the geometry.
+		 */
 		rw::geometry::Geometry::Ptr getGeometry() const { return _geometry; }
 
         //! @copydoc rw::graphics::Render::draw(const DrawableNode::RenderInfo& info, DrawableNode::DrawType type, double alpha) const
@@ -85,25 +88,14 @@ namespace opengl {
                   double alpha) const;
 
     protected:
+        //! @brief Do the actual rendering of the triangles.
         void render() const;
     private:
-        mutable GLfloat _diffuse[4];
-        GLfloat _ambient[4];
-        GLfloat _emission[4];
-        GLfloat _specular[4];
-        GLfloat _shininess[1];
-
         rw::geometry::Geometry::Ptr _geometry;
-        rw::geometry::TriMesh::Ptr _mesh;
+        rw::common::Ptr<rw::geometry::TriMesh> _mesh;
         float _r, _g, _b;
     };
 
-#ifdef RW_USE_DEPRECATED
-	/**
-	 * @brief Definition of smartpointer to RenderGeometry
-	 */
-	typedef rw::common::Ptr<RenderGeometry> RenderGeometryPtr;
-#endif
     //! @}
 
 } //end namespace opengl

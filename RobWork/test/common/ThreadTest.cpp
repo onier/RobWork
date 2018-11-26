@@ -22,14 +22,14 @@
 #include <rw/common/ThreadPool.hpp>
 #include <rw/common/ThreadSafeVariable.hpp>
 #include <rw/common/ThreadTask.hpp>
-#include <rw/math/Math.hpp>
+#include <rw/math/Random.hpp>
 
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
 #include <boost/test/unit_test_monitor.hpp>
 
 using namespace rw::common;
-using namespace rw::math;
+using rw::math::Random;
 
 static const unsigned int THREADS = 3;
 static const unsigned int JOBS = 50;
@@ -51,7 +51,7 @@ void workFunction(ThreadPool* pool, unsigned int id) {
 			return;
 		boost::mutex::scoped_lock lock(jobMutex);
 		jobDone[id] = true;
-	} catch(boost::thread_interrupted &e) {
+	} catch(boost::thread_interrupted &) {
 		boost::mutex::scoped_lock lock(testMutex);
 		BOOST_CHECK(pool->isStopping() == true);
 	}
@@ -72,7 +72,7 @@ void workFunctionStop(ThreadPool* pool, unsigned int id) {
 			return;
 		boost::mutex::scoped_lock lock(jobMutex);
 		jobDone[id] = true;
-	} catch(boost::thread_interrupted &e) {
+	} catch(boost::thread_interrupted &) {
 		boost::mutex::scoped_lock lock(testMutex);
 		BOOST_CHECK(pool->isStopping() == true);
 	}
@@ -170,8 +170,8 @@ int runTaskEmpty() {
 	task->setKeepAlive(false);
 
 	task->waitUntilDone();
-	BOOST_CHECK(subtask1->getState() == ThreadTask::DONE || subtask2->getState() == ThreadTask::POSTWORK);
-	BOOST_CHECK(subtask2->getState() == ThreadTask::DONE || subtask2->getState() == ThreadTask::POSTWORK);
+	BOOST_CHECK(subtask1->getState() == ThreadTask::DONE);
+	BOOST_CHECK(subtask2->getState() == ThreadTask::DONE);
 	BOOST_CHECK(task->getState() == ThreadTask::DONE);
 
 	return 0;
@@ -205,7 +205,7 @@ public:
 	void run() {
 		boost::mutex::scoped_lock lock(eventMutex);
 		events.push_back(Event(Event::SubTask,Event::Run,_taskID,_id));
-		Timer::sleepMs(Math::ranI(0,25));
+		Timer::sleepMs(Random::ranI(0,25));
 	};
 	void subTaskDone(ThreadTask* subtask) { // should not be called!
 		boost::mutex::scoped_lock lock(eventMutex);
@@ -473,13 +473,13 @@ int runTask() {
 }
 
 BOOST_AUTO_TEST_CASE(ThreadTest) {
-    BOOST_MESSAGE("- ThreadTest");
+    BOOST_TEST_MESSAGE("- ThreadTest");
 
-    BOOST_MESSAGE("-- ThreadPoolTest");
+	BOOST_TEST_MESSAGE("-- ThreadPoolTest");
     // get the execution monitor instance
     boost::unit_test::unit_test_monitor_t& theMonitor = boost::unit_test::unit_test_monitor_t::instance();
 
-    BOOST_MESSAGE("--- Ordinary test");
+	BOOST_TEST_MESSAGE("--- Ordinary test");
     // Do a test where thread pool is allowed to finish all work (timeout = 5 seconds)
     theMonitor.p_timeout.set( 5 );
     try {
@@ -492,7 +492,7 @@ BOOST_AUTO_TEST_CASE(ThreadTest) {
     		throw(e);
     	}
     }
-    BOOST_MESSAGE("--- Abort test");
+	BOOST_TEST_MESSAGE("--- Abort test");
     // Do a test where thread pool is stopped before work is finished (timeout = 10 seconds)
     theMonitor.p_timeout.set( 20 );
     try {
@@ -506,8 +506,8 @@ BOOST_AUTO_TEST_CASE(ThreadTest) {
     	}
     }
 
-    BOOST_MESSAGE("-- ThreadTaskTest");
-    BOOST_MESSAGE("--- Simple test");
+	BOOST_TEST_MESSAGE("-- ThreadTaskTest");
+	BOOST_TEST_MESSAGE("--- Simple test");
     // Do a simple test with empty tasks
     theMonitor.p_timeout.set( 5 );
     try {
@@ -520,7 +520,7 @@ BOOST_AUTO_TEST_CASE(ThreadTest) {
     		throw(e);
     	}
     }
-    BOOST_MESSAGE("--- Invocation order test");
+	BOOST_TEST_MESSAGE("--- Invocation order test");
     // Do a complex test where order of function calls is tested
     theMonitor.p_timeout.set( 20 );
     try {

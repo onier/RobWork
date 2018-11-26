@@ -20,7 +20,7 @@
 #define RWLIBS_OPENGL_MODEL3DFACTORY_HPP
 
 /**
- * @file Model3DFactory.hpp
+ * @file loaders/Model3DFactory.hpp
  */
 
 #include <rw/graphics/Model3D.hpp>
@@ -47,12 +47,13 @@ namespace rw { namespace loaders {
          * Otherwise it calls loadModel
          * otherwise
          */
-        static rw::graphics::Model3D::Ptr getModel(const std::string& str, const std::string& name);
+        static rw::graphics::Model3D::Ptr getModel(const std::string& str, const std::string& name, bool useCache = true);
 
         /**
          * @brief Factory method constructing a Drawable from a file.
          * @param filename [in] path and name of file to load
          * @param name [in] the id/name of the drawable
+         * @param useCache [in] save resources by resusing an already loaded file, but only if not modified since last load of the file.
          * @return drawable
          *
          * The factory determines which type of Drawable to used
@@ -62,7 +63,7 @@ namespace rw { namespace loaders {
          *
          * An exception is thrown if the file can't be loaded.
          */
-        static rw::graphics::Model3D::Ptr loadModel(const std::string &filename, const std::string& name);
+        static rw::graphics::Model3D::Ptr loadModel(const std::string &filename, const std::string& name, bool useCache = true);
 
         /**
          * @brief Factory method constructing a Drawable based on

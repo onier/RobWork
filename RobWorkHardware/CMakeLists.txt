@@ -1,6 +1,6 @@
 ###########################################
 # Test CMake version and CMAKE_BUILD_TYPE
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 IF(DEFINED CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
@@ -74,7 +74,7 @@ set( ENV{ROBWORKHARDWARE_LIBRARIES} "")
 SET(RWHW_CXX_FLAGS "${RW_BUILD_WITH_CXX_FLAGS}" 
 	CACHE STRING "Change this to force using your own flags and not those of RobWorkHardware"
 )
-ADD_DEFINITIONS(${RWHW_CXX_FLAGS})
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RWHW_CXX_FLAGS}")
 
 # setup general include and link stuff
 INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIRS} )

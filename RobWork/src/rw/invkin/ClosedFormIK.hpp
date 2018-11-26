@@ -23,24 +23,15 @@
  * @file ClosedFormIK.hpp
  */
 #include "InvKinSolver.hpp"
-#include <rw/math/Q.hpp>
-#include <rw/math/Transform3D.hpp>
 #include <rw/common/Ptr.hpp>
-#include <rw/models/Device.hpp>
 
-#include <vector>
+namespace rw { namespace models { class Device; } }
 
 namespace rw { namespace invkin {
 
     /** \addtogroup invkin */
     /*@{*/
 
-#ifdef RW_USE_DEPRECATED
-    class ClosedFormIK;
-
-    //! A pointer to a ClosedFormIK solver.
-    typedef rw::common::Ptr<ClosedFormIK> ClosedFormIKPtr;
-#endif
     /**
      * @brief Interface for closed form inverse kinematics algorithms.
      *

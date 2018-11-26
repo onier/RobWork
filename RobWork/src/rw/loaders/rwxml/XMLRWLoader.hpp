@@ -21,7 +21,6 @@
 
 #include <rw/models/WorkCell.hpp>
 #include <rw/loaders/WorkCellLoader.hpp>
-#include <rw/models/Device.hpp>
 
 namespace rw { namespace loaders {
 	/** @addtogroup loaders */
@@ -54,6 +53,13 @@ namespace rw { namespace loaders {
          * @param filename [in] filename of XML file
          */
 		static rw::models::WorkCell::Ptr load(const std::string& filename);
+
+        /**
+         * @brief Returns the WorkCellFileName ID, to be used for getting the workcell filename
+         *
+         * @returns WorkCell filename ID
+         */
+        static std::string getWorkCellFileNameId();
     };
 
 	/*@}*/

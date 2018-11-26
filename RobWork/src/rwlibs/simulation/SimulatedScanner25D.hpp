@@ -22,12 +22,11 @@
 
 #include <rw/common/Ptr.hpp>
 #include <rw/sensor/Scanner25D.hpp>
-#include "FrameGrabber25D.hpp"
 #include "SimulatedSensor.hpp"
 
-#include <rw/sensor/Scanner25DModel.hpp>
-
 namespace rwlibs { namespace simulation {
+	class FrameGrabber25D;
+
     //! @addtogroup simulation
 	// @{
 
@@ -45,22 +44,24 @@ namespace rwlibs { namespace simulation {
         /**
          * @brief constructor
          * @param name [in] name of this simulated scanner
+         * @param frame [in] the frame the scanner is attached to.
          * @param framegrabber [in] the framegrabber used for grabbing 2.5D images
          */
     	SimulatedScanner25D(const std::string& name,
     	                    rw::kinematics::Frame *frame,
-    	                    FrameGrabber25D::Ptr framegrabber);
+							rw::common::Ptr<FrameGrabber25D> framegrabber);
 
         /**
          * @brief constructor
          * @param name [in] name of this simulated scanner
          * @param desc [in] description of this scanner
+         * @param frame [in] the frame the scanner is attached to.
          * @param framegrabber [in] the framegrabber used for grabbing 2.5D images
          */
     	SimulatedScanner25D(const std::string& name,
                             const std::string& desc,
                             rw::kinematics::Frame *frame,
-                            FrameGrabber25D::Ptr framegrabber);
+							rw::common::Ptr<FrameGrabber25D> framegrabber);
 
     	/**
     	 * @brief destructor
@@ -112,7 +113,7 @@ namespace rwlibs { namespace simulation {
         rw::sensor::Scanner25D::Ptr getScanner25DSensor(rwlibs::simulation::Simulator::Ptr instance);
 
     private:
-        FrameGrabber25D::Ptr _framegrabber;
+        rw::common::Ptr<FrameGrabber25D> _framegrabber;
         double _frameRate, _dtsum;
         bool _isAcquired,_isOpenned;
     };

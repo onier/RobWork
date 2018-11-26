@@ -19,7 +19,9 @@
 
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/math/Constants.hpp>
-#include <rw/math/Math.hpp>
+#include <rw/math/Random.hpp>
+#include <rw/sensor/Scanner25D.hpp>
+#include <rwlibs/os/rwgl.hpp>
 
 using namespace rwlibs::simulation;
 using namespace rw::sensor;
@@ -71,13 +73,13 @@ namespace {
 	};
 
 	rw::common::Ptr<CameraModel> makeDefaultCameraModel(const std::string& name,
-			rw::kinematics::Frame *frame, double fov, int w, int h, double near, double far)
+			rw::kinematics::Frame *frame, double fov, int w, int h, double nearVal, double farVal)
 	{
-		return rw::common::ownedPtr( new CameraModel(ProjectionMatrix::makePerspective(fov*Deg2Rad,w,h,near,far), name, frame ) );
+		return rw::common::ownedPtr( new CameraModel(ProjectionMatrix::makePerspective(fov*Deg2Rad,w,h,nearVal,farVal), name, frame ) );
 	}
 
 	rw::common::Ptr<Scanner25DModel> makeDefaultScannerModel(const std::string& name,
-			rw::kinematics::Frame *frame, double fov, int w, int h, double near, double far)
+			rw::kinematics::Frame *frame, double fov, int w, int h, double nearVal, double farVal)
 	{
 		return rw::common::ownedPtr( new Scanner25DModel(name, w, h, frame ) );
 	}
@@ -88,6 +90,8 @@ SimulatedKinect::SimulatedKinect(const std::string& name, rw::kinematics::Frame 
 		SimulatedSensor( KinectSensorModel::make( makeDefaultCameraModel(name,frame,43,640,480,0.01,6), makeDefaultScannerModel(name,frame,43,640,480,0.01,6) )),
 		_frameRate(1),
         _dtsum(0),
+		_isAcquired(false),
+		_isOpenned(false),
 		_noiseEnabled(true),
         _near(0.01),
         _far(6),
@@ -107,6 +111,8 @@ SimulatedKinect::SimulatedKinect(const std::string& name,
 		SimulatedSensor( KinectSensorModel::make( makeDefaultCameraModel(name,frame,43,640,480,0.01,6), makeDefaultScannerModel(name,frame,43,640,480,0.01,6) )),
 		_frameRate(30),
 		_dtsum(0),
+		_isAcquired(false),
+		_isOpenned(false),
         _noiseEnabled(true),
         _near(0.01),
         _far(6),
@@ -125,6 +131,8 @@ SimulatedKinect::SimulatedKinect(rw::sensor::CameraModel::Ptr camModel, rw::sens
 	SimulatedSensor( KinectSensorModel::make(camModel,scannerModel)),
 	_frameRate(1),
     _dtsum(0),
+	_isAcquired(false),
+	_isOpenned(false),
 	_noiseEnabled(true),
     _near(0.01),
     _far(6),
@@ -140,7 +148,7 @@ SimulatedKinect::SimulatedKinect(rw::sensor::CameraModel::Ptr camModel, rw::sens
 
 SimulatedKinect::~SimulatedKinect(){}
 
-void SimulatedKinect::init(rw::graphics::SceneViewer::Ptr drawer){
+bool SimulatedKinect::init(rw::graphics::SceneViewer::Ptr drawer){
     _drawer = drawer;
 
     SceneViewer::View::Ptr view = _drawer->createView("CameraSensorView");
@@ -159,14 +167,18 @@ void SimulatedKinect::init(rw::graphics::SceneViewer::Ptr drawer){
     view->_viewCamera->attachTo( drawer->getMainView()->_viewCamera->getRefNode() );
     view->_viewCamera->setDrawMask(DrawableNode::Physical);
     // render offscreen
-    view->_camGroup->setOffscreenRenderEnabled(true);
-    view->_camGroup->setOffscreenRenderColor( rw::sensor::Image::RGB );
-    view->_camGroup->setOffscreenRenderSize(_width, _height);
-    view->_camGroup->setCopyToImage( _img );
-    view->_camGroup->setCopyToScan25D( _scan );
-
-    view->_camGroup->setEnabled(true);
-    _view = view;
+    if (view->_camGroup->setOffscreenRenderEnabled(true)) {
+        view->_camGroup->setOffscreenRenderColor( rw::sensor::Image::RGB );
+        view->_camGroup->setOffscreenRenderSize(_width, _height);
+        view->_camGroup->setCopyToImage( _img );
+        view->_camGroup->setCopyToScan25D( _scan );
+    	_view = view;
+    } else {
+    	_drawer->destroyView(view);
+    	RW_WARN("SimulatedKinect could not be initialized as offscreen rendering is not supported.");
+    	return false;
+    }
+    return true;
 }
 
 
@@ -232,15 +244,15 @@ namespace {
         double center_x = scan->getWidth()/2.0;
         double center_y = scan->getHeight()/2.0;
 
-        for(size_t y=0;y<scan->getHeight();y++){
-            for(size_t x=0;x<scan->getWidth();x++){
+        for(size_t y = 0; y < static_cast<size_t>(scan->getHeight()); y++){
+            for(size_t x = 0; x < static_cast<size_t>(scan->getWidth()); x++){
                 Vector3D<float> &v = data[y*scan->getWidth() + x];
-                double r = std::sqrt( Math::sqr(x - center_x) + Math::sqr(y - center_y) );
+                double r = std::sqrt( (x - center_x)*(x - center_x) + (y - center_y)*(y - center_y) );
                 // we convert to mm
                 double d = (double)fabs(v[2])*1000.0;
                 double sigma = calcSigma(r, d);
                 // this will produce the error in m
-                double noise_err = Math::ranNormalDist( 0 , sigma )/1000.0;
+                double noise_err = Random::ranNormalDist( 0 , sigma )/1000.0;
                 v[2] += (float)noise_err;
 
             }
@@ -307,6 +319,3 @@ void SimulatedKinect::reset(const rw::kinematics::State& state){
 rw::sensor::Sensor::Ptr SimulatedKinect::getSensorHandle(rwlibs::simulation::Simulator::Ptr simulator){
 	return _rsensor;
 }
-
-
-

@@ -60,9 +60,11 @@ add_library(lua51
   src/lua.c
   src/luac.c)
 
- 
-add_definitions("-DLUA_USE_POSIX")
-add_definitions("-DLUA_USE_DLOPEN")
+if(NOT WIN32)
+  target_compile_definitions(lua51 PRIVATE LUA_USE_POSIX LUA_USE_DLOPEN)
+elseif(BUILD_SHARED_LIBS)
+  target_compile_definitions(lua51 PRIVATE LUA_BUILD_AS_DLL)
+endif()
 
 add_executable(lua src/lua.cpp)
 target_link_libraries(lua lua51 ${CMAKE_DL_LIBS})

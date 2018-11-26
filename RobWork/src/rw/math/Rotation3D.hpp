@@ -68,9 +68,10 @@ namespace rw { namespace math {
         //! Value type.
         typedef T value_type;
 
-        //! The type of the internal Boost matrix implementation.
+        //! @brief Type for the legacy Boost matrix implementation.
         typedef boost::numeric::ublas::bounded_matrix<T, 3, 3> BoostMatrix3x3;
 
+        //! @brief The type of the internal Eigen matrix implementation.
 		typedef Eigen::Matrix<T, 3, 3> EigenMatrix3x3;
 
         /**
@@ -314,8 +315,6 @@ namespace rw { namespace math {
          * @brief Calculates \f$ \robabx{a}{c}{\mathbf{R}} =
          * \robabx{a}{b}{\mathbf{R}} \robabx{b}{c}{\mathbf{R}} \f$
          *
-         * @param aRb [in] \f$ \robabx{a}{b}{\mathbf{R}} \f$
-         *
          * @param bRc [in] \f$ \robabx{b}{c}{\mathbf{R}} \f$
          *
          * @return \f$ \robabx{a}{c}{\mathbf{R}} \f$
@@ -330,7 +329,6 @@ namespace rw { namespace math {
          * @brief Calculates \f$ \robabx{a}{c}{\mathbf{v}} =
          * \robabx{a}{b}{\mathbf{R}} \robabx{b}{c}{\mathbf{v}} \f$
          *
-         * @param aRb [in] \f$ \robabx{a}{b}{\mathbf{R}} \f$
          * @param bVc [in] \f$ \robabx{b}{c}{\mathbf{v}} \f$
          * @return \f$ \robabx{a}{c}{\mathbf{v}} \f$
          */
@@ -438,12 +436,35 @@ namespace rw { namespace math {
                              const Vector3D<T>& b,
                              Vector3D<T>& result);
 
-        static const Rotation3D<T> multiply(const Rotation3D<T>& a, const Rotation3D<T>& b);
+        /**
+         * @brief Calculates \f$ \robabx{a}{c}{\mathbf{R}} =
+         * \robabx{a}{b}{\mathbf{R}} \robabx{b}{c}{\mathbf{R}} \f$
+         *
+         * @param aRb [in] \f$ \robabx{a}{b}{\mathbf{R}} \f$
+         *
+         * @param bRc [in] \f$ \robabx{b}{c}{\mathbf{R}} \f$
+         *
+         * @return \f$ \robabx{a}{c}{\mathbf{R}} \f$
+         */
+        static const Rotation3D<T> multiply(const Rotation3D<T>& aRb, const Rotation3D<T>& bRc);
 
-        static const Vector3D<T> multiply(const Rotation3D<T>& a,
-                                                 const Vector3D<T>& b);
+        /**
+         * @brief Calculates \f$ \robabx{a}{c}{\mathbf{v}} =
+         * \robabx{a}{b}{\mathbf{R}} \robabx{b}{c}{\mathbf{v}} \f$
+         *
+         * @param aRb [in] \f$ \robabx{a}{b}{\mathbf{R}} \f$
+         * @param bVc [in] \f$ \robabx{b}{c}{\mathbf{v}} \f$
+         * @return \f$ \robabx{a}{c}{\mathbf{v}} \f$
+         */
+        static const Vector3D<T> multiply(const Rotation3D<T>& aRb,
+                                                 const Vector3D<T>& bVc);
 
-        // about x5 faster than rot = inverse( rot )
+        /**
+         * @brief Calculate the inverse.
+         * @note This function changes the object that it is invoked on, but this is about x5 faster than rot = inverse( rot )
+         * @see inverse(const Rotation3D< T > &) for the (slower) version that does not change the rotation object itself.
+         * @return the inverse rotation.
+         */
         inline Rotation3D<T>& inverse()
         {
             T tmpVal = _m[0][1];
@@ -488,6 +509,8 @@ namespace rw { namespace math {
      * \robabx{a}{b}{\mathbf{R}}^{-1} @f$ of a rotation matrix
      *
      * @relates Rotation3D
+     *
+     * @see Rotation3D::inverse() for a faster version that modifies the existing rotation object instead of allocating a new one.
      *
      * @param aRb [in] the rotation matrix @f$ \robabx{a}{b}{\mathbf{R}} @f$
      *
@@ -545,14 +568,29 @@ namespace rw { namespace math {
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;
 namespace serialization {
-template <>
-void write(const rw::math::Rotation3D<double>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-template <>
-void write(const rw::math::Rotation3D<float>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-template <>
-void read(rw::math::Rotation3D<double>& tmp, rw::common::InputArchive& iar, const std::string& id);
-template <>
-void read(rw::math::Rotation3D<float>& tmp, rw::common::InputArchive& iar, const std::string& id);
+/**
+ * @copydoc rw::common::serialization::write
+ * @relatedalso rw::math::Rotation3D
+ */
+template <> void write(const rw::math::Rotation3D<double>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+/**
+ * @copydoc rw::common::serialization::write
+ * @relatedalso rw::math::Rotation3D
+ */
+template <> void write(const rw::math::Rotation3D<float>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+/**
+ * @copydoc rw::common::serialization::read
+ * @relatedalso rw::math::Rotation3D
+ */
+template <> void read(rw::math::Rotation3D<double>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
+
+/**
+ * @copydoc rw::common::serialization::read
+ * @relatedalso rw::math::Rotation3D
+ */
+template <> void read(rw::math::Rotation3D<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
 

@@ -1,5 +1,5 @@
 # Test CMake version
-cmake_minimum_required(VERSION 2.8 FATAL_ERROR)
+cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
 IF(DEFINED CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
@@ -109,7 +109,6 @@ ENDIF(Subversion_FOUND)
 CONFIGURE_FILE(
   ${RWS_ROOT}/src/RobWorkStudioConfig.hpp.in
   "${RWS_ROOT}/src/RobWorkStudioConfig.hpp"
-  @ONLY
 )
 
 # next build information script
@@ -190,14 +189,19 @@ ENDIF()
 UNSET(QTDIR)
 
 # this will configure the dependency file that will be used if install is invoked
-GET_TARGET_PROPERTY(rwstudio_executable_name RobWorkStudio LOCATION)
+#GET_TARGET_PROPERTY(rwstudio_executable_name RobWorkStudio LOCATION) # not allowed anymore - must use generator expressions instead
 CONFIGURE_FILE(
    "${RWS_ROOT}/cmake/dependencies.cmake.in"
-   "${RWS_ROOT}/cmake/dependencies.cmake"
+   "${RWS_ROOT}/cmake/dependencies.cmake.gen"
    @ONLY
 )
 
-INSTALL(SCRIPT "${RWS_ROOT}/cmake/dependencies.cmake")
+# Disabled generation of the dependencies file (problem with multi-configuration generators like Visual Studio)
+#FILE(GENERATE
+#    OUTPUT "${RWS_ROOT}/cmake/dependencies.cmake"
+#    INPUT "${RWS_ROOT}/cmake/dependencies.cmake.gen"
+#)
+#INSTALL(SCRIPT "${RWS_ROOT}/cmake/dependencies.cmake")
 
 # Install the example directories
 INSTALL(DIRECTORY "${RWS_ROOT}/example/" DESTINATION "${RWS_INSTALL_DIR}/example/"
@@ -214,9 +218,14 @@ IF(doc_executable)
     ADD_CUSTOM_TARGET(qtrwdoc qhelpgenerator ${RW_ROOT}/../apidocs/html/index.qhp -o ${RWS_ROOT}/docs/robwork-v${ROBWORKSTUDIO_VERSION}.qch)
   ELSEIF(doc_executable)  
     ADD_CUSTOM_TARGET(qtrwdoc qhelpgenerator ${RW_ROOT}/../apidocs/html/index.qhp -o ${RWS_ROOT}/docs/robwork-v${ROBWORKSTUDIO_VERSION}.qch)
-    ADD_DEPENDENCIES(qtrwdoc apidoc_rw)
+    ADD_DEPENDENCIES(qtrwdoc apidoc)
   ENDIF()
-  
+
+  IF(TARGET qtrwdoc)
+    CONFIGURE_FILE(${RWS_ROOT}/docs/robwork_help.qhcp.in ${RWS_ROOT}/docs/robwork_help-v${ROBWORK_VERSION}.qhcp)
+    ADD_CUSTOM_TARGET(robwork_help qcollectiongenerator ${RWS_ROOT}/docs/robwork_help-v${ROBWORK_VERSION}.qhcp -o ${RWS_ROOT}/docs/robwork_help-v${ROBWORK_VERSION}.qhc )
+    ADD_DEPENDENCIES(robwork_help qtrwdoc) 
+  ENDIF()
 ENDIF()
 
 # Packaging
@@ -226,33 +235,3 @@ INCLUDE(cmake/packing.cmake)
 #IF(DEFINED USE_CDASH AND USE_CDASH)
 	CONFIGURE_FILE("${RWS_ROOT}/CTestConfig.cmake.in" "${RWS_ROOT}/CTestConfig.cmake")
 #ENDIF()
-
-# Check for supported MSVC compilers
-# TODO: relocate to test/CMakeLists.txt?
-IF(RW_BUILD_TESTS)
-  IF(MSVC)
-    IF(${MSVC_VERSION} EQUAL 1400)
-      SET(MSVC_SOLUTION_DIR ${RWS_ROOT}/projects/VisualStudio2005/RobWorkStudio)
-    ELSEIF(${MSVC_VERSION} EQUAL 1500)
-      SET(MSVC_SOLUTION_DIR ${RWS_ROOT}/projects/VisualStudio2008/RobWorkStudio)
-    ELSEIF(${MSVC_VERSION} EQUAL 1600)
-      SET(MSVC_SOLUTION_DIR ${RWS_ROOT}/projects/VisualStudio2010/RobWorkStudio)
-    ENDIF()
-    SET(MSVC_SOLUTION_FILE ${MSVC_SOLUTION_DIR}/RobWorkStudio.sln)
-    
-    # Set up tests for enclosed solutions
-    IF(EXISTS ${MSVC_SOLUTION_FILE})
-      MESSAGE(STATUS "Adding MSVC solution test...")
-      # 64-bit not supported for MSVC 2005 yet
-      IF(AMD64 AND NOT ${MSVC_VERSION} EQUAL 1400)
-        ADD_TEST(NAME msvc-solution-test
-                 CONFIGURATIONS Release
-                 COMMAND devenv ${MSVC_SOLUTION_FILE} /Rebuild "Release|x64")
-      ELSE()
-        ADD_TEST(NAME msvc-solution-test
-                 CONFIGURATIONS Release
-                 COMMAND devenv ${MSVC_SOLUTION_FILE} /Rebuild "Release|Win32")
-      ENDIF()
-    ENDIF()
-  ENDIF()
-ENDIF()

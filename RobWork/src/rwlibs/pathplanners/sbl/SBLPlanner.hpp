@@ -43,6 +43,7 @@ namespace rwlibs { namespace pathplanners {
     class SBLPlanner
     {
     public:
+    	//! @brief Smart pointer type for SBLPlanner.
         typedef rw::common::Ptr<SBLPlanner> Ptr;
 
         /**
@@ -67,7 +68,7 @@ namespace rwlibs { namespace pathplanners {
         */
 		static rw::pathplanning::QToTPlanner::Ptr makeQToTPlanner(
             const SBLSetup& setup,
-			rw::pathplanning::QIKSampler::Ptr ikSampler);
+			rw::common::Ptr<rw::pathplanning::QIKSampler> ikSampler);
 
     private:
         SBLPlanner();

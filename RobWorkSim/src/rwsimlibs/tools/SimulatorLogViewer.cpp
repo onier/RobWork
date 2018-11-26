@@ -15,25 +15,27 @@
  * limitations under the License.
  ********************************************************************************/
 
+#include "SimulatorLogViewer.hpp"
+
 #include <rw/common/BINArchive.hpp>
 #include <rw/common/INIArchive.hpp>
-#include <rwsim/dynamics/DynamicWorkCell.hpp>
 #include <rwsim/loaders/DynamicWorkCellLoader.hpp>
 #include <rwsim/log/SimulatorLogScope.hpp>
 #include <rwsimlibs/gui/log/SimulatorLogWidget.hpp>
-#include <rwsimlibs/tools/SimulatorLogViewer.hpp>
 
 #include "ui_SimulatorLogViewer.h"
 
 #include <QMessageBox>
 #include <QFileDialog>
 
+#include <fstream>
+
 using namespace rw::common;
-using namespace rwsim::dynamics;
-using namespace rwsim::loaders;
-using namespace rwsim::log;
-using namespace rwsimlibs::gui;
-using namespace rwsimlibs::tools;
+using rwsim::dynamics::DynamicWorkCell;
+using rwsim::loaders::DynamicWorkCellLoader;
+using rwsim::log::SimulatorLogScope;
+using rwsimlibs::gui::SimulatorLogWidget;
+using rwsimlibs::tools::SimulatorLogViewer;
 
 SimulatorLogViewer::SimulatorLogViewer():
 	QMainWindow(),
@@ -64,6 +66,10 @@ void SimulatorLogViewer::setDWC(rw::common::Ptr<const DynamicWorkCell> dwc) {
 
 void SimulatorLogViewer::setLog(SimulatorLogScope::Ptr log) {
 	_log = log;
+	if (!_log.isNull())
+		_ui->_actionCompare->setEnabled(true);
+	else
+		_ui->_actionCompare->setEnabled(false);
 	_widget->setLog(_log);
 }
 
@@ -82,7 +88,7 @@ void SimulatorLogViewer::openDWC() {
 	if (dwcFile.empty())
 		return;
 
-	DynamicWorkCell::Ptr dwc = NULL;
+	rw::common::Ptr<DynamicWorkCell> dwc = NULL;
 	try {
 		dwc = DynamicWorkCellLoader::load(dwcFile);
 	} catch (const Exception& exp) {
@@ -99,11 +105,58 @@ void SimulatorLogViewer::closeDWC() {
 	setDWC(NULL);
 }
 
+void SimulatorLogViewer::openCompare() {
+	QString selectedFilter;
+	const QString filename = QFileDialog::getOpenFileName(
+			this,
+			"Open log for comparison", // Title
+			QDir::currentPath(), // Directory
+			"Binary log files ( *.bin )"
+			"Ini log files ( *.ini )"
+			"\nAll supported ( *.bin *.ini )"
+			"\n All ( *.* )",
+			&selectedFilter);
+
+	const std::string file = filename.toStdString();
+	if (file.empty())
+		return;
+
+	SimulatorLogScope::Ptr scope = NULL;
+	if (StringUtil::toUpper(StringUtil::getFileExtension(file)) == "BIN") {
+        std::ifstream fstr(file.c_str(), std::ios::in);
+		BINArchive archive;
+		archive.open(fstr);
+		if (!archive.isOpen())
+			QMessageBox::information(NULL, "Exception",	"Could not open the given file: " + QString::fromStdString(file), QMessageBox::Ok);
+		else {
+			scope = ownedPtr(new SimulatorLogScope());
+			scope->read(archive,"");
+		}
+	} else {
+        std::ifstream fstr(file.c_str(), std::ios::in);
+		INIArchive archive;
+		archive.open(fstr);
+		if (!archive.isOpen())
+			QMessageBox::information(NULL, "Exception",	"Could not open the given file: " + QString::fromStdString(file), QMessageBox::Ok);
+		else {
+			scope = ownedPtr(new SimulatorLogScope());
+			scope->read(archive,"");
+		}
+	}
+	if (scope.isNull())
+		return;
+
+	_widget->compare(scope);
+}
+
 // Main Program
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/parsers.hpp>
+#include <boost/filesystem.hpp>
+
+#include <iomanip>
 
 using namespace boost::program_options;
 
@@ -140,7 +193,7 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	DynamicWorkCell::Ptr dwc = NULL;
+	rw::common::Ptr<DynamicWorkCell> dwc = NULL;
 	if (vm.count("dwc")) {
 		try {
 			dwc = DynamicWorkCellLoader::load(vm["dwc"].as<std::string>());
@@ -152,22 +205,29 @@ int main(int argc, char** argv) {
     std::string file;
 	SimulatorLogScope::Ptr scope = NULL;
     if(vm.count("file")) {
-    	file = vm["file"].as<std::string>();
+    	file = IOUtil::getAbsoluteFileName(vm["file"].as<std::string>());
     	const bool bin = vm.count("bin") > 0;
+	    if( !boost::filesystem::exists(file) ) {
+			QMessageBox::information(NULL, "No such file", "File does not exist: " + QString::fromStdString(file), QMessageBox::Ok);
+	    }
     	try {
     		if (bin) {
-    	        std::fstream fstr(file, std::ios::in);
-    			BINArchive archive(fstr);
+    	        std::ifstream fstr(file.c_str(), std::ios::in);
+    			BINArchive archive;
+    			archive.open(fstr);
     			if (!archive.isOpen())
-    				QMessageBox::information(NULL, "Exception",	"Could not open the given file.", QMessageBox::Ok);
+    				QMessageBox::information(NULL, "Exception",	"Could not open the given file: " + QString::fromStdString(file), QMessageBox::Ok);
     			else {
     				scope = ownedPtr(new SimulatorLogScope());
     				scope->read(archive,"");
     			}
     		} else {
-    			INIArchive archive(file);
+    	        std::ifstream fstr(file.c_str(), std::ios::in);
+    	        fstr.precision(17);
+    			INIArchive archive;
+    			archive.open(fstr);
     			if (!archive.isOpen())
-    				QMessageBox::information(NULL, "Exception",	"Could not open the given file.", QMessageBox::Ok);
+    				QMessageBox::information(NULL, "Exception",	"Could not open the given file: " + QString::fromStdString(file), QMessageBox::Ok);
     			else {
     				scope = ownedPtr(new SimulatorLogScope());
     				scope->read(archive,"");

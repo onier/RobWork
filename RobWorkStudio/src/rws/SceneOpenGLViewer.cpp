@@ -18,22 +18,21 @@
 
 #include "SceneOpenGLViewer.hpp"
 
-#include <cmath> 
-
-#include <rw/common/Timer.hpp>
 #include <rw/common/macros.hpp>
+#include <rw/geometry/Geometry.hpp>
+#include <rw/graphics/Render.hpp>
+#include <rw/graphics/WorkCellScene.hpp>
 #include <rw/math/Constants.hpp>
-#include <rw/math/RPY.hpp>
 
-#include <rw/kinematics/Kinematics.hpp>
 #include <rwlibs/opengl/DrawableUtil.hpp>
 
 #include "ArcBallController.hpp"
 
-#include <QThread>
+#include <QMouseEvent>
+
+#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 
-using namespace rw::proximity;
 using namespace rw::kinematics;
 using namespace rw::graphics;
 using namespace rw::math;
@@ -49,9 +48,6 @@ namespace
     class RenderQuad : public Render
     {
     private:
-        float _size;
-        GLUquadricObj *_quadratic;
-        GLuint _displayListId;
         GLfloat _colorTop[4],_colorBottom[4];
         int _x,_y,_width,_height;
     public:
@@ -325,7 +321,6 @@ SceneOpenGLViewer::SceneOpenGLViewer(QWidget* parent):
             //QGLWidget( QGLFormat(QGL::DepthBuffer), parent),
             QGLWidget( makeQGLFormat(NULL), parent),
             _scene( ownedPtr(new SceneOpenGL()) ),
-            _logoFont("Helvetica [Cronyx]", 24, QFont::DemiBold , true),
             _viewLogo("RobWork"),
             _cameraCtrl( ownedPtr( new ArcBallController(640,480) ) )
 {
@@ -341,7 +336,6 @@ SceneOpenGLViewer::SceneOpenGLViewer(PropertyMap& pmap, QWidget* parent) :
     //QGLWidget( QGLFormat(QGL::DepthBuffer) , parent),
     QGLWidget( makeQGLFormat( pmap.getPtr<PropertyMap>("SceneViewer") ) , parent),
     _scene( ownedPtr(new SceneOpenGL()) ),
-    _logoFont("Helvetica [Cronyx]", 24, QFont::DemiBold , true),
     _viewLogo("RobWork"),
     _cameraCtrl( ownedPtr( new ArcBallController(640,480) ) )
 {
@@ -409,9 +403,10 @@ void SceneOpenGLViewer::renderView(View::Ptr view){
 
     _scene->draw( _renderInfo );
 
-    GLenum res = glGetError();
-    if(res!=GL_NO_ERROR){
-        //std::cout << "AN OPENGL ERROR: " << res << "\n";
+    {
+    	const std::string error = SceneOpenGL::detectGLerror();
+    	if (!error.empty())
+    		RW_WARN("OpenGL error detected:" << error);
     }
 
 }
@@ -425,6 +420,11 @@ void SceneOpenGLViewer::glDraw(){
 
 void SceneOpenGLViewer::initializeGL()
 {
+    {
+    	const std::string error = SceneOpenGL::detectGLerror();
+    	if (!error.empty())
+    		RW_WARN("OpenGL error detected:" << error);
+    }
     /****************************************/
     /* Set up OpenGL lights etc.            */
     /****************************************/
@@ -441,14 +441,24 @@ void SceneOpenGLViewer::initializeGL()
     glShadeModel(val);   // GL_FLAT, GL_SMOOTH
 
     //glDisable( GL_COLOR_MATERIAL );
+    {
+    	const std::string error = SceneOpenGL::detectGLerror();
+    	if (!error.empty())
+    		RW_WARN("OpenGL error detected:" << error);
+    }
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     glTexEnvf( GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE );
-    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     //glEnable(GL_TEXTURE_2D);
+    {
+    	const std::string error = SceneOpenGL::detectGLerror();
+    	if (!error.empty())
+    		RW_WARN("OpenGL error detected:" << error);
+    }
 
     if( _pmap->getValue().add<bool>("GL_LIGHTING","",true)->getValue() )
         glEnable( GL_LIGHTING );
@@ -537,6 +547,11 @@ void SceneOpenGLViewer::initializeGL()
         glDisable(GL_ALPHA_TEST);
     }
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    {
+    	const std::string error = SceneOpenGL::detectGLerror();
+    	if (!error.empty())
+    		RW_WARN("OpenGL error detected:" << error);
+    }
 }
 
 void SceneOpenGLViewer::paintGL()
@@ -568,9 +583,10 @@ void SceneOpenGLViewer::paintGL()
     _renderInfo.cams = _currentView->_camGroup;
     _scene->draw( _renderInfo );
 
-    GLenum res = glGetError();
-    if(res!=GL_NO_ERROR){
-        //std::cout << "AN OPENGL ERROR: " << res << "\n";
+    {
+    	const std::string error = SceneOpenGL::detectGLerror();
+    	if (!error.empty())
+    		RW_WARN("OpenGL error detected:" << error);
     }
 }
 
@@ -614,7 +630,12 @@ void SceneOpenGLViewer::destroyView(View::Ptr view){
     _scene->removeCameraGroup( view->_camGroup );
 }
 
-
+void SceneOpenGLViewer::updateState(const State& state) {
+	if(_state==NULL)
+		_state = rw::common::ownedPtr(new State());
+	*_state = state;
+	_renderInfo._state = _state.get();
+}
 
 /*
 
@@ -758,7 +779,7 @@ void SceneOpenGLViewer::mouseDoubleClickEvent(QMouseEvent* event)
 			} else {
                 _cameraCtrl->setCenter(pos, Vector2D<>(event->x(), event->y()));
                 _pivotDrawable->setTransform( Transform3D<>(pos, Rotation3D<>::identity()) );
-                updateGL();
+                update();
             }
         }
 
@@ -792,7 +813,7 @@ void SceneOpenGLViewer::mouseMoveEvent(QMouseEvent* event)
     _cameraCtrl->handleEvent(event);
 
     //std::cout<<"Event Time"<<eventTimer.getTime()<<std::endl;
-    updateGL();
+    update();
 
     //event->ignore();
     QGLWidget::mouseMoveEvent(event);
@@ -801,7 +822,7 @@ void SceneOpenGLViewer::mouseMoveEvent(QMouseEvent* event)
 void SceneOpenGLViewer::wheelEvent(QWheelEvent* event)
 {
     _cameraCtrl->handleEvent( event );
-    updateGL();
+    update();
     QGLWidget::wheelEvent(event);
 }
 
@@ -920,4 +941,21 @@ void SceneOpenGLViewer::propertyChangedListener(PropertyBase* base){
 
     }
 
+}
+void SceneOpenGLViewer::zoom(double amount)
+{
+    _cameraCtrl->zoom(amount);
+}
+
+void SceneOpenGLViewer::autoZoom() {
+    if (!(_wcscene->getWorkCell()))
+    {
+        RW_WARN("Can't autozoom when no workcell is loaded");
+        return;
+    }
+    static const double fovy = 45.*Deg2Rad;
+    int x, y, width, height;
+    _mainCam->getViewport(x,y,width,height);
+    const double aspectRatio = static_cast<double>(width)/static_cast<double>(height);
+    _cameraCtrl->autoZoom(_wcscene->getWorkCell(),_state,fovy,aspectRatio);
 }

@@ -1,11 +1,12 @@
 #ifndef RWLIBS_DRAWABLE_RENDERCONTACTS_HPP_
 #define RWLIBS_DRAWABLE_RENDERCONTACTS_HPP_
 
-//! @file RenderContacts.hpp
+//! @file drawable/RenderContacts.hpp
 
-#include <rw/sensor/Contact3D.hpp>
 #include <rw/graphics/Render.hpp>
+#include <rwlibs/os/rwgl.hpp>
 
+namespace rw { namespace sensor { class Contact3D; } }
 
 namespace rwsim {
 namespace drawable {
@@ -58,7 +59,8 @@ namespace drawable {
 
 	private:
 		std::vector<rw::sensor::Contact3D> _contacts;
-		GLUquadricObj *_quadratic;
+		struct GLData;
+		const GLData* const _gl;
 	};
 	//! @}
 }

@@ -14,7 +14,6 @@ SET(FILES_CPP
 	contacts/ContactStrategyCylinderPlane.cpp
 	contacts/ContactStrategyCylinderTube.cpp
 	contacts/ContactStrategyGeometry.cpp
-	contacts/ContactStrategyPQP.cpp
 	contacts/ContactStrategyTracking.cpp
 	contacts/GeometricUtil.cpp
 	contacts/RenderContacts.cpp
@@ -126,7 +125,6 @@ SET(FILES_CPP
 	rwphysics/RWDebugRender.cpp
 	rwphysics/BodyIntegrator.cpp
 	rwphysics/ContactModel.cpp
-	rwphysics/ChatterjeeContactModel.cpp
 	rwphysics/CNodePairMap.cpp
 	rwphysics/CNodePool.cpp
 	rwphysics/ConstantForceManipulator.cpp
@@ -158,7 +156,6 @@ SET(FILES_HPP
 	contacts/ContactStrategyCylinderPlane.hpp
 	contacts/ContactStrategyCylinderTube.hpp
 	contacts/ContactStrategyGeometry.hpp
-	contacts/ContactStrategyPQP.hpp
 	contacts/GeometricUtil.hpp
 	contacts/RenderContacts.hpp
 	contacts/TubePlaneStrategy.hpp
@@ -269,7 +266,6 @@ SET(FILES_HPP
 	rwphysics/RWDebugRender.hpp
 	rwphysics/BodyIntegrator.hpp
 	rwphysics/ContactModel.hpp
-	rwphysics/ChatterjeeContactModel.hpp
 	rwphysics/CNodePairMap.hpp
 	rwphysics/CNodePool.hpp
 	rwphysics/ConstantForceManipulator.hpp
@@ -287,7 +283,24 @@ SET(FILES_HPP
 	rwphysics/BodyController.hpp	
 )
 
-RW_ADD_LIBRARY(rwsim rwsim ${FILES_CPP} ${FILES_HPP})
+IF (RW_BUILD_WITH_PQP)
+  SET(FILES_CPP ${FILES_CPP}
+	contacts/ContactStrategyPQP.cpp
+  )
+  SET(FILES_HPP ${FILES_HPP}
+	contacts/ContactStrategyPQP.hpp
+  )
+ENDIF()
 
+RW_ADD_LIBRARY(rwsim rwsim ${FILES_CPP} ${FILES_HPP})
+TARGET_LINK_LIBRARIES(rwsim ${ROBWORK_LIBRARIES})
 #add_subdirectory(lua)
 #add_subdirectory(plugin)
+
+IF(CMAKE_VERSION VERSION_GREATER 3.3)
+	SET_TARGET_PROPERTIES(rwsim PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+ENDIF()
+
+IF(WIN32 AND MSVC AND PROJECT_SHARED_LIBS AND CMAKE_VERSION VERSION_LESS 3.4)
+	MESSAGE(FATAL_ERROR "Building shared libraries on Windows requires CMake 3.4 or newer.")
+ENDIF()

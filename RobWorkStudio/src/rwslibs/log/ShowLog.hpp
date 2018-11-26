@@ -18,17 +18,17 @@
 #ifndef RW_STUDIO_LOG_MODULE_H
 #define RW_STUDIO_LOG_MODULE_H
 
-#include <QTextEdit>
+#include <QObject>
 
 #include <rws/RobWorkStudioPlugin.hpp>
+#include <RobWorkStudioConfig.hpp>
 
-#include <rw/models/WorkCell.hpp>
-#include <rw/kinematics/TreeState.hpp>
-#include <rw/kinematics/StateSetup.hpp>
-#include <rw/kinematics/StateStructure.hpp>
-#include <rw/common/Message.hpp>
+namespace rw { namespace common { class Message; } }
 
 class WriterWrapper;
+
+class QTextCursor;
+class QTextEdit;
 
 namespace rws {
 /**
@@ -77,7 +77,7 @@ public:
     void initialize();
 
     /**
-     * @brief listener for messegers from other plugins
+     * @brief listener for messages from other plugins
      * @param plugin
      * @param id
      * @param msg
@@ -87,10 +87,21 @@ public:
         const std::string& id,
         const rw::common::Message& msg);
 
+    /**
+     * @brief Write to the log window.
+     * @param str [in] the string to write.
+     * @param color [in] color of text.
+     */
     void write(const std::string& str, const QColor& color);
 
-    void flush(){ _editor->clear(); };
+    //! @brief Clear the log window.
+    void flush();
 
+    /**
+     * @brief Handle Qt event.
+     * @param event [in] the event.
+     * @return true if handled, false otherwise.
+     */
     bool event(QEvent *event);
 
 private:
@@ -100,8 +111,6 @@ private:
     QTextEdit* _editor;
     QTextCursor *_endCursor;
     std::vector<rw::common::Ptr<WriterWrapper> > _writers;
-
-    //rw::kinematics::State _state;
 };
 
 }

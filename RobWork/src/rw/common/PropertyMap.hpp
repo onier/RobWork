@@ -25,11 +25,9 @@
 
 #include "PropertyBase.hpp"
 #include "Property.hpp"
-#include "StringUtil.hpp"
 #include "macros.hpp"
 
 #include <set>
-#include <memory>
 
 namespace rw { namespace common {
 
@@ -88,6 +86,11 @@ namespace rw { namespace common {
            @brief swap operator.
         */
         void swap(PropertyMap& other);
+
+		/**
+		 * @brief Clear the content of the property map
+		 */
+		void clear();
 
         /**
          * @brief get the name of this propertymap
@@ -236,7 +239,7 @@ namespace rw { namespace common {
             if (!p) {
                 RW_THROW(
                     "Property "
-                    << StringUtil::quote(identifier)
+                    << "'" << identifier << "'"
                     << " could not be found");
             }
             return *p;
@@ -336,6 +339,8 @@ namespace rw { namespace common {
          */
         bool erase(const std::string& identifier);
 
+
+
         // The following methods are rarely used and are therefore given longer
         // names. They more strongly expose the internal use of Property<T>.
 
@@ -351,24 +356,7 @@ namespace rw { namespace common {
          * @return Property object with that identifier
          */
         template<class T>
-        rw::common::Ptr< Property<T> > findProperty(const std::string& identifier)
-        {
-            return findPropertyBase(identifier).cast<Property<T> >();
-        }
-
-        /**
-         * @brief Find the property for an identifier.
-         *
-         * The method finds the Property<T> object having a given identifier. If
-         * no property with that identifier exists or if the value of the
-         * property is not of type T then NULL is returned.
-         *
-         * @param identifier [in] property identifier
-         *
-         * @return Property object with that identifier
-         */
-        template<class T>
-        const rw::common::Ptr<Property<T> > findProperty(const std::string& identifier) const
+        rw::common::Ptr<Property<T> > findProperty(const std::string& identifier) const
         {
             return findPropertyBase(identifier).cast<Property<T> >();
         }
@@ -405,6 +393,11 @@ namespace rw { namespace common {
          */
         void addChangedListener(PropertyChangedListener callback);
 
+		/** 
+		 * @brief Clears the list of changed listeners
+		 */
+		void clearChangedListeners();
+
         /**
          * @brief Notifies listeners about a change in the Property
          */
@@ -440,7 +433,10 @@ namespace rw { namespace common {
     public:
         //! Iterator for const PropertyBase::Ptr
         typedef MapType::const_iterator iterator;
+
+        //! @brief Type for a range of properties.
         typedef std::pair<iterator,iterator> Range;
+
         /**
            @brief Range of all PropertyBase* objects stored.
 
@@ -453,7 +449,7 @@ namespace rw { namespace common {
 
     private:
         bool insert(PropertyBase::Ptr property);
-
+			
     private:
         MapType _properties;
         std::string _name;

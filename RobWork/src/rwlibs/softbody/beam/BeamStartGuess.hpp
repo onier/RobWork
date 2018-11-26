@@ -20,16 +20,12 @@ Copyright 2013 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
 
 #include <boost/shared_ptr.hpp>
 #include <boost/numeric/ublas/vector.hpp>
-#include <rw/math/Rotation3D.hpp>
-#include <rw/math/Vector2D.hpp>
-
-#include "BeamGeometryCuboid.hpp"
-#include "ModRusselBeamBase.hpp"
-
-
 
 namespace rwlibs {
 namespace softbody {
+class BeamGeometryCuboid;
+class ModRusselBeamBase;
+
 /** @addtogroup softbody */
 /*@{*/
     /**
@@ -53,7 +49,7 @@ public:
      * @brief sets starting guess angles for a cuboid beam initialized to that of an analytical Euler-Bernoulli beam model
      *
      * @param avec reference to starting guess vector containing angles to be set 
-     * @param beamPtr pointer to the beam geometry
+     * @param beamGeomPtr pointer to the beam geometry
      **/
     static void setEulerStartingGuess ( boost::numeric::ublas::vector<double> &avec, boost::shared_ptr< rwlibs::softbody::BeamGeometryCuboid > beamGeomPtr );
 };

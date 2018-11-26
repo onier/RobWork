@@ -15,16 +15,10 @@
  * limitations under the License.
  ********************************************************************************/
 
-#include <RobWorkStudioConfig.hpp>
 #include "LuaConsoleWidget.hpp"
+#include "LuaExecutionThread.hpp"
 
-#if RWS_USE_QT5
-#include <QtWidgets>
-#else
-#include <QtGui>
-#endif
-
-#include <iostream>
+#include <sstream>
 #include <iomanip>
 
 extern "C" {
@@ -33,8 +27,13 @@ extern "C" {
     #include <lauxlib.h>
 }
 
+#include <rw/common/LogWriter.hpp>
 #include <rwlibs/swig/ScriptTypes.hpp>
+#include <rwlibs/swig/lua/LuaState.hpp>
 
+#include <QApplication>
+#include <QKeyEvent>
+#include <QScrollBar>
 
 using namespace rw::common;
 using namespace rws;
@@ -52,14 +51,19 @@ namespace {
 
         virtual ~WriterWrapper(){}
 
-        virtual void flush(){
+        virtual void writeln(const std::string& str){
+            write(str);
+        }
+
+    protected:
+        virtual void doFlush(){
         }
 
         /**
          * @brief Writes \b str to the log
          * @param str [in] message to write
          */
-        virtual void write(const std::string& str) {
+        virtual void doWrite(const std::string& str) {
             std::stringstream sstr;
             sstr << std::setw(_tabLevel)<<std::setfill(' ');
             sstr << str;
@@ -68,11 +72,7 @@ namespace {
             QApplication::postEvent( _slog, new QEvent((QEvent::Type)MESSAGE_ADDED_EVENT) );
         }
 
-        virtual void writeln(const std::string& str){
-            write(str);
-        }
-
-        virtual void setTabLevel(int tabLevel) {
+        virtual void doSetTabLevel(int tabLevel) {
             _tabLevel = tabLevel;
         }
 

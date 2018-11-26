@@ -17,13 +17,16 @@
 
 
 #include "SBLExpand.hpp"
+#include <rw/pathplanning/QConstraint.hpp>
 #include <rw/pathplanning/QSampler.hpp>
-#include <rw/math/Math.hpp>
+#include <rw/math/Random.hpp>
 #include <rw/math/MetricUtil.hpp>
 #include <rw/math/Jacobian.hpp>
 #include <rw/math/Constants.hpp>
+#include <rw/models/Device.hpp>
 #include <rw/common/macros.hpp>
 #include <rw/kinematics/Kinematics.hpp>
+#include <rw/kinematics/State.hpp>
 #include <boost/foreach.hpp>
 
 using namespace rwlibs::pathplanners;
@@ -55,7 +58,7 @@ namespace
                     q[i] + scale * inner.second[i]);
 
             if (lower <= upper) {
-                result[i] = Math::ran(lower, upper);
+                result[i] = Random::ran(lower, upper);
             }
             else
                 return Q();

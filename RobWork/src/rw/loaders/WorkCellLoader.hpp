@@ -24,7 +24,6 @@
  */
 
 #include <string>
-#include <memory>
 #include <rw/graphics/WorkCellScene.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/common/ExtensionPoint.hpp>
@@ -83,9 +82,13 @@ namespace rw { namespace loaders {
 	    	//! constructor
 	        Factory():rw::common::ExtensionPoint<WorkCellLoader>("rw.loaders.WorkCellLoader", "Example extension point"){};
 
+	        /**
+	         * @brief Get loaders for a specific format.
+	         * @param format [in] the extension (including initial dot).
+	         * @return a suitable loader.
+	         */
 	        static rw::common::Ptr<WorkCellLoader> getWorkCellLoader(const std::string& format);
 
-			/////////// Factory methods for backwards compatibility, use WorkCellFactory instead
 			/**
 			 * @brief Loads/imports a workcell from a file.
 			 * An exception is thrown if the file can't be loaded.
@@ -94,19 +97,16 @@ namespace rw { namespace loaders {
 			 */
 			static models::WorkCell::Ptr load(const std::string& filename);
 
-			/**
-			 * @brief Loads/imports a workcell from a file.
-			 * An exception is thrown if the file can't be loaded.
-			 * XML as well as TUL workcell formats are supported.
-			 * @param filename [in] name of workcell file.
-			 */
-			static models::WorkCell::Ptr load(const std::string& filename, rw::graphics::WorkCellScene::Ptr wcscene);
-
 	    };
 
     protected:
+	    //! @brief Constructor.
 		WorkCellLoader() {}
 
+		/**
+		 * @brief Constructor with a drawable scene.
+		 * @param scene [in] a workcell scene.
+		 */
 		WorkCellLoader(rw::graphics::WorkCellScene::Ptr scene):_wcscene(scene) {}
 
     private:
@@ -114,6 +114,10 @@ namespace rw { namespace loaders {
 
     };
 
+	/**
+	 * @brief Shortcut type for the WorkCellLoader::Factory
+	 * @deprecated Please use WorkCellLoader::Factory instead.
+	 */
     typedef WorkCellLoader::Factory WorkCellFactory;
     /**@}*/
 }} // end namespaces

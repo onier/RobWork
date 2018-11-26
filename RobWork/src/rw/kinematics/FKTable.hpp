@@ -34,8 +34,6 @@
 #include <boost/multi_index/member.hpp>
 */
 
-#include <map>
-
 namespace rw { namespace kinematics {
 
     class Frame;
@@ -76,6 +74,7 @@ namespace rw { namespace kinematics {
          */
         const math::Transform3D<>& get(const Frame& frame) const;
 
+        //! @copydoc get(const Frame&)
         inline const math::Transform3D<>& get(const Frame* frame) const{ return get(*frame); }
 
         /**

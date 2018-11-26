@@ -18,23 +18,11 @@
 #ifndef RW_COMMON_ARCHIVE_HPP
 #define RW_COMMON_ARCHIVE_HPP
 
-#include <cstdlib>
-#include <cmath>
+#include <iosfwd>
 #include <string>
-
-#include <boost/any.hpp>
-#include <cstdio>
-#include <fstream>
-#include <rw/common/macros.hpp>
-#include <boost/any.hpp>
 
 namespace rw {
 namespace common {
-
-	class InputArchive;
-	class OutputArchive;
-
-
 	/**
 	 * @brief archive interface for serializaion classes.
 	 */
@@ -85,9 +73,13 @@ namespace common {
 
 		// TODO: make extension point for archives
 	protected:
+		//! @copydoc open(const std::string&)
 		virtual void doOpenArchive(const std::string& filename) = 0;
+		//! @copydoc open(std::iostream&)
 		virtual void doOpenArchive(std::iostream& stream) = 0;
+		//! @copydoc open(std::istream&)
 		virtual void doOpenInput(std::istream& ifs) = 0;
+		//! @copydoc open(std::ostream&)
 		virtual void doOpenOutput(std::ostream& ofs) = 0;
 	};
 

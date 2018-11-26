@@ -2,8 +2,8 @@
 #include <rwlibs/task/Motion.hpp>
 #include <rwlibs/task/Action.hpp>
 #include <rwlibs/task/Target.hpp>
-#include <rwlibs/task/loader/XMLTaskLoader.hpp>
-#include <rwlibs/task/loader/XMLTaskSaver.hpp>
+#include <rwlibs/task/loader/TaskLoader.hpp>
+#include <rwlibs/task/loader/TaskSaver.hpp>
 #include <iostream>
 
 using namespace rw::math;
@@ -48,7 +48,7 @@ void printTask(QTask::Ptr task) {
     }
 }
 
-int main(int argc, char* argv[]) {
+int main() {
     //Construct a Task
     QTask::Ptr task = ownedPtr(new QTask());
     rw::math::Q q1(1); q1(0) = 1;
@@ -65,11 +65,12 @@ int main(int argc, char* argv[]) {
 
     printTask(task);
 
-    XMLTaskSaver::save(task, "MyTask.xml");
+    TaskSaver::Ptr saver = TaskSaver::Factory::getTaskSaver("xml");
+    saver->save(task, "MyTask.xml");
 
-    XMLTaskLoader loader;
-    loader.load("MyTask.xml");
-    QTask::Ptr task2 = loader.getQTask();
+    TaskLoader::Ptr loader = TaskLoader::Factory::getTaskLoader("xml");
+    loader->load("MyTask.xml");
+    QTask::Ptr task2 = loader->getQTask();
 
     printTask(task2);
 

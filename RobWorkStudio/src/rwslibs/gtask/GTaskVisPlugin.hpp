@@ -1,20 +1,21 @@
 #ifndef GTaskVisPlugin_HPP
 #define GTaskVisPlugin_HPP
 
-#include <rw/common/Timer.hpp>
-#include <rw/graphics/Render.hpp>
-#include <rwlibs/task.hpp>
-#include <rwlibs/task/GraspTask.hpp>
 #include <rws/RobWorkStudioPlugin.hpp>
-#include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
 
 #include <QObject>
-#include <QtGui>
-#include <QTimer>
 
 #include <boost/any.hpp>
 
 #include "ui_GTaskVisPlugin.h"
+
+namespace rw { namespace graphics { class DrawableNode; } }
+namespace rw { namespace graphics { class Render; } }
+namespace rwlibs { namespace task { class GraspTask; } }
+namespace rwlibs { namespace task { class GraspSubTask; } }
+namespace rwlibs { namespace task { class GraspTarget; } }
+
+class QTimer;
 
 /**
  * @brief A plugin that continuesly grasps an object from a target pose whereafter it is
@@ -42,29 +43,52 @@ Q_INTERFACES( rws::RobWorkStudioPlugin )
 Q_PLUGIN_METADATA(IID "dk.sdu.mip.Robwork.RobWorkStudioPlugin/0.1" FILE "plugin.json")
 #endif
 public:
-
+	//! @brief Constructor.
     GTaskVisPlugin();
 
+    //! @brief Destructor.
     virtual ~GTaskVisPlugin();
 
+    //! @copydoc RobWorkStudioPlugin::open
     virtual void open(rw::models::WorkCell* workcell);
 
+    //! @copydoc RobWorkStudioPlugin::close
     virtual void close();
 
+    //! @copydoc RobWorkStudioPlugin::initialize
     virtual void initialize();
+
     /**
-     * @brief we listen for events regarding opening and closing of dynamic
-     * workcell
+     * @brief Allows sending events from other plugins.
+     *
+     * The following events are currently understood:
+     *
+     * If \b event is GVis::LoadFile tasks are loaded from the filename given in \b data.
+     *
+     * If \b event is GVis::Update the graphics is updated.
+     *
+     * If \b event is GVis::SelectGrasp the grasp number given in \b data is selected.
+     *
+     * @param event
+     * @param data
      */
-    void genericEventListener(const std::string& event);
     void genericAnyEventListener(const std::string& event, boost::any data);
 
-
+    /**
+     * @brief Load task file.
+     * @param automatic [in] if false a dialog is shown to choose the file.
+     */
     void loadTasks(bool automatic);
-    void saveTasks(bool automatic);
-    void loadConfig(bool automatic);
-    void saveConfig();
+
+    //void saveTasks(bool automatic);
+    //void loadConfig(bool automatic);
+    //void saveConfig();
     //void updateConfig();
+
+    /**
+     * @brief Get the settings.
+     * @return the settings.
+     */
     rw::common::PropertyMap& settings();
 
 private slots:
@@ -79,10 +103,10 @@ private:
     int _nrOfExperiments, _totalNrOfExperiments;
 
     QTimer *_timer;
-    rwlibs::task::GraspTask::Ptr _graspTask;
+    rw::common::Ptr<rwlibs::task::GraspTask> _graspTask;
     std::vector<std::pair<rwlibs::task::GraspSubTask*, rwlibs::task::GraspTarget*> > _ymtargets;
-    rw::graphics::Render::Ptr _render;
-    rw::graphics::DrawableNode::Ptr _targetDrawable;
+    rw::common::Ptr<rw::graphics::Render> _render;
+    rw::common::Ptr<rw::graphics::DrawableNode> _targetDrawable;
 };
 
 #endif

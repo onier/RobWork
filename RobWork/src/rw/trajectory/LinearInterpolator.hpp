@@ -28,10 +28,9 @@
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Quaternion.hpp>
-#include <rw/math/MetricFactory.hpp>
-#include <rw/math/Metric.hpp>
+#include <rw/math/Math.hpp>
 #include "Interpolator.hpp"
-#include "InterpolatorUtil.hpp"
+//#include "InterpolatorUtil.hpp"
 
 namespace rw { namespace trajectory {
 
@@ -368,19 +367,6 @@ namespace rw { namespace trajectory {
      * @brief LinearInterpolator with T=rw:math::Transform3D<>
      */
     typedef LinearInterpolator<rw::math::Transform3D<> > CartesianLinearInterpolator;
-
-#ifdef RW_USE_DEPRECATED
-    /**
-     * @brief Pointer to QLinearInterpolator
-     */
-    typedef rw::common::Ptr<QLinearInterpolator> QLinearInterpolatorPtr;
-
-
-    /**
-     * @brief Pointer to CartesianLinearInterpolator
-     */
-    typedef rw::common::Ptr<CartesianLinearInterpolator> CartesianLinearInterpolatorPtr;
-#endif
 
     /** @} */
 

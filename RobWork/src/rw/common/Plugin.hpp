@@ -2,15 +2,12 @@
 #ifndef RW_COMMON_PLUGIN_HPP
 #define RW_COMMON_PLUGIN_HPP
 
-#include <iostream>
 #include <string>
 #include <vector>
 #include <rw/common/Ptr.hpp>
-#include <rw/common/PropertyMap.hpp>
 #include <rw/common/os.hpp>
 
 #include "Extension.hpp"
-#include "ExtensionPoint.hpp"
 
 namespace rw {
 namespace common {
@@ -52,8 +49,11 @@ public:
     //! @brief get a specific extension using the unique extendion ID
     virtual rw::common::Ptr<Extension> makeExtension(const std::string& id) = 0;
 
-    //! @brief get a list of extension point ids which this plugin define
-    virtual std::vector<std::string> getExtensionPointIDs(){ return std::vector<std::string>(); };
+    /**
+     * @brief get a list of extension point ids which this plugin define
+     * @return list of extension points ids.
+     */
+    virtual std::vector<std::string> getExtensionPointIDs();
 
     //! @brief get a
     //virtual rw::common::Ptr<ExtensionPoint> makeExtensionPoint(const std::string& id){ return NULL; };
@@ -64,11 +64,52 @@ public:
         return ext.cast<T>();
     }
 
-    const std::string& getId(){ return _id; };
-    const std::string& getName(){ return _name; };
-    const std::string& getVersion(){ return _version; };
+    /**
+     * @brief Get unique identifier of plugin.
+     * @return the identifier.
+     */
+    const std::string& getId(){ return _id; }
 
+    /**
+     * @brief Get human readable identifier for the plugin.
+     * @return the identifier.
+     */
+    const std::string& getName(){ return _name; }
+
+    /**
+     * @brief Get version of plugin.
+     * @return the version.
+     */
+    const std::string& getVersion(){ return _version; }
+
+    /**
+     * @brief Load the plugin given by \b filename.
+     *
+     * A filename with .xml extension will be loaded as a lazy plugin.
+     *
+     * Notice that the smart pointer returned will automatically unload the plugin
+     * when there are no more references to the plugin.
+     *
+     * @param filename [in] the filename.
+     * @return the plugin, or NULL if load failed.
+     */
     static rw::common::Ptr<Plugin> load(const std::string& filename);
+
+    //! @brief Internal handle that makes unloading possible.
+    struct OSHandle;
+
+    /**
+     * @brief Get the low-level handle of the plugin (for internal use).
+     * @return the handle.
+     */
+    const OSHandle* getHandle();
+
+protected:
+    /**
+     * @brief Close the plugin.
+     * @param handle [in] the low-level handle of the plugin.
+     */
+    static void close(const OSHandle* handle);
 
 private:
     static rw::common::Ptr<Plugin> loadDirect(const std::string& filename);
@@ -76,6 +117,7 @@ private:
 
     std::vector<Extension::Descriptor> _descriptors;
     std::string _id, _name, _version;
+    OSHandle* _handle;
 };
 
 }

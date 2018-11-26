@@ -198,7 +198,7 @@ namespace rw { namespace math {
 		 *
 		 * Assumes the wrenches are represented in the same coordinate system.
          *
-         * @param screw [in] Wrench to add
+         * @param wrench [in] Wrench to add
          *
          * @return reference to the Wrench6D to support additional assignments.
          */
@@ -213,7 +213,7 @@ namespace rw { namespace math {
          *
 		 * Assumes the wrenches are represented in the same coordinate system.
 		 *
-         * @param screw [in] Velocity screw to subtract
+         * @param wrench [in] Velocity screw to subtract
          *
          * @return reference to the Wrench6D to support additional
          * assignments.
@@ -243,8 +243,6 @@ namespace rw { namespace math {
 
         /**
          * @brief Scales wrench and returns scaled version
-         *
-         * @param wrench [in] Wrench to scale
          * @param s [in] scaling value
          * @return Scaled wrench
          */
@@ -433,7 +431,7 @@ namespace rw { namespace math {
          * @brief Subtracts two velocity screws
          * \f$\mathbf{\nu}_{12}=\mathbf{\nu}_1-\mathbf{\nu}_2\f$
          *
-         * \param wrench [in] \f$\mathbf{w}_1\f$
+         * \param rhs [in] \f$\mathbf{w}_1\f$
          * \return the wrench \f$\mathbf{w}_{12} \f$
          */
         const Wrench6D<T> operator-(const Wrench6D<T>& rhs) const
@@ -457,20 +455,6 @@ namespace rw { namespace math {
         /**
          * @brief Takes the 1-norm of the wrench. All elements both
          * force and torque are given the same weight.
-         *
-         * @param wrench [in] the wrench
-         * @return the 1-norm
-         */
-        friend T norm1(const Wrench6D& wrench)
-        {
-            return wrench.norm1();
-        }
-
-        /**
-         * @brief Takes the 1-norm of the wrench. All elements both
-         * force and torque are given the same weight.
-         *
-         * @param wrench [in] the wrench
          * @return the 1-norm
          */
         T norm1() const {
@@ -478,41 +462,13 @@ namespace rw { namespace math {
             //return _wrench.template lpNorm<1>();
         }
 
-
-        /**
-         * @brief Takes the 2-norm of the wrench. All elements both
-         * force and tporque are given the same weight
-         *
-         * @param wrench [in] the wrench
-         * @return the 2-norm
-         */
-        friend T norm2(const Wrench6D& wrench)
-        {
-            return wrench.norm2();
-        }
-
         /**
          * @brief Takes the 2-norm of the wrench. All elements both
          * force and torque are given the same weight
-         *
-         * @param wrench [in] the wrench
          * @return the 2-norm
          */
         T norm2() const {
             return std::sqrt(Math::sqr(_wrench[0])+Math::sqr(_wrench[1])+Math::sqr(_wrench[2])+Math::sqr(_wrench[3])+Math::sqr(_wrench[4])+Math::sqr(_wrench[5]));
-        }
-
-        /**
-         * @brief Takes the infinite norm of the wrench. All elements
-         * both force and torque are given the same weight.
-         *
-         * @param wrench [in] the wrench
-         *
-         * @return the infinite norm
-         */
-        friend T normInf(const Wrench6D& wrench)
-        {
-            return wrench.normInf();
         }
 
         /**
@@ -524,27 +480,6 @@ namespace rw { namespace math {
         T normInf() const {
 			return std::max(fabs(_wrench[0]), std::max(fabs(_wrench[1]), std::max(fabs(_wrench[2]), std::max(fabs(_wrench[3]), std::max(fabs(_wrench[4]),fabs(_wrench[5]))))));
         }
-
-        /**
-         * @brief Casts Wrench6D<T> to Wrench6D<Q>
-         *
-         * @param vs [in] Wrench6D with type T
-         *
-         * @return Wrench6D with type Q
-         */
-        template<class Q>
-        friend const Wrench6D<Q> cast(const Wrench6D<T>& vs)
-        {
-            return Wrench6D<Q>(
-                static_cast<Q>(vs(0)),
-                static_cast<Q>(vs(1)),
-                static_cast<Q>(vs(2)),
-                static_cast<Q>(vs(3)),
-                static_cast<Q>(vs(4)),
-                static_cast<Q>(vs(5)));
-        }
-
-
 
         /**
            @brief Converter to Boost type.
@@ -566,8 +501,84 @@ namespace rw { namespace math {
 			return res;
 		}
 
+		/**
+         * @brief Compares \b a and \b b for equality.
+		 * @param b [in] other wrench to compare with.
+         * @return True if a equals b, false otherwise.
+		 */
+        bool operator==(const Wrench6D<T>& b) const {
+        	return _wrench[0] == b[0] && _wrench[1] == b[1] && _wrench[2] == b[2] && _wrench[3] == b[3] && _wrench[4] == b[4] && _wrench[5] == b[5];
+        }
+
+        /**
+         * @brief Compares \b a and \b b for inequality.
+		 * @param b [in] other wrench to compare with.
+         * @return True if a and b are different, false otherwise.
+         */
+        bool operator!=(const Wrench6D<T>& b) const {
+            return !(*this == b);
+        }
 
     };
+
+	/**
+	* @brief Takes the 1-norm of the wrench. All elements both
+	* force and torque are given the same weight.
+	*
+	* @param wrench [in] the wrench
+	* @return the 1-norm
+	*/
+	template <class T>
+	T norm1(const Wrench6D<T>& wrench)
+	{
+		return wrench.norm1();
+	}
+
+	/**
+	* @brief Takes the 2-norm of the wrench. All elements both
+	* force and tporque are given the same weight
+	*
+	* @param wrench [in] the wrench
+	* @return the 2-norm
+	*/
+	template <class T>
+	T norm2(const Wrench6D<T>& wrench)
+	{
+		return wrench.norm2();
+	}
+
+	/**
+	* @brief Takes the infinite norm of the wrench. All elements
+	* both force and torque are given the same weight.
+	*
+	* @param wrench [in] the wrench
+	*
+	* @return the infinite norm
+	*/
+	template <class T>
+	T normInf(const Wrench6D<T>& wrench)
+	{
+		return wrench.normInf();
+	}
+
+	/**
+	* @brief Casts Wrench6D<T> to Wrench6D<Q>
+	*
+	* @param vs [in] Wrench6D with type T
+	*
+	* @return Wrench6D with type Q
+	*/
+	template<class Q, class T>
+	const Wrench6D<Q> cast(const Wrench6D<T>& vs)
+	{
+		return Wrench6D<Q>(
+			static_cast<Q>(vs(0)),
+			static_cast<Q>(vs(1)),
+			static_cast<Q>(vs(2)),
+			static_cast<Q>(vs(3)),
+			static_cast<Q>(vs(4)),
+			static_cast<Q>(vs(5)));
+	}
 
     /*@}*/
 }} // end namespaces
@@ -576,10 +587,29 @@ namespace rw { namespace math {
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;
 namespace serialization {
-template<> void write(const rw::math::Wrench6D<double>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-template<> void write(const rw::math::Wrench6D<float>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-template<> void read(rw::math::Wrench6D<double>& tmp, rw::common::InputArchive& iar, const std::string& id);
-template<> void read(rw::math::Wrench6D<float>& tmp, rw::common::InputArchive& iar, const std::string& id);
+/**
+ * @copydoc rw::common::serialization::write
+ * @relatedalso rw::math::Wrench6D
+ */
+template<> void write(const rw::math::Wrench6D<double>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+/**
+ * @copydoc rw::common::serialization::write
+ * @relatedalso rw::math::Wrench6D
+ */
+template<> void write(const rw::math::Wrench6D<float>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+/**
+ * @copydoc rw::common::serialization::read
+ * @relatedalso rw::math::Wrench6D
+ */
+template<> void read(rw::math::Wrench6D<double>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
+
+/**
+ * @copydoc rw::common::serialization::read
+ * @relatedalso rw::math::Wrench6D
+ */
+template<> void read(rw::math::Wrench6D<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
 #endif // end include guard

@@ -26,8 +26,8 @@
 #include "BtContactStrategy.hpp"
 #include "BtRWCollisionConfiguration.hpp"
 
-#include <bullet/btBulletDynamicsCommon.h>
-#include <bullet/BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
+#include <btBulletDynamicsCommon.h>
+#include <BulletCollision/Gimpact/btGImpactCollisionAlgorithm.h>
 
 #include <rwsim/contacts/ContactDetector.hpp>
 #include <rwsim/contacts/ContactDetectorData.hpp>
@@ -47,6 +47,8 @@ using namespace rw::math;
 using namespace rw::models;
 #endif
 
+#include <rwsim/dynamics/Body.hpp>
+#include <rwsim/dynamics/DynamicWorkCell.hpp>
 #include <rwsim/sensor/SimulatedFTSensor.hpp>
 
 #include <boost/foreach.hpp>
@@ -547,7 +549,7 @@ SimulatorDebugRender::Ptr BtSimulator::createDebugRender(){
 
 PropertyMap& BtSimulator::getPropertyMap() {
 	return _propertyMap;
-};
+}
 
 void BtSimulator::emitPropertyChanged(){
 	RW_THROW("BtSimulator (emitPropertyChanged): not implemented yet!");

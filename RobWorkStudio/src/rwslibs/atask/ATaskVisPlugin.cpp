@@ -1,5 +1,7 @@
 #include "ATaskVisPlugin.hpp"
 
+#include "StrategyLibraryDialog.hpp"
+
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
 
@@ -14,6 +16,10 @@
 #include <rws/RobWorkStudio.hpp>
 #include <rws/propertyview/PropertyViewEditor.hpp>
 
+#include <QFileDialog>
+
+#include <boost/bind.hpp>
+
 using namespace rw::common;
 using namespace rw::math;
 using namespace rw::models;
@@ -26,7 +32,7 @@ using namespace rwlibs::task;
 using namespace rwslibs;
 
 ATaskVisPlugin::ATaskVisPlugin():
-    RobWorkStudioPlugin("ATaskVisPlugin", QIcon(":/assemblytaskvisplugin/pa_icon.png")),
+    RobWorkStudioPlugin("ATaskVisPlugin", QIcon(":/assemblytaskvisplugin/atask_icon.png")),
     _wc(NULL),
     _showReal(true)
 {
@@ -34,23 +40,18 @@ ATaskVisPlugin::ATaskVisPlugin():
     _editor = new PropertyViewEditor(this);
     _taskBoxLayout->addWidget(_editor);
 
-    connect(_loadTasksBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
-    connect(_loadResultsBtn    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
-    connect(_real    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
-    connect(_assumed    ,SIGNAL(pressed()), this, SLOT(btnPressed()) );
-    connect(_assumed    ,SIGNAL(toggled(bool)), this, SLOT(btnPressed()) );
+    connect(_loadTasksBtn,       SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_loadResultsBtn,     SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_btnStrategyLibrary, SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_real,               SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_assumed,            SIGNAL(pressed()), this, SLOT(btnPressed()) );
+    connect(_assumed,            SIGNAL(toggled(bool)), this, SLOT(btnPressed()) );
 }
 
 ATaskVisPlugin::~ATaskVisPlugin() {
 }
 
 void ATaskVisPlugin::initialize() {
-    getRobWorkStudio()->stateChangedEvent().add(
-            boost::bind(&ATaskVisPlugin::stateChangedListener, this, _1), this);
-
-    getRobWorkStudio()->genericEvent().add(
-          boost::bind(&ATaskVisPlugin::genericEventListener, this, _1), this);
-
     getRobWorkStudio()->genericAnyEvent().add(
           boost::bind(&ATaskVisPlugin::genericAnyEventListener, this, _1, _2), this);
 
@@ -64,16 +65,20 @@ void ATaskVisPlugin::open(WorkCell* workcell)
     _wc = workcell;
 }
 
-void ATaskVisPlugin::close() {
-}
-
 void ATaskVisPlugin::btnPressed() {
     QObject *obj = sender();
     if (obj == _loadTasksBtn)
     	loadTasks();
     else if (obj == _loadResultsBtn)
     	loadResults();
-    else if (obj == _real || obj == _assumed) {
+    else if (obj == _btnStrategyLibrary) {
+    	StrategyLibraryDialog* const dialog = new StrategyLibraryDialog();
+    	dialog->setAttribute(Qt::WA_DeleteOnClose);
+    	dialog->setWorkCell(getRobWorkStudio()->getWorkCell());
+    	dialog->show();
+    	dialog->raise();
+    	dialog->activateWindow();
+    } else if (obj == _real || obj == _assumed) {
     	if (_real->isChecked())
     		_showReal = true;
     	else
@@ -81,10 +86,6 @@ void ATaskVisPlugin::btnPressed() {
     	if (_currentTask != NULL && _currentResult != NULL && _wc != NULL)
     		constructPlayback();
     }
-}
-
-void ATaskVisPlugin::stateChangedListener(const State& state) {
-
 }
 
 void ATaskVisPlugin::genericAnyEventListener(const std::string& event, boost::any data){
@@ -163,9 +164,6 @@ void ATaskVisPlugin::genericAnyEventListener(const std::string& event, boost::an
     } catch (...){
         Log::warningLog() << "ATaskVisPlugin: Event \"" << event << "\" did not have the correct datatype or an error occured!\n";
     }
-}
-
-void ATaskVisPlugin::genericEventListener(const std::string& event){
 }
 
 void ATaskVisPlugin::loadTasks(){
@@ -250,7 +248,7 @@ void ATaskVisPlugin::selectTask(std::size_t i) {
 		Frame* ftFrame = _wc->findFrame(_currentTask->maleID);
 		if (ftFrame != NULL) {
 			_maleFTrender = ownedPtr(new RenderForceTorque());
-			_maleFTrender->setScales(0.01,1);
+			_maleFTrender->setScales(0.01f,1);
 			getRobWorkStudio()->getWorkCellScene()->addRender("MaleFTRender", _maleFTrender, ftFrame);
 		}
 	}
@@ -259,7 +257,7 @@ void ATaskVisPlugin::selectTask(std::size_t i) {
 		Frame* ftFrame = _wc->findFrame(_currentTask->femaleID);
 		if (ftFrame != NULL) {
 			_femaleFTrender = ownedPtr(new RenderForceTorque());
-			_femaleFTrender->setScales(0.01,1);
+			_femaleFTrender->setScales(0.01f,1);
 			getRobWorkStudio()->getWorkCellScene()->addRender("FemaleFTRender", _femaleFTrender, ftFrame);
 		}
 	}
@@ -401,5 +399,6 @@ PropertyMap& ATaskVisPlugin::settings() {
 }
 
 #if !RWS_USE_QT5
-Q_EXPORT_PLUGIN(ATaskVisPlugin);
+#include <QtCore/qplugin.h>
+Q_EXPORT_PLUGIN(ATaskVisPlugin)
 #endif

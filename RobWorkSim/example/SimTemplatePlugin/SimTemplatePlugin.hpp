@@ -1,16 +1,19 @@
 #ifndef SimTemplatePlugin_HPP
 #define SimTemplatePlugin_HPP
 
-#include <rw/rw.hpp>
-#include <rwlibs/task.hpp>
-#include <rwsim/rwsim.hpp>
-#include <rwsimlibs/ode/ODESimulator.hpp>
+#include <RobWorkStudioConfig.hpp> // For RWS_USE_QT5 definition
+
+#include <rw/common/Timer.hpp>
 #include <rws/RobWorkStudioPlugin.hpp>
 #include "ui_SimTemplatePlugin.h"
 
 #include <QObject>
-#include <QtGui>
-#include <QTimer>
+
+namespace rwsim { namespace dynamics { class DynamicWorkCell; } }
+namespace rwsim { namespace simulator { class DynamicSimulator; } }
+namespace rwsim { namespace simulator { class ThreadSimulator; } }
+
+class QTimer;
 
 /**
  * @brief A plugin
@@ -19,6 +22,9 @@ class SimTemplatePlugin: public rws::RobWorkStudioPlugin, private Ui::SimTemplat
 {
 Q_OBJECT
 Q_INTERFACES( rws::RobWorkStudioPlugin )
+#if RWS_USE_QT5
+	Q_PLUGIN_METADATA(IID "dk.sdu.mip.Robwork.RobWorkStudioPlugin/0.1" FILE "SimTemplatePlugin.json")
+#endif
 public:
 
     /**
@@ -51,10 +57,9 @@ private slots:
 
 private:
     rw::models::WorkCell* _wc;
-    rwsim::dynamics::DynamicWorkCell::Ptr _dwc;
-    rwsim::simulator::ThreadSimulator::Ptr _tsim;
-    rwsim::simulator::DynamicSimulator::Ptr _sim;
-    rwsim::simulator::ODESimulator::Ptr _engine;
+    rw::common::Ptr<rwsim::dynamics::DynamicWorkCell> _dwc;
+    rw::common::Ptr<rwsim::simulator::ThreadSimulator> _tsim;
+    rw::common::Ptr<rwsim::simulator::DynamicSimulator> _sim;
 
     QTimer *_timer;
     rw::common::Timer _wallTimer, _wallTotalTimer;

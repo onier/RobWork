@@ -18,7 +18,7 @@
 
 #include "Geometry.hpp"
 
-#include <rw/math/Math.hpp>
+#include <rw/math/Random.hpp>
 
 #include "Sphere.hpp"
 #include "Box.hpp"
@@ -33,7 +33,7 @@ using namespace rw::common;
 namespace {
 
 	std::string makeName(GeometryData::GeometryType gtype){
-		int ri = Math::ranI(0xFF,0xFFFFFF);
+		int ri = Random::ranI(0xFF,0xFFFFFF);
 		std::stringstream sstr;
 		sstr << GeometryData::toString(gtype) << "_" << ri;
 		return sstr.str();
@@ -47,10 +47,11 @@ Geometry::Geometry(GeometryData::Ptr data, double scale):
 	_transform(rw::math::Transform3D<>::identity() ),
 	_scale(scale),
 	_name(makeName(data->getType())),
+	_filePath(""),
 	_mask(Geometry::CollisionGroup)
 {
 
-};
+}
 
 
 Geometry::Geometry(GeometryData::Ptr data, const std::string& name, double scale):
@@ -59,10 +60,11 @@ Geometry::Geometry(GeometryData::Ptr data, const std::string& name, double scale
 	_transform(rw::math::Transform3D<>::identity() ),
 	_scale(scale),
 	_name(name),
+	_filePath(""),
 	_mask(Geometry::CollisionGroup)
 {
 
-};
+}
 	
 
 Geometry::Geometry(GeometryData::Ptr data,
@@ -73,11 +75,16 @@ Geometry::Geometry(GeometryData::Ptr data,
 	_transform(t3d),
 	_scale(scale),
 	_name(makeName(data->getType())),
+	_filePath(""),
 	_mask(Geometry::CollisionGroup)
 {
-};
 
-Geometry::~Geometry(){};
+}
+
+Geometry::~Geometry()
+{
+
+}
 
 Geometry::Ptr Geometry::makeSphere(double radi){
     return ownedPtr(new Geometry(ownedPtr(new Sphere(radi))));
@@ -105,15 +112,19 @@ Geometry::Ptr Geometry::makeGrid(int dim_x, int dim_y, double size_x, double siz
 
     for(int dy=0;dy<=dim_y;dy++){
     	for(int dx=0;dx<=dim_x;dx++){
-    		imesh->getVertices().push_back( xdir_n* (dx-dim_x/2.0*size_x) + ydir_n*(dy-dim_y/2.0*size_y) );
+    		imesh->getVertices().push_back( (xdir_n* (float)(dx-dim_x/2.0*size_x) + ydir_n*(float)(dy-dim_y/2.0*size_y) ));
     	}
     }
 
     for(int dy=0;dy<=dim_y-1;dy++){
-    	for(int dx=0;dx<=dim_x-1;dx++){
-    		imesh->add( IndexedTriangle<>(dx+1 + dy*size_y, dx + dy*size_y , dx+1 + (dy+1)*size_y) );
-    		imesh->add( IndexedTriangle<>(dx + (dy+1)*size_y , dx+1 + (dy+1)*size_y, dx+1 + dy*size_y) );
-    	}
+    	for(int dx=0;dx<=dim_x-1;dx++){			
+    		//imesh->add( IndexedTriangle<>(dx+1 + dy*size_y, dx + dy*size_y , dx+1 + (dy+1)*size_y) );
+    		//imesh->add( IndexedTriangle<>(dx + (dy+1)*size_y , dx+1 + (dy+1)*size_y, dx+1 + dy*size_y) );
+			//LPE: Changed code to the one below as it does not make sense to use the size of the grid to select the indices.
+    		imesh->add( IndexedTriangle<>(dx+1 + dy*dim_y, dx + dy*dim_y , dx+1 + (dy+1)*dim_y) );
+    		imesh->add( IndexedTriangle<>(dx + (dy+1)*dim_y , dx+1 + (dy+1)*dim_y, dx+1 + dy*dim_y) );
+
+		}
     }
 
     return ownedPtr(new Geometry(imesh));

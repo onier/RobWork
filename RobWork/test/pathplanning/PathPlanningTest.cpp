@@ -32,20 +32,24 @@
 #include <rw/models/WorkCell.hpp>
 #include <rw/math/MetricFactory.hpp>
 #include <boost/foreach.hpp>
-#include <boost/bind.hpp>
 
 #if RW_HAVE_PQP == 1
 #include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
+using rwlibs::proximitystrategies::ProximityStrategyPQP;
 #endif
 #if RW_HAVE_YAOBI == 1
 #include <rwlibs/proximitystrategies/ProximityStrategyYaobi.hpp>
+using rwlibs::proximitystrategies::ProximityStrategyYaobi;
 #endif
 
-USE_ROBWORK_NAMESPACE
-using namespace robwork;
-
-using namespace rwlibs::proximitystrategies;
-using namespace boost::unit_test;
+using namespace rw::common;
+using rw::kinematics::State;
+using rw::loaders::WorkCellLoader;
+using namespace rw::math;
+using namespace rw::models;
+using namespace rw::pathplanning;
+using rw::proximity::CollisionStrategy;
+using rw::trajectory::QPath;
 using namespace rwlibs::pathplanners::prm;
 using namespace rwlibs::pathplanners;
 
@@ -99,7 +103,7 @@ BOOST_AUTO_TEST_CASE( testPartialIndexTable )
 
 void testPathPlanning(const CollisionStrategy::Ptr& strategy)
 {
-    BOOST_MESSAGE("PathPlanningTestSuite");
+    BOOST_TEST_MESSAGE("PathPlanningTestSuite");
     WorkCell::Ptr workcell = WorkCellLoader::Factory::load(testFilePath() + "simple/workcell.wc.xml");
 
     Device::Ptr device = workcell->findDevice("PA10");

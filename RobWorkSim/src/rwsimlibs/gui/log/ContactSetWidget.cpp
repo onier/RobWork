@@ -24,6 +24,8 @@
 #include <rwsim/log/LogContactSet.hpp>
 #include "ui_ContactSetWidget.h"
 
+#include <QItemSelection>
+
 using namespace rw::common;
 using namespace rw::graphics;
 using namespace rw::kinematics;
@@ -85,7 +87,10 @@ void ContactSetWidget::updateEntryWidget() {
 		else
 			pairs.insert(std::make_pair(nameB,nameA));
 	}
-	_ui->_contactBodyPairs->setRowCount(pairs.size());
+	const int nrOfPairs = static_cast<int>(pairs.size());
+	if (pairs.size() > static_cast<std::size_t>(nrOfPairs))
+		RW_THROW("There are too many entries for the widget to handle!");
+	_ui->_contactBodyPairs->setRowCount(nrOfPairs);
 	int row = 0;
 	_ui->_contactBodyPairs->setSortingEnabled(false);
 	BOOST_FOREACH(const FramePair& pair, pairs) {
@@ -107,8 +112,8 @@ void ContactSetWidget::updateEntryWidget() {
 		row++;
 	}
 	_ui->_contactBodyPairs->setSortingEnabled(true);
-	if (pairs.size() > 0)
-		_ui->_contactBodyPairs->setRangeSelected(QTableWidgetSelectionRange(0,0,pairs.size()-1,2),true);
+	if (nrOfPairs > 0)
+		_ui->_contactBodyPairs->setRangeSelected(QTableWidgetSelectionRange(0,0,nrOfPairs-1,2),true);
 }
 
 void ContactSetWidget::showGraphics(GroupNode::Ptr root, SceneGraph::Ptr graph) {
@@ -153,13 +158,50 @@ void ContactSetWidget::contactSetPairsChanged(const QItemSelection&, const QItem
 		if (show)
 			contactsToShow.push_back(i);
 	}
-	std::vector<Contact> contactVec;
+	const int nrOfContactsToShow = static_cast<int>(contactsToShow.size());
+	if (contactsToShow.size() > static_cast<std::size_t>(nrOfContactsToShow))
+		RW_THROW("There are too many entries for the widget to handle!");
+	_ui->_contactTable->clearSelection();
+	_ui->_contactTable->setRowCount(nrOfContactsToShow);
+	int row = 0;
+	_ui->_contactTable->setSortingEnabled(false);
 	BOOST_FOREACH(const std::size_t i, contactsToShow) {
 		const Contact& c = _contactSet->getContact(i);
-		contactVec.push_back(c);
+		const std::string& nameA = c.getNameA();
+		const std::string& nameB = c.getNameB();
+		const QString hover = toQString(c);
+		// Note: setItem takes ownership of the QTableWidgetItems
+		QTableWidgetItem* itemA;
+		QTableWidgetItem* itemB;
+		QTableWidgetItem* itemC = new QTableWidgetItem(QString::number(c.getDepth()));
+		if (nameA < nameB) {
+			itemA = new QTableWidgetItem(QString::fromStdString(nameA));
+			itemB = new QTableWidgetItem(QString::fromStdString(nameB));
+		} else {
+			itemA = new QTableWidgetItem(QString::fromStdString(nameB));
+			itemB = new QTableWidgetItem(QString::fromStdString(nameA));
+		}
+		itemA->setData(Qt::ToolTipRole,hover);
+		itemB->setData(Qt::ToolTipRole,hover);
+		itemC->setData(Qt::ToolTipRole,hover);
+		if (c.getDepth() > 0) {
+			itemA->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemB->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemC->setData(Qt::ForegroundRole, QColor(Qt::red));
+		} else {
+			itemA->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemB->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemC->setData(Qt::ForegroundRole, QColor(Qt::green));
+		}
+		itemA->setData(Qt::UserRole,QVariant::fromValue(i));
+		_ui->_contactTable->setItem(row,0,itemA);
+		_ui->_contactTable->setItem(row,1,itemB);
+		_ui->_contactTable->setItem(row,2,itemC);
+		row++;
 	}
-	_ui->_contactTable->setContacts(contactVec);
-	_ui->_contactTable->selectAll();
+	_ui->_contactTable->setSortingEnabled(true);
+	if (nrOfContactsToShow > 0)
+		_ui->_contactTable->setRangeSelected(QTableWidgetSelectionRange(0,0,nrOfContactsToShow-1,2),true);
 }
 
 ContactSetWidget::Dispatcher::Dispatcher() {

@@ -18,15 +18,12 @@
 #ifndef RW_COMMON_INIARCHIVE_HPP
 #define RW_COMMON_INIARCHIVE_HPP
 
-#include <cstdlib>
-#include <cmath>
 #include <string>
-
-#include <boost/any.hpp>
-#include <cstdio>
+#include <iostream>
 #include <fstream>
+#include <limits>
+
 #include <rw/common/macros.hpp>
-#include <boost/any.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
@@ -44,14 +41,14 @@ namespace common {
 		/**
 		 * @brief constructor
 		 */
-		INIArchive():_ofs(NULL),_ifs(NULL),_fstr(NULL),_isopen(false){}
+		INIArchive():_ofs(NULL),_ifs(NULL),_fstr(NULL),_iostr(NULL),_isopen(false){}
 
-		INIArchive(const std::string& filename):_ofs(NULL),_ifs(NULL),_fstr(NULL),_isopen(false)
+		INIArchive(const std::string& filename):_ofs(NULL),_ifs(NULL),_fstr(NULL),_iostr(NULL),_isopen(false)
 		{
 		    open(filename);
 		}
 
-		INIArchive(std::ostream& ofs):_ofs(NULL),_ifs(NULL),_fstr(NULL),_isopen(false)
+		INIArchive(std::ostream& ofs):_ofs(NULL),_ifs(NULL),_fstr(NULL),_iostr(NULL),_isopen(false)
 		{
 			open(ofs);
 		}
@@ -71,36 +68,26 @@ namespace common {
 		void flush();
 
 protected:
-
+		//! @brief Maximum number of characters in one line.
 		static const int MAX_LINE_WIDTH = 1000;
 
 		//////////////////// SCOPE
-		//! @copydoc OutputArchive::writeEnterScope
+		//! @copydoc OutputArchive::doWriteEnterScope
 		void doWriteEnterScope(const std::string& id);
 
-		//! @copydoc OutputArchive::writeLeaveScope
+		//! @copydoc OutputArchive::doWriteLeaveScope
 		void doWriteLeaveScope(const std::string& id);
 
-		//! @copydoc InputArchive::readEnterScope
+		//! @copydoc InputArchive::doReadEnterScope
 		void doReadEnterScope(const std::string& id);
 
-		//! @copydoc InputArchive::readLeaveScope
+		//! @copydoc InputArchive::doReadLeaveScope
 		void doReadLeaveScope(const std::string& id);
 
 		void doOpenArchive(const std::string& filename);
 		void doOpenArchive(std::iostream& stream);
-		void doOpenOutput(std::ostream& ofs){
-			_fstr = NULL;
-			_iostr = NULL;
-			_ofs = &ofs;
-			_isopen = true;
-		}
-		void doOpenInput(std::istream& ifs){
-			_fstr = NULL;
-			_iostr = NULL;
-			_ifs = &ifs;
-			_isopen = true;
-		}
+		void doOpenOutput(std::ostream& ofs);
+		void doOpenInput(std::istream& ifs);
 
 		///////////////////////// WRITING
 		virtual void doWrite(bool val, const std::string& id){
@@ -133,12 +120,16 @@ protected:
 		void doWrite(const std::vector<double>& val, const std::string& id){ writeValue(val,id);};
 		void doWrite(const std::vector<std::string>& val, const std::string& id){ writeValue(val,id);};
 
+		//! @copydoc OutputArchive::doWrite(const Eigen::MatrixXd&, const std::string&)
 		void doWrite(const Eigen::MatrixXd& val, const std::string& id){ writeMatrix(val,id);}
+
+		//! @copydoc OutputArchive::doWrite(const Eigen::VectorXd&, const std::string&)
 		void doWrite(const Eigen::VectorXd& val, const std::string& id){ writeMatrix(val,id);}
 
 		//template<class T>
 		//void doWrite(const T& data, const std::string& id){ OutputArchive::write<T>(data,id); }
 
+		//! @copydoc OutputArchive::doWrite(const std::vector<bool>&,const std::string&)
 		template<class T>
 		void writeValue( const std::vector<T>& val, const std::string& id ){
 			(*_ofs) << id << "=";
@@ -146,15 +137,26 @@ protected:
 			(*_ofs) << "\n";
 		}
 
+		//! @copydoc OutputArchive::doWrite(bool,const std::string&)
 		template<class T>
 		void writeValue( const T&  val, const std::string& id ){
 			(*_ofs) << id << "=" << val << "\n";
 		}
 
+		/**
+		 * @brief Write a generic Eigen matrix to output.
+		 * @param val [in] the matrix to output.
+		 * @param id [in] identifier for the matrix.
+		 */
 		template <class Derived>
 		void writeMatrix(const Eigen::DenseCoeffsBase<Derived,Eigen::ReadOnlyAccessors>& val, const std::string& id) {
 			typedef typename Eigen::DenseCoeffsBase<Derived,Eigen::ReadOnlyAccessors>::Index Index;
-			const int digits = _ofs->precision() < std::numeric_limits<double>::max_digits10 ? _ofs->precision() : std::numeric_limits<double>::max_digits10;
+#if __cplusplus >= 201103L
+			const int digitsType = std::numeric_limits<double>::max_digits10;
+#else
+			const int digitsType = static_cast<int>(std::floor(std::numeric_limits<double>::digits * std::log10(2) + 2));
+#endif
+			const int digits = static_cast<int>(_ofs->precision()) < digitsType ? static_cast<int>(_ofs->precision()) : digitsType;
 			const int spacePerVal = digits+1+1+1+5; // including a space, sign, decimal seperator and exponential (e.g e+123)
 			const int maxVal = MAX_LINE_WIDTH/spacePerVal;
 			if (maxVal == 0)
@@ -174,8 +176,7 @@ protected:
 					}
 				}
 			}
-			if (printed != 0)
-				(*_ofs) << "\n";
+			RW_ASSERT(printed == 0);
 		}
 
 
@@ -185,6 +186,10 @@ protected:
 		//}
 		///////////////// READING
 
+		/**
+		 * @brief Split a line in a name and a value.
+		 * @return a pair of strings. First is name, second is the value.
+		 */
 		std::pair<std::string, std::string> getNameValue(){
 			std::string line(_line);
 			for(size_t i=0;i<line.size();i++){
@@ -230,7 +235,10 @@ protected:
 		virtual void doRead(std::vector<double>& val, const std::string& id){readValue(val,id);}
 		virtual void doRead(std::vector<std::string>& val, const std::string& id) ;
 
+		//! @copydoc InputArchive::doRead(const Eigen::MatrixXd&, const std::string&)
 	    virtual void doRead(Eigen::MatrixXd& val, const std::string& id){ readMatrix(val,id); }
+
+		//! @copydoc InputArchive::doRead(const Eigen::VectorXd&, const std::string&)
 	    virtual void doRead(Eigen::VectorXd& val, const std::string& id){ readMatrix(val,id); }
 
         //template<class T>
@@ -238,6 +246,7 @@ protected:
         //    ((InputArchive*)this)->read<T>(object, id);
         //}
 
+	     //! @copydoc InputArchive::doRead(std::vector<bool>&,const std::string&)
 		 template<class T>
 		 void readValue(std::vector<T>& val, const std::string& id){
 		     getLine();
@@ -256,7 +265,7 @@ protected:
 			}
 		 }
 
-
+		 //! @copydoc InputArchive::doRead(bool&,const std::string&)
 		 template<class T>
 		 void readValue(T& val, const std::string& id){
 		     getLine();
@@ -268,6 +277,11 @@ protected:
 			val = boost::lexical_cast<T>(valname.second);
 		 }
 
+		 /**
+		  * @brief Read a generic Eigen matrix.
+		  * @param val [out] the result.
+		  * @param id [in] identifier for the matrix - gives a warning if it does not match the id in the file.
+		  */
 		 template <class Derived>
 		 void readMatrix(Eigen::PlainObjectBase<Derived>& val, const std::string& id) {
 			 typedef typename Eigen::PlainObjectBase<Derived>::Index Index;
@@ -301,6 +315,13 @@ protected:
 			 }
 		 }
 
+		 /**
+		  * @brief Read one line from input.
+		  *
+		  * Line length is maximum MAX_LINE_WIDTH.
+		  *
+		  * @return true if success.
+		  */
 		 bool getLine();
 
 	private:

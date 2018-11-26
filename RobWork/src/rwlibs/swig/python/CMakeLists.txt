@@ -1,5 +1,5 @@
 SET(SUBSYS_NAME rw_python )
-SET(SUBSYS_DESC "Interface for accessing RobWorkSim from python." )
+SET(SUBSYS_DESC "Interface for accessing RobWork from python." )
 SET(SUBSYS_DEPS rw rw_algorithms)
 
 # make sure that SDH can be found
@@ -34,7 +34,22 @@ INCLUDE(UseSWIG)
 	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall")
 	
     SET(CMAKE_SWIG_OUTDIR ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-    SWIG_ADD_MODULE(rw python ../rw.i)
-    SWIG_LINK_LIBRARIES(rw ${ROBWORK_LIBRARIES} ${PYTHON_LIBRARIES} )
+	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
+		SWIG_ADD_LIBRARY(rw TYPE MODULE LANGUAGE python SOURCES ../rw.i ../ScriptTypes.cpp)
+	ELSE()
+		SWIG_ADD_MODULE(rw python ../rw.i ../ScriptTypes.cpp)
+	ENDIF()
+    SWIG_LINK_LIBRARIES(rw
+    	rw_pathplanners
+    	rw_pathoptimization
+    	rw_assembly
+    	rw_task
+    	rw_proximitystrategies
+    	rw
+    	${PYTHON_LIBRARIES}
+    )
+    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+      SET_TARGET_PROPERTIES(${SWIG_MODULE_rw_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+    ENDIF()
      
 ENDIF()

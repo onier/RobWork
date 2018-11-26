@@ -9,25 +9,37 @@
  */
 
 
-#include <iostream>
+#include <sstream>
 #include <vector>
+#include <stack>
 #include <string>
 #include <stdio.h>
-#include <stdlib.h>
-#include <csignal>
+//#include <csignal>
 #include <sys/stat.h>
 
-#include <rw/rw.hpp>
+#include <rw/kinematics/Kinematics.hpp>
+#include <rw/kinematics/MovableFrame.hpp>
 #include <rw/loaders/GeometryFactory.hpp>
-#include <rwlibs/task.hpp>
+#include <rw/loaders/WorkCellLoader.hpp>
+#include <rw/models/WorkCell.hpp>
+#include <rw/proximity/CollisionDetector.hpp>
+#include <rwlibs/task/Task.hpp>
+#include <rwlibs/task/loader/TaskLoader.hpp>
+#include <rwlibs/task/loader/TaskSaver.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
 #include <boost/foreach.hpp>
 
-USE_ROBWORK_NAMESPACE
 using namespace std;
-using namespace robwork;
-using namespace rwlibs::proximitystrategies;
+using namespace rw::common;
+using rw::geometry::Geometry;
+using namespace rw::kinematics;
+using namespace rw::loaders;
+using namespace rw::math;
+using namespace rw::models;
+using namespace rw::proximity;
+using namespace rwlibs::task;
+using rwlibs::proximitystrategies::ProximityStrategyFactory;
 
 std::vector<std::string> generateFileList(std::string,std::string,std::string, bool checkExistance);
 std::vector<std::string> mergeTaskFileList(std::string root, std::string preName, std::string postName, bool forceMerge);
@@ -131,12 +143,12 @@ int main(int argc, char** argv)
         std::cout << "* Task: " << taskFile<< std::endl;
         // for each task set the hand in its initial configuration and remove all targets that are in collision
 
-        XMLTaskLoader loader;
-        loader.load(taskFile);
+        const TaskLoader::Ptr loader = TaskLoader::Factory::getTaskLoader("xml");
+        loader->load(taskFile);
 
         CartesianTask::Ptr filterTask = ownedPtr(new CartesianTask());
         std::cout << "" << std::endl;
-        CartesianTask::Ptr rootTask = loader.getCartesianTask();
+        CartesianTask::Ptr rootTask = loader->getCartesianTask();
         std::vector<CartesianTask::Ptr> allTasks = getAllTasks( rootTask );
         std::vector<CartesianTask::Ptr> filteredTasks;
 
@@ -208,10 +220,10 @@ int main(int argc, char** argv)
         
         rootTask->getTasks() = filteredTasks;
         try {
-            XMLTaskSaver saver;
+            const TaskSaver::Ptr saver = TaskSaver::Factory::getTaskSaver("xml");
             std::stringstream sstr;
             sstr << taskFile << ".filtered.xml";
-            saver.save(filterTask, sstr.str() );
+            saver->save(filterTask, sstr.str() );
             //RW_WARN("");
         } catch (const Exception& exp) {
 
@@ -357,9 +369,9 @@ std::vector<std::string> mergeTaskFileList(std::string root, std::string preName
 
                     // add it to the task
                     try {
-                        XMLTaskLoader loader;
-                        loader.load( file );
-                        rwlibs::task::CartesianTask::Ptr task = loader.getCartesianTask();
+                        const TaskLoader::Ptr loader = TaskLoader::Factory::getTaskLoader("xml");
+                        loader->load(file);
+                        rwlibs::task::CartesianTask::Ptr task = loader->getCartesianTask();
                         task->setId( objectDirectory + "_" + "img_" + sIstr + "_" + graspType + "_" + gIstr );
                         task->getPropertyMap().set<string>("GraspType",graspType);
                         task->getPropertyMap().set<int>("GraspTypeI",gtype);
@@ -381,8 +393,8 @@ std::vector<std::string> mergeTaskFileList(std::string root, std::string preName
 
             std::cout << "Merging " << nrExpMerged << " tasks into: " << std::string("/" + objectDirectory + "/" + "merged_" + sIstr + ".task.xml") << std::endl;
             try {
-                XMLTaskSaver saver;
-                saver.save(tasks, merged_taskFile );
+            	const TaskSaver::Ptr saver = TaskSaver::Factory::getTaskSaver("xml");
+                saver->save(tasks, merged_taskFile );
             } catch (const Exception& exp) {
                // QMessageBox::information(this, "Task Execution Widget", "Unable to save tasks");
             }

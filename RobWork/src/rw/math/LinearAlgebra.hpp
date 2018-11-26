@@ -25,9 +25,11 @@
  * @file LinearAlgebra.hpp
  */
 
+#include <boost/numeric/ublas/matrix.hpp>
+
+#ifdef RW_USE_UBLAS_LAPACK
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/vector_proxy.hpp>
-#include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/matrix_proxy.hpp>
 #include <boost/numeric/ublas/triangular.hpp>
 #include <boost/numeric/ublas/lu.hpp>
@@ -39,6 +41,7 @@
 
 #include <boost/numeric/bindings/traits/ublas_matrix.hpp>
 #include <boost/numeric/bindings/traits/ublas_vector.hpp>
+#endif
 
 #ifdef RW_USE_UBLAS_LAPACK
 #include <boost/numeric/bindings/lapack/gesvd.hpp>
@@ -46,7 +49,6 @@
 #endif
 
 #include <Eigen/Eigen>
-#include <Eigen/SVD>
 
 #include <limits>
 
@@ -63,27 +65,28 @@ namespace rw { namespace math {
     {
     public:
 
-    	//! types used to reduce namespace cluttering
+    	//! @brief Type for Eigen matrices used to reduce namespace cluttering.
     	template<class T=double>
     	struct EigenMatrix {
     	    //! type of this matrix
 			typedef Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> type;
     	};
 
+    	//! @brief Type for Eigen vectors, used to reduce namespace cluttering.
     	template<class T=double>
     	struct EigenVector {
     	    //! type of this Vector
 			typedef Eigen::Matrix<T, Eigen::Dynamic, 1> type;
     	};
 
-
-
+    	//! @brief Type for Boost matrices used to reduce namespace cluttering.
     	template<class T=double>
     	struct BoostMatrix {
     	    //! type of this matrix
     	    typedef boost::numeric::ublas::matrix<T> type;
     	};
 
+#ifdef RW_USE_UBLAS_LAPACK
     	template<class T=double>
     	struct BoostVector {
     	    //! type of this Vector
@@ -96,6 +99,7 @@ namespace rw { namespace math {
 
         //! A boost vector of complex numbers.
         typedef boost::numeric::ublas::vector<std::complex<double> > BoostComplexVector;
+#endif
 
         //! An Eigen vector of complex numbers.
 		//typedef Eigen::VectorXcd ComplexVector;
@@ -127,12 +131,7 @@ namespace rw { namespace math {
          * @param sigma [out] The \f$\mathbf{sigma}\f$ vector with diagonal elements
          * @param V [out] Result matrix \f$\mathbf{V}\f$
 		 */
-		static void svd(const Eigen::MatrixXd& M, Eigen::MatrixXd& U, Eigen::VectorXd& sigma, Eigen::MatrixXd& V) {
-			const Eigen::JacobiSVD<Eigen::MatrixXd> svd = M.jacobiSvd(Eigen::ComputeFullU | Eigen::ComputeFullV);
-			U = svd.matrixU();
-			sigma = svd.singularValues();
-			V = svd.matrixV();
-		}
+		static void svd(const Eigen::MatrixXd& M, Eigen::MatrixXd& U, Eigen::VectorXd& sigma, Eigen::MatrixXd& V);
 
 
 #ifdef RW_USE_UBLAS_LAPACK
@@ -614,6 +613,11 @@ namespace rw { namespace math {
 
 #endif //RW_USE_UBLAS_LAPACK
 
+		/**
+		 * @brief Decomposition for a symmetric matrix.
+		 * @param Am1 [in] a symmetric matrix.
+		 * @return the decomposition as a pair with eigenvectors and eigenvalues.
+		 */
 		template<class T>
 		//static std::pair<typename EigenMatrix<T>::type, typename EigenVector<T>::type > eigenDecompositionSymmetric(const typename EigenMatrix<T>::type& Am1)
 		static std::pair<typename EigenMatrix<T>::type, typename EigenVector<T>::type > eigenDecompositionSymmetric(const Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& Am1)
@@ -622,8 +626,12 @@ namespace rw { namespace math {
 			eigenSolver.compute(Am1);
 			return std::make_pair(eigenSolver.eigenvectors(), eigenSolver.eigenvalues());
 		}
-			
-		
+
+		/**
+		 * @brief Eigen decomposition of a matrix.
+		 * @param Am1 [in] the matrix.
+		 * @return the decomposition as a pair with eigenvectors and eigenvalues.
+		 */
 		template<class T>
 		static std::pair<typename EigenMatrix<std::complex<T> >::type, typename EigenVector<std::complex<T> >::type > eigenDecomposition(const typename Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic>& Am1)
         {
@@ -719,6 +727,12 @@ namespace rw { namespace math {
 	    static void lapack_triDiagonalSolve(int *N, int *NRHS, double *D, double *e, double *b, int *ldb, int *info);
 #endif //RW_USE_UBLAS_LAPACK
     };
+
+	template<>
+	std::pair<typename LinearAlgebra::EigenMatrix<double>::type, typename LinearAlgebra::EigenVector<double>::type > LinearAlgebra::eigenDecompositionSymmetric<double>(const Eigen::MatrixXd& Am1);
+
+	template<>
+	std::pair<typename LinearAlgebra::EigenMatrix<std::complex<double> >::type, typename LinearAlgebra::EigenVector<std::complex<double> >::type > LinearAlgebra::eigenDecomposition<double>(const Eigen::MatrixXd& Am1);
 
     /*@}*/
 }} // end namespaces

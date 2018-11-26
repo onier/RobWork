@@ -26,6 +26,8 @@
 
 #include "SimulatorLogEntry.hpp"
 
+#include <rw/math/VelocityScrew6D.hpp>
+
 namespace rwsim {
 namespace log {
 
@@ -56,6 +58,9 @@ public:
 
 	//! @copydoc SimulatorLogEntry::getType
 	virtual std::string getType() const;
+
+	//! @copydoc SimulatorLogEntry::operator==
+	virtual bool operator==(const SimulatorLog &b) const;
 
 	//! @copydoc SimulatorLogEntry::getLinkedEntries
 	virtual std::list<SimulatorLogEntry::Ptr> getLinkedEntries() const;

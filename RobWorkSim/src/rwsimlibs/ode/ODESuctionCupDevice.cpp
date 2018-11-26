@@ -19,9 +19,15 @@
 #include "ODESuctionCupDevice.hpp"
 
 #include "ODEBody.hpp"
+#include "ODESimulator.hpp"
 
+#include <rw/geometry/TriMesh.hpp>
+#include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
+#include <rwsim/dynamics/Body.hpp>
 #include <rwsim/dynamics/MaterialDataMap.hpp>
 #include <rwsim/dynamics/ContactDataMap.hpp>
+#include <rwsim/dynamics/SuctionCup.hpp>
+#include <rwsim/sensor/BodyContactSensor.hpp>
 
 #include <ode/ode.h>
 #include <vector>
@@ -418,7 +424,7 @@ void ODESuctionCupDevice::init(ODEBody *odebase, rwsim::dynamics::SuctionCup* sc
     dJointAttach(slider, bTmp1, _odeBase->getBodyID());
     dJointSetSliderAxis(slider, saxis(0) , saxis(1), saxis(2));
     double lostop = scup->getSpringParamsClosed()(4);
-    double highstop = scup->getSpringParamsOpen()(4);
+    //double highstop = scup->getSpringParamsOpen()(4);
     dJointSetSliderParam(slider, dParamLoStop, lostop-0.01 );
     //dJointSetSliderParam(slider, dParamHiStop, highstop+0.01 );
     dJointSetSliderParam(slider, dParamCFM, 0.01);

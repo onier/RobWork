@@ -24,7 +24,9 @@
  */
 
 #include <rw/geometry/PointCloud.hpp>
-#include <rw/kinematics/Frame.hpp>
+
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace kinematics { class State; } }
 
 namespace rwlibs { namespace simulation {
     /** @addtogroup simulation */
@@ -37,6 +39,7 @@ namespace rwlibs { namespace simulation {
     class FrameGrabber25D
     {
     public:
+    	//! @brief Smart pointer type for FrameGrabber25D.
         typedef rw::common::Ptr<FrameGrabber25D> Ptr;
 
         /**
@@ -125,11 +128,17 @@ namespace rwlibs { namespace simulation {
     protected:
         //! @brief The image
         rw::geometry::PointCloud *_img;
+        //! @brief Width of the image.
         size_t _width;
+        //! @brief Height of the image.
         size_t _height;
 
     };
 
+    /**
+     * @brief Old smart pointer type.
+     * @deprecated Please use FrameGrabber25D::Ptr instead.
+     */
     typedef rw::common::Ptr<FrameGrabber25D> FrameGrabber25DPtr;
 
     /* @} */

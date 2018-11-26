@@ -16,10 +16,13 @@
  ********************************************************************************/
 
 #include "ContactStrategyPQP.hpp"
+#include "ContactModel.hpp"
+#include "ContactStrategyData.hpp"
 #include "ContactStrategyTracking.hpp"
 
+#include <rw/geometry/Geometry.hpp>
 #include <rw/geometry/TriMesh.hpp>
-#include <rw/proximity/ProximityCache.hpp>
+#include <rw/math/EAA.hpp>
 
 #include <rwsim/dynamics/ContactPoint.hpp>
 #include <rwsim/dynamics/ContactCluster.hpp>
@@ -49,7 +52,7 @@ public:
 	TriMeshModel(ContactStrategy *owner): ContactModel(owner) {}
 	~TriMeshModel() {
 		if (models.size() > 0) {
-			RW_THROW("Please use destroyModel on ContactStrategyPQP to deallocate internal caching before deleting the ProximityModel.");
+			RW_WARN("Please use destroyModel on ContactStrategyPQP to deallocate internal caching before deleting the ProximityModel.");
 		}
 	}
 	virtual std::string getName() const { return "TriMeshModel"; }

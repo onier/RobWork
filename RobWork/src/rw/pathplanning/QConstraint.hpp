@@ -23,25 +23,19 @@
    @file QConstraint.hpp
 */
 
-#include "StateConstraint.hpp"
-#include "QNormalizer.hpp"
-
 #include <rw/math/Q.hpp>
 #include <rw/common/Ptr.hpp>
-#include <rw/kinematics/State.hpp>
 #include <rw/models/Device.hpp>
-#include <rw/proximity/CollisionDetector.hpp>
+
+namespace rw { namespace kinematics { class State; } }
+namespace rw { namespace proximity { class CollisionDetector; } }
 
 namespace rw { namespace pathplanning {
+	class StateConstraint;
+	class QNormalizer;
 
     /** @addtogroup pathplanning */
     /** @{*/
-#ifdef RW_USE_DEPRECATED
-    class QConstraint;
-
-    //! A pointer to a QConstraint.
-    typedef rw::common::Ptr<QConstraint> QConstraintPtr;
-#endif
 
     /**
        @brief Interface for the checking for collisions for work cell states.
@@ -51,6 +45,8 @@ namespace rw { namespace pathplanning {
     public:
 		//! @brief smart pointer type to this class
 		typedef rw::common::Ptr<QConstraint> Ptr;
+		//! @brief smart pointer type to this const class
+		typedef rw::common::Ptr< const QConstraint > CPtr;
 
 
 		/**
@@ -96,16 +92,16 @@ namespace rw { namespace pathplanning {
            @brief Map a state constraint to a configuration constraint.
         */
 		static QConstraint::Ptr make(
-			StateConstraint::Ptr detector,
-			rw::models::Device::Ptr device,
+			rw::common::Ptr<StateConstraint> detector,
+			rw::models::Device::CPtr device,
             const rw::kinematics::State& state);
 
         /**
            @brief Map a collision detector to a configuration constraint.
         */
 		static QConstraint::Ptr make(
-			rw::proximity::CollisionDetector::Ptr detector,
-			rw::models::Device::Ptr device,
+			rw::common::Ptr<rw::proximity::CollisionDetector> detector,
+			rw::models::Device::CPtr device,
             const rw::kinematics::State& state);
 
         /**
@@ -162,8 +158,16 @@ namespace rw { namespace pathplanning {
         */
         virtual bool doInCollision(const rw::math::Q& q) const = 0;
 
+        /**
+         * @brief Set a log.
+         * @param log [in] the log.
+         */
 		virtual void doSetLog(rw::common::Log::Ptr log) = 0;
 
+		/**
+		 * @brief Update constraint.
+		 * @param state [in] the state.
+		 */
 		virtual void doUpdate(const rw::kinematics::State& state) {};
 
         /**

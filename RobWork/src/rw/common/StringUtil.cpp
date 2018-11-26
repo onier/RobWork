@@ -18,17 +18,12 @@
 
 #include "StringUtil.hpp"
 
-#include "macros.hpp"
+#include <rw/math/Random.hpp>
 
 #include <limits>
-#include <fstream>
-#include <iostream>
-#include <cassert>
-#include <algorithm>
-#include <cstring>
 #include <sstream>
-#include <boost/foreach.hpp>
-#include <boost/algorithm/string.hpp>
+#include <iostream>
+#include <boost/algorithm/string/replace.hpp>
 
 using namespace rw::common;
 
@@ -62,6 +57,36 @@ std::string StringUtil::getDirectoryName(const std::string& path)
         return path.substr(0, pos + 1);
     else
         return std::string();
+}
+
+std::string StringUtil::getRelativeDirectoryName(const std::string& path, std::string dir_name)
+{
+    while(!dir_name.empty()) {
+    	if (dir_name.back() == '/' || dir_name.back() == '\\')
+    		dir_name.pop_back();
+    	else
+    		break;
+    }
+    std::string new_dir = std::string();
+    const std::string::size_type pos = dir_name.find_last_of("/\\");
+    if (pos != std::string::npos)
+        new_dir = dir_name.substr(pos + 1, std::string::npos);
+
+    std::string key_path(new_dir);
+    std::string new_path = getDirectoryName(path); // remove the filename
+    const std::string::size_type pos_path = new_path.find(key_path);
+    if (pos_path != std::string::npos) {
+    	new_path = new_path.substr(pos_path+key_path.length()+1);
+        while(!new_path.empty()) {
+        	if (new_path.front() == '/' || new_path.front() == '\\')
+        		new_path = new_path.substr(1);
+        	else
+        		break;
+        }
+        return new_path;
+    } else {
+        return std::string();
+    }
 }
 
 
@@ -195,7 +220,9 @@ namespace
         typedef std::vector<X> V;
         std::pair<bool, V> nothing(false, V());
         V vals;
-        BOOST_FOREACH(const std::string& str, words) {
+        //BOOST_FOREACH(const std::string& str, words) {
+        for (std::size_t i = 0; i < words.size(); i++) {
+        	const std::string& str = words[i];
             std::pair<bool, X> okX = toX<X>(str);
             if (okX.first) vals.push_back(okX.second);
             else return nothing;
@@ -276,3 +303,9 @@ std::string StringUtil::patternToRegEx(const std::string& pattern) {
 	return reg;
 } 
 
+std::string StringUtil::ranName(const std::string& prefix) {
+	int ri = rw::math::Random::ranI(0xFF,0xFFFFFF);
+	std::stringstream sstr;
+	sstr << prefix << "_" << ri;
+	return sstr.str();
+}

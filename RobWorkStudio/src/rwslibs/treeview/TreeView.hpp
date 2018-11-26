@@ -22,18 +22,16 @@
 #include <map>
 
 #include <QObject>
-#include <QTreeWidget>
-#include <QActionGroup>
-//#include <QModelIndex>
 #include <rws/RobWorkStudioPlugin.hpp>
-#include <rw/models/WorkCell.hpp>
-#include <rw/models/Device.hpp>
-#include <rw/models/SerialDevice.hpp>
-#include <rw/kinematics/Frame.hpp>
 #include <rw/common/Ptr.hpp>
-#include <rw/graphics/DrawableNode.hpp>
-#include <QtGui>
 
+namespace rw { namespace graphics { class DrawableNode; } }
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace models { class Device; } }
+
+class QAction;
+class QTreeWidget;
+class QTreeWidgetItem;
 
 namespace rws {
 
@@ -61,23 +59,39 @@ public:
     //! @copydoc RobWorkStudioPlugin::open
     virtual void open(rw::models::WorkCell* workcell);
 
-    //! @copydoc RobWorkStudioPlugin::open
+    //! @copydoc RobWorkStudioPlugin::close
     virtual void close();
 
+    /**
+     * @brief Update the view - this method can be called from other threads.
+     * @param val [in] not currently used.
+     */
+    void workcellChangedListener(int val);
 
-    void workcellChangedListener(int);
-
+    /**
+     * @brief Select a specific frame.
+     * @param frame [in] the frame.
+     * @note This is not currently used.
+     */
     void frameSelectedListener(rw::kinematics::Frame* frame);
+
+    /**
+     * @brief Listen for updates to the state (for instance attaching/detaching of frames).
+     * @param state [in] the state.
+     */
     void stateChangedListener(const rw::kinematics::State& state);
 
 protected:
 	//void frameSelectedHandler(rw::kinematics::Frame* frame, RobWorkStudio* sender);
 
+    //! @copydoc RobWorkStudioPlugin::initialize
 	void initialize();
 private slots:
     void customContextMenuRequestSlot(const QPoint& pos);
     void toggleFrameSlot();
     void toggleFramesSlot();
+    void increaseFrameAxisSlot();
+    void decreaseFrameAxisSlot();
     void selectFrameSlot();
     void showSolidSlot();
     void showWireSlot();
@@ -109,7 +123,7 @@ private:
 
     void clearTreeContent();
     void setupFrame(rw::kinematics::Frame& frame, QTreeWidgetItem* parentItem);
-    void constructDrawableList(std::vector<rw::graphics::DrawableNode::Ptr>& drawables);
+    void constructDrawableList(std::vector<rw::common::Ptr<rw::graphics::DrawableNode> >& drawables);
 
     void setupDrawables(rw::kinematics::Frame* frame, QTreeWidgetItem* parent);
 
@@ -142,15 +156,17 @@ private:
     rw::models::WorkCell* _workcell;
     rw::kinematics::State _state;
 
-	typedef std::map<QTreeWidgetItem*, rw::models::Device::Ptr> DeviceMap;
+	typedef std::map<QTreeWidgetItem*, rw::common::Ptr<rw::models::Device> > DeviceMap;
     DeviceMap _deviceMap;
 
     typedef std::map<QTreeWidgetItem*, rw::kinematics::Frame*> FrameMap;
     FrameMap _frameMap;
 
-    typedef std::map<QTreeWidgetItem*, rw::graphics::DrawableNode::Ptr> DrawableMap;
+    typedef std::map<QTreeWidgetItem*, rw::common::Ptr<rw::graphics::DrawableNode> > DrawableMap;
     // maintains the drawables that are not constructed and added from this plugin
     DrawableMap _drawableMap;
+
+    double _frameAxisSize;
 
     //typedef std::map<rw::graphics::DrawableNode::Ptr, QTreeWidgetItem*> DrawableToItemMap;
     // maintains all drawables that are added by this map

@@ -15,13 +15,16 @@
  * limitations under the License.
  ********************************************************************************/
 
+#include "ForceTorqueWidget.hpp"
+
 #include <rw/graphics/GroupNode.hpp>
 #include <rw/graphics/SceneGraph.hpp>
 #include <rwlibs/opengl/RenderVelocity.hpp>
 #include <rwsim/dynamics/DynamicWorkCell.hpp>
 #include <rwsim/log/LogForceTorque.hpp>
-#include "ForceTorqueWidget.hpp"
 #include "ui_ForceTorqueWidget.h"
+
+#include <QItemSelection>
 
 using namespace rw::common;
 using namespace rw::graphics;
@@ -60,6 +63,11 @@ ForceTorqueWidget::ForceTorqueWidget(rw::common::Ptr<const LogForceTorque> entry
 	headerLabels.push_back("Force");
 	headerLabels.push_back("Torque");
 	_ui->_table->setHorizontalHeaderLabels(headerLabels);
+
+	connect(_ui->_scalingLinA, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_scalingLinB, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_scalingAngA, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_scalingAngB, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
 }
 
 ForceTorqueWidget::~ForceTorqueWidget() {
@@ -97,7 +105,10 @@ void ForceTorqueWidget::updateEntryWidget() {
 		else
 			pairs.insert(std::make_pair(nameB,nameA));
 	}
-	_ui->_pairs->setRowCount(pairs.size());
+	const int nrOfPairs = static_cast<int>(pairs.size());
+	if (pairs.size() > static_cast<std::size_t>(nrOfPairs))
+		RW_THROW("There are too many entries for the widget to handle!");
+	_ui->_pairs->setRowCount(nrOfPairs);
 	int row = 0;
 	_ui->_pairs->setSortingEnabled(false);
 	BOOST_FOREACH(const FramePair& pair, pairs) {
@@ -116,19 +127,38 @@ void ForceTorqueWidget::updateEntryWidget() {
 		row++;
 	}
 	_ui->_pairs->setSortingEnabled(true);
-	if (pairs.size() > 0)
-		_ui->_pairs->setRangeSelected(QTableWidgetSelectionRange(0,0,pairs.size()-1,2),true);
+	if (nrOfPairs > 0)
+		_ui->_pairs->setRangeSelected(QTableWidgetSelectionRange(0,0,nrOfPairs-1,2),true);
 }
 
 void ForceTorqueWidget::showGraphics(GroupNode::Ptr root, SceneGraph::Ptr graph) {
 	if (root == NULL && _root != NULL)
-		_root->removeChild("Bodies");
+		_root->removeChild("Wrenches");
 	_root = root;
 	_graph = graph;
 }
 
 std::string ForceTorqueWidget::getName() const {
 	return "Forces and Torques";
+}
+
+void ForceTorqueWidget::setProperties(rw::common::Ptr<rw::common::PropertyMap> properties) {
+	SimulatorLogEntryWidget::setProperties(properties);
+	if (!_properties.isNull()) {
+		if (!_properties->has("ForceTorqueWidget_LinA"))
+			_properties->set<double>("ForceTorqueWidget_LinA",_ui->_scalingLinA->value());
+		if (!_properties->has("ForceTorqueWidget_LinB"))
+			_properties->set<double>("ForceTorqueWidget_LinB",_ui->_scalingLinB->value());
+		if (!_properties->has("ForceTorqueWidget_AngA"))
+			_properties->set<double>("ForceTorqueWidget_AngA",_ui->_scalingAngA->value());
+		if (!_properties->has("ForceTorqueWidget_AngB"))
+			_properties->set<double>("ForceTorqueWidget_AngB",_ui->_scalingAngB->value());
+
+		_ui->_scalingLinA->setValue(_properties->get<double>("ForceTorqueWidget_LinA"));
+		_ui->_scalingLinB->setValue(_properties->get<double>("ForceTorqueWidget_LinB"));
+		_ui->_scalingAngA->setValue(_properties->get<double>("ForceTorqueWidget_AngA"));
+		_ui->_scalingAngB->setValue(_properties->get<double>("ForceTorqueWidget_AngB"));
+	}
 }
 
 void ForceTorqueWidget::pairsChanged(const QItemSelection&, const QItemSelection&) {
@@ -158,8 +188,11 @@ void ForceTorqueWidget::pairsChanged(const QItemSelection&, const QItemSelection
 		if (show)
 			contactsToShow.push_back(i);
 	}
+	const int nrOfContactsToShow = static_cast<int>(contactsToShow.size());
+	if (contactsToShow.size() > static_cast<std::size_t>(nrOfContactsToShow))
+		RW_THROW("There are too many entries for the widget to handle!");
 	_ui->_table->clearSelection();
-	_ui->_table->setRowCount(contactsToShow.size());
+	_ui->_table->setRowCount(nrOfContactsToShow);
 	int row = 0;
 	_ui->_table->setSortingEnabled(false);
 	BOOST_FOREACH(const std::size_t i, contactsToShow) {
@@ -198,14 +231,17 @@ void ForceTorqueWidget::pairsChanged(const QItemSelection&, const QItemSelection
 		row++;
 	}
 	_ui->_table->setSortingEnabled(true);
-	if (contactsToShow.size() > 0)
-		_ui->_table->setRangeSelected(QTableWidgetSelectionRange(0,0,contactsToShow.size()-1,5),true);
+	if (nrOfContactsToShow > 0)
+		_ui->_table->setRangeSelected(QTableWidgetSelectionRange(0,0,nrOfContactsToShow-1,5),true);
 }
 
 void ForceTorqueWidget::contactSetChanged(const QItemSelection&, const QItemSelection&) {
 	const QModelIndexList indexes = _ui->_table->selectionModel()->selectedIndexes();
 	_root->removeChild("Wrenches");
+	_velRenders.clear();
 	GroupNode::Ptr wrenchGroup = ownedPtr(new GroupNode("Wrenches"));
+	const double scaleLin = _ui->_scalingLinA->value()/_ui->_scalingLinB->value();
+	const double scaleAng = _ui->_scalingAngA->value()/_ui->_scalingAngB->value();
 	foreach (QModelIndex index, indexes) {
 		if (index.column() > 0)
 			continue;
@@ -217,8 +253,10 @@ void ForceTorqueWidget::contactSetChanged(const QItemSelection&, const QItemSele
 		const Wrench6D<> ftB = _forces->getWrenchBodyB(i);
 		renderA->setVelocity(VelocityScrew6D<>(ftA.force(),EAA<>(ftA.torque())));
 		renderB->setVelocity(VelocityScrew6D<>(ftB.force(),EAA<>(ftB.torque())));
-		renderA->setScales(0.1,0.1);
-		renderB->setScales(0.1,0.1);
+		renderA->setScales(scaleLin,scaleAng);
+		renderB->setScales(scaleLin,scaleAng);
+		_velRenders.push_back(renderA);
+		_velRenders.push_back(renderB);
 		const DrawableNode::Ptr drawableA = _graph->makeDrawable("WrenchA",renderA,DrawableNode::Physical);
 		const DrawableNode::Ptr drawableB = _graph->makeDrawable("WrenchB",renderB,DrawableNode::Physical);
 		drawableA->setTransform(Transform3D<>(_forces->getPositionA(i)));
@@ -229,6 +267,27 @@ void ForceTorqueWidget::contactSetChanged(const QItemSelection&, const QItemSele
 		drawableB->setVisible(true);
 	}
 	GroupNode::addChild(wrenchGroup, _root);
+	emit graphicsUpdated();
+}
+
+void ForceTorqueWidget::scalingChanged(double d) {
+	if (!_properties.isNull()) {
+		if (QObject::sender() == _ui->_scalingLinA)
+			_properties->set("ForceTorqueWidget_LinA",d);
+		else if (QObject::sender() == _ui->_scalingLinB)
+			_properties->set("ForceTorqueWidget_LinB",d);
+		else if (QObject::sender() == _ui->_scalingAngA)
+			_properties->set("ForceTorqueWidget_AngA",d);
+		else if (QObject::sender() == _ui->_scalingAngB)
+			_properties->set("ForceTorqueWidget_AngB",d);
+	}
+
+	const double scaleLin = _ui->_scalingLinA->value()/_ui->_scalingLinB->value();
+	const double scaleAng = _ui->_scalingAngA->value()/_ui->_scalingAngB->value();
+	for (const RenderVelocity::Ptr render : _velRenders) {
+		render->setScaleLinear(static_cast<float>(scaleLin));
+		render->setScaleAngular(static_cast<float>(scaleAng));
+	}
 	emit graphicsUpdated();
 }
 

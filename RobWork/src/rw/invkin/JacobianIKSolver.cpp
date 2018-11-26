@@ -20,14 +20,12 @@
 #include <rw/math/VelocityScrew6D.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 #include <rw/math/Jacobian.hpp>
-#include <rw/math/Quaternion.hpp>
-#include <rw/kinematics/FKTable.hpp>
-#include <rw/common/Property.hpp>
 
 #include <rw/models/Models.hpp>
 #include <rw/models/Device.hpp>
 
-#include <boost/shared_ptr.hpp>
+#include <rw/kinematics/Frame.hpp>
+
 #include <rw/trajectory/LinearInterpolator.hpp>
 
 using namespace boost;
@@ -39,24 +37,26 @@ using namespace rw::common;
 using namespace rw::invkin;
 using namespace rw::trajectory;
 
-JacobianIKSolver::JacobianIKSolver(Device::Ptr device, Frame *foi, const State& state):
+JacobianIKSolver::JacobianIKSolver(Device::CPtr device, const Frame *foi, const State& state):
     _device(device),
     _interpolationStep(0.21),
     _fkrange( device->getBase(), foi, state),
     _devJac( device->baseJCframe(foi,state) ),
     _useJointClamping(false),
+	_useInterpolation(false),
     _checkJointLimits(false),
 	_solverType(SVD)
 {
     setMaxIterations(15);
 }
 
-JacobianIKSolver::JacobianIKSolver(Device::Ptr device, const State& state):
+JacobianIKSolver::JacobianIKSolver(Device::CPtr device, const State& state):
     _device(device),
     _interpolationStep(0.21),
     _fkrange( device->getBase(), device->getEnd(), state),
     _devJac( device->baseJCend(state) ),
     _useJointClamping(false),
+	_useInterpolation(false),
     _checkJointLimits(false),
     _solverType(SVD)
 {
@@ -196,3 +196,6 @@ bool JacobianIKSolver::solveLocal(const Transform3D<> &bTed,
     return false;
 }
 
+rw::kinematics::Frame::CPtr JacobianIKSolver::getTCP() const {
+    return _fkrange.getEnd();
+}

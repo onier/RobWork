@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -23,9 +23,8 @@
  */
 
 #include <rw/common/Ptr.hpp>
-#include <rw/math/Math.hpp>
+#include <rw/math/Random.hpp>
 
-#include <iostream>
 #include <vector>
 #include <algorithm>
 
@@ -34,7 +33,7 @@ namespace algorithms {
 
 /**
  * @brief An interface for RANSAC model fitting.
- * 
+ *
  * @todo A model needs to remember the indices of inliers from the set of data...
  */
 template<class MODEL, class DATA>
@@ -82,7 +81,7 @@ public:
 
 		int n = MODEL().getMinReqData();
 
-		if (data.size() < n || data.size() < dataRequired) {
+		if (data.size() < static_cast<size_t>(n) || data.size() < static_cast<size_t>(dataRequired)) {
 			//RW_WARN("Too few samples to create a proper model.");
 
 			return std::vector<MODEL>();
@@ -99,7 +98,7 @@ public:
 		while (iterations++ < maxIterations) {
 			std::random_shuffle(indices.begin(), indices.end());
 			std::vector<DATA> maybeInliers;
-			for (size_t i = 0; i < n; ++i) {
+			for (size_t i = 0; i < static_cast<size_t>(n); ++i) {
 				maybeInliers.push_back(data[indices[i]]);
 			}
 
@@ -126,9 +125,9 @@ public:
 			}
 
 			// if consensus set size is large enough, we have a model
-			if (consensusSet.size() > dataRequired) {
+			if (consensusSet.size() > static_cast<size_t>(dataRequired)) {
 				models.push_back(
-						std::pair<MODEL, int>(maybeModel, consensusSet.size()));
+						std::pair<MODEL, int>(maybeModel, static_cast<int>(consensusSet.size())));
 			}
 
 		}
@@ -156,7 +155,7 @@ public:
 
 				if (models[0].first.invalid()
 						|| models[0].first.getNumberOfInliers()
-								< dataRequired) {
+								< static_cast<size_t>(dataRequired)) {
 					return std::vector<MODEL>();
 				}
 			} catch (...) {
@@ -177,7 +176,7 @@ public:
 		bool merging = false;
 		do {
 			merging = false;
-			
+
 			for (size_t i = 0; i < modelsPtr.size() - 1; i++) {
 
 				if (modelsPtr[i].first == NULL) {
@@ -207,7 +206,7 @@ public:
 
 					// mark the model as processed
 					modelsPtr[j].first = NULL;
-					
+
 					merging = true;
 				}
 
@@ -219,7 +218,7 @@ public:
 				std::vector<DATA> consensusSet;
 				std::vector<size_t> consensusSetIndices;
 				for (size_t k = 0; k < data.size(); ++k) {
-					
+
 					if (bestCloseModel.first->belongsTo(data[k], dataThreshold)) {
 						consensusSet.push_back(data[k]);
 						consensusSetIndices.push_back(k);
@@ -231,7 +230,7 @@ public:
 					bestCloseModel.first->_indices = consensusSetIndices;
 
 					if (bestCloseModel.first->invalid()
-						|| bestCloseModel.first->getNumberOfInliers() < dataRequired
+						|| bestCloseModel.first->getNumberOfInliers() < static_cast<size_t>(dataRequired)
 					) {
 						continue;
 					}
@@ -239,10 +238,10 @@ public:
 					continue;
 				}
 
-				
+
 			}
 		} while (merging);
-		
+
 		std::vector<MODEL> newModels;
 		for (size_t i = 0; i < modelsPtr.size() - 1; i++) {
 			if (modelsPtr[i].first != NULL) {
@@ -260,7 +259,7 @@ public:
 	 */
 	static MODEL bestModel(const std::vector<MODEL>& models) {
 		if (models.size() == 0) {
-			return *(new MODEL());
+			return MODEL();
 		}
 
 		size_t idx = 0;
@@ -287,7 +286,7 @@ public:
 	 */
 	static MODEL likelyModel(const std::vector<MODEL>& models) {
 		if (models.size() == 0) {
-			return *(new MODEL());
+			return MODEL();
 		}
 
 		size_t total_inliers = 0;
@@ -300,7 +299,7 @@ public:
 			thresholds.push_back(total_inliers);
 		}
 
-		size_t pick = rw::math::Math::ran(0.0, 1.0) * total_inliers;
+		size_t pick = rw::math::Random::ran(0.0, 1.0) * total_inliers;
 
 		size_t idx = 0; // model index
 		for (size_t i = 0; i < models.size(); ++i) {
@@ -440,7 +439,7 @@ protected:
 	std::vector<DATA> _data;
 	double _quality;
 
-	/* 
+	/*
 	 * For some calculations, it is neccesary to know which data points given to findModels()
 	 * function were actualy fitted in the model. This vector holds the indices of inliers.
 	 * Use at your own risk, if you know what you are doing.

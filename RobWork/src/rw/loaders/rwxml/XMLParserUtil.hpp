@@ -28,15 +28,9 @@
 #include <rw/math/RPY.hpp>
 
 #include <rw/common/Property.hpp>
-#include <rw/common/StringUtil.hpp>
 
 #include <vector>
 #include <map>
-#include <iostream>
-
-#include <fstream>
-
-#include "DependencyGraph.hpp"
 
 template < typename ResultT >
 struct result_closure: public boost::spirit::classic::closure<result_closure<ResultT>, ResultT> {
@@ -219,9 +213,15 @@ struct DummyFrame {
 
 struct QConfig {
 public:
-    QConfig(){};
+    QConfig(){}
     std::string name;
     std::vector<double> q;
+};
+
+struct QJunction {
+public:
+	QJunction(){}
+    std::vector<std::string> chains;
 };
 
 struct DummyDevice {
@@ -278,6 +278,7 @@ public:
     std::string _leftname, _rightname;
     std::vector<std::string> _scope;
     std::vector<QConfig> _qconfig;
+    std::vector<QJunction> _junctions;
 };
 
 struct DummyWorkcell {
@@ -368,6 +369,22 @@ struct AddConfigToDevice {
     }
 
     const QConfig &_config;
+    DummyDevice &_device;
+};
+
+struct AddJunctionToDevice {
+	AddJunctionToDevice(const QJunction& junction, DummyDevice &device):
+		_junction(junction),_device(device)
+
+    {
+    }
+
+    template < typename IteratorT >
+    void operator()(IteratorT const& first, IteratorT const& last) const {
+        _device._junctions.push_back(_junction);
+    }
+
+    const QJunction &_junction;
     DummyDevice &_device;
 };
 

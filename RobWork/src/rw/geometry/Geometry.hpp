@@ -19,9 +19,10 @@
 #define RW_GEOMETRY_GEOMETRY_HPP_
 
 #include <rw/math/Transform3D.hpp>
-#include <rw/kinematics/Frame.hpp>
 #include <rw/common/Ptr.hpp>
 #include "GeometryData.hpp"
+
+namespace rw { namespace kinematics { class Frame; } }
 
 namespace rw { namespace geometry {
 	//! @addtogroup geometry
@@ -40,6 +41,8 @@ namespace rw { namespace geometry {
 	public:
         //! @brief smart pointer type to this class
         typedef rw::common::Ptr<Geometry> Ptr;
+		//! @brief smart pointer type to this const class
+		typedef rw::common::Ptr<const Geometry> CPtr;
 
         /**
          * @brief A geometry may belong to a specific group of geometries. These groups
@@ -99,37 +102,63 @@ namespace rw { namespace geometry {
 		void setScale(double scale){_scale = scale;}
 
 		//! @brief set transformation
-		void setTransform(const rw::math::Transform3D<>& t3d){_transform = t3d;};
+		void setTransform(const rw::math::Transform3D<>& t3d){_transform = t3d;}
 
 		//! @brief get transformation
-		const rw::math::Transform3D<>& getTransform() const {return _transform;};
+		const rw::math::Transform3D<>& getTransform() const {return _transform;}
 
 		//! @brief get geometry data
-		GeometryData::Ptr getGeometryData(){return _data;};
+		GeometryData::Ptr getGeometryData(){return _data;}
 
 		//! @brief get geometry data
-		const GeometryData::Ptr getGeometryData() const {return _data;};
+		const GeometryData::Ptr getGeometryData() const {return _data;}
 
 		//! @brief set transformation
-		void setGeometryData(GeometryData::Ptr data){_data = data;};
+		void setGeometryData(GeometryData::Ptr data){_data = data;}
 
 		//! @brief get name of this geometry
-		const std::string& getName() const {return _name; };
+		const std::string& getName() const {return _name; }
+
+        //! @brief get file path of this geometry
+        const std::string& getFilePath() const {return _filePath; }
 		
 		//! @brief get identifier of this geometry
-		const std::string& getId() const {return getName(); };
+		const std::string& getId() const {return getName(); }
 
 		//! @brief set name of this geometry
-		void setName(const std::string& name) {_name = name; };
+		void setName(const std::string& name) {_name = name; }
+
+        //! @brief set file path this geometry
+        void setFilePath(const std::string& name) {_filePath = name; }
 
 		//! @brief set identifier of this geometry
-		void setId(const std::string& id) { setName(id); };
+		void setId(const std::string& id) { setName(id); }
 
-		void setFrame(kinematics::Frame* frame){ _refFrame = frame; };
-		kinematics::Frame* getFrame(){ return _refFrame; };
-		const kinematics::Frame* getFrame() const { return _refFrame; };
+		/**
+		 * @brief Set the reference frame.
+		 * @param frame [in] new reference frame.
+		 */
+		void setFrame(kinematics::Frame* frame){ _refFrame = frame; }
 
-		void setMask(int mask){_mask=mask;};
+		/**
+		 * @brief Get the reference frame.
+		 * @return the reference frame.
+		 */
+		kinematics::Frame* getFrame(){ return _refFrame; }
+
+		//! @copydoc getFrame()
+		const kinematics::Frame* getFrame() const { return _refFrame; }
+
+		/**
+		 * @brief Set the draw mask.
+		 * @param mask [in] the draw mask.
+		 */
+		void setMask(int mask){_mask=mask;}
+
+		/**
+		 * @brief Get the draw mask.
+		 * @return the draw mask.
+		 */
 		int getMask(){ return _mask; }
 
 		//! @brief util function for creating a Sphere geometry
@@ -141,6 +170,16 @@ namespace rw { namespace geometry {
 		//! @brief util function for creating a Cylinder geometry
 		static Geometry::Ptr makeCylinder(float radius, float height);
 
+		/**
+		 * @brief Construct a grid.
+		 * @param dim_x [in] number of cells in first direction.
+		 * @param dim_y [in] number of cells in second direction.
+		 * @param size_x [in] size of one cell.
+		 * @param size_y [in] size of one cell.
+		 * @param xdir [in] the direction of the first dimension.
+		 * @param ydir [in] the direction of the second dimension.
+		 * @return a new grid geometry.
+		 */
 		static Geometry::Ptr makeGrid(int dim_x, int dim_y,double size_x=1.0, double size_y=1.0,
 		                                  const rw::math::Vector3D<>& xdir = rw::math::Vector3D<>::x(),
 		                                  const rw::math::Vector3D<>& ydir = rw::math::Vector3D<>::y());
@@ -155,13 +194,10 @@ namespace rw { namespace geometry {
 		rw::math::Transform3D<> _transform;
 		double _scale;
 		std::string _name;
+        std::string _filePath;
 		int _mask;
 
 	};
-#ifdef RW_USE_DEPRECATED
-	//! @brief Ptr to Geometry
-	typedef rw::common::Ptr<Geometry> GeometryPtr;
-#endif
 	//! @}
 }
 }

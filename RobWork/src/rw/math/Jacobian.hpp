@@ -20,10 +20,8 @@
 #define RW_MATH_JACOBIAN_HPP
 
 /**
- * @file Jacobian.hpp
+ * @file math/Jacobian.hpp
  */
-
-#include "Q.hpp"
 
 #include <rw/math/VelocityScrew6D.hpp>
 #include <rw/math/Rotation3D.hpp>
@@ -54,15 +52,16 @@ namespace rw { namespace math {
     class Jacobian
     {
     public:
-        //! The type of the internal Boost matrix implementation.
+        //! @brief The type of legacy Boost matrix implementation.
         typedef boost::numeric::ublas::matrix<double> BoostBase;
 
+        //! @brief The type of the internal Eigen matrix implementation.
 		typedef Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> Base;
 
-        //! The Boost matrix expression for initialization to zero.
+        //! @brief The Boost matrix expression for initialization to zero.
         typedef boost::numeric::ublas::zero_matrix<double> BoostZeroBase;
 
-        //! The Boost matrix expression for initialization to the identity matrix.
+        //! @brief The Boost matrix expression for initialization to the identity matrix.
         typedef boost::numeric::ublas::zero_matrix<double> BoostIdentityBase;
 
         /**
@@ -107,7 +106,7 @@ namespace rw { namespace math {
 			BoostBase m(r);
 			_jac.resize(m.size1(), m.size2());
 			for (size_t i = 0; i<size1(); i++)
-				for (size_t j = 0; j<size1(); j++)
+				for (size_t j = 0; j<size2(); j++)
 					_jac(i,j) = m(i,j);	
 		}
 
@@ -122,7 +121,12 @@ namespace rw { namespace math {
             _jac(r)
         {}
 
-
+        /**
+         * @brief Construct zero initialized Jacobian.
+         * @param size1 [in] number of rows.
+         * @param size2 [in] number of columns.
+         * @return zero-initialized jacobian.
+         */
 		static Jacobian zero(size_t size1, size_t size2) {
 			return Jacobian(Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic>::Zero(size1, size2));
 		}
@@ -171,6 +175,12 @@ namespace rw { namespace math {
 			return _jac(row, column); 
 		}
 
+        /**
+         * @brief Get an element of the jacobian.
+         * @param row [in] the row.
+         * @param col [in] the column.
+         * @return reference to the element.
+         */
         double& elem(size_t row, size_t col) {
             return _jac(row, col);
         }
@@ -346,8 +356,17 @@ namespace rw { namespace math {
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;
 namespace serialization {
-    template<> void write(const rw::math::Jacobian& tmp, rw::common::OutputArchive& oar, const std::string& id);
-    template<> void read(rw::math::Jacobian& tmp, rw::common::InputArchive& iar, const std::string& id);
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::Jacobian
+	 */
+    template<> void write(const rw::math::Jacobian& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::Jacobian
+	 */
+    template<> void read(rw::math::Jacobian& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
 

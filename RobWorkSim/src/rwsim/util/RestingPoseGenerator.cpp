@@ -18,9 +18,13 @@
 #include "RestingPoseGenerator.hpp"
 
 #include "FiniteStateSampler.hpp"
+#include "StateSampler.hpp"
+#include "SimStateConstraint.hpp"
+
 #include <rw/common/Ptr.hpp>
 #include <rw/common/TimerUtil.hpp>
 #include <rw/trajectory/Timed.hpp>
+#include <rwsim/simulator/ThreadSimulator.hpp>
 
 using namespace rw::common;
 using namespace rw::kinematics;
@@ -71,11 +75,9 @@ RestingPoseGenerator::RestingPoseGenerator(DynamicSimulator::Ptr sim, const rw::
     _thread(NULL),
     _initState(initState)
 {
-
 }
 
-
-RestingPoseGenerator::~RestingPoseGenerator(){};
+RestingPoseGenerator::~RestingPoseGenerator(){}
 
 void RestingPoseGenerator::start(int nrOfTests){
     boost::mutex::scoped_lock lock(_simMutex);

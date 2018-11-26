@@ -24,15 +24,12 @@
  */
 
 #include <string>
-#include <memory>
-#include <vector>
 
 #include <rw/trajectory/Timed.hpp>
 #include <rw/trajectory/Path.hpp>
 
 // Forward declarations
 namespace rw { namespace models { class WorkCell; }}
-namespace rw { namespace kinematics { class State; }}
 
 namespace rw { namespace loaders {
 
@@ -105,7 +102,7 @@ namespace rw { namespace loaders {
 
            See also storeTimedStatePath().
         */
-        static std::auto_ptr<rw::trajectory::TimedStatePath> loadTimedStatePath(
+        static rw::trajectory::TimedStatePath loadTimedStatePath(
             const rw::models::WorkCell& workcell,
             const std::string& file);
 
@@ -133,7 +130,7 @@ namespace rw { namespace loaders {
 
            See also storeStatePath().
         */
-        static std::auto_ptr<rw::trajectory::StatePath> loadStatePath(
+        static rw::trajectory::StatePath loadStatePath(
             const models::WorkCell& workcell,
             const std::string& file);
     };

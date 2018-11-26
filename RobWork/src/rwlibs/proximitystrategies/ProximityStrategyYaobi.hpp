@@ -25,16 +25,14 @@
 
 #include <map>
 #include <vector>
-#include <list>
 
-#include <yaobi/yaobi.h>
 #include <rw/common/Ptr.hpp>
 #include <rw/common/Cache.hpp>
 
-#include <rw/kinematics/Frame.hpp>
-#include <rw/kinematics/FrameMap.hpp>
 #include <rw/proximity/CollisionStrategy.hpp>
 //#include <rw/proximity/ProximityStrategyFactory.hpp>
+
+namespace yaobi { class CollModel; }
 
 namespace rwlibs { namespace proximitystrategies {
     /** @addtogroup proximitystrategies */
@@ -66,8 +64,6 @@ namespace rwlibs { namespace proximitystrategies {
 
 
     private:
-        bool _firstContact;
-
         rw::common::Cache<std::string, yaobi::CollModel> _modelCache;
         std::vector<RWYaobiModel> _allmodels;
         std::map<std::string, std::vector<int> > _geoIdToModelIdx;
@@ -93,8 +89,8 @@ namespace rwlibs { namespace proximitystrategies {
          */
         bool addGeometry(rw::proximity::ProximityModel* model, const rw::geometry::Geometry& geom);
 
-        //! @copydoc rw::proximity::ProximityStrategy::addGeometry(ProximityModel* model, rw::geometry::Geometry::Ptr geom, bool forceCopy=false)
-        bool addGeometry(rw::proximity::ProximityModel* model, rw::geometry::Geometry::Ptr geom, bool forceCopy=false);
+        //! @copydoc rw::proximity::ProximityStrategy::addGeometry(ProximityModel* model, rw::common::Ptr<rw::geometry::Geometry> geom, bool forceCopy=false)
+        bool addGeometry(rw::proximity::ProximityModel* model, rw::common::Ptr<rw::geometry::Geometry> geom, bool forceCopy=false);
 
         /**
          * @copydoc rw::proximity::ProximityStrategy::removeGeometry

@@ -18,7 +18,7 @@
 
 #include "DynamicWorkCellLoader.hpp"
 
-#include <iostream>
+#include <sstream>
 #include <string>
 
 #include <boost/property_tree/ptree.hpp>
@@ -27,25 +27,23 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <rw/math/Rotation3D.hpp>
-#include <rw/math/Transform3D.hpp>
-#include <rw/math/Vector3D.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/math/RPY.hpp>
 #include <rw/kinematics/Frame.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/loaders/WorkCellLoader.hpp>
 #include <rw/loaders/rwxml/DependencyGraph.hpp>
+#include <rw/models/Joint.hpp>
 #include <rw/models/JointDevice.hpp>
 
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>
 #include <rw/common/Log.hpp>
 #include <rw/common/Ptr.hpp>
+#include <rw/common/TimerUtil.hpp>
 
-#include <rw/kinematics/Kinematics.hpp>
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Vector3D.hpp>
-#include <rw/math/Quaternion.hpp>
 #include <rw/math/Constants.hpp>
 
 #include <rwsim/dynamics/Body.hpp>
@@ -54,15 +52,13 @@
 #include <rwsim/dynamics/KinematicBody.hpp>
 #include <rwsim/dynamics/RigidBody.hpp>
 #include <rwsim/dynamics/RigidJoint.hpp>
-#include <rwsim/dynamics/ControllerModel.hpp>
-#include <rwsim/dynamics/SensorModel.hpp>
 
 #include <rwsim/dynamics/KinematicDevice.hpp>
 #include <rwsim/dynamics/RigidDevice.hpp>
 
 #include <rwsim/dynamics/MaterialDataMap.hpp>
 #include <rwsim/dynamics/ContactDataMap.hpp>
-#include <rwsim/dynamics/DynamicUtil.hpp>
+//#include <rwsim/dynamics/DynamicUtil.hpp>
 #include <rwsim/dynamics/SuctionCup.hpp>
 
 #include <rwsim/sensor/TactileArraySensor.hpp>
@@ -74,7 +70,6 @@
 
 #include <rw/geometry/GeometryUtil.hpp>
 #include <rw/common/PropertyMap.hpp>
-#include <rw/common/StringUtil.hpp>
 #include <rw/models/RigidObject.hpp>
 
 #include <rwlibs/simulation/SimulatedController.hpp>
@@ -82,15 +77,10 @@
 #include <rwlibs/control/JointController.hpp>
 
 #include <rw/geometry/Geometry.hpp>
-#include <rw/loaders/GeometryFactory.hpp>
-#include <rw/geometry/IndexedTriMesh.hpp>
-#include <rw/geometry/TriangleUtil.hpp>
+//#include <rw/loaders/GeometryFactory.hpp>
 
 #include <rwsim/control/PDController.hpp>
-#include <rwsim/control/SyncPDController.hpp>
-#include <rwsim/control/VelRampController.hpp>
-//#include <rwsim/control/TrajectoryController.hpp>
-#include <rwsim/control/SuctionCupController.hpp>
+//#include <rwsim/control/SyncPDController.hpp>
 #include <rwsim/control/PoseController.hpp>
 
 typedef boost::property_tree::ptree PTree;
@@ -1305,7 +1295,7 @@ namespace
     	Constraint::SpringParams params;
     	params.enabled = true;
         for (CI p = tree.begin(); p != tree.end(); ++p) {
-        	const int freeDOF = constraint->getDOF();
+        	const int freeDOF = static_cast<int>(constraint->getDOF()); // safe cast: never larger than 6 dof
         	if (p->first == "Compliance") {
         		params.compliance = readMatrixD(p->second, std::make_pair(freeDOF,freeDOF));
         	} else if (p->first == "Damping") {
@@ -1454,10 +1444,10 @@ namespace
         const string workcell_name =  child.get<string>("workcell");
 
         if(StringUtil::isAbsoluteFileName(workcell_name)){
-            state.wc = WorkCellFactory::load(workcell_name);
+            state.wc = WorkCellLoader::Factory::load(workcell_name);
         } else {
             std::string directory = StringUtil::getDirectoryName(state.dwcfile);
-            state.wc = WorkCellFactory::load(directory+workcell_name);
+            state.wc = WorkCellLoader::Factory::load(directory+workcell_name);
         }
     }
 

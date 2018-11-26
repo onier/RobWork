@@ -25,9 +25,10 @@
 
 #include <rw/sensor/Contact3D.hpp>
 
-#include <rw/geometry.hpp>
-#include <rw/common.hpp>
-//#include <rw/proximity/Proximity.hpp>
+
+#include <rw/geometry/IntersectUtil.hpp>
+#include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
+#include <rwsim/dynamics/Body.hpp>
 
 #include <boost/foreach.hpp>
 
@@ -280,7 +281,8 @@ TactileArraySensor::TactileArraySensor(const std::string& name,
 						  << "\n  " <<  data._aTb*tri[2] << std::endl;
 */
 				Vector3D<> point;
-				if( !IntersectUtil::intersetPtRayPlane(triA[0], triA[2], pdata.aTb()*tri[0], pdata.aTb()*tri[1], pdata.aTb()*tri[2], point) )
+				const Transform3D<> aTb = Transform3D<>::identity(); // previously taken from _pdata.aTb() which was removed as it was always identity!
+				if( !IntersectUtil::intersetPtRayPlane(triA[0], triA[2], aTb*tri[0], aTb*tri[1], aTb*tri[2], point) )
 					continue;
 
 				// now we have the point of intersection, now save it in the contact array
@@ -673,7 +675,8 @@ void TactileArraySensor::ClassState::update(const rwlibs::simulation::Simulator:
 					Triangle<> triA = _tsensor->_ntrimesh->getTriangle(pids.first);
 
 					Vector3D<> point;
-					if( !IntersectUtil::intersetPtRayPlane(triA[0], triA[2], _pdata.aTb()*tri[0], _pdata.aTb()*tri[1], _pdata.aTb()*tri[2], point) )
+					const Transform3D<> aTb = Transform3D<>::identity(); // previously taken from _pdata.aTb() which was removed as it was always identity!
+					if( !IntersectUtil::intersetPtRayPlane(triA[0], triA[2], aTb*tri[0], aTb*tri[1], aTb*tri[2], point) )
 						continue;
 
 					// now we have the point of intersection, now save it in the contact array

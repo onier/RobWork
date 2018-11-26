@@ -23,6 +23,7 @@
 #include <rw/loaders/dom/DOMPropertyMapSaver.hpp>
 #include <rw/common/ExtensionRegistry.hpp>
 #include <rw/common/Plugin.hpp>
+#include <rw/common/StringUtil.hpp>
 
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
@@ -61,9 +62,14 @@ RobWork::RobWork(void): _initialized(false)
 
 RobWork::~RobWork(void)
 {
-    if(!_settingsFile.empty()) {
-        DOMPropertyMapSaver::save(_settings, _settingsFile);
-    }
+}
+
+void RobWork::finalize()
+{
+	if (!_settingsFile.empty()) {
+		DOMPropertyMapSaver::save(_settings, _settingsFile);
+	}
+
 }
 
 void RobWork::initialize(const std::vector<std::string>& plugins){
@@ -181,8 +187,9 @@ void RobWork::initialize(const std::vector<std::string>& plugins){
     		std::vector<std::string> pl_files =
     				IOUtil::getFilesInFolder(file.string(), false, true, "*.rwplugin.*");
     		BOOST_FOREACH(std::string pl_file, pl_files){
-
-    		    pluginsFiles.push_back(pl_file);
+				const std::string ext = StringUtil::getFileExtension(pl_file);
+				if (ext == ".xml" || ext == ".dll" || ext == ".so")
+    				pluginsFiles.push_back(pl_file);
     		}
     	} else {
     		pluginsFiles.push_back(file.string());
@@ -208,7 +215,12 @@ void RobWork::initialize(const std::vector<std::string>& plugins){
 		Log::debugLog() << "\t " <<  pfilename << std::endl;
 		try {
 			rw::common::Ptr<Plugin> plugin = Plugin::load( pfilename );
-			reg->registerExtensions(plugin);
+			if (!plugin.isNull()) {
+				reg->registerExtensions(plugin);
+			} else {
+				Log::errorLog() << "Error loading plugin: \n\t\"" << pfilename << "\" "
+					<< "\n\t Please fix error, ignoring plugin for now.." << std::endl;
+			}
 		} catch (const std::exception& e ){
 			Log::errorLog() << "Error loading plugin: \n\t\"" << pfilename << "\" "
 							<< "\n\t Error description: " << e.what()
@@ -218,15 +230,15 @@ void RobWork::initialize(const std::vector<std::string>& plugins){
 }
 
 namespace {
-    rw::common::Ptr<rw::common::ExtensionRegistry> _extensionReg;
+	ExtensionRegistry::Ptr* _newExtensionReg;
     rw::common::Log::Ptr _log;
 
     RobWork::Ptr* _newInstance = NULL; // must be pointer such that lifetime is controlled with the local static in rwinstance()
 
     // The instance must be defined as a local static to give us necessary control of the lifetime (RobWork depends on other global static variables):
     RobWork::Ptr rwinstance() {
-    	// Local static variable used, such that variables in BoostXMLParser is still available at destruction of RobWork
-    	// (BoostXMLParser is currently used by DOMPropertyMapSaver in the RobWork destructor)
+    	// Local static variable used, such that variables used by DOMPropertyMapSaver is still available at destruction of RobWork
+    	static DOMPropertyMapSaver::Initializer init; // make sure that local static variables is destructed after RobWork instance is destructed.
     	static RobWork::Ptr _rwinstance = ownedPtr(new RobWork());
     	if (_newInstance != NULL) {
     		// Allow switching with a new instance
@@ -242,7 +254,7 @@ namespace {
     // hence, any program linked with this code will execute the constructor
     // before main(argc,argv) is entered...
 
-    struct AutoInitializeRobWork {
+    /*struct AutoInitializeRobWork {
        	AutoInitializeRobWork(){
        		//rw::common::Log::debugLog() << " AUTO INITILIZING ROBWORK .... " << std::endl;
         	if(_log==NULL)
@@ -252,19 +264,24 @@ namespace {
        		//RobWork::getInstance()->initialize();
 
        	}
-    } _initializer;
+    } _initializer;*/
 
 }
 
 rw::common::Ptr<rw::common::ExtensionRegistry> RobWork::getExtensionRegistry(){
-	// test for NULL, to avoid problems with 'static initialization order fiasco'
-	if(_extensionReg==NULL)
-		_extensionReg =  rw::common::ownedPtr(new rw::common::ExtensionRegistry());
-    return _extensionReg;
+    static ExtensionRegistry::Ptr extensionReg = ownedPtr(new ExtensionRegistry());
+    if (_newExtensionReg != NULL) {
+    	// Allow switching with a new registry
+    	// _newExtensionReg can not be of type Ptr as this would cause the registry to be destructed too late!
+    	extensionReg = *_newExtensionReg;
+    	delete _newExtensionReg;
+    	_newExtensionReg = NULL;
+    }
+    return extensionReg;
 }
 
 void RobWork::setExtensionRegistry(rw::common::Ptr<rw::common::ExtensionRegistry> extreg){
-    _extensionReg = extreg;
+	_newExtensionReg = new rw::common::Ptr<ExtensionRegistry>(extreg);
 }
 
 bool RobWork::isInitialized() const {
@@ -300,14 +317,22 @@ void RobWork::init(int argc, const char* const * argv){
     	plugins = vm["rwplugin"].as<std::vector<std::string> >();
     }
 
-	rwinstance()->initialize(plugins);
-
 	std::string rwloglevel_arg = vm["rwloglevel"].as<std::string>();
 	if(rwloglevel_arg=="debug"){ Log::getInstance()->setLevel( Log::Debug ); }
 	else if(rwloglevel_arg=="info"){ Log::getInstance()->setLevel( Log::Info ); }
 	else if(rwloglevel_arg=="error"){ Log::getInstance()->setLevel( Log::Error ); }
 	else if(rwloglevel_arg=="fatal"){ Log::getInstance()->setLevel( Log::Fatal ); }
 	else { RW_WARN("rwloglevel set to unknown value!"); }
+
+	// Some plugins have already been loaded through global initialization - before the user was able to set the debug level
+	// - so we print the already loaded plugins to the debug log.
+    Log::debugLog() << "Initializing ROBWORK with arguments." << std::endl;
+	const RobWork::Ptr instance = rwinstance();
+	Log::debugLog() << "Already loaded plugins: " << instance->_pluginChangedMap.size() << std::endl;
+	for (std::map<std::string, std::time_t>::const_iterator it = instance->_pluginChangedMap.begin(); it != instance->_pluginChangedMap.end(); it++) {
+		Log::debugLog() << "\t" << it->first << std::endl;
+	}
+	instance->initialize(plugins);
 }
 
 void RobWork::setLog(rw::common::Log::Ptr log){
@@ -335,6 +360,11 @@ rw::common::PropertyMap& RobWork::getSettings() {
 
 void RobWork::init(){
 	rwinstance()->initialize();
+}
+
+
+void RobWork::finish() {
+	rwinstance()->finalize();
 }
 
 RobWork::Ptr RobWork::getInstance(){

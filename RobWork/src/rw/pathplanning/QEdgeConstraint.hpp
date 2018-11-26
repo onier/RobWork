@@ -23,24 +23,18 @@
    @file QEdgeConstraint.hpp
 */
 
-#include "QConstraint.hpp"
-#include "StopCriteria.hpp"
-#include <rw/common/PropertyMap.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/math/Metric.hpp>
-#include <rw/models/Device.hpp>
+
+namespace rw { namespace models { class Device; } }
 
 namespace rw { namespace pathplanning {
+	class QConstraint;
 
     /** @addtogroup pathplanning */
     /*@{*/
-#ifdef RW_USE_DEPRECATED
-    class QEdgeConstraint;
 
-    //! A pointer to a QEdgeConstraint.
-    typedef rw::common::Ptr<QEdgeConstraint> QEdgeConstraintPtr;
-#endif
     /**
        @brief Edge constraint interface.
 
@@ -65,6 +59,8 @@ namespace rw { namespace pathplanning {
     public:
 		//! @brief smart pointer type to this class
 		typedef rw::common::Ptr<QEdgeConstraint> Ptr;
+		//! @brief smart pointer type to this class
+		typedef rw::common::Ptr< const QEdgeConstraint > CPtr;
 
         /**
            @brief Destructor
@@ -98,8 +94,8 @@ namespace rw { namespace pathplanning {
 		   \param metric [in] Metric with which the resolution it to be measured
 		   \param resolution [in] The test resolution
         */
-		static QEdgeConstraint::Ptr make(QConstraint::Ptr constraint,
-										 rw::math::QMetric::Ptr metric,
+		static QEdgeConstraint::Ptr make(rw::common::Ptr<QConstraint> constraint,
+										 rw::math::QMetric::CPtr metric,
 										 double resolution);
 
         /**
@@ -110,8 +106,8 @@ namespace rw { namespace pathplanning {
            configuration space and are checked by a default collision checking
            resolution.
         */
-		static QEdgeConstraint::Ptr makeDefault(QConstraint::Ptr constraint,
-			rw::models::Device::Ptr device);
+		static QEdgeConstraint::Ptr makeDefault(rw::common::Ptr<QConstraint> constraint,
+			rw::common::Ptr< const rw::models::Device > device);
 
 
 		/**

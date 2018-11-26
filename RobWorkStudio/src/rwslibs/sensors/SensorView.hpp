@@ -21,98 +21,132 @@
 #include <QWidget>
 
 #include <rw/common/Ptr.hpp>
-#include <rw/sensor/Camera.hpp>
-#include <rw/sensor/Scanner25D.hpp>
-#include <rw/sensor/Scanner2D.hpp>
-#include <rw/graphics/WorkCellScene.hpp>
-#include <rwlibs/opengl/RenderScan.hpp>
 
-#include <rwlibs/simulation/SimulatedScanner2D.hpp>
-#include <rwlibs/simulation/SimulatedScanner25D.hpp>
+namespace rw { namespace sensor { class Camera; } }
+namespace rwlibs { namespace opengl { class RenderScan; } }
+namespace rwlibs { namespace simulation { class SimulatedScanner2D; } }
+namespace rwlibs { namespace simulation { class SimulatedScanner25D; } }
 
-#include <rws/ImageView.hpp>
-#include <rws/SceneOpenGLViewer.hpp>
+class ImageView;
 
 namespace rws {
 
-/**
- * @brief a widget for
- */
+//! @brief A Qt widget for visualization of sensors.
 class SensorView: public QWidget {
     Q_OBJECT
 public:
+	//! @brief Smart pointer type for SensorView.
 	typedef rw::common::Ptr<SensorView> Ptr;
 
+	/**
+	 * @brief Construct new widget.
+	 * @param parent [in] owner widget.
+	 */
     SensorView(QWidget* parent = NULL):
         QWidget(parent)
     {
-
     }
 
-    virtual ~SensorView() {
-        
-    }
+    //! @brief Destructor.
+    virtual ~SensorView() {}
 
+    //! @brief Update the view.
     virtual void update() = 0;
 
+    //! @brief Make the widget current.
     virtual void makeCurrent() = 0;
 protected:
+    /**
+     * @brief Handle close event.
+     * @param event [in] the event.
+     */
     void closeEvent(QCloseEvent* event);
 
 signals:
+	/**
+	 * @brief Signal emitted when view is closed.
+	 * @param widget [in] the view just closed.
+	 */
     void viewClosed(SensorView* widget);
 };
 
 
 
 
-/**
- * @brief a view to visualize output of a camera
- */
+//! @brief a view to visualize output of a camera
 class CameraView: public SensorView {
 public:
-	CameraView(rw::sensor::Camera::Ptr camera, QWidget* parent = NULL);
+	/**
+	 * @brief Create a camera view.
+	 * @param camera [in] the camera sensor.
+	 * @param parent [in] owner widget.
+	 */
+	CameraView(rw::common::Ptr<rw::sensor::Camera> camera, QWidget* parent = NULL);
 
+	//! @copydoc SensorView::update
     virtual void update();
 
-    virtual void makeCurrent() {};
+	//! @copydoc SensorView::makeCurrent
+    virtual void makeCurrent() {}
 
 private:
-	rw::sensor::Camera::Ptr _camera;
+	rw::common::Ptr<rw::sensor::Camera> _camera;
     ImageView* _pImageView;    
 };
 
 
+//! @brief a view to visualize the output of 2.5D scanners.
 class Scan25DView: public SensorView {
 public:
+	/**
+	 * @brief Create a 2.5D scanner view.
+	 * @param parent [in] owner widget.
+	 */
     Scan25DView(QWidget* parent = NULL);
 
-	virtual void initialize(rwlibs::simulation::SimulatedScanner25D::Ptr scanner);
+    /**
+     * @brief Initialize view.
+     * @param scanner [in] the simulated scanner.
+     */
+	virtual void initialize(rw::common::Ptr<rwlibs::simulation::SimulatedScanner25D> scanner);
 
+	//! @copydoc SensorView::update
     virtual void update();
 
+	//! @copydoc SensorView::makeCurrent
     virtual void makeCurrent();
 
 private:
-    rwlibs::simulation::SimulatedScanner25D::Ptr _scanner;
-	rwlibs::opengl::RenderScan::Ptr _scanRender;
+    rw::common::Ptr<rwlibs::simulation::SimulatedScanner25D> _scanner;
+    rw::common::Ptr<rwlibs::opengl::RenderScan> _scanRender;
 	ImageView* _pImageView;
 
 };
 
+//! @brief a view to visualize the output of 2D scanners.
 class Scan2DView: public SensorView {
 public:
+	/**
+	 * @brief Create a 2D scanner view.
+	 * @param parent [in] owner widget.
+	 */
     Scan2DView(QWidget* parent = NULL);
 
+    /**
+     * @brief Initialize view.
+     * @param scanner [in] the simulated scanner.
+     */
     virtual void initialize(rw::common::Ptr<rwlibs::simulation::SimulatedScanner2D> scanner);
 
+	//! @copydoc SensorView::update
     virtual void update();
 
+	//! @copydoc SensorView::makeCurrent
     virtual void makeCurrent();
 
 private:
-	rwlibs::simulation::SimulatedScanner2D::Ptr _scanner;
-	rwlibs::opengl::RenderScan::Ptr _scanRender;
+    rw::common::Ptr<rwlibs::simulation::SimulatedScanner2D> _scanner;
+	rw::common::Ptr<rwlibs::opengl::RenderScan> _scanRender;
 	ImageView* _pImageView;
 
 };

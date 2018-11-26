@@ -27,8 +27,9 @@
 
 #include <rw/graphics/SceneViewer.hpp>
 #include <rw/math/Transform3D.hpp>
-#include <rw/kinematics/Frame.hpp>
-#include <rw/kinematics/State.hpp>
+
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace kinematics { class State; } }
 
 namespace rwlibs { namespace simulation {
     /** @addtogroup simulation */
@@ -51,6 +52,7 @@ namespace rwlibs { namespace simulation {
     class GLFrameGrabber : public FrameGrabber
     {
     public:
+    	//! @brief Smart pointer type for GLFrameGrabber.
         typedef rw::common::Ptr<GLFrameGrabber> Ptr;
 
         /**
@@ -58,8 +60,8 @@ namespace rwlibs { namespace simulation {
          * @param width [in] width of image
          * @param height [in] height of image
          * @param fov [in] the vertical field of view angle in degree
-         * @param drawer [in] the WorkCellGLDrawer that draws the OpenGL scene
-         * @param state [in] the state of the workcell
+         * @param near [in] the minimum depth of camera.
+         * @param far [in] the maximum depth of camera.
          */
         GLFrameGrabber(int width, int height,
                        double fov,
@@ -79,8 +81,9 @@ namespace rwlibs { namespace simulation {
          * @brief initialize the grabber with a scene viewer. This registers the grabber
          * as a camera in the scene and enables rendering.
          * @param drawer [in] the scene viewer
+         * @return true if initialization succeeded, false otherwise (depends on the capabilities of the SceneViewer).
          */
-        void init(rw::graphics::SceneViewer::Ptr drawer);
+        bool init(rw::graphics::SceneViewer::Ptr drawer);
 
         //! @copydoc FrameGrabber::grab
         void grab(rw::kinematics::Frame* frame, const rw::kinematics::State& state);
@@ -90,7 +93,6 @@ namespace rwlibs { namespace simulation {
         rw::graphics::SceneViewer::Ptr _drawer;
         rw::math::Transform3D<double> _perspTrans;
         rw::graphics::SceneViewer::View::Ptr _view;
-        GLuint _fbId,_renderId,_renderDepthId,textureId;
         double _near, _far;
     };
 

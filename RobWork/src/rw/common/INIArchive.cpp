@@ -25,7 +25,11 @@ using namespace rw::common;
 void INIArchive::close()
 {
     //flush();
-    if (_fstr != NULL) _fstr->close();
+    if (_fstr != NULL) {
+    	_fstr->close();
+    	delete _fstr;
+    	_fstr = NULL;
+    }
 }
 
 void INIArchive::doWriteEnterScope(const std::string& id)
@@ -33,7 +37,6 @@ void INIArchive::doWriteEnterScope(const std::string& id)
     _scope.push_back(id);
     (*_ofs) << "[" << getScope() << "]\n";
 }
-;
 
 void INIArchive::doWriteLeaveScope(const std::string& id)
 {
@@ -42,7 +45,6 @@ void INIArchive::doWriteLeaveScope(const std::string& id)
     }
     _scope.pop_back();
 }
-;
 
 void INIArchive::doReadEnterScope(const std::string& id)
 {
@@ -50,7 +52,6 @@ void INIArchive::doReadEnterScope(const std::string& id)
     _ifs->getline(_line, MAX_LINE_WIDTH);
     //(*_ofs) << "[" << getScope() << "]\n";
 }
-;
 
 void INIArchive::doReadLeaveScope(const std::string& id)
 {
@@ -59,7 +60,6 @@ void INIArchive::doReadLeaveScope(const std::string& id)
     }
     _scope.pop_back();
 }
-;
 
 void INIArchive::doOpenArchive(const std::string& filename)
 {
@@ -77,11 +77,37 @@ void INIArchive::doOpenArchive(const std::string& filename)
 
 void INIArchive::doOpenArchive(std::iostream& stream)
 {
-    _fstr = NULL;
+    if (_fstr != NULL) {
+    	_fstr->close();
+    	delete _fstr;
+    	_fstr = NULL;
+    }
     _iostr = &stream;
     _ofs = _iostr;
     _ifs = _iostr;
     _isopen = true;
+}
+
+void INIArchive::doOpenOutput(std::ostream& ofs){
+    if (_fstr != NULL) {
+    	_fstr->close();
+    	delete _fstr;
+    	_fstr = NULL;
+    }
+	_iostr = NULL;
+	_ofs = &ofs;
+	_isopen = true;
+}
+
+void INIArchive::doOpenInput(std::istream& ifs){
+    if (_fstr != NULL) {
+    	_fstr->close();
+    	delete _fstr;
+    	_fstr = NULL;
+    }
+	_iostr = NULL;
+	_ifs = &ifs;
+	_isopen = true;
 }
 
 void INIArchive::flush()
@@ -99,7 +125,7 @@ void INIArchive::doWrite(boost::int8_t val, const std::string& id)
 
     //boost::int32_t tmp=val;std::cout << "uint stuff" << std::endl; writeValue<int>(tmp,id);
 }
-;
+
 void INIArchive::doWrite(boost::uint8_t val, const std::string& id)
 {
     (*_ofs) << id << "=" << (int) val << "\n";
@@ -169,4 +195,3 @@ bool INIArchive::getLine()
     }
     return valid;
 }
-

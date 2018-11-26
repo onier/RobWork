@@ -24,12 +24,10 @@
  */
 
 #include <rw/math/Transform3D.hpp>
-#include <rw/common/PropertyBase.hpp>
 #include <rw/common/PropertyMap.hpp>
 #include <rw/common/ConcatVectorIterator.hpp>
 #include <vector>
 #include <set>
-#include <boost/foreach.hpp>
 #include "StateData.hpp"
 
 namespace rw { namespace kinematics {
@@ -59,8 +57,10 @@ namespace rw { namespace kinematics {
 
     public:
 
-		//! @brief smart pointer type to this class
+		//! @brief Smart pointer type for a Frame object
 		typedef rw::common::Ptr<Frame> Ptr;
+		//! @brief Smart pointer type for a constant Frame object
+		typedef rw::common::Ptr<const Frame> CPtr;
 
         /**
          * @brief Destructor for the frame.
@@ -256,9 +256,20 @@ namespace rw { namespace kinematics {
          */
         bool isDAF();
 
-
+        /**
+         * @brief Get the transform relative to world.
+         * @param state [in] the state.
+         * @return transform relative to world.
+         */
         rw::math::Transform3D<> wTf(const rw::kinematics::State& state) const;
-        rw::math::Transform3D<> fTf(Frame* to, const rw::kinematics::State& state) const;
+
+        /**
+         * @brief Get the transform of other frame relative to this frame.
+         * @param to [in] the other frame
+         * @param state [in] the state.
+         * @return transform of frame \b to relative to this frame.
+         */
+        rw::math::Transform3D<> fTf(const Frame* to, const rw::kinematics::State& state) const;
 
     protected:
         /**
@@ -293,11 +304,11 @@ namespace rw { namespace kinematics {
     private:
         friend class StateStructure;
 
-        void setParent(Frame *frame){
+        void setParent(Frame * const frame){
             _parent = frame;
         }
 
-        void removeChild(Frame *frame){
+        void removeChild(const Frame * const frame){
             for (ChildList::iterator it = _children.begin(); it != _children.end(); ++it)
                 if ((*it) == frame) {
                     _children.erase(it);
@@ -314,7 +325,7 @@ namespace rw { namespace kinematics {
         Frame* _parent;
         ChildList _children;
 
-        void addChild(Frame* child) {
+        void addChild(Frame* const child) {
         	/*BOOST_FOREACH(Frame* cchild, _children){
         		if(cchild==child)
         			RW_THROW("The frame: \"" << child->getName() << "\" is allready child of \"" << this->getName() << "\"");
@@ -353,7 +364,7 @@ namespace rw { namespace kinematics {
         {
 			if (first.size() == 0) 
 				return std::make_pair(
-					const_iterator(iterator(&next, next.begin(), &next)),
+					const_iterator(iterator(&next, next.begin(), NULL)),
 					const_iterator(iterator(&next, next.end(), NULL)));
 			else
 				return std::make_pair(
@@ -386,6 +397,9 @@ namespace rw { namespace kinematics {
 	   @brief A list of frames
 	*/
 	typedef std::vector<kinematics::Frame*> FrameList;
+
+	//! @brief A list of const frames
+	typedef std::vector<const rw::kinematics::Frame*> ConstFrameList;
 
 	/**
 	   @brief A set of frame pairs.

@@ -17,23 +17,12 @@
 
 #include "JacobianUtil.hpp"
 
-//#include "BasicDevice.hpp"
-#include "RevoluteJoint.hpp"
-#include "PrismaticJoint.hpp"
-#include "DependentRevoluteJoint.hpp"
-
+#include <rw/kinematics/Frame.hpp>
 #include <rw/math/Jacobian.hpp>
-
-#include <algorithm>
 
 using namespace rw::models;
 using namespace rw::math;
 using namespace rw::kinematics;
-
-using namespace boost::numeric::ublas;
-
-typedef matrix_range<Jacobian::Base> Range;
-typedef zero_matrix<double> ZeroMatrix;
 
 namespace
 {

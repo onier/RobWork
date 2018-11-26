@@ -109,12 +109,6 @@ private:
     int _motionType;
 };
 
-#ifdef RW_USE_DEPRECATED
-/**
- * Typedef of rw::common::Ptr to a Motion.
- */
-typedef rw::common::Ptr<MotionBase> MotionPtr;
-#endif
 /**
  * @brief Specified the template based interface of a motion
  *
@@ -156,8 +150,14 @@ public:
      */
     virtual TargetPtr endTarget() = 0;
 
+    /**
+     * @brief Make a copy of the motion.
+     * @param newTargets [in] a vector of targets.
+     * @return new identical motion.
+     */
     virtual rw::common::Ptr<Motion<T> > clone(const std::vector<TargetPtr>& newTargets) = 0;
 
+    //! @brief Do reverse motion.
     virtual void reverse() = 0;
 protected:
 
@@ -182,19 +182,6 @@ typedef Motion<rw::math::Q> QMotion;
  * Definition of motion using rw::math::Transform3D
  */
 typedef Motion<rw::math::Transform3D<> > CartesianMotion;
-
-#ifdef RW_USE_DEPRECATED
-/**
- * Pointer to motion using rw::math::Q
- */
-typedef rw::common::Ptr<QMotion> QMotionPtr;
-
-/**
- * Pointer to motion using rw::math::Q
- */
-typedef rw::common::Ptr<CartesianMotion> CartesianMotionPtr;
-
-#endif
 
 /**
  * @brief Class describing point to point motions.
@@ -254,7 +241,7 @@ public:
         return _end;
     }
 
-
+    //! @copydoc Motion::clone
     virtual rw::common::Ptr<Motion<T> > clone(const std::vector<TargetPtr>& newTargets) {
     	TargetPtr start;
     	TargetPtr end;
@@ -271,7 +258,7 @@ public:
     	return result;
     }
 
-
+    //! @copydoc Motion::reverse
     virtual void reverse() {
     	std::swap(_start, _end);
     }
@@ -290,19 +277,6 @@ typedef P2PMotion<rw::math::Q> QP2PMotion;
  * Definition of rw::math::Transform3D based point to point motion
  */
 typedef P2PMotion<rw::math::Transform3D<> > CartesianP2PMotion;
-
-#ifdef RW_USE_DEPRECATED
-/**
- * Definition of rw::math::Ptr to QP2PMotion
- */
-typedef rw::common::Ptr<QP2PMotion> QP2PMotionPtr;
-
-/**
- * Definition of rw::math::Ptr to CartesianP2PMotion
- */
-typedef rw::common::Ptr<CartesianP2PMotion> CartesianP2PMotionPtr;
-
-#endif
 
 /**
  * @brief Class describing linear motions.
@@ -360,6 +334,7 @@ public:
          return _end;
      }
 
+     //! @copydoc Motion::clone
      virtual rw::common::Ptr<Motion<T> > clone(const std::vector<TargetPtr>& newTargets) {
      	TargetPtr start;
      	TargetPtr end;
@@ -372,6 +347,7 @@ public:
      	return rw::common::ownedPtr(new LinearMotion<T>(start, end));
      }
 
+     //! @copydoc Motion::reverse
      virtual void reverse() {
      	std::swap(_start, _end);
      }
@@ -390,19 +366,6 @@ typedef LinearMotion<rw::math::Q> QLinearMotion;
  * Definition of rw::math::Transform3D based linear motion.
  */
 typedef LinearMotion<rw::math::Transform3D<> > CartesianLinearMotion;
-
-#ifdef RW_USE_DEPRECATED
-/**
- * Definition of rw::common::Ptr to QLinearMotion
- */
-typedef rw::common::Ptr<QLinearMotion> QLinearMotionPtr;
-
-/**
- * Definition of rw::common::Ptr to CartesianLinearMotion
- */
-typedef rw::common::Ptr<CartesianLinearMotion> CartesianLinearMotionPtr;
-
-#endif
 
 /**
  * @brief Class describing circular motions.
@@ -478,6 +441,7 @@ public:
         return _end;
     }
 
+    //! @copydoc Motion::clone
     virtual rw::common::Ptr<Motion<T> > clone(const std::vector<TargetPtr>& newTargets) {
 		TargetPtr start, mid, end;
 		BOOST_FOREACH(TargetPtr target, newTargets) {
@@ -491,6 +455,7 @@ public:
 		return rw::common::ownedPtr(new CircularMotion(start, mid, end));
 	}
 
+    //! @copydoc Motion::reverse
     virtual void reverse() {
     	std::swap(_start, _end);
     }
@@ -506,12 +471,6 @@ private:
  */
 typedef CircularMotion<rw::math::Transform3D<> > CartesianCircularMotion;
 
-#ifdef RW_USE_DEPRECATED
-/**
- * @brief Pointer to CartesianCircularMotion
- */
-typedef rw::common::Ptr<CartesianCircularMotion> CartesianCircularMotionPtr;
-#endif
 /** @} */
 
 } //end namespace task

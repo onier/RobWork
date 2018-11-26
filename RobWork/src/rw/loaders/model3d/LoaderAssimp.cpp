@@ -25,8 +25,6 @@
 #include <assimp/DefaultLogger.hpp>
 #include <assimp/LogStream.hpp>
 
-#include <rw/geometry/Triangulate.hpp>
-
 using namespace rw::common;
 using namespace rw::geometry;
 using namespace rw::graphics;
@@ -136,6 +134,7 @@ Model3D::Ptr LoaderAssimp::load(const std::string& filename) {
 				}
 
 				material->Get(AI_MATKEY_SHININESS,rwmaterial.shininess);
+				rwmaterial.shininess = rwmaterial.shininess/4000*128; // Might need to be adjusted. Scaled to match range in obj format.
 				material->Get(AI_MATKEY_OPACITY,rwmaterial.transparency);
 			}
 		}
@@ -143,14 +142,15 @@ Model3D::Ptr LoaderAssimp::load(const std::string& filename) {
 		// Find and add all nodes as objects
 		std::vector<aiNode*> nodes;
 		std::stack<aiNode*> stack;
-		std::vector<Model3D::Object3D::Ptr> &objects = model->getObjects();
+		std::vector<Model3D::Object3DGeneric::Ptr> &objects = model->getObjects();
 		stack.push(scene->mRootNode);
 		while (stack.size() > 0) {
 			aiNode* node = stack.top();
 			stack.pop();
 			nodes.push_back(node);
 
-			Model3D::Object3D::Ptr rwobj = ownedPtr(new Model3D::Object3D(node->mName.C_Str()));
+			// Assume 16-bit initially
+			Model3D::Object3D<uint16_t>::Ptr rwobj = ownedPtr(new Model3D::Object3D<uint16_t>(node->mName.C_Str()));
 			aiMatrix4x4 matrix = node->mTransformation;
 			rwobj->_transform = toRWTransform(matrix);
 			objects.push_back(rwobj);
@@ -180,10 +180,51 @@ Model3D::Ptr LoaderAssimp::load(const std::string& filename) {
 			objects[i]->_parentObj = parent;
 		}
 
+		// First check that there are not too many vertices to store in 32-bit Model3D::Object3D
+		for (std::size_t n = 0; n < nodes.size(); n++) {
+			aiNode* node = nodes[n];
+			unsigned int nodeVertices = 0;
+			for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+				const aiMesh* const mesh = scene->mMeshes[node->mMeshes[i]];
+				const unsigned int vertices = mesh->mNumVertices;
+				if (vertices >= UINT32_MAX)
+					RW_THROW("LoaderAssimp can not load the node \"" << node->mName.C_Str() << "\" (mesh \"" << mesh->mName.C_Str() << "\") from file " << filename << " as it has " << vertices << " vertices - max is " << UINT32_MAX << "!");
+				if (nodeVertices >= UINT32_MAX - vertices)
+					RW_THROW("LoaderAssimp can not load the node \"" << node->mName.C_Str() << "\" from file " << filename << " as the combined mesh has too many combined vertices - max is " << UINT32_MAX << "!");
+				else
+					nodeVertices += vertices;
+			}
+		}
+
 		// Add meshes to each object
 		for (std::size_t n = 0; n < nodes.size(); n++) {
 			aiNode* node = nodes[n];
-			Model3D::Object3D::Ptr rwobj = objects[n];
+
+			// Count vertices
+			unsigned int nodeVertices = 0;
+			for (unsigned int i = 0; i < node->mNumMeshes; i++) {
+				const aiMesh* const mesh = scene->mMeshes[node->mMeshes[i]];
+				nodeVertices += mesh->mNumVertices;
+			}
+
+			Model3D::Object3D<uint8_t>::Ptr rwobj8 = NULL;
+			Model3D::Object3D<uint16_t>::Ptr rwobj16 = NULL;
+			Model3D::Object3D<uint32_t>::Ptr rwobj32 = NULL;
+			if (nodeVertices < UINT8_MAX) {
+				const Model3D::Object3DGeneric::Ptr old = objects[n];
+				objects[n] = rwobj8 = ownedPtr(new Model3D::Object3D<uint8_t>(node->mName.C_Str()));
+				objects[n]->_transform = old->_transform;
+				objects[n]->_parentObj = old->_parentObj;
+			} else if (nodeVertices < UINT16_MAX) {
+				// Already created
+				rwobj16 = objects[n].scast<Model3D::Object3D<uint16_t> >();
+			} else if (nodeVertices < UINT32_MAX) {
+				const Model3D::Object3DGeneric::Ptr old = objects[n];
+				objects[n] = rwobj32 = ownedPtr(new Model3D::Object3D<uint32_t>(node->mName.C_Str()));
+				objects[n]->_transform = old->_transform;
+				objects[n]->_parentObj = old->_parentObj;
+			}
+			Model3D::Object3DGeneric::Ptr rwobj = objects[n];
 			for (std::size_t i = 0; i < node->mNumMeshes; i++) {
 				aiMesh* mesh = scene->mMeshes[node->mMeshes[i]];
 
@@ -219,10 +260,6 @@ Model3D::Ptr LoaderAssimp::load(const std::string& filename) {
 						// This is stupid
 						RW_THROW("LoaderAssimp could not load " << filename << " as a face was encountered with only " << face.mNumIndices << " vertices.");
 					} else if (face.mNumIndices == 3) {
-						IndexedTriangle<uint16_t> triangle(
-							(uint16_t)(startId+face.mIndices[0]),
-							(uint16_t)(startId+face.mIndices[1]),
-							(uint16_t)(startId+face.mIndices[2]));
 						if (!mesh->HasNormals()) {
 							Vector3D<float> v0 = rwobj->_vertices[startId+face.mIndices[0]];
 							Vector3D<float> v1 = rwobj->_vertices[startId+face.mIndices[1]];
@@ -232,7 +269,25 @@ Model3D::Ptr LoaderAssimp::load(const std::string& filename) {
 							rwobj->_normals[startId+j][1] = normal[1];
 							rwobj->_normals[startId+j][2] = normal[2];
 						}
-						rwobj->addTriangle(triangle);
+						if (nodeVertices < UINT8_MAX) {
+							const IndexedTriangle<uint8_t> triangle(
+								(uint8_t)(startId+face.mIndices[0]),
+								(uint8_t)(startId+face.mIndices[1]),
+								(uint8_t)(startId+face.mIndices[2]));
+							rwobj8->addTriangle(triangle);
+						} else if (nodeVertices < UINT16_MAX) {
+							const IndexedTriangle<uint16_t> triangle(
+								(uint16_t)(startId+face.mIndices[0]),
+								(uint16_t)(startId+face.mIndices[1]),
+								(uint16_t)(startId+face.mIndices[2]));
+							rwobj16->addTriangle(triangle);
+						} else if (nodeVertices < UINT32_MAX) {
+							const IndexedTriangle<uint32_t> triangle(
+								(uint32_t)(startId+face.mIndices[0]),
+								(uint32_t)(startId+face.mIndices[1]),
+								(uint32_t)(startId+face.mIndices[2]));
+							rwobj32->addTriangle(triangle);
+						}
 					} else {
 						RW_THROW("LoaderAssimp encountered face with more than 3 indices: should not be possible!");
 					}

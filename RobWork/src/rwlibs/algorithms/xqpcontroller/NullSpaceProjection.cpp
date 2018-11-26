@@ -20,8 +20,11 @@
 
 #include <rw/math/LinearAlgebra.hpp>
 #include <rw/math/Math.hpp>
-#include <rw/math/Jacobian.hpp>
+#include <rw/models/Device.hpp>
 #include <rwlibs/algorithms/qpcontroller/QPSolver.hpp>
+
+#include <boost/numeric/ublas/vector.hpp>
+#include <boost/numeric/ublas/vector_proxy.hpp>
 
 using namespace rwlibs::algorithms;
 

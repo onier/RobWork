@@ -18,16 +18,20 @@
 #ifndef RW_COLLISION_PROXIMITYSETUP_HPP
 #define RW_COLLISION_PROXIMITYSETUP_HPP
 
-#include "CollisionSetup.hpp"
 #include "ProximitySetupRule.hpp"
-#include <rw/models/WorkCell.hpp>
+
+#include <rw/common/Ptr.hpp>
+#include <rw/common/PropertyMap.hpp>
 
 #include <string>
 #include <vector>
 
+namespace rw { namespace models { class WorkCell; } }
+
 namespace rw {
 namespace proximity {
 
+class CollisionSetup;
 
 /** @addtogroup proximity */
 /*@{*/
@@ -102,12 +106,27 @@ public:
 		_useIncludeAll = includeAll;
 	}
 
+	void setLoadedFromFile(bool loaded_from_file) {
+		_loadedFromFile = loaded_from_file;
+	}
+
+	bool getLoadedFromFile() const {
+		return _loadedFromFile;
+	}
+
+	void setFileName(const std::string& file_name) {
+		_fileName = file_name;
+	}
+
+	std::string getFileName() const {
+		return _fileName;
+	}
 
     static ProximitySetup get(const rw::models::WorkCell& wc);
-    static ProximitySetup get(rw::models::WorkCell::Ptr wc);
+    static ProximitySetup get(rw::common::Ptr<rw::models::WorkCell> wc);
     static ProximitySetup get(const rw::common::PropertyMap& map);
 
-    static void set(const ProximitySetup& setup, rw::models::WorkCell::Ptr wc);
+    static void set(const ProximitySetup& setup, rw::common::Ptr<rw::models::WorkCell> wc);
     static void set(const ProximitySetup& setup, rw::common::PropertyMap& map);
 
 private:
@@ -115,6 +134,8 @@ private:
 
 	bool _useIncludeAll;
 	bool _useExcludeStaticPairs;
+	bool _loadedFromFile;
+	std::string _fileName;
 };
 
 /*@}*/

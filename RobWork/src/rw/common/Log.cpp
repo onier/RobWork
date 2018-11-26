@@ -18,8 +18,7 @@
 
 #include "Log.hpp"
 
-#include <rw/common/macros.hpp>
-#include <boost/foreach.hpp>
+//#include <rw/common/macros.hpp>
 
 #include <rw/common/LogStreamWriter.hpp>
 #include <rw/RobWork.hpp>
@@ -35,11 +34,10 @@ namespace {
         //! @brief smart pointer type to this class
         typedef rw::common::Ptr<EmptyLogWriter> Ptr;
 
-        virtual void flush(){};
-        virtual void write(const std::string& str){};
-        virtual void write(const rw::common::Message& msg){};
-        virtual void writeln(const std::string& str){};
-		virtual void setTabLevel(int) {};
+	protected:
+        virtual void doFlush(){}
+        virtual void doWrite(const std::string& str){}
+		virtual void doSetTabLevel(int) {}
 	};
 }
 

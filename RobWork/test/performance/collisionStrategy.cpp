@@ -17,16 +17,14 @@
 
 #include "../TestSuiteConfig.hpp"
 
-#include <rw/proximity.hpp>
-#include <rw/models.hpp>
-#include <rw/kinematics.hpp>
-#include <rw/math.hpp>
-#include <rw/geometry.hpp>
+#include <rw/common/Timer.hpp>
+#include <rw/geometry/Geometry.hpp>
+#include <rw/loaders/GeometryFactory.hpp>
+#include <rw/math/Math.hpp>
+#include <rw/proximity/CollisionStrategy.hpp>
+#include <rw/proximity/ProximityStrategyData.hpp>
 
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
-
-#include <rw/loaders.hpp>
-#include <rw/common/TimerUtil.hpp>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,13 +32,12 @@
 #include <sstream>
 #include <iomanip>
 
-
-USE_ROBWORK_NAMESPACE
-using namespace robwork;
-
-using namespace boost::unit_test;
-using namespace rwlibs::proximitystrategies;
-
+using namespace rw::common;
+using rw::geometry::Geometry;
+using rw::loaders::GeometryFactory;
+using namespace rw::math;
+using namespace rw::proximity;
+using rwlibs::proximitystrategies::ProximityStrategyFactory;
 
 typedef std::pair<int,int> ModelPair;
 struct CollisionTestSetup {
@@ -293,7 +290,7 @@ std::vector<std::pair<std::string, double> > testStrategy(CollisionStrategy::Ptr
 
 BOOST_AUTO_TEST_CASE( testCollisionQueryPerformance )
 {
-    BOOST_MESSAGE("Collission Query Performance Tests.");
+    BOOST_TEST_MESSAGE("Collission Query Performance Tests.");
     // We seed the random number generator so that we get reproducible results.
     Math::seed(0);
     std::vector<std::string> colids;

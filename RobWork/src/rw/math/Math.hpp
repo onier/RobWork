@@ -24,7 +24,6 @@
  */
 #include <cmath>
 
-#include "LinearAlgebra.hpp"
 #include "EAA.hpp"
 #include "RPY.hpp"
 #include "Quaternion.hpp"
@@ -142,8 +141,6 @@ namespace rw { namespace math {
             S(0,0) =   0.0; S(0,1) = -s[2]; S(0,2) =  s[1];
             S(1,0) =  s[2]; S(1,1) =   0.0; S(1,2) = -s[0];
             S(2,0) = -s[1]; S(2,1) =  s[0]; S(2,2) =   0.0;
-
-            assert(LinearAlgebra::isSkewSymmetric(S));
             return S;
         }
 
@@ -170,8 +167,6 @@ namespace rw { namespace math {
             S(0,0) =   0.0; S(0,1) = -s[2]; S(0,2) =  s[1];
             S(1,0) =  s[2]; S(1,1) =   0.0; S(1,2) = -s[0];
             S(2,0) = -s[1]; S(2,1) =  s[0]; S(2,2) =   0.0;
-
-            assert(LinearAlgebra::isSkewSymmetric(S));
             return S;
         }
 
@@ -295,6 +290,7 @@ namespace rw { namespace math {
          * @brief Returns a random sample around \b mean with standard deviation \b sigma
          *
          * @note Uses boost::random
+		 * @warning The number sequence generated can vary in different Boost versions (there is a known change in Boost 1.56.0).
          *
          * @param mean [in] Means value
          * @param sigma [in] Standard deviation
@@ -332,6 +328,8 @@ namespace rw { namespace math {
 		 * @param dim [in] Number of dimensions
 		 * @param length [in] Length of return vector. Default is 1;
 		 * @return Random direction
+		 *
+		 * @warning Please see the warning for Math::ranNormalDist
 		 */
 		static rw::math::Q ranDir(size_t dim, double length = 1);
 
@@ -344,6 +342,8 @@ namespace rw { namespace math {
 		 * @param weights [in] Weights to use
 		 * @param length [in] Length of return vector when weights are applied as weighted Euclidean metric. Default is 1;
 		 * @return Random weigthed direction
+		 *
+		 * @warning Please see the warning for Math::ranNormalDist
 		 */
 		static rw::math::Q ranWeightedDir(size_t dim, const rw::math::Q& weights, double length = 1);
 
@@ -358,7 +358,7 @@ namespace rw { namespace math {
                     double u1 = Math::ran();
                     double u2 = Math::ran();
                     double u3 = Math::ran();
-                    Quaternion<T> q( std::sqrt(1-u1)*sin(2*Pi*u2), std::sqrt(1-u1)*cos(2*Pi*u2), std::sqrt(u1)*sin(2*Pi*u3), std::sqrt(u1)*cos(2*Pi*u3) );
+                    Quaternion<T> q(static_cast<T>(std::sqrt(1-u1)*sin(2*Pi*u2)), static_cast<T>(std::sqrt(1-u1)*cos(2*Pi*u2)), static_cast<T>(std::sqrt(u1)*sin(2*Pi*u3)), static_cast<T>(std::sqrt(u1)*cos(2*Pi*u3)) );
                     return q;
 		}
 
@@ -381,7 +381,7 @@ namespace rw { namespace math {
                  template<class T>
                  static rw::math::Transform3D<T> ranTransform3D(const double translationLength = 1) {
                      rw::math::Q dir = ranDir(3, translationLength);
-                     rw::math::Vector3D<T> translation(dir(0), dir(1), dir(2));
+                     rw::math::Vector3D<T> translation(static_cast<T>(dir(0)), static_cast<T>(dir(1)), static_cast<T>(dir(2)));
                      return rw::math::Transform3D<T>(translation, ranRotation3D<T>());
                  }
         
@@ -729,6 +729,8 @@ namespace rw { namespace math {
          * the operator (i,j) in order to use this function.
          * @param data [in] the input
          * @param tmp [out] the output
+         * @param size1 [in] the size of the first dimension of the matrix.
+         * @param size2 [in] the size of the second dimension of the matrix.
          * @return reference to tmp
          */
         template <class T, class MAT>
@@ -748,6 +750,13 @@ namespace rw { namespace math {
 		 */
 		static bool isNaN(double d);
 
+		/**
+		 * @brief Get a value for NaN.
+		 *
+		 * Use to make sure code is independent of specific compile specific implementations
+		 *
+		 * @return a double representation of NaN.
+		 */
 		static double NaN();
     };
 

@@ -21,11 +21,6 @@
 //! @file LoaderOBJ.hpp
 
 #include <string>
-#include <vector>
-#include <cstring>
-
-#include <rw/common/macros.hpp>
-#include <rw/math/Vector3D.hpp>
 
 #include "../Model3DLoader.hpp"
 
@@ -52,7 +47,7 @@ namespace rw { namespace loaders {
 		virtual ~LoaderOBJ(){};
 
 		//! @copydoc Model3DLoader::load
-		rw::graphics::Model3D::Ptr load(const std::string& name);
+		rw::graphics::Model3D::Ptr load(const std::string& filename);
 
 	};
 

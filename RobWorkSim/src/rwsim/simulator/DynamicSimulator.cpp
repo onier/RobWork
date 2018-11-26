@@ -1,6 +1,6 @@
 #include "DynamicSimulator.hpp"
 
-#include "PhysicsEngineFactory.hpp"
+#include "PhysicsEngine.hpp"
 
 using namespace rwsim::simulator;
 using namespace rw::common;
@@ -17,7 +17,7 @@ DynamicSimulator::DynamicSimulator(rwsim::dynamics::DynamicWorkCell::Ptr dworkce
 DynamicSimulator::DynamicSimulator(rwsim::dynamics::DynamicWorkCell::Ptr dworkcell):
         _dwc(dworkcell)
 {
-    _pengine = PhysicsEngineFactory::makePhysicsEngine(_dwc);
+    _pengine = PhysicsEngine::Factory::makePhysicsEngine(_dwc);
     _pengine->addController(_bodyController);
 }
 
@@ -100,8 +100,8 @@ void DynamicSimulator::setDynamicsEnabled(dynamics::Body::Ptr body, bool enabled
     _pengine->setDynamicsEnabled(body, enabled);
 }
 
-void DynamicSimulator::setTarget(dynamics::Body::Ptr body, const rw::math::Transform3D<>& t3d, rw::kinematics::State& state){
-    _bodyController->setTarget(body, t3d, state);
+void DynamicSimulator::setTarget(dynamics::Body::Ptr body, const rw::math::Transform3D<>& t3d, rw::kinematics::State& state, double maxLinVel, double maxLinAcc, double maxAngVel, double maxAngAcc){
+    _bodyController->setTarget(body, t3d, state, maxLinVel, maxLinAcc, maxAngVel, maxAngAcc);
 }
 
 void DynamicSimulator::setTarget(dynamics::Body::Ptr body, rw::trajectory::Trajectory<rw::math::Transform3D<> >::Ptr traj){

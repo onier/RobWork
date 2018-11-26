@@ -74,6 +74,11 @@ namespace geometry {
 		 */
 		virtual rw::common::Ptr<TriMesh> clone() const = 0;
 
+		/**
+		 * @brief Scale all vertices in the mesh.
+		 */
+		virtual void scale(double scale) = 0;
+
 		//! @copydoc GeometryData::getTriMesh
 		rw::common::Ptr<TriMesh> getTriMesh(bool forceCopy=true);
 
@@ -176,12 +181,6 @@ namespace geometry {
         bool _isConvex;
 
 	};
-
-#ifdef RW_USE_DEPRECATED
-	//! @brief Ptr to TriMesh
-	typedef rw::common::Ptr<TriMesh> TriMeshPtr;
-#endif
-
 	//! @}
 } // geometry
 } // rw

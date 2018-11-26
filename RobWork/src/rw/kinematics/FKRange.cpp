@@ -142,3 +142,19 @@ Transform3D<> FKRange::get(const State& state) const
             reversePathTransform(_forwardBranch, state);
     }
 }
+
+Frame::CPtr FKRange::getEnd() const
+{
+    if(_forwardBranch.empty()){
+        return nullptr;
+    }
+    return _forwardBranch.front();
+}
+
+Frame::CPtr FKRange::getBase() const
+{
+    if(_inverseBranch.empty()){
+        return nullptr;
+    }
+    return _inverseBranch.front();
+}

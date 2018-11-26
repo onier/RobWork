@@ -18,12 +18,13 @@
 #ifndef RWSIM_DYNAMICS_CONTACTMANIFOLD_HPP_
 #define RWSIM_DYNAMICS_CONTACTMANIFOLD_HPP_
 
-//! @file ContactMAnifold.hpp
+//! @file ContactManifold.hpp
 
 #include "ContactPoint.hpp"
 
 namespace rwsim {
 namespace dynamics {
+	class ContactPoint;
 
 	/**
 	 * @brief A contact manifold is an area of contact between two objects,
@@ -42,7 +43,7 @@ namespace dynamics {
 	public:
 
 		/**
-		 * @breif default constructor
+		 * @brief default constructor
 		 * @return
 		 */
 		ContactManifold(){};
@@ -93,6 +94,7 @@ namespace dynamics {
 		 * max distance from deepest penetrating point.
 		 * @param points
 		 * @param manifolds
+		 * @param thres [in] maximum distance from deepest penetrating point.
 		 */
 		static void genThresContactManifolds(
 			std::vector<ContactPoint>& points,
@@ -100,7 +102,6 @@ namespace dynamics {
 			double thres);
 
 	private:
-		int _deepestIdx;
 		ContactPoint _deepest[5];
 
 	};

@@ -1,21 +1,11 @@
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <stdio.h>
-#include <stdlib.h>
-#include <csignal>
-#include <sys/stat.h>
-#include <vector>
-
-#include <rw/rw.hpp>
-#include <rwlibs/task.hpp>
+#include <rwlibs/task/Task.hpp>
+#include <rwlibs/task/loader/TaskSaver.hpp>
 #include <rw/math/Vector3D.hpp>
 
-USE_ROBWORK_NAMESPACE
-using namespace std;
-using namespace robwork;
-
+using namespace rw::common;
+using namespace rw::math;
+using namespace rwlibs::task;
 
 int main(int argc, char** argv)
 {
@@ -64,8 +54,8 @@ int main(int argc, char** argv)
     }
 
     try {
-        XMLTaskSaver saver;
-        saver.save(&tasks, "SuctionCupTaskFile.xml");
+        const TaskSaver::Ptr saver = TaskSaver::Factory::getTaskSaver("xml");
+        saver->save(&tasks, "SuctionCupTaskFile.xml");
     } catch (const Exception& exp) {
        // QMessageBox::information(this, "Task Execution Widget", "Unable to save tasks");
     }

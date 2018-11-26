@@ -1,12 +1,13 @@
 
 #include "RWSImageLoaderPlugin.hpp"
 #include "ImageUtil.hpp"
+
+#include <rw/common/Ptr.hpp>
+#include <rw/loaders/ImageLoader.hpp>
+
 #include <QImage>
 #include <QImageReader>
 #include <boost/foreach.hpp>
-#include <rw/common/Ptr.hpp>
-
-
 
 using namespace rws;
 using namespace rw::sensor;
@@ -53,8 +54,8 @@ namespace {
 
 RWSImageLoaderPlugin::RWSImageLoaderPlugin():Plugin("RWSImageLoaderPlugin", "RWSImageLoaderPlugin", "0.1")
 {
+}
 
-};
 RWSImageLoaderPlugin::~RWSImageLoaderPlugin(){
 }
 

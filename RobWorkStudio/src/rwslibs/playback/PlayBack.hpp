@@ -18,27 +18,22 @@
 #ifndef RW_STUDIO_PLAYBACK_MODULE_H
 #define RW_STUDIO_PLAYBACK_MODULE_H
 
-#include <QTabWidget>
-#include <QTextEdit>
-#include <QSlider>
-#include <QtGui>
-#include <QCheckBox>
-
-#include <list>
-#include <vector>
-#include <memory>
-
-#include "Player.hpp"
 #include "PlayBackSettings.hpp"
 
 #include <rws/RobWorkStudioPlugin.hpp>
 
-#include <rw/models/WorkCell.hpp>
-#include <rw/kinematics/State.hpp>
 #include <rw/trajectory/Path.hpp>
+
+class Player;
+class StateDraw;
+
+class QCheckBox;
+class QLabel;
+class QSlider;
 
 namespace rws {
 
+//! @brief Playback plugin for animation of a rw::trajectory::TimedStatePath .
 class PlayBack : public RobWorkStudioPlugin
 {
     Q_OBJECT
@@ -49,14 +44,19 @@ class PlayBack : public RobWorkStudioPlugin
 	#endif
 #endif
 public:
+	//! @brief Constructor.
     PlayBack();
 
+	//! @brief Destructor.
     virtual ~PlayBack();
 
+    //! @copydoc RobWorkStudioPlugin::open
     virtual void open(rw::models::WorkCell* workcell);
 
+    //! @copydoc RobWorkStudioPlugin::close
     virtual void close();
 
+    //! @copydoc RobWorkStudioPlugin::initialize
     void initialize();
 
 private:
@@ -84,6 +84,7 @@ private:
     rw::common::Ptr<StateDraw> makeMyStateDraw();
     void draw(const rw::kinematics::State& state);
 
+    void csvOpenPlayFile(const std::string& file);
     void rawOpenPlayFile(const std::string& file);
     void openPlayFile(const std::string& file);
     void setInfoLabel();
@@ -96,7 +97,7 @@ private:
 
     std::string _previousOpenSaveDirectory;
 
-    PlayerPtr _player;
+    rw::common::Ptr<Player> _player;
 
     QLabel* _info;
 

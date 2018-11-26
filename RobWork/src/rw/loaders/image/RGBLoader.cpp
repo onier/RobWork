@@ -153,7 +153,7 @@ namespace {
             return (NULL);
         }
 
-        if ((raw->type & 0xFF00) == 0x0100) {
+        if ((raw->type & 0xFF00) == 0x0100) { // if Run Length Encoding is used (RLE)
             x = raw->sizeY * raw->sizeZ * sizeof(GLuint);
             raw->rowStart = (GLuint *) malloc(x);
             raw->rowSize = (GLint *) malloc(x);
@@ -190,12 +190,17 @@ namespace {
         unsigned char *iPtr, *oPtr, pixel;
         int count;
         size_t stat;
-        if ((raw->type & 0xFF00) == 0x0100) {
+        if ((raw->type & 0xFF00) == 0x0100) { // Run Length Encoding (RLE)
             fseek(raw->file, raw->rowStart[y + z * raw->sizeY], SEEK_SET);
             stat = fread(raw->tmp, 1, (unsigned int) raw->rowSize[y + z * raw->sizeY],
                   raw->file);
             if (stat != (size_t)raw->rowSize[y + z * raw->sizeY]) {RW_THROW("Reading error");}
 
+            // If an even number of bytes has been read, we add an implicit zero count
+            // at the end to make sure that the following while loop exits correctly.
+            // (Otherwise issues with the GIMP "Aggressive RLE" has been observed)
+            if (stat%2 == 0)
+            	*(raw->tmp+stat) = 0;
             iPtr = raw->tmp;
             oPtr = buf;
             while (1) {
@@ -323,13 +328,19 @@ rw::sensor::Image::Ptr RGBLoader::loadImage(const std::string& fname){
     return RGBLoader::load(fname);
 }
 
+std::vector<std::string> RGBLoader::getImageFormats() {
+	std::vector<std::string> formats;
+	formats.push_back("RGB");
+	return formats;
+}
+
 rw::sensor::Image::Ptr RGBLoader::load(const std::string& fname){
     const char *fileName = fname.c_str();
     rawImageRec *raw;
 	Image::Ptr img;
     ACImage *final = new ACImage();
 
-    printf("Loading texture: %s\n", fileName);
+    //printf("Loading texture: %s\n", fileName);
 
     raw = RawImageOpen(fileName);
     if (raw == NULL)
@@ -345,7 +356,7 @@ rw::sensor::Image::Ptr RGBLoader::load(const std::string& fname){
     RawImageGetData(raw, final);
     RawImageClose(raw);
 
-    printf("loaded RGB image %dx%d (%d)\n", final->width, final->height, final->depth);
+    //printf("loaded RGB image %dx%d (%d)\n", final->width, final->height, final->depth);
 
     Image::PixelDepth pdepth = Image::Depth8U;
     Image::ColorCode ccode = Image::RGB;
@@ -370,7 +381,6 @@ rw::sensor::Image::Ptr RGBLoader::load(const std::string& fname){
 
     img = new Image(final->width, final->height, ccode, pdepth);
     char *imgData = img->getImageData();
-    img->getDataSize();
     for(size_t y=0;y<final->height; y++){
         unsigned int rowidx = (int)y*widthStep;
         unsigned char *dstrow = (unsigned char *) &(imgData[rowidx]);
@@ -379,6 +389,5 @@ rw::sensor::Image::Ptr RGBLoader::load(const std::string& fname){
             dstrow[x] = srcrow[x];
         }
     }
-    img->saveAsPPM(fname+".ppm");
     return img;
 }

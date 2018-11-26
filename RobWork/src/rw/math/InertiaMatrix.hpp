@@ -44,9 +44,13 @@ namespace rw { namespace math {
     class InertiaMatrix
     {
     public:
-        //! The type of the internal Boost matrix implementation.
+    	/**
+    	 * @brief Legacy type for Boost matrix implementation.
+    	 * @deprecated Users should migrate to the Base type based on Eigen.
+    	 */
         typedef boost::numeric::ublas::bounded_matrix<T, 3, 3> BoostBase;
 
+        //! @brief The type of the internal Eigen matrix implementation.
 		typedef Eigen::Matrix<T, 3, 3> Base;
 
         /**
@@ -144,12 +148,14 @@ namespace rw { namespace math {
 
 
         /**
-           @brief Construct a rotation matrix from a Boost matrix expression.
-
-           The matrix expression must be convertible to a 3x3 bounded matrix.
-
-           It is the responsibility of the user that 3x3 matrix is indeed an
-           inertia matrix.
+         * @brief Construct a rotation matrix from a Boost matrix expression.
+         *
+         * The matrix expression must be convertible to a 3x3 bounded matrix.
+         *
+         * It is the responsibility of the user that 3x3 matrix is indeed an
+         * inertia matrix.
+         *
+         * @deprecated Please consider using Eigen matrices instead.
          */
         template <class R>
         explicit InertiaMatrix(
@@ -278,23 +284,6 @@ namespace rw { namespace math {
         }
 
         /**
-         * @brief Calculates the inverse @f$ \robabx{b}{a}{\mathbf{R}} =
-         * \robabx{a}{b}{\mathbf{R}}^{-1} @f$ of a rotation matrix
-         *
-         * @param aRb [in] the rotation matrix @f$ \robabx{a}{b}{\mathbf{R}} @f$
-         *
-         * @return the matrix inverse @f$ \robabx{b}{a}{\mathbf{R}} =
-         * \robabx{a}{b}{\mathbf{R}}^{-1} @f$
-         *
-         * @f$ \robabx{b}{a}{\mathbf{R}} = \robabx{a}{b}{\mathbf{R}}^{-1} =
-         * \robabx{a}{b}{\mathbf{R}}^T @f$
-         */
-        friend InertiaMatrix inverse(const InertiaMatrix& aRb)
-        {            
-            return InertiaMatrix(aRb.e().inverse());
-        }
-
-        /**
          * @brief Writes rotation matrix to stream
          * @param os [in/out] output stream to use
          * @param r [in] rotation matrix to print
@@ -306,23 +295,11 @@ namespace rw { namespace math {
         }
 
         /**
-         * @brief Casts InertiaMatrix<T> to InertiaMatrix<Q>
-         * @param rot [in] InertiaMatrix with type T
-         * @return InertiaMatrix with type Q
+         * @brief Make inertia matrix for a solid sphere.
+         * @param mass [in] mass of solid sphere.
+         * @param radi [in] radius of sphere.
+         * @return the inertia matrix.
          */
-        template<class Q>
-        friend InertiaMatrix<Q> cast(const InertiaMatrix<T>& rot)
-        {
-            InertiaMatrix<Q> res(InertiaMatrix<Q>::identity());
-            for (size_t i = 0; i<3; i++)
-                for (size_t j = 0; j<3; j++)
-                    res(i,j) = static_cast<Q>(rot(i,j));
-            return res;
-        }
-
-
-
-
         static InertiaMatrix<T> makeSolidSphereInertia(T mass, T radi){
             T tmpV = (T)(2.0/5.0)*mass*radi*radi;
             return InertiaMatrix<T>(
@@ -332,7 +309,12 @@ namespace rw { namespace math {
                 );
         }
 
-
+        /**
+         * @brief Make inertia matrix for a hollow sphere.
+         * @param mass [in] mass of hollow sphere.
+         * @param radi [in] radius of sphere.
+         * @return the inertia matrix.
+         */
         static InertiaMatrix<T> makeHollowSphereInertia(T mass, T radi){
             T tmpV = (T)(2.0/3.0)*mass*radi*radi;
             return InertiaMatrix<T>(
@@ -367,16 +349,68 @@ namespace rw { namespace math {
         Base _matrix;
     };
 
+	/**
+	* @brief Calculates the inverse @f$ \robabx{b}{a}{\mathbf{R}} =
+	* \robabx{a}{b}{\mathbf{R}}^{-1} @f$ of a rotation matrix
+	*
+	* @param aRb [in] the rotation matrix @f$ \robabx{a}{b}{\mathbf{R}} @f$
+	*
+	* @return the matrix inverse @f$ \robabx{b}{a}{\mathbf{R}} =
+	* \robabx{a}{b}{\mathbf{R}}^{-1} @f$
+	*
+	* @f$ \robabx{b}{a}{\mathbf{R}} = \robabx{a}{b}{\mathbf{R}}^{-1} =
+	* \robabx{a}{b}{\mathbf{R}}^T @f$
+	*/
+	template <class Q>
+	InertiaMatrix<Q> inverse(const InertiaMatrix<Q>& aRb)
+	{
+		return InertiaMatrix<Q>(aRb.e().inverse());
+	}
+
+	/**
+	* @brief Casts InertiaMatrix<T> to InertiaMatrix<Q>
+	* @param rot [in] InertiaMatrix with type T
+	* @return InertiaMatrix with type Q
+	*/
+	template<class Q, class T>
+	InertiaMatrix<Q> cast(const InertiaMatrix<T>& rot)
+	{
+		InertiaMatrix<Q> res(InertiaMatrix<Q>::identity());
+		for (size_t i = 0; i<3; i++)
+			for (size_t j = 0; j<3; j++)
+				res(i, j) = static_cast<Q>(rot(i, j));
+		return res;
+	}
+
     /*@}*/
 }} // end namespaces
 
 namespace rw{ namespace common {
     class OutputArchive; class InputArchive;
 namespace serialization {
-	template<> void write(const rw::math::InertiaMatrix<double>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-	template<> void write(const rw::math::InertiaMatrix<float>& tmp, rw::common::OutputArchive& oar, const std::string& id);
-	template<> void read(rw::math::InertiaMatrix<double>& tmp, rw::common::InputArchive& iar, const std::string& id);
-	template<> void read(rw::math::InertiaMatrix<float>& tmp, rw::common::InputArchive& iar, const std::string& id);
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::InertiaMatrix
+	 */
+	template<> void write(const rw::math::InertiaMatrix<double>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::write
+	 * @relatedalso rw::math::InertiaMatrix
+	 */
+	template<> void write(const rw::math::InertiaMatrix<float>& sobject, rw::common::OutputArchive& oarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::InertiaMatrix
+	 */
+	template<> void read(rw::math::InertiaMatrix<double>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
+
+	/**
+	 * @copydoc rw::common::serialization::read
+	 * @relatedalso rw::math::InertiaMatrix
+	 */
+	template<> void read(rw::math::InertiaMatrix<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
 #endif // end include guard

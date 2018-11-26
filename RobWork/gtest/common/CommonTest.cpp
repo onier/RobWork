@@ -17,9 +17,12 @@
 
 #include <gtest/gtest.h>
 
+#include "../TestEnvironment.hpp"
+#include <rw/common/AnyPtr.hpp>
 #include <rw/common/Ptr.hpp>
 #include <rw/common/Timer.hpp>
 #include <rw/common/Event.hpp>
+#include <rw/common/StringUtil.hpp>
 
 #include <boost/any.hpp>
 #include <boost/bind.hpp>
@@ -60,6 +63,21 @@ TEST(PtrTest, CastToSubType) {
     EXPECT_FALSE(bptr.isNull());
 }
 
+TEST(AnyPtrTest, CastToTypes) {
+    std::vector<AnyPtr> anyptrs;
+    B* const b = new B();
+    anyptrs.push_back( ownedPtr(b) );
+
+    std::vector<AnyPtr> anyptrsCopy = anyptrs;
+    AnyPtr anyptr = anyptrsCopy[0];
+    A* const a  = anyptr.get<A>();
+    B* const bcast = dynamic_cast<B*>(a);
+    EXPECT_TRUE(bcast != NULL);
+    const BPtr bptr = anyptr.cast<B>();
+    EXPECT_TRUE(bptr != NULL);
+    EXPECT_FALSE(bptr.isNull());
+}
+
 TEST(TimerTest, GetTimeFunctions) {
 	Timer t1(3030);
 	EXPECT_EQ(t1.getTimeMs(),3030);
@@ -75,6 +93,14 @@ TEST(TimerTest, ToStringFunctions) {
 	EXPECT_EQ(tstr3,"1:2:30") << "Should be: " << tstr3;
 	std::string tstr4 = Timer(1,2,2,10).toString("h:m");
 	EXPECT_EQ(tstr4,"1:2") << "Should be: " << tstr4;
+}
+
+TEST(GetRelativeDirectoryNameTest, HardcodedPathTest) {
+	std::string wcPath = TestEnvironment::testfilesDir() + "workcells/simple_wc/SimpleWorkcell.wc.xml";
+    const std::string robotGeometryTestString = TestEnvironment::testfilesDir() + "workcells/simple_wc/PA10/Geometry/Rob-0";
+    const std::string hardcodedResult = "PA10/Geometry/";
+    const std::string result = StringUtil::getRelativeDirectoryName(robotGeometryTestString, StringUtil::getDirectoryName(wcPath));
+    EXPECT_EQ(hardcodedResult, result);
 }
 
 typedef boost::function<void(const std::string&, boost::any)> GenericAnyEventListener;

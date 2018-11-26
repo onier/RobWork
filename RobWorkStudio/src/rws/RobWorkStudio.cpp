@@ -18,40 +18,46 @@
 
 #define QT_NO_EMIT
 #include <QApplication>
-#include <QIcon>
 #include <QAction>
-#include <QActionGroup>
-#include <QMenuBar>
+#include <QCloseEvent>
+#include <QFileDialog>
+#include <QIcon>
 #include <QMenu>
-#include <QToolBar>
-#include <QStringList>
-#include <QPluginLoader>
+#include <QMenuBar>
+#include <QMessageBox>
 #include <QObject>
+#include <QPluginLoader>
+#include <QSettings>
+#include <QStringList>
+#include <QToolBar>
+#include <QUrl>
+#include <QMimeData>
 
 #include "RobWorkStudio.hpp"
 #include "AboutBox.hpp"
-#include "SceneOpenGLViewer.hpp"
+#include "RobWorkStudioPlugin.hpp"
+#include "HelpAssistant.hpp"
 
 #include <rw/common/os.hpp>
 #include <rw/common/Exception.hpp>
 #include <rw/common/StringUtil.hpp>
-#include <rw/models/Device.hpp>
 #include <rw/models/WorkCell.hpp>
-#include <rw/kinematics/Kinematics.hpp>
-#include <rw/kinematics/FixedFrame.hpp>
 #include <rw/proximity/CollisionSetup.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
-#include <rw/loaders/xml/XMLPropertyLoader.hpp>
-#include <rw/loaders/xml/XMLPropertySaver.hpp>
-#include <rw/loaders/WorkCellFactory.hpp>
+#include <rw/loaders/dom/DOMPropertyMapLoader.hpp>
+#include <rw/loaders/dom/DOMPropertyMapSaver.hpp>
+#include <rw/loaders/rwxml/XMLRWLoader.hpp>
+#include <rw/loaders/dom/DOMWorkCellSaver.hpp>
+#include <rw/loaders/WorkCellLoader.hpp>
 
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
+#include <rws/propertyview/PropertyViewEditor.hpp>
+
 #include <RobWorkConfig.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/filesystem.hpp>
+#include <boost/bind.hpp>
 #include <sstream>
-#include "RWSImageLoaderPlugin.hpp"
 
 //#include <sandbox/loaders/ColladaLoader.hpp>
 
@@ -115,7 +121,7 @@ RobWorkStudio::RobWorkStudio(const PropertyMap& map)
         try {
             //settings = XMLPropertyLoader::load("rwsettings.xml");
             //_propMap.set<std::string>("SettingsFileName", "rwsettings.xml");
-            _propMap = XMLPropertyLoader::load("rwsettings.xml");
+            _propMap = DOMPropertyMapLoader::load("rwsettings.xml");
         } catch(rw::common::Exception &e){
             RW_WARN("Could not load settings from 'rwsettings.xml': " << e.getMessage().getText() << "\n Using default settings!");
         } catch(std::exception &e){
@@ -214,7 +220,6 @@ void RobWorkStudio::propertyChangedListener(PropertyBase* base){
 
 void RobWorkStudio::closeEvent( QCloseEvent * e ){
     // save main window settings
-    //std::cout << "closeEvent" << std::endl;
     //settings.setValue("pos", pos());
     //settings.setValue("size", size());
     //settings.setValue("state", saveState());
@@ -253,8 +258,9 @@ void RobWorkStudio::closeEvent( QCloseEvent * e ){
 
     if( !_propMap.get<PropertyMap>("cmdline").has("NoSave") ){
         _propMap.set("cmdline", PropertyMap());
+        _propMap.erase("LuaState");
         try {
-            XMLPropertySaver::save(_propMap, "rwsettings.xml");
+            DOMPropertyMapSaver::save(_propMap, "rwsettings.xml");
         } catch(const rw::common::Exception& e) {
             RW_WARN("Error saving settings file: " << e);
         } catch(...) {
@@ -350,6 +356,10 @@ void RobWorkStudio::setupFileActions()
         new QAction(QIcon(":/images/close.png"), tr("&Close"), this); // owned
     connect(closeAction, SIGNAL(triggered()), this, SLOT(closeWorkCell()));
 
+    QAction* saveAction =
+        new QAction(QIcon(":/images/save.png"), tr("&Save"), this); // owned
+    connect(saveAction, SIGNAL(triggered()), this, SLOT(saveWorkCell()));
+
 	QAction* exitAction =
         new QAction(QIcon(), tr("&Exit"), this); // owned
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
@@ -359,11 +369,13 @@ void RobWorkStudio::setupFileActions()
     fileToolBar->addAction(newAction);
     fileToolBar->addAction(openAction);
     fileToolBar->addAction(closeAction);
+    fileToolBar->addAction(saveAction);
     ////
     _fileMenu = menuBar()->addMenu(tr("&File"));
     _fileMenu->addAction(newAction);
     _fileMenu->addAction(openAction);
     _fileMenu->addAction(closeAction);
+    _fileMenu->addAction(saveAction);
     _fileMenu->addSeparator();
 
     QAction* propertyAction =
@@ -713,7 +725,11 @@ void RobWorkStudio::setupPlugin(const QString& pathname, const QString& filename
 	Qt::DockWidgetArea dockarea = (Qt::DockWidgetArea)dock;
 
 	QString pfilename = pathname+ "/" + filename + "." + OS::getDLLExtension().c_str();
-	bool e1 = boost::filesystem::exists( filename.toStdString() );
+	bool e1 = boost::filesystem::exists( pfilename.toStdString() );
+	if(!e1){
+		pfilename = pathname+ "/" + filename;
+		e1 = boost::filesystem::exists( pfilename.toStdString() );
+	}
 	if(!e1){
 		pfilename = pathname+ "/" + filename + ".so";
 		e1 = boost::filesystem::exists( pfilename.toStdString() );
@@ -866,6 +882,18 @@ void RobWorkStudio::newWorkCell()
 	// Workcell sent to plugins.
 	openAllPlugins();
 	updateHandler();
+}
+
+void RobWorkStudio::saveWorkCell()
+{
+  if (_workcell != nullptr)
+  {
+    std::string wcFilePath = static_cast<std::string>(_workcell->getPropertyMap().get<std::string>(rw::loaders::XMLRWLoader::getWorkCellFileNameId()));
+    QString wcFileName = QFileDialog::getSaveFileName(this,
+                                            tr("Save Workcell"), QString::fromStdString(wcFilePath), tr("RobWork Workcell (*.wc.xml)"));
+
+    rw::loaders::DOMWorkCellSaver::save(_workcell, _state, wcFileName.toStdString());
+  }
 }
 
 void RobWorkStudio::dragMoveEvent(QDragMoveEvent *event)
@@ -1028,7 +1056,7 @@ void RobWorkStudio::openWorkCellFile(const QString& filename)
     WorkCell::Ptr wc;
 
     try{
-        wc = WorkCellFactory::load(filename.toStdString());
+        wc = WorkCellLoader::Factory::load(filename.toStdString());
         if(wc==NULL){
             RW_THROW("Loading of workcell failed!");
         }
@@ -1146,8 +1174,9 @@ namespace {
         static const QEvent::Type ExitEvent = (QEvent::Type)1204;
         static const QEvent::Type SetWorkCell = (QEvent::Type)1205;
         static const QEvent::Type OpenWorkCell = (QEvent::Type)1206;
-        static const QEvent::Type GenericEvent = (QEvent::Type)1207;
-        static const QEvent::Type GenericAnyEvent = (QEvent::Type)1208;
+        static const QEvent::Type CloseWorkCell = (QEvent::Type)1207;
+        static const QEvent::Type GenericEvent = (QEvent::Type)1208;
+        static const QEvent::Type GenericAnyEvent = (QEvent::Type)1209;
 
         boost::any _anyData;
         rw::common::Ptr<bool> _hs;
@@ -1270,6 +1299,12 @@ void RobWorkStudio::postOpenWorkCell(const std::string& filename){
     event->wait();
 }
 
+void RobWorkStudio::postCloseWorkCell(){
+    RobWorkStudioEventHS *event = new RobWorkStudioEventHS(RobWorkStudioEvent::CloseWorkCell, NULL);
+    QApplication::postEvent( this, event->event );
+    event->wait();
+}
+
 void RobWorkStudio::postGenericEvent(const std::string& id){
 	RobWorkStudioEventHS *event = new RobWorkStudioEventHS(RobWorkStudioEvent::GenericEvent, id);
     QApplication::postEvent( this, event->event );
@@ -1328,6 +1363,10 @@ bool RobWorkStudio::event(QEvent *event)
     } else if (event->type() == RobWorkStudioEvent::OpenWorkCell){
         std::string str = boost::any_cast<std::string>(rwse->_anyData);
         openWorkCellFile( str.c_str() );
+        rwse->done();
+        return true;
+    } else if (event->type() == RobWorkStudioEvent::CloseWorkCell){
+        closeWorkCell();
         rwse->done();
         return true;
     } else if (event->type() == RobWorkStudioEvent::GenericEvent){

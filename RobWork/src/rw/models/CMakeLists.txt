@@ -12,9 +12,7 @@ SET(FILES_CPP
   ControllerModel.cpp
   Device.cpp
   JointDevice.cpp
-  VirtualJoint.cpp
   JacobianUtil.cpp
-  Joint.cpp
   JacobianCalculator.cpp
   JointDeviceJacobianCalculator.cpp  
   #DeviceJacobianCalculator.cpp
@@ -24,11 +22,6 @@ SET(FILES_CPP
   CompositeJointDevice.cpp
   ParallelDevice.cpp
   ParallelLeg.cpp
-  DependentJoint.cpp
-  DependentPrismaticJoint.cpp
-  DependentRevoluteJoint.cpp
-  PrismaticJoint.cpp
-  RevoluteJoint.cpp
   SerialDevice.cpp
   RigidBodyInfo.cpp  
   WorkCell.cpp
@@ -42,6 +35,19 @@ SET(FILES_CPP
   FixedWheel.cpp
   SteeredWheel.cpp
   PseudoOmniDevice.cpp
+
+  # Joints
+  Joint.cpp
+  DependentJoint.cpp
+  DependentPrismaticJoint.cpp
+  DependentRevoluteJoint.cpp
+  PrismaticJoint.cpp
+  PrismaticUniversalJoint.cpp
+  PrismaticSphericalJoint.cpp
+  RevoluteJoint.cpp
+  SphericalJoint.cpp
+  UniversalJoint.cpp
+  VirtualJoint.cpp
 )
 
 SET(FILES_HPP
@@ -58,9 +64,7 @@ SET(FILES_HPP
   ConveyorItem.hpp
   Device.hpp
   JointDevice.hpp
-  VirtualJoint.hpp
-  JacobianUtil.hpp
-  Joint.hpp  
+  JacobianUtil.hpp  
   JacobianCalculator.hpp
   JointDeviceJacobianCalculator.hpp    
   MobileDevice.hpp
@@ -68,11 +72,6 @@ SET(FILES_HPP
   CompositeDevice.hpp
   ParallelDevice.hpp
   ParallelLeg.hpp
-  DependentJoint.hpp
-  DependentPrismaticJoint.hpp
-  DependentRevoluteJoint.hpp
-  PrismaticJoint.hpp
-  RevoluteJoint.hpp
   SerialDevice.hpp
   RigidBodyInfo.hpp  
   WorkCell.hpp
@@ -84,6 +83,19 @@ SET(FILES_HPP
   FixedWheel.hpp
   SteeredWheel.hpp
   PseudoOmniDevice.hpp
+  
+  # Joints
+  Joint.hpp
+  DependentJoint.hpp
+  DependentPrismaticJoint.hpp
+  DependentRevoluteJoint.hpp
+  PrismaticJoint.hpp
+  PrismaticUniversalJoint.hpp
+  PrismaticSphericalJoint.hpp
+  RevoluteJoint.hpp
+  SphericalJoint.hpp
+  UniversalJoint.hpp
+  VirtualJoint.hpp
 )
 
 SOURCE_GROUP(models FILES ${FILES_CPP} ${FILES_HPP})

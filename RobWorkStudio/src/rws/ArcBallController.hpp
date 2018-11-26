@@ -24,6 +24,8 @@
 #include <rw/math/Quaternion.hpp>
 #include "CameraController.hpp"
 
+namespace rw { namespace models { class WorkCell; } }
+
 namespace rws{
 
 	/**
@@ -45,7 +47,7 @@ namespace rws{
 		rw::math::Vector3D<> mapToSphere(double x, double y) const;
 
 	public:
-
+		//! @brief Smart pointer type for ArcBallController
 		typedef rw::common::Ptr<ArcBallController> Ptr;
 
 		/**
@@ -56,7 +58,7 @@ namespace rws{
 		/**
 		 * @brief destructor
 		 */
-		virtual ~ArcBallController() { /* nothing to do */ };
+		virtual ~ArcBallController() { /* nothing to do */ }
 
         /**
          * @brief register a mouse click event. The coordinates must be inside the
@@ -98,18 +100,22 @@ namespace rws{
         //! @copydoc CameraController::getCenter
         rw::math::Vector3D<> getCenter(){return _pivotPoint;}
 
+        //! @copydoc CameraController::zoom
+        void zoom(double amount);
+
+        //! @copydoc CameraController::autoZoom
+        void autoZoom(rw::common::Ptr<rw::models::WorkCell> workcell, rw::common::Ptr<const rw::kinematics::State> state, double fovy, double aspectRatio);
+
 	private:
 		rw::math::Vector2D<> _centerPt; // Center of the ball
 		rw::math::Vector3D<> _stVec;          // Saved click vector
 		rw::math::Vector3D<> _enVec;          // Saved drag vector
 		double _adjustWidth;    // Mouse bounds width
 		double _adjustHeight;   // Mouse bounds height
-		float _ArcBallControllerRadi; // radius of ArcBallController
 		double _height, _width;
 		rw::math::Transform3D<> _viewTransform;
 		//rw::math::Rotation3D<> _viewRotation;
 		rw::math::Vector3D<> _lastPos,_pivotPoint;
-		double _zoomFactor, _zoomScale;
 		rw::math::Transform3D<> _camTransform;
 
 	};

@@ -21,7 +21,6 @@
 #include <stack>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/condition.hpp>
-#include <rw/common/TimerUtil.hpp>
 
 
 namespace rw { namespace common {
@@ -33,21 +32,34 @@ namespace rw { namespace common {
 template <class T>
 class ThreadSafeStack {
 public:
-	ThreadSafeStack() : _size(0) {};
+	ThreadSafeStack() : _size(0) {}
 
+	/**
+	 * @brief Check if stack is empty.
+	 * @return true if empty.
+	 */
 	inline bool empty() {
 		//boost::mutex::scoped_lock lock(_mutex);
 		return _stack.empty();
-	};
+	}
 
+	/**
+	 * @brief Push a new element to the stack.
+	 * @param wp [in] the element to add to stack.
+	 */
 	inline void push(T wp) {
         boost::mutex::scoped_lock lock(_mutex);
         _stack.push(wp);
 		_size++;
         //lock.unlock();
         _cond.notify_one();
-	};
+	}
 
+	/**
+	 * @brief Pop element from stack, if there is any.
+	 * @param wp [out] the element.
+	 * @return true.
+	 */
 	inline bool try_pop(T *wp) {
         boost::mutex::scoped_lock lock(_mutex);
 		if (_stack.empty())
@@ -67,6 +79,11 @@ public:
 		return true;
 	}
 
+	/**
+	 * @brief Pop element from stack. If empty, wait for an element to be pushed.
+	 * @param wp [out] the element.
+	 * @return true.
+	 */
 	inline bool pop(T *wp) {
         boost::mutex::scoped_lock lock(_mutex);
         while(_stack.empty())
@@ -85,8 +102,13 @@ public:
 		}
 */
 		return true;
-	};
+	}
 
+	/**
+	 * @brief Check if given value is in stack.
+	 * @param value [in] the value to look for.
+	 * @return true if found, false otherwise.
+	 */
 	bool has(T value){
 		boost::mutex::scoped_lock lock(_mutex);
 		std::stack<T> tmpQ = _stack;
@@ -99,7 +121,11 @@ public:
 		return false;
 	}
 
-	inline size_t size() { return _size; };
+	/**
+	 * @brief Get size of stack.
+	 * @return the current size.
+	 */
+	inline size_t size() { return _size; }
 
 private:
 	std::stack<T> _stack;

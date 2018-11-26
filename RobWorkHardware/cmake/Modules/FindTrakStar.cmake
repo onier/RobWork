@@ -1,9 +1,9 @@
-# CMake module to search for PEAK CAN library
+# CMake module to search for TrakStar library
 #
-# If it's found it sets PEAKCAN_FOUND to TRUE
+# If it's found it sets TRAKSTAR_FOUND to TRUE
 # and following variables are set:
 #    TRAKSTAR_INCLUDE_DIR
-#    TRAKSTAR_LIBRARY
+#    TRAKSTAR_LIBRARIES
 #
 #    TRAKSTAR_FOUND
 
@@ -44,8 +44,8 @@ FIND_LIBRARY(TRAKSTAR_LIBRARIES
 
 IF (TRAKSTAR_INCLUDE_DIR AND TRAKSTAR_LIBRARIES)
     SET (TRAKSTAR_FOUND 1)
-    GET_TARGET_PROPERTY(libATC3D_location libATC3D LOCATION)
-    IF( libATC3D_location )
+    #GET_TARGET_PROPERTY(libATC3D_location libATC3D LOCATION) # deprecated (fails on non-existing targets)
+    IF(TARGET libATC3D)
         # target allready exists
     ELSE()
         ADD_LIBRARY(libATC3D SHARED IMPORTED)

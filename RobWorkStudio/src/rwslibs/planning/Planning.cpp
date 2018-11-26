@@ -15,73 +15,56 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #include "Planning.hpp"
 
 #include <RobWorkStudio.hpp>
 
 #include <rw/common/Exception.hpp>
-#include <rw/common/StringUtil.hpp>
 #include <rw/common/Message.hpp>
-#include <rw/math/Transform3D.hpp>
-#include <rw/math/Pose6D.hpp>
-#include <rw/math/RPY.hpp>
-#include <rw/math/Constants.hpp>
+#include <rw/common/StringUtil.hpp>
+#include <rw/loaders/path/PathLoader.hpp>
 #include <rw/math/Math.hpp>
 #include <rw/math/MetricFactory.hpp>
-#include <rw/math/MetricUtil.hpp>
-#include <rw/proximity/CollisionStrategy.hpp>
-#include <rw/proximity/DistanceCalculator.hpp>
-#include <rw/pathplanning/PathPlanner.hpp>
 #include <rw/models/CompositeDevice.hpp>
 #include <rw/models/Models.hpp>
-#include <rw/loaders/path/PathLoader.hpp>
+#include <rw/pathplanning/PathAnalyzer.hpp>
+#include <rw/proximity/DistanceCalculator.hpp>
 #include <rw/trajectory/TimedUtil.hpp>
 
-//#include <rw/proximity/ProximityStrategyFactory.hpp>
-#include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
-#include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
-#include <rwlibs/pathplanners/sbl/SBLPlanner.hpp>
-#include <rwlibs/pathplanners/prm/PRMPlanner.hpp>
 #include <rwlibs/pathoptimization/clearance/ClearanceOptimizer.hpp>
 #include <rwlibs/pathoptimization/clearance/MinimumClearanceCalculator.hpp>
 #include <rwlibs/pathoptimization/pathlength/PathLengthOptimizer.hpp>
+#include <rwlibs/pathplanners/prm/PRMPlanner.hpp>
+#include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
+#include <rwlibs/pathplanners/sbl/SBLPlanner.hpp>
+#include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
 //#include <rws/components/propertyview/PropertyInspector.hpp>
 
-
-#include <rw/pathplanning/PathAnalyzer.hpp>
+#include <QGridLayout>
+#include <QPushButton>
+#include <QLabel>
+#include <QMessageBox>
+#include <QComboBox>
+#include <QCheckBox>
+#include <QFileDialog>
 
 #include <vector>
 
-#include <QLayout>
-#include <QVariant>
-#include <QTreeWidgetItem>
-#include <QInputDialog>
-#include <QPushButton>
-#include <QLabel>
-#include <QShortcut>
-#include <QKeySequence>
-#include <QMessageBox>
-
-
-using namespace rw::kinematics;
+using namespace rw::common;
+using rw::kinematics::State;
+using rw::loaders::PathLoader;
 using namespace rw::models;
 using namespace rw::math;
-using namespace rw::proximity;
 using namespace rw::pathplanning;
-using namespace rw::loaders;
-using namespace rw::common;
-using namespace rw::trajectory;
-
 using namespace rw::proximity;
-using namespace rwlibs::proximitystrategies;
-using namespace rwlibs::pathplanners;
+using rw::trajectory::TimedUtil;
+
 using namespace rwlibs::pathoptimization;
+using namespace rwlibs::pathplanners;
+using rwlibs::proximitystrategies::ProximityStrategyFactory;
 
 using namespace rws;
-
-using namespace boost::numeric::ublas;
 
 namespace {
     const QString CLEARANCE = "Clearance";
@@ -93,9 +76,9 @@ namespace {
     const QString SBL = "SBL";
     const QString PRM = "PRM";
 
-    boost::shared_ptr<QMetric> getMetric()
+    QMetric::CPtr getMetric()
     {
-        return boost::shared_ptr<QMetric>(new EuclideanMetric<Q>());
+        return ownedPtr(new EuclideanMetric<Q>());
     }
 
 	QToQPlanner::Ptr getPlanner(
@@ -355,7 +338,7 @@ Device::Ptr Planning::getDevice() {
         // create a composite device that contain all other devices
 		std::vector<Device::Ptr> all = _workcell->getDevices();
 		std::vector<Device::Ptr> devices(all.begin(), all.end());
-        _compositeDevice = std::auto_ptr<Device>(
+                _compositeDevice = ownedPtr(
             new rw::models::CompositeDevice(
                 devices.front()->getBase(),
                 devices,
@@ -363,7 +346,7 @@ Device::Ptr Planning::getDevice() {
                 "Composite",
                 _state));
 
-        return _compositeDevice.get();
+        return _compositeDevice;
     } else {
         return _workcell->getDevices().at(deviceIndex);
     }
@@ -409,7 +392,7 @@ void Planning::plan()
     }
 
     //Get the CDStrategy
-	CollisionStrategy::Ptr cdstrategy =
+	const rw::common::Ptr<CollisionStrategy> cdstrategy =
         ProximityStrategyFactory::makeCollisionStrategy(_cmbCollisionDetectors->currentText().toStdString());
         //getCollisionStrategy(_cmbCollisionDetectors->currentIndex());
 
@@ -476,15 +459,15 @@ void Planning::optimize() {
         try {
 			DistanceStrategy::Ptr strat = ProximityStrategyFactory::makeDefaultDistanceStrategy();
 
-            boost::shared_ptr<DistanceCalculator> distanceCalculator(
+            DistanceCalculator::CPtr distanceCalculator = ownedPtr(
                 new DistanceCalculator(
                     _workcell->getWorldFrame(),
-                    CollisionSetup::get(_workcell),
+					_workcell,
                         strat,
                     _state));
 
-			ClearanceCalculatorPtr clearanceCalculator = ownedPtr(new MinimumClearanceCalculator(distanceCalculator));
-            ClearanceOptimizer optimizer(_workcell,
+			ClearanceCalculator::CPtr clearanceCalculator = ownedPtr(new MinimumClearanceCalculator(distanceCalculator));
+            ClearanceOptimizer optimizer(//_workcell,
                                          device,
                                          _state,
                                          getMetric(),
@@ -563,7 +546,7 @@ void Planning::performStatistics() {
 
     DistanceCalculator distanceCalculator(
         _workcell->getWorldFrame(),
-        CollisionSetup::get(_workcell),
+        _workcell,
         strat,
         _state);
 
@@ -618,6 +601,7 @@ namespace {
 
 #ifndef RWS_USE_STATIC_LINK_PLUGINS
 #if !RWS_USE_QT5
-Q_EXPORT_PLUGIN(Planning);
+#include <QtCore/qplugin.h>
+Q_EXPORT_PLUGIN(Planning)
 #endif
 #endif

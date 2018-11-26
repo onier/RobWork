@@ -23,15 +23,13 @@
  * @file FKRange.hpp
  */
 
-#include "State.hpp"
-
+#include <rw/common/Ptr.hpp>
 #include <rw/math/Transform3D.hpp>
-
-#include <map>
 
 namespace rw { namespace kinematics {
 
     class Frame;
+    class State;
 
     /** @addtogroup kinematics */
     /*@{*/
@@ -81,6 +79,20 @@ namespace rw { namespace kinematics {
          */
         math::Transform3D<> get(const State& state) const;
 
+        /**
+         * @brief Returns the last frame in the range.
+         *
+         * @return The end frame (to).
+         */
+        rw::common::Ptr< const Frame > getEnd() const;
+
+        /**
+         * @brief Returns the first frame in the range.
+         *
+         * @return The base frame (from).
+         */
+        rw::common::Ptr< const Frame > getBase() const;
+        
     private:
         std::vector<const Frame*> _inverseBranch;
         std::vector<const Frame*> _forwardBranch;

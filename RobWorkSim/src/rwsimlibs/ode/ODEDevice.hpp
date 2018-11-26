@@ -18,8 +18,9 @@
 #ifndef RWSIM_SIMULATOR_ODEDEVICE_HPP_
 #define RWSIM_SIMULATOR_ODEDEVICE_HPP_
 
-#include <rw/kinematics/State.hpp>
 #include <rwlibs/simulation/Simulator.hpp>
+
+namespace rw { namespace kinematics { class State; } }
 
 namespace rwsim {
 namespace simulator {
@@ -60,6 +61,10 @@ namespace simulator {
 		 */
 		virtual void postUpdate(rw::kinematics::State& state) = 0;
 
+		/**
+		 * @brief Get the ODE bodies in the device.
+		 * @return a vector of bodies.
+		 */
 		virtual std::vector<ODEBody*> getBodies() = 0;
 
 	protected:

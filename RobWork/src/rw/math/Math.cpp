@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -17,71 +17,39 @@
 
 #include "Math.hpp"
 #include "MetricFactory.hpp"
+#include "Random.hpp"
 #include <rw/common/macros.hpp>
-#include <rw/common/TimerUtil.hpp>
 
-#include <boost/random.hpp>
+#include <boost/math/special_functions/fpclassify.hpp> // boost::math::isnan()
 
-#include <cassert>
 #include <cmath>
 #include <limits>
 
 using namespace rw::math;
 
-namespace
-{
-    boost::mt19937 generator;
-    boost::uniform_real<> distributor;
 
-    typedef boost::normal_distribution<double> dist_type;
-
-    boost::variate_generator<boost::mt19937&, dist_type> normal_distribution(
-        generator,
-        boost::normal_distribution<double>(0, 1));
+double Math::ranNormalDist(double mean, double sigma) {
+	return Random::ranNormalDist(mean,sigma);
 }
 
-double Math::ranNormalDist(double mean, double sigma)
-{
-    return mean + sigma * normal_distribution();
+double Math::ran() {
+	return Random::ran();
 }
 
-double Math::ran()
-{
-	return distributor(generator);
-}
-
-void Math::seed(unsigned seed)
-{
-    // VC++ can't select the correct seed() method without a cast here.
-    generator.seed(
-        static_cast<boost::mt19937::result_type>(
-            seed));
+void Math::seed(unsigned seed) {
+    Random::seed(seed);
 }
 
 void Math::seed() {
-	seed((unsigned)rw::common::TimerUtil::currentTimeMs());
+	Random::seed();
 }
 
-double Math::ran(double from, double to)
-{
-    if(from>to) {
-        RW_THROW("From must be smaller than to: " << from << ">" << to);
-    } else if(from==to){
-        return from;
-    }
-
-	double res = from;
-	do {
-		res = from + (to - from) * Math::ran();
-	} while (res >= to);
-
-	return res;
-
+double Math::ran(double from, double to) {
+    return Random::ran(from,to);
 }
 
-int Math::ranI(int from, int to)
-{
-    return (int)floor(Math::ran(from, to));
+int Math::ranI(int from, int to) {
+	return Random::ranI(from,to);
 }
 
 Q Math::ranQ(const rw::math::Q& from, const rw::math::Q& to)
@@ -100,7 +68,7 @@ Q Math::ranQ(const std::pair<rw::math::Q, rw::math::Q>& bounds) {
 }
 
 /**
- * @brief Returns a random direction in \b dim dimensions. 
+ * @brief Returns a random direction in \b dim dimensions.
  *
  * The length of the vector is given by \b length;
  *
@@ -118,7 +86,7 @@ Q Math::ranDir(size_t dim, double length) {
 }
 
 /**
- * @brief Returns a weighted random direction in \b dim dimensions. 
+ * @brief Returns a weighted random direction in \b dim dimensions.
  *
  * The length of the vector is given by \b length;
  *

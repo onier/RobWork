@@ -19,15 +19,17 @@
 #ifndef RWSIM_SIMULATOR_ODEMATERIALMAP_HPP_
 #define RWSIM_SIMULATOR_ODEMATERIALMAP_HPP_
 
-#include <rwsim/dynamics/MaterialDataMap.hpp>
-#include <rwsim/dynamics/ContactDataMap.hpp>
 #include <ode/ode.h>
 #include <vector>
-#include "ODEBody.hpp"
+
+namespace rwsim { namespace dynamics { class MaterialDataMap; } }
+namespace rwsim { namespace dynamics { class ContactDataMap; } }
 
 namespace rwsim {
 namespace simulator {
+	class ODEBody;
 
+	//! @brief The ODE material map is responsible for the modelling of contact dynamics, such as friction and restitution phenomena.
 	class ODEMaterialMap {
 	public:
 		/**

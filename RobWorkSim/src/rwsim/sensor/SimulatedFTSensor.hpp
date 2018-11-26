@@ -21,7 +21,7 @@
 #include "SimulatedTactileSensor.hpp"
 #include <rw/sensor/FTSensor.hpp>
 #include <rw/sensor/FTSensorModel.hpp>
-
+#include <rwsim/dynamics/Body.hpp>
 
 namespace rwsim {
 namespace sensor {
@@ -38,8 +38,9 @@ namespace sensor {
 	 */
 	class SimulatedFTSensor: public SimulatedTactileSensor {
 	public:
+		//! @brief Smart pointer type for SimulatedFTSensor.
 		typedef rw::common::Ptr<SimulatedFTSensor> Ptr;
-		
+
 		/**
 		 * @brief Constructor - the forces acting on \b body1 due to \b body will be stored.
 		 * The forces will be described relative to \b body1 if no reference \b \frame is given.
@@ -135,6 +136,10 @@ namespace sensor {
 		 */
 		rw::kinematics::Frame * getSensorFrame() const { return _sframe; }
 
+		/**
+		 * @brief Acquire new force reading.
+		 * @note This function does nothing currently!
+		 */
  		void acquire(){}
 
 		/**

@@ -19,26 +19,21 @@
 
 #include "../TestSuiteConfig.hpp"
 
-#include <rw/loaders.hpp>
-#include <rw/geometry.hpp>
-#include <rw/math/Vector3D.hpp>
-#include <rw/math/Rotation3D.hpp>
-#include <rw/common/macros.hpp>
+#include <rw/loaders/model3d/STLFile.hpp>
+#include <rw/geometry/IndexedTriMesh.hpp>
+#include <rw/geometry/TriangleUtil.hpp>
+//#include <rw/math/Vector3D.hpp>
 #include <rw/common/Timer.hpp>
 #include <string>
-#include <fstream>
 
 using namespace boost::unit_test;
 
-using namespace rw::math;
-using namespace rw::common;
-using namespace rw::kinematics;
+using rw::math::MetricUtil;
+using rw::common::Timer;
 using namespace rw::geometry;
-using namespace rw::loaders;
+using rw::loaders::STLFile;
 
-const int TRI_MESH_SIZE=10000;
-
-#define PRINT_TYPE_SIZE(arg) BOOST_MESSAGE("sizeof(" \
+#define PRINT_TYPE_SIZE(arg) BOOST_TEST_MESSAGE("sizeof(" \
 		<< typeid(arg).name() << ") = " << sizeof(arg))
 
 BOOST_AUTO_TEST_CASE( TriangleTypeSize ){
@@ -73,25 +68,25 @@ BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
 	Timer timer;
 	timer.resetAndResume();
 	mesh = STLFile::load( testFilePath() + "geoms/FingerMid.stl" );
-	BOOST_MESSAGE("STL load time: " << timer.getTime());
-	BOOST_MESSAGE("Mesh size    : " << mesh->getSize());
+	BOOST_TEST_MESSAGE("STL load time: " << timer.getTime());
+	BOOST_TEST_MESSAGE("Mesh size    : " << mesh->getSize());
 
 	// now convert it to idx
 	timer.resetAndResume();
 	IndexedTriMeshN0<float, uint16_t>::Ptr imeshf16 = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<float, uint16_t> >(*mesh);
-	BOOST_MESSAGE("toIdxMesh float uint16 time: " << timer.getTime());
+	BOOST_TEST_MESSAGE("toIdxMesh float uint16 time: " << timer.getTime());
 
 	timer.resetAndResume();
 	IndexedTriMeshN0<float, uint32_t>::Ptr imeshf32 = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<float, uint32_t> >(*mesh);
-	BOOST_MESSAGE("toIdxMesh float uint32 time: " << timer.getTime());
+	BOOST_TEST_MESSAGE("toIdxMesh float uint32 time: " << timer.getTime());
 
 	timer.resetAndResume();
 	IndexedTriMeshN0<double, uint16_t>::Ptr imeshd16 = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<double, uint16_t> >(*mesh);
-	BOOST_MESSAGE("toIdxMesh double uint32 time: " << timer.getTime());
+	BOOST_TEST_MESSAGE("toIdxMesh double uint32 time: " << timer.getTime());
 
 	timer.resetAndResume();
 	IndexedTriMeshN0<double, uint32_t>::Ptr imeshd32 = TriangleUtil::toIndexedTriMesh<IndexedTriMeshN0<double, uint32_t> >(*mesh);
-	BOOST_MESSAGE( "toIdxMesh double uint32 time: " << timer.getTime() );
+	BOOST_TEST_MESSAGE( "toIdxMesh double uint32 time: " << timer.getTime() );
 
 	// now we want to test the performance of accesing elements in the indexed trimesh
 	timer.resetAndResume();
@@ -103,7 +98,7 @@ BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
 			tri = imeshf16->getIndexedTriangle(i);
 			tri = imeshf16->getIndexedTriangle(i);
 		}
-	BOOST_MESSAGE( "IndexedTriMeshN0::getIndexedTriangle float uint16 get indirect time: " << timer.getTime() );
+	BOOST_TEST_MESSAGE( "IndexedTriMeshN0::getIndexedTriangle float uint16 get indirect time: " << timer.getTime() );
 
 	timer.resetAndResume();
 	IndexedTriMesh<float>::Ptr imesh = imeshf16;
@@ -114,7 +109,7 @@ BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
 			tri = imesh->getIndexedTriangle(i);
 			tri = imesh->getIndexedTriangle(i);
 		}
-	BOOST_MESSAGE( "IndexedTriMesh::getIndexedTriangle float uint16 get indirect time: " << timer.getTime() );
+	BOOST_TEST_MESSAGE( "IndexedTriMesh::getIndexedTriangle float uint16 get indirect time: " << timer.getTime() );
 
 	timer.resetAndResume();
 	IndexedTriangle<uint16_t> tri16;
@@ -125,7 +120,7 @@ BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
 			tri16 = (*imeshf16)[(int)i];
 			tri16 = (*imeshf16)[(int)i];
 		}
-	BOOST_MESSAGE( "IndexedTriMeshN0::operator[] float uint16 get direct1 time: " << timer.getTime() );
+	BOOST_TEST_MESSAGE( "IndexedTriMeshN0::operator[] float uint16 get direct1 time: " << timer.getTime() );
 
 
 	timer.resetAndResume();
@@ -137,7 +132,7 @@ BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
 			tri16 = tris[i];
 			tri16 = tris[i];
 		}
-	BOOST_MESSAGE("IndexedTriMeshN0::getTriangles float uint16 get direct2 time: " << timer.getTime());
+	BOOST_TEST_MESSAGE("IndexedTriMeshN0::getTriangles float uint16 get direct2 time: " << timer.getTime());
 
 	timer.resetAndResume();
 	const IndexedTriangle<uint16_t> *triarray = &tris[0];
@@ -148,7 +143,7 @@ BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
 			tri16 = triarray[i];
 			tri16 = triarray[i];
 		}
-	BOOST_MESSAGE("Raw triangle array float uint16 get direct3 time: " << timer.getTime());
+	BOOST_TEST_MESSAGE("Raw triangle array float uint16 get direct3 time: " << timer.getTime());
 
 	// now test if the indexed data is the same as the plain
 	const float epsilon = (float)1e-5;
@@ -189,7 +184,7 @@ BOOST_AUTO_TEST_CASE( TriMeshProfiling ){
             }
         }
 
-    BOOST_MESSAGE("Indexing flat array float uint16 time: " << timer.getTime());
+    BOOST_TEST_MESSAGE("Indexing flat array float uint16 time: " << timer.getTime());
 */
 }
 

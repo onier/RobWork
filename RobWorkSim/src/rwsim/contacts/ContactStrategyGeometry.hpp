@@ -27,6 +27,9 @@
 #include "ContactStrategy.hpp"
 #include "ContactModelGeometry.hpp"
 
+#include <rw/geometry/Geometry.hpp>
+#include <rw/geometry/GeometryData.hpp>
+
 namespace rwsim {
 namespace contacts {
 //! @addtogroup rwsim_contacts
@@ -38,6 +41,7 @@ namespace contacts {
 template <typename A, typename B>
 class ContactStrategyGeometry: public rwsim::contacts::ContactStrategy {
 protected:
+	//! @brief The type of the contact model.
 	typedef ContactModelGeometry<A, B> GeometryModel;
 
 public:

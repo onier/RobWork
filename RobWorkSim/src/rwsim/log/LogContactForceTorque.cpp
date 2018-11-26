@@ -22,6 +22,8 @@
 #include "LogContactForceTorque.hpp"
 #include "LogContactSet.hpp"
 
+#include <limits>
+
 using namespace rw::common;
 using namespace rw::math;
 using namespace rwsim::log;
@@ -36,6 +38,14 @@ LogContactForceTorque::~LogContactForceTorque() {
 
 std::string LogContactForceTorque::getType() const {
 	return getTypeID();
+}
+
+bool LogContactForceTorque::operator==(const SimulatorLog &b) const {
+	if (const LogContactForceTorque* const entry = dynamic_cast<const LogContactForceTorque*>(&b)) {
+		if (*_contacts != *entry->_contacts)
+			return false;
+	}
+	return LogForceTorque::operator==(b);
 }
 
 std::list<SimulatorLogEntry::Ptr> LogContactForceTorque::getLinkedEntries() const {
@@ -87,10 +97,25 @@ SimulatorLogEntry::Ptr LogContactForceTorque::createNew(SimulatorLogScope* paren
 	return ownedPtr(new LogContactForceTorque(parent));
 }
 
+<<<<<<< .working
 int LogContactForceTorque::sizeLinkedEntry() const {
 	if (_contacts.isNull())
 		return -1;
 	return _contacts->size();
+||||||| .merge-left.r5936
+std::string LogContactForceTorque::getTypeID() {
+	return "ContactForceTorque";
+=======
+int LogContactForceTorque::sizeLinkedEntry() const {
+	if (_contacts.isNull())
+		return -1;
+
+	const int val = static_cast<int>(_contacts->size());
+	if (static_cast<std::size_t>(val) < _contacts->size())
+		return std::numeric_limits<int>::max();
+	else
+		return val;
+>>>>>>> .merge-right.r6371
 }
 
 const std::string& LogContactForceTorque::getNameA(std::size_t i) const {

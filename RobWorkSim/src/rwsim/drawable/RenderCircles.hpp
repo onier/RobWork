@@ -20,14 +20,11 @@
 
 //! @file RenderCircles.hpp
 
-#include <list>
 #include <vector>
 
-#include <rw/math/Vector3D.hpp>
-#include <rw/kinematics/State.hpp>
 #include <rw/graphics/Render.hpp>
 
-#include <rwsim/util/CircleModel.hpp>
+namespace rwsim { namespace util { class CircleModel; } }
 
 namespace rwsim {
 namespace drawable {

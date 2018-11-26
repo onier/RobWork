@@ -24,13 +24,13 @@
 #include <list>
 #include <algorithm>
 #include <queue>
+#include <map>
 #include <rw/math/Q.hpp>
 #include <rw/math/MetricUtil.hpp>
 #include "KDTree.hpp"
 #include <rw/common/macros.hpp>
 #include <float.h>
 #include <rw/math/Math.hpp>
-#include <boost/any.hpp>
 
 #include <rw/common/InputArchive.hpp>
 #include <rw/common/OutputArchive.hpp>
@@ -219,7 +219,7 @@ namespace rwlibs { namespace algorithms {
                 iarchive.read(node._kdnode->value, "value");
 
                 toNode[id] = boost::make_tuple(&node,leftId,rightId);
-                idToNodeIdx[i] = id;
+                idToNodeIdx[i] = static_cast<int>(id);
             }
             toNode[0] = boost::make_tuple((TreeNode*)NULL,(boost::uint64_t)0,(boost::uint64_t)0);
 
@@ -228,7 +228,7 @@ namespace rwlibs { namespace algorithms {
                 TreeNode &node = *(*nodes)[i];
 
                 boost::tuple<TreeNode*,boost::uint64_t,boost::uint64_t> val = toNode[ idToNodeIdx[i] ];
-                int leftIdx = boost::get<1>(val);
+                const boost::uint64_t leftIdx = boost::get<1>(val);
                 node._left = boost::get<0>( toNode[leftIdx] );
                 node._right = boost::get<0>( toNode[boost::get<2>(val)]);
             }
@@ -503,7 +503,7 @@ namespace rwlibs { namespace algorithms {
         // create all tree nodes in a list
         std::vector<TreeNode*> *tNodes = new std::vector<TreeNode*>( nodes.size() );
         // copy the KDNodes into the tree nodes
-        for(int i=0;i<tNodes->size();i++){
+        for(unsigned int i=0;i<tNodes->size();i++){
             (*tNodes)[i] = new TreeNode();
             (*tNodes)[i]->_kdnode = new KDTreeQ<T>::KDNode( nodes[i] );
         }
@@ -551,7 +551,7 @@ namespace rwlibs { namespace algorithms {
             }
         }
         return NULL;
-    };
+    }
 
     template<class T>
     typename KDTreeQ<T>::KDNode& KDTreeQ<T>::nnSearch(const rw::math::Q& nnkey){
@@ -589,7 +589,7 @@ namespace rwlibs { namespace algorithms {
                   tmpNode = tmpNode->_left;
               }
           }
-    };
+    }
 
     template<class T>
     void KDTreeQ<T>::nnSearchElipse(const rw::math::Q& nnkey,
@@ -693,7 +693,7 @@ namespace rwlibs { namespace algorithms {
             if( (upp(axis) > key(axis)) && (n->_right!=NULL) )
                 unhandled.push( n->_right );
         }
-    };
+    }
 
     template<class T>
     void KDTreeQ<T>::addNode(const rw::math::Q& nnkey, T val){
@@ -713,7 +713,7 @@ namespace rwlibs { namespace algorithms {
             if( nnkey(lev) > key(lev) ){
                 if(tmpNode->_right==NULL){
                     TreeNode *node = new TreeNode(new KDNode(nnkey,val));
-                    node->_axis = (lev+1)%_dim;
+                    node->_axis = static_cast<unsigned char>((lev+1)%_dim);
                     _nodes->push_back(node);
                     tmpNode->_right =  _nodes->back();
                     return;
@@ -722,7 +722,7 @@ namespace rwlibs { namespace algorithms {
             } else {
                 if(tmpNode->_left==NULL){
                     TreeNode *node = new TreeNode(new KDNode(nnkey,val));
-                    node->_axis = (lev+1)%_dim;
+                    node->_axis = static_cast<unsigned char>((lev+1)%_dim);
                     _nodes->push_back(node);
                     tmpNode->_left =  _nodes->back();
                     return;
@@ -730,7 +730,7 @@ namespace rwlibs { namespace algorithms {
                 tmpNode = tmpNode->_left;
             }
         }
-    };
+    }
 
 
 

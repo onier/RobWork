@@ -46,16 +46,39 @@ namespace tools {
 class SimulatorLogViewer: public QMainWindow {
     Q_OBJECT
 public:
+	//! @brief Constructor.
 	SimulatorLogViewer();
+
+	//! @brief Destructor.
 	virtual ~SimulatorLogViewer();
+
+	/**
+	 * @brief Set the dynamic workcell.
+	 * @param dwc [in] the dynamic workcell.
+	 */
 	void setDWC(rw::common::Ptr<const rwsim::dynamics::DynamicWorkCell> dwc);
+
+	/**
+	 * @brief Set the log structure.
+	 * @param log [in/out] the log structure - the statistics info might be updated if requested by user.
+	 */
 	void setLog(rw::common::Ptr<rwsim::log::SimulatorLogScope> log);
 
-private slots:
+public slots:
+	//! @brief Open dialog for choosing a dynamic workcell.
 	void openDWC();
+
+	//! @brief Close the currently open dynamic workcell.
 	void closeDWC();
 
+	//! @brief Open dialog for choosing a log to compare with.
+	void openCompare();
+
 signals:
+	/**
+	 * @brief Signal for a changed dynamic workcell.
+	 * @param dwc [in] the new dynamic workcell, or NULL if no dynamic workcell.
+	 */
 	void dwcChanged(rw::common::Ptr<const rwsim::dynamics::DynamicWorkCell> dwc);
 
 private:

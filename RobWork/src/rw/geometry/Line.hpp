@@ -23,7 +23,7 @@
 
 #include <rw/math/Metric.hpp>
 
-#include <iostream>
+#include <iosfwd>
 
 namespace rw {
 namespace geometry {
@@ -38,6 +38,7 @@ namespace geometry {
 			//! @brief Smart pointer to Line.
 			typedef rw::common::Ptr<Line> Ptr;
 		
+			//! @brief Type of internal values.
 			typedef double value_type;
 			
 			/**
@@ -113,7 +114,19 @@ namespace geometry {
 			 * 
 			 * @return sum of the squares of point distances to the line
 			 */
-			double refit(std::vector<rw::math::Vector3D<> >& data);
+			double refit(const std::vector<rw::math::Vector3D<> >& data);
+
+			/**
+			 * @copybrief refit(const std::vector<rw::math::Vector3D<> >&)
+			 *
+			 * This version of refit makes it possible to fit only a subset of the points in a vector.
+			 *
+			 * @param begin [in] iterator to first element.
+			 * @param end [in] iterator to last element.
+			 * @return sum of the squares of point distances to the line.
+			 * @see refit(const std::vector<rw::math::Vector3D<> >&)
+			 */
+			double refit(const std::vector<rw::math::Vector3D<> >::const_iterator begin, const std::vector<rw::math::Vector3D<> >::const_iterator end);
 
 			// inherited from Primitive
 			//! @copydoc Primitive::createMesh
@@ -164,6 +177,10 @@ namespace geometry {
 	 */
 	class LineMetric: public rw::math::Metric<Line> {
 		public:
+			/**
+			 * @brief Construct new metric.
+			 * @param angToDistWeight [in] (optional) weighting of the angle to distance. Default is 1.
+			 */
 			LineMetric(double angToDistWeight = 1.0) :
 				_angToDistWeight(angToDistWeight)
 			{}
@@ -194,8 +211,10 @@ namespace geometry {
 				return 0.5*ang*_angToDistWeight + 0.5*a.distance(b);
 			}
 
+			//! @copydoc Metric::doSize
 			int doSize() const { return -1; }
 
+			//! @brief The weighting of the angle to the distance.
 			double _angToDistWeight;
 	};
 	// @}

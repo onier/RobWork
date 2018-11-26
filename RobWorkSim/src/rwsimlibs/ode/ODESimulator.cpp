@@ -20,45 +20,43 @@
 
 #include <ode/ode.h>
 
+#include <rw/kinematics/FKTable.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Quaternion.hpp>
 
 #include <rw/models/JointDevice.hpp>
-#include <rw/models/Joint.hpp>
-#include <rw/models/RevoluteJoint.hpp>
-#include <rw/models/PrismaticJoint.hpp>
-
-#include <rw/geometry/TriangleUtil.hpp>
+//#include <rw/models/RevoluteJoint.hpp>
+//#include <rw/models/PrismaticJoint.hpp>
 
 #include <rwsim/dynamics/KinematicDevice.hpp>
 #include <rwsim/dynamics/RigidDevice.hpp>
 #include <rwsim/dynamics/FixedBody.hpp>
 #include <rwsim/dynamics/KinematicBody.hpp>
 #include <rwsim/dynamics/RigidBody.hpp>
-#include <rwsim/dynamics/DynamicUtil.hpp>
 
 #include <boost/foreach.hpp>
 
 #include <rw/kinematics/FramePairMap.hpp>
 
-#include <rw/models/DependentRevoluteJoint.hpp>
-#include <rw/models/DependentPrismaticJoint.hpp>
+//#include <rw/models/DependentRevoluteJoint.hpp>
+//#include <rw/models/DependentPrismaticJoint.hpp>
 #include <rw/common/TimerUtil.hpp>
-#include <rw/geometry/Sphere.hpp>
-#include <rw/geometry/Plane.hpp>
-#include <rw/geometry/Cylinder.hpp>
 
+#include "ODEConstraint.hpp"
 #include "ODEKinematicDevice.hpp"
 #include "ODEVelocityDevice.hpp"
 #include "ODEDebugRender.hpp"
 #include "ODEUtil.hpp"
 #include "ODESuctionCupDevice.hpp"
+#include "ODEMaterialMap.hpp"
+#include "ODEThreading.hpp"
 
 #include <rwsim/dynamics/OBRManifold.hpp>
 
 #include <rw/proximity/BasicFilterStrategy.hpp>
+#include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
 
 #include <rwsim/contacts/ContactDetector.hpp>
 #include <rwsim/contacts/ContactDetectorData.hpp>
@@ -66,16 +64,11 @@
 #include <rwsim/dynamics/ContactCluster.hpp>
 #include <rwsim/dynamics/SuctionCup.hpp>
 #include <rwsim/sensor/SimulatedFTSensor.hpp>
-#include <rwsim/simulator/PhysicsEngineFactory.hpp>
 #include <rw/common/Log.hpp>
 
-#include <boost/lambda/lambda.hpp>
-#include <boost/lambda/bind.hpp> // !
-#include <boost/lambda/construct.hpp>
-#include <boost/function.hpp>
+#include <boost/bind.hpp>
 
-#include <fstream>
-#include <iostream>
+#include <sstream>
 
 using namespace rwsim::dynamics;
 using namespace rwsim::simulator;
@@ -571,6 +564,7 @@ void ODESimulator::step(double dt, State& state) {
         }
 
 */
+        ODEThreading::checkSecureStepBegin(); // for user-friendly error if multiple simultaneous steps are not supported.
 	    try {
 	        switch(_stepMethod){
 	        case(WorldStep): TIMING("Step: ", dWorldStep(_worldId, dttmp)); break;
@@ -585,6 +579,7 @@ void ODESimulator::step(double dt, State& state) {
 	        Log::errorLog() << "******************** Caught exeption in step function!*******************" << std::endl;
 	        RW_THROW("ODESimulator caught exception.");
 	    }
+        ODEThreading::checkSecureStepEnd();
 
 	    for(size_t i=0; i<_odeBodies.size(); i++){
 	        _odeBodies[i]->postupdatePosition(tmpState);
@@ -1042,6 +1037,8 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
 	state.upgrade();
     RW_DEBUGS( "- RESETTING SCENE " );
 	resetScene(state);
+
+	ODEThreading::initThreading(_worldId);
 }
 
 void ODESimulator::addController(rwlibs::simulation::SimulatedController::Ptr controller){
@@ -2568,6 +2565,8 @@ void ODESimulator::exitPhysics()
 	}
 	_odeBodies.clear();
 
+	ODEThreading::destroyThreading(_worldId);
+
 	// only if init physics have been called
 	dJointGroupDestroy( _contactGroupId );
 	dWorldDestroy(_worldId);
@@ -2577,7 +2576,6 @@ void ODESimulator::exitPhysics()
 
 	_frameToModels.clear();
 	_bpstrategy = NULL;
-
 }
 
 void ODESimulator::setSimulatorLog(rw::common::Ptr<rwsim::log::SimulatorLogScope> log) {

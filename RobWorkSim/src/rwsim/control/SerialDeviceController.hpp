@@ -3,27 +3,26 @@
 
 //! @file SerialDeviceController.hpp
 
-#include <rwlibs/control/JointController.hpp>
-#include <rwlibs/control/SyncVelocityRamp.hpp>
 #include <rwlibs/simulation/SimulatedController.hpp>
-
-#include <rwsim/dynamics/KinematicDevice.hpp>
-#include <rwsim/dynamics/RigidDevice.hpp>
 
 #include <rw/trajectory/Trajectory.hpp>
 
-#include <rw/invkin/JacobianIKSolver.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/math/VelocityScrew6D.hpp>
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Wrench6D.hpp>
 
+#include <rwsim/dynamics/DynamicDevice.hpp>
+
 #include <boost/thread/mutex.hpp>
 
 #include <deque>
+#include <fstream>
 
 // Forward declarations
+namespace rw { namespace invkin { class JacobianIKSolver; }}
 namespace rw { namespace sensor { class FTSensor; }}
+namespace rwsim { namespace dynamics { class RigidDevice; }}
 
 namespace rwsim {
 namespace control {
@@ -52,7 +51,7 @@ namespace control {
 		 * @param name [in] name of controller
 		 * @param ddev [in] the RigidDevice that should be controlled
 		 */
-		SerialDeviceController(const std::string& name, dynamics::RigidDevice::Ptr ddev);
+		SerialDeviceController(const std::string& name, rw::common::Ptr<rwsim::dynamics::RigidDevice> ddev);
 
 		//! destructor
 		virtual ~SerialDeviceController();
@@ -217,13 +216,12 @@ namespace control {
 
 
 	private:
-		dynamics::DynamicDevice::Ptr _ddev;
-		dynamics::RigidDevice::Ptr _rdev;
-		double _time;
+        dynamics::DynamicDevice::Ptr _ddev;
+		rw::common::Ptr<rwsim::dynamics::RigidDevice> _rdev;
 		rw::math::Q _target;
 		rw::math::Q _currentQ, _currentQd;
 		bool _enabled, _stop, _pause;
-		rw::invkin::JacobianIKSolver::Ptr _solver;
+		rw::common::Ptr<rw::invkin::JacobianIKSolver> _solver;
 
 		bool _targetAdded;
 
@@ -232,7 +230,6 @@ namespace control {
 
 		void addTarget(const Target& target);
 		std::vector<Target> _targetQueue;
-		int _currentTargetIdx;
 		boost::mutex _targetMutex;
 		rw::trajectory::QTrajectory::Ptr _currentTraj;
 		double _currentTrajTime;
@@ -241,13 +238,9 @@ namespace control {
 
 		double _linVelMax, _angVelMax;
 
-		int _currentCompiledTarget;
 		std::deque<CompiledTarget> _compiledTargets;
 		CompiledTarget _executingTarget;
 		unsigned int _idCnt;
-
-		bool _isRunning;
-
 
 		// Hybrid/Force torque control
 		Eigen::VectorXd _q_error, _q_error_last;

@@ -15,17 +15,27 @@
  * limitations under the License.
  ********************************************************************************/
 
+#include <RobWorkConfig.hpp>
+
 #include "ContactDetector.hpp"
 #include "BallBallStrategy.hpp"
 #include "BallPlaneStrategy.hpp"
 #include "BoxPlaneStrategy.hpp"
+#include "ContactStrategy.hpp"
+#ifdef RW_HAVE_PQP
 #include "ContactStrategyPQP.hpp"
+#endif
+#include "ContactDetectorData.hpp"
 #include "ContactDetectorTracking.hpp"
 #include "ContactStrategyCylinderPlane.hpp"
 #include "ContactStrategyCylinderTube.hpp"
 #include "TubePlaneStrategy.hpp"
+#include "ContactModel.hpp"
 
+#include <rw/common/TimerUtil.hpp>
+#include <rw/kinematics/FKTable.hpp>
 #include <rw/proximity/BasicFilterStrategy.hpp>
+#include <rw/models/WorkCell.hpp>
 #include <rwsim/log/SimulatorLogScope.hpp>
 
 #include <iomanip>
@@ -39,9 +49,35 @@ using namespace rw::proximity;
 using namespace rwsim::contacts;
 using namespace rwsim::log;
 
+struct ContactDetector::OrderFramePairs {
+	OrderFramePairs(WorkCell::Ptr wc): _orderBefore(buildMap(wc)) {};
+	bool operator()(const FramePair &a, const FramePair &b) const {
+		if (_orderBefore[*a.first][*b.first])
+			return true;
+		else if (a.first != b.first)
+			return false;
+		return _orderBefore[*a.second][*b.second];
+	}
+
+private:
+	static FrameMap<FrameMap<bool> > buildMap(const WorkCell::Ptr wc) {
+		FrameMap<FrameMap<bool> > map;
+		const std::vector<Frame*> frames = wc->getFrames();
+		for (std::size_t i = 0; i < frames.size(); i++) {
+			for (std::size_t j = 0; j < frames.size(); j++) {
+				map[*frames[i]][*frames[j]] = i < j;
+			}
+		}
+		return map;
+	}
+
+	const FrameMap<FrameMap<bool> > _orderBefore;
+};
+
 ContactDetector::ContactDetector(WorkCell::Ptr wc, ProximityFilterStrategy::Ptr filter):
 	_wc(wc),
 	_bpfilter(filter == NULL ? ownedPtr( new BasicFilterStrategy(wc) ) : filter),
+	_orderFramePairs(new OrderFramePairs(wc)),
 	_timer(0)
 {
 	initializeGeometryMap();
@@ -50,6 +86,7 @@ ContactDetector::ContactDetector(WorkCell::Ptr wc, ProximityFilterStrategy::Ptr 
 ContactDetector::~ContactDetector()
 {
 	clearStrategies();
+	delete _orderFramePairs;
 }
 
 void ContactDetector::setProximityFilterStrategy(ProximityFilterStrategy::Ptr filter) {
@@ -344,11 +381,13 @@ void ContactDetector::setDefaultStrategies(const PropertyMap& map) {
     	pri++;
     	gtypes.erase(it);
     }
+#ifdef RW_HAVE_PQP
     if (gtypes.size() > 0) {
     	ContactStrategy* strat = new ContactStrategyPQP();
     	strat->setPropertyMap(map);
     	addContactStrategy(ownedPtr(strat),pri);
     }
+#endif
 }
 
 std::vector<Contact> ContactDetector::findContacts(const State& state) {
@@ -362,9 +401,14 @@ std::vector<Contact> ContactDetector::findContacts(const State& state, ContactDe
 	std::vector<Contact> res;
 
 	ProximityFilter::Ptr filter = _bpfilter->update(state);
+	std::list<FramePair> framePairs;
+	while(!filter->isEmpty()) {
+		framePairs.push_back(filter->frontAndPop());
+	}
+	framePairs.sort(*_orderFramePairs);
 	FKTable fk(state);
-	while( !filter->isEmpty() ){
-		const FramePair& pair = filter->frontAndPop();
+	for (std::list<FramePair>::const_iterator pairIt = framePairs.begin(); pairIt != framePairs.end(); pairIt++) {
+		const FramePair& pair = *pairIt;
 
 		const Transform3D<> aT = fk.get(*pair.first);
 		const Transform3D<> bT = fk.get(*pair.second);
@@ -438,9 +482,14 @@ std::vector<Contact> ContactDetector::findContacts(const State& state, ContactDe
 	trackInfo.clear();
 
 	ProximityFilter::Ptr filter = _bpfilter->update(state);
-	const FKTable fk(state);
-	while( !filter->isEmpty() ){
-		const FramePair& pair = filter->frontAndPop();
+	std::list<FramePair> framePairs;
+	while(!filter->isEmpty()) {
+		framePairs.push_back(filter->frontAndPop());
+	}
+	framePairs.sort(*_orderFramePairs);
+	FKTable fk(state);
+	for (std::list<FramePair>::const_iterator pairIt = framePairs.begin(); pairIt != framePairs.end(); pairIt++) {
+		const FramePair& pair = *pairIt;
 
 		const Transform3D<> aT = fk.get(*pair.first);
 		const Transform3D<> bT = fk.get(*pair.second);

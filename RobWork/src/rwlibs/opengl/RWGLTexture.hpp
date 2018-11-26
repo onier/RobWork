@@ -20,8 +20,10 @@
 
 //! @file RWGLTexture.hpp
 
+#include <rw/common/Ptr.hpp>
 #include <rwlibs/os/rwgl.hpp>
-#include <rw/sensor/Image.hpp>
+
+namespace rw { namespace sensor { class Image; } }
 
 namespace rwlibs { namespace opengl {
 
@@ -34,8 +36,9 @@ namespace rwlibs { namespace opengl {
     class RWGLTexture
     {
     public:
-
+    	//! @brief Smart pointer type for RWGLTexture.
         typedef rw::common::Ptr<RWGLTexture> Ptr;
+
         //! @brief Constructor - use init afterwards to initialize the GL texture.
     	RWGLTexture();
 

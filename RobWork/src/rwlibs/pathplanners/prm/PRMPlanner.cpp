@@ -1,7 +1,7 @@
 /********************************************************************************
- * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute, 
- * Faculty of Engineering, University of Southern Denmark 
- * 
+ * Copyright 2009 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Faculty of Engineering, University of Southern Denmark
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -18,19 +18,17 @@
 
 #include "PRMPlanner.hpp"
 
-#include <limits.h>
-
-#include <rw/math/Math.hpp>
+#include <rw/math/Random.hpp>
 #include <rw/math/Metric.hpp>
 #include <rw/math/MetricFactory.hpp>
+#include <rw/pathplanning/PlannerUtil.hpp>
+#include <rw/pathplanning/QConstraint.hpp>
+#include <rw/pathplanning/QEdgeConstraint.hpp>
+#include <rw/pathplanning/QSampler.hpp>
 
-#include <boost/tuple/tuple.hpp>
 #include <boost/graph/astar_search.hpp>
 #include <boost/graph/dijkstra_shortest_paths.hpp>
 #include <boost/graph/adjacency_list.hpp>
-#include <boost/graph/random.hpp>
-#include <boost/random.hpp>
-#include <boost/graph/graphviz.hpp>
 #include <queue>
 
 #include "PartialIndexTable.hpp"
@@ -46,7 +44,7 @@ using namespace rw::trajectory;
 
 PRMPlanner::PRMPlanner(rw::pathplanning::QConstraint::Ptr constraint,
 	rw::pathplanning::QSampler::Ptr sampler,
-    double resolution,	
+    double resolution,
     const rw::models::Device& device,
     const rw::kinematics::State& state)
     :
@@ -183,7 +181,7 @@ bool PRMPlanner::inCollision(const Q& a, const Q& b) const
 
 bool PRMPlanner::addEdge(Node n1, Node n2, double dist)
 {
-    Q q1 = _graph[n1].q; 
+    Q q1 = _graph[n1].q;
     Q q2 = _graph[n2].q;
 
     switch (_collisionCheckingStrategy) {
@@ -344,7 +342,7 @@ void PRMPlanner::enhanceAround(const Q& q)
     for (size_t cnt = 0; cnt<_enhanceAroundSeedCount; cnt++) {
         for (size_t i = 0; i<q.size(); i++) {
             double stddev = _Rneighbor/(1+_metricWeights(i));
-            ran(i) = Math::ranNormalDist(q(i), 2*stddev);
+            ran(i) = Random::ranNormalDist(q(i), 2*stddev);
         }
         ran = PlannerUtil::clampPosition(_bounds, ran);
         if (_collisionCheckingStrategy != LAZY) {
@@ -364,7 +362,7 @@ void PRMPlanner::enhanceRoadmap()
     for (size_t cnt = 0; cnt < std::min(
              _seeds.size(),_enhanceRandomFromSeedsCnt); cnt++)
     {
-        int index = Math::ranI(0, (int)_seeds.size());
+        int index = Random::ranI(0, (int)_seeds.size());
         enhanceAround(_seeds[index]);
     }
 
@@ -418,7 +416,7 @@ bool PRMPlanner::doQuery(
     }
 
     // test if qInit and qGoal is within bounds of robot
-    typedef boost::graph_traits<PRM>::vertex_iterator NodePointer;
+    // typedef boost::graph_traits<PRM>::vertex_iterator NodePointer; //not used
 
     Node nInit = addNode(qInit, true);
     addEdges(nInit);
@@ -444,7 +442,7 @@ bool PRMPlanner::doQuery(
             //std::cout<<"No Path Enhance Roadmap"<<std::endl;
             enhanceRoadmap();
             continue;
-        } 
+        }
 
         bool inCol = inCollision(nodepath);
         if (!inCol) {
@@ -532,7 +530,7 @@ bool PRMPlanner::inCollision(std::list<Node>& path)
         edgeQueue.pop();
 
         bool enhanced = enhanceEdgeCheck(edge);
-        if (!enhanced) {            
+        if (!enhanced) {
             _seeds.push_back((_graph[edge].q1 + _graph[edge].q2)/2.0);
 			removeCollidingEdge(edge);
             return true;

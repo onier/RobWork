@@ -17,28 +17,32 @@
 
 #include "../TestSuiteConfig.hpp"
 
-#include <rw/rw.hpp>
+#include <rw/invkin.hpp>
+#include <rw/loaders/WorkCellLoader.hpp>
+#include <rw/models/DHParameterSet.hpp>
+#include <rw/models/SerialDevice.hpp>
+#include <rw/models/TreeDevice.hpp>
 
 #include <string>
 
-USE_ROBWORK_NAMESPACE
-using namespace robwork;
+using rw::common::ownedPtr;
+using namespace rw::invkin;
+using rw::kinematics::State;
+using rw::loaders::WorkCellLoader;
+using namespace rw::math;
+using namespace rw::models;
 
-using namespace boost::unit_test;
-//using namespace rwlibs::algorithms;
-using namespace rw::loaders;
-
-typedef std::auto_ptr<IterativeIK> (* MakeIKSolver)(SerialDevice*, State&);
-typedef std::auto_ptr<IterativeMultiIK> (* MakeMultiIKSolver)(TreeDevice*, State&);
+typedef IterativeIK::Ptr (* MakeIKSolver)(SerialDevice*, State&);
+typedef IterativeMultiIK::Ptr (* MakeMultiIKSolver)(TreeDevice*, State&);
 
 int testIKSolver(
     const std::string& solverName,
     MakeIKSolver maker,
     double relativeDisplacement)
 {
-    BOOST_MESSAGE("- Testing " << solverName);
+    BOOST_TEST_MESSAGE("- Testing " << solverName);
     // Load a serial device that has revolute joints only.
-    WorkCell::Ptr workcell = WorkCellFactory::load(testFilePath() + "PA10/pa10.xml");
+    WorkCell::Ptr workcell = WorkCellLoader::Factory::load(testFilePath() + "PA10/pa10.xml");
     Device* any_device = workcell->getDevices().at(0).get();
     SerialDevice* device = dynamic_cast<SerialDevice*>(any_device);
     BOOST_REQUIRE(device);
@@ -76,7 +80,7 @@ int testIKSolver(
     }
 
     State initial_state = workcell->getDefaultState();
-    std::auto_ptr<IterativeIK> solver = maker(device, initial_state);
+    IterativeIK::Ptr solver = maker(device, initial_state);
 
     // Check if IK can be solved for all of the targets for a starting
     // configuration of q_zero.
@@ -99,9 +103,9 @@ int testMultiIKSolver(
     MakeMultiIKSolver maker,  
     double relativeDisplacement) 
 {
-    BOOST_MESSAGE("- Testing " << solverName);
+    BOOST_TEST_MESSAGE("- Testing " << solverName);
     // Load a tree device that has revolute joints only.
-    WorkCell::Ptr workcell = WorkCellFactory::load(
+    WorkCell::Ptr workcell = WorkCellLoader::Factory::load(
         testFilePath() + "SchunkHand/SchunkHand.xml");  
 
     Device* any_device = workcell->getDevices().at(0).get();
@@ -147,7 +151,7 @@ int testMultiIKSolver(
     }
     //std::cout << "get intial state\n";
     State initial_state = workcell->getDefaultState();
-    std::auto_ptr<IterativeMultiIK> solver = maker(device, initial_state);
+    IterativeMultiIK::Ptr solver = maker(device, initial_state);
 
     // Check if IK can be solved for all of the targets for a starting
     // configuration of q_zero.
@@ -166,79 +170,78 @@ int testMultiIKSolver(
 }
 
 
-std::auto_ptr<IterativeIK> makeCCD(SerialDevice* device, State& state)
+IterativeIK::Ptr makeCCD(SerialDevice* device, State& state)
 {
-    std::auto_ptr<IterativeIK> result(new CCDSolver(device,state));
-    return result;
+    return ownedPtr(new CCDSolver(device,state));
 }
 
-std::auto_ptr<IterativeIK> makeJacobianIKSolverSVD(SerialDevice* device, State& state)
+IterativeIK::Ptr makeJacobianIKSolverSVD(SerialDevice* device, State& state)
 {
-    JacobianIKSolver *sol = new JacobianIKSolver(device,state);
+    rw::common::Ptr<JacobianIKSolver> sol = ownedPtr(new JacobianIKSolver(device,state));
     // Should use SVD as default though
     sol->setSolverType(JacobianIKSolver::SVD);
-    std::auto_ptr<IterativeIK> result(sol);
+    IterativeIK::Ptr result(sol);
     return result;
 }
 
-std::auto_ptr<IterativeIK> makeJacobianIKSolverTranspose(SerialDevice* device, State& state)
+IterativeIK::Ptr makeJacobianIKSolverTranspose(SerialDevice* device, State& state)
 {
-    JacobianIKSolver *sol = new JacobianIKSolver(device,state);
+    rw::common::Ptr<JacobianIKSolver> sol = ownedPtr(new JacobianIKSolver(device,state));
     sol->setSolverType(JacobianIKSolver::Transpose);
     sol->setMaxIterations(16);
-    std::auto_ptr<IterativeIK> result(sol);
+    IterativeIK::Ptr result(sol);
     return result;
 }
 
-std::auto_ptr<IterativeIK> makeJacobianIKSolverDLS(SerialDevice* device, State& state)
+IterativeIK::Ptr makeJacobianIKSolverDLS(SerialDevice* device, State& state)
 {
-    JacobianIKSolver *sol = new JacobianIKSolver(device,state);
+    rw::common::Ptr<JacobianIKSolver> sol = ownedPtr(new JacobianIKSolver(device,state));
     sol->setSolverType(JacobianIKSolver::DLS);
     sol->setMaxIterations(50);
-    std::auto_ptr<IterativeIK> result(sol);
+    IterativeIK::Ptr result(sol);
     return result;
 }
 /*
-std::auto_ptr<IterativeIK> makeIKQPSolver(SerialDevice* device, State& state) {
-  std::auto_ptr<IterativeIK> result(new IKQPSolver(device, state));
+IterativeIK::Ptr makeIKQPSolver(SerialDevice* device, State& state) {
+  IterativeIK::Ptr result(ownedPtr(new IKQPSolver(device, state)));
   return result;
 }
 */
 
-std::auto_ptr<IterativeMultiIK> makeJacobianIKSolverMSVD(TreeDevice* device, State& state)
+IterativeMultiIK::Ptr makeJacobianIKSolverMSVD(TreeDevice* device, State& state)
 {
-    JacobianIKSolverM *sol = new JacobianIKSolverM(device, state);
+    rw::common::Ptr<JacobianIKSolverM> sol = ownedPtr(new JacobianIKSolverM(device, state));
     // Should use SVD as default though
     sol->setSolverType(JacobianIKSolverM::SVD);
     //sol->setMaxLocalStep(0.4,5.0);
-    std::auto_ptr<IterativeMultiIK> result(sol);
+    IterativeMultiIK::Ptr result(sol);
     return result;
 }
 
-std::auto_ptr<IterativeMultiIK> makeJacobianIKSolverMTranspose(TreeDevice* device, State& state)
+IterativeMultiIK::Ptr makeJacobianIKSolverMTranspose(TreeDevice* device, State& state)
 {
-    JacobianIKSolverM *sol = new JacobianIKSolverM(device, state);
+    rw::common::Ptr<JacobianIKSolverM> sol = ownedPtr(new JacobianIKSolverM(device, state));
     // Should use SVD as default though
     sol->setSolverType(JacobianIKSolverM::Transpose);
     sol->setMaxIterations(350);
-    std::auto_ptr<IterativeMultiIK> result(sol);
+    IterativeMultiIK::Ptr result(sol);
     return result;
 }
 
-std::auto_ptr<IterativeMultiIK> makeJacobianIKSolverMDLS(TreeDevice* device, State& state)
+IterativeMultiIK::Ptr makeJacobianIKSolverMDLS(TreeDevice* device, State& state)
 {
-    JacobianIKSolverM *sol = new JacobianIKSolverM(device, state);
+    rw::common::Ptr<JacobianIKSolverM> sol = ownedPtr(new JacobianIKSolverM(device, state));
     // Should use SVD as default though
     sol->setSolverType(JacobianIKSolverM::DLS);
     sol->setMaxIterations(155);
-    std::auto_ptr<IterativeMultiIK> result(sol);
+    IterativeMultiIK::Ptr result(sol);
     return result;
 }
 
 BOOST_AUTO_TEST_CASE( testIterativeInverseKinematics )
 {
     int errcnt = 0;
-    BOOST_MESSAGE("InverseKinematicsTestSuite");
+    BOOST_TEST_MESSAGE("InverseKinematicsTestSuite");
     // We seed the random number generator so that we get reproducible results.
     Math::seed(0);
 

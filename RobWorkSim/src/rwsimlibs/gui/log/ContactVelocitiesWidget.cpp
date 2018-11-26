@@ -21,10 +21,12 @@
 #include <rw/graphics/SceneGraph.hpp>
 #include <rwlibs/opengl/RenderVelocity.hpp>
 #include <rwsim/dynamics/DynamicWorkCell.hpp>
-#include "../../../rwsim/log/LogContactSet.hpp"
-#include "../../../rwsim/log/LogContactVelocities.hpp"
+#include <rwsim/log/LogContactSet.hpp>
+#include <rwsim/log/LogContactVelocities.hpp>
 
 #include "ui_ContactVelocitiesWidget.h"
+
+#include <QItemSelection>
 
 using namespace rw::common;
 using namespace rw::graphics;
@@ -105,7 +107,10 @@ void ContactVelocitiesWidget::updateEntryWidget() {
 		else
 			pairs.insert(std::make_pair(nameB,nameA));
 	}
-	_ui->_contactBodyPairs->setRowCount(pairs.size());
+	const int nrOfPairs = static_cast<int>(pairs.size());
+	if (pairs.size() > static_cast<std::size_t>(nrOfPairs))
+		RW_THROW("There are too many entries for the widget to handle!");
+	_ui->_contactBodyPairs->setRowCount(nrOfPairs);
 	int row = 0;
 	_ui->_contactBodyPairs->setSortingEnabled(false);
 	BOOST_FOREACH(const FramePair& pair, pairs) {
@@ -124,8 +129,8 @@ void ContactVelocitiesWidget::updateEntryWidget() {
 		row++;
 	}
 	_ui->_contactBodyPairs->setSortingEnabled(true);
-	if (pairs.size() > 0)
-		_ui->_contactBodyPairs->setRangeSelected(QTableWidgetSelectionRange(0,0,pairs.size()-1,2),true);
+	if (nrOfPairs > 0)
+		_ui->_contactBodyPairs->setRangeSelected(QTableWidgetSelectionRange(0,0,nrOfPairs-1,2),true);
 }
 
 void ContactVelocitiesWidget::showGraphics(GroupNode::Ptr root, SceneGraph::Ptr graph) {
@@ -167,8 +172,11 @@ void ContactVelocitiesWidget::contactSetPairsChanged(const QItemSelection&, cons
 		if (show)
 			contactsToShow.push_back(i);
 	}
+	const int nrOfContactsToShow = static_cast<int>(contactsToShow.size());
+	if (contactsToShow.size() > static_cast<std::size_t>(nrOfContactsToShow))
+		RW_THROW("There are too many entries for the widget to handle!");
 	_ui->_contactTable->clearSelection();
-	_ui->_contactTable->setRowCount(contactsToShow.size());
+	_ui->_contactTable->setRowCount(nrOfContactsToShow);
 	int row = 0;
 	_ui->_contactTable->setSortingEnabled(false);
 	BOOST_FOREACH(const std::size_t i, contactsToShow) {
@@ -179,20 +187,27 @@ void ContactVelocitiesWidget::contactSetPairsChanged(const QItemSelection&, cons
 		const std::string& nameB = c.getNameB();
 		const QString hover = toQString(c, velA, velB);
 		// Note: setItem takes ownership of the QTableWidgetItems
-		QTableWidgetItem* itemA;
-		QTableWidgetItem* itemB;
-		QTableWidgetItem* itemAx = new QTableWidgetItem(QString::number(velA[0]));
-		QTableWidgetItem* itemAy = new QTableWidgetItem(QString::number(velA[1]));
-		QTableWidgetItem* itemAz = new QTableWidgetItem(QString::number(velA[2]));
-		QTableWidgetItem* itemBx = new QTableWidgetItem(QString::number(velB[0]));
-		QTableWidgetItem* itemBy = new QTableWidgetItem(QString::number(velB[1]));
-		QTableWidgetItem* itemBz = new QTableWidgetItem(QString::number(velB[2]));
+		QTableWidgetItem *itemA, *itemB;
+		QTableWidgetItem *itemAx, *itemAy, *itemAz;
+		QTableWidgetItem *itemBx, *itemBy, *itemBz;
 		if (nameA < nameB) {
 			itemA = new QTableWidgetItem(QString::fromStdString(nameA));
+			itemAx = new QTableWidgetItem(QString::number(velA[0]));
+			itemAy = new QTableWidgetItem(QString::number(velA[1]));
+			itemAz = new QTableWidgetItem(QString::number(velA[2]));
 			itemB = new QTableWidgetItem(QString::fromStdString(nameB));
+			itemBx = new QTableWidgetItem(QString::number(velB[0]));
+			itemBy = new QTableWidgetItem(QString::number(velB[1]));
+			itemBz = new QTableWidgetItem(QString::number(velB[2]));
 		} else {
 			itemA = new QTableWidgetItem(QString::fromStdString(nameB));
+			itemAx = new QTableWidgetItem(QString::number(velB[0]));
+			itemAy = new QTableWidgetItem(QString::number(velB[1]));
+			itemAz = new QTableWidgetItem(QString::number(velB[2]));
 			itemB = new QTableWidgetItem(QString::fromStdString(nameA));
+			itemBx = new QTableWidgetItem(QString::number(velA[0]));
+			itemBy = new QTableWidgetItem(QString::number(velA[1]));
+			itemBz = new QTableWidgetItem(QString::number(velA[2]));
 		}
 		itemA->setData(Qt::ToolTipRole,hover);
 		itemB->setData(Qt::ToolTipRole,hover);
@@ -214,8 +229,8 @@ void ContactVelocitiesWidget::contactSetPairsChanged(const QItemSelection&, cons
 		row++;
 	}
 	_ui->_contactTable->setSortingEnabled(true);
-	if (contactsToShow.size() > 0)
-		_ui->_contactTable->setRangeSelected(QTableWidgetSelectionRange(0,0,contactsToShow.size()-1,7),true);
+	if (nrOfContactsToShow > 0)
+		_ui->_contactTable->setRangeSelected(QTableWidgetSelectionRange(0,0,nrOfContactsToShow-1,7),true);
 }
 
 void ContactVelocitiesWidget::contactSetChanged(const QItemSelection&, const QItemSelection&) {

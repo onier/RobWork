@@ -22,13 +22,14 @@
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/math/Metric.hpp>
-#include <rw/models/Device.hpp>
 #include <rw/trajectory/Path.hpp>
-#include <rw/proximity/DistanceCalculator.hpp>
 
 /**
  * @file PathAnalyzer.hpp
  */
+
+namespace rw { namespace models { class Device; } }
+namespace rw { namespace proximity { class DistanceCalculator; } }
 
 namespace rw {
 namespace pathplanning {
@@ -51,6 +52,8 @@ public:
 
 	//! @brief smart pointer type to this class
     typedef rw::common::Ptr<PathAnalyzer> Ptr;
+	//! @brief smart pointer type to this const class
+    typedef rw::common::Ptr<const PathAnalyzer> CPtr;
 
     /**
      * @brief Result struct for joint space analysis
@@ -131,7 +134,7 @@ public:
      * @param device [in] Device to be associated with the path
      * @param state [in] State of the workcell
      */
-	PathAnalyzer(rw::models::Device::Ptr device, const rw::kinematics::State& state);
+	PathAnalyzer(const rw::common::Ptr<const rw::models::Device>& device, const rw::kinematics::State& state);
 
 	/**
 	 * @brief Destructor
@@ -146,7 +149,7 @@ public:
 	 * @return Result of the joint space analysis
 	 */
 	JointSpaceAnalysis analyzeJointSpace(const rw::trajectory::QPath& path,
-		rw::math::QMetric::Ptr metric = NULL);
+		rw::math::QMetric::Ptr metric = NULL) const;
 
 	/**
 	 * @brief Performs analysis in Cartesian space.
@@ -159,7 +162,7 @@ public:
 	 * @param frame [in] Frame for which to analyze the path.
 	 * @return Result of the analysis.
 	 */
-	CartesianAnalysis analyzeCartesian(const rw::trajectory::QPath& path, rw::kinematics::Frame* frame);
+	CartesianAnalysis analyzeCartesian(const rw::trajectory::QPath& path, const rw::kinematics::Frame* frame);
 
 	/**
 	 * @brief Peforms analysis of the time
@@ -168,7 +171,7 @@ public:
 	 *
 	 * @param path [in] Path to analyze.
 	 */
-	TimeAnalysis analyzeTime(const rw::trajectory::QPath& path);
+	TimeAnalysis analyzeTime(const rw::trajectory::QPath& path) const;
 
 	/**
 	 * @brief Performs an analysis of the clearance
@@ -181,7 +184,7 @@ public:
 	 * @param distanceCalculator [in] DistanceCalculator to be used in the analysis
 	 * @return Result of the analysis.
 	 */
-	ClearanceAnalysis analyzeClearance(const rw::trajectory::QPath& path, rw::proximity::DistanceCalculator::Ptr distanceCalculator);
+	ClearanceAnalysis analyzeClearance(const rw::trajectory::QPath& path, const rw::common::Ptr<const rw::proximity::DistanceCalculator>& distanceCalculator);
 
     //TODO: Move to path statistics
 	/**
@@ -218,7 +221,7 @@ public:
 
 
 private:
-	rw::models::Device::Ptr _device;
+	rw::common::Ptr<const rw::models::Device> _device;
     rw::kinematics::State _state;
 };
 

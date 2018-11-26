@@ -19,10 +19,10 @@
 #include "Image.hpp"
 #include <rw/common/macros.hpp>
 
-#include <iostream>
 #include <stdio.h>
 #include <string.h>
 #include <cmath>
+
 using namespace rw::sensor;
 using namespace rw::common;
 
@@ -128,7 +128,7 @@ Image::Image():
     _widthStepByte = _widthStep*getBitsPerPixel()/8;
     initFloatConversion();
 
-};
+}
 
 
 Image::Image(

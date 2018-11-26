@@ -19,10 +19,8 @@
 #define RWSIM_DYNAMICS_RIGIDBODY_HPP_
 
 #include <rw/math/Vector3D.hpp>
-#include <rw/math/Quaternion.hpp>
 #include <rw/math/InertiaMatrix.hpp>
 
-#include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Frame.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
 
@@ -48,18 +46,13 @@ namespace dynamics {
     class RigidBody : public Body
     {
     public:
+    	//! @brief Smart pointer type for a RigidBody.
         typedef rw::common::Ptr<RigidBody> Ptr;
-        /**
-         * @brief constructor
-         * @param info [in] body description
-         * @param frame [in] body reference frame
-         * @param geom [in] geometry
-         */
+
+        //! @copydoc Body::Body()
         RigidBody(const BodyInfo& info, rw::models::Object::Ptr obj);
 
-        //RigidBody(std::vector<std::pair<BodyInfo, rw::models::Object::Ptr> > infos );
-
-    	//! @brief destructor
+    	//! @brief Destructor.
         virtual ~RigidBody(){};
 
     public: // functions that need to be implemented by specialized class
@@ -69,6 +62,7 @@ namespace dynamics {
          */
         rw::math::Vector3D<> getPointVelW(const rw::math::Vector3D<>& p, const rw::kinematics::State& state) const;
 
+        //! @copydoc Body::getVelocity
         rw::math::VelocityScrew6D<> getVelocity(const rw::kinematics::State &state) const;
         /**
          * @copydoc Body::reset
@@ -116,9 +110,6 @@ namespace dynamics {
 
     public:
 
-        /**
-         *
-         */
         //rw::math::InertiaMatrix<> getEffectiveMassW(const rw::math::Vector3D<>& wPc);
 
         /**
@@ -126,15 +117,7 @@ namespace dynamics {
          */
     	rw::kinematics::Frame* getParent(const rw::kinematics::State& state) const {
     		return _mframe->getParent(state);
-    	};
-
-    	/**
-    	 * @brief body type
-    	 */
-    	int getBodyType() const {
-    	    return _bodyType;
-    	};
-
+    	}
 
         /**
          * @brief returns the transform from parent to body
@@ -157,6 +140,11 @@ namespace dynamics {
             return rw::kinematics::Kinematics::worldTframe(_mframe, state);
         }
 
+        /**
+         * @brief Get the transform from the parent.
+         * @param state [in] the state giving the current pose of the body.
+         * @return the relative transform.
+         */
         rw::math::Transform3D<> getWTParent(const rw::kinematics::State& state) const {
             return rw::kinematics::Kinematics::worldTframe(getParent(state), state);
         }
@@ -184,7 +172,12 @@ namespace dynamics {
             _rstate.get(state).linvel = lvel;
         }
 
-        void setLinVelW(const rw::math::Vector3D<> &lvel, rw::kinematics::State& state) {
+        /**
+         * @brief Set the linear velocity in world frame.
+         * @param lvel [in] the linear velocity.
+         * @param state [out] the state with the current pose, updated with new velocity.
+         */
+        void setLinVelW(const rw::math::Vector3D<> &lvel, rw::kinematics::State& state){
             setLinVel( inverse(getWTParent(state).R()) * lvel, state);
         }
 
@@ -209,7 +202,12 @@ namespace dynamics {
          */
         virtual void setAngVel(const rw::math::Vector3D<> &avel, rw::kinematics::State& state);
 
-        void setAngVelW(const rw::math::Vector3D<> &avel, rw::kinematics::State& state) {
+        /**
+         * @brief Set the angular velocity in world frame.
+         * @param avel [in] the angular velocity.
+         * @param state [out] the state with the current pose, updated with new velocity.
+         */
+        void setAngVelW(const rw::math::Vector3D<> &avel, rw::kinematics::State& state){
             setAngVel(inverse(getWTParent(state).R())*avel, state);
         }
 
@@ -276,7 +274,10 @@ namespace dynamics {
          */
         rw::math::InertiaMatrix<> calcInertiaTensor(const rw::kinematics::State& state) const;
 
-
+        /**
+         * @brief The the body frame as a movable frame.
+         * @return a pointer to a movable frame.
+         */
         rw::kinematics::MovableFrame* getMovableFrame() const {
         	return _mframe;
         }
@@ -300,32 +301,42 @@ namespace dynamics {
 
     protected:
         // const variables
-        const double _mass, _massInv;
+        //! @brief Mass of the body.
+        const double _mass;
+        //! @brief The inverse of the mass of the body.
+        const double _massInv;
 
+        //! @brief The state of a rigid body.
         struct RigidBodyState {
+        	//! @brief The linear velocity.
             rw::math::Vector3D<> linvel;
+        	//! @brief The angular velocity.
             rw::math::Vector3D<> angvel;
+        	//! @brief The net force.
             rw::math::Vector3D<> force;
+        	//! @brief The net torque.
             rw::math::Vector3D<> torque;
         };
 
-
-
-
+        //! @brief The body frame.
         rw::kinematics::MovableFrame *_mframe;
         //rw::kinematics::Frame *_parent;
 
-        // TODO: body type
-        int _bodyType;
-
         // inertia tensors
+        //! @brief Inertia of the body.
         const rw::math::InertiaMatrix<> _Ibody;
+        //! @brief Inverse of the inertia of the body.
         const rw::math::InertiaMatrix<> _IbodyInv;
+        //! @brief The principal inertia as a rotation and a vector giving the diagonal.
         const std::pair<rw::math::Rotation3D<>, rw::math::Vector3D<> > _IbodyPrincipal;
 
         // state variables
-        rw::math::InertiaMatrix<> _ITensorInv,_ITensor; // inverse inertia tensor in parent frame
+        //! @brief Inertia tensor in parent frame.
+        rw::math::InertiaMatrix<> _ITensorInv;
+        //! @brief Inverse inertia tensor in parent frame.
+        rw::math::InertiaMatrix<> __ITensor;
 
+        //! @brief The state of the rigid body.
         rw::kinematics::StatelessData<RigidBodyState> _rstate;
     };
     //! @}

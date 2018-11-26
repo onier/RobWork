@@ -18,6 +18,7 @@
 #include "DOMProximitySetupLoader.hpp"
 
 #include <iostream>
+#include <rw/common/DOMElem.hpp>
 #include <rw/common/DOMParser.hpp>
 
 using namespace rw::common;
@@ -30,7 +31,8 @@ ProximitySetup DOMProximitySetupLoader::load(const std::string& filename, const 
     parser->setSchema(schemaFileName);
     parser->load(filename);
     DOMElem::Ptr root = parser->getRootElement();
-    return readProximitySetup(root);
+    DOMElem::Ptr psetupRoot = root->getChild("ProximitySetup", false);
+    return readProximitySetup(psetupRoot);
 }
 
 
@@ -39,7 +41,8 @@ ProximitySetup DOMProximitySetupLoader::load(std::istream& instream, const std::
     parser->setSchema(schemaFileName);
     parser->load(instream);
     DOMElem::Ptr root = parser->getRootElement();
-    return readProximitySetup(root);
+    DOMElem::Ptr psetupRoot = root->getChild("ProximitySetup", false);
+    return readProximitySetup(psetupRoot);
 }
 
 
@@ -59,7 +62,8 @@ ProximitySetup DOMProximitySetupLoader::readProximitySetup(DOMElem::Ptr element)
 		} else if (child->isName("Include")) {
 			setup.addProximitySetupRule(ProximitySetupRule::makeInclude(readFramePatternAttributes(child)));
 		} else {
-			RW_THROW("Unknown element \"" << child->getName() << "\" in ProximitySetup, should be Include or Exclude!");
+			if(!child->isName("<xmlcomment>"))
+				RW_THROW("Unknown element \"" << child->getName() << "\" in ProximitySetup, should be Include or Exclude!");
 		}
 	}
 	return setup ;

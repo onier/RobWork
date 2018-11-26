@@ -31,12 +31,12 @@
 #include <rw/math/VelocityScrew6D.hpp>
 
 #include <rw/kinematics/State.hpp>
-#include <rw/models/WorkCell.hpp>
 
 #include <rw/common/DOMElem.hpp>
 
-#include <map>
 #include <string>
+
+namespace rw { namespace models { class WorkCell; } }
 
 namespace rw {
 namespace loaders {
@@ -51,94 +51,203 @@ namespace loaders {
 class DOMBasisTypes
 {
 public:
-    /** @brief Identifier for rw::math::Q in the XML format  */
-    static const std::string QId;
+	/**
+	 * @brief Identifier for rw::math::Q in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idQ();
+	/**
+	 * @brief Identifier for rw::math::Vector3D<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idVector3D();
+	/**
+	 * @brief Identifier for rw::math::Vector2D<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idVector2D();
+	/**
+	 * @brief Identifier for rw::math::Rotation3D<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idRotation3D();
+	/**
+	 * @brief Identifier for rw::math::RPY<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idRPY();
+	/**
+	 * @brief Identifier for rw::math::EAA<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idEAA();
+	/**
+	 * @brief Identifier for rw::math::Quaternion<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idQuaternion();
+	/**
+	 * @brief Identifier for rw::math::Rotation2D<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idRotation2D();
+	/**
+	 * @brief Identifier for single angle used to specify rw::math::Rotation2D<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idRotation2DAngle();
+	/**
+	 * @brief Identifier for rw::math::Transform2D<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idTransform2D();
+	/**
+	 * @brief Identifier for rw::math::Transform3D<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idTransform3D();
+	/**
+	 * @brief Identifier for rw::math::MatrixXd<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idMatrix();
+	/**
+	 * @brief Identifier for rw::math::VelocityScrew6D<> in the XML format.
+	 * @return the identifier.
+	 */
+    static const std::string& idVelocityScrew6D();
+	/**
+	 * @brief Identifier for the position specification used in Transform3D.
+	 * @return the identifier.
+	 */
+    static const std::string& idPos();
 
-    /** @brief Identifier for rw::math::Vector3D<> in the XML format  */
-    static const std::string Vector3DId;
+	/**
+	 * @brief Identifier for specifying the linear part in a VelocityScrew6D.
+	 * @return the identifier.
+	 */
+    static const std::string& idLinear();
 
-    /** @brief Identifier for rw::math::Vector2D<> in the XML format  */
-    static const std::string Vector2DId;
+	/**
+	 * @brief Identifier for specifying the angular part in a VelocityScrew6D.
+	 * @return the identifier.
+	 */
+    static const std::string& idAngular();
 
-    /** @brief Identifier for rw::math::Rotation3D<> in the XML format  */
-    static const std::string Rotation3DId;
+	/**
+	 * @brief Identifier for specifying a State.
+	 * @return the identifier.
+	 */
+    static const std::string& idState();
 
-    /** @brief Identifier for rw::math::RPY<> in the XML format  */
-    static const std::string RPYId;
+	/**
+	 * @brief Identifier for specifying a State.
+	 * @return the identifier.
+	 */
+    static const std::string& idQState();
 
-    /** @brief Identifier for rw::math::EAA<> in the XML format  */
-    static const std::string EAAId;
+	/**
+	 * @brief Identifier for specifying a State.
+	 * @return the identifier.
+	 */
+    static const std::string& idTreeState();
 
-    /** @brief Identifier for rw::math::Quaternion<> in the XML format  */
-    static const std::string QuaternionId;
+	/**
+	 * @brief Identifier for specifying a boolean.
+	 * @return the identifier.
+	 */
+    static const std::string& idBoolean();
 
-    /** @brief Identifier for rw::math::Rotation2D<> in the XML format  */
-    static const std::string Rotation2DId;
+	/**
+	 * @brief Identifier for specifying a double.
+	 * @return the identifier.
+	 */
+    static const std::string& idDouble();
 
-    /** @brief Identifier for rw::math::Transform2D<> in the XML format  */
-    static const std::string Transform2DId;
+	/**
+	 * @brief Identifier for specifying a float.
+	 * @return the identifier.
+	 */
+    static const std::string& idFloat();
 
-    /** @brief Identifier for rw::math::Transform3D<> in the XML format  */
-    static const std::string Transform3DId;
+	/**
+	 * @brief Identifier for specifying an integer.
+	 * @return the identifier.
+	 */
+    static const std::string& idInteger();
 
-    /** @brief Identifier for Eigen::MatrixXd<> in the XML format  */
-    static const std::string MatrixId;
+	/**
+	 * @brief Identifier for specifying a string.
+	 * @return the identifier.
+	 */
+    static const std::string& idString();
 
-    /** @brief Identifier for rw::math::VelocityScrew6D<> in the XML format  */
-    static const std::string VelocityScrew6DId;
+	/**
+	 * @brief Identifier for specifying a list of strings.
+	 * @return the identifier.
+	 */
+    static const std::string& idStringList();
 
-    /** @brief Identifier for the position specification used in Transform3D  */
-    static const std::string PosId;
+	/**
+	 * @brief Identifier for specifying a list of integers.
+	 * @return the identifier.
+	 */
+    static const std::string& idIntList();
 
-    // /** @brief Identifier for matrix specification used in Transform3D  */
-    //static const std::string MatrixId;
+	/**
+	 * @brief Identifier for specifying a list of doubles.
+	 * @return the identifier.
+	 */
+    static const std::string& idDoubleList();
 
-    /** @brief Identifier for specifying the linear part in a VelocityScrew6D  */
-    static const std::string LinearId;
+	/**
+	 * @brief Identifier for specifying a pair of strings.
+	 * @return the identifier.
+	 */
+    static const std::string& idStringPair();
 
-    /** @brief Identifier for specifying the angular part in a VelocityScrew6D  */
-    static const std::string AngularId;
+	/**
+	 * @brief Identifier for the unit attribute.
+	 * @return the identifier.
+	 */
+    static const std::string& idUnitAttribute();
 
-    /** @brief Identifier for specifying a State */
-    static const std::string StateId;
+    /**
+     * @brief Identifier for a Plane
+     * @return the identifier.
+     */
+    static const std::string& idPlane();
 
-    /** @brief Identifier for specifying a State */
-    static const std::string QStateId;
+    /**
+     * @brief Identifier for a Box
+     * @return the identifier.
+     */
+    static const std::string& idBox();
 
-    /** @brief Identifier for specifying a State */
-    static const std::string TreeStateId;
+    /**
+     * @brief Identifier for a Sphere
+     * @return the identifier.
+     */
+    static const std::string& idSphere();
 
-    /** @brief Identifier for specifying a boolean*/
-    static const std::string BooleanId;
+    /**
+     * @brief Identifier for a Cone
+     * @return the identifier.
+     */
+    static const std::string& idCone();
 
-    /** @brief Identifier for specifying a double */
-    static const std::string DoubleId;
+    /**
+     * @brief Identifier for a Cylinder
+     * @return the identifier.
+     */
+    static const std::string& idCylinder();
 
-    /** @brief Identifier for specifying a float */
-    static const std::string FloatId;
-
-    /** @brief Identifier for specifying an integer */
-    static const std::string IntegerId;
-
-    /** @brief Identifier for specifying a string */
-    static const std::string StringId;
-
-    /** @brief Identifier for specifying a list of strings */
-    static const std::string StringListId;
-
-    /** @brief Identifier for specifying a list of integers */
-    static const std::string IntListId;
-
-    /** @brief Identifier for specifying a list of doubles */
-    static const std::string DoubleListId;
-
-    /** @brief Identifier for specifying a pair of strings */
-    static const std::string StringPairId;
-
-    /** @brief Identifier for the unit attribute */
-    static const std::string UnitAttributeId;
-
-
+    /**
+     * @brief Identifier for a Tube
+     * @return the identifier.
+     * @return the identifier.
+     */
+    static const std::string& idTube();
 
     /**
      * @brief Returns the conversion value for a given unit
@@ -245,6 +354,19 @@ public:
     static rw::math::Rotation3D<> readRotation3D(rw::common::DOMElem::Ptr element, bool doCheckHeader = false);
 
     /**
+     * @brief Returns rw::math::Rotation3D<> element read from \b element
+     *
+     * Read in \b element and returns a rw::math::Rotation3D corresponding to the content.
+     * The content can be either a RPY, EAA, Quaternion or Rotation3D.
+     * If the name does not an exception is thrown.
+     *
+     * @param element [in] Element to read
+     * @return The element read
+     */
+    static rw::math::Rotation3D<> readRotation3DStructure(rw::common::DOMElem::Ptr element);
+
+
+    /**
      * @brief Returns rw::math::Rotation2D<> element read from \b element
      *
      * Read in \b element and returns a rw::math::Rotation2D<> corresponding to the content.
@@ -257,17 +379,19 @@ public:
      */
     static rw::math::Rotation2D<> readRotation2D(rw::common::DOMElem::Ptr element, bool doCheckHeader = false);
 
+
     /**
-     * @brief Returns rw::math::Rotation3D<> element read from \b element
+     * @brief Returns rw::math::Rotation2D<> element read from \b element
      *
-     * Read in \b element and returns a rw::math::Rotation3D corresponding to the content.
-     * The content can be either a RPY, EAA, Quaternion or Rotation3D.
+     * Read in \b element and returns a rw::math::Rotation2D corresponding to the content.
+     * The content can be either a Rotation3D or and angle.
      * If the name does not an exception is thrown.
      *
      * @param element [in] Element to read
      * @return The element read
      */
-    static rw::math::Rotation3D<> readRotation3DStructure(rw::common::DOMElem::Ptr element);
+    static rw::math::Rotation2D<> readRotation2DStructure(rw::common::DOMElem::Ptr element);
+
 
     /**
      * @brief Returns rw::math::Transform3D<> element read from \b element
@@ -281,6 +405,20 @@ public:
      * @return The element read
      */
     static rw::math::Transform3D<> readTransform3D(rw::common::DOMElem::Ptr element, bool doCheckHeader = false);
+
+    /**
+     * @brief Returns rw::math::Transform2D<> element read from \b element
+     *
+     * Read in \b element and returns a rw::math::Transform2D<> corresponding to the content.
+     * If \b doCheckHeader = true it checks that the elements tag name matches Transform2D.
+     * If the name does not an exception is thrown.
+     *
+     * @param element [in] Element to read
+     * @param doCheckHeader [in] True if the header name should be checked
+     * @return The element read
+     */
+    static rw::math::Transform2D<> readTransform2D(rw::common::DOMElem::Ptr element, bool doCheckHeader = false);
+
 
     /**
      * @brief Returns rw::math::VelocityScrew6D<> element read from \b element
@@ -310,7 +448,7 @@ public:
      * @return The State read from \b element
      */
     static rw::kinematics::State readState(rw::common::DOMElem::Ptr element,
-		rw::models::WorkCell::Ptr workcell,
+		rw::common::Ptr<rw::models::WorkCell> workcell,
 		bool doCheckHeader = false);
 
     /**
@@ -587,6 +725,19 @@ public:
      * @param doc [in] Document which should contain the element
      * @return Pointer to the newly created DOMElement
      */
+    static rw::common::DOMElem::Ptr createPos(const rw::math::Vector3D<>& v, rw::common::DOMElem::Ptr doc);
+
+    /**
+     * @brief Creates a DOMElement to represent \b v
+     *
+     * Creates a DOMElement owned by \b doc and representing \b v
+     *
+     * This method may throw a rw::common::Exception in case of errors
+     *
+     * @param v [in] Value to represent
+     * @param doc [in] Document which should contain the element
+     * @return Pointer to the newly created DOMElement
+     */
     static rw::common::DOMElem::Ptr createVector2D(const rw::math::Vector2D<>& v, rw::common::DOMElem::Ptr doc);
 
     /**
@@ -668,6 +819,21 @@ public:
      * @return Pointer to the newly created DOMElement
      */
     static rw::common::DOMElem::Ptr createTransform3D(const rw::math::Transform3D<>& trans, rw::common::DOMElem::Ptr doc);
+
+
+    /**
+     * @brief Creates a DOMElement to represent \b trans
+     *
+     * Creates a DOMElement owned by \b doc and representing \b trans
+     *
+     * This method may throw a rw::comon::Exception in case of errors
+     *
+     * @param trans [in] Value to represent
+     * @param doc [in] Document which should contain the element
+     * @return Pointer to the newly created DOMElement
+     */
+    static rw::common::DOMElem::Ptr createTransform2D(const rw::math::Transform2D<>& trans, rw::common::DOMElem::Ptr doc);
+
 
     /**
      * @brief Creates a DOMElement to represent \b vs
@@ -841,8 +1007,25 @@ public:
      */
     static rw::common::DOMElem::Ptr createStringPair(const std::string& first, const std::string& second, rw::common::DOMElem::Ptr doc);
 
+	/**
+	 * @brief Utility class which initializes local static variables.
+	 *
+	 * If the DOMBasisTypes is used outside main (as a part of global initialization/destruction), the Initializer
+	 * should be used explicitly to control the static initialization/destruction order.
+	 *
+	 * Notice that the Initializer is automatically defined as a global variable, hence it should not
+	 * be necessary to specify the initializer explicitly if DOMBasisTypes is to be used in local static
+	 * initialization/destruction.
+	 */
+	class Initializer {
+	public:
+	    //! @brief Initializes when constructed.
+		Initializer();
+	};
 
 private:
+	static const Initializer initializer;
+
     DOMBasisTypes() {};
 
     /*

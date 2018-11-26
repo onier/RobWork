@@ -21,10 +21,12 @@
 #include <rw/common/PropertyMap.hpp>
 #include <rw/common/PropertyBase.hpp>
 
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/dom/DOMElement.hpp>
-#include <xercesc/util/OutOfMemoryException.hpp>
-#include <xercesc/dom/DOMImplementationLS.hpp>
+#include <xercesc/util/XercesDefs.hpp>
+
+XERCES_CPP_NAMESPACE_BEGIN
+class DOMDocument;
+class DOMElement;
+XERCES_CPP_NAMESPACE_END
 
 namespace rw {
 namespace loaders {
@@ -110,7 +112,26 @@ public:
      * @return DOMDocument containing properties.
      */
     static xercesc::DOMDocument* createDOMDocument(const rw::common::PropertyMap& map);
+
+	/**
+	 * @brief Utility class which initializes local static variables.
+	 *
+	 * If the XMLPropertySaver is used outside main (as a part of global initialization/destruction), the Initializer
+	 * should be used explicitly to control the static initialization/destruction order.
+	 *
+	 * Notice that the Initializer is automatically defined as a global variable, hence it should not
+	 * be necessary to specify the initializer explicitly if XMLPropertySaver is to be used in local static
+	 * initialization/destruction.
+	 */
+	class Initializer {
+	public:
+	    //! @brief Initializes when constructed.
+		Initializer();
+	};
+
 private:
+	static const Initializer initializer;
+
     XMLPropertySaver() {};
 };
 

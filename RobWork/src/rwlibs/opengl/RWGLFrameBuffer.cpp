@@ -18,7 +18,6 @@
 #include "RWGLFrameBuffer.hpp"
 
 #include <rw/common/Log.hpp>
-#include <iostream>
 
 using namespace rw::common;
 using namespace rwlibs::opengl;
@@ -73,7 +72,7 @@ bool RWGLFrameBuffer::initialize() {
     glIsRenderbufferEXT                      = (PFNGLISRENDERBUFFEREXTPROC)wglGetProcAddress("glIsRenderbufferEXT");
     glRenderbufferStorageMultisampleEXT      = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)wglGetProcAddress("glRenderbufferStorageMultisampleEXT");
     glTexImage2DMultisample                  = (PFNGLTEXIMAGE2DMULTISAMPLEPROC)wglGetProcAddress("glTexImage2DMultisample");
-    glBlitFrameBufferEXT                     = (PFNGLBLITFRAMEBUFFEREXTPROC) wglGetProcAddress("glBlitFrameBufferEXT");
+    glBlitFrameBufferEXT                     = (PFNGLBLITFRAMEBUFFEREXTPROC) wglGetProcAddress("glBlitFramebufferEXT");
 
 #elif defined(RW_MACOS)
 

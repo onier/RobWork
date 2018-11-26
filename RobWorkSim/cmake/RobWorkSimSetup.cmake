@@ -75,18 +75,32 @@ ELSE ()
     SET(RWSIM_HAVE_SANDBOX false)
 ENDIF ()
 
+# Check if SWIG is available
+IF(RW_BUILD_WITH_SWIG AND NOT DEFINED SWIG_EXECUTABLE)
+    SET(SWIG_EXECUTABLE ${RW_BUILD_WITH_SWIG_CMD})
+ENDIF()
+FIND_PACKAGE(SWIG 1.3 QUIET)
+IF(SWIG_FOUND)
+    MESSAGE(STATUS "RobWorkSim: SWIG ${SWIG_VERSION} found!")
+ELSE()
+    MESSAGE(STATUS "RobWorkSim: SWIG not found!")
+ENDIF()
+
 INCLUDE(CMakeDependentOption)
 # optional compilation of sandbox
 SET(RWSIM_HAVE_LUA False)
 CMAKE_DEPENDENT_OPTION(RWSIM_DISABLE_LUA "Set when you want to disable lua!" OFF "RW_BUILD_WITH_LUA" ON)
 IF( NOT RWSIM_DISABLE_LUA )
-    IF (RW_BUILD_WITH_LUA)
+    IF(NOT SWIG_FOUND)
+        MESSAGE(STATUS "RobWorkSim: Lua DISABLED! - SWIG was not found!")
+        SET(RWSIM_HAVE_LUA False)
+    ELSEIF (RW_BUILD_WITH_LUA)
         MESSAGE(STATUS "RobWorkSim: Lua ENABLED!")
         SET(RWSIM_LUA "rwsim_lua")
         SET(RWSIM_HAVE_LUA True)
     ELSE ()
         MESSAGE(STATUS "RobWorkSim: Lua DISABLED! - RobWork is NOT compiled with Lua support! Set RWSIM_DISABLE_LUA=ON")
-        SET(RWSIM_HAVE_LUA False)    
+        SET(RWSIM_HAVE_LUA False)
     ENDIF ()
 ELSE ()
     MESSAGE(STATUS "RobWorkSim: Lua DISABLED!")
@@ -110,7 +124,7 @@ IF(NOT RWSIM_DISABLE_BULLET)
 
         # BULLET_LIBRARIES
         MESSAGE(STATUS "RobWorkSim: Bullet enabled and found.")
-        SET(RW_BULLET_INCLUDE_DIR ${BULLET_INCLUDE_DIR} ${BULLET_ROOT}/Demos/ )
+        SET(RW_BULLET_INCLUDE_DIR ${BULLET_INCLUDE_DIR})
     ELSE()
         SET(RWSIM_HAVE_BULLET FALSE)
         MESSAGE(SEND_ERROR "RobWorkSim: Bullet enabled but not found. Please setup BULLET_ROOT." ${RWSIM_USE_BULLET})
@@ -123,17 +137,22 @@ ENDIF()
 SET(RWSIM_HAVE_ODE False)
 FIND_PACKAGE(ODE QUIET)
 #MESSAGE("ODE_FOUND: ${ODE_FOUND} ")
-CMAKE_DEPENDENT_OPTION(RWSIM_DISABLE_ODE "Set when you want to disable ODE!" OFF "${ODE_FOUND}" ON)
+CMAKE_DEPENDENT_OPTION(RWSIM_DISABLE_ODE "Set when you want to disable ODE!" OFF "${ODE_FOUND};${RW_BUILD_WITH_PQP}" ON)
 #OPTION(RWSIM_USE_ODE "Set to ON if ODE should be use. you may need to set ODE_ROOT" ${RWSIM_USE_ODE})
 IF(NOT RWSIM_DISABLE_ODE)
     FIND_PACKAGE(ODE)
     IF(ODE_FOUND)
-    	SET(RWSIM_HAVE_ODE TRUE)
-    	#INCLUDE_DIRECTORIES( ${ODE_INCLUDE_DIR} )
-    	SET(RWSIM_ODE_LIBRARY rwsim_ode ${ODE_LIBRARIES})
-    	# ODE_LIBRARIES
-        MESSAGE(STATUS "RobWorkSim: ODE enabled and found. Using ${ODE_BUILD_WITH}")
-        SET(RW_ODE_INCLUDE_DIR ${ODE_INCLUDE_DIR} )
+    	IF (RW_BUILD_WITH_PQP)
+    		SET(RWSIM_HAVE_ODE TRUE)
+    		#INCLUDE_DIRECTORIES( ${ODE_INCLUDE_DIR} )
+    		SET(RWSIM_ODE_LIBRARY rwsim_ode ${ODE_LIBRARIES})
+    		# ODE_LIBRARIES
+        	MESSAGE(STATUS "RobWorkSim: ODE enabled and found. Using ${ODE_BUILD_WITH}")
+        	SET(RW_ODE_INCLUDE_DIR ${ODE_INCLUDE_DIR} )
+    	ELSE()
+        	SET(RWSIM_HAVE_ODE FALSE)
+        	MESSAGE(SEND_ERROR "RobWorkSim: ODE enabled but RobWork was not build with PQP. Please compile RobWork with PQP support.")
+    	ENDIF()
     ELSE()
         SET(RWSIM_HAVE_ODE FALSE)
         MESSAGE(SEND_ERROR "RobWorkSim: ODE enabled but not found. Please setup ODE_ROOT.")
@@ -177,12 +196,11 @@ ENDIF()
 # The compiler flags from RobWork are automatically set 
 #
 IF(NOT DEFINED RWSIM_CXX_FLAGS)
-  
-	SET(RWSIM_CXX_FLAGS ${RWSIM_CXX_FLAGS_TMP} 
+	SET(RWSIM_CXX_FLAGS "${RW_BUILD_WITH_CXX_FLAGS} ${RWSIM_CXX_FLAGS_TMP}" 
 		CACHE STRING "Change this to force using your own flags and not those of RobWorkSim"
 	)
 ENDIF()
-ADD_DEFINITIONS(${RWSIM_CXX_FLAGS})
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${RWSIM_CXX_FLAGS}")
 MESSAGE(STATUS "RobWorkSim: Adding RWSIM CXX flags: ${RWSIM_CXX_FLAGS}")
 
 #
@@ -231,9 +249,10 @@ SET(ROBWORKSIM_LIBRARY_DIRS
 # 
 SET(ROBWORKSIM_LIBRARIES
   ${RWS_SANDBOX}
-  rwsim
   ${RWSIM_BULLET_LIBRARY}
+  rwsim
   ${RWSIM_ODE_LIBRARY}
+  rwsim
   ${ROBWORK_LIBRARIES}
 )
  

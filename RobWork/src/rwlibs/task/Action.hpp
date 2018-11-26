@@ -111,6 +111,10 @@ public:
         return _actionType;
     }
 
+    /**
+     * @brief Make a copy of the action.
+     * @return new identical action.
+     */
     virtual rw::common::Ptr<Action> clone() {
     	return rw::common::ownedPtr(new Action(_actionType));
     }
@@ -119,12 +123,6 @@ private:
     int _actionType;
 };
 
-#ifdef RW_USE_DEPRECATED
-/**
- * @brief Definition of a rw::common::Ptr to an Action.
- */
-typedef rw::common::Ptr<Action> ActionPtr;
-#endif
 /** @} */
 
 } //end namespace task

@@ -23,11 +23,11 @@
  * @file kinematics/Kinematics.hpp
  */
 
-#include "Frame.hpp"
+#include <rw/kinematics/Frame.hpp>
 #include <rw/math/Transform3D.hpp>
+#include <map>
 
 namespace rw { namespace kinematics {
-
     class MovableFrame;
 
     /** @addtogroup kinematics */
@@ -101,8 +101,6 @@ namespace rw { namespace kinematics {
          *
          * @param root [in] The root node from where the frame search is started.
          *
-         * @param state [in] The structure of the tree.
-         *
          * @return All reachable frames.
          */
         static std::vector<Frame*> findAllFrames(Frame* root);
@@ -174,110 +172,65 @@ namespace rw { namespace kinematics {
         static std::map<std::string, kinematics::Frame*> buildFrameMap(kinematics::Frame* root,
                                                                        const kinematics::State& state);
 
-
-#ifdef RW_USE_DEPRECATED
-        /**
-           @brief Find the world frame of the workcell by traversing the path
-           from \b frame to the root of the tree.
-
-           The state \b state is needed to retrieve the parent frames, but the
-           world frame returned is the same for any (valid) state.
-        */
-        static Frame& worldFrame(Frame& frame, const State& state);
-
-        /**
-           @brief Find the world frame of the workcell by traversing the path
-           from \b frame to the root of the tree.
-
-           The state \b state is needed to retrieve the parent frames, but the
-           world frame returned is the same for any (valid) state.
-        */
-        static const Frame& worldFrame(const Frame& frame, const State& state);
-
-        /**
-         * @brief A map linking frame names to frames.
-         */
-        typedef std::map<std::string, kinematics::Frame*> FrameMap;
-
-        /**
-         * @brief A map linking frame names to frames.
-         *
-         * The map contains an entry for every frame below \b root in the tree with
-         * structure described by \b state.
-         *
-         * @param root [in] Root of the kinematics tree to search.
-         *
-         * @param state [in] The kinematics tree structure.
-         */
-        static FrameMap buildFrameMap(kinematics::Frame& root,
-                                      const kinematics::State& state);
-
-
-        /**
-           @brief True if \b frame is a DAF and false otherwise.
-        */
-        static bool isDAF(const Frame& frame);
-
-        static bool isFixedFrame(const Frame& frame);
-
-        /**
-           @brief Grip \b item with \b gripper thereby modifying \b state.
-
-           \b item must be a DAF and of type MovableFrame.
-
-           An exception is thrown if \b item is not of this type.
-        */
-		static void gripFrame(State& state, Frame& item, Frame& gripper);
-        /**
-           @brief Like gripFrame(), except the state is not modified but updated
-           and returned.
-         */
-        static State grippedFrame(const State& state, Frame& item, Frame& gripper);
-
-        /**
-           @brief Grip \b item with \b gripper thereby modifying \b state.
-
-           \b item must be a DAF.
-
-           An exception is thrown if \b item is not a DAF.
-
-           See also gripFrame().
-        */
-        static void gripMovableFrame(State& state, MovableFrame& item, Frame& gripper);
-
-        /**
-           @brief Like gripMovableFrame(), except the state is not modified but
-           updated and returned.
-
-           See also grippedFrame().
-        */
-        static State grippedMovableFrame(
-            const State& state, MovableFrame& item, Frame& gripper);
-
-
-#endif
-
         /**
            @brief True if \b frame is a DAF and false otherwise.
         */
         static bool isDAF(const Frame* frame);
 
+        /**
+         * @brief Check if frame is fixed.
+         * @param frame [in] the frame.
+         * @return true if fixed, false otherwise.
+         */
         static bool isFixedFrame(const Frame* frame);
 
+        /**
+         * @brief Grip \b item with \b gripper thereby modifying \b state.
+         *
+         * \b item must be a DAF.
+         *
+         * @param item [in] the frame to grip.
+         * @param gripper [in] the grasping frame.
+         * @param state [in/out] the state.
+         * @exception An exception is thrown if \b item is not a DAF.
+         * @see See also gripFrame(MovableFrame*, Frame*, State&).
+         */
 		static void gripFrame(Frame* item, Frame* gripper, State& state);
 
         /**
-           @brief Grip \b item with \b gripper thereby modifying \b state.
-
-           \b item must be a DAF.
-
-           An exception is thrown if \b item is not a DAF.
-
-           See also gripFrame().
+         * @brief Grip \b item with \b gripper thereby modifying \b state.
+         *
+         * \b item must be a DAF.
+         *
+         * @param item [in] the frame to grip.
+         * @param gripper [in] the grasping frame.
+         * @param state [in/out] the state.
+         * @exception An exception is thrown if \b item is not a DAF.
+         * @see See also gripFrame(Frame*, Frame*, State&).
         */
         static void gripFrame(MovableFrame* item, Frame* gripper, State& state);
 
-		static std::vector<FrameList> getStaticFrameGroups(Frame* root, const State& state);
+        /**
+         * @brief Get static frame groups.
+         *
+         * A static frame group consist of frames that are fixed with respect to the other frames in the group.
+         * A Dynamically Attachable Frame (DAF) or a MovableFrame will divide a static group.
+         * @param root [in] the root frame of the tree to search.
+         * @param state [in] containing information about the current tree state and the Dynamically Attachable Frames (DAF).
+         * @return vector with the frame groups.
+         */
+        static std::vector<FrameList> getStaticFrameGroups(Frame* root, const State& state);
+
+        /**
+         * @brief Get static frame groups.
+         *
+         * A static frame group consist of frames that are fixed with respect to the other frames in the group.
+         * A Dynamically Attachable Frame (DAF) or a MovableFrame will divide a static group.
+         * @param root [in] the root frame of the tree to search.
+         * @param state [in] containing information about the current tree state and the Dynamically Attachable Frames (DAF).
+         * @return vector with the frame groups.
+         */
+        static std::vector<ConstFrameList> getStaticFrameGroups(const Frame* root, const State& state);
     };
 
     /*@}*/

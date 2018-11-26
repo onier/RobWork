@@ -1,6 +1,7 @@
 #include "BeamJointController.hpp"
 
 #include <rw/common/macros.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
 
 using namespace rwsim::control;
 using namespace rwsim::dynamics;
@@ -37,7 +38,7 @@ void BeamJointController::setTargetVel(const rw::math::Q& vals){
 	_targetVel = vals;
 }
 
-void BeamJointController::setTargetAcc(const rw::math::Q& vals){};
+void BeamJointController::setTargetAcc(const rw::math::Q& vals){}
 
 
 double BeamJointController::getSampleTime(){

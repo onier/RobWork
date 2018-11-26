@@ -24,26 +24,28 @@
 #include <RobWorkSimConfig.hpp>
 #ifdef RWSIM_HAVE_ODE
 
-#include <rw/rw.hpp>
-#include <rwlibs/task.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
-
-//#include <rws/rws.hpp>
-#include <rwsim/rwsim.hpp>
+#include <rwsim/dynamics/KinematicBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
+#include <rwsim/loaders/DynamicWorkCellLoader.hpp>
+#include <rwsim/sensor/SimulatedFTSensor.hpp>
 #include <rwsimlibs/ode/ODESimulator.hpp>
 
-USE_ROBWORK_NAMESPACE
-RWSIM_USE_RWP_NAMESPACE
-using namespace std;
-using namespace robwork;
-using namespace rwp;
+using rw::common::ownedPtr;
+using rw::kinematics::State;
+using rw::math::Vector3D;
+using namespace rw::trajectory;
+
+using namespace rwsim::dynamics;
+using rwsim::loaders::DynamicWorkCellLoader;
+using rwsim::sensor::SimulatedFTSensor;
+using rwsim::simulator::ODESimulator;
 
 BOOST_AUTO_TEST_CASE( FTSensorTest )
 {
 	// load a scene with a FT sensor mounted in between a kinematic body and a dynamic
 	// place the kinematic body in different poses and pla
-    DynamicWorkCellLoader loader;
-    DynamicWorkCell::Ptr dwc = loader.load( testFilePath() + "/scene/sensors/single_object.dwc.xml" );
+    DynamicWorkCell::Ptr dwc = DynamicWorkCellLoader::load( testFilePath() + "/scene/sensors/single_object.dwc.xml" );
 
     ODESimulator::Ptr odesim = ownedPtr( new ODESimulator( dwc ) );
     State state = dwc->getWorkcell()->getStateStructure()->getDefaultState();
@@ -56,7 +58,6 @@ BOOST_AUTO_TEST_CASE( FTSensorTest )
     // test that the control interface works
     odesim->initPhysics(state);
     BOOST_CHECK_EQUAL(odesim->getTime(), 0.0 );
-    rw::loaders::PathLoader ploader;
     for(int i=0; i<1000; i++){
     	std::cout << i << "\t";
     	odesim->step(0.01, state);
@@ -66,7 +67,7 @@ BOOST_AUTO_TEST_CASE( FTSensorTest )
     	tpath.push_back( TimedState(odesim->getTime(),state));
 
     }
-    ploader.storeTimedStatePath(*dwc->getWorkcell(), tpath,"tpath.rwplay");
+    rw::loaders::PathLoader::storeTimedStatePath(*dwc->getWorkcell(), tpath,"tpath.rwplay");
 
 
 

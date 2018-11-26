@@ -1,9 +1,12 @@
 SET(SUBSYS_NAME rws_rwstudioapp)
 set(SUBSYS_DESC "A rwstudio application that may be started in a thread.")
-SET(SUBSYS_DEPS rws rws_jog rws_log rws_planning rws_playback rws_sensors rws_treeview)
+SET(SUBSYS_DEPS rws)
 
-IF( RWS_HAVE_LUA )
-    LIST(APPEND SUBSYS_DEPS rws_luaeditor rws_lua_s) 
+IF( RWS_USE_STATIC_LINK_PLUGINS )
+    LIST(APPEND SUBSYS_DEPS rws_jog rws_log rws_planning rws_playback rws_sensors rws_treeview rws_propertyview)
+	IF ( RWS_HAVE_LUA )
+    	LIST(APPEND SUBSYS_DEPS rws_luaeditor rws_luapl)
+    ENDIF() 
 ENDIF()
 
 SET(build TRUE)
@@ -18,7 +21,15 @@ IF(build)
     
     RWS_ADD_COMPONENT(${SUBSYS_NAME} plugins ${SrcFiles})
     RW_ADD_INCLUDES(plugins "rwslibs/rwstudioapp" ${SRC_FILES_HPP}) 
-    ADD_DEPENDENCIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
+    TARGET_LINK_LIBRARIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
+
+	IF(CMAKE_VERSION VERSION_GREATER 3.3)
+		SET_TARGET_PROPERTIES(${SUBSYS_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+	ENDIF()
+
+	IF(WIN32 AND MSVC AND PROJECT_LIB_TYPE AND CMAKE_VERSION VERSION_LESS 3.4)
+		MESSAGE(FATAL_ERROR "Building shared libraries on Windows requires CMake 3.4 or newer.")
+	ENDIF()
 ENDIF()
 
 

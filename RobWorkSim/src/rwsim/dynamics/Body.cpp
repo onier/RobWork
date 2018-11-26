@@ -17,12 +17,7 @@
 
 #include "Body.hpp"
 
-#include <boost/numeric/ublas/matrix.hpp>
-
-#include <rw/math/LinearAlgebra.hpp>
 #include <rw/kinematics/Kinematics.hpp>
-
-using namespace boost::numeric;
 
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -46,7 +41,7 @@ Body::Body(const BodyInfo& info, rw::models::Object::Ptr obj):
 
     }
 
-};
+}
 
 
 rw::math::Vector3D<> Body::getPointVelW(const rw::math::Vector3D<>& p, const rw::kinematics::State& state) const {

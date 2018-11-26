@@ -1,10 +1,12 @@
 #include "SupportPoseAnalyserDialog.hpp"
 
-#include <iostream>
+#include "RestingPoseDialog.hpp"
+#include "GLViewRW.hpp"
+
+#include <sstream>
+#include <fstream>
 
 #include <boost/foreach.hpp>
-
-#include <QGraphicsPixmapItem>
 
 #include "RWSimGuiConfig.hpp"
 
@@ -20,39 +22,37 @@
 #include <rw/math/Transform3D.hpp>
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Kinematics.hpp>
+#include <rwlibs/opengl/RenderFrame.hpp>
 
 #include <rwsim/dynamics/RigidBody.hpp>
 #include <rwsim/dynamics/DynamicUtil.hpp>
-
-#include <rwsim/simulator/PhysicsEngineFactory.hpp>
+#include <rwsim/dynamics/DynamicWorkCell.hpp>
 
 #include <rw/common/TimerUtil.hpp>
 #include <rw/common/Ptr.hpp>
-#include <rw/proximity/CollisionDetector.hpp>
-#include <rw/loaders/path/PathLoader.hpp>
+//#include <rw/proximity/CollisionDetector.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
 #include <rwlibs/opengl/Drawable.hpp>
-#include <rwsim/util/PointRANSACFitting.hpp>
-#include <rwsim/util/PlaneModel.hpp>
-#include <rwsim/util/DistModel.hpp>
 
 #include <rw/sensor/Image.hpp>
 #include <rw/sensor/ImageUtil.hpp>
-#include <rw/math/Constants.hpp>
 
-#include <rwsim/util/HughLineExtractor.hpp>
+#include <rwsim/drawable/RenderPoints.hpp>
+#include <rwsim/drawable/RenderPlanes.hpp>
+#include <rwsim/drawable/RenderCircles.hpp>
+
 #include <rwsim/util/CircleModel.hpp>
 
 #include <rwsim/util/PlanarSupportPoseGenerator.hpp>
 
-#include <rw/geometry/Geometry.hpp>
-#include <rwsim/sensor/TactileArraySensor.hpp>
-#include <rw/rw.hpp>
-#include <rwlibs/task.hpp>
+//#include <rw/geometry/Geometry.hpp>
 #include <rwlibs/algorithms/kdtree/KDTree.hpp>
 #include <rwlibs/algorithms/kdtree/KDTreeQ.hpp>
 
 #include "ui_SupportPoseAnalyserDialog.h"
+
+#include <QGraphicsPixmapItem>
+#include <QFileDialog>
 
 USE_ROBWORK_NAMESPACE
 using namespace std;
@@ -60,7 +60,6 @@ using namespace robwork;
 
 using namespace rwlibs::algorithms;
 using namespace rwsim::dynamics;
-using namespace rwsim::sensor;
 using namespace rwsim::util;
 using namespace rwsim::drawable;
 
@@ -68,14 +67,10 @@ using namespace rw::geometry;
 using namespace rw::math;
 using namespace rw::kinematics;
 using namespace rw::common;
-using namespace rw::proximity;
 using namespace rw::loaders;
 using namespace rw::trajectory;
 using namespace rwlibs::opengl;
 using namespace rw::sensor;
-
-
-#define RW_DEBUGS( str ) std::cout << str  << std::endl;
 
 namespace {
 
@@ -247,9 +242,6 @@ SupportPoseAnalyserDialog::SupportPoseAnalyserDialog(const rw::kinematics::State
 	//tabWidget->setTabEnabled(1,false);
 }
 
-#include <iostream>
-#include <fstream>
-
 void SupportPoseAnalyserDialog::btnPressed(){
     QObject *obj = sender();
     if( obj == _ui->_loadFromFileBtn ){
@@ -261,7 +253,8 @@ void SupportPoseAnalyserDialog::btnPressed(){
     	if(filename.empty())
     		return;
     	try{
-    		_path = PathLoader::loadTimedStatePath(*_wc,filename).release();
+                _path = ownedPtr(new rw::trajectory::TimedStatePath);
+    		*_path = PathLoader::loadTimedStatePath(*_wc,filename);
     	} catch(const Exception&) {
     		_path = NULL;
     		_ui->_dataLoadedLbl->setText("Load failed!");
@@ -274,7 +267,8 @@ void SupportPoseAnalyserDialog::btnPressed(){
     	if(filename.empty())
     		return;
     	try{
-    		_startPath = PathLoader::loadTimedStatePath(*_wc,filename).release();
+                _startPath = ownedPtr(new rw::trajectory::TimedStatePath);
+                *_startPath = PathLoader::loadTimedStatePath(*_wc,filename);
     	} catch(const Exception&) {
     		_startPath = NULL;
     		_ui->_dataLoadedLbl->setText("Load start poses failed!");
@@ -336,7 +330,7 @@ void SupportPoseAnalyserDialog::btnPressed(){
     	if(selectedObj==NULL) return;
 
     	// get triangle mesh of object
-    	std::vector<Geometry::Ptr> geoms = selectedObj->getGeometry();
+    	std::vector<rw::common::Ptr<Geometry> > geoms = selectedObj->getGeometry();
 
     	// add it to the planar support pose analyzer
     	PlanarSupportPoseGenerator gen;
@@ -658,7 +652,7 @@ void SupportPoseAnalyserDialog::changedEvent(){
 
 			// now add everything else
 			std::size_t pidx = 0;
-			for(std::size_t i=0;i<_startTransforms[bodyIdx].size(); i++){
+			for(std::size_t i = 0; i < (_startTransforms.size() > 0)? _startTransforms[bodyIdx].size() : 0; i++){
 			    if( pidx<poseIdxList.size() && (int)i==poseIdxList[pidx] ){
 			        pidx++;
 			        continue;

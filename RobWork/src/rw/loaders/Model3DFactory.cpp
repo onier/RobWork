@@ -15,14 +15,10 @@
  * limitations under the License.
  ********************************************************************************/
 
-#include <fstream>
-#include <cctype>
-
 #include <RobWorkConfig.hpp>
 
 #include "Model3DFactory.hpp"
 
-#include <rw/math/Constants.hpp>
 #include <rw/geometry/PointCloud.hpp>
 
 #include <rw/loaders/model3d/Loader3DS.hpp>
@@ -43,10 +39,8 @@
 #include <rw/loaders/GeometryFactory.hpp>
 #include <rw/loaders/model3d/STLFile.hpp>
 #include <string>
-#include <istream>
 #include <sstream>
 
-#include <sys/types.h>
 #include <sys/stat.h>
 
 using namespace rw;
@@ -80,7 +74,7 @@ namespace
     }
 }
 
-Model3D::Ptr Model3DFactory::getModel(const std::string& str, const std::string& name)
+Model3D::Ptr Model3DFactory::getModel(const std::string& str, const std::string& name, bool useCache)
 {
     if (getCache().isInCache(str,"")) {
         Model3D::Ptr res = ownedPtr( new Model3D( *getCache().get(str) ) );
@@ -91,7 +85,7 @@ Model3D::Ptr Model3DFactory::getModel(const std::string& str, const std::string&
         return constructFromGeometry(str, name);
     }
     else {
-        return loadModel(str, name);
+        return loadModel(str, name, useCache);
     }
 }
 
@@ -117,7 +111,7 @@ Model3DFactory::FactoryCache& Model3DFactory::getCache()
 	return cache;
 }
 
-Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const std::string& name)
+Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const std::string& name, bool useCache)
 {
     const std::string& filename = IOUtil::resolveFileName(raw_filename, extensions);
     const std::string& filetype = StringUtil::toUpper(StringUtil::getFileExtension(filename));
@@ -132,7 +126,7 @@ Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const st
     }
 
     std::string moddate = getLastModifiedStr(filename);
-    if ( getCache().isInCache(filename, moddate) ) {
+    if (useCache && getCache().isInCache(filename, moddate) ) {
         Model3D::Ptr res = ownedPtr( new Model3D( *getCache().get(filename) ) );
         res->setName( name );
         return res;
@@ -183,18 +177,21 @@ Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const st
         getCache().add(filename, model, moddate);
         return getCache().get(filename);
     } else if (filetype == ".OBJ") {
+        Model3D::Ptr model;
 #if RW_HAVE_ASSIMP
-        std::cout << "Using ASSIMP" << std::endl;
         LoaderAssimp loader;
-        Model3D::Ptr model = loader.load(filename);
-        getCache().add(filename, model, moddate);
-        return getCache().get(filename);
-#else
-        LoaderOBJ loader;
-        Model3D::Ptr model = loader.load(filename);
-        getCache().add(filename, model, moddate);
-        return getCache().get(filename);
+        try {
+        	model = loader.load(filename);
+        } catch(const Exception&) {
+        	RW_WARN("Assimp loader for .obj file failed. Trying internal RobWork loader instead.");
 #endif
+            LoaderOBJ loader;
+            model = loader.load(filename);
+#if RW_HAVE_ASSIMP
+        }
+#endif
+        getCache().add(filename, model, moddate);
+        return getCache().get(filename);
     /*
     } else if (filetype == ".IVG") {
     	LoaderIVG loader;
@@ -211,6 +208,12 @@ Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const st
         return getCache().get(filename);
 #endif
 	} else {
+    	if (Model3DLoader::Factory::hasModel3DLoader(filetype)) {
+    		const Model3DLoader::Ptr loader = Model3DLoader::Factory::getModel3DLoader(filetype);
+    		Model3D::Ptr model = loader->load(filename);
+    		getCache().add(filename, model, moddate);
+    		return getCache().get(filename);
+    	}
         RW_THROW(
             "Unknown extension "
             << StringUtil::quote(StringUtil::getFileExtension(filename))

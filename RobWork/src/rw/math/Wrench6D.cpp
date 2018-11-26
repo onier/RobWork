@@ -45,8 +45,8 @@ Wrench6D<T>::Wrench6D(const Vector3D<T>& force, const Vector3D<T>& torque) {
 }
 
 
-template class Wrench6D<double>;
-template class Wrench6D<float>;
+template class rw::math::Wrench6D<double>;
+template class rw::math::Wrench6D<float>;
 
 
 
@@ -66,9 +66,9 @@ namespace rw{ namespace common { namespace serialization {
     }
 
     // we need these to explicitly instantiate these functions
-    template<> void write( const rw::math::Wrench6D<double>& tmp, rw::common::OutputArchive& oar, const std::string& id ){writeImpl(tmp,oar,id);};
-    template<> void write( const rw::math::Wrench6D<float>& tmp, rw::common::OutputArchive& oar, const std::string& id ){writeImpl(tmp,oar,id);};
-    template<> void read(rw::math::Wrench6D<double>& tmp, rw::common::InputArchive& iar, const std::string& id){readImpl(tmp,iar,id);};
-    template<> void read(rw::math::Wrench6D<float>& tmp, rw::common::InputArchive& iar, const std::string& id){readImpl(tmp,iar,id);};
+    template<> void write( const rw::math::Wrench6D<double>& tmp, rw::common::OutputArchive& oar, const std::string& id ){writeImpl(tmp,oar,id);}
+    template<> void write( const rw::math::Wrench6D<float>& tmp, rw::common::OutputArchive& oar, const std::string& id ){writeImpl(tmp,oar,id);}
+    template<> void read(rw::math::Wrench6D<double>& tmp, rw::common::InputArchive& iar, const std::string& id){readImpl(tmp,iar,id);}
+    template<> void read(rw::math::Wrench6D<float>& tmp, rw::common::InputArchive& iar, const std::string& id){readImpl(tmp,iar,id);}
 
 }}}

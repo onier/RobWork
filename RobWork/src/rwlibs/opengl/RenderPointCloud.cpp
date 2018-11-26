@@ -19,11 +19,12 @@
 
 #include "RenderPointCloud.hpp"
 
+#include <rwlibs/os/rwgl.hpp>
+
 #include <boost/foreach.hpp>
 
 using namespace rw::math;
 using namespace rwlibs::opengl;
-using namespace rw::geometry;
 using namespace rw::graphics;
 
 

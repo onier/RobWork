@@ -1,5 +1,5 @@
 SET(SUBSYS_NAME rws_lua )
-SET(SUBSYS_DESC "Interface for accessing RobWorkSim from lua." )
+SET(SUBSYS_DESC "Interface for accessing RobWorkStudio from lua." )
 SET(SUBSYS_DEPS rw )
 
 # make sure that SDH can be found
@@ -30,21 +30,33 @@ IF( build )
 	SET_SOURCE_FILES_PROPERTIES(../rws.i PROPERTIES SWIG_FLAGS "-includeall")
 	
 	# lua interface generation
-    SWIG_ADD_MODULE(rws_lua lua ../rws.i Lua.cpp ../ScriptTypes.cpp)
-    SWIG_LINK_LIBRARIES(rws_lua rws rws_rwstudioapp
-                ${RWS_COMPONENT_LIBRARIES} 
-                ${RWS_PLUGIN_LIBRARIES} 
-                ${ROBWORKSTUDIO_LIBRARIES} 
+	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
+		SWIG_ADD_LIBRARY(rws_lua TYPE MODULE LANGUAGE lua SOURCES ../rws.i Lua.cpp ../ScriptTypes.cpp)
+	ELSE()
+		SWIG_ADD_MODULE(rws_lua lua ../rws.i Lua.cpp ../ScriptTypes.cpp)
+	ENDIF()
+    SWIG_LINK_LIBRARIES(rws_lua
+                ${RWS_COMPONENT_LIBRARIES}
+                ${RWS_PLUGIN_LIBRARIES}
+                rws
                 ${ROBWORK_LIBRARIES}
-                ${BOOST_LIBRARIES})
-    
-    ADD_DEPENDENCIES(rws_lua rws_luaeditor rws_rwstudioapp)
-    
-    ADD_LIBRARY(rws_lua_s STATIC ${swig_generated_sources} ${swig_other_sources})
-    LINK_LIBRARIES(rws_lua_s rws ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES})
-    
-    ADD_DEPENDENCIES(rws_lua_s rws LuaEditorWindow)
-    
+    )
+    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+      SET_TARGET_PROPERTIES(${SWIG_MODULE_rws_lua_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+    ENDIF()
+
+    IF ((CMAKE_VERSION VERSION_GREATER 3.12.0) OR (CMAKE_VERSION VERSION_EQUAL 3.12.0))
+        SWIG_ADD_LIBRARY(rws_lua_s TYPE STATIC LANGUAGE lua SOURCES ../rws.i Lua.cpp ../ScriptTypes.cpp)
+    ELSE()
+        ADD_LIBRARY(rws_lua_s STATIC ${swig_generated_sources} ${swig_other_sources})
+    ENDIF()
+    TARGET_LINK_LIBRARIES(rws_lua_s
+                ${RWS_COMPONENT_LIBRARIES}
+                ${RWS_PLUGIN_LIBRARIES}
+                rws
+                ${ROBWORK_LIBRARIES}
+    )
+
     SET(ENV{RWS_COMPONENT_LIBRARIES} "$ENV{RWS_COMPONENT_LIBRARIES}rws_lua_s;")
     #MESSAGE("${ROBWORKSTUDIO_LIBRARIES} \n ROBWORK ${ROBWORK_LIBRARIES}" )
     # this is used to indicate static linking to Visual Studio or mingw 
@@ -57,7 +69,10 @@ IF( build )
     	
     	
 	ADD_LIBRARY(rwslua_plugin.rwplugin MODULE LuaPlugin.cpp LuaPlugin.hpp)
-    TARGET_LINK_LIBRARIES(rwslua_plugin.rwplugin rws_lua_s rws_rwstudioapp ${RWS_PLUGIN_LIBRARIES} ${ROBWORKSTUDIO_LIBRARIES})
+    TARGET_LINK_LIBRARIES(rwslua_plugin.rwplugin rws_lua_s ${ROBWORK_LIBRARIES})
+    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+      SET_TARGET_PROPERTIES(rwslua_plugin.rwplugin PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+    ENDIF()
 	
 	
 ENDIF()

@@ -25,16 +25,13 @@
 
 #include <string>
 #include <vector>
-#include <map>
-#include <sstream>
-#include <iostream>
 
 #include <rw/common/LogWriter.hpp>
-#include <rw/common/Message.hpp>
 #include <rw/common/Ptr.hpp>
 
 namespace rw { namespace common {
     class Log;
+    class Message;
 
 
 	/** @addtogroup common */
@@ -117,6 +114,11 @@ namespace rw { namespace common {
     		User7=12, User8=13
     	};
 
+    	/**
+    	 * @brief Convert a LogIndex to a mask.
+    	 * @param idx [in] the LogIndex.
+    	 * @return the mask enabling the given log level.
+    	 */
         static LogIndexMask toMask(LogIndex idx){
                 LogIndexMask toMaskArr[] = {FatalMask, CriticalMask,
                                           ErrorMask, WarningMask,
@@ -242,7 +244,7 @@ namespace rw { namespace common {
          * RW_LOG(Log::Info, "Message send to User log 1");
          * \endcode
          *
-         * @param id [in] the LogIndex that the logwriter is associated with.
+         * @param mask [in] the LogIndexMask that the logwriter is associated with.
          * @param writer [in] LogWriter object to use
          */
 		void setWriterForMask(int mask, LogWriter::Ptr writer);
@@ -318,9 +320,10 @@ namespace rw { namespace common {
 		 */
 		void removeAll();
 
-
+		//! @brief Make indentation to make logs easier to read.
 		void increaseTabLevel();
 
+		//! @brief Decrease the indentation.
 		void decreaseTabLevel();
 
 
@@ -401,7 +404,7 @@ namespace rw { namespace common {
        /**
          * @brief Checks if the given LogIndex is enabled. This can be used to
          * determine if a certain log level will be displayed or not.
-         * @param loglevel [in] the level
+         * @param idx [in] the level
          */
         bool isEnabled(LogIndex idx) {
             if(idx<=_loglevel)
@@ -439,11 +442,6 @@ namespace rw { namespace common {
 
 
     };
-
-#ifdef RW_USE_DEPRECATED
-    //! deprecated smart pointer
-    typedef rw::common::Ptr<Log> LogPtr;
-#endif 
 
     /*@}*/
 }} // end namespaces

@@ -19,19 +19,26 @@
 #ifndef RWLIBS_PATHOPTIMIZATION_CLEARANCEOPTIMIZATION_HPP
 #define RWLIBS_PATHOPTIMIZATION_CLEARANCEOPTIMIZATION_HPP
 
+#include <RobWorkConfig.hpp>
+
 #include <rw/common/PropertyMap.hpp>
 #include <rw/trajectory/Path.hpp>
 #include <rw/math/Metric.hpp>
-#include <rw/models/Device.hpp>
-#include <rw/models/WorkCell.hpp>
-#include <rw/kinematics/State.hpp>
-#include <rw/proximity/DistanceCalculator.hpp>
+//#include <rw/models/WorkCell.hpp>
 
-#include "ClearanceCalculator.hpp"
+#ifndef RW_HAVE_OMP
 #include <list>
+#else
+#include <vector>
+#endif
+
+namespace rw { namespace kinematics { class State; } }
+namespace rw { namespace models { class Device; } }
+namespace rw { namespace pathplanning { class StateConstraint; class QConstraint; } }
 
 namespace rwlibs {
 namespace pathoptimization {
+	class ClearanceCalculator;
 
     /** @addtogroup pathoptimization */
     /*@{*/
@@ -51,25 +58,32 @@ namespace pathoptimization {
  */
 class ClearanceOptimizer {
 public:
+	//! @brief smart pointer type to this class
+	typedef rw::common::Ptr<ClearanceOptimizer> Ptr;
+	//! @brief smart pointer type to this const class
+	typedef rw::common::Ptr< const ClearanceOptimizer > CPtr;
 
-
-
+    /**
+     * @brief Deleted default constructor.
+     * 
+     * @todo Implement required functionality (setters) for this to be usable.
+     */
+    ClearanceOptimizer() = delete;
+    
     /**
      * @brief Constructs clearance optimizer
      *
-     * The clearance optimizer currently assumes the configuration space of the device is rectangular.          �
+     * The clearance optimizer currently assumes the configuration space of the device is rectangular.
      *
-     * @param workcell [in] WorkCell to use
      * @param device [in] Device to plan for
      * @param state [in] State containing position of all other devices and how frames are assembled.
      * @param metric [in] Metric to use for computing distance betweem configurations
      * @param clearanceCalculator [in] Calculator for calculating the clearance
      */
-	ClearanceOptimizer(rw::models::WorkCell::Ptr workcell,
-		rw::models::Device::Ptr device,
+	ClearanceOptimizer(const rw::common::Ptr< const rw::models::Device >& device,
 		const rw::kinematics::State& state,
-		rw::math::QMetric::Ptr metric,
-		ClearanceCalculatorPtr clearanceCalculator);
+		const rw::math::QMetric::CPtr& metric,
+		const rw::common::Ptr< const ClearanceCalculator >& clearanceCalculator);
 
     /**
      * @brief Destructor
@@ -86,7 +100,7 @@ public:
 	 * @param path [in] Path to optimize
 	 * @param stepsize [in] Maximum size between configurations in the dense path
      * @param maxcount [in] Number of time to attempt optimizing the path using the random direction. If \b maxcount=0 only the maxtime will be used.
-	 * @param maxtime [in] The maximal time allowed to optimize. If \b maxtime=0 only the \b maxcount will be used
+	 * @param maxtime [in] The maximal time allowed to optimize. If \b maxtime<=0 only the \b maxcount will be used
 	 * @return The optimized path with node no further than \b stepsize apart
 	 */
 	rw::trajectory::QPath optimize(const rw::trajectory::QPath& path,
@@ -104,18 +118,68 @@ public:
 	 */
 	rw::trajectory::QPath optimize(const rw::trajectory::QPath& path);
 
-   //!Property key for the maximal number of loops. Set LOOPCOUNT=0 to deactivate it
+    //! Property key for the maximal number of loops. Set LOOPCOUNT=0 to deactivate it
     static const std::string PROP_LOOPCOUNT;
-    //!Property key for max time. Set MAXTIME=0 to deactivate it
+    //! Property key for max time. Set MAXTIME=0 to deactivate it
     static const std::string PROP_MAXTIME;
-    //!Property key for step size
+    //! Property key for step size
     static const std::string PROP_STEPSIZE;
 
     /**
-     * @brief Returns the PropertyMap associated with the optimizer
+     * @brief Returns the PropertyMap associated with the optimizer.
+     *
+     * The PropertyMap defines the following parameters used by the optimizer:
+	 *
+	 *  Property Name                      | Type   | Default value
+	 *  ---------------------------------- | ------ | -------------
+	 *  ClearanceOptimizer::PROP_LOOPCOUNT | int    | 20
+	 *  ClearanceOptimizer::PROP_MAXTIME   | double | 200
+	 *  ClearanceOptimizer::PROP_STEPSIZE  | double | 0.1
+	 *
      * @return The PropertyMap
      */
 	rw::common::PropertyMap& getPropertyMap();
+
+    /**
+     * @brief Returns the ClearanceCalculator associated with the optimizer.
+     *
+     * @return Const reference to the ClearanceCalculator.
+     */
+    const rw::common::Ptr< const ClearanceCalculator>& getClearanceCalculator() const;
+    
+	/**
+	 * @brief Sets the minimum clearance optimized for.
+     * Points on the path with clearance greater than \b _minClearance are not optimized further.
+     * Class default value is 0.1 meters.
+     * Value must be equal to or greater than zero.
+	 *
+	 * @param dist [in] Minimum clearance.
+	 */
+    void setMinimumClearance(const double dist);
+    
+    /**
+     * @brief Returns the minimum clearance optimized for.
+     * @return The minimum clearance.
+     */
+    double getMinimumClearance() const;
+
+	/**
+	* @brief Set a state constraint in the clearance optimizer.
+	*
+	* The optimizer will not generate a path with configurations that is in collision according to the state constraint.
+	*
+	* @param stateConstraint [in] the constraint.
+	*/
+	void setStateConstraint(const rw::common::Ptr< const rw::pathplanning::StateConstraint >& stateConstraint);
+
+	/**
+	* @brief Set a configuration constraint in the clearance optimizer.
+	*
+	* The optimizer will not generate a path with configurations that is in collision according to the constraint.
+	*
+	* @param qConstraint [in] the constraint.
+	*/
+	void setQConstraint(const rw::common::Ptr< const rw::pathplanning::QConstraint >& qConstraint);
 
 private:
 
@@ -123,10 +187,11 @@ private:
     typedef std::pair<rw::math::Q, double> AugmentedQ;
 
     //Path of AugmentedQ's
-    typedef std::list<AugmentedQ > AugmentedPath;
-
-    //Returns whether a q is valid, that is within bounds
-	bool isValid(const rw::math::Q& q);
+#ifndef RW_HAVE_OMP
+	typedef std::list<AugmentedQ > AugmentedPath;
+#else
+	typedef std::vector<AugmentedQ > AugmentedPath;
+#endif
 
 	//Calculated the clearance for a configuration q
 	double clearance(const rw::math::Q& q);
@@ -138,31 +203,35 @@ private:
 	AugmentedPath validatePath(const AugmentedPath& newPath, const AugmentedPath& orgPath);
 
 	//Removed branches
-	void removeBranches(AugmentedPath& path);
+	void removeBranches(AugmentedPath& path) const;
 
 	//Calculates the avarage clearance of the path
-	double calcAvgClearance(const AugmentedPath& path);
+	double calcAvgClearance(const AugmentedPath& path) const;
 
 	//Performs an interpolator of two configurations.
-	rw::math::Q interpolate(const rw::math::Q& q1, const rw::math::Q& q2, double ratio);
+	rw::math::Q interpolate(const rw::math::Q& q1, const rw::math::Q& q2, double ratio) const;
 
 	//Returns a random direction
-	rw::math::Q randomDirection();
+	rw::math::Q randomDirection() const;
 
 	rw::common::PropertyMap _propertymap;
 
-	rw::models::WorkCell::Ptr _workcell;
-	rw::models::Device::Ptr _device;
+	//rw::models::WorkCell::Ptr _workcell;
+	rw::common::Ptr< const rw::models::Device > _device = nullptr;
 	rw::kinematics::State _state;
-	rw::math::QMetric::Ptr _metric;
-	ClearanceCalculatorPtr _clearanceCalculator;
+	rw::math::QMetric::CPtr _metric = nullptr;
+	rw::common::Ptr< const ClearanceCalculator> _clearanceCalculator = nullptr;
 	double _stepsize;
-	size_t _maxcount;
 	size_t _dof;
 
-	rw::math::Q _qupper;
-	rw::math::Q _qlower;
-
+	//! @brief Value determining the clearance needed for a path being OK.
+    double _minClearance = 0.1;
+	//! @brief Used to determine if a state is allowed or not.
+	rw::common::Ptr< const rw::pathplanning::StateConstraint > _stateConstraint = nullptr;
+	//! @brief Used to determine if a configuration is allowed or not.
+	rw::common::Ptr< const rw::pathplanning::QConstraint > _qConstraintUser = nullptr;
+	//! @brief Used to determine if a configuration is within device limits.
+	rw::common::Ptr< const rw::pathplanning::QConstraint > _qConstraint = nullptr;
 };
 
 /** @} */

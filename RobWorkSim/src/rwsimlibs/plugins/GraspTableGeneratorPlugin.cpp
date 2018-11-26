@@ -1,26 +1,29 @@
 #include "GraspTableGeneratorPlugin.hpp"
 
-#include <iostream>
-#include <fstream>
+#include <sstream>
 #include <string>
 
+#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
-#include <boost/filesystem/operations.hpp>
 
-#include <rw/rw.hpp>
+#include <rw/loaders/dom/DOMPropertyMapLoader.hpp>
+#include <rw/loaders/dom/DOMPropertyMapSaver.hpp>
 
 #include <rws/RobWorkStudio.hpp>
 
+#include <rwsim/dynamics/DynamicWorkCell.hpp>
 #include <rwsim/dynamics/RigidBody.hpp>
-#include <rwsim/simulator/PhysicsEngineFactory.hpp>
-#include <rwsim/loaders/ScapePoseFormat.hpp>
-#include <rwsim/sensor/TactileArraySensor.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
+#include <rwsim/simulator/DynamicSimulator.hpp>
 
 #include <rwsim/util/GraspPolicyFactory.hpp>
 #include <rwsim/util/GraspStrategyFactory.hpp>
 
 #include "ui_GraspTableGeneratorPlugin.h"
 
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QTimer>
 
 using namespace rwsim::dynamics;
 using namespace rwsim::simulator;
@@ -40,8 +43,6 @@ using namespace rw::geometry;
 using namespace rw::graspplanning;
 using namespace rwlibs::simulation;
 
-namespace bfs=boost::filesystem;
-
 using namespace boost::numeric::ublas;
 
 #define RW_DEBUGS( str ) std::cout << str  << std::endl;
@@ -56,9 +57,9 @@ namespace {
 	class TimeLabel {
 		TimeLabel(){}
 
-		void setTimeInMs(long val){ ms=val; };
-		void setTimeInSec(long val){ ms=val*1000;};
-		void setTimeInMin(long val){ ms=val*1000*60;};;
+		void setTimeInMs(long val){ ms=val; }
+		void setTimeInSec(long val){ ms=val*1000;}
+		void setTimeInMin(long val){ ms=val*1000*60;}
 
 		std::string toString(){
 			//long sec;
@@ -217,7 +218,7 @@ void GraspTableGeneratorPlugin::loadConfiguration(const std::string& file){
 
     PropertyMap map;
     try {
-        map = XMLPropertyLoader::load(configFile);
+        map = DOMPropertyMapLoader::load(configFile);
     } catch (const Exception& exp) {
         QMessageBox::information(
             NULL,
@@ -383,7 +384,7 @@ void GraspTableGeneratorPlugin::saveConfiguration(const std::string& file){
     }
 
     if(!filename.isEmpty()){
-    	XMLPropertySaver::save(_config, filename.toStdString());
+    	DOMPropertyMapSaver::save(_config, filename.toStdString());
     }
 }
 
@@ -466,6 +467,8 @@ void GraspTableGeneratorPlugin::startTableGeneration(){
 
 
 #if 0
+#include <rwsim/loaders/ScapePoseFormat.hpp>
+#include <rwsim/sensor/TactileArraySensor.hpp>
 namespace {
 
 	std::vector<matrix<float> > getTactileData(const std::vector<SimulatedSensorPtr>& sensors){
@@ -1137,5 +1140,6 @@ void GraspTableGeneratorPlugin::genericEventListener(const std::string& event){
 #endif
 
 #if !RWS_USE_QT5
-Q_EXPORT_PLUGIN(GraspTableGeneratorPlugin);
+#include <QtCore/qplugin.h>
+Q_EXPORT_PLUGIN(GraspTableGeneratorPlugin)
 #endif

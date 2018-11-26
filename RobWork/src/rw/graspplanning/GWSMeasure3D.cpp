@@ -16,12 +16,12 @@
  ********************************************************************************/
 
 #include "GWSMeasure3D.hpp"
+#include "Grasp3D.hpp"
 
 #include <rw/math/EAA.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Constants.hpp>
 #include <boost/foreach.hpp>
-#include <iostream>
 
 using namespace rw::math;
 using namespace rw::geometry;
@@ -58,7 +58,7 @@ namespace {
 
         EAA<> eaa(unormal, 2*Pi/resolution );
         Rotation3D<> rot( eaa.toRotation3D() );
-        for(int i=0; i<resolution-1; i++){
+        for(int i=0; i<resolution; i++){
             coneVerts.push_back(fnormal+P);
             P = rot*P;
         }
@@ -68,10 +68,12 @@ namespace {
 }
 
 GWSMeasure3D::GWSMeasure3D(int resolution, bool useUnitVectors):
-    _chullCalculator( rw::common::ownedPtr(new QHullND<6>() ) ),
-    _resolution(resolution),
-    _useUnitVectors(useUnitVectors),
-    _lambda(1.0/0.1)
+	_chullCalculator( rw::common::ownedPtr(new QHullND<6>() ) ),
+	_resolution(resolution),
+	_isInside(false),
+	_minWrench(false), _avgWrench(false), _avgCenterWrench(false), _avgOriginWrench(false),
+	_useUnitVectors(useUnitVectors),
+	_lambda(1.0/0.1)
 {
 }
 

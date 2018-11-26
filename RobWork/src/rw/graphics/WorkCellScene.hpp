@@ -133,8 +133,9 @@ namespace graphics {
          * @brief enables the drawing of the frame-axis of a frame.
          * @param visible [in] true if frame axis should be drawn, false otherwise
          * @param f [in] the frame
+         * @param size [in] size of the frame-axis (default = 0.25)
          */
-        void setFrameAxisVisible(bool visible, rw::kinematics::Frame* f);
+        void setFrameAxisVisible(bool visible, rw::kinematics::Frame* f, double size = 0.25);
 
         /**
          * @brief test if frame-axis is visible
@@ -197,7 +198,7 @@ namespace graphics {
          * @param dmask [in] the drawable mask
          * @return the drawable node geometry
          */
-        DrawableGeometryNode::Ptr addGeometry(const std::string& name, rw::geometry::Geometry::Ptr geom, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
+        DrawableGeometryNode::Ptr addGeometry(const std::string& name, rw::common::Ptr<rw::geometry::Geometry> geom, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
 
         /**
          * @brief create and add a drawable node of a frame axis to the scene
@@ -217,7 +218,7 @@ namespace graphics {
          * @param dmask [in] the drawable mask
          * @return the drawable node geometry
          */
-        DrawableNode::Ptr addModel3D(const std::string& name, Model3D::Ptr model, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
+        DrawableNode::Ptr addModel3D(const std::string& name, rw::common::Ptr<class Model3D> model, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
 
         /**
          * @brief create and add a drawable node of an image to the scene
@@ -248,7 +249,7 @@ namespace graphics {
          * @param dmask [in] the drawable mask
          * @return the drawable node
          */
-        DrawableNode::Ptr addRender(const std::string& name, rw::graphics::Render::Ptr render, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
+        DrawableNode::Ptr addRender(const std::string& name, rw::common::Ptr<class Render> render, rw::kinematics::Frame* frame, int dmask=DrawableNode::Physical);
 
         /**
          * @brief create and add a drawable node from a filename to the scene
@@ -265,7 +266,7 @@ namespace graphics {
          * @param drawable [in] the drawable
          * @param frame [in] the frame where the drawable is to be placed
          */
-        void addDrawable(DrawableNode::Ptr drawable, rw::kinematics::Frame*);
+        void addDrawable(DrawableNode::Ptr drawable, rw::kinematics::Frame* frame);
 
         /**
          * @brief get all drawables of the WorkCellScene
@@ -299,6 +300,7 @@ namespace graphics {
         /**
          * @brief find a drawable by name \b name that is attached to frame \b frame
          * @param name [in] the name of the drawable
+         * @param frame [in] search only the subtree beginning from this frame.
          * @return a drawable with name \b name or NULL if no such drawable exist in the scene
          */
         DrawableNode::Ptr findDrawable(const std::string& name, const rw::kinematics::Frame* frame);
@@ -361,6 +363,11 @@ namespace graphics {
          */
         rw::kinematics::Frame* getFrame(DrawableNode::Ptr d) const;
 
+        /**
+         * @brief Get the GroupNode corresponding to the given \b frame.
+         * @param frame [in] the frame.
+         * @return group node.
+         */
         rw::graphics::GroupNode::Ptr getNode(const rw::kinematics::Frame* frame) const;
 
     private:
@@ -391,10 +398,8 @@ namespace graphics {
         //! mapping from frame to all its drawables, 1:many
         std::map<const rw::kinematics::Frame*, std::vector<DrawableNode::Ptr> > _frameDrawableMap;
 
-        std::map<rw::common::Ptr<rw::models::DeformableObject>, std::vector<Model3D::Ptr>  > _deformableObjectsMap;
+        std::map<rw::common::Ptr<rw::models::DeformableObject>, std::vector<rw::common::Ptr<class Model3D> >  > _deformableObjectsMap;
 
-        //! the drawable used to draw the frame axis
-        DrawableNode::Ptr _frameAxis;
         //! world node
         GroupNode::Ptr _worldNode;
     };

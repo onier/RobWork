@@ -19,7 +19,7 @@ IF(build)
       ./xqpcontroller/NullSpaceProjection.cpp
       ./gpm/BasicGPM.cpp
       BFGS.cpp
-      
+       
       MovingAverage.cpp
       #StablePlanePose.cpp
       RANSACModel.cpp
@@ -29,6 +29,7 @@ IF(build)
       PlaneModel.cpp
       StablePose1DModel.cpp
       StablePose0DModel.cpp
+	  PointPairsRegistration.cpp
     )
     
     SET(SRC_FILES_HPP
@@ -51,12 +52,17 @@ IF(build)
       StructuredLineModel.hpp
       PlaneModel.hpp
       StablePose1DModel.hpp
-      StablePose0DModel.cpp
+      StablePose0DModel.hpp
+	  PointPairsRegistration.hpp
     )
     
     RW_ADD_LIBRARY(${SUBSYS_NAME} algorithms ${SRC_FILES} ${SRC_FILES_HPP})
     RW_ADD_INCLUDES(algorithms "rwlibs/algorithms" MovingAverage.hpp StablePlanePose.hpp)
     RW_ADD_INCLUDE_DIRS(algorithms "rwlibs/algorithms" kdtree qpcontroller xqpcontroller gpm) 
-    TARGET_LINK_LIBRARIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
+    TARGET_LINK_LIBRARIES(${SUBSYS_NAME} PUBLIC ${SUBSYS_DEPS})
     ADD_DEPENDENCIES(${SUBSYS_NAME} ${SUBSYS_DEPS})
+
+	IF(CMAKE_VERSION VERSION_GREATER 3.3)
+		SET_TARGET_PROPERTIES(${SUBSYS_NAME} PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+	ENDIF()
 ENDIF()

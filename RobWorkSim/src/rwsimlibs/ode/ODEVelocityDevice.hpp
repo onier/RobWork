@@ -23,15 +23,14 @@
 
 #include <vector>
 
-#include "ODEJoint.hpp"
 #include <rw/math/Q.hpp>
 #include <rwsim/dynamics/RigidDevice.hpp>
-#include "ODEJoint.hpp"
 #include "ODEDevice.hpp"
 
 namespace rwsim {
 namespace simulator {
     class ODESimulator;
+	class ODEJoint;
     /**
      * @brief A bridge between the RW RigidDevice and a set
      * of connected joints and rigid bodies.
@@ -75,17 +74,10 @@ namespace simulator {
 		 */
 		void postUpdate(rw::kinematics::State& state);
 
-        std::vector<ODEBody*> getBodies(){ return _ode_bodies; };
-		/**
-		 *
-		 * @param rdev
-		 * @param base
-		 * @return
-		 */
-		static ODEVelocityDevice* makeDevice(dynamics::RigidDevice *rdev,
-											dBodyID base,
-											dSpaceID space,
-											dWorldID worldId);
+		//! @copydoc ODEDevice::getBodies
+        std::vector<ODEBody*> getBodies(){ return _ode_bodies; }
+
+		//static ODEVelocityDevice* makeDevice(dynamics::RigidDevice *rdev, dBodyID base, dSpaceID space, dWorldID worldId);
 	private:
 		void init(dynamics::RigidDevice *rdev,
 		          const rw::kinematics::State &state,

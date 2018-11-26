@@ -17,16 +17,14 @@
 
 #include "ControllerModel.hpp"
 
-#include <rw/kinematics/Frame.hpp>
-
 using namespace rw::models;
 using namespace rw::kinematics;
 
-ControllerModel::ControllerModel(const std::string& name, kinematics::Frame* frame,
+ControllerModel::ControllerModel(const std::string& name, Frame* frame,
 		const std::string& description) :
 		_name(name), _description(description), _frame(frame) {
 }
 
-ControllerModel::ControllerModel(const std::string& name, kinematics::Frame* frame) :
+ControllerModel::ControllerModel(const std::string& name, Frame* frame) :
 		_name(name), _frame(frame) {
 }

@@ -20,8 +20,9 @@
 
 #include <rw/pathplanning/QEdgeConstraintIncremental.hpp>
 #include <rw/common/macros.hpp>
-#include <rw/math/Math.hpp>
-#include <rw/math/MetricUtil.hpp>
+#include <rw/math/Random.hpp>
+#include <rw/pathplanning/QSampler.hpp>
+#include <rw/pathplanning/StopCriteria.hpp>
 
 #include <cmath>
 #include <cassert>
@@ -129,8 +130,8 @@ namespace
         // Here one might want to force the values of the pair to be
         // non-equal (if possible).
         return std::make_pair(
-            Math::ranI(0, dim),
-            Math::ranI(0, dim));
+            Random::ranI(0, dim),
+			Random::ranI(0, dim));
     }
 
     class SpatialIndex
@@ -278,7 +279,7 @@ namespace
             RW_ASSERT(!cell.empty());
             return
                 cell.at(
-                    Math::ranI(0, (int)cell.size()));
+                    Random::ranI(0, (int)cell.size()));
         }
 
     private:
@@ -287,7 +288,7 @@ namespace
             return
                 randomNodeFromCell(
                     *cellsInUse.at(
-                        Math::ranI(0, (int)cellsInUse.size())));
+                    	Random::ranI(0, (int)cellsInUse.size())));
         }
 
     private:
@@ -297,7 +298,7 @@ namespace
             // logarithmic time. In practice however the number of cells is
             // typically small.
 
-            const double pos = Math::ran(0, 1);
+            const double pos = Random::ran(0, 1);
             const int cellCount = (int)cellsInUse.size();
 
             if (cellCount == 1)
@@ -320,7 +321,7 @@ namespace
     private:
         Node* randomNodeUniform() const
         {
-            int choice = Math::ranI(0, nodeCount);
+            int choice = Random::ranI(0, nodeCount);
 
             int acc = 0;
             for (int i = 0; i < (int)cellsInUse.size(); i++) {
@@ -485,7 +486,7 @@ namespace
         {
             switch (options.treeSelection) {
             case SBLOptions::UniformTree:
-                if (Math::ran(0, 1) < 0.5) return Start;
+                if (Random::ran(0, 1) < 0.5) return Start;
                 else return Goal;
             case SBLOptions::WeightedTree: {
                 const double sizeStart = indexOf(Start).size();
@@ -493,7 +494,7 @@ namespace
 
                 const double total = sizeStart + sizeGoal;
 
-                if (Math::ran(0, total) < sizeStart)
+                if (Random::ran(0, total) < sizeStart)
                     return Goal;
                 else
                     return Start;

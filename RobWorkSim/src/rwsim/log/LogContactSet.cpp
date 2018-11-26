@@ -56,6 +56,14 @@ std::string LogContactSet::getType() const {
 	return getTypeID();
 }
 
+bool LogContactSet::operator==(const SimulatorLog &b) const {
+	if (const LogContactSet* const entry = dynamic_cast<const LogContactSet*>(&b)) {
+		if (_contacts != entry->_contacts)
+			return false;
+	}
+	return SimulatorLogEntry::operator==(b);
+}
+
 std::list<SimulatorLogEntry::Ptr> LogContactSet::getLinkedEntries() const {
 	// Link to last position entry in tree
 	SimulatorLogScope* scope = getParent();
@@ -79,7 +87,7 @@ bool LogContactSet::autoLink() {
 
 SimulatorLogEntry::Ptr LogContactSet::createNew(SimulatorLogScope* parent) const {
 	return ownedPtr(new LogContactSet(parent));
-};
+}
 
 std::string LogContactSet::getTypeID() {
 	return "ContactSet";

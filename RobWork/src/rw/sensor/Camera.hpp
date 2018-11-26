@@ -25,15 +25,15 @@
 
 #include "Image.hpp"
 #include "Sensor.hpp"
-#include "CameraListener.hpp"
 
 #include <rw/common/Ptr.hpp>
-#include <rw/kinematics/State.hpp>
 
 #include <vector>
 #include <string>
 
 namespace rw { namespace sensor {
+
+	class CameraListener;
 
     /** @addtogroup sensor */
     /* @{ */
@@ -273,12 +273,6 @@ namespace rw { namespace sensor {
 
     /* @} */
 
-#ifdef RW_USE_DEPRECATED
-    /**
-     * @brief Smart pointer to Camera
-     */
-    typedef rw::common::Ptr<Camera> CameraPtr;
-#endif
 }} // end namespaces
 
 #endif // end include guard

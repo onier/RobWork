@@ -20,7 +20,6 @@
 
 #include <rwlibs/os/rwgl.hpp>
 
-#include <rw/loaders/GeometryFactory.hpp>
 #include <rw/graphics/Render.hpp>
 
 #include <rwlibs/opengl/DrawableGeometry.hpp>
@@ -33,7 +32,7 @@
 #include <rwlibs/opengl/RWGLFrameBuffer.hpp>
 
 #include <rw/graphics/SceneCamera.hpp>
-
+#include <rw/geometry/Geometry.hpp>
 #include <rw/common/macros.hpp>
 
 #include <boost/foreach.hpp>
@@ -130,6 +129,12 @@ namespace {
         }
 
         void init(){
+            {
+            	const std::string error = SceneOpenGL::detectGLerror();
+            	if (!error.empty())
+            		RW_WARN("OpenGL error detected:" << error);
+            }
+
             GLuint maxGLuintSize = (GLuint) -1;
             if( (_offscreenRender==false && _fbId>=0) ){
                 //RW_WARN("_offscreenRender==false && _fbId>=0");
@@ -254,6 +259,12 @@ namespace {
             }
 
             _initialized = true;
+
+            {
+            	const std::string error = SceneOpenGL::detectGLerror();
+            	if (!error.empty())
+            		RW_WARN("OpenGL error detected:" << error);
+            }
         }
 
         void copyToImage( ){
@@ -286,12 +297,17 @@ namespace {
             return _mainCam;
         }
 
-        void setOffscreenRenderEnabled( bool enable ){
+        bool setOffscreenRenderEnabled( bool enable ){
             // if both are same then do nothing
             if( enable == _offscreenRender )
-                return;
-            _offscreenRender = enable;
+                return _offscreenRender;
+            RWGLFrameBuffer::initialize();
+            if (RWGLFrameBuffer::hasFrameBuffers())
+            	_offscreenRender = enable;
+            else
+            	_offscreenRender = false;
             _initialized=false;
+            return _offscreenRender;
         }
 
         bool isOffscreenRenderEnabled(){
@@ -301,7 +317,7 @@ namespace {
         void setOffscreenRenderSize(int width, int height){
             _offWidth=width; _offHeight=height;
             _initialized=false;
-        };
+        }
 
         void setOffscreenRenderColor(rw::sensor::Image::ColorCode color){
             _initialized=false;
@@ -625,8 +641,12 @@ namespace {
             }
             if( (scam->_renderToDepth) && scam->_scan25!=NULL){
                 scam->bind();
-                if(glGetError()>1)
-                    RW_WARN("error: " << glGetError());
+
+                {
+                	const std::string error = SceneOpenGL::detectGLerror();
+                	if (!error.empty())
+                		RW_WARN("OpenGL error detected:" << error);
+                }
 
                 //std::cout << "render to depth" << std::endl;
                 if(scam->_depthData.size() != (unsigned int)(scam->_scan25->getWidth()*scam->_scan25->getHeight()) )
@@ -647,11 +667,10 @@ namespace {
                 //     GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, &scam->_depthData[0]);
 
                 {
-                    int error = glGetError();
-                    if(error>1)
-                        RW_WARN("error: " << error);
+                	const std::string error = SceneOpenGL::detectGLerror();
+                	if (!error.empty())
+                		RW_WARN("OpenGL error detected:" << error);
                 }
-
 
                 GLdouble modelview[16];
                 GLdouble projection[16];
@@ -903,7 +922,7 @@ DrawableGeometryNode::Ptr SceneOpenGL::makeDrawableFrameAxis(const std::string& 
     return drawable;
 }
 
-DrawableGeometryNode::Ptr SceneOpenGL::makeDrawable(const std::string& name,rw::geometry::Geometry::Ptr geom, int dmask){
+DrawableGeometryNode::Ptr SceneOpenGL::makeDrawable(const std::string& name, rw::common::Ptr<rw::geometry::Geometry> geom, int dmask){
     DrawableGeometry::Ptr drawable = ownedPtr( new DrawableGeometry(name, dmask) );
     drawable->addGeometry(geom);
     return drawable;
@@ -917,7 +936,7 @@ DrawableGeometryNode::Ptr SceneOpenGL::makeDrawable(const std::string& name,cons
 
 
 
-DrawableNode::Ptr SceneOpenGL::makeDrawable(const std::string& name, Model3D::Ptr model, int dmask){
+DrawableNode::Ptr SceneOpenGL::makeDrawable(const std::string& name, rw::common::Ptr<Model3D> model, int dmask){
     RenderModel3D::Ptr render = ownedPtr(new RenderModel3D(model));
     Drawable::Ptr drawable = ownedPtr( new Drawable(render, name, dmask) );
     return drawable;
@@ -936,8 +955,31 @@ DrawableNode::Ptr SceneOpenGL::makeDrawable(const std::string& name,const rw::ge
 }
 
 
-DrawableNode::Ptr SceneOpenGL::makeDrawable(const std::string& name, Render::Ptr render, int dmask) {
+DrawableNode::Ptr SceneOpenGL::makeDrawable(const std::string& name, rw::common::Ptr<Render> render, int dmask) {
     Drawable::Ptr drawable = ownedPtr( new Drawable(render, name, dmask) );
     return drawable;
 }
 
+std::string SceneOpenGL::detectGLerror() {
+	const GLenum error = glGetError();
+	switch(error) {
+	case GL_NO_ERROR:
+		return "";
+	case GL_INVALID_ENUM:
+		return "GL_INVALID_ENUM";
+	case GL_INVALID_VALUE:
+		return "GL_INVALID_VALUE";
+	case GL_INVALID_OPERATION:
+		return "GL_INVALID_OPERATION";
+	case GL_INVALID_FRAMEBUFFER_OPERATION:
+		return "GL_INVALID_FRAMEBUFFER_OPERATION";
+	case GL_OUT_OF_MEMORY:
+		return "GL_OUT_OF_MEMORY";
+	case GL_STACK_UNDERFLOW:
+		return "GL_STACK_UNDERFLOW";
+	case GL_STACK_OVERFLOW:
+		return "GL_STACK_OVERFLOW";
+	default:
+		return "Unknown error: " + error;
+	}
+}

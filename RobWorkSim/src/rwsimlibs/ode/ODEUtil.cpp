@@ -17,6 +17,18 @@
 
 #include "ODEUtil.hpp"
 
+#include <rw/common/Cache.hpp>
+#include <rw/geometry/Cylinder.hpp>
+#include <rw/geometry/Geometry.hpp>
+#include <rw/geometry/IndexedTriMesh.hpp>
+#include <rw/geometry/Plane.hpp>
+#include <rw/geometry/Sphere.hpp>
+#include <rw/geometry/TriangleUtil.hpp>
+#include <rw/kinematics/Kinematics.hpp>
+#include <rw/math/EAA.hpp>
+
+#include <boost/foreach.hpp>
+
 using namespace rw::common;
 using namespace rw::math;
 using namespace rw::kinematics;

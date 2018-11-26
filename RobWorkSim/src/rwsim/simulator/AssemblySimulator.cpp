@@ -22,6 +22,7 @@
 #include <rw/invkin/JacobianIKSolver.hpp>
 #include <rw/models/SerialDevice.hpp>
 #include <rw/pathplanning/PlannerUtil.hpp>
+#include <rw/pathplanning/QSampler.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 
 #include <rwlibs/assembly/AssemblyResult.hpp>
@@ -35,7 +36,8 @@
 
 #include <rwsim/contacts/ContactDetector.hpp>
 #include <rwsim/control/SerialDeviceController.hpp>
-#include <rwsim/log/LogMessage.hpp>
+#include <rwsim/dynamics/KinematicBody.hpp>
+#include <rwsim/dynamics/RigidBody.hpp>
 #include <rwsim/log/SimulatorLogScope.hpp>
 #include <rwsim/sensor/BodyContactSensor.hpp>
 #include <rwsim/sensor/SimulatedFTSensor.hpp>
@@ -384,7 +386,7 @@ void AssemblySimulator::runSingle(std::size_t taskIndex, SimulatorLogScope::Ptr 
 				simulator->addSensor(sensor, state);
 		}
 	}
-	
+
 	if (!_contactDetector.isNull()) {
 		const bool setCD = pe->setContactDetector(_contactDetector);
 		if (!setCD)
@@ -488,8 +490,8 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 	// Note: for now only male object is actuated (should be expanded later for hole on peg type simulation)
 	State defState = _dwc->getWorkcell()->getDefaultState();
 
-	FTSensor* ftSensorMale;
-	FTSensor* ftSensorFemale;
+	FTSensor* ftSensorMale = NULL;
+	FTSensor* ftSensorFemale = NULL;
 	if (simState.maleFTSensor != NULL)
 		ftSensorMale = simState.maleFTSensor.get();
 	if (simState.femaleFTSensor != NULL)
@@ -802,10 +804,9 @@ std::vector<Q> AssemblySimulator::orderSolutions(const std::vector<Q> &solutions
 
 bool AssemblySimulator::hasContact(BodyContactSensor::Ptr sensor, Body::Ptr body, rw::kinematics::State& state)
 {
-	const std::vector<rw::sensor::Contact3D>& contacts = sensor->getContacts(state);
 	const std::vector<Body::Ptr>& bodies = sensor->getBodies(state);
 
-	RW_ASSERT(bodies.size() == contacts.size() );
+	RW_ASSERT(bodies.size() == sensor->getContacts(state).size() );
 
 	for(size_t i=0; i<bodies.size(); i++){
 		if (bodies[i] == body)

@@ -15,7 +15,6 @@ SET(FILES_UI
 	CreateEngineDialog.ui
 	SimCfgDialog.ui
 	ODESimCfgForm.ui
-	SensorOutputGui.ui
 	SDHPlugin.ui
 	TactileSensorDialog.ui
 	#GraspTableGeneratorPlugin.ui
@@ -52,7 +51,6 @@ SET(SrcFiles_HPP
 	SimCfgDialog.hpp 
 	ODESimCfgDialog.hpp
 	BodyControllerWidget.hpp
-	#SensorOutputGui.hpp
 	TactileSensorDialog.hpp
 	
 	log/SimulatorLogWidget.hpp
@@ -71,11 +69,9 @@ SET(SrcFiles_HPP
 	log/SimulatorStatisticsWidget.hpp
 )
 IF (RWS_USE_QT5)
-	QT5_WRAP_CPP(MocSrcFiles ${SrcFiles_HPP} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED OPTIONS -DBOOST_LEXICAL_CAST_INCLUDED
-)
+	QT5_WRAP_CPP(MocSrcFiles ${SrcFiles_HPP})
 ELSE()
-	QT4_WRAP_CPP(MocSrcFiles ${SrcFiles_HPP} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED OPTIONS -DBOOST_LEXICAL_CAST_INCLUDED
-)
+	QT4_WRAP_CPP(MocSrcFiles ${SrcFiles_HPP} OPTIONS -DBOOST_TT_HAS_PLUS_HPP_INCLUDED -DBOOST_TT_HAS_PLUS_ASSIGN_HPP_INCLUDED -DBOOST_TT_HAS_MINUS_HPP_INCLUDED -DBOOST_TT_HAS_MINUS_ASSIGN_HPP_INCLUDED)
 ENDIF()
 
 # Rcc the files:
@@ -98,7 +94,6 @@ SET(SrcFiles
 	GLViewRW.cpp
 	CreateEngineDialog.cpp 
 	SimCfgDialog.cpp 
-	#SensorOutputGui.cpp
 	#TactilePadItem.cpp
 	TactileSensorDialog.cpp
 	
@@ -124,5 +119,5 @@ ENDIF()
 
 #set_source_files_properties(${SrcFiles} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
 
-# The static library to build:
 ADD_LIBRARY(rwsim_gui ${SrcFiles} ${MocSrcFiles} ${RccSrcFiles} ${UIS_OUT_H})
+TARGET_LINK_LIBRARIES(rwsim_gui ${ROBWORKSTUDIO_LIBRARIES})

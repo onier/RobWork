@@ -17,6 +17,7 @@
 
 #include "../TestSuiteConfig.hpp"
 
+#include <rw/geometry/Geometry.hpp>
 #include <rw/geometry/GeometryUtil.hpp>
 #include <rw/geometry/Box.hpp>
 #include <rw/geometry/Cone.hpp>
@@ -25,20 +26,21 @@
 #include <rw/geometry/Sphere.hpp>
 #include <rw/geometry/Tube.hpp>
 #include <rw/math/Vector3D.hpp>
+#include <rw/kinematics/State.hpp>
 
 #if RW_HAVE_ASSIMP
 #include <rw/loaders/model3d/LoaderAssimp.hpp>
-using namespace rw::graphics;
+using rw::graphics::Model3D;
+using rw::loaders::LoaderAssimp;
 #else
 #include <rw/loaders/model3d/STLFile.hpp>
+using rw::loaders::STLFile;
 #endif
 
-using namespace rw::common;
+using rw::common::ownedPtr;
 using namespace rw::geometry;
-using namespace rw::kinematics;
-using namespace rw::loaders;
+using rw::kinematics::State;
 using namespace rw::math;
-
 
 BOOST_AUTO_TEST_CASE( EstimateVolumeTest ){
 	{
@@ -61,7 +63,7 @@ BOOST_AUTO_TEST_CASE( EstimateVolumeTest ){
 		// Cylinder test
 		const double radius = 0.02;
 		const double height = 0.1;
-		const Cylinder cyl(radius, height);
+		const Cylinder cyl(static_cast<float>(radius), static_cast<float>(height));
 		const double volEst = GeometryUtil::estimateVolume(*cyl.createMesh(26));
 		BOOST_CHECK_CLOSE(volEst,Pi*radius*radius*height,1);
 	}
@@ -88,7 +90,7 @@ BOOST_AUTO_TEST_CASE( EstimateVolumeTest ){
 		const double radius = 0.02;
 		const double thickness = 0.005;
 		const double height = 0.1;
-		const Tube tube(radius, thickness, height);
+		const Tube tube(static_cast<float>(radius), static_cast<float>(thickness), static_cast<float>(height));
 		const double volEst = GeometryUtil::estimateVolume(*tube.createMesh(26));
 		BOOST_CHECK_CLOSE(volEst,Pi*height*((radius+thickness)*(radius+thickness)-radius*radius),1);
 	}
@@ -114,7 +116,7 @@ BOOST_AUTO_TEST_CASE( EstimateVolumeTest ){
 			const TriMesh::Ptr stl = STLFile::load(file);
 #endif
 			const double volEst = GeometryUtil::estimateVolume(*stl);
-			BOOST_CHECK_CLOSE(volEst,volTot,2e-5);
+			BOOST_CHECK_CLOSE(volEst,volTot,3e-5);
 		}
 
 		{
@@ -129,7 +131,7 @@ BOOST_AUTO_TEST_CASE( EstimateVolumeTest ){
 			const TriMesh::Ptr stl = STLFile::load(file);
 #endif
 			const double volEst = GeometryUtil::estimateVolume(*stl);
-			BOOST_CHECK_CLOSE(volEst,volTot,2e-5);
+			BOOST_CHECK_CLOSE(volEst,volTot,3e-5);
 		}
 
 		// Multiple geometry test (the table again)
@@ -175,7 +177,7 @@ BOOST_AUTO_TEST_CASE( EstimateCOGTest ){
 		// Cylinder test
 		const double radius = 0.02;
 		const double height = 0.1;
-		const Cylinder cyl(radius, height);
+		const Cylinder cyl(static_cast<float>(radius), static_cast<float>(height));
 		const Vector3D<> cogEst = GeometryUtil::estimateCOG(*cyl.createMesh(26));
 		BOOST_CHECK_SMALL(dot(cogEst,Vector3D<>::x()),std::numeric_limits<double>::epsilon());
 		BOOST_CHECK_SMALL(dot(cogEst,Vector3D<>::y()),std::numeric_limits<double>::epsilon());
@@ -208,7 +210,7 @@ BOOST_AUTO_TEST_CASE( EstimateCOGTest ){
 		const double radius = 0.02;
 		const double thickness = 0.005;
 		const double height = 0.1;
-		const Tube tube(radius, thickness, height);
+		const Tube tube(static_cast<float>(radius), static_cast<float>(thickness), static_cast<float>(height));
 		const Vector3D<> cogEst = GeometryUtil::estimateCOG(*tube.createMesh(26));
 		BOOST_CHECK_SMALL(dot(cogEst,Vector3D<>::x()),std::numeric_limits<double>::epsilon());
 		BOOST_CHECK_SMALL(dot(cogEst,Vector3D<>::y()),std::numeric_limits<double>::epsilon());
@@ -314,7 +316,7 @@ BOOST_AUTO_TEST_CASE( EstimateInertiaTest ){
 		// Cylinder test
 		const double radius = 0.02;
 		const double height = 0.1;
-		const Cylinder cyl(radius, height);
+		const Cylinder cyl(static_cast<float>(radius), static_cast<float>(height));
 		const std::vector<Geometry::Ptr> geoms(1,ownedPtr(new Geometry(cyl.createMesh(26))));
 		const InertiaMatrix<> inertiaEst = GeometryUtil::estimateInertia(mass, geoms, ref);
 		const double Ix = mass*(3*radius*radius+height*height)/12.;
@@ -359,7 +361,7 @@ BOOST_AUTO_TEST_CASE( EstimateInertiaTest ){
 		const double radius = 0.02;
 		const double thickness = 0.005;
 		const double height = 0.1;
-		const Tube tube(radius, thickness, height);
+		const Tube tube(static_cast<float>(radius), static_cast<float>(thickness), static_cast<float>(height));
 		const std::vector<Geometry::Ptr> geoms(1,ownedPtr(new Geometry(tube.createMesh(26))));
 		const InertiaMatrix<> inertiaEst = GeometryUtil::estimateInertia(mass, geoms, ref);
 		const double Ix = mass*(3*radius*radius+3*(radius+thickness)*(radius+thickness)+height*height)/12.;

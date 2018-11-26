@@ -26,19 +26,14 @@
 #include <rw/common/Ptr.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/models/Device.hpp>
-#include <rw/pathplanning/PlannerConstraint.hpp>
+#include <rw/trajectory/Path.hpp>
+
+namespace rw { namespace pathplanning { class PlannerConstraint; } }
 
 namespace rwlibs { namespace pathplanners {
 
     /** @addtogroup pathplanning */
     /** @{*/
-
-#ifdef RW_USE_DEPRECATED
-    class ARWExpand;
-
-    //! A pointer to a ARWExpand.
-    typedef rw::common::Ptr<ARWExpand> ARWExpandPtr;
-#endif
 
     /**
        @brief ARWExpand expands a random walk in the configuration space by one

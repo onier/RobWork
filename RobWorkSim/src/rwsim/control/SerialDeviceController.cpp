@@ -1,9 +1,11 @@
 #include "SerialDeviceController.hpp"
 
+#include <rw/invkin/JacobianIKSolver.hpp>
 #include <rw/trajectory/CubicSplineFactory.hpp>
 #include <rw/trajectory/LinearInterpolator.hpp>
 #include <rw/trajectory/InterpolatorTrajectory.hpp>
 #include <rw/math/MetricFactory.hpp>
+#include <rwsim/dynamics/RigidDevice.hpp>
 #include <rwsim/util/RecursiveNewtonEuler.hpp>
 
 #include <rw/common/macros.hpp>
@@ -23,15 +25,20 @@ SerialDeviceController::SerialDeviceController(
 		const std::string& name, DynamicDevice::Ptr ddev):
 		SimulatedController(rw::common::ownedPtr(new rw::models::ControllerModel(name,ddev->getKinematicModel()->getBase()))),
 	_ddev(ddev),
-	_time(0.0),
 	_currentQ(Q::zero(ddev->getModel().getDOF())),
 	_currentQd(Q::zero(ddev->getModel().getDOF())),
+	_enabled(true),
+	_stop(false),
+	_pause(false),
 	_targetAdded(false),
+	_currentTrajTime(0),
 	_name(name),
 	_linVelMax(1), // default 1 m/s
 	_angVelMax(Pi), // default Pi rad/s
+	_idCnt(0),
 	_q_error(ddev->getModel().getDOF()),
 	_q_error_last(ddev->getModel().getDOF()),
+	_taskFrame(NULL),
 	_ftSensor(NULL)
 {
 	RW_WARN("creating solver");
@@ -49,15 +56,20 @@ SerialDeviceController::SerialDeviceController(
 		SimulatedController(rw::common::ownedPtr(new rw::models::ControllerModel(name,ddev->getKinematicModel()->getBase()))),
 	_ddev(ddev),
 	_rdev(ddev),
-	_time(0.0),
 	_currentQ(Q::zero(ddev->getModel().getDOF())),
 	_currentQd(Q::zero(ddev->getModel().getDOF())),
+	_enabled(true),
+	_stop(false),
+	_pause(false),
 	_targetAdded(false),
+	_currentTrajTime(0),
 	_name(name),
 	_linVelMax(1), // default 1 m/s
 	_angVelMax(Pi), // default Pi rad/s
+	_idCnt(0),
 	_q_error(ddev->getModel().getDOF()),
 	_q_error_last(ddev->getModel().getDOF()),
+	_taskFrame(NULL),
 	_ftSensor(NULL)
 {
 	RW_WARN("creating solver");
@@ -730,7 +742,7 @@ void SerialDeviceController::update(const rwlibs::simulation::Simulator::UpdateI
 		CompiledTarget traj;
 		try{
 		    traj = makeTrajectory(targets, state);
-		} catch( const std::exception& e ){
+		} catch( const std::exception& ){
 		    // if inverse kinematics or other things cannot compute then we discard the trajectory
 		    //RW_WARN("Trajectory could not be generated due to: \n\t " << e.what() );
 		}

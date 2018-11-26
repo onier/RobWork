@@ -19,12 +19,11 @@
 #define RWSIM_UTIL_POINTRANSACFITTING_HPP_
 
 #include <vector>
-#include <rw/math/Vector3D.hpp>
 #include "PlaneModel.hpp"
 #include <rw/math/Vector3D.hpp>
-#include <rw/math/Math.hpp>
+#include <rw/math/Random.hpp>
 
-#include <boost/foreach.hpp>
+//#include <boost/foreach.hpp>
 
 namespace rwsim {
 namespace util {
@@ -62,13 +61,13 @@ namespace util {
 			std::vector<MODEL_T> models;
 			std::vector<Vector3D<> > bestConsensusSet;
 			std::vector<Vector3D<> > maybeInliers(n);
-			double bestError = 100000.0;
+			//double bestError = 100000.0;
 			while( ++iterations < k ){
 				std::vector<Vector3D<> > consensusSet;
 
 				// generate n randomly selected values from data
 				for(int i=0; i<n; i++){
-					int idx = Math::ranI(0,data.size());
+					int idx = Random::ranI(0,data.size());
 					maybeInliers[i] = data[idx];
 				}
 
@@ -93,7 +92,8 @@ namespace util {
 					//std::cout << "- Maybe model: "<< consensusSet.size() << std::endl;
 					//maybeModel.print();
 					//maybeModel.print();
-					double error = maybeModel.refit( consensusSet );
+					//double error = maybeModel.refit( consensusSet );
+					maybeModel.refit( consensusSet );
 
 					models.push_back( maybeModel );
 

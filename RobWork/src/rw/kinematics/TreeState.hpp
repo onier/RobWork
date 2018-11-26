@@ -25,7 +25,6 @@
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
-#include <iostream>
 
 namespace rw { namespace kinematics {
 
@@ -62,7 +61,11 @@ namespace rw { namespace kinematics {
          */
         explicit TreeState(boost::shared_ptr<StateSetup> setup);
 
-        explicit TreeState(const TreeState &);
+        /**
+         * @brief Copy constructor.
+         * @param other [in] other TreeState to copy.
+         */
+        explicit TreeState(const TreeState& other);
 
         /**
          * @brief destructor

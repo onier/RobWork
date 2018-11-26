@@ -68,20 +68,20 @@ namespace geometry {
 		virtual void setParameters(const rw::math::Q& q);
 
 		//! @copydoc GeometryData::getType
-		GeometryType getType() const { return BoxPrim; };
+		GeometryType getType() const { return BoxPrim; }
+
 	protected:
+		/**
+		 * @brief Check if point lies inside geometry.
+		 * @param point [in] point to check.
+		 * @return true if inside geometry, false otherwise.
+		 */
 		 bool doIsInside(const rw::math::Vector3D<>& point);
+
 	private:
 		double _dx,_dy,_dz;
 	};
 	//! @}
-
-#ifdef RW_USE_DEPRECATED
-    /**
-     * @brief Pointer to Box
-     */
-    typedef rw::common::Ptr<Box> BoxPtr;
-#endif
 } // geometry
 } // rw
 

@@ -18,9 +18,11 @@
 #ifndef RWSIM_SENSOR_SIMULATEDTACTILESENSOR_HPP_
 #define RWSIM_SENSOR_SIMULATEDTACTILESENSOR_HPP_
 
+#include <rw/math/Vector3D.hpp>
 #include <rwlibs/simulation/SimulatedSensor.hpp>
-#include <rwsim/dynamics/Body.hpp>
-#include <rw/kinematics/State.hpp>
+
+namespace rw { namespace kinematics { class State; } }
+namespace rwsim { namespace dynamics { class Body; } }
 
 namespace rwsim {
 namespace sensor {
@@ -30,6 +32,10 @@ namespace sensor {
 	 */
 	class SimulatedTactileSensor: public rwlibs::simulation::SimulatedSensor {
 	protected:
+		/**
+		 * @brief Constructor.
+		 * @param model [in] the model of the sensor.
+		 */
 	    SimulatedTactileSensor(rw::sensor::SensorModel::Ptr model);
 
 	public:
@@ -44,6 +50,7 @@ namespace sensor {
 		 * @param force [in] the direction in which the force is acting
 		 * @param cnormal [in] the contact normal where the origin is on the
 		 * contacting body and the direction is toward the sensor
+		 * @param state [in/out] the state is updated with new sensor information.
 		 * @param body [in] the body that caused the contact force. If no body
 		 * caused the force on the sensor (could be user input) then the body is NULL
 		 */
@@ -51,7 +58,7 @@ namespace sensor {
 					   const rw::math::Vector3D<>& force,
 					   const rw::math::Vector3D<>& cnormal,
 					   rw::kinematics::State& state,
-					   dynamics::Body::Ptr body = NULL) = 0;
+					   rw::common::Ptr<rwsim::dynamics::Body> body = NULL) = 0;
 
 		/**
 		 * @brief add a force to a point on the sensor geometry. The force is described
@@ -60,6 +67,7 @@ namespace sensor {
 		 * @param force [in] the direction in which the force is acting
 		 * @param cnormal [in] the contact normal where the origin is on the
 		 * contacting body and the direction is toward the sensor
+		 * @param state [in/out] the state is updated with new sensor information.
 		 * @param body [in] the body that caused the contact force. If no body
 		 * caused the force on the sensor (could be user input) then the body is NULL
 		 */
@@ -67,7 +75,7 @@ namespace sensor {
 					  const rw::math::Vector3D<>& force,
 					  const rw::math::Vector3D<>& cnormal,
 					  rw::kinematics::State& state,
-					  dynamics::Body::Ptr body=NULL) = 0;
+					  rw::common::Ptr<rwsim::dynamics::Body> body=NULL) = 0;
 
 		/**
 		 * @brief add a wrench to the center of mass of this object
@@ -80,11 +88,12 @@ namespace sensor {
                       const rw::math::Vector3D<>& force,
                       const rw::math::Vector3D<>& torque,
                       rw::kinematics::State& state,
-                      dynamics::Body::Ptr body=NULL) = 0;
+					  rw::common::Ptr<rwsim::dynamics::Body> body=NULL) = 0;
 
         /**
          * @brief add a wrench described in World frame to the center of mass of this object
          * @param force
+		 * @param torque
          * @param state
          * @param body
          */
@@ -92,7 +101,7 @@ namespace sensor {
                       const rw::math::Vector3D<>& force,
                       const rw::math::Vector3D<>& torque,
                       rw::kinematics::State& state,
-                      dynamics::Body::Ptr body=NULL) = 0;
+					  rw::common::Ptr<rwsim::dynamics::Body> body=NULL) = 0;
 
 	};
 	//! @}

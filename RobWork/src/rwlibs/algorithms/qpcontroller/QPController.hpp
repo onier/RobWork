@@ -23,16 +23,13 @@
  * @file QPController.hpp
  */
 
-#include <cmath>
 #include <boost/numeric/ublas/vector.hpp>
 
 #include <rw/math/VelocityScrew6D.hpp>
-#include <rw/math/RPY.hpp>
-#include <rw/math/LinearAlgebra.hpp>
-#include <rw/models/Device.hpp>
-#include <rw/models/WorkCell.hpp>
 #include <rw/math/Q.hpp>
 #include <rw/kinematics/State.hpp>
+
+namespace rw { namespace models { class Device; } }
 
 namespace rwlibs { namespace algorithms {
 
@@ -99,7 +96,6 @@ namespace rwlibs { namespace algorithms {
 
         double _h;
         size_t _n;
-        size_t _cnt;
         rw::models::Device* _device;
         rw::kinematics::State _state;
 

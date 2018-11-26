@@ -21,13 +21,22 @@
 #include "../TestSuiteConfig.hpp"
 #include <rw/math/VelocityScrew6D.hpp>
 #include <rw/math/Transform3D.hpp>
-#include <rw/math/RPY.hpp>
-#include <rw/math/Constants.hpp>
+
+BOOST_AUTO_TEST_CASE(VelocityScrew6DTest_ADL) {
+	rw::math::Vector3D<> linear1(1, 2, 3);
+	rw::math::EAA<> angular1(4, 5, 6);
+	rw::math::VelocityScrew6D<> screw(linear1, angular1);
+
+	// Test Argument-Dependent Lookup (ADL)
+	BOOST_CHECK(fabs(norm1(screw) - (1 + 2 + 3 + 4 + 5 + 6))<1e-15);
+	BOOST_CHECK(fabs(norm2(screw) - sqrt(1.0 * 1 + 2 * 2 + 3 * 3 + 4 * 4 + 5 * 5 + 6 * 6))<1e-15);
+	BOOST_CHECK(fabs(normInf(screw) - 6)<1e-15);
+}
 
 using namespace rw::math;
 
 BOOST_AUTO_TEST_CASE(VelocityScrew6DTest) {
-    BOOST_MESSAGE("- Testing VelocityScrew6D");
+    BOOST_TEST_MESSAGE("- Testing VelocityScrew6D");
   {
     Transform3D<> T = Transform3D<>::identity();
     VelocityScrew6D<> screw(T);
@@ -77,9 +86,16 @@ BOOST_AUTO_TEST_CASE(VelocityScrew6DTest) {
     Vector3D<> linear1(1, 2, 3);
     EAA<> angular1(4, 5, 6);
     VelocityScrew6D<> screw(linear1, angular1);
+
+	// Test unqualified lookup
     BOOST_CHECK(fabs(norm1(screw)-(1+2+3+4+5+6))<1e-15);
     BOOST_CHECK(fabs(norm2(screw)-sqrt(1.0*1+2*2+3*3+4*4+5*5+6*6))<1e-15);
     BOOST_CHECK(fabs(normInf(screw)-6)<1e-15);
+
+	// Test qualified lookup
+	BOOST_CHECK(fabs(rw::math::norm1(screw) - (1 + 2 + 3 + 4 + 5 + 6))<1e-15);
+	BOOST_CHECK(fabs(rw::math::norm2(screw) - sqrt(1.0 * 1 + 2 * 2 + 3 * 3 + 4 * 4 + 5 * 5 + 6 * 6))<1e-15);
+	BOOST_CHECK(fabs(rw::math::normInf(screw) - 6)<1e-15);
   }
 
 
@@ -94,9 +110,16 @@ BOOST_AUTO_TEST_CASE(VelocityScrew6DTest) {
     Vector3D<> linear(0.1, 0.2, 0.3);
     EAA<> angular(0.4, 0.5, 0.6);
     VelocityScrew6D<> screw(linear, angular);
-    VelocityScrew6D<float> vsf = cast<float>(screw);
-    for (size_t i = 0; i<6; i++)
-	BOOST_CHECK((float)screw(i) == vsf(i));
+	{
+		VelocityScrew6D<float> vsf = cast<float>(screw);
+		for (size_t i = 0; i < 6; i++)
+			BOOST_CHECK((float)screw(i) == vsf(i));
+	}
+	{
+		VelocityScrew6D<float> vsf = rw::math::cast<float>(screw); // qualified lookup
+		for (size_t i = 0; i < 6; i++)
+			BOOST_CHECK((float)screw(i) == vsf(i));
+	}
   }
 
   {

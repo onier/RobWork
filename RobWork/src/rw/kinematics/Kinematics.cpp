@@ -149,33 +149,6 @@ std::vector<Frame*> Kinematics::parentToChildChain(Frame* parent, Frame* child,
     return result;
 }
 
-#ifdef RW_USE_DEPRECATED
-Kinematics::FrameMap Kinematics::buildFrameMap(Frame& root, const State& state)
-{
-    FrameMap result;
-    BOOST_FOREACH(Frame* frame, Kinematics::findAllFrames(&root, state))
-    {
-        result.insert(std::make_pair(frame->getName(), frame));
-    }
-    return result;
-}
-
-Frame& Kinematics::worldFrame(Frame& frame, const State& state)
-{
-    Frame* parent = &frame;
-    while (parent->getParent(state))
-        parent = parent->getParent(state);
-    return *parent;
-}
-
-const Frame& Kinematics::worldFrame(const Frame& frame, const State& state)
-{
-    // Forward to non-const version.
-    return worldFrame(const_cast<Frame&> (frame), state);
-}
-
-#endif
-
 std::map<std::string, Frame*> Kinematics::buildFrameMap(Frame* root, const State& state)
 {
     std::map<std::string, Frame*> result;
@@ -239,50 +212,6 @@ namespace {
     }
 }
 
-
-#ifdef RW_USE_DEPRECATED
-
-bool Kinematics::isDAF(const Frame& frame)
-{
-    // Unfortunately this reports the world frame to be a DAF!
-    return (frame.getParent() == NULL);
-}
-
-bool Kinematics::isFixedFrame(const Frame& frame)
-{
-    return dynamic_cast<const FixedFrame*>(&frame) != 0;
-}
-
-void Kinematics::gripFrame(State& state, Frame& item, Frame& gripper)
-{
-    const Transform3D<>& relative = frameToFrame(gripper, item, state);
-    attachFrame(state, item, gripper, relative);
-}
-
-State Kinematics::grippedFrame(const State& state, Frame& item, Frame& gripper)
-{
-    State result = state;
-    gripFrame(result, item, gripper);
-    return result;
-}
-
-void Kinematics::gripMovableFrame(State& state, MovableFrame& item,
-                                  Frame& gripper)
-{
-    const Transform3D<>& relative = frameToFrame(gripper, item, state);
-    attachMovableFrame(state, item, gripper, relative);
-}
-
-State Kinematics::grippedMovableFrame(const State& state, MovableFrame& item,
-                                      Frame& gripper)
-{
-    State result = state;
-    gripMovableFrame(result, item, gripper);
-    return result;
-}
-
-#endif
-
 bool Kinematics::isDAF(const Frame* frame)
 {
     // Unfortunately this reports the world frame to be a DAF!
@@ -309,44 +238,49 @@ void Kinematics::gripFrame(MovableFrame* item, Frame* gripper, State& state)
 
 
 namespace {
-	
-    bool isNonDafAndFixed(const Frame& frame)
-    {
+	bool isNonDafAndFixed(const Frame& frame){
 		return !Kinematics::isDAF(&frame) && Kinematics::isFixedFrame(&frame);
-    }
+	}
 
-    //// The set of all frames of type FixedFrame that are not a DAF.
-    //FrameSet findNonDafAndFixedFrameSet(const WorkCell& workcell, const State& state)
-    //{
-    //    FrameSet result;
-    //    BOOST_FOREACH(Frame* frame, Models::findAllFrames(workcell, state)) {
-    //        if (!isDAF(*frame) && isFixedFrame(*frame)) 
-				//result.insert(frame);
-    //    }
-    //    return result;
-    //}
-
-
-	void createStaticFrameGroups(Frame& root, FrameList& group, std::vector<FrameList>& groups, const State& state) {	
+	void createStaticFrameGroups(Frame& root, FrameList& group, std::vector<FrameList>& staticGroups, const State& state) {
 		group.push_back(&root);
 		BOOST_FOREACH(Frame& frame, root.getChildren(state)) {
 			if (isNonDafAndFixed(frame)) {
-				createStaticFrameGroups(frame, group, groups, state);			
+				createStaticFrameGroups(frame, group, staticGroups, state);
 			} else {
 				FrameList group;
-				createStaticFrameGroups(frame, group, groups, state);
-				groups.push_back(group);
+				createStaticFrameGroups(frame, group, staticGroups, state);
+				staticGroups.push_back(group);
 			}
 		}
 	}
 
+	void createStaticFrameGroups(const Frame& root, ConstFrameList& group, std::vector<ConstFrameList>& staticGroups, const State& state) {
+		group.push_back(&root);
+		BOOST_FOREACH(const Frame& frame, root.getChildren(state)) {
+			if (isNonDafAndFixed(frame)) {
+				createStaticFrameGroups(frame, group, staticGroups, state);
+			} else {
+				ConstFrameList group;
+				createStaticFrameGroups(frame, group, staticGroups, state);
+				staticGroups.push_back(group);
+			}
+		}
+	}
 }
-std::vector<FrameList > Kinematics::getStaticFrameGroups(Frame* root, const State& state) {
-	//TODO Identify all groups with static frames
 
-	std::vector<FrameList> groups;
+std::vector<FrameList> Kinematics::getStaticFrameGroups(Frame* root, const State& state) {
+	std::vector<FrameList> staticGroups;
 	FrameList group;
-	createStaticFrameGroups(*root, group, groups, state);
+	createStaticFrameGroups(*root, group, staticGroups, state);
+	staticGroups.push_back(group);
+	return staticGroups;
+}
 
-	return std::vector<FrameList>();
+std::vector<ConstFrameList> Kinematics::getStaticFrameGroups(const Frame* root, const State& state) {
+	std::vector<ConstFrameList> staticGroups;
+	ConstFrameList group;
+	createStaticFrameGroups(*root, group, staticGroups, state);
+	staticGroups.push_back(group);
+	return staticGroups;
 }

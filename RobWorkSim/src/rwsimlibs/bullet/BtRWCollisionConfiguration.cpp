@@ -21,14 +21,14 @@
 #include <rw/common/macros.hpp>
 
 #if BT_BULLET_VERSION > 281
-#include "bullet/BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.h"
+#include "BulletCollision/CollisionDispatch/btCompoundCompoundCollisionAlgorithm.h"
 #endif
-#include "bullet/BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
-#include "bullet/BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
-#include "bullet/BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
-#include "bullet/LinearMath/btPoolAllocator.h"
+#include "BulletCollision/CollisionDispatch/btCompoundCollisionAlgorithm.h"
+#include "BulletCollision/BroadphaseCollision/btBroadphaseProxy.h"
+#include "BulletCollision/NarrowPhaseCollision/btPersistentManifold.h"
+#include "LinearMath/btPoolAllocator.h"
 #if BT_BULLET_VERSION < 282
-#include "bullet/LinearMath/btStackAlloc.h"
+#include "LinearMath/btStackAlloc.h"
 #endif
 
 using namespace rwsim::contacts;
@@ -128,3 +128,21 @@ btCollisionAlgorithmCreateFunc* BtRWCollisionConfiguration::getCollisionAlgorith
 
 	return _func;
 }
+
+#if BT_BULLET_VERSION >= 286
+btCollisionAlgorithmCreateFunc* BtRWCollisionConfiguration::getClosestPointsAlgorithmCreateFunc(int proxyType0, int proxyType1) {
+#if BT_BULLET_VERSION > 281
+	if (btBroadphaseProxy::isCompound(proxyType0) && btBroadphaseProxy::isCompound(proxyType1)) {
+		return m_compoundCompoundCreateFunc;
+	}
+#endif
+
+	if (btBroadphaseProxy::isCompound(proxyType0)) {
+		return m_compoundCreateFunc;
+	} else if (btBroadphaseProxy::isCompound(proxyType1)) {
+		return m_swappedCompoundCreateFunc;
+	}
+
+	return _func;
+}
+#endif

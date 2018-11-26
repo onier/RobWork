@@ -22,8 +22,7 @@ SET(SRC_FILES_CPP
   HelpAssistant.cpp
   ImageView.cpp
   propertyview/PropertyViewEditor.cpp
-  propertyview/PropertyViewDialog.cpp 
-  propertyview/VariantManager.cpp)
+  propertyview/PropertyViewDialog.cpp)
 
 SET(SRC_FILES_HPP
   ArcBallController.hpp
@@ -39,7 +38,6 @@ SET(SRC_FILES_HPP
   ImageView.hpp
   propertyview/PropertyViewEditor.hpp
   propertyview/PropertyViewDialog.hpp 
-  propertyview/VariantManager.hpp
   )
 
 # Files to moc and compile:
@@ -63,9 +61,9 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 SET(MocSrcFiles)
 IF(RWS_USE_QT5)
-	QT5_WRAP_CPP(MocSrcFiles ${MocHeaderFiles} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
+	QT5_WRAP_CPP(MocSrcFiles ${MocHeaderFiles})
 ELSE()
-	QT4_WRAP_CPP(MocSrcFiles ${MocHeaderFiles} OPTIONS -DBOOST_TT_HAS_OPERATOR_HPP_INCLUDED)
+	QT4_WRAP_CPP(MocSrcFiles ${MocHeaderFiles} OPTIONS -DBOOST_TT_HAS_PLUS_HPP_INCLUDED -DBOOST_TT_HAS_PLUS_ASSIGN_HPP_INCLUDED -DBOOST_TT_HAS_MINUS_HPP_INCLUDED -DBOOST_TT_HAS_MINUS_ASSIGN_HPP_INCLUDED)
 ENDIF()
 #set_source_files_properties(${MocSrcFiles} PROPERTIES OBJECT_DEPENDS "${UIS_OUT_H}")
 
@@ -88,6 +86,15 @@ ADD_LIBRARY(rws
             ${MocSrcFiles}
             ${ResourceFiles}
 )
+TARGET_LINK_LIBRARIES(rws qtpropertybrowser ${QT_LIBRARIES} ${ROBWORK_LIBRARIES})
+
+IF(CMAKE_VERSION VERSION_GREATER 3.3)
+	SET_TARGET_PROPERTIES(rws PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+ENDIF()
+
+IF(WIN32 AND MSVC AND BUILD_SHARED_LIBS AND CMAKE_VERSION VERSION_LESS 3.4)
+	MESSAGE(FATAL_ERROR "Building shared libraries on Windows requires CMake 3.4 or newer.")
+ENDIF()
 
 # Install stuff
 INSTALL(TARGETS rws DESTINATION ${LIB_INSTALL_DIR})

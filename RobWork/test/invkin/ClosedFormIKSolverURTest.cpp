@@ -17,22 +17,22 @@
 
 #include "../TestSuiteConfig.hpp"
 
-#include <rw/loaders/WorkCellFactory.hpp>
+#include <rw/loaders/WorkCellLoader.hpp>
 #include <rw/models/SerialDevice.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/invkin/ClosedFormIKSolverUR.hpp>
 
-using namespace rw::kinematics;
-using namespace rw::loaders;
+using rw::kinematics::State;
+using rw::loaders::WorkCellLoader;
 using namespace rw::math;
 using namespace rw::models;
-using namespace rw::invkin;
+using rw::invkin::ClosedFormIKSolverUR;
 
 BOOST_AUTO_TEST_CASE( ClosedFormIKSolverURTest ){
 	static const double EPS = 1e-14;
 
-    BOOST_MESSAGE("- Testing ClosedFormIKSolverUR");
-	const WorkCell::Ptr wc = WorkCellFactory::load(testFilePath() + "devices/UR6855A/UR6855A.wc.xml");
+    BOOST_TEST_MESSAGE("- Testing ClosedFormIKSolverUR");
+	const WorkCell::Ptr wc = WorkCellLoader::Factory::load(testFilePath() + "devices/UR6855A/UR6855A.wc.xml");
 	BOOST_REQUIRE(wc != NULL);
 	SerialDevice::Ptr device = wc->findDevice<SerialDevice>("UR-6-85-5-A");
 	BOOST_REQUIRE(device != NULL);
@@ -40,16 +40,16 @@ BOOST_AUTO_TEST_CASE( ClosedFormIKSolverURTest ){
 
 	{
 		State state = wc->getDefaultState();
-	    BOOST_MESSAGE("- - Testing configuration q={0.352,-2.408,-0.785,-1.78,2.199,0.785}");
+	    BOOST_TEST_MESSAGE("- - Testing configuration q={0.352,-2.408,-0.785,-1.78,2.199,0.785}");
 		const Q qRef = Q(6,0.352,-2.408,-0.785,-1.78,2.199,0.785);
 		device->setQ(qRef,state);
 		const Transform3D<> T = device->baseTend(state);
 		const std::vector<Q> solutions = solver.solve(T, state);
-	    BOOST_MESSAGE("- - - Found " << solutions.size() << " solutions: ");
+	    BOOST_TEST_MESSAGE("- - - Found " << solutions.size() << " solutions: ");
 		BOOST_CHECK(solutions.size() > 0);
 		bool found = false;
 		BOOST_FOREACH(const Q& sol, solutions) {
-		    BOOST_MESSAGE("- - - - " << sol);
+		    BOOST_TEST_MESSAGE("- - - - " << sol);
 			if ((sol-qRef).normInf() <= EPS) {
 				found = true;
 			}

@@ -21,14 +21,12 @@
 //! @file SimulatedKinect.hpp
 
 #include <rw/common/Ptr.hpp>
-#include <rw/sensor/Scanner25D.hpp>
 #include "SimulatedSensor.hpp"
-#include "FrameGrabber25D.hpp"
-#include "SimulatedScanner25D.hpp"
 #include <rw/graphics/SceneViewer.hpp>
 #include <rw/sensor/CameraModel.hpp>
 #include <rw/sensor/Scanner25DModel.hpp>
 
+namespace rw { namespace sensor { class Scanner25D; } }
 
 namespace rwlibs { namespace simulation {
     //! @addtogroup simulation
@@ -43,6 +41,7 @@ namespace rwlibs { namespace simulation {
         /**
          * @brief constructor
          * @param name [in] name of this simulated scanner
+         * @param frame [in] the frame the scanner is attached to.
          */
     	SimulatedKinect(const std::string& name, rw::kinematics::Frame *frame);
 
@@ -50,6 +49,7 @@ namespace rwlibs { namespace simulation {
          * @brief constructor
          * @param name [in] name of this simulated scanner
          * @param desc [in] description of this scanner
+         * @param frame [in] the frame the scanner is attached to.
          */
     	SimulatedKinect(const std::string& name, const std::string& desc, rw::kinematics::Frame *frame);
 
@@ -60,13 +60,15 @@ namespace rwlibs { namespace simulation {
     	 */
     	SimulatedKinect(rw::sensor::CameraModel::Ptr camModel, rw::sensor::Scanner25DModel::Ptr scannerModel);
 
-    	/**
-    	 * @brief destructor
-    	 */
+    	//! @brief destructor
     	virtual ~SimulatedKinect();
 
-
-    	void init(rw::graphics::SceneViewer::Ptr drawer);
+    	/**
+    	 * @brief Initialize sensor.
+    	 * @param drawer [in] the scene viewer.
+         * @return true if initialization succeeded, false otherwise (depends on the capabilities of the SceneViewer).
+    	 */
+    	bool init(rw::graphics::SceneViewer::Ptr drawer);
 
     	/**
     	 * @brief set the framerate in frames per sec.
@@ -100,6 +102,10 @@ namespace rwlibs { namespace simulation {
         //! @copydoc Scanner25D::getImage
     	const rw::geometry::PointCloud& getScan();
 
+    	/**
+    	 * @brief Get scanned image.
+    	 * @return a reference to the image.
+    	 */
     	const rw::sensor::Image& getImage();
 
     	//! @copydoc SimulatedSensor::update
@@ -151,7 +157,7 @@ namespace rwlibs { namespace simulation {
 
         double _frameRate, _dtsum;
         bool _isAcquired,_isOpenned, _noiseEnabled;
-        rw::sensor::Scanner25D::Ptr _rsensor;
+        rw::common::Ptr<rw::sensor::Scanner25D> _rsensor;
 
         rw::graphics::SceneViewer::Ptr _drawer;
         rw::graphics::SceneViewer::View::Ptr _view;

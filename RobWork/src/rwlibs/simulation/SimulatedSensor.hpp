@@ -21,11 +21,12 @@
 
 //! @file SimulatedSensor.hpp
 
-#include <rw/kinematics/State.hpp>
 #include <rw/sensor/SensorModel.hpp>
 #include <rw/common/Ptr.hpp>
 #include "Simulator.hpp"
-#include <rw/kinematics/Frame.hpp>
+
+namespace rw { namespace kinematics { class Frame; } }
+namespace rw { namespace kinematics { class State; } }
 
 namespace rwlibs {
 namespace simulation {
@@ -63,7 +64,7 @@ namespace simulation {
         /**
          * @brief steps the the SimulatedSensor with time \b dt and saves any state
          *  changes in \b state.
-         * @param dt [in] the time step in seconds
+         * @param info [in] update information related to the time step.
          * @param state [out] changes of the SimulatedSensor is saved in state.
          */
         virtual void update(const Simulator::UpdateInfo& info, rw::kinematics::State& state) = 0;
