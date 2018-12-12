@@ -1078,6 +1078,8 @@ namespace rw { namespace math {
     class Math
     {
     public:
+        Math() = delete;
+        ~Math() = delete;
         static inline double clamp(double val, double min, double max);
 
         static rw::math::Q clampQ(const rw::math::Q& q,

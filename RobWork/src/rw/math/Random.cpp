@@ -39,12 +39,6 @@ namespace
         boost::normal_distribution<double>(0, 1));
 }
 
-Random::Random() {
-}
-
-Random::~Random() {
-}
-
 double Random::ranNormalDist(double mean, double sigma) {
     return mean + sigma * normal_distribution();
 }

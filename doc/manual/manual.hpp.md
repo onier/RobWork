@@ -1007,7 +1007,7 @@ example:
 <Property name="Camera">60 640 480</Property>
 \endverbatim
 
-You can currently only change views between cameras using the key [1-9], were 1 is the default
+You can currently only change views between cameras using Ctrl + the key [1-9], were 1 is the default
 3rd person view.
 
 \b Important!

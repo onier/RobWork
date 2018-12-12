@@ -34,11 +34,11 @@ namespace math {
  */
 class Random {
 public:
-	Random();
-	virtual ~Random();
+	Random() = delete;
+	~Random() = delete;
 
     /**
-     * @brief A random double in the range [0, 1[.
+     * @brief A random double in the range [0, 1[ using a uniform distribution.
      *
      * @note Uses boost::random
      */
@@ -59,21 +59,21 @@ public:
 	static void seed();
 
     /**
-     * @brief A random double in the range [from, to[.
+     * @brief A random double in the range [from, to[ using a uniform distribution.
      *
      * @note Uses boost::random
      */
     static double ran(double from, double to);
 
     /**
-     * @brief A random integer in the range [from, to[.
+     * @brief A random integer in the range [from, to[ using a uniform distribution.
      *
      * @note Uses boost::random
      */
     static int ranI(int from, int to);
 
     /**
-     * @brief Returns a random sample around \b mean with standard deviation \b sigma
+     * @brief Returns a random sample around \b mean with standard deviation \b sigma  using the normal distribution.
      *
      * @note Uses boost::random
      *

@@ -41,6 +41,9 @@ namespace rw { namespace math {
     class Math
     {
     public:
+    	Math() = delete;
+    	~Math() = delete;
+
         /**
          * @brief Quaternion to equivalent angle axis conversion.
          *
@@ -252,7 +255,7 @@ namespace rw { namespace math {
         // Global random number generation.
 
         /**
-         * @brief A random double in the range [0, 1[.
+         * @brief A random double in the range [0, 1[ using a uniform distribution.
          *
          * @note Uses boost::random
          */
@@ -273,21 +276,21 @@ namespace rw { namespace math {
 		static void seed();
 
         /**
-         * @brief A random double in the range [from, to[.
+         * @brief A random double in the range [from, to[ using a uniform distribution.
          *
          * @note Uses boost::random
          */
         static double ran(double from, double to);
 
         /**
-         * @brief A random integer in the range [from, to[.
+         * @brief A random integer in the range [from, to[ using a uniform distribution.
          *
          * @note Uses boost::random
          */
         static int ranI(int from, int to);
 
         /**
-         * @brief Returns a random sample around \b mean with standard deviation \b sigma
+         * @brief Returns a random sample around \b mean with standard deviation \b sigma using the normal distribution.
          *
          * @note Uses boost::random
 		 * @warning The number sequence generated can vary in different Boost versions (there is a known change in Boost 1.56.0).
@@ -299,7 +302,7 @@ namespace rw { namespace math {
         static double ranNormalDist(double mean, double sigma);
 
         /**
-         * @brief Returns a random Q between with values in the range [from, to[.
+         * @brief Returns a random Q between with values in the range [from, to[ using a uniform distribution.
          *
          * @note Uses boost::random
          *
@@ -310,7 +313,7 @@ namespace rw { namespace math {
         static rw::math::Q ranQ(const rw::math::Q& from, const rw::math::Q& to);
 
         /**
-         * @brief Returns a random Q between with values in the range [bounds.first, bounds.second[.
+         * @brief Returns a random Q between with values in the range [bounds.first, bounds.second[ using a uniform distribution.
          *
          * @note Uses boost::random
          *
@@ -321,7 +324,7 @@ namespace rw { namespace math {
 
 
         /**
-		 * @brief Returns a random direction in \b dim dimensions. 
+		 * @brief Returns a random direction in \b dim dimensions using the standard normal distribution. 
 		 *
 		 * The length of the vector is given by \b length;
 		 *
@@ -334,7 +337,7 @@ namespace rw { namespace math {
 		static rw::math::Q ranDir(size_t dim, double length = 1);
 
 		/**
-		 * @brief Returns a weighted random direction in \b dim dimensions. 
+		 * @brief Returns a weighted random direction in \b dim dimensions using the standard normal distribution. 
 		 *
 		 * The length of the vector is given by \b length;
 		 *
@@ -349,7 +352,7 @@ namespace rw { namespace math {
 
 
 		/**
-		 * @brief Returns a uniformly distributed random orientation
+		 * @brief Returns a uniformly distributed random orientation.
 		 *
 		 * @return Random orientation represented as a Quaternion
 		 */
@@ -363,7 +366,7 @@ namespace rw { namespace math {
 		}
 
 		/**
-		 * @brief Returns a uniformly distributed random orientation
+		 * @brief Returns a uniformly distributed random orientation.
 		 *
 		 * @return Random orientation represented as a Rotation3D
 		 */
@@ -373,7 +376,7 @@ namespace rw { namespace math {
 		}
 
 		/**
-		 * @brief Returns random Transform3D based on ranDir and ranRotation3D
+		 * @brief Returns random Transform3D based on ranDir (using the standard normal distribution) and ranRotation3D (using a uniform distribution).
 		 *
                  * @param translationLength [in] 
 		 * @return Random Transform3D

@@ -48,10 +48,13 @@ namespace
 
 		if (fabs(angle - Pi) < eps) { // Is the angle close to 180 degree
 			V values(
-					sqrt((T)0.5 * (R(0, 0) + (T)1.0)),
-					sqrt((T)0.5 * (R(1, 1) + (T)1.0)),
-					sqrt((T)0.5 * (R(2, 2) + (T)1.0))
+					(T)0.5 * (R(0, 0) + (T)1.0),
+					(T)0.5 * (R(1, 1) + (T)1.0),
+					(T)0.5 * (R(2, 2) + (T)1.0)
 			);
+			values[0] = (values[0] < 0) ? 0 : sqrt(values[0]);
+			values[1] = (values[1] < 0) ? 0 : sqrt(values[1]);
+			values[2] = (values[2] < 0) ? 0 : sqrt(values[2]);
 			// Find index the axis element with largest value.
 			std::size_t k = 0;
 			if (std::fabs(axis[1]) > std::fabs(axis[0]))
