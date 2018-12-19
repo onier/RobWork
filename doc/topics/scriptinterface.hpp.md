@@ -102,7 +102,7 @@ result = planner.query(q_from,q_to,stopCriteria)
 # Java interface # 	{#sec_robwork_java}
 The java interface is automatically enabled when running cmake if a Java SDK with Java Native Interface (JNI)
 is found. For details on SWIG for Java, see the
-<a href="http://www.swig.org/Doc2.0/SWIGDocumentation.html#Java">SWIG 2.0 Java documentation</a> which
+<a href="http://www.swig.org/Doc3.0/SWIGDocumentation.html#Java">SWIG 3.0 Java documentation</a> which
 also contains a good description of the more advanced issues when using JNI to call C++ code from Java.
 
 Look for the line "RobWork: Java bindings ENABLED!" in the cmake output to be sure that Java interfaces are enabled.

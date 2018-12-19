@@ -248,6 +248,7 @@ Python and Java interfaces are also possible, but require that Python or Java SD
 
 https://sourceforge.net/projects/swig/files/swigwin
 
+Please choose version 3 or newer.
 The tool needs no compilation. Simply extract the files from the zip-file where you want SWIG installed. Note down the path to the swig.exe executable. We will refer to this path later as SWIG_EXECUTABLE.
 
 SWIG uses only 35 MB.

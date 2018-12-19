@@ -45,7 +45,7 @@ If you enable compilation of non-standard parts of RobWork, or need to compile o
 
 	sudo apt-get install libxerces-c3.1 libxerces-c-dev
 
-SWIG (optional) is a tool that makes it possible to generate a LUA script interface for RobWork.
+SWIG (optional) is a tool that makes it possible to generate a LUA script interface for RobWork. SWIG must be version 3 or newer.
 Python and Java interfaces are also possible, but require that Python or Java SDK is installed as well.
 All of these interfaces can be generated if you install the following packages (in Ubuntu 16.04 and newer you can consider using liblua5.3-dev instead):
 

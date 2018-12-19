@@ -62,10 +62,12 @@ Xerces is used some places in RobWork for opening XML files. It is still a requi
 ## ¤ RobWork Optional Dependencies ## {#sec_centos_dependencies_rw_optional}
 
 SWIG (optional) is a tool that makes it possible to generate a LUA script interface for RobWork.
+Unfortunately, CentOS comes with a SWIG package that is too old.
+SWIG 3 and newer is needed, and must be downloaded and built separately.
 Python and Java interfaces are also possible, but require that Python or Java SDK is installed as well.
 All of these interfaces can be generated if you install the following packages:
 
-	sudo yum install swig swig lua-devel python-devel java-1.8.0-openjdk-devel
+	sudo yum install lua-devel python-devel java-1.8.0-openjdk-devel
 
 Google Test (optional) is used for unit tests in RobWork. If you are a developer and wants to develop code for the RobWork trunk, writing a GTest will be a requirement:
 

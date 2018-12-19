@@ -298,7 +298,7 @@ ENDIF()
 SET(RW_HAVE_LUA False)
 SET(RW_HAVE_SWIG False)
 
-FIND_PACKAGE(SWIG 1.3 QUIET)
+FIND_PACKAGE(SWIG 3.0.0 QUIET) # At least SWIG 3 to support C++11
 CMAKE_DEPENDENT_OPTION(RW_USE_LUA "Set to ON to include PQP support.
                 Set PQP_INCLUDE_DIR and PQP_LIB_DIR 
                 to specify your own PQP else RobWork PQP will 
@@ -332,20 +332,20 @@ IF(RW_USE_LUA)
     UNSET(RW_FOUND_LUA)
 
     IF( SWIG_FOUND )
-        MESSAGE(STATUS "RobWork: LUA ENABLED! Both SWIG and Lua FOUND!")
+        MESSAGE(STATUS "RobWork: LUA ENABLED! Both SWIG ${SWIG_VERSION} and Lua FOUND!")
         SET(RW_HAVE_SWIG True)
         SET(RW_HAVE_LUA True)
         set(RW_LUA_LIBS rw_lua_s)
     ELSE ()
         SET(RW_HAVE_SWIG False)
         SET(RW_HAVE_LUA False)
-        MESSAGE(SEND_ERROR "RobWork: Lua DISABLED! Since SWIG was NOT FOUND!")
+        MESSAGE(SEND_ERROR "RobWork: Lua DISABLED! Since SWIG 3+ was NOT FOUND!")
     ENDIF ()
 ELSE ()
     IF(SWIG_FOUND)
         
     ELSE()
-        MESSAGE(STATUS "RobWork: LUA DISABLED! Swig not found!")
+        MESSAGE(STATUS "RobWork: LUA DISABLED! Swig 3+ not found!")
     ENDIF()
     SET(LUA_INCLUDE_DIR "")
     #SET(TOLUA_INCLUDE_DIR "")
