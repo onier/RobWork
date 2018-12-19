@@ -2,10 +2,9 @@ SET(SUBSYS_NAME rw_python )
 SET(SUBSYS_DESC "Interface for accessing RobWork from python." )
 SET(SUBSYS_DEPS rw rw_algorithms)
 
-# make sure that SDH can be found
 SET(build TRUE)
 
-FIND_PACKAGE(SWIG 1.3 QUIET)
+FIND_PACKAGE(SWIG 3.0.0 QUIET)
 
 set(DEFAULT TRUE)
 set(REASON )
