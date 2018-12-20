@@ -2,10 +2,9 @@ SET(SUBSYS_NAME rwsim_luai )
 SET(SUBSYS_DESC "Interface for accessing RobWorkSim from lua." )
 SET(SUBSYS_DEPS rw )
 
-# make sure that SDH can be found
 SET(build TRUE)
 
-FIND_PACKAGE(SWIG 1.3 QUIET)
+FIND_PACKAGE(SWIG 3.0.0 QUIET)
 set(DEFAULT TRUE)
 set(REASON )
 IF( NOT SWIG_FOUND)
