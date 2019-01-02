@@ -191,7 +191,7 @@ MathematicaPlotWidget::MathematicaPlotWidget(QWidget* parent):
 MathematicaPlotWidget::~MathematicaPlotWidget() {
 }
 
-void MathematicaPlotWidget::listPlot(const std::vector<double>& x, const std::vector<double>& y) {
+void MathematicaPlotWidget::listPlot(const std::vector<double>& x, const std::vector<double>& y, const std::string& title, const std::string& xlabel, const std::string& ylabel) {
 	setText("Compile with Mathematica support for rendering of data.");
 }
 
