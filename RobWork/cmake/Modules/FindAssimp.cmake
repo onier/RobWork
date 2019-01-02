@@ -15,9 +15,19 @@ find_path(ASSIMP_INCLUDE_DIR NAMES Importer.hpp
            "/usr/include/assimp"
            
    )
-   
+
+if(MSVC12)
+    set(ASSIMP_MSVC_VERSION "vc120")
+elseif(MSVC14)	
+    set(ASSIMP_MSVC_VERSION "vc140")
+endif(MSVC12)
+
 find_library( ASSIMP_LIBRARY 
               assimp
+              PATHS "$ENV{Assimp_ROOT}/lib/"
+                    "/usr/lib" )
+find_library( ASSIMP_LIBRARY 
+              assimp-${ASSIMP_MSVC_VERSION}-mt
               PATHS "$ENV{Assimp_ROOT}/lib/"
                     "/usr/lib" )
 
