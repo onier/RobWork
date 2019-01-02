@@ -52,22 +52,22 @@ BOOST_AUTO_TEST_CASE(Transform3DTest){
     BOOST_CHECK(xeaa.angle() == 0);
     BOOST_CHECK(norm_inf(t3.P()) < 1e-15);
 
-	Transform3D<float> tf;
-	tf = cast<float>(t);
+    Transform3D<float> tf;
+    tf = cast<float>(t);
     for (size_t i = 0; i < 3; i++)
         for (size_t j = 0; j < 4; j++)
             BOOST_CHECK(tf(i, j) == (float)t(i, j));
-	tf = rw::math::cast<float>(t); // qualified lookup
-	for (size_t i = 0; i < 3; i++)
-		for (size_t j = 0; j < 4; j++)
-			BOOST_CHECK(tf(i, j) == (float)t(i, j));
+    tf = rw::math::cast<float>(t); // qualified lookup
+    for (size_t i = 0; i < 3; i++)
+        for (size_t j = 0; j < 4; j++)
+            BOOST_CHECK(tf(i, j) == (float)t(i, j));
 
     /* Test comparison operators operator== and operator!= */
     const EAA<> eaacomp1(Pi / 2, 0, 0);
     const Rotation3D<> rotcomp1 = eaacomp1.toRotation3D();
     const Vector3D<double> comp1(1.1, -2.2, 3.3);
     const Transform3D<double> tcomp1(comp1, rotcomp1);
-    
+
     const EAA<> eaacomp2(Pi / 2, 0, 0);
     const Rotation3D<> rotcomp2 = eaacomp2.toRotation3D();
     const Vector3D<double> comp2(1.1, -2.2, 3.3);

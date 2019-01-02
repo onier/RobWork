@@ -91,15 +91,15 @@ void ThreadSimulator::start(){
 
 void ThreadSimulator::stop(){
     if(!_running || _postStop)
-    	return;
+        return;
 
-	{
+    {
         boost::mutex::scoped_lock lock(_simMutex);
         if(!_running || _postStop)
-        	return;
+            return;
         _postStop = true;
         if( _thread==NULL ){
-        	return;
+            return;
         }
     }
     _thread->join();

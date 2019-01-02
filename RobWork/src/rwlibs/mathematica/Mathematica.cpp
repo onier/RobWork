@@ -110,24 +110,18 @@ bool Mathematica::Link::isOpen() const {
 }
 
 bool Mathematica::Link::ready() const {
-	if (link == NULL)
-		RW_THROW("The given link was NULL!");
 	if (!isOpen())
 		RW_THROW("Mathematica link is not open!");
 	return WSReady(impl->lp);
 }
 
 bool Mathematica::Link::wait() const {
-	if (link == NULL)
-		RW_THROW("The given link was NULL!");
 	if (!isOpen())
 		RW_THROW("Mathematica link is not open!");
 	return WSWaitForLinkActivity(impl->lp) == WSWAITSUCCESS;
 }
 
 const Mathematica::Link& Mathematica::Link::operator<<(const Packet& packet) const {
-	if (link == NULL)
-		RW_THROW("The given link was NULL!");
 	if (!isOpen())
 		RW_THROW("Mathematica link is not open!");
 	const WSLINK& lp = impl->lp;
@@ -151,8 +145,6 @@ void Mathematica::Link::operator>>(rw::common::Ptr<Packet>& result) const {
 	result = NULL;
 	wait();
 
-	if (link == NULL)
-		RW_THROW("The given link was NULL!");
 	if (!isOpen())
 		RW_THROW("Mathematica link is not open!");
 	const WSLINK& lp = impl->lp;
@@ -549,7 +541,7 @@ void Mathematica::addExpression(Function::Ptr exp, LinkImpl::Ptr link) {
 			const std::string fctName = readString(link,true);
 			if (fctName == "RawArray") {
 				const std::string type = readString(link,false);
-				if (type == "Byte") {
+				if (type == "Byte" || type == "UnsignedInteger8") {
 					unsigned char* data;
 					int* dims;
 					int depth;

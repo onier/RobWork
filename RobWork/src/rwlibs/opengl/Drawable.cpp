@@ -69,32 +69,32 @@ void RWDrawable::draw(const DrawableNode::RenderInfo& info) const
     if (!_enable || ((mask&_dmask)==0) )
         return;
 
-	bool highlight = _highlighted;
+    bool highlight = _highlighted;
 
-	glPushMatrix();
+    glPushMatrix();
 
-	if (_scale != 1.0)
-		glScalef(_scale, _scale, _scale);
+    if (_scale != 1.0)
+        glScalef(_scale, _scale, _scale);
 
-	glMultMatrixf(gltrans);
+    glMultMatrixf(gltrans);
 
-	if (highlight) {
+    if (highlight) {
         glDisable(GL_LIGHT0);
         glEnable(GL_LIGHT7);
-	}
-	rw::graphics::DrawableNode::DrawType dtype = _drawType;
+    }
+    rw::graphics::DrawableNode::DrawType dtype = _drawType;
     if(dtype==SOLID)
         dtype = info._drawType;
 
-    BOOST_FOREACH(const Render::Ptr& render, _renders){
+    BOOST_FOREACH(const Render::Ptr& render, _renders) {
         render->draw(info, dtype, _alpha);
     }
     if (highlight) {
         glEnable(GL_LIGHT0);
         glDisable(GL_LIGHT7);
-	}
+    }
 
-	glPopMatrix();
+    glPopMatrix();
 }
 
 void RWDrawable::setDrawType(DrawableNode::DrawType drawType)

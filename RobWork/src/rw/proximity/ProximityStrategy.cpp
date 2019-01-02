@@ -140,11 +140,11 @@ bool ProximityStrategy::hasModel(const rw::kinematics::Frame* frame){
 }
 
 void ProximityStrategy::clearFrame(const rw::kinematics::Frame* frame){
-    if( !_frameToModel.has( *frame ) || _frameToModel[*frame]==NULL )
+    if( !_frameToModel.has( *frame ) || _frameToModel[*frame] == NULL )
         return;
-	ProximityModel::Ptr model = _frameToModel[*frame];
+    ProximityModel::Ptr model = _frameToModel[*frame];
     if( model == NULL )
-    	return;
+        return;
     _frameToModel[*frame] = NULL;
     destroyModel(model.get());
 }

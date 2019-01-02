@@ -178,18 +178,18 @@ bool CollisionStrategy::Factory::hasStrategy(const std::string& strategy) {
 }
 
 CollisionStrategy::Ptr CollisionStrategy::Factory::makeStrategy(const std::string& strategy) {
-	std::string upper = strategy;
-	std::transform(upper.begin(),upper.end(),upper.begin(),::toupper);
+    std::string upper = strategy;
+    std::transform(upper.begin(),upper.end(),upper.begin(),::toupper);
     if( upper == "RW")
         return ownedPtr(new ProximityStrategyRW());
-	CollisionStrategy::Factory ep;
-	std::vector<Extension::Ptr> exts = ep.getExtensions();
-	BOOST_FOREACH(Extension::Ptr& ext, exts){
-    	std::string id = ext->getProperties().get("strategyID",ext->getName() );
-    	std::transform(id.begin(),id.end(),id.begin(),::toupper);
-		if(id == upper){
-			return ext->getObject().cast<CollisionStrategy>();
-		}
-	}
-	return NULL;
+    CollisionStrategy::Factory ep;
+    std::vector<Extension::Ptr> exts = ep.getExtensions();
+    BOOST_FOREACH(Extension::Ptr& ext, exts){
+        std::string id = ext->getProperties().get("strategyID",ext->getName() );
+        std::transform(id.begin(),id.end(),id.begin(),::toupper);
+        if(id == upper){
+            return ext->getObject().cast<CollisionStrategy>();
+        }
+    }
+    return NULL;
 }

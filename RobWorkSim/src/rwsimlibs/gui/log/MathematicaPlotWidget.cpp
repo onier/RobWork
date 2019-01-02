@@ -104,7 +104,7 @@ MathematicaPlotWidget::~MathematicaPlotWidget() {
 	delete _render;
 }
 
-void MathematicaPlotWidget::listPlot(const std::vector<double>& x, const std::vector<double>& y) {
+void MathematicaPlotWidget::listPlot(const std::vector<double>& x, const std::vector<double>& y, const std::string& title, const std::string& xlabel, const std::string& ylabel) {
     //std::cout << "plot size: " << width() << " " << height() << std::endl;
 	try {
 		_kernel->prepare();
@@ -114,11 +114,13 @@ void MathematicaPlotWidget::listPlot(const std::vector<double>& x, const std::ve
 		return;
 	}
     std::list<Mathematica::Expression::Ptr> options;
-    options.push_back(ownedPtr(new Rule("PlotLabel",ToExpression("Style[\"Test\", font]"))));
+    if (!title.empty())
+    	options.push_back(ownedPtr(new Rule("PlotLabel",ToExpression("Style[\""+title+"\", font]"))));
     List axes;
-    axes.add(ToExpression("Style[\"X axis\", font]"));
-    axes.add(ToExpression("Style[\"Y axis\", font]"));
-    options.push_back(ownedPtr(new Rule("AxesLabel",axes)));
+    axes.add(ToExpression("Style[\""+xlabel+"\", font]"));
+    axes.add(ToExpression("Style[\""+ylabel+"\", font]"));
+    if (!xlabel.empty() || !ylabel.empty())
+    	options.push_back(ownedPtr(new Rule("AxesLabel",axes)));
     //List legends;
     //legends.add(ToExpression("Style[\"Series A\", font]"));
     //legends.add(ToExpression("Style[\"Series B\", font]"));
@@ -133,9 +135,9 @@ void MathematicaPlotWidget::listPlot(const std::vector<double>& x, const std::ve
 void MathematicaPlotWidget::resizeEvent(QResizeEvent* event) {
     QLabel::resizeEvent(event);
     if(_render->listPlot.isNull())
-    	return;
-	const int width = event->size().width();
-	const int height = event->size().height();
+        return;
+    const int width = event->size().width();
+    const int height = event->size().height();
     _render->listPlot->setImageSize(width,height);
     _render->listPlot->option("AspectRatio",Mathematica::Real(((double)height)/width));
     render();

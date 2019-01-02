@@ -107,10 +107,10 @@ rw::common::LogWriter& Log::get(LogIndex id)
 {
     if( !isLogEnabled(id) )
         return *_defaultWriter;
-	if(isValidLogIndex(id))
-		return *_writers[id];
-	return *_defaultWriter;
-	//RW_ASSERT("No such writer");
+    if(isValidLogIndex(id))
+        return *_writers[id];
+    return *_defaultWriter;
+    //RW_ASSERT("No such writer");
     //RW_THROW("LogWriter named: " << id << " does not exist");
 }
 

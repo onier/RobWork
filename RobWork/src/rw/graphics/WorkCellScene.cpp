@@ -762,30 +762,30 @@ bool WorkCellScene::removeDrawable(const std::string& name) {
 }
 
 bool WorkCellScene::removeDrawables(const std::string& name) {
-	const std::vector<DrawableNode::Ptr> drawables = _scene->findDrawables(name);
-	for (std::vector<DrawableNode::Ptr>::const_iterator it = drawables.begin(); it != drawables.end(); it++) {
-		const DrawableNode::Ptr d = *it;
-		const std::list<SceneNode::Ptr> parents = d->_parentNodes;
-		for (std::list<SceneNode::Ptr>::const_iterator itP = parents.begin(); itP != parents.end(); itP++) {
-		    const GroupNode::Ptr gn = (*itP)->asGroupNode();
-		    if (gn.isNull())
-		    	continue;
-			const NodeFrameMap::const_iterator itF = _nodeFrameMap.find(gn);
-		    if(itF == _nodeFrameMap.end())
-		    	continue;
-			std::map<const Frame*, std::vector<DrawableNode::Ptr> >::iterator itD = _frameDrawableMap.find(itF->second);
-			if(itD == _frameDrawableMap.end())
-				continue;
-			std::vector<DrawableNode::Ptr>& drawables = itD->second;
-			for (std::vector<DrawableNode::Ptr>::iterator itDrawables = drawables.begin(); itDrawables != drawables.end();) {
-				if ((*itDrawables)->getName() == name) {
-					itDrawables = drawables.erase(itDrawables);
-				} else {
-					itDrawables++;
-				}
-			}
-		}
-	}
+    const std::vector<DrawableNode::Ptr> drawables = _scene->findDrawables(name);
+    for (std::vector<DrawableNode::Ptr>::const_iterator it = drawables.begin(); it != drawables.end(); it++) {
+        const DrawableNode::Ptr d = *it;
+        const std::list<SceneNode::Ptr> parents = d->_parentNodes;
+        for (std::list<SceneNode::Ptr>::const_iterator itP = parents.begin(); itP != parents.end(); itP++) {
+            const GroupNode::Ptr gn = (*itP)->asGroupNode();
+            if (gn.isNull())
+                continue;
+            const NodeFrameMap::const_iterator itF = _nodeFrameMap.find(gn);
+            if(itF == _nodeFrameMap.end())
+                continue;
+            std::map<const Frame*, std::vector<DrawableNode::Ptr> >::iterator itD = _frameDrawableMap.find(itF->second);
+            if(itD == _frameDrawableMap.end())
+                continue;
+            std::vector<DrawableNode::Ptr>& drawables = itD->second;
+            for (std::vector<DrawableNode::Ptr>::iterator itDrawables = drawables.begin(); itDrawables != drawables.end();) {
+                if ((*itDrawables)->getName() == name) {
+                    itDrawables = drawables.erase(itDrawables);
+                } else {
+                    itDrawables++;
+                }
+            }
+        }
+    }
 
     return _scene->removeDrawables(name);
 }

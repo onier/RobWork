@@ -47,8 +47,11 @@ public:
 	 * @brief Do a ListPlot with the given x- and y-values.
 	 * @param x [in] the x-values.
 	 * @param y [in] the y-values.
+	 * @param title [in] (optional) the plot title.
+	 * @param xlabel [in] (optional) x axis label.
+	 * @param ylabel [in] (optional) y axis label.
 	 */
-	void listPlot(const std::vector<double>& x, const std::vector<double>& y);
+	void listPlot(const std::vector<double>& x, const std::vector<double>& y, const std::string& title = "", const std::string& xlabel = "", const std::string& ylabel = "");
 
 	/**
 	 * @brief Resize plot if widget size is changed.

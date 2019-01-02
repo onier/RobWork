@@ -105,30 +105,30 @@ namespace rw { namespace sensor {
 
         //! CameraModelCache that define data to store in the State
         class CameraModelCache: public rw::kinematics::StateCache {
-    	public:
-    		typedef rw::common::Ptr<CameraModelCache> Ptr;
-    		rw::common::Ptr<rw::sensor::Image> _image;
+            public:
+            typedef rw::common::Ptr<CameraModelCache> Ptr;
+            rw::common::Ptr<rw::sensor::Image> _image;
 
-    		//! constructor
-    		CameraModelCache()
-    		{
-    		};
+            //! constructor
+            CameraModelCache()
+            {
+            }
 
-    		//! @copydoc rw::kinematics::StateCache::size
-    		size_t size() const{
-    			if(_image!=NULL)
-    				return _image->getDataSize();
-    			return 0;
-    		};
+            //! @copydoc rw::kinematics::StateCache::size
+            size_t size() const {
+                if(_image != NULL)
+                    return _image->getDataSize();
+                return 0;
+            }
 
-    		//! @copydoc rw::kinematics::StateCache::clone
-    		virtual rw::common::Ptr<StateCache> clone() const{
-    			CameraModelCache::Ptr cache = rw::common::ownedPtr( new CameraModelCache(*this) );
-    		    if(_image!=NULL)
-    		    	cache->_image = rw::common::ownedPtr( new Image( *_image ));
-    			return cache;
-    		};
-    	};
+            //! @copydoc rw::kinematics::StateCache::clone
+            virtual rw::common::Ptr<StateCache> clone() const {
+                CameraModelCache::Ptr cache = rw::common::ownedPtr( new CameraModelCache(*this) );
+                if(_image != NULL)
+                    cache->_image = rw::common::ownedPtr( new Image( *_image ));
+                return cache;
+            }
+        };
 
     private:
         //! name of camera model information

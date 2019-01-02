@@ -224,37 +224,36 @@ bool BoostDOMElem::hasAttribute(const std::string& name) const {
 	return false;
 }
 
-
 DOMElem::Ptr BoostDOMElem::getChild(const std::string& name, bool optional){
     if(_parser->isDebug())
         Log::debugLog() << "Child: " << name << "\n";
 
-	boost::optional<boost::property_tree::ptree&> child = _node->get_child_optional(name);
-	if(child)
-		return rw::common::ownedPtr(new BoostDOMElem(name, &child.get(), _node, this->getRoot(), _parser) );
+    boost::optional<boost::property_tree::ptree&> child = _node->get_child_optional(name);
+    if(child)
+        return rw::common::ownedPtr(new BoostDOMElem(name, &child.get(), _node, this->getRoot(), _parser) );
 
-	if(!optional){
-		RW_THROW("Parse error: Child \"" << name << "\" of element " << getName() << " does not exist!");
-	}
-	return NULL;
+    if(!optional){
+        RW_THROW("Parse error: Child \"" << name << "\" of element " << getName() << " does not exist!");
+    }
+    return NULL;
 }
 
 DOMElem::Ptr BoostDOMElem::getAttribute(const std::string& name, bool optional){
     if(_parser->isDebug())
         Log::debugLog() << "Attr: " << name << "\n";
 
-	boost::optional<boost::property_tree::ptree&> attr = _node->get_child_optional("<xmlattr>");
-	if(attr){
-		boost::optional<boost::property_tree::ptree&> child = _node->get_child("<xmlattr>").get_child_optional(name);
-		if(child)
-			return rw::common::ownedPtr(new BoostDOMElem(name, &child.get(), _node, this->getRoot(), _parser) );
-	}
-	if(!optional){
-		RW_THROW("Parse error: Attribute \"" << name << "\" of element " << getName() << " does not exist!");
-	}
-	return NULL;
-	//boost::property_tree::ptree *child = &(_node->get_child("<xmlattr>").get_child(name));
-	//return rw::common::ownedPtr(new BoostDOMElem(name, child) );
+    boost::optional<boost::property_tree::ptree&> attr = _node->get_child_optional("<xmlattr>");
+    if(attr){
+        boost::optional<boost::property_tree::ptree&> child = _node->get_child("<xmlattr>").get_child_optional(name);
+        if(child)
+            return rw::common::ownedPtr(new BoostDOMElem(name, &child.get(), _node, this->getRoot(), _parser) );
+    }
+    if(!optional){
+        RW_THROW("Parse error: Attribute \"" << name << "\" of element " << getName() << " does not exist!");
+    }
+    return NULL;
+    //boost::property_tree::ptree *child = &(_node->get_child("<xmlattr>").get_child(name));
+    //return rw::common::ownedPtr(new BoostDOMElem(name, child) );
 }
 
 DOMElem::IteratorPair BoostDOMElem::getChildren(){

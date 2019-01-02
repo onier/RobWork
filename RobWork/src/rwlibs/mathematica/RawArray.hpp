@@ -379,7 +379,7 @@ public:
 	//! @copydoc Mathematica::Expression::out
 	void out(std::ostream& stream) const {
 		stream << "RawArray[" << _type->getName() << ", << ";
-		for (std::size_t i = 0; i < _depth; i++) {
+		for (int i = 0; i < _depth; i++) {
 			stream << _dims[i];
 			if (i != _depth-1)
 				stream << "x";

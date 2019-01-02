@@ -88,20 +88,20 @@ RenderFrame::~RenderFrame() {
 
 void RenderFrame::draw(const DrawableNode::RenderInfo& info, DrawableNode::DrawType type, double alpha) const
 {
-    if(_quadratic==NULL)
+    if(_quadratic == NULL)
         _quadratic = gluNewQuadric();
-	const float width = 0.3f;
-	_green[3] = (float)alpha;
-	_red[3] = (float)alpha;
-	_blue[3] = (float)alpha;
+    const float width = 0.3f;
+    _green[3] = (float)alpha;
+    _red[3] = (float)alpha;
+    _blue[3] = (float)alpha;
     switch (type) {
-    case DrawableNode::SOLID:
-    case DrawableNode::OUTLINE: // Draw nice frame
-    	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    	renderSolid(1.0f, 0.3f, _size, _quadratic);
-    	break;
-    case DrawableNode::WIRE:
-    	renderWire(width, _size);
-    	break;
+        case DrawableNode::SOLID:
+        case DrawableNode::OUTLINE: // Draw nice frame
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            renderSolid(1.0f, 0.3f, _size, _quadratic);
+            break;
+        case DrawableNode::WIRE:
+            renderWire(width, _size);
+            break;
     }
 }

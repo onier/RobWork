@@ -59,7 +59,7 @@ ContactGraph::ContactGraph(CNodePool* pool,
             continue;
 
         if(node->getFrame()!=NULL){
-            std::cout << "node - " << node->getFrame()->getName() << std::endl;
+            //std::cout << "node - " << node->getFrame()->getName() << std::endl;
             _frameToNode[ *node->getFrame() ] = node;
         }
     }
@@ -194,34 +194,34 @@ void ContactGraph::broadPhase(rw::kinematics::State &state,
 }
 
 bool ContactGraph::narrowPhase(rw::kinematics::State &state, bool shortCircuit){
-	// Narrowphase and shortcuircuiting
+    // Narrowphase and shortcuircuiting
     bool penetrating = false;
-	std::vector<ConstraintEdge*>::iterator edgeiter = _fEdges.begin();
-	for(; edgeiter != _fEdges.end(); ++edgeiter){
-	    ConstraintEdge &edge = **edgeiter;
-	    if( edge.getState()==ConstraintEdge::Static )
-	        continue;
+    std::vector<ConstraintEdge*>::iterator edgeiter = _fEdges.begin();
+    for(; edgeiter != _fEdges.end(); ++edgeiter){
+        ConstraintEdge &edge = **edgeiter;
+        if( edge.getState() == ConstraintEdge::Static )
+            continue;
 
-		_factory.narrowPhaseCalc(edge, state);
+        _factory.narrowPhaseCalc(edge, state);
 
-		penetrating |= edge.isPenetrating();
+        penetrating |= edge.isPenetrating();
 
         if( penetrating && shortCircuit )
             return true;
 
-		if( edge.wasSeperating() ){
-		    if( !edge.isSeperating() ){
+        if( edge.wasSeperating() ){
+            if( !edge.isSeperating() ){
                 edge.setState(ConstraintEdge::NewTouch);
             }
-		} else {
+        } else {
             if( edge.isSeperating() ){
                 edge.setState( ConstraintEdge::VanishingTouch );
             } else {
                 edge.setState( ConstraintEdge::PersistentTouch );
             }
-		}
-	}
-	return penetrating;
+        }
+    }
+    return penetrating;
 }
 
 void ContactGraph::updateContacts(rw::kinematics::State &state){

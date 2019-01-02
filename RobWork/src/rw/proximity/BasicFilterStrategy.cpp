@@ -21,7 +21,6 @@
 
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/common/macros.hpp>
-#include <boost/foreach.hpp>
 
 using namespace rw;
 using namespace rw::kinematics;
@@ -54,8 +53,8 @@ void BasicFilterStrategy::initialize() {
     State state = _workcell->getDefaultState();
     std::vector<Object::Ptr> objects = _workcell->getObjects();
 
-    BOOST_FOREACH(Object::Ptr object, objects) {
-        BOOST_FOREACH(geometry::Geometry::Ptr geom, object->getGeometry(state) ){
+    for(Object::Ptr object : objects) {
+        for(geometry::Geometry::Ptr geom : object->getGeometry(state) ){
             Frame* frame = geom->getFrame();
             RW_ASSERT(frame);
             _frameToGeoIdMap[*frame].push_back(geom->getName());
@@ -192,7 +191,7 @@ void BasicFilterStrategy::initializeCollisionFramePairs(const State& state) {
 		std::vector<FrameList> staticGroups = Kinematics::getStaticFrameGroups(_workcell->getWorldFrame(), _workcell->getDefaultState());
 		
 		FramePairSet exclude_set;
-		BOOST_FOREACH(FrameList& group, staticGroups) {
+		for(FrameList& group : staticGroups) {
 			typedef FrameList::const_iterator I;
 			for (I from = group.begin(); from != group.end(); ++from) {
 				for (I to = from + 1; to != group.end(); ++to) {
@@ -201,7 +200,7 @@ void BasicFilterStrategy::initializeCollisionFramePairs(const State& state) {
 			}
 		}
 
-		BOOST_FOREACH(FramePair fp, exclude_set) {
+		for(FramePair fp : exclude_set) {
 			FramePairSet::iterator it = result.find(fp);
 			if (it != result.end()) {
 				result.erase(it);
@@ -210,7 +209,7 @@ void BasicFilterStrategy::initializeCollisionFramePairs(const State& state) {
 
 	}
 
-	BOOST_FOREACH(const ProximitySetupRule& rule, _psetup.getProximitySetupRules()) {
+	for(const ProximitySetupRule& rule : _psetup.getProximitySetupRules()) {
 		applyRule(rule, _workcell, result);
 	}
 
@@ -222,41 +221,37 @@ void BasicFilterStrategy::initializeCollisionFramePairs(const State& state) {
 	_collisionPairs.insert(result.begin(), result.end());
 }
 
-
-
 void BasicFilterStrategy::applyRule(const ProximitySetupRule& rule, WorkCell::Ptr workcell, FramePairSet& result) {
-	std::vector<Frame*> frames = workcell->getFrames();
-	switch (rule.type()) {
-	case ProximitySetupRule::EXCLUDE_RULE: 
-		for (FramePairSet::iterator it = result.begin(); it != result.end(); ) {
-			if (rule.match((*it).first->getName(), (*it).second->getName())) {
-			    FramePairSet::iterator ittmp = it;
-			    ++it;
-				result.erase(ittmp);
-			} else {
-				++it;
-			}
-		}
-		break;
-	case ProximitySetupRule::INCLUDE_RULE:
-		BOOST_FOREACH(Frame* frame1, frames) {
-		    if(frame1==NULL)
-		        continue;
-			if (rule.matchPatternA(frame1->getName())) {
-				BOOST_FOREACH(Frame* frame2, frames) {
-		            if(frame2==NULL)
-		                continue;
+    std::vector<Frame*> frames = workcell->getFrames();
+    switch (rule.type()) {
+        case ProximitySetupRule::EXCLUDE_RULE:
+            for (FramePairSet::iterator it = result.begin(); it != result.end(); ) {
+                if (rule.match((*it).first->getName(), (*it).second->getName())) {
+                    FramePairSet::iterator ittmp = it;
+                    ++it;
+                    result.erase(ittmp);
+                } else {
+                    ++it;
+                }
+            }
+            break;
+        case ProximitySetupRule::INCLUDE_RULE:
+            for(Frame* frame1 : frames) {
+                if(frame1 == NULL)
+                    continue;
+                if (rule.matchPatternA(frame1->getName())) {
+                    for(Frame* frame2 : frames) {
+                        if(frame2==NULL)
+                            continue;
 
-				    if (frame1 != frame2) {
-						if (rule.matchPatternB(frame2->getName())) {						
-							result.insert(FramePair(frame1, frame2));
-						}
-					}
-				}
-			}
-		}
-		break;
-	} //end switch
+                        if (frame1 != frame2) {
+                            if (rule.matchPatternB(frame2->getName())) {
+                                result.insert(FramePair(frame1, frame2));
+                            }
+                        }
+                    }
+                }
+            }
+            break;
+    } //end switch
 }
-
-

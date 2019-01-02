@@ -140,34 +140,39 @@ PropertyBase::Ptr Rule::toProperty(const Mathematica::Expression& rule) {
 	// Find value of rule
 	rw::common::Ptr<const Mathematica::Expression> valueArg = args.back();
 	switch(valueArg->getType()) {
-	case Mathematica::Expression::Function:
-	{
-		RW_THROW("Rules with Function values are only supported for List.");
-		break;
-	}
-	case Mathematica::Expression::Integer:
-	{
-		const int value = valueArg.cast<const Mathematica::Integer>()->value();
-		return ownedPtr(new Property<int>(name, "", value));
-	}
-	break;
-	case Mathematica::Expression::Real:
-	{
-		const double value = valueArg.cast<const Mathematica::Real>()->value();
-		return ownedPtr(new Property<double>(name, "", value));
-	}
-	break;
-	case Mathematica::Expression::String:
-	{
-		const std::string& value = valueArg.cast<const Mathematica::String>()->value();
-		return ownedPtr(new Property<std::string>(name, "", value));
-	}
-	break;
-	case Mathematica::Expression::Symbol:
-	{
-		const std::string& value = valueArg.cast<const Mathematica::Symbol>()->getName();
-		return ownedPtr(new Property<std::string>(name, "", value));
-	}
+	    case Mathematica::Expression::Array:
+	    {
+	        RW_THROW("Rules with Array values are not yet handled.");
+	        break;
+	    }
+	    case Mathematica::Expression::Function:
+	    {
+	        RW_THROW("Rules with Function values are only supported for List.");
+	        break;
+	    }
+	    case Mathematica::Expression::Integer:
+	    {
+	        const int value = valueArg.cast<const Mathematica::Integer>()->value();
+	        return ownedPtr(new Property<int>(name, "", value));
+	    }
+	    break;
+	    case Mathematica::Expression::Real:
+	    {
+	        const double value = valueArg.cast<const Mathematica::Real>()->value();
+	        return ownedPtr(new Property<double>(name, "", value));
+	    }
+	    break;
+	    case Mathematica::Expression::String:
+	    {
+	        const std::string& value = valueArg.cast<const Mathematica::String>()->value();
+	        return ownedPtr(new Property<std::string>(name, "", value));
+	    }
+	    break;
+	    case Mathematica::Expression::Symbol:
+	    {
+	        const std::string& value = valueArg.cast<const Mathematica::Symbol>()->getName();
+	        return ownedPtr(new Property<std::string>(name, "", value));
+	    }
 	}
 
 	return NULL;

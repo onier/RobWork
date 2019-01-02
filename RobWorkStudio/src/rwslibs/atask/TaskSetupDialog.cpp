@@ -468,24 +468,24 @@ void TaskSetupDialog::loadTask() {
 void TaskSetupDialog::saveTask() {
     const QString file = QFileDialog::getSaveFileName(this, "Save Assembly Task file", QString::fromStdString(_lastDir), "RW Assembly Task files ( *.tasks.assembly.xml )");
     if(file.size() == 0)
-    	return;
+        return;
 
-	AssemblyTask::Ptr task = ownedPtr(new AssemblyTask());
-	const QDateTime now = QDateTime::currentDateTime();
-	const Transform3D<> target(Vector3D<>(_ui->x->value(),_ui->y->value(),_ui->z->value()),RPY<>(_ui->R->value(),_ui->P->value(),_ui->Y->value()));
+    AssemblyTask::Ptr task = ownedPtr(new AssemblyTask());
+    const QDateTime now = QDateTime::currentDateTime();
+    const Transform3D<> target(Vector3D<>(_ui->x->value(),_ui->y->value(),_ui->z->value()),RPY<>(_ui->R->value(),_ui->P->value(),_ui->Y->value()));
 
-	task->date = now.toString("yyyy-MM-dd HH:mm:ss").toStdString();
-	task->generator = "ATaskVisPlugin TaskSetupDialog";
-	task->femaleID = _ui->female->currentText().toStdString();
-	task->femaleTCP = _ui->femaleTCP->currentText().toStdString();
-	task->maleID = _ui->male->currentText().toStdString();
-	task->maleTCP = _ui->maleTCP->currentText().toStdString();
-	task->parameters = _strategy->createParameterization(_propertyMap);
-	task->strategy = _strategy;
-	task->femaleTmaleTarget = target;
-	task->workcellName = _wc->getName();
+    task->date = now.toString("yyyy-MM-dd HH:mm:ss").toStdString();
+    task->generator = "ATaskVisPlugin TaskSetupDialog";
+    task->femaleID = _ui->female->currentText().toStdString();
+    task->femaleTCP = _ui->femaleTCP->currentText().toStdString();
+    task->maleID = _ui->male->currentText().toStdString();
+    task->maleTCP = _ui->maleTCP->currentText().toStdString();
+    task->parameters = _strategy->createParameterization(_propertyMap);
+    task->strategy = _strategy;
+    task->femaleTmaleTarget = target;
+    task->workcellName = _wc->getName();
 
-	AssemblyTask::saveRWTask(task,file.toStdString()); // choose from dialog...
+    AssemblyTask::saveRWTask(task,file.toStdString()); // choose from dialog...
 }
 
 void TaskSetupDialog::updateView(SceneOpenGLViewer* widget) {

@@ -71,17 +71,17 @@ namespace proximity {
         inline BTPNode* left(){ return _data._children._left; };
         inline BTPNode* right(){ return _data._children._right; };
 
-        inline void setLeft(BTPNode*  left){
-        	RW_ASSERT(!isLeaf());
+        inline void setLeft(BTPNode*  left) {
+            RW_ASSERT(!isLeaf());
             if(_data._children._left != NULL)
                 delete _data._children._left;
             _data._children._left = left;
         }
-        inline void setRight(BTPNode* right){
-        	RW_ASSERT(!isLeaf());
+        inline void setRight(BTPNode* right) {
+            RW_ASSERT(!isLeaf());
             if(_data._children._right != NULL)
                 delete _data._children._right;
-        	_data._children._right = right;
+            _data._children._right = right;
         }
 
         inline bool isLeaf(){ return _size>0 /*|| ((left()==NULL) && (right()==NULL))*/;}

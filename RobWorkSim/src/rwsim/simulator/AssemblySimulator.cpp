@@ -205,260 +205,260 @@ struct AssemblySimulator::SimState {
 };
 
 void AssemblySimulator::runSingle(std::size_t taskIndex, SimulatorLogScope::Ptr log) {
-	State state = _dwc->getWorkcell()->getDefaultState();
-	//long long time = TimerUtil::currentTimeMs();
-	double simTime = 0;
-	bool running = true;
-	double inError = false;
+    State state = _dwc->getWorkcell()->getDefaultState();
+    //long long time = TimerUtil::currentTimeMs();
+    double simTime = 0;
+    bool running = true;
+    double inError = false;
 
-	// Get local copies of shared values
-	bool saveData;
-	double dt;
-	double maxRunTime;
-	bool startInApproach;
-	AssemblyTask::Ptr task;
-	AssemblyResult::Ptr result;
-	{
-		boost::mutex::scoped_lock lock(_mutex);
-		dt = _dt;
-		maxRunTime = _maxSimTime;
-		task = _tasks[taskIndex];
-		result = _results[taskIndex];
-		saveData = _storeExecutionData;
-		startInApproach = _startInApproach;
-	}
+    // Get local copies of shared values
+    bool saveData;
+    double dt;
+    double maxRunTime;
+    bool startInApproach;
+    AssemblyTask::Ptr task;
+    AssemblyResult::Ptr result;
+    {
+        boost::mutex::scoped_lock lock(_mutex);
+        dt = _dt;
+        maxRunTime = _maxSimTime;
+        task = _tasks[taskIndex];
+        result = _results[taskIndex];
+        saveData = _storeExecutionData;
+        startInApproach = _startInApproach;
+    }
 
-	SimState simState;
-	simState.saveData = saveData;
+    SimState simState;
+    simState.saveData = saveData;
 
-	if (task->malePoseController != "") {
-		simState.maleController = _dwc->findController<SerialDeviceController>(task->malePoseController);
-		if (simState.maleController == NULL) {
-			simState.maleBodyControl = _dwc->findBody(task->malePoseController);
-		}
-	}
-	if (task->femalePoseController != "") {
-		simState.femaleController = _dwc->findController<SerialDeviceController>(task->femalePoseController);
-		if (simState.femaleController == NULL) {
-			simState.femaleBodyControl = _dwc->findBody(task->femalePoseController);
-		}
-	}
-	if ((simState.maleController == NULL && simState.maleBodyControl == NULL) && (simState.femaleController == NULL && simState.femaleBodyControl == NULL)) {
-		std::cout << "Simulation could NOT be started! - there is no peg controller and no hole controller." << std::endl;
-		running = false;
-	}
-	if (simState.maleController != NULL)
-		simState.maleDevice = simState.maleController->getDynamicDevice()->getKinematicModel().cast<SerialDevice>();
-	if (simState.femaleController != NULL)
-		simState.femaleDevice = simState.femaleController->getDynamicDevice()->getKinematicModel().cast<SerialDevice>();
+    if (task->malePoseController != "") {
+        simState.maleController = _dwc->findController<SerialDeviceController>(task->malePoseController);
+        if (simState.maleController == NULL) {
+            simState.maleBodyControl = _dwc->findBody(task->malePoseController);
+        }
+    }
+    if (task->femalePoseController != "") {
+        simState.femaleController = _dwc->findController<SerialDeviceController>(task->femalePoseController);
+        if (simState.femaleController == NULL) {
+            simState.femaleBodyControl = _dwc->findBody(task->femalePoseController);
+        }
+    }
+    if ((simState.maleController == NULL && simState.maleBodyControl == NULL) && (simState.femaleController == NULL && simState.femaleBodyControl == NULL)) {
+        std::cout << "Simulation could NOT be started! - there is no peg controller and no hole controller." << std::endl;
+        running = false;
+    }
+    if (simState.maleController != NULL)
+        simState.maleDevice = simState.maleController->getDynamicDevice()->getKinematicModel().cast<SerialDevice>();
+    if (simState.femaleController != NULL)
+        simState.femaleDevice = simState.femaleController->getDynamicDevice()->getKinematicModel().cast<SerialDevice>();
 
-	simState.male = _dwc->findBody(task->maleID);
-	simState.female = _dwc->findBody(task->femaleID);
-	if (simState.male == NULL) {
-		std::cout << "Simulation could NOT be started! - peg body could not be found." << std::endl;
-		running = false;
-	}
-	if (simState.female == NULL) {
-		std::cout << "Simulation could NOT be started! - hole body could not be found." << std::endl;
-		running = false;
-	}
+    simState.male = _dwc->findBody(task->maleID);
+    simState.female = _dwc->findBody(task->femaleID);
+    if (simState.male == NULL) {
+        std::cout << "Simulation could NOT be started! - peg body could not be found." << std::endl;
+        running = false;
+    }
+    if (simState.female == NULL) {
+        std::cout << "Simulation could NOT be started! - hole body could not be found." << std::endl;
+        running = false;
+    }
 
-	if (task->maleTCP == "")
-		simState.maleTCP = simState.male->getBodyFrame();
-	else
-		simState.maleTCP = _dwc->getWorkcell()->findFrame(task->maleTCP);
-	if (task->femaleTCP == "")
-		simState.femaleTCP = simState.female->getBodyFrame();
-	else
-		simState.femaleTCP = _dwc->getWorkcell()->findFrame(task->femaleTCP);
-	if (simState.maleTCP == NULL) {
-		std::cout << "Simulation could NOT be started! - peg tcp frame could not be found." << std::endl;
-		running = false;
-	}
-	if (simState.femaleTCP == NULL) {
-		std::cout << "Simulation could NOT be started! - hole tcp frame could not be found." << std::endl;
-		running = false;
-	}
+    if (task->maleTCP == "")
+        simState.maleTCP = simState.male->getBodyFrame();
+    else
+        simState.maleTCP = _dwc->getWorkcell()->findFrame(task->maleTCP);
+    if (task->femaleTCP == "")
+        simState.femaleTCP = simState.female->getBodyFrame();
+    else
+        simState.femaleTCP = _dwc->getWorkcell()->findFrame(task->femaleTCP);
+    if (simState.maleTCP == NULL) {
+        std::cout << "Simulation could NOT be started! - peg tcp frame could not be found." << std::endl;
+        running = false;
+    }
+    if (simState.femaleTCP == NULL) {
+        std::cout << "Simulation could NOT be started! - hole tcp frame could not be found." << std::endl;
+        running = false;
+    }
 
-	if (simState.maleTCP == NULL && simState.femaleTCP == NULL) {
-		std::cout << "Simulation could NOT be started! - no FTSensor found." << std::endl;
-		running = false;
-	}
+    if (simState.maleTCP == NULL && simState.femaleTCP == NULL) {
+        std::cout << "Simulation could NOT be started! - no FTSensor found." << std::endl;
+        running = false;
+    }
 
-	if (startInApproach) {
-		Transform3D<> approach = task->strategy->getApproach(task->parameters);
-		if (simState.maleDevice == NULL)
-			simState.baseTfemale = Kinematics::worldTframe(simState.femaleTCP,state);
-		else
-			simState.baseTfemale = Kinematics::frameTframe(simState.maleDevice->getBase(),simState.femaleTCP,state);
-		if (simState.maleDevice == NULL)
-			simState.maleTend = Kinematics::frameTframe(simState.maleTCP,simState.maleBodyControl->getBodyFrame(),state);
-		else
-			simState.maleTend = Kinematics::frameTframe(simState.maleTCP,simState.maleDevice->getEnd(),state);
-		approach = simState.baseTfemale*approach*simState.maleTend;
-		simState.maleApproach = approach;
+    if (startInApproach) {
+        Transform3D<> approach = task->strategy->getApproach(task->parameters);
+        if (simState.maleDevice == NULL)
+            simState.baseTfemale = Kinematics::worldTframe(simState.femaleTCP,state);
+        else
+            simState.baseTfemale = Kinematics::frameTframe(simState.maleDevice->getBase(),simState.femaleTCP,state);
+        if (simState.maleDevice == NULL)
+            simState.maleTend = Kinematics::frameTframe(simState.maleTCP,simState.maleBodyControl->getBodyFrame(),state);
+        else
+            simState.maleTend = Kinematics::frameTframe(simState.maleTCP,simState.maleDevice->getEnd(),state);
+        approach = simState.baseTfemale*approach*simState.maleTend;
+        simState.maleApproach = approach;
 
-		if (simState.maleDevice != NULL) {
-			// Initialize invkin solver
-			InvKinSolver::Ptr solver = ownedPtr( new JacobianIKSolver(simState.maleDevice,simState.state));
-			Q qPegDev = simState.maleDevice->getQ(simState.state);
-			std::vector<Q> solutions = orderSolutions(solver->solve(approach, simState.state),qPegDev);
-			bool success = false;
-			if (solutions.size() > 0) {
-				BOOST_FOREACH(Q q, solutions) {
-					State state = simState.state;
-					if (q.size() == 7) {
-						q[5] += q[6];
-						q[6] = 0;
-					}
-					simState.maleDevice->setQ(q,state);
-					if (!_collisionDetector->inCollision(state)) {
-						simState.maleTarget = q;
-						success = true;
-						break;
-					}
-				}
-			}
-			if (success) {
-				simState.maleDevice->setQ(simState.maleTarget,simState.state);
-				simState.controlState = task->strategy->createState();
-				simState.phase = SimState::INSERTION;
-			} else {
-				std::cout << "Simulation could NOT be started! - no inverse kinematics solution found for approach." << std::endl;
-				running = false;
-			}
-		} else {
-			const RigidBody::Ptr rbody = simState.maleBodyControl.cast<RigidBody>();
-			const KinematicBody::Ptr kbody = simState.maleBodyControl.cast<KinematicBody>();
-		    Transform3D<> wTb = Transform3D<>::identity();
-		    if (simState.maleBodyControl->getParentFrame(state) != NULL) {
-		    	wTb = Kinematics::worldTframe(simState.maleBodyControl->getParentFrame(state), state);
-		    }
-			if (rbody != NULL) {
-				rbody->getMovableFrame()->setTransform(inverse(wTb)*approach,state);
-			} else if (kbody != NULL) {
-				kbody->getMovableFrame()->setTransform(inverse(wTb)*approach,state);
-			}
-			simState.controlState = task->strategy->createState();
-			simState.phase = SimState::INSERTION;
-		}
-	}
+        if (simState.maleDevice != NULL) {
+            // Initialize invkin solver
+            InvKinSolver::Ptr solver = ownedPtr( new JacobianIKSolver(simState.maleDevice,simState.state));
+            Q qPegDev = simState.maleDevice->getQ(simState.state);
+            std::vector<Q> solutions = orderSolutions(solver->solve(approach, simState.state),qPegDev);
+            bool success = false;
+            if (solutions.size() > 0) {
+                BOOST_FOREACH(Q q, solutions) {
+                    State state = simState.state;
+                    if (q.size() == 7) {
+                        q[5] += q[6];
+                        q[6] = 0;
+                    }
+                    simState.maleDevice->setQ(q,state);
+                    if (!_collisionDetector->inCollision(state)) {
+                        simState.maleTarget = q;
+                        success = true;
+                        break;
+                    }
+                }
+            }
+            if (success) {
+                simState.maleDevice->setQ(simState.maleTarget,simState.state);
+                simState.controlState = task->strategy->createState();
+                simState.phase = SimState::INSERTION;
+            } else {
+                std::cout << "Simulation could NOT be started! - no inverse kinematics solution found for approach." << std::endl;
+                running = false;
+            }
+        } else {
+            const RigidBody::Ptr rbody = simState.maleBodyControl.cast<RigidBody>();
+            const KinematicBody::Ptr kbody = simState.maleBodyControl.cast<KinematicBody>();
+            Transform3D<> wTb = Transform3D<>::identity();
+            if (simState.maleBodyControl->getParentFrame(state) != NULL) {
+                wTb = Kinematics::worldTframe(simState.maleBodyControl->getParentFrame(state), state);
+            }
+            if (rbody != NULL) {
+                rbody->getMovableFrame()->setTransform(inverse(wTb)*approach,state);
+            } else if (kbody != NULL) {
+                kbody->getMovableFrame()->setTransform(inverse(wTb)*approach,state);
+            }
+            simState.controlState = task->strategy->createState();
+            simState.phase = SimState::INSERTION;
+        }
+    }
 
-	simState.femaleContactSensor = ownedPtr(new BodyContactSensor("HoleContactSensor", simState.female->getBodyFrame()));
-	simState.femaleContactSensor->registerIn(state);
-	simState.state = state;
+    simState.femaleContactSensor = ownedPtr(new BodyContactSensor("HoleContactSensor", simState.female->getBodyFrame()));
+    simState.femaleContactSensor->registerIn(state);
+    simState.state = state;
 
-	PhysicsEngine::Ptr pe = PhysicsEngine::Factory::makePhysicsEngine(_engineID,_dwc);
-	RW_ASSERT(pe != NULL);
-	DynamicSimulator* simulator = new DynamicSimulator(_dwc,pe);
-	simState.simulator = simulator;
-	try {
-		simulator->init(state);
-	} catch(...){
-		delete simulator;
-		RW_THROW("could not initialize simulator!\n");
-	}
-	simulator->addSensor(simState.femaleContactSensor, state);
+    PhysicsEngine::Ptr pe = PhysicsEngine::Factory::makePhysicsEngine(_engineID,_dwc);
+    RW_ASSERT(pe != NULL);
+    DynamicSimulator* simulator = new DynamicSimulator(_dwc,pe);
+    simState.simulator = simulator;
+    try {
+        simulator->init(state);
+    } catch(...){
+        delete simulator;
+        RW_THROW("could not initialize simulator!\n");
+    }
+    simulator->addSensor(simState.femaleContactSensor, state);
 
-	if (task->maleFTSensor != "") {
-		SimulatedFTSensor::Ptr ftsensor = _dwc->findSensor<SimulatedFTSensor>(task->maleFTSensor);
-		if (ftsensor != NULL) {
-			simState.maleFTSensor = ftsensor->getFTSensor(simulator).get();
-			if (simState.maleController != NULL)
-				simState.maleController->setFTSensor(simState.maleFTSensor.get());
-		}
-	}
-	if (task->femaleFTSensor != "") {
-		SimulatedFTSensor::Ptr ftsensor = _dwc->findSensor<SimulatedFTSensor>(task->femaleFTSensor);
-		if (ftsensor != NULL) {
-			simState.femaleFTSensor = ftsensor->getFTSensor(simulator);
-			if (simState.femaleController != NULL)
-				simState.femaleController->setFTSensor(simState.femaleFTSensor.get());
-		}
-	}
+    if (task->maleFTSensor != "") {
+        SimulatedFTSensor::Ptr ftsensor = _dwc->findSensor<SimulatedFTSensor>(task->maleFTSensor);
+        if (ftsensor != NULL) {
+            simState.maleFTSensor = ftsensor->getFTSensor(simulator).get();
+            if (simState.maleController != NULL)
+                simState.maleController->setFTSensor(simState.maleFTSensor.get());
+        }
+    }
+    if (task->femaleFTSensor != "") {
+        SimulatedFTSensor::Ptr ftsensor = _dwc->findSensor<SimulatedFTSensor>(task->femaleFTSensor);
+        if (ftsensor != NULL) {
+            simState.femaleFTSensor = ftsensor->getFTSensor(simulator);
+            if (simState.femaleController != NULL)
+                simState.femaleController->setFTSensor(simState.femaleFTSensor.get());
+        }
+    }
 
-	BOOST_FOREACH(const std::string &name, task->bodyContactSensors) {
-		SimulatedSensor::Ptr sensor = _dwc->findSensor(name);
-		if (sensor != NULL) {
-			BodyContactSensor::Ptr bcSensor = sensor.cast<BodyContactSensor>();
-			if (bcSensor != NULL)
-				simState.bodyContactSensors.push_back(bcSensor);
-				simulator->addSensor(sensor, state);
-		}
-	}
+    BOOST_FOREACH(const std::string &name, task->bodyContactSensors) {
+        SimulatedSensor::Ptr sensor = _dwc->findSensor(name);
+        if (sensor != NULL) {
+            BodyContactSensor::Ptr bcSensor = sensor.cast<BodyContactSensor>();
+            if (bcSensor != NULL)
+                simState.bodyContactSensors.push_back(bcSensor);
+            simulator->addSensor(sensor, state);
+        }
+    }
 
-	if (!_contactDetector.isNull()) {
-		const bool setCD = pe->setContactDetector(_contactDetector);
-		if (!setCD)
-			RW_THROW("AssemblySimulator could not set ContactDetector on the used PhysicsEngine!");
-	}
+    if (!_contactDetector.isNull()) {
+        const bool setCD = pe->setContactDetector(_contactDetector);
+        if (!setCD)
+            RW_THROW("AssemblySimulator could not set ContactDetector on the used PhysicsEngine!");
+    }
 
-	if (!log.isNull())
-		pe->setSimulatorLog(log);
+    if (!log.isNull())
+        pe->setSimulatorLog(log);
 
-	while(running) {
-		{
-			boost::mutex::scoped_lock lock(_mutex);
-			if(_postStopCancel){
-				running = false;
-				break;
-			}
-		}
+    while(running) {
+        {
+            boost::mutex::scoped_lock lock(_mutex);
+            if(_postStopCancel){
+                running = false;
+                break;
+            }
+        }
 
-		std::string errorstring;
-		if(!inError){
-			try {
-				simulator->step(dt);
-				state = simulator->getState();
+        std::string errorstring;
+        if(!inError){
+            try {
+                simulator->step(dt);
+                state = simulator->getState();
 
-			} catch (std::exception& e){
-				std::cout << "Error stepping" << std::endl;
-				std::cout << e.what() << std::endl;
-				errorstring = e.what();
-				inError = 	true;
-			} catch (...){
-				std::cout << "Error stepping" << std::endl;
-				inError = true;
-			}
+            } catch (std::exception& e){
+                std::cout << "Error stepping" << std::endl;
+                std::cout << e.what() << std::endl;
+                errorstring = e.what();
+                inError = 	true;
+            } catch (...){
+                std::cout << "Error stepping" << std::endl;
+                inError = true;
+            }
 
-			// get the actual timestep taken
-			double sTime = simulator->getTime();
-			// calculate the time in real time that this should correspond to
-			//std::cout << sTime << " " << simTime << _timescale << std::endl;
+            // get the actual timestep taken
+            double sTime = simulator->getTime();
+            // calculate the time in real time that this should correspond to
+            //std::cout << sTime << " " << simTime << _timescale << std::endl;
 
-			if(sTime-simTime<0){
-				// somebody reset the time...
-				simTime = 0;
-				//time = TimerUtil::currentTimeMs();
-			}
+            if(sTime-simTime<0){
+                // somebody reset the time...
+                simTime = 0;
+                //time = TimerUtil::currentTimeMs();
+            }
 
-			simTime = sTime;
-		}
+            simTime = sTime;
+        }
 
-		if (inError) {
-			running = false;
-			result->error = AssemblyResult::SIMULATION_ERROR;
-			result->errorMessage = errorstring;
-		}
+        if (inError) {
+            running = false;
+            result->error = AssemblyResult::SIMULATION_ERROR;
+            result->errorMessage = errorstring;
+        }
 
-		simState.state = state;
-		simState.time = simTime;
-		stateMachine(simState, task, result);
-		state = simState.state;
+        simState.state = state;
+        simState.time = simTime;
+        stateMachine(simState, task, result);
+        state = simState.state;
 
-		//time = TimerUtil::currentTimeMs();
+        //time = TimerUtil::currentTimeMs();
 
-		if (simTime > maxRunTime)
-			running = false;
+        if (simTime > maxRunTime)
+            running = false;
 
-		if (simState.phase == SimState::FAILED || simState.phase == SimState::FINISHED)
-			running = false;
+        if (simState.phase == SimState::FAILED || simState.phase == SimState::FINISHED)
+            running = false;
 
-		//std::cout << "simTime: " << simTime << std::endl;
-	}
-	result->femaleTmaleEnd = Kinematics::frameTframe(simState.femaleTCP,simState.maleTCP,simState.state);
-	simulator->exitPhysics();
-	delete simulator;
+        //std::cout << "simTime: " << simTime << std::endl;
+    }
+    result->femaleTmaleEnd = Kinematics::frameTframe(simState.femaleTCP,simState.maleTCP,simState.state);
+    simulator->exitPhysics();
+    delete simulator;
 }
 
 void AssemblySimulator::runAll() {

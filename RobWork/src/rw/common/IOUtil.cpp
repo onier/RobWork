@@ -229,48 +229,46 @@ void IOUtil::getFilesInFolder(const std::string& path, const std::string& fileMa
         //A fix of this is to convert it with c_str().
         std::string regStr = fileMask.c_str();
 
-	    boost::replace_all(regStr, "\\", "\\\\");
-	    boost::replace_all(regStr, ".", "\\.");
-	    boost::replace_all(regStr, "*", ".*");
-	    boost::replace_all(regStr, "(", "\\(");
-	    boost::replace_all(regStr, ")", "\\)");
-	    boost::replace_all(regStr, "+", "\\+");
+        boost::replace_all(regStr, "\\", "\\\\");
+        boost::replace_all(regStr, ".", "\\.");
+        boost::replace_all(regStr, "*", ".*");
+        boost::replace_all(regStr, "(", "\\(");
+        boost::replace_all(regStr, ")", "\\)");
+        boost::replace_all(regStr, "+", "\\+");
 
         const boost::regex regex(regStr);
         boost::cmatch match;
 
         boost::filesystem::directory_iterator end;
-        for (boost::filesystem::directory_iterator it(path); it != end; it++)
-        {			        
+        for (boost::filesystem::directory_iterator it(path); it != end; it++) {
             if (boost::filesystem::is_directory(it->status())) {
                 if(recursive)
                     getFilesInFolder(it->path().string(), fileMask, recursive, addPath, result);
                 continue;
             }
 
-	        if (!boost::filesystem::is_regular_file(it->status())) //If not a regular file
+            if (!boost::filesystem::is_regular_file(it->status())) //If not a regular file
                 continue;
 #if(BOOST_FILESYSTEM_VERSION==2)
-	        std::string filename = it->path().filename();
+            std::string filename = it->path().filename();
 #else
-	        std::string filename = it->path().filename().string();
+            std::string filename = it->path().filename().string();
 #endif
             if (!boost::regex_match(filename.c_str(), match, regex)) 
                 continue;
 
-	        if (addPath)
-		        result.push_back(it->path().string());
-	        else{
+            if (addPath)
+                result.push_back(it->path().string());
+            else{
 #if(BOOST_FILESYSTEM_VERSION==2)
                 result.push_back(it->path().filename());
 #else
                 result.push_back(it->path().filename().string());
 #endif
-	        }
+            }
         }
     }
-    catch (const std::exception& e)
-    {
+    catch (const std::exception& e) {
         RW_THROW("Unable to retrieve files in folder: "<<e.what());
     }
 }
