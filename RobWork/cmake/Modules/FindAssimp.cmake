@@ -10,9 +10,9 @@ if (ASSIMP_INCLUDE_DIR)
   SET(ASSIMP_FIND_QUIETLY TRUE)
 endif (ASSIMP_INCLUDE_DIR)
 
-find_path(ASSIMP_INCLUDE_DIR NAMES Importer.hpp
-     PATHS "$ENV{Assimp_ROOT}/include/assimp"
-           "/usr/include/assimp"
+find_path(ASSIMP_INCLUDE_DIR NAMES assimp/Importer.hpp
+     PATHS "$ENV{Assimp_ROOT}/include"
+           "/usr/include"
            
    )
 
