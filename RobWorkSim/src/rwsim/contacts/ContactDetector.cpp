@@ -30,6 +30,7 @@
 #include <rw/common/TimerUtil.hpp>
 #include <rw/kinematics/FKTable.hpp>
 #include <rw/proximity/BasicFilterStrategy.hpp>
+#include <rw/models/Object.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rwsim/log/SimulatorLogScope.hpp>
 

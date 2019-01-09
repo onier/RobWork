@@ -20,6 +20,7 @@
 #include "CollisionStrategy.hpp"
 
 #include <rw/common/ScopedTimer.hpp>
+#include <rw/models/Object.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/kinematics/State.hpp>
 #include <rw/kinematics/Frame.hpp>

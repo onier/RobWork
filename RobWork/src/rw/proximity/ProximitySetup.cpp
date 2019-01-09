@@ -19,9 +19,8 @@
 #include "ProximitySetup.hpp"
 #include "CollisionSetup.hpp"
 
+#include <rw/models/Object.hpp>
 #include <rw/models/WorkCell.hpp>
-
-#include <boost/foreach.hpp>
 
 using namespace rw::common;
 using namespace rw::proximity;
@@ -37,7 +36,7 @@ ProximitySetup::ProximitySetup(const CollisionSetup& csetup):
 		_useExcludeStaticPairs(true),
 		_loadedFromFile(false)
 {
-	BOOST_FOREACH(rw::common::StringPair pair, csetup.getExcludeList()) {
+	for(rw::common::StringPair pair : csetup.getExcludeList()) {
 		addProximitySetupRule(ProximitySetupRule::makeExclude(pair.first, pair.second));
 	}
 	_useExcludeStaticPairs = csetup.excludeStaticPairs();

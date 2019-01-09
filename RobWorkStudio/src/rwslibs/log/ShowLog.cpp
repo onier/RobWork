@@ -20,6 +20,7 @@
 #include <iomanip>
 
 #include <rw/common/Log.hpp>
+#include <rw/common/StringUtil.hpp>
 #include <rws/RobWorkStudio.hpp>
 
 #include <sstream>

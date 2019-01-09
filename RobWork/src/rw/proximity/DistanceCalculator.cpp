@@ -23,6 +23,7 @@
 #include <rw/common/ScopedTimer.hpp>
 #include <rw/kinematics/FKTable.hpp>
 #include <rw/kinematics/Kinematics.hpp>
+#include <rw/models/Object.hpp>
 #include <rw/models/WorkCell.hpp>
 
 //#include <omp.h>

@@ -17,18 +17,16 @@
 
 #include "BasicFilterStrategy.hpp"
 
-#include <rw/models/WorkCell.hpp>
-
-#include <rw/kinematics/Kinematics.hpp>
 #include <rw/common/macros.hpp>
+#include <rw/kinematics/Kinematics.hpp>
+#include <rw/models/Object.hpp>
+#include <rw/models/WorkCell.hpp>
 
 using namespace rw;
 using namespace rw::kinematics;
 using namespace rw::proximity;
 using namespace rw::common;
 using namespace rw::models;
-
-
 
 BasicFilterStrategy::BasicFilterStrategy(rw::models::WorkCell::Ptr workcell):
 	_workcell(workcell),		

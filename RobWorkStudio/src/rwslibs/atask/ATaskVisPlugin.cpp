@@ -2,6 +2,8 @@
 
 #include "StrategyLibraryDialog.hpp"
 
+#include <rw/common/StringUtil.hpp>
+
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
 

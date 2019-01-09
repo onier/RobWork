@@ -109,7 +109,7 @@ namespace rw { namespace kinematics {
          * frame.
          *
          */
-        void addFrame(Frame *frame, Frame *parent=NULL);
+        void addFrame(rw::common::Ptr<Frame> frame, rw::common::Ptr<Frame> parent = NULL);
 
         /**
          * @brief adds a DAF to the frame tree and dynamicly associates
@@ -118,7 +118,7 @@ namespace rw { namespace kinematics {
          * @note the parent frame must exist in the frame tree and cannot be
          * NULL.
          */
-        void addDAF(Frame *frame, Frame *parent);
+        void addDAF(rw::common::Ptr<Frame> frame, rw::common::Ptr<Frame> parent);
 
         /**
          * @brief removes a StateData object from the tree. The actual
@@ -197,8 +197,9 @@ namespace rw { namespace kinematics {
 
         /**
          * @brief destructs all frames and statedata that is not used any more.
+         * @param id [in] used to include a specific StateData ID for destruction, defualt -1 to ignore this option.
          */
-        void cleanup();
+        void cleanup(int ID = -1);
 
         /*
          * @brief test if the state structure has a specific frame

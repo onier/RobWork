@@ -17,6 +17,8 @@
 
 
 #include "CollisionSetup.hpp"
+
+#include <rw/kinematics/Frame.hpp>
 #include <rw/models/WorkCell.hpp>
 
 using namespace rw::proximity;

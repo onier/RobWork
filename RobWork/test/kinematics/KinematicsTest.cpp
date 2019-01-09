@@ -291,8 +291,7 @@ BOOST_AUTO_TEST_CASE( removeFramesTest )
     State state = tree->getDefaultState();
     Frame *frame = l7;
     Frame *parent; // = frame->getParent(tree->getDefaultState());
-    tree->remove(frame);
-    while(frame!=world){
+    while(frame != world) {
         parent = frame->getParent(tree->getDefaultState());
         //std::cout << "frame: " << frame->getName() << "  parent: " << parent->getName() << std::endl;
         tree->remove(frame);

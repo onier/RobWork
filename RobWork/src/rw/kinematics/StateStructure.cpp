@@ -15,21 +15,18 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #include "StateStructure.hpp"
 
-#include <boost/foreach.hpp>
-
-#include <rw/math/Transform3D.hpp>
 #include "FixedFrame.hpp"
 #include "State.hpp"
 #include "QState.hpp"
 #include "StateSetup.hpp"
 #include "TreeState.hpp"
 
-using namespace rw::math;
-using namespace rw::kinematics;
+#include <rw/math/Transform3D.hpp>
 
+using rw::math::Transform3D;
+using namespace rw::kinematics;
 
 StateStructure::StateStructure():
     _version(0),
@@ -50,7 +47,17 @@ StateStructure::StateStructure():
 
 StateStructure::~StateStructure()
 {
-    // for now everything is destructed with shared_ptr
+    // Make Sure that shared Frame pointers are not attached to this statestructure
+    for(size_t i = 0; i < _frames.size(); i++) {
+        //std::cout << "Frame[" << i+1 << "/" << _frames.size() << "]" << std::endl;
+        if (_frames[i] != nullptr) {
+            _frames[i]->setID(-1,NULL);
+            if(_frames[i]->getParent() != NULL) {
+                _frames[i]->getParent()->removeChild(_frames[i]);
+                _frames[i]->setParent(NULL);
+            }
+        }
+    }
 }
 
 bool StateStructure::has(const StateData * const data){
@@ -83,7 +90,6 @@ void StateStructure::addDataInternal(StateData * const data){
     _version++;
     const int id = allocateDataID();
     data->setID(id, this);
-
     // There is no turning back. Ownership is forever taken.
     boost::shared_ptr<StateData> sharedData( data );
     _allDatas.at(id) = sharedData;
@@ -103,7 +109,7 @@ void StateStructure::addDataInternal(const boost::shared_ptr<StateData> data){
     _version++;
     const int id = allocateDataID();
     data->setID(id, this);
-    //std::cout << "add: " << data->getName() << " id: " << data->getID() << std::endl;
+    
     boost::shared_ptr<StateData> sharedData = data;
     _allDatas.at(id) = sharedData;
     _currDatas.at(id) = sharedData;
@@ -114,23 +120,21 @@ void StateStructure::addDataInternal(const boost::shared_ptr<StateData> data){
     // lastly update the default state
 }
 
-
-void StateStructure::addFrame(Frame * const frame, Frame * const parent_arg){
+void StateStructure::addFrame(Frame::Ptr frame, Frame::Ptr parent){
     // both frame and parent must be well defined
-    if(frame==NULL)
+    if(frame == NULL)
         RW_THROW("Input frame must not be NULL!");
-    Frame *parent = parent_arg;
-    if(parent_arg==NULL){
+    if(parent == NULL) {
         parent = getRoot();
     }
     RW_ASSERT(frame && parent);
 
     // and parent must exist in the tree, but not the frame
-    if( has(frame) ){
+    if( has(frame.get()) ){
         RW_THROW("The frame has already been added to the state structure!");
     }
 
-    if( !has(parent) ){
+    if( !has(parent.get()) ){
         RW_THROW("The parent is not part of the state structure and should be added before frame is!");
     }
 
@@ -143,12 +147,18 @@ void StateStructure::addFrame(Frame * const frame, Frame * const parent_arg){
         RW_THROW("Frame name is not unique: "<< frame->getName());
 
     // update the parent child relationships
-    frame->setParent(parent);
-    parent->addChild(frame);
+    frame->setParent(parent.get());
+    parent->addChild(frame.get());
+
     // now add the state data of the frame
-    addDataInternal(frame);
+    if(frame.isShared()) {
+        addDataInternal(frame.getSharedPtr());
+    } else {
+        addDataInternal(frame.get());
+    }
+
     // add the frame to the framelist
-    _frames[frame->getID()] = frame;
+    _frames[frame->getID()] = frame.get();
     // remember to add the frame to the frameIdxMap
     _frameIdxMap[frame->getName()] = frame->getID();
 
@@ -157,14 +167,14 @@ void StateStructure::addFrame(Frame * const frame, Frame * const parent_arg){
     // and in the end cleanup
     cleanup();
 
-    _stateDataAddedEvent.fire(frame);
+    _stateDataAddedEvent.fire(frame.get());
 }
 
-void StateStructure::addDAF(Frame *frame, Frame *parent){
+void StateStructure::addDAF(Frame::Ptr frame, Frame::Ptr parent){
     // both frame and parent must be well defined
     RW_ASSERT(frame && parent);
     // and parent must exist in the tree, but not the frame
-    RW_ASSERT(!has(frame) && has(parent));
+    RW_ASSERT(!has(frame.get()) && has(parent.get()));
     // and lastly we must check if the frame has been added to other StateStructure
     RW_ASSERT( frame->getID()==-1 );
     // check if frame name is unique
@@ -172,24 +182,28 @@ void StateStructure::addDAF(Frame *frame, Frame *parent){
         RW_THROW("Frame name is not unique!");
 
     // now add the state data of the frame
-    addDataInternal(frame);
+    if(frame.isShared()) {
+        addDataInternal(frame.getSharedPtr());
+    } else {
+        addDataInternal(frame.get());
+    }
     // push it to the frame list and DAF list
-    _DAFs.push_back(frame);
-    _frames[frame->getID()] = frame;
+    _DAFs.push_back(frame.get());
+    _frames[frame->getID()] = frame.get();
 
     updateDefaultState();
 
     // and insert the dynamic frame-parent relationship in the default state
-    _defaultState.getTreeState().attachFrame(frame,parent);
+    _defaultState.getTreeState().attachFrame(frame.get(),parent.get());
     // remember to add the frame to the frameIdxMap
     _frameIdxMap[frame->getName()] = frame->getID();
     // and in the end cleanup
     cleanup();
 
-    _stateDataAddedEvent.fire(frame);
+    _stateDataAddedEvent.fire(frame.get());
 }
 
-void StateStructure::remove(StateData *data){
+void StateStructure::remove(StateData *data) {
     RW_ASSERT(data);
     RW_ASSERT(data->getID()>0);
     _version++;
@@ -207,14 +221,13 @@ void StateStructure::remove(StateData *data){
         // remember to remove the from the frameIdxMap
         _frameIdxMap.erase(_frames[id]->getName());
     }
-
     // setting data in current data list to null
     _currDatas[id] = boost::shared_ptr<StateData>();
     // update default state
     // the dynamicly attached frames will automaticly be attached to world
     updateDefaultState();
     // perform cleanup
-    cleanup();
+    cleanup(id);
     _stateDataRemovedEvent.fire(data);
 }
 
@@ -236,7 +249,7 @@ void StateStructure::setDefaultState(const State &state)
     _defaultState.copy(state);
 }
 
-void StateStructure::cleanup(){
+void StateStructure::cleanup(int ID) {
     // first run through StateSetup list and remove all state setups that are not
     // used anymore
     StateSetupList::iterator iter = _setups.begin();
@@ -253,29 +266,31 @@ void StateStructure::cleanup(){
     // NEXT run through statedata list and remove all data that
     // is not pointed to by anything else.
     // remember to also remove instances from the daf and frame list
-    BOOST_FOREACH(boost::shared_ptr<StateData>& data, _allDatas){
-        if(data!=NULL && data.use_count()==1){
-            // delete the data and put it on available list
-            const int id = data->getID();
-            // test if data is a daf
-            for(size_t i=0;i<_DAFs.size();i++){
-                if(_DAFs[i]!=NULL && _DAFs[i]->getID()==id){
-                    _DAFs[i] = NULL;
-                    break;
+    for(boost::shared_ptr<StateData>& data : _allDatas) {
+        if(data != NULL){
+            if(data.use_count()==1 || data->getID() == ID){
+                // delete the data and put it on available list
+                const int id = data->getID();
+                // test if data is a daf
+                for(size_t i=0;i<_DAFs.size();i++){
+                    if(_DAFs[i]!=NULL && _DAFs[i]->getID()==id){
+                        _DAFs[i] = NULL;
+                        break;
+                    }
                 }
-            }
-            // if its a frame then remove it from its parent
-            if (_frames[ id ] != NULL ){
-                Frame *frame = _frames [id];
-                if(frame->getParent()!=NULL){
-                    frame->getParent()->removeChild( frame );
+                // if its a frame then remove it from its parent
+                
+                if (_frames[ id ] != NULL ){
+                    Frame *frame = _frames [id];
+                    if(frame->getParent()!=NULL){
+                        frame->getParent()->removeChild( frame );
+                    }              
+                    _frames[id] = NULL;
+                    data->setID(-1,NULL);
                 }
-                _frames[id] = NULL;
+                data = boost::shared_ptr<StateData>();
+                _availableDataIds.push_back(id);
             }
-
-            data = boost::shared_ptr<StateData>();
-            _availableDataIds.push_back(id);
-
         }
     }
 
@@ -294,7 +309,7 @@ void StateStructure::updateDefaultState(){
     // copy the default values into newState
     newState.copy( _defaultState );
     // all caches that are null should be updated with their default cache
-    BOOST_FOREACH(boost::shared_ptr<StateData>& data, _currDatas){
+    for(boost::shared_ptr<StateData>& data : _currDatas) {
         if(data==NULL)
             continue;
         if(data->hasCache()){

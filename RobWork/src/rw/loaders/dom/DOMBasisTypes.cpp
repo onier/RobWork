@@ -17,17 +17,20 @@
 
 #include "DOMBasisTypes.hpp"
 
+#include <rw/common/DOMElem.hpp>
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>
+#include <rw/kinematics/Frame.hpp>
+#include <rw/kinematics/StateStructure.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 #include <rw/models/WorkCell.hpp>
-#include <sstream>
-#include <map>
-#include <vector>
+
 #include <boost/lexical_cast.hpp>
 #include <boost/foreach.hpp>
 
-#include <rw/common/DOMElem.hpp>
+#include <sstream>
+#include <map>
+#include <vector>
 
 using namespace rw::math;
 using namespace rw::common;
@@ -855,13 +858,13 @@ DOMElem::Ptr DOMBasisTypes::write(const Eigen::MatrixXd& val, DOMElem::Ptr elem,
     str.unsetf(std::ios::floatfield);            // floatfield not set
     str.precision(17);
     str << val.cols() << " " << val.rows();
-    for(int y=0;y<val.rows();y++)
-    	for(int x=0;x<val.cols();x++)
+    for(int y = 0; y < val.rows(); y++) {
+    	for(int x = 0; x < val.cols(); x++) {
     		str<< " " << val(x,y);
-
-
-	elem->setValue( str.str() );
-	return elem;
+    	}
+    }
+    elem->setValue( str.str() );
+    return elem;
 }
 
 

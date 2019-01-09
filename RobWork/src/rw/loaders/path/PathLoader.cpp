@@ -20,6 +20,7 @@
 
 #include <rw/models/Models.hpp>
 #include <rw/models/WorkCell.hpp>
+#include <rw/kinematics/Frame.hpp>
 #include <rw/kinematics/State.hpp>
 #include <rw/common/macros.hpp>
 #include <rw/common/StringUtil.hpp>

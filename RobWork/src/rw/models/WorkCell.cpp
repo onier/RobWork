@@ -15,12 +15,16 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #include "WorkCell.hpp"
 
+#include "ControllerModel.hpp"
 #include "Device.hpp"
+#include "Object.hpp"
+
+#include <rw/graphics/SceneDescriptor.hpp>
 #include <rw/kinematics/StateStructure.hpp>
 #include <rw/proximity/CollisionSetup.hpp>
+#include <rw/sensor/SensorModel.hpp>
 
 #include <boost/bind.hpp>
 
@@ -29,39 +33,32 @@ using namespace rw::kinematics;
 using namespace rw::graphics;
 using namespace rw::common;
 
-WorkCell::WorkCell(const std::string& name)
-    :
+WorkCell::WorkCell(const std::string& name):
     _tree(rw::common::ownedPtr(new StateStructure())),
     _name(name),
-	_calibrationFilename(""),
+    _calibrationFilename(""),
+    _map(new PropertyMap()),
     _sceneDescriptor( ownedPtr(new SceneDescriptor()) )
 {
-    // Because we want the assertion, we initialize _frameMap here.
-    RW_ASSERT( _tree );
-    //_frameMap = Kinematics::buildFrameMap(*(_tree->getRoot()), _tree->getDefaultState());
-
     _tree->stateDataAddedEvent().add( boost::bind(&WorkCell::stateDataAddedListener, this, _1), this );
     _tree->stateDataRemovedEvent().add( boost::bind(&WorkCell::stateDataRemovedListener, this, _1), this );
 }
 
-	WorkCell::WorkCell(StateStructure::Ptr tree, const std::string& name, const std::string& filename)
-    :
+WorkCell::WorkCell(StateStructure::Ptr tree, const std::string& name, const std::string& filename):
     _tree(tree),
     _name(name),
-	_filename(filename),
-	_calibrationFilename(""),
+    _filename(filename),
+    _calibrationFilename(""),
+    _map(new PropertyMap()),
     _sceneDescriptor( ownedPtr(new SceneDescriptor()) )
 {
-    // Because we want the assertion, we initialize _frameMap here.
-    RW_ASSERT( _tree );
-    //_frameMap = Kinematics::buildFrameMap(*(_tree->getRoot()), _tree->getDefaultState());
-
     _tree->stateDataAddedEvent().add( boost::bind(&WorkCell::stateDataAddedListener, this, _1), this );
     _tree->stateDataRemovedEvent().add( boost::bind(&WorkCell::stateDataRemovedListener, this, _1), this );
 }
 
 WorkCell::~WorkCell()
 {
+    delete _map;
 }
 
 std::string WorkCell::getFilename() const {
@@ -95,7 +92,7 @@ void WorkCell::addDevice(Device::Ptr device)
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::addFrame(Frame* const frame, Frame* const parent){
+void WorkCell::addFrame(Frame* const frame, Frame* const parent) {
     if(parent==NULL) {
         _tree->addFrame(frame, getWorldFrame());
     } else {
@@ -104,31 +101,63 @@ void WorkCell::addFrame(Frame* const frame, Frame* const parent){
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::addDAF(Frame* frame, Frame* parent){
+void WorkCell::addFrame(kinematics::Frame::Ptr frame, kinematics::Frame::Ptr parent) {
+    if(parent==NULL)
+        parent = getWorldFrame();
+    if(!frame.isShared()) {
+        RW_THROW("Frame is not a Shared Pointer");
+    } else {
+        _tree->addFrame(frame, parent);
+        _workCellChangedEvent.fire(WORKCELL_CHANGED);
+    }
+}
+
+void WorkCell::addDAF(Frame* frame, Frame* parent) {
     if(parent==NULL)
         parent = getWorldFrame();
     _tree->addDAF(frame, parent);
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::remove(Frame* frame){
+void WorkCell::addDAF(kinematics::Frame::Ptr frame, kinematics::Frame::Ptr parent) {
+    if(parent==NULL)
+        parent = getWorldFrame();
+    if(!frame.isShared()) {
+        RW_THROW("Frame is not a Shared Pointer");
+    } else {
+        _tree->addDAF(frame, parent);
+        _workCellChangedEvent.fire(WORKCELL_CHANGED);
+    }
+    
+}
+
+void WorkCell::remove(Frame* frame) {
     _tree->remove( frame );
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::removeObject(Object* object){
-	object->unregister();
-	//_tree->remove( object );
-	for (std::vector<rw::common::Ptr<Object> >::iterator i = _objects.begin(); i != _objects.end(); ++i) {
-		if (i->get() == object) {
-			_objects.erase(i);
-			break;
-		}
-	}
+void WorkCell::remove(Frame::Ptr frame) {
+    if(frame.isShared()) {
+        _tree->remove(frame.get());
+        _workCellChangedEvent.fire(WORKCELL_CHANGED);
+    } else {
+        RW_THROW("Frame is not a Shared Pointer");
+    }
+}
+
+void WorkCell::removeObject(Object* object) {
+    object->unregister();
+    //_tree->remove( object );
+    for (std::vector<rw::common::Ptr<Object> >::iterator i = _objects.begin(); i != _objects.end(); ++i) {
+        if (i->get() == object) {
+            _objects.erase(i);
+            break;
+        }
+    }
 }
 
 
-void WorkCell::add(rw::common::Ptr<Object> object){
+void WorkCell::add(rw::common::Ptr<Object> object) {
 
     object->registerIn( _tree );
     _objects.push_back(object);
@@ -136,11 +165,11 @@ void WorkCell::add(rw::common::Ptr<Object> object){
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::remove(rw::common::Ptr<Device> dev){
+void WorkCell::remove(rw::common::Ptr<Device> dev) {
     std::vector<rw::common::Ptr<Device> >::iterator iter;
     dev->unregister( );
     // remove from list
-    for(iter = _devices.begin() ; iter!=_devices.end();++iter){
+    for(iter = _devices.begin() ; iter!=_devices.end();++iter) {
         if( (*iter) == dev ){
             break;
         }
@@ -153,11 +182,11 @@ void WorkCell::remove(rw::common::Ptr<Device> dev){
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::remove(rw::common::Ptr<Object> object){
+void WorkCell::remove(rw::common::Ptr<Object> object) {
     std::vector<rw::common::Ptr<Object> >::iterator iter;
     object->unregister( );
     // remove from list
-    for(iter = _objects.begin() ; iter!=_objects.end();++iter){
+    for(iter = _objects.begin() ; iter!=_objects.end();++iter) {
         if( (*iter) == object ){
             break;
         }
@@ -170,11 +199,11 @@ void WorkCell::remove(rw::common::Ptr<Object> object){
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::remove(rw::common::Ptr<rw::sensor::SensorModel> sensor){
+void WorkCell::remove(rw::common::Ptr<rw::sensor::SensorModel> sensor) {
     std::vector<rw::common::Ptr<rw::sensor::SensorModel> >::iterator iter;
     sensor->unregister( );
     // remove from list
-    for(iter = _sensors.begin() ; iter!=_sensors.end();++iter){
+    for(iter = _sensors.begin() ; iter!=_sensors.end();++iter) {
         if( (*iter) == sensor ){
             break;
         }
@@ -188,11 +217,11 @@ void WorkCell::remove(rw::common::Ptr<rw::sensor::SensorModel> sensor){
 }
 
 
-void WorkCell::remove(rw::common::Ptr<ControllerModel> controller){
+void WorkCell::remove(rw::common::Ptr<ControllerModel> controller) {
     std::vector<rw::common::Ptr<ControllerModel> >::iterator iter;
     controller->unregister( );
     // remove from list
-    for(iter = _controllers.begin() ; iter!=_controllers.end();++iter){
+    for(iter = _controllers.begin() ; iter!=_controllers.end();++iter) {
         if( (*iter) == controller ){
             break;
         }
@@ -234,6 +263,15 @@ Frame* WorkCell::findFrame(const std::string& name) const
 	if(name=="WORLD")
 		return _tree->getRoot();
     return _tree->findFrame(name);
+}
+
+std::vector<Frame*> WorkCell::getFrames() const {
+    std::vector<Frame*> frames;
+    for(Frame* const frame : _tree->getFrames()) {
+        if(frame!=NULL)
+            frames.push_back(frame);
+    }
+    return frames;
 }
 
 rw::sensor::SensorModel::Ptr WorkCell::findSensor(const std::string& name) const
@@ -295,3 +333,10 @@ rw::proximity::CollisionSetup WorkCell::getCollisionSetup(){
     return rw::proximity::CollisionSetup::get(this);
 }
 
+PropertyMap& WorkCell::getPropertyMap() {
+    return *_map;
+}
+
+const PropertyMap& WorkCell::getPropertyMap() const {
+    return *_map;
+}

@@ -41,6 +41,7 @@
 #include <rw/common/os.hpp>
 #include <rw/common/Exception.hpp>
 #include <rw/common/StringUtil.hpp>
+#include <rw/kinematics/StateStructure.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/proximity/CollisionSetup.hpp>
 #include <rw/proximity/CollisionDetector.hpp>

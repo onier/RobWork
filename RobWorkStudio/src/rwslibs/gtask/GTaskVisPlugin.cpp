@@ -4,6 +4,8 @@
 #include <rw/kinematics/Kinematics.hpp>
 
 #include <rw/geometry/Box.hpp>
+#include <rw/graphics/Render.hpp>
+#include <rw/models/Device.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rwlibs/opengl/DrawableUtil.hpp>
 #include <rwlibs/task/GraspTask.hpp>

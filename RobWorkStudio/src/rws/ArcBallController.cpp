@@ -19,6 +19,7 @@
 
 #include <rwlibs/os/rwgl.hpp>
 
+#include <rw/kinematics/Frame.hpp>
 #include <rw/math/Math.hpp>
 #include <rw/models/WorkCell.hpp>
 

@@ -20,6 +20,7 @@
 #include <rw/common/macros.hpp>
 #include <rw/graphics/DrawableNode.hpp>
 #include <rw/graphics/DrawableNodeClone.hpp>
+#include <rw/graphics/Render.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/kinematics/Frame.hpp>
 #include <rw/kinematics/State.hpp>
@@ -27,7 +28,6 @@
 #include <rw/models/WorkCell.hpp>
 
 #include <boost/bind.hpp>
-#include <boost/foreach.hpp>
 
 #include <vector>
 #include <stack>
@@ -157,7 +157,7 @@ void WorkCellScene::setWorkCell(rw::models::WorkCell::Ptr wc){
     std::map<std::string, FrameVisualState> fnameToStateMap;
     if(wc!=NULL && _wc!=NULL && wc->getName()==_wc->getName()){
         typedef std::pair<const Frame* const,FrameVisualState> StateMapData;
-        BOOST_FOREACH(StateMapData& data, _frameStateMap){
+        for(StateMapData& data : _frameStateMap) {
             fnameToStateMap[ data.first->getName() ] = data.second;
         }
     }
@@ -204,7 +204,7 @@ void WorkCellScene::setWorkCell(rw::models::WorkCell::Ptr wc){
 
     if(wc!=NULL){
         typedef std::pair<std::string ,FrameVisualState> StateStringMapData;
-        BOOST_FOREACH(StateStringMapData data, fnameToStateMap){
+        for(StateStringMapData data : fnameToStateMap) {
             Frame *frame = _wc->findFrame(data.first);
             if(frame!=NULL){
             	if (data.second.visible.first)
@@ -233,7 +233,7 @@ void WorkCellScene::setState(const State& state){
     _fk.reset(state);
 
     // iterate through all frame-node pairs and set the node transformations accordingly
-    BOOST_FOREACH(FrameNodeMap::value_type data, _frameNodeMap){
+    for(FrameNodeMap::value_type data : _frameNodeMap) {
         if( (data.first!=NULL) && (data.second!=NULL)){
             // 1. we update the transform of each GroupNode
             data.second->setTransform( data.first->getTransform(state) );
@@ -244,7 +244,7 @@ void WorkCellScene::setState(const State& state){
                 if( !data.second->hasParent( _frameNodeMap[parent] ) ){
                     // 1. we remove the child from its parent
                     std::list<SceneNode::Ptr> pnodes = data.second->_parentNodes;
-                    BOOST_FOREACH(SceneNode::Ptr parentNode, pnodes){
+                    for(SceneNode::Ptr parentNode : pnodes) {
                         if(parentNode->asGroupNode()){
                             parentNode->asGroupNode()->removeChild( data.second );
                         }
@@ -259,8 +259,8 @@ void WorkCellScene::setState(const State& state){
 
     // also iterate through all deformable objects and update their geometries
     typedef std::map<DeformableObject::Ptr, std::vector<Model3D::Ptr>  > DeformObjectMap;
-    BOOST_FOREACH( DeformObjectMap::value_type data, _deformableObjectsMap ){
-    	BOOST_FOREACH( Model3D::Ptr model, data.second){
+    for( DeformObjectMap::value_type data : _deformableObjectsMap ) {
+    	for( Model3D::Ptr model : data.second) {
     		data.first->update( model, state );
     	}
     }
@@ -343,7 +343,7 @@ void WorkCellScene::updateSceneGraph(State& state){
         std::vector<Object::Ptr> objs = _wc->getObjects();
         State state = _wc->getDefaultState();
 
-        BOOST_FOREACH(Object::Ptr obj, objs){
+        for(Object::Ptr obj : objs) {
         	// just test if this object has anything to do with the frame
         	if(obj->getBase()!=frame)
 				continue;
@@ -356,7 +356,7 @@ void WorkCellScene::updateSceneGraph(State& state){
 	    		std::vector<Model3D::Ptr> models = dobj->getModels(state);
 	    		// update the models with current state
 	    		_deformableObjectsMap[dobj] =  models;
-				BOOST_FOREACH(Model3D::Ptr model, models){
+				for(Model3D::Ptr model : models) {
 					DrawableNode::Ptr dnode = _scene->makeDrawable(model->getName(), model, model->getMask() );
 					_scene->addChild(dnode, node);
 					_frameDrawableMap[frame].push_back( dnode );
@@ -367,7 +367,7 @@ void WorkCellScene::updateSceneGraph(State& state){
 				// the collision info is the geometry and visualization is Model3D
 				// in case no models are available the collision geometry will be used
 				std::vector<Geometry::Ptr> geoms = obj->getGeometry(state);
-				BOOST_FOREACH(Geometry::Ptr geom, geoms){
+				for(Geometry::Ptr geom : geoms) {
 					if(geom->getFrame()!=frame)
 						continue;
 
@@ -376,7 +376,7 @@ void WorkCellScene::updateSceneGraph(State& state){
 					_frameDrawableMap[frame].push_back( dnode );
 				}
 
-				BOOST_FOREACH(Model3D::Ptr model, obj->getModels()){
+				for(Model3D::Ptr model : obj->getModels()) {
 					DrawableNode::Ptr dnode = _scene->makeDrawable(model->getName(), model, model->getMask() );
 					_scene->addChild(dnode, node);
 					_frameDrawableMap[frame].push_back( dnode );
@@ -436,7 +436,7 @@ void WorkCellScene::setVisible(bool visible, const Frame* f) {
         return;
     _frameStateMap[f].visible.first = true;
     _frameStateMap[f].visible.second = visible;
-    BOOST_FOREACH(SceneNode::Ptr& d, _frameNodeMap[f]->_childNodes){
+    for(SceneNode::Ptr& d : _frameNodeMap[f]->_childNodes) {
         if(DrawableNode *dnode = d->asDrawableNode() )
             dnode->setVisible(visible);
     }
@@ -460,7 +460,7 @@ void WorkCellScene::setHighlighted(bool highlighted, const Frame* f) {
     _frameStateMap[f].highlighted.first = true;
     _frameStateMap[f].highlighted.second = highlighted;
 
-    BOOST_FOREACH(DrawableNode::Ptr& d, _frameDrawableMap[f]){
+    for(DrawableNode::Ptr& d : _frameDrawableMap[f]) {
         d->setHighlighted(highlighted);
     }
 }
@@ -520,7 +520,7 @@ void WorkCellScene::setDrawType(DrawableNode::DrawType type, const Frame* f) {
         return;
     _frameStateMap[f].dtype.first = true;
     _frameStateMap[f].dtype.second = type;
-    BOOST_FOREACH(DrawableNode::Ptr& d, _frameDrawableMap[f]){
+    for(DrawableNode::Ptr& d : _frameDrawableMap[f]) {
         d->setDrawType(type);
     }
 }
@@ -540,7 +540,7 @@ void WorkCellScene::setDrawMask(unsigned int mask, const Frame* f) {
         RW_THROW("Frame is not in the scene!");
     _frameStateMap[f].dmask.first = true;
     _frameStateMap[f].dmask.second = mask;
-    BOOST_FOREACH(DrawableNode::Ptr& d, _frameDrawableMap[f]){
+    for(DrawableNode::Ptr& d : _frameDrawableMap[f]) {
         d->setMask(mask);
     }
 }
@@ -560,7 +560,7 @@ void WorkCellScene::setTransparency(double alpha, const Frame* f) {
         return;
     _frameStateMap[f].alpha.first = true;
     _frameStateMap[f].alpha.second = alpha;
-    BOOST_FOREACH(DrawableNode::Ptr& d, _frameDrawableMap[f]){
+    for(DrawableNode::Ptr& d : _frameDrawableMap[f]) {
         d->setTransparency( (float) alpha );
     }
 }
