@@ -14,6 +14,8 @@
 #include <rw/loaders/WorkCellFactory.hpp>
 #include <rw/loaders/model3d/STLFile.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
+#include <rw/models/Device.hpp>
+#include <rw/models/Object.hpp>
 #include <rw/geometry/IndexedTriMesh.hpp>
 #include <rw/geometry/IntersectUtil.hpp>
 #include <rw/geometry/TriangleUtil.hpp>

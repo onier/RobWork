@@ -20,6 +20,7 @@
 #include <rw/geometry/Cylinder.hpp>
 #include <rw/geometry/Tube.hpp>
 #include <rw/loaders/WorkCellLoader.hpp>
+#include <rw/models/Object.hpp>
 
 #include <rwlibs/assembly/AssemblyTask.hpp>
 #include <rwlibs/assembly/CircularPiHControlStrategy.hpp>

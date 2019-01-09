@@ -29,18 +29,17 @@ using namespace rw::math;
 using namespace rw::models;
 
 namespace {
-SerialDevice::Ptr getKukaIIWA(State& state) {
-	Frame* const base = new FixedFrame("Base",Transform3D<>::identity());
-	Joint* const joint1 = new RevoluteJoint("Joint1",Transform3D<>(Vector3D<>(0, 0,    0.158)));
-	Joint* const joint2 = new RevoluteJoint("Joint2",Transform3D<>(Vector3D<>(0, 0,    0.182),RPY<>(0,0,-Pi/2.)));
-	Joint* const joint3 = new RevoluteJoint("Joint3",Transform3D<>(Vector3D<>(0,-0.182,0),    RPY<>(0,0, Pi/2.)));
-	Joint* const joint4 = new RevoluteJoint("Joint4",Transform3D<>(Vector3D<>(0, 0,    0.218),RPY<>(0,0, Pi/2.)));
-	Joint* const joint5 = new RevoluteJoint("Joint5",Transform3D<>(Vector3D<>(0, 0.182,0),    RPY<>(0,0,-Pi/2.)));
-	Joint* const joint6 = new RevoluteJoint("Joint6",Transform3D<>(Vector3D<>(0, 0,    0.218),RPY<>(0,0,-Pi/2.)));
-	Joint* const joint7 = new RevoluteJoint("Joint7",Transform3D<>(Vector3D<>::zero(),        RPY<>(0,0, Pi/2.)));
-	Frame* const end = new FixedFrame("TCP",Transform3D<>(Vector3D<>(0,0,0.126)));
+SerialDevice::Ptr getKukaIIWA(StateStructure& stateStructure) {
+	const Frame::Ptr base = ownedPtr(new FixedFrame("Base",Transform3D<>::identity()));
+	const Joint::Ptr joint1 = ownedPtr(new RevoluteJoint("Joint1",Transform3D<>(Vector3D<>(0, 0,    0.158))));
+	const Joint::Ptr joint2 = ownedPtr(new RevoluteJoint("Joint2",Transform3D<>(Vector3D<>(0, 0,    0.182),RPY<>(0,0,-Pi/2.))));
+	const Joint::Ptr joint3 = ownedPtr(new RevoluteJoint("Joint3",Transform3D<>(Vector3D<>(0,-0.182,0),    RPY<>(0,0, Pi/2.))));
+	const Joint::Ptr joint4 = ownedPtr(new RevoluteJoint("Joint4",Transform3D<>(Vector3D<>(0, 0,    0.218),RPY<>(0,0, Pi/2.))));
+	const Joint::Ptr joint5 = ownedPtr(new RevoluteJoint("Joint5",Transform3D<>(Vector3D<>(0, 0.182,0),    RPY<>(0,0,-Pi/2.))));
+	const Joint::Ptr joint6 = ownedPtr(new RevoluteJoint("Joint6",Transform3D<>(Vector3D<>(0, 0,    0.218),RPY<>(0,0,-Pi/2.))));
+	const Joint::Ptr joint7 = ownedPtr(new RevoluteJoint("Joint7",Transform3D<>(Vector3D<>::zero(),        RPY<>(0,0, Pi/2.))));
+	const Frame::Ptr end = ownedPtr(new FixedFrame("TCP",Transform3D<>(Vector3D<>(0,0,0.126))));
 
-	StateStructure stateStructure;
 	stateStructure.addFrame(base);
 	stateStructure.addFrame(joint1,base);
 	stateStructure.addFrame(joint2,joint1);
@@ -51,9 +50,9 @@ SerialDevice::Ptr getKukaIIWA(State& state) {
 	stateStructure.addFrame(joint7,joint6);
 	stateStructure.addFrame(end,joint7);
 
-	state = stateStructure.getDefaultState();
+    State state = stateStructure.getDefaultState();
 
-	const SerialDevice::Ptr device = ownedPtr(new SerialDevice(base,end,"KukaIIWA",state));
+	const SerialDevice::Ptr device = ownedPtr(new SerialDevice(base.get(),end.get(),"KukaIIWA",state));
 	std::pair<Q,Q> bounds;
 	bounds.first = Q(7,-170*Deg2Rad,-120*Deg2Rad,-170*Deg2Rad,-120*Deg2Rad,-170*Deg2Rad,-120*Deg2Rad,-175*Deg2Rad);
 	bounds.second = -bounds.first;
@@ -63,8 +62,9 @@ SerialDevice::Ptr getKukaIIWA(State& state) {
 }
 
 TEST(ClosedFormIKSolver, KukaIIWA) {
-	State state;
-	const SerialDevice::Ptr device = getKukaIIWA(state);
+	StateStructure stateStructure;
+	const SerialDevice::Ptr device = getKukaIIWA(stateStructure);
+	State state = stateStructure.getDefaultState();
 	ClosedFormIKSolverKukaIIWA solver(device,state);
 	solver.setCheckJointLimits(true);
 

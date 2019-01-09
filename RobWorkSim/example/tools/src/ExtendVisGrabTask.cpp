@@ -21,6 +21,7 @@
 #include <rw/kinematics/MovableFrame.hpp>
 #include <rw/loaders/GeometryFactory.hpp>
 #include <rw/loaders/WorkCellLoader.hpp>
+#include <rw/models/Device.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
 #include <rwlibs/task/Task.hpp>

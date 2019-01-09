@@ -3,6 +3,7 @@
 
 #include <rw/math/Math.hpp>
 #include <rw/geometry/Triangle.hpp>
+#include <rw/geometry/TriMesh.hpp>
 #include <rw/loaders/GeometryFactory.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rwlibs/task/Task.hpp>

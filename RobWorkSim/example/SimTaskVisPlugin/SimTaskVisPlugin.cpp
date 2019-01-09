@@ -4,6 +4,7 @@
 #include <rw/geometry/Box.hpp>
 #include <rw/geometry/Triangle.hpp>
 #include <rw/geometry/TriMesh.hpp>
+#include <rw/graphics/Render.hpp>
 #include <rw/loaders/dom/DOMPropertyMapLoader.hpp>
 #include <rw/loaders/dom/DOMPropertyMapSaver.hpp>
 #include <rw/math/Random.hpp>
