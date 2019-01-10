@@ -14,6 +14,8 @@
 #include <cstdio>
 
 //#include <rw/proximity/CollisionDetector.hpp>
+#include <rw/graphics/Render.hpp>
+#include <rw/math/Constants.hpp>
 #include <rw/math/Rotation3D.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/Quaternion.hpp>
