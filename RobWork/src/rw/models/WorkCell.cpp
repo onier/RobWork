@@ -101,7 +101,7 @@ void WorkCell::addFrame(Frame* const frame, Frame* const parent) {
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::addFrame(kinematics::Frame::Ptr frame, kinematics::Frame::Ptr parent) {
+void WorkCell::addFrame(Frame::Ptr frame, Frame::Ptr parent) {
     if(parent==NULL)
         parent = getWorldFrame();
     if(!frame.isShared()) {
@@ -119,7 +119,7 @@ void WorkCell::addDAF(Frame* frame, Frame* parent) {
     _workCellChangedEvent.fire(WORKCELL_CHANGED);
 }
 
-void WorkCell::addDAF(kinematics::Frame::Ptr frame, kinematics::Frame::Ptr parent) {
+void WorkCell::addDAF(Frame::Ptr frame, Frame::Ptr parent) {
     if(parent==NULL)
         parent = getWorldFrame();
     if(!frame.isShared()) {
