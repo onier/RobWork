@@ -15,9 +15,8 @@
  * limitations under the License.
  ********************************************************************************/
 
-
-#ifndef PAIRMAP_HPP_
-#define PAIRMAP_HPP_
+#ifndef RW_COMMON_PAIRMAP_HPP_
+#define RW_COMMON_PAIRMAP_HPP_
 
 /**
  * @file PairMap.hpp
@@ -44,20 +43,16 @@ namespace rw { namespace common {
     public:
         /**
          * @brief creates a map
-         * @param s [in] the initial size. Default value is 20
          */
-        PairMap(int s = 20) :
-            _initialSize(s),
+        PairMap() :
             _defaultVal(T2())
         {}
 
         /**
          * @brief creates a map with an initial size of s
          * @param defaultVal [in] the default value of new instances of T
-         * @param s [in] nr of elements of the types T with default value "defaultVal"
          */
-        PairMap(const T2& defaultVal, int s = 20) :
-            _initialSize(s),
+        PairMap(const T2& defaultVal) :
             _defaultVal(defaultVal)
         {}
 
@@ -110,10 +105,15 @@ namespace rw { namespace common {
         */
         const T2& operator[](const Pair& pair) const
         {
+            typedef typename std::map<Pair, T2>::const_iterator it_type;
         	Pair p = pair;
             if(p.first>p.second)
                 std::swap(p.first,p.second);
-            return _map[p];
+            const it_type it = _map.find(p);
+            if (it != _map.end())
+                return it->second;
+            else
+                return _defaultVal;
         }
 
         /**
@@ -145,9 +145,13 @@ namespace rw { namespace common {
         */
         T2& operator[](const Pair& pair)
         {
+            typedef typename std::map<Pair, T2>::const_iterator it_type;
         	Pair p = pair;
             if(p.first>p.second)
                 std::swap(p.first,p.second);
+            const it_type it = _map.find(p);
+            if (it == _map.end())
+                _map[p] = _defaultVal;
             return _map[p];
         }
 
@@ -202,7 +206,7 @@ namespace rw { namespace common {
 		   @brief Return the map size.
 		   @return the number of elements in the map.
 		*/
-		unsigned int size() const
+        std::size_t size() const
 		{
 			return _map.size();
 		}
@@ -211,7 +215,7 @@ namespace rw { namespace common {
 		   @brief Return maximum size.
 		   @return the maximum number of elements that the map object can hold.
 		*/
-		unsigned int max_size() const
+		std::size_t max_size() const
 		{
 			return _map.max_size();
 		}
@@ -226,11 +230,10 @@ namespace rw { namespace common {
 		}
 
     private:
-        int _initialSize;
         T2 _defaultVal;
-        mutable std::map<Pair, T2> _map;
+        std::map<Pair, T2> _map;
     };
     /**@}*/
 }}
 
-#endif /* PAIRMAP_HPP_ */
+#endif /* RW_COMMON_PAIRMAP_HPP_ */

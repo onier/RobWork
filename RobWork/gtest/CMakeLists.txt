@@ -58,6 +58,7 @@ SET(COMMON_TEST_LIBRARIES
 
 SET(COMMON_TEST_SRC
   common/CommonTest.cpp
+  common/PairMapTest.cpp
   common/PluginTest.cpp
 )
 ADD_EXECUTABLE( rw_common-gtest ${COMMON_TEST_SRC})

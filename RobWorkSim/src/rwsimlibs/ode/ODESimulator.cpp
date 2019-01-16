@@ -35,8 +35,6 @@
 #include <rwsim/dynamics/KinematicBody.hpp>
 #include <rwsim/dynamics/RigidBody.hpp>
 
-#include <boost/foreach.hpp>
-
 #include <rw/kinematics/FramePairMap.hpp>
 
 //#include <rw/models/DependentRevoluteJoint.hpp>
@@ -174,7 +172,7 @@ ODESimulator::ODESimulator(DynamicWorkCell::Ptr dwc, rwsim::contacts::ContactDet
     _sensorFeedbacksGlobal(100),
     _nextFeedbackIdx(0),
     _nextFeedbackGlobalIdx(0),
-    _excludeMap(0,100),
+    _excludeMap(0),
     _oldTime(0),
     _useRobWorkContactGeneration(true),
     _prevStepEndedInCollision(false),
@@ -220,7 +218,7 @@ ODESimulator::ODESimulator():
     _sensorFeedbacksGlobal(100),
     _nextFeedbackIdx(0),
     _nextFeedbackGlobalIdx(0),
-    _excludeMap(0,100),
+    _excludeMap(0),
     _oldTime(0),
     _useRobWorkContactGeneration(true),
     _prevStepEndedInCollision(false),
@@ -352,8 +350,8 @@ void ODESimulator::saveODEState(){
 	// std::cout  << "- Resetting bodies: " << _bodies.size() << std::endl;
 
 
-    BOOST_FOREACH(dBodyID odebody, _allbodies){
-    //BOOST_FOREACH(ODEBody *ob, _odeBodies){
+    for(dBodyID odebody : _allbodies) {
+    //for(ODEBody *ob : _odeBodies) {
         //if(ob->getType()==ODEBody::FIXED)
         //    continue;
         //dBodyID odebody = ob->getBodyID();
@@ -370,7 +368,7 @@ void ODESimulator::saveODEState(){
 	}
 
 	/*
-	BOOST_FOREACH(dJointID joint, _alljoints){
+	for(dJointID joint : _alljoints) {
 	    ODEStateStuff res;
 	    res.joint = joint;
 	    // test what joint type it is
@@ -384,7 +382,7 @@ void ODESimulator::saveODEState(){
     }
 */
 
-	BOOST_FOREACH(ODEJoint* joint, _allODEJoints){
+	for(ODEJoint* joint : _allODEJoints) {
 		ODEStateStuff res;
 		res.joint = joint;
 		//res.desvel = joint->getVelocity();
@@ -395,7 +393,7 @@ void ODESimulator::saveODEState(){
 }
 
 void ODESimulator::restoreODEState(){
-	BOOST_FOREACH(ODEStateStuff &res, _odeStateStuff){
+	for(ODEStateStuff &res : _odeStateStuff) {
 		if(res.body!=NULL){
 			dBodySetPosition(res.body, res.pos[0], res.pos[1], res.pos[2]);
 			dBodySetQuaternion(res.body, res.rot);
@@ -409,7 +407,7 @@ void ODESimulator::restoreODEState(){
 		}
 	}
 
-	//BOOST_FOREACH(ODETactileSensor* sensor,_odeSensors){
+	//for(ODETactileSensor* sensor : _odeSensors) {
 	//	sensor->clear();
 	//}
 }
@@ -476,22 +474,22 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
         conStepInfo.dt_prev = lastDt;
         conStepInfo.time = _time;
         conStepInfo.rollback = i>0;
-        BOOST_FOREACH(SimulatedController::Ptr controller, _controllers ){
+        for(SimulatedController::Ptr controller : _controllers ) {
             controller->update(conStepInfo, tmpState);
         }
 
         RW_DEBUGS("------------- Device pre-update:");
-        BOOST_FOREACH(ODEDevice *dev, _odeDevices){
+        for(ODEDevice *dev : _odeDevices) {
             dev->update(conStepInfo, tmpState);
         }
 
 		RW_DEBUGS("------------- Constraints pre-update:");
-		BOOST_FOREACH(ODEConstraint *constraint, _odeConstraints) {
+		for(ODEConstraint *constraint : _odeConstraints) {
 			constraint->update(conStepInfo, tmpState);
 		}
 
         RW_DEBUGS("------------- Body pre-update:");
-        BOOST_FOREACH(ODEBody *body, _odeBodies){
+        for(ODEBody *body : _odeBodies) {
             body->update(conStepInfo, tmpState);
         }
 
@@ -506,7 +504,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
         std::cout << "-- step divisions: " << i << "\n";
         std::cout << "-- bad lcp count : " << badLCPcount << "\n";
         std::cout << "-- Bodies: \n";
-        BOOST_FOREACH(dBodyID body, _allbodies){
+        for(dBodyID body : _allbodies) {
             dReal vec[4];
             ODEBody *data = (ODEBody*) dBodyGetData(body);
             if(data!=NULL){
@@ -529,7 +527,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
             std::cout << "\n";
         }
         std::cout << "--\n-- contacts: \n";
-        BOOST_FOREACH(ContactPoint p, _allcontactsTmp){
+        for(ContactPoint p : _allcontactsTmp) {
             std::cout << "-- pos: "<< p.p << "\n";
             std::cout << "-- normal: "<< p.n << "\n";
             std::cout << "-- depth: "<< p.penetration << "\n";
@@ -598,7 +596,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
             Log::debugLog() << "-- step divisions: " << i << "\n";
             Log::debugLog() << "-- bad lcp count : " << badLCPcount << "\n";
             Log::debugLog() << "-- Bodies state  : \n";
-            BOOST_FOREACH(dBodyID body, _allbodies){
+            for(dBodyID body : _allbodies) {
                 dReal vec[4];
                 ODEBody *data = (ODEBody*) dBodyGetData(body);
                 if(data!=NULL){
@@ -621,7 +619,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
                 Log::debugLog() << "\n";
             }
             Log::debugLog() << "--\n-- contacts: \n";
-            BOOST_FOREACH(ContactPoint p, _allcontactsTmp){
+            for(ContactPoint p : _allcontactsTmp) {
                 Log::debugLog() << "-- pos: "<< p.p << "\n";
                 Log::debugLog() << "-- normal: "<< p.n << "\n";
                 Log::debugLog() << "-- depth: "<< p.penetration << "\n";
@@ -654,7 +652,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 
 	RW_DEBUGS("------------- Device post update:");
 	//std::cout << "Device post update:" << std::endl;
-	BOOST_FOREACH(ODEDevice *dev, _odeDevices){
+	for(ODEDevice *dev : _odeDevices) {
 	    dev->postUpdate(state);
 	}
 
@@ -669,7 +667,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
     RW_DEBUGS("------------- Sensor update :");
     //std::cout << "Sensor update :" << std::endl;
     // update all sensors with the values of the joints
-    BOOST_FOREACH(ODETactileSensor *odesensor, _odeSensors){
+    for(ODETactileSensor *odesensor : _odeSensors) {
         odesensor->update(conStepInfo, state);
     }
     RW_DEBUGS("- removing joint group");
@@ -679,7 +677,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
     _nextFeedbackIdx=0;
 
 	RW_DEBUGS("------------- Update trimesh prediction:");
-	BOOST_FOREACH(ODEUtil::TriGeomData *data, _triGeomDatas){
+	for(ODEUtil::TriGeomData *data : _triGeomDatas) {
 	    if(!data->isGeomTriMesh)
 	        continue;
 	    dGeomID geom = data->geomId;
@@ -713,7 +711,7 @@ void ODESimulator::step(double dt, rw::kinematics::State& state)
 
 void ODESimulator::addEmulatedContact(const rw::math::Vector3D<>& pos, const rw::math::Vector3D<>& force, const rw::math::Vector3D<>& normal, dynamics::Body* b){
     std::vector<ODETactileSensor*> odesensors = getODESensors(getODEBodyId(b));
-    BOOST_FOREACH(ODETactileSensor* sensor, odesensors){
+    for(ODETactileSensor* sensor : odesensors) {
         sensor->addContact(pos, force , normal, b);
     }
     ContactPoint point;
@@ -843,7 +841,7 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
     //CollisionSetup cSetup = Proximity::getCollisionSetup( *_dwc->getWorkcell() );
 
     //FramePairList excludeList = BasicFilterStrategy::getExcludePairList(*_dwc->getWorkcell(), cSetup);
-    //BOOST_FOREACH(rw::kinematics::FramePair& pair, excludeList){
+    //for(rw::kinematics::FramePair& pair : excludeList) {
     //    _excludeMap[rw::kinematics::FramePair(pair.first,pair.second)] = 1;
     //}
 
@@ -852,14 +850,14 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
 
 
     //std::vector<Object::Ptr> objects = _dwc->getWorkcell()->getObjects();
-    BOOST_FOREACH(Body::Ptr body , _dwc->getBodies()){
+    for(Body::Ptr body : _dwc->getBodies()) {
         Object::Ptr obj = body->getObject();
         //std::cout << "objects: " << obj->getName() << std::endl;
         _narrowStrategy->addModel(obj);
     }
 
     std::vector<Frame*> frames = Kinematics::findAllFrames(_dwc->getWorkcell()->getWorldFrame(), state);
-    BOOST_FOREACH(Frame *frame, frames){
+    for(Frame *frame : frames) {
         _frameToModels[*frame] = _narrowStrategy->getModel(frame);
     }
 
@@ -917,7 +915,7 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
 	//dWorldSetAngularDamping()
     State initState = state;
     // first set the initial state of all devices.
-    BOOST_FOREACH(DynamicDevice::Ptr device, _dwc->getDynamicDevices() ){
+    for(DynamicDevice::Ptr device : _dwc->getDynamicDevices() ) {
         JointDevice *jdev = dynamic_cast<JointDevice*>( &(device->getModel()) );
         if(jdev==NULL)
             continue;
@@ -928,7 +926,7 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
     //dCreatePlane(_spaceId,0,0,1,0);
 
     RW_DEBUGS( "- ADDING BODIES " );
-    BOOST_FOREACH(Body::Ptr body, _dwc->getBodies() ){
+    for(Body::Ptr body : _dwc->getBodies() ) {
         // check if a body is part
         if(!_dwc->inDevice(body) )
             addBody(body, state);
@@ -940,29 +938,29 @@ void ODESimulator::initPhysics(rw::kinematics::State& state)
 	RW_DEBUGS( "- ADDING DEVICES " );
 	// this needs to be done in the correct order, which means if any device is attached to another then the
 	// bottom one should  be added first.
-    /*BOOST_FOREACH(DynamicDevice* device, _dwc->getDynamicDevices() ){
+    /*for(DynamicDevice* device : _dwc->getDynamicDevices() ) {
         JointDevice *jdev = dynamic_cast<JointDevice*>( &(device->getModel()) );
         if(jdev!=NULL){
             Q offsets = Q::zero( jdev->getQ(initState).size() );
             jdev->setQ( offsets , initState );
         }
     }*/
-    BOOST_FOREACH(DynamicDevice::Ptr device, _dwc->getDynamicDevices() ){
+    for(DynamicDevice::Ptr device : _dwc->getDynamicDevices() ) {
         addDevice(device, initState);
     }
 
 	 RW_DEBUGS( "- ADDING CONSTRAINTS " );
-	 BOOST_FOREACH(Constraint::Ptr constraint, _dwc->getConstraints()) {
+	 for(Constraint::Ptr constraint : _dwc->getConstraints()) {
 		 addConstraint(constraint);
 	 }
 
     RW_DEBUGS( "- ADDING SENSORS " );
-    BOOST_FOREACH(rwlibs::simulation::SimulatedSensor::Ptr sensor, _dwc->getSensors()){
+    for(rwlibs::simulation::SimulatedSensor::Ptr sensor : _dwc->getSensors()) {
     	addSensor(sensor, state);
 	}
 
     RW_DEBUGS( "- ADDING CONTROLLERS " );
-    BOOST_FOREACH(rwlibs::simulation::SimulatedController::Ptr controller, _dwc->getControllers()){
+    for(rwlibs::simulation::SimulatedController::Ptr controller : _dwc->getControllers()) {
     	addController(controller);
 	}
 
@@ -1024,13 +1022,13 @@ void ODESimulator::addODEBody(ODEBody* odebody){
         RW_THROW("Body with name \"" << odebody->getFrame()->getName() << "\" allready exists in the simulator! " );
 
    if(odebody->getRwBody()!=NULL){
-       BOOST_FOREACH(rw::kinematics::Frame *f, odebody->getRwBody()->getFrames()){
+       for(rw::kinematics::Frame *f : odebody->getRwBody()->getFrames()) {
            _rwFrameToODEBody[f] = odebody;
        }
    } else {
        _rwFrameToODEBody[odebody->getFrame()] = odebody;
    }
-   BOOST_FOREACH(ODEUtil::TriGeomData* tgeom , odebody->getTriGeomData()){
+   for(ODEUtil::TriGeomData* tgeom : odebody->getTriGeomData()) {
        _frameToOdeGeoms[odebody->getFrame()] = tgeom->geomId;
    }
    _odeBodies.push_back(odebody);
@@ -1062,10 +1060,10 @@ void ODESimulator::addBody(rwsim::dynamics::Body::Ptr body, rw::kinematics::Stat
     }
 
     if (!odeBodyAdded) {
-    	BOOST_FOREACH(Frame* f, odeBody->getRwBody()->getFrames() ){
+    	for(Frame* f : odeBody->getRwBody()->getFrames() ) {
     		_rwFrameToODEBody[f] = odeBody;
     	}
-    	BOOST_FOREACH(ODEUtil::TriGeomData* tgeom , odeBody->getTriGeomData()){
+    	for(ODEUtil::TriGeomData* tgeom : odeBody->getTriGeomData()) {
     		_frameToOdeGeoms[odeBody->getFrame()] = tgeom->geomId;
     	}
 
@@ -1216,7 +1214,7 @@ void ODESimulator::addDevice(rwsim::dynamics::DynamicDevice::Ptr dev, rw::kinema
          RW_DEBUGS("BASE:" << base->getName() << "<--" << base->getParent()->getName() );
 
          size_t i =0;
-         BOOST_FOREACH(RigidJoint *rjoint, fDev->getLinks() ){
+         for(RigidJoint *rjoint : fDev->getLinks() ) {
              Joint *joint = rjoint->getJoint();
              Frame *parent = joint->getParent(state);
              RW_DEBUGS(parent->getName() << "<--" << joint->getName());
@@ -1530,7 +1528,7 @@ void ODESimulator::addSensor(rwlibs::simulation::SimulatedSensor::Ptr sensor, rw
 void ODESimulator::removeSensor(rwlibs::simulation::SimulatedSensor::Ptr sensor)
 {
     std::vector<rwlibs::simulation::SimulatedSensor::Ptr> newsensors;
-    BOOST_FOREACH(SimulatedSensor::Ptr oldsen , _sensors){
+    for(SimulatedSensor::Ptr oldsen : _sensors) {
         if(sensor != oldsen )
             newsensors.push_back(oldsen);
     }
@@ -1566,7 +1564,7 @@ void ODESimulator::removeSensor(rwlibs::simulation::SimulatedSensor::Ptr sensor)
         _odeBodyToSensor[odeBody->getBodyID()] = nodesensors;
 
         std::vector<ODETactileSensor*> newOdeSensors;
-        BOOST_FOREACH(ODETactileSensor* oldsen , _odeSensors){
+        for(ODETactileSensor* oldsen : _odeSensors) {
             if(tsensor != oldsen )
                 newOdeSensors.push_back(oldsen);
         }
@@ -1595,7 +1593,7 @@ void ODESimulator::detectCollisionsContactDetector(const State& state) {
     
 	std::vector<rwsim::contacts::Contact> contacts = _detector->findContacts(state);
     size_t numc = contacts.size();
-    /*BOOST_FOREACH(rwsim::contacts::Contact &c, contacts) {
+    /*for(rwsim::contacts::Contact &c : contacts) {
     	std::cout << "ModelA: " << c.getModelA()->getName() << " ModelB: " << c.getModelB()->getName() << " FrameA: " << c.getFrameA()->getName() << " FrameB: " << c.getFrameB()->getName() << " " << c.getNormal() << std::endl;
     }*/
     if(_rwcontacts.size()<numc){
@@ -1605,7 +1603,7 @@ void ODESimulator::detectCollisionsContactDetector(const State& state) {
 	    _nrOfCon = (int)numc;
     }
     int ni = 0;
-	BOOST_FOREACH(rwsim::contacts::Contact &contact, contacts) {
+	for(rwsim::contacts::Contact &contact : contacts) {
 		dContact &con = _contacts[ni];
 
         ODEBody *a_data = _rwFrameToODEBody[contact.getFrameA()];
@@ -1689,12 +1687,12 @@ void ODESimulator::detectCollisionsContactDetector(const State& state) {
 
 
 	    if(enableFeedback && odeSensorb1.size()>0){
-	    	BOOST_FOREACH(ODETactileSensor* sen, odeSensorb1){
+	    	for(ODETactileSensor* sen : odeSensorb1) {
 	    		sen->addFeedback(feedbacks, feedbackContacts, a_data->getRwBody(), b_data->getRwBody(), 0);
 	    	}
 	    }
 	    if(enableFeedback && odeSensorb2.size()>0){
-	    	BOOST_FOREACH(ODETactileSensor* sen, odeSensorb2){
+	    	for(ODETactileSensor* sen : odeSensorb2) {
 	    		sen->addFeedback(feedbacks, feedbackContacts, b_data->getRwBody(), a_data->getRwBody(), 1);
 	    	}
 	    }
@@ -2011,7 +2009,7 @@ void ODESimulator::handleCollisionBetween(dGeomID o1, dGeomID o2)
     //std::cout << frameB1->getName() << " " << frameB2->getName() << std::endl;
     // update the
     //std::vector<ContactManifold> &manifolds = _manifolds[pair];
-    //BOOST_FOREACH(ContactManifold &manifold, manifolds){
+    //for(ContactManifold &manifold : manifolds) {
         //manifold.update(); // TODO: use transform between objects to update manifold
     //}
     RW_DEBUGS("- do collide")
@@ -2130,7 +2128,7 @@ rw::math::Vector3D<> ODESimulator::addContacts(int numc, ODEBody* dataB1, ODEBod
     // run through all manifolds and get the contact points that will be used.
     int contactIdx = 0;
     rw::math::Vector3D<> contactNormalAvg(0,0,0);
-    BOOST_FOREACH(OBRManifold& obr, manifolds){
+    for(OBRManifold& obr : manifolds) {
         contactNormalAvg += obr.getNormal();
         int nrContacts = obr.getNrOfContacts();
         // if the manifold area is very small (area requires at least 3 points) then we only use a single point
@@ -2295,14 +2293,14 @@ rw::math::Vector3D<> ODESimulator::addContacts(int numc, ODEBody* dataB1, ODEBod
     //std::cout << "_maxPenetration: " << _maxPenetration << " meter" << std::endl;
     if(enableFeedback && odeSensorb1.size()>0){
     	//std::cout << "----------- ADD FEEDBACK\n";
-        BOOST_FOREACH(ODETactileSensor* sen, odeSensorb1){
+        for(ODETactileSensor* sen : odeSensorb1) {
             sen->addFeedback(feedbacks, feedbackContacts, dataB2->getRwBody(), dataB1->getRwBody(), 0);
         }
         //odeSensorb1->setContacts(result,wTa,wTb);
     }
     if(enableFeedback && odeSensorb2.size()>0){
     	//std::cout << "----------- ADD FEEDBACK\n";
-        BOOST_FOREACH(ODETactileSensor* sen, odeSensorb2){
+        for(ODETactileSensor* sen : odeSensorb2) {
     	        sen->addFeedback(feedbacks, feedbackContacts, dataB1->getRwBody(), dataB2->getRwBody(), 1);
         }
         //odeSensorb2->setContacts(result,wTa,wTb);
@@ -2401,14 +2399,14 @@ void ODESimulator::addContacts(std::vector<dContact>& contacts, size_t nr_con, O
     //std::cout << "_maxPenetration: " << _maxPenetration << " meter" << std::endl;
     if(enableFeedback && odeSensorb1.size()>0){
         //std::cout << "----------- ADD FEEDBACK\n";
-        BOOST_FOREACH(ODETactileSensor* sen, odeSensorb1){
+        for(ODETactileSensor* sen : odeSensorb1) {
             sen->addFeedback(feedbacks, feedbackContacts, dataB2->getRwBody(), dataB1->getRwBody(), 0);
         }
         //odeSensorb1->setContacts(result,wTa,wTb);
     }
     if(enableFeedback && odeSensorb2.size()>0){
         //std::cout << "----------- ADD FEEDBACK\n";
-        BOOST_FOREACH(ODETactileSensor* sen, odeSensorb2){
+        for(ODETactileSensor* sen : odeSensorb2) {
                 sen->addFeedback(feedbacks, feedbackContacts, dataB1->getRwBody(), dataB2->getRwBody(), 1);
         }
         //odeSensorb2->setContacts(result,wTa,wTb);
@@ -2430,27 +2428,27 @@ void ODESimulator::resetScene(rw::kinematics::State& state)
 
 	// first run through all rigid bodies and set the velocity and force to zero
 	RW_DEBUGS("- Resetting bodies: " << _allbodies.size());
-	BOOST_FOREACH(dBodyID body, _allbodies){
+	for(dBodyID body : _allbodies) {
 	    dBodySetLinearVel  (body, 0, 0, 0);
 	    dBodySetAngularVel (body, 0, 0, 0);
 	    dBodySetForce  (body, 0, 0, 0);
 	    dBodySetTorque (body, 0, 0, 0);
 	}
 
-	BOOST_FOREACH(ODEBody* body, _odeBodies){
+	for(ODEBody* body : _odeBodies) {
 	    body->reset(state);
 	}
 
 	// next the position need be reset to what is in state
 	// run through all rw bodies and set the body position accordingly
 	RW_DEBUGS("- Resetting sensors: " << _odeSensors.size());
-	BOOST_FOREACH(ODETactileSensor* sensor, _odeSensors){
+	for(ODETactileSensor* sensor : _odeSensors) {
 	    sensor->clear();
 	}
 
 	RW_DEBUGS("- Resetting devices: " << _odeDevices.size());
 	// run through all devices and set the rigid bodies accoringly
-	BOOST_FOREACH(ODEDevice *device, _odeDevices){
+	for(ODEDevice *device : _odeDevices) {
 	    device->reset(state);
 	}
 	RW_DEBUGS("Finished reset!!");
@@ -2468,44 +2466,44 @@ void ODESimulator::enableCollision(rwsim::dynamics::Body::Ptr b1, rwsim::dynamic
 
 void ODESimulator::exitPhysics()
 {
-	BOOST_FOREACH(ODEConstraint* constraint, _odeConstraints) {
-		delete constraint;
-	}
-	_odeConstraints.clear();
-	
-	BOOST_FOREACH(ODEDevice* vdev, _odeDevices) {
-		delete vdev;
-	}
-	_odeDevices.clear();
+    for(ODEConstraint* constraint : _odeConstraints) {
+        delete constraint;
+    }
+    _odeConstraints.clear();
 
-	BOOST_FOREACH(ODETactileSensor* sensor, _odeSensors) {
-		delete sensor;
-	}
-	_odeSensors.clear();
+    for(ODEDevice* vdev : _odeDevices) {
+        delete vdev;
+    }
+    _odeDevices.clear();
 
-	while (_odeBodies.size() > 0) {
-		ODEBody* body = _odeBodies[0];
+    for(ODETactileSensor* sensor : _odeSensors) {
+        delete sensor;
+    }
+    _odeSensors.clear();
+
+    while (_odeBodies.size() > 0) {
+        ODEBody* body = _odeBodies[0];
         if(!_dwc->inDevice(body->getRwBody()) )
-    		delete body;
-		std::vector<ODEBody*>::iterator it = _odeBodies.begin();
-		while (it < _odeBodies.end()) {
-			if (*it == body)
-				it = _odeBodies.erase(it);
-			else
-				it++;
-		}
-	}
-	_odeBodies.clear();
+            delete body;
+        std::vector<ODEBody*>::iterator it = _odeBodies.begin();
+        while (it < _odeBodies.end()) {
+            if (*it == body)
+                it = _odeBodies.erase(it);
+            else
+                it++;
+        }
+    }
+    _odeBodies.clear();
 
-	ODEThreading::destroyThreading(_worldId);
+    ODEThreading::destroyThreading(_worldId);
 
-	// only if init physics have been called
-	dJointGroupDestroy( _contactGroupId );
-	dWorldDestroy(_worldId);
-	dSpaceDestroy(_spaceId);
+    // only if init physics have been called
+    dJointGroupDestroy( _contactGroupId );
+    dWorldDestroy(_worldId);
+    dSpaceDestroy(_spaceId);
 
-	delete _odeMaterialMap;
+    delete _odeMaterialMap;
 
-	_frameToModels.clear();
-	_bpstrategy = NULL;
+    _frameToModels.clear();
+    _bpstrategy = NULL;
 }
