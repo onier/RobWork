@@ -6,6 +6,7 @@
 
 #include <rw/geometry/GeometryUtil.hpp>
 #include <rw/geometry/TriMesh.hpp>
+#include <rw/math/Random.hpp>
 #include <rw/models/Device.hpp>
 #include <rw/models/TreeDevice.hpp>
 #include <rw/proximity/CollisionDetector.hpp>
@@ -30,8 +31,8 @@ using namespace boost::filesystem;
 
 const double SOFT_LAYER_SIZE = 0.0005;
 
-int binSearchRec(const double value, std::vector<double>& surfaceArea, size_t start, size_t end){
-    if(start==end)
+std::size_t binSearchRec(const double value, std::vector<double>& surfaceArea, size_t start, size_t end){
+    if(start == end)
         return start;
     // choose a int between start and end
     size_t split = (end-start)/2+start;
@@ -90,8 +91,9 @@ std::vector<double> surfaceArea;
 
 int main(int argc, char** argv)
 {
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
 
     options_description desc("Allowed options");
     desc.add_options()
@@ -129,8 +131,8 @@ int main(int argc, char** argv)
         infiles.push_back( ip.string() );
     }
 
-	if(perturbe){
-	    BOOST_FOREACH(std::string file, infiles){
+	if(perturbe) {
+	    for(std::string file : infiles) {
 	        std::stringstream sstr;
 	        GraspTask::Ptr gtask = GraspTask::load( file );
 	        std::cout << "Processing: " << path(file).filename().string() << std::endl;
@@ -152,14 +154,14 @@ int main(int argc, char** argv)
     Q diff(7, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 15*Deg2Rad);
     std::list<const GTaskNNSearch::KDNode*> result;
     size_t nodeNr=0;
-    BOOST_FOREACH(GTaskNNSearch::KDNode& node, nodes){
+    for(GTaskNNSearch::KDNode& node : nodes) {
         result.clear();
         Q key  = node.key;
         nntree->nnSearchRect(key-diff,key+diff, result);
         size_t nrNeighbors = result.size();
 
         GraspResult::Ptr gres = node.value.second->getResult();
-        gres->qualityAfterLifting = Q(1, nrNeighbors );
+        gres->qualityAfterLifting = Q(1, static_cast<double>(nrNeighbors) );
 
         nodeNr++;
     }
@@ -171,7 +173,7 @@ int main(int argc, char** argv)
     try {
         GraspTask::saveRWTask( gtask, outfile );
         //GraspTask::saveUIBK( &gtask, outfile );
-    } catch (const Exception& exp) {
+    } catch (const Exception&) {
        RW_WARN("Task Execution Widget: Unable to save tasks");
     }
 
@@ -225,7 +227,7 @@ Transform3D<> sampleParSurface(double minDist, double maxDist, TriMesh::Ptr mesh
     Transform3D<> target;
     do {
         double rnum = Math::ran(0.0, sAreaSum);
-        int triIds = binSearchRec(rnum, surfaceArea, 0, mesh->size()-1);
+        const std::size_t triIds = binSearchRec(rnum, surfaceArea, 0, mesh->size()-1);
         Triangle<> tri = mesh->getTriangle(triIds);
 
         // random sample the triangle
@@ -257,7 +259,7 @@ Transform3D<> sampleParSurface(double minDist, double maxDist, TriMesh::Ptr mesh
         // now we want to find
         cstrategy->inCollision(object,Transform3D<>::identity(), ray, rayTrans, data);
         typedef std::pair<int,int> PrimID;
-        BOOST_FOREACH(PrimID pid, data.getCollisionData()._geomPrimIds){
+        for(PrimID pid : data.getCollisionData()._geomPrimIds) {
             // search for a triangle that has a normal
             Triangle<> tri = mesh->getTriangle( pid.first );
             Vector3D<> normal = tri.calcFaceNormal();

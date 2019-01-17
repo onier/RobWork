@@ -47,7 +47,7 @@ namespace {
             double scale;
         };
 
-        RenderTargets():_size(-0.02){
+        RenderTargets():_size(-0.02f){
             rw::geometry::Box box(_size/2,_size/8,_size/2);
             mesh = box.getTriMesh();
         };
@@ -60,7 +60,7 @@ namespace {
             glPushMatrix();
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDisable(GL_LIGHTING);
-            BOOST_FOREACH(Target target, _targets){
+            for(Target target : _targets) {
                 const Vector3D<> &p = target.trans.P();
                 const Vector3D<> &pn = p+target.trans.R()*Vector3D<>::z()*_size;
 
@@ -148,7 +148,7 @@ void SimTaskVisPlugin::open(WorkCell* workcell)
     _render = ownedPtr( new RenderTargets() );
     getRobWorkStudio()->getWorkCellScene()->addRender("pointRender", _render, workcell->getWorldFrame() );
 
-    BOOST_FOREACH(MovableFrame* object, workcell->findFrames<MovableFrame>() ){
+    for(MovableFrame* object : workcell->findFrames<MovableFrame>() ) {
         _frameSelectBox->addItem(object->getName().c_str());
     }
 
@@ -173,7 +173,6 @@ void SimTaskVisPlugin::btnPressed() {
         _updateBtn->setEnabled(true);
     } else if(obj==_updateBtn){
         // we need the frame that this should be drawn with respect too
-        std::cout << "update" << std::endl;
         std::string fname = _frameSelectBox->currentText().toStdString();
         MovableFrame* selframe = getRobWorkStudio()->getWorkcell()->findFrame<MovableFrame>(fname);
         if(selframe==NULL)
@@ -183,14 +182,15 @@ void SimTaskVisPlugin::btnPressed() {
         Transform3D<> wTo = Kinematics::worldTframe(selframe, getRobWorkStudio()->getState() );
         int nrToShow = _nrOfTargetSpin->value();
         std::vector<RenderTargets::Target> rtargets;
-        for(int i=0;i<nrToShow; i++){
+        for(int i = 0; i < nrToShow; i++) {
         // generate target list and add it to the render
 
             int idx = i;
-            if(static_cast<std::size_t>(nrToShow)<_ymtargets.size()){
-                idx = Random::ranI(0, _ymtargets.size());
+			int targetsSize = boost::numeric_cast<int>(_ymtargets.size());
+            if(nrToShow < targetsSize) {
+				idx = Random::ranI(0, targetsSize);
             } else {
-                if(static_cast<std::size_t>(idx)>=_ymtargets.size())
+                if(idx >= targetsSize)
                     break;
             }
 
@@ -210,16 +210,17 @@ void SimTaskVisPlugin::btnPressed() {
             int qIdx = _qualitySpin->value();
             Q quality = target->getPropertyMap().get<Q>("QualityAfterLifting", Q(1, 1.0));
 
-            if(qIdx>=(int)quality.size())
-                qIdx=quality.size()-1;
+			const int qualitySize = boost::numeric_cast<int>(quality.size());
+            if(qIdx >= qualitySize)
+                qIdx = qualitySize-1;
 
-            if( maxQual<quality(qIdx) )
+            if( maxQual < quality(qIdx) )
                 maxQual = quality(qIdx);
-            if( minQual>quality(qIdx) )
+            if( minQual > quality(qIdx) )
                 minQual = quality(qIdx);
 
 
-            if(testStatus==-1){
+            if(testStatus == -1) {
             	if(!_untestedBox->isChecked() )
             		continue;
 
@@ -292,7 +293,7 @@ void SimTaskVisPlugin::btnPressed() {
         if(_showQuality->isChecked()){
             offset = -minQual;
             scale = 1.0/(maxQual-minQual);
-            BOOST_FOREACH(RenderTargets::Target& t, rtargets){
+            for(RenderTargets::Target& t : rtargets) {
                 if( t.color[0]+t.color[1]+t.color[2]<0.00001 ){
                     t.color[0] = (1-(t.scale+offset)*scale);
                     t.color[1] = (1-(t.scale+offset)*scale);
@@ -370,7 +371,7 @@ void SimTaskVisPlugin::updateConfig(){
         // check all frames from device base to world
         if(_hand != NULL ){
             std::vector<Frame*> frames = Kinematics::childToParentChain(_hand->getBase(), _wc->getWorldFrame(), state);
-            BOOST_FOREACH(Frame *tmpKinFrame, frames){
+            for(Frame *tmpKinFrame : frames) {
                 if( KinematicBody::Ptr kbody = _dwc->findBody<KinematicBody>(tmpKinFrame->getName()) ){
                     baseName = kbody->getName();
                 }
@@ -494,13 +495,13 @@ void SimTaskVisPlugin::loadTasks(bool automatic){
         const TaskLoader::Ptr loader = TaskLoader::Factory::getTaskLoader("xml");
         loader->load( taskFile );
         task = loader->getCartesianTask();
-    } catch (const Exception& exp) {
+    } catch (const Exception&) {
         QMessageBox::information(this, "SimTaskVisPlugin", "Unable to load tasks from file");
         return;
     }
     // iterate over all tasks and add them to the taskQueue
     _roottask = task;
-    int nrOfTargets = 0;
+    std::size_t nrOfTargets = 0;
     std::stack<rwlibs::task::CartesianTask::Ptr> tmpStack;
     tmpStack.push(task);
     while(!tmpStack.empty()){
@@ -508,7 +509,7 @@ void SimTaskVisPlugin::loadTasks(bool automatic){
         tmpStack.pop();
         _taskQueue.push_back(tmpTask);
         nrOfTargets += tmpTask->getTargets().size();
-        BOOST_FOREACH(rwlibs::task::CartesianTask::Ptr subtask, tmpTask->getTasks()){
+        for(rwlibs::task::CartesianTask::Ptr subtask : tmpTask->getTasks()) {
             tmpStack.push(subtask);
         }
     }

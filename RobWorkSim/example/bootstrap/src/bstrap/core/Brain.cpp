@@ -19,8 +19,6 @@
 
 #include <rwsim/dynamics/Body.hpp>
 
-#include <boost/foreach.hpp>
-
 #include "Abstraction.hpp"
 #include "Memory.hpp"
 
@@ -40,7 +38,7 @@ void Brain::run()
          BrainState currentstate = computeSensorState();
 
          // -1. extend state with the states of abstractions
-         BOOST_FOREACH(Abstraction::Ptr abstraction, _abstractions){
+         for(Abstraction::Ptr abstraction : _abstractions) {
              abstraction->update( currentstate, _memory);
          }
 

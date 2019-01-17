@@ -59,7 +59,7 @@ int main(int argc, char** argv)
     std::map<int,bool> includeMap;
     if(vm.count("include")){
         const std::vector<std::string> &includes = vm["include"].as<vector<string> >();
-        BOOST_FOREACH(std::string include, includes){
+        for(std::string include : includes) {
             if(include=="Success"){ includeMap[GraspResult::Success] = true; }
             else if(include=="ObjectSlipped"){ includeMap[GraspResult::ObjectSlipped] = true; }
             else { RW_THROW("Unsupported include tag!"); }
@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 
     if(vm.count("exclude")){
         const std::vector<std::string> &excludes = vm["exclude"].as<vector<string> >();
-        BOOST_FOREACH(std::string exclude, excludes){
+        for(std::string exclude : excludes) {
             if(exclude=="Success"){ includeMap[GraspResult::Success] = false; }
             else if(exclude=="ObjectSlipped"){ includeMap[GraspResult::ObjectSlipped] = false; }
             else if(exclude=="Collision"){
@@ -99,7 +99,7 @@ int main(int argc, char** argv)
     const std::vector<std::string> &inputs = vm["input"].as<vector<string> >();
     int targets = 0, totaltargets = 0, localNrTargets=0,nrBatches=0;
     std::vector<int> testStat(GraspResult::SizeOfStatusArray,0);
-    BOOST_FOREACH(std::string input, inputs){
+    for(std::string input : inputs) {
         path ip(input);
         std::vector<std::string> infiles;
         if( is_directory(ip) ){
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
             infiles.push_back( ip.string() );
         }
 
-        BOOST_FOREACH(std::string ifile, infiles){
+        for(std::string ifile : infiles) {
             std::cout << "Processing: " << path(ifile).filename() << " ";
             GraspTask::Ptr grasptask = GraspTask::load( ifile );
             if(gtask==NULL){
@@ -120,9 +120,9 @@ int main(int argc, char** argv)
             }
             // put all subtasks into gtask
 
-            BOOST_FOREACH(GraspSubTask &stask, grasptask->getSubTasks()){
+            for(GraspSubTask &stask : grasptask->getSubTasks()) {
                 std::vector<GraspTarget> filteredTargets;
-                BOOST_FOREACH(GraspTarget &target, stask.targets){
+                for(GraspTarget &target : stask.targets) {
                     if(target.result==NULL)
                         continue;
                     int teststatus = target.result->testStatus;

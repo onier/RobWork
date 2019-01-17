@@ -8,6 +8,7 @@
 #include <rw/geometry/TriMesh.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/kinematics/MovableFrame.hpp>
+#include <rw/math/Random.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rw/models/Device.hpp>
 #include <rw/models/TreeDevice.hpp>
@@ -27,7 +28,7 @@ using namespace rwlibs::task;
 
 const double SOFT_LAYER_SIZE = 0.0005;
 
-int binSearchRec(const double value, std::vector<double>& surfaceArea, size_t start, size_t end){
+std::size_t binSearchRec(const double value, std::vector<double>& surfaceArea, size_t start, size_t end){
     if(start==end)
         return start;
     // choose a int between start and end
@@ -57,8 +58,9 @@ std::vector<double> surfaceArea;
 
 int main(int argc, char** argv)
 {
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
 
     if( argc < 3 ){
 		std::cout << "------ Usage: " << std::endl;
@@ -88,8 +90,8 @@ int main(int argc, char** argv)
     std::vector<NNSearchRes::Node> simnodes;
     std::vector<NNSearchPos::Node> posnodes;
 
-    BOOST_FOREACH(GraspSubTask& stask, gtask_sim->getSubTasks()){
-        BOOST_FOREACH(GraspTarget& target,stask.targets ){
+    for(GraspSubTask& stask : gtask_sim->getSubTasks()) {
+        for(GraspTarget& target : stask.targets ) {
             if(target.result==NULL)
                 continue;
             if(target.result->testStatus!=GraspResult::Success && target.result->testStatus!=GraspResult::ObjectSlipped)
@@ -133,7 +135,7 @@ int main(int argc, char** argv)
     std::list<const NNSearchRes::KDNode*> result;
     size_t maxNeigh = 0;
     // for each simulated node calculate an extra quality based on nr of close successes
-    BOOST_FOREACH(NNSearchRes::KDNode& node, simnodes){
+    for(NNSearchRes::KDNode& node : simnodes) {
         result.clear();
         GraspResult::Ptr res = node.value;
         Q key = node.key;
@@ -143,7 +145,7 @@ int main(int argc, char** argv)
         for(size_t i=0;i<res->qualityAfterLifting.size();i++)
             qualities[i] = res->qualityAfterLifting[i];
         maxNeigh = std::max(nrNeighbors,maxNeigh);
-        qualities[res->qualityAfterLifting.size()] = nrNeighbors;
+        qualities[res->qualityAfterLifting.size()] = static_cast<double>(nrNeighbors);
         res->qualityAfterLifting = qualities;
     }
     std::cout << "MAX NEIGHBORS: " << maxNeigh << std::endl;
@@ -152,7 +154,7 @@ int main(int argc, char** argv)
 
     // normalize to [0;1]
     RW_WARN("2");
-    BOOST_FOREACH(NNSearchRes::KDNode& node, simnodes){
+    for(NNSearchRes::KDNode& node : simnodes) {
         GraspResult::Ptr res = node.value;
         res->qualityAfterLifting[res->qualityAfterLifting.size()-1] *= (1.0/maxNeigh);
     }
@@ -165,8 +167,8 @@ int main(int argc, char** argv)
     std::vector<std::string> successes;
     std::vector<std::string> failures;
     size_t q_dim = 0;
-	BOOST_FOREACH(GraspSubTask& stask, gtask_exp->getSubTasks()){
-	    BOOST_FOREACH(GraspTarget& target,stask.targets ){
+	for(GraspSubTask& stask : gtask_exp->getSubTasks()) {
+	    for(GraspTarget& target : stask.targets ) {
 	        std::stringstream ss;
 	        Transform3D<> t3d = target.pose;
 
@@ -214,7 +216,7 @@ int main(int argc, char** argv)
             // make bruteforce search on position alone
 
             /*
-            BOOST_FOREACH(KDTreeQ::KDNode& closenode, simnodes){
+            for(KDTreeQ::KDNode& closenode : simnodes) {
 
                 double ndist = MetricUtil::dist2(closenode.key.getSubPart(0,3), key.getSubPart(0,3));
                 if(ndist<closest_dist){
@@ -236,7 +238,7 @@ int main(int argc, char** argv)
             if(result.size()==0){
                 closest_node =  &nntree->nnSearch(key);
             } else {
-                BOOST_FOREACH(const KDTreeQ::KDNode* closenode, result){
+                for(const KDTreeQ::KDNode* closenode : result) {
                     double ndist = MetricUtil::dist2(closenode->key, key);
                     if(ndist<closest_dist){
                         closest_dist = ndist;
@@ -278,8 +280,8 @@ int main(int argc, char** argv)
 	out << "success\tdist";
 	for(size_t i=0;i<q_dim;i++){ out << "\tqual"<<i; }
 	out << "\tx\ty\tz\teaax\teaay\teaaz\teaa_a\n";
-	BOOST_FOREACH(const std::string& str, successes){ out << str << "\n";}
-	BOOST_FOREACH(const std::string& str, failures){ out << str << "\n";}
+	for(const std::string& str : successes){ out << str << "\n";}
+	for(const std::string& str : failures){ out << str << "\n";}
 
 	out.close();
 
@@ -343,7 +345,7 @@ Transform3D<> sampleParSurface(double minDist, double maxDist, TriMesh::Ptr mesh
     Transform3D<> target;
     do {
         double rnum = Math::ran(0.0, sAreaSum);
-        int triIds = binSearchRec(rnum, surfaceArea, 0, mesh->size()-1);
+        const std::size_t triIds = binSearchRec(rnum, surfaceArea, 0, mesh->size()-1);
         Triangle<> tri = mesh->getTriangle(triIds);
 
         // random sample the triangle
@@ -375,7 +377,7 @@ Transform3D<> sampleParSurface(double minDist, double maxDist, TriMesh::Ptr mesh
         // now we want to find
         cstrategy->inCollision(object,Transform3D<>::identity(), ray, rayTrans, data);
         typedef std::pair<int,int> PrimID;
-        BOOST_FOREACH(PrimID pid, data.getCollisionData()._geomPrimIds){
+        for(PrimID pid : data.getCollisionData()._geomPrimIds) {
             // search for a triangle that has a normal
             Triangle<> tri = mesh->getTriangle( pid.first );
             Vector3D<> normal = tri.calcFaceNormal();

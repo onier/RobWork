@@ -68,7 +68,7 @@ namespace geometry {
 		/**
 		 * @brief constructor
 		 */
-		PlainTriMesh(int initSize=0):
+		PlainTriMesh(std::size_t initSize=0):
 		    _triangles(initSize)
 		{}
 

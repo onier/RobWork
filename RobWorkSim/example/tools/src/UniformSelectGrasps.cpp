@@ -4,6 +4,7 @@
 
 #include "util.hpp"
 
+#include <rw/math/Random.hpp>
 #include <rwlibs/task/GraspTask.hpp>
 
 #include <boost/program_options/parsers.hpp>
@@ -65,8 +66,9 @@ int main(int argc, char** argv){
  */
 int main_lpe(int argc, char** argv)
 {
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
     variables_map vm = init(argc, argv);
 
     std::string grasptask_file_out = vm["output"].as<std::string>();
@@ -104,7 +106,7 @@ int main_lpe(int argc, char** argv)
 
         // TODO: use a priority queue instead of this brute search
         int idx = 0;
-        BOOST_FOREACH(GTaskNNSearch::Node* nptr, simnodes){
+        for(GTaskNNSearch::Node* nptr : simnodes) {
             GTaskNNSearch::Node& n = *nptr;
             idx++;
             GTaskNNSearch::Value &val = n.value;
@@ -141,7 +143,7 @@ int main_lpe(int argc, char** argv)
         result.clear();
         nntree->nnSearchRect( n_max->key-diff, n_max->key+diff, result);
         //std::cout << "s:" << result.size() << "\n";
-        BOOST_FOREACH(const GTaskNNSearch::Node* res_n, result){
+        for(const GTaskNNSearch::Node* res_n : result) {
             nntree->removeNode( res_n->key );
             GTaskNNSearch::Node* r_n = (GTaskNNSearch::Node*) res_n;
             r_n->value.second = NULL;
@@ -152,7 +154,7 @@ int main_lpe(int argc, char** argv)
     // convert selectGrasps to a graspTask
     GraspTask res = *gtask;
     res.getSubTasks().clear();
-    BOOST_FOREACH(Value& taskpair, selGrasps){
+    for(Value& taskpair : selGrasps) {
         GraspSubTask stask = *taskpair.first;
         stask.targets.clear();
         stask.targets.push_back( *taskpair.second );
@@ -169,8 +171,9 @@ int main_lpe(int argc, char** argv)
  */
 int main_jaj(int argc, char** argv)
 {
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
     variables_map vm = init(argc, argv);
 
 	std::string grasptask_file_out = vm["output"].as<std::string>();
@@ -201,7 +204,7 @@ int main_jaj(int argc, char** argv)
         if(result.size()==0)
             continue;
         samples_t++;
-        int idx = Math::ranI(0,result.size());
+        int idx = Random::ranI(0,boost::numeric_cast<int>(result.size()));
         if(idx == (int)result.size())
             idx--;
         std::list<const GTaskNNSearch::Node*>::iterator i = result.begin();
@@ -218,7 +221,7 @@ int main_jaj(int argc, char** argv)
 	// convert selectGrasps to a graspTask
 	GraspTask res = *gtask;
 	res.getSubTasks().clear();
-	BOOST_FOREACH(Value& taskpair, selGrasps){
+	for(Value& taskpair : selGrasps) {
 	    GraspSubTask stask = *taskpair.first;
 	    stask.targets.clear();
 	    stask.targets.push_back( *taskpair.second );

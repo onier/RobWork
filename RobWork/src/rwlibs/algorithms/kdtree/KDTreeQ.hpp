@@ -19,7 +19,6 @@
 #ifndef RWLIBS_ALGORTIHMS_KDTREEQ_HPP_
 #define RWLIBS_ALGORTIHMS_KDTREEQ_HPP_
 
-#include <boost/foreach.hpp>
 #include <vector>
 #include <list>
 #include <algorithm>
@@ -524,7 +523,7 @@ namespace rwlibs { namespace algorithms {
 
         // copy the KDNodes into the tree nodes
         int i=0;
-        BOOST_FOREACH(KDNode* n, nodes){
+        for(KDNode* n : nodes) {
             (*tNodes)[i] = new TreeNode();
             (*tNodes)[i]->_kdnode = n;
             i++;
@@ -532,7 +531,8 @@ namespace rwlibs { namespace algorithms {
 
         // create a simple median balanced tree
         size_t nrOfDims = nodes.front()->key.size();
-        TreeNode *root = buildBalancedRec(*tNodes, 0, tNodes->size(), 0, nrOfDims);
+		const int tNodesSize = boost::numeric_cast<int>(tNodes->size());
+        TreeNode *root = buildBalancedRec(*tNodes, 0, tNodesSize, 0, nrOfDims);
 
         return new KDTreeQ<T>(root, tNodes);
     }

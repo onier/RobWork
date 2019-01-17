@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 
+#include <rw/math/Random.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rwlibs/task/GraspTask.hpp>
 #include <rwlibs/algorithms/kdtree/KDTree.hpp>
@@ -61,12 +62,13 @@ rw::common::Ptr< std::map<int,std::vector<int> > > calculateRegions(const std::v
     // now build a kdtree with all end configurations
 
     std::vector<NNSearch::KDNode> nodes;
-    for(size_t i=0;i<data.size();i++){
+    for(std::size_t i = 0; i < data.size(); i++) {
         Transform3D<> k = data[i];
         EAA<> r( k.R());
         //Vector3D<> r = k.R()*Vector3D<>::z();
         Q key(6, k.P()[0],k.P()[1],k.P()[2], r[0],r[1],r[2]);
-        nodes.push_back(NNSearch::KDNode(key, KDTreeValue(i, -1)));
+		const int iInt = boost::numeric_cast<int>(i);
+        nodes.push_back(NNSearch::KDNode(key, KDTreeValue(iInt, -1)));
     }
 
     std::cout << "Nodes created, building tree.. " << std::endl;
@@ -78,7 +80,7 @@ rw::common::Ptr< std::map<int,std::vector<int> > > calculateRegions(const std::v
     std::list<const NNSearch::KDNode*> result;
     Q diff(6, dist, dist, dist, angle, angle, angle);
     // find neighbors and connect them
-    BOOST_FOREACH(NNSearch::KDNode &n, nodes){
+    for(NNSearch::KDNode &n : nodes) {
         KDTreeValue &val = n.value;
         // check if the node is allready part of a region
         if(val.get<1>() >=0)
@@ -88,7 +90,7 @@ rw::common::Ptr< std::map<int,std::vector<int> > > calculateRegions(const std::v
         nntree->nnSearchRect(n.key-diff, n.key+diff, result);
         int currentIndex = -1;
         // first see if any has an id
-        BOOST_FOREACH(const NNSearch::KDNode* nn, result){
+        for(const NNSearch::KDNode* nn : result) {
             KDTreeValue nnval = nn->value;
             if(nnval.get<1>() >=0){
                 currentIndex = nnval.get<1>();
@@ -102,7 +104,7 @@ rw::common::Ptr< std::map<int,std::vector<int> > > calculateRegions(const std::v
             freeRegion++;
         }
         val.get<1>() = currentIndex;
-        BOOST_FOREACH(const NNSearch::KDNode* nn, result){
+        for(const NNSearch::KDNode* nn : result) {
             KDTreeValue nnval = nn->value;
             if(nnval.get<1>() >=0 && nnval.get<1>()!=currentIndex){
 
@@ -110,7 +112,7 @@ rw::common::Ptr< std::map<int,std::vector<int> > > calculateRegions(const std::v
 
                 // merge all previously defined nnval.get<1>() into freeRegion
                 regions[nnval.get<1>()] = false;
-                BOOST_FOREACH(NNSearch::KDNode &npro, nodes){
+                for(NNSearch::KDNode &npro : nodes) {
                     KDTreeValue &npval = npro.value;
                     // check if the node is allready part of a region
                     if(npval.get<1>() == nnval.get<1>())
@@ -124,7 +126,7 @@ rw::common::Ptr< std::map<int,std::vector<int> > > calculateRegions(const std::v
     // now print region information
     std::vector<int> validRegions;
     typedef std::map<int,bool>::value_type mapType;
-    BOOST_FOREACH(mapType val , regions){
+    for(mapType val : regions) {
         if(val.second==true){
             validRegions.push_back(val.first);
         }
@@ -134,7 +136,7 @@ rw::common::Ptr< std::map<int,std::vector<int> > > calculateRegions(const std::v
     std::cout << "Nr of detected regions: " << validRegions.size() << std::endl;
     std::map<int,std::vector<int> >* statMap = new std::map<int,std::vector<int> >();
 
-    BOOST_FOREACH(NNSearch::KDNode &n, nodes){
+    for(NNSearch::KDNode &n : nodes) {
         KDTreeValue &val = n.value;
         // check if the node is allready part of a region
         (*statMap)[val.get<1>()].push_back( val.get<0>() );
@@ -144,10 +146,11 @@ rw::common::Ptr< std::map<int,std::vector<int> > > calculateRegions(const std::v
 
 
 
-int main(int argc, char** argv){
-
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+int main(int argc, char** argv)
+{
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+    Random::seed(SEED);
+    srand (SEED);
     variables_map vm = init(argc, argv);
 
 
@@ -191,14 +194,14 @@ int main(int argc, char** argv){
     fstr << " added region, first int in each line represents the region in witch it belong\n";
     fstr << " \n";
     typedef std::map<int,std::vector<int> >::value_type mapType2;
-    BOOST_FOREACH(mapType2 val, *statMap){
+    for(mapType2 val : *statMap) {
         if(val.second.size() > 4)
             std::cout << "Region stat: " << val.first << ":" << val.second.size() ;
         Vector3D<> dir(0,0,0);
         double angle = 0;
         int count = 0;
 
-        BOOST_FOREACH(int idx, val.second){
+        for(int idx : val.second) {
             count ++;
             Transform3D<> s = inputStartCfgs[ idx ];
             EAA<> sr( s.R() );
@@ -251,8 +254,9 @@ int main_lpe(int argc, char** argv)
     typedef std::pair<GraspSubTask*, GraspTarget*> Value;
     typedef KDTreeQ<Value> NNSearch;
 
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
     variables_map vm = init(argc, argv);
 
     std::string grasptask_file_out = vm["output"].as<std::string>();
@@ -276,7 +280,7 @@ int main_lpe(int argc, char** argv)
         // find the node with the highest quality
         double q_max = -100;
         NNSearch::KDNode *n_max = simnodes[0];
-        BOOST_FOREACH(NNSearch::KDNode *nptr, simnodes){
+        for(NNSearch::KDNode *nptr : simnodes) {
             NNSearch::KDNode &n = *nptr;
             Value &val = n.value;
             if(val.second==NULL)
@@ -305,7 +309,7 @@ int main_lpe(int argc, char** argv)
         // use the max node as a sample point and remove all neighboring nodes
         result.clear();
         nntree->nnSearchRect( n_max->key-diff, n_max->key+diff, result);
-        BOOST_FOREACH(const NNSearch::KDNode* res_n, result){
+        for(const NNSearch::KDNode* res_n : result) {
             NNSearch::KDNode* r_n = (NNSearch::KDNode*) res_n;
             r_n->value.second = NULL;
         }
@@ -315,7 +319,7 @@ int main_lpe(int argc, char** argv)
     // convert selectGrasps to a graspTask
     GraspTask res = *gtask;
     res.getSubTasks().clear();
-    BOOST_FOREACH(Value& taskpair, selGrasps){
+    for(Value& taskpair : selGrasps) {
         GraspSubTask stask = *taskpair.first;
         stask.targets.clear();
         stask.targets.push_back( *taskpair.second );
@@ -335,8 +339,9 @@ int main_jaj(int argc, char** argv)
     typedef std::pair<GraspSubTask*, GraspTarget*> Value;
     typedef KDTreeQ<Value> NNSearch;
 
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
     variables_map vm = init(argc, argv);
 
 	std::string grasptask_file_out = vm["output"].as<std::string>();
@@ -356,7 +361,7 @@ int main_jaj(int argc, char** argv)
 	std::vector< Value > selGrasps;
 	std::list<const NNSearch::KDNode*> result;
 	int samples_f = 0, samples_t = 0;
-	while(selGrasps.size()<(std::size_t)count){
+	while(selGrasps.size() < (std::size_t)count) {
         result.clear();
         EAA<> eaa( Math::ranRotation3D<double>() );
         //Vector3D<> k = Math::ranRotation3D<double>()*Vector3D<>::z();
@@ -367,7 +372,7 @@ int main_jaj(int argc, char** argv)
         if(result.size()==0)
             continue;
         samples_t++;
-        int idx = Math::ranI(0,result.size());
+        int idx = Math::ranI(0,boost::numeric_cast<int>(result.size()));
         if((std::size_t)idx == result.size())
             idx--;
         std::list<const NNSearch::KDNode*>::iterator i = result.begin();
@@ -384,7 +389,7 @@ int main_jaj(int argc, char** argv)
 	// convert selectGrasps to a graspTask
 	GraspTask res = *gtask;
 	res.getSubTasks().clear();
-	BOOST_FOREACH(Value& taskpair, selGrasps){
+	for(Value& taskpair : selGrasps) {
 	    GraspSubTask stask = *taskpair.first;
 	    stask.targets.clear();
 	    stask.targets.push_back( *taskpair.second );

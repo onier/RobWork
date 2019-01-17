@@ -1,6 +1,7 @@
 #include <vector>
 #include <string>
 
+#include <rw/math/Random.hpp>
 #include <rw/math/Math.hpp>
 #include <rw/geometry/Triangle.hpp>
 #include <rw/geometry/TriMesh.hpp>
@@ -16,7 +17,7 @@ using rw::loaders::GeometryFactory;
 using namespace rw::math;
 using namespace rwlibs::task;
 
-int binSearchRec(const double value, std::vector<double>& surfaceArea, size_t start, size_t end){
+std::size_t binSearchRec(const double value, std::vector<double>& surfaceArea, size_t start, size_t end){
     if(start==end)
         return start;
     // choose a int between start and end
@@ -30,8 +31,9 @@ int binSearchRec(const double value, std::vector<double>& surfaceArea, size_t st
 
 int main(int argc, char** argv)
 {
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
 
     if( argc < 4 ){
 		std::cout << "------ Usage: " << std::endl;
@@ -119,13 +121,13 @@ int main(int argc, char** argv)
 	// now we choose a random number in the total area
 	const int NR_OF_SAMPLES = 10000;
 	for(int i=0; i<NR_OF_SAMPLES; i++){
-	    double rnum = Math::ran(0.0, sAreaSum);
-	    int triIds = binSearchRec(rnum, surfaceArea, 0, mesh->size()-1);
+	    double rnum = Random::ran(0.0, sAreaSum);
+	    const std::size_t triIds = binSearchRec(rnum, surfaceArea, 0, mesh->size()-1);
 	    Triangle<> tri = mesh->getTriangle(triIds);
 
 	    // random sample the triangle
-	    double b0 = Math::ran();
-	    double b1 = ( 1.0f - b0 ) * Math::ran();
+	    double b0 = Random::ran();
+	    double b1 = ( 1.0f - b0 ) * Random::ran();
 	    double b2 = 1 - b0 - b1;
 
 	    Vector3D<> position = tri[0] * b0 + tri[1] * b1 + tri[2] * b2;
@@ -138,11 +140,11 @@ int main(int argc, char** argv)
         Transform3D<> target( position, Math::ranRotation3D<double>());
         //Transform3D<> target( position, eaa.toRotation3D());
         if( type!="SCUP" ){
-            target.P() -= (target.R()*Vector3D<>::z())*Math::ran(0.001,0.05);
+            target.P() -= (target.R()*Vector3D<>::z())*Random::ran(0.001,0.05);
         } else if( type!="GS20" || type!="GS20_WIDE"){
-            target.P() -= (target.R()*Vector3D<>::z())*Math::ran(-0.03,0.03);
+            target.P() -= (target.R()*Vector3D<>::z())*Random::ran(-0.03,0.03);
         } else {
-            target.P() -= (target.R()*Vector3D<>::z())*Math::ran(-0.05,0.05);
+            target.P() -= (target.R()*Vector3D<>::z())*Random::ran(-0.05,0.05);
 
         }
 
@@ -153,7 +155,7 @@ int main(int argc, char** argv)
     try {
         const TaskSaver::Ptr saver = TaskSaver::Factory::getTaskSaver("xml");
         saver->save(&tasks, outfile);
-    } catch (const Exception& exp) {
+    } catch (const Exception&) {
        // QMessageBox::information(this, "Task Execution Widget", "Unable to save tasks");
     }
 

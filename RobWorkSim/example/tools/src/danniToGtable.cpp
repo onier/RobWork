@@ -80,17 +80,17 @@ int main(int argc, char** argv)
         TactileArray::ValueMatrix distal1(13,6),distal2(13,6),distal3(13,6);
         for(int x=0;x<13;x++)
             for(int y=0;y<6;y++){
-                distal1(x,y) = tactile[x*6+y + dist1];
-                distal2(x,y) = tactile[x*6+y + dist2];
-                distal3(x,y) = tactile[x*6+y + dist3];
+                distal1(x,y) = static_cast<float>(tactile[x*6+y + dist1]);
+                distal2(x,y) = static_cast<float>(tactile[x*6+y + dist2]);
+                distal3(x,y) = static_cast<float>(tactile[x*6+y + dist3]);
             }
 
         TactileArray::ValueMatrix proximal1(14,6),proximal2(14,6),proximal3(14,6);
         for(int x=0;x<14;x++)
             for(int y=0;y<6;y++){
-                proximal1(x,y) = tactile[x*6+y + prox1];
-                proximal2(x,y) = tactile[x*6+y + prox2];
-                proximal3(x,y) = tactile[x*6+y + prox3];
+                proximal1(x,y) = static_cast<float>(tactile[x*6+y + prox1]);
+                proximal2(x,y) = static_cast<float>(tactile[x*6+y + prox2]);
+                proximal3(x,y) = static_cast<float>(tactile[x*6+y + prox3]);
             }
         gdata._tactiledata[0] = distal1;
         gdata._tactiledata[1] = distal2;

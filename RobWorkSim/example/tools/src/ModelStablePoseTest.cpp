@@ -18,8 +18,6 @@
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 
-#include <boost/foreach.hpp>
-
 using namespace rw::geometry;
 using namespace rw::loaders;
 using namespace rw::math;
@@ -83,10 +81,10 @@ int main(int argc, char** argv)
     }
     //std::cout << "NR of result : " << result.size() << std::endl;
     std::vector<TriangleN1<> > result2;
-    BOOST_FOREACH(TriangleN1<>& tri, result){
+    for(TriangleN1<>& tri : result) {
         Vector3D<> n = tri.getFaceNormal();
         bool hasNormal = false;
-        BOOST_FOREACH(TriangleN1<> &t, result2){
+        for(TriangleN1<> &t : result2) {
             if( MetricUtil::dist2(n, t.getFaceNormal())<0.1 ){
                 hasNormal=true;
                 break;
@@ -96,7 +94,7 @@ int main(int argc, char** argv)
             result2.push_back(tri);
     }
 
-    BOOST_FOREACH(TriangleN1<>& tri, result2){
+    for(TriangleN1<>& tri : result2) {
         // calculate distance from cog to face
         // this is the height to place the object in
         double z = tri.halfSpaceDist( masscenter );

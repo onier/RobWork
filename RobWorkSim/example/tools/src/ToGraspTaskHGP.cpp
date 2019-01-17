@@ -51,8 +51,9 @@ void loadPoses(std::string filename, std::vector<Transform3D<> >& initialPoses, 
 #include <boost/lexical_cast.hpp>
 int main(int argc, char** argv)
 {
-    Random::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
 
     if( argc < 3 ){
 		std::cout << "------ Usage: " << std::endl;
@@ -81,7 +82,7 @@ int main(int argc, char** argv)
     gtask->getSubTasks()[0].openQ = Q(1, 0.005);
     gtask->getSubTasks()[0].retract.P() = Vector3D<>(0,0,-0.04);
 	std::vector<GraspTarget>& targets = gtask->getSubTasks()[0].getTargets();
-	BOOST_FOREACH(Transform3D<> &t3d, initPoses){
+	for(Transform3D<> &t3d : initPoses) {
 	    targets.push_back( GraspTarget( t3d ) );
 	}
 
@@ -89,7 +90,7 @@ int main(int argc, char** argv)
     //gtask->getSubTasks().resize(1);
     //std::vector<GraspTarget>& targets = gtask->getSubTasks()[0].getTargets();
 	int nrPosesWritten=0, nrSaves=0;
-    BOOST_FOREACH(Transform3D<> &t3d, samplePoses){
+    for(Transform3D<> &t3d : samplePoses) {
         targets.push_back( GraspTarget( t3d ) );
         nrPosesWritten++;
         if(nrPosesWritten>30000){
@@ -108,7 +109,7 @@ int main(int argc, char** argv)
     gtask->getSubTasks()[0].retract.P() = Vector3D<>(0,0,-0.04);
 
     nrPosesWritten=0; nrSaves=0;
-    BOOST_FOREACH(Transform3D<> &t3d, samplePoses){
+    for(Transform3D<> &t3d : samplePoses) {
         targets2.push_back( GraspTarget( t3d ) );
         nrPosesWritten++;
         if(nrPosesWritten>30000){

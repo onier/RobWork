@@ -10,6 +10,7 @@
 #include <rw/kinematics/MovableFrame.hpp>
 #include <rw/loaders/GeometryFactory.hpp>
 #include <rw/loaders/WorkCellLoader.hpp>
+#include <rw/math/Random.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rw/math/LinearAlgebra.hpp>
 #include <rw/models/RigidObject.hpp>
@@ -46,18 +47,6 @@ using namespace boost::filesystem;
 
 const double SOFT_LAYER_SIZE = 0.0005;
 
-int binSearchRec(const double value, std::vector<double>& surfaceArea, size_t start, size_t end){
-    if(start==end)
-        return start;
-    // choose a int between start and end
-    size_t split = (end-start)/2+start;
-
-    if(value<surfaceArea[split])
-        return binSearchRec(value, surfaceArea, start, split);
-    else
-        return binSearchRec(value, surfaceArea, split+1, end);
-}
-
 Transform3D<> sampleParSurface(double minDist, double maxDist, TriMeshSurfaceSampler& sampler, ProximityModel::Ptr object, ProximityModel::Ptr ray, CollisionStrategy::Ptr cstrategy, double &graspW);
 
 void moveFrameW(const Transform3D<>& wTtcp, Frame *tcp, MovableFrame* base, State& state){
@@ -76,8 +65,9 @@ std::vector<double> surfaceArea;
 
 int main(int argc, char** argv)
 {
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
 
     // we need
     // Declare the supported options.
@@ -112,7 +102,7 @@ int main(int argc, char** argv)
               options(desc).positional(optionDesc).run(), vm);
     notify(vm);
 
-    rw::math::Math::seed( TimerUtil::currentTimeMs() );
+    rw::math::Random::seed(static_cast<unsigned int>(TimerUtil::currentTimeMs()) );
     // write standard welcome, status
     if (vm.count("help")) {
         cout << "Usage:\n\n"
@@ -333,7 +323,7 @@ int main(int argc, char** argv)
 
         //Transform3D<> target = sampleParSurface(CLOSEQ+jawdist,OPENQ*2.0+jawdist, sampler, object, ray, cstrategy, graspW);
 
-        std::pair<int,int> sfeat = features[Math::ranI(0, features.size()-1)];
+        std::pair<int,int> sfeat = features[Math::ranI(0, boost::numeric_cast<int>(features.size())-1)];
         Vector3D<> p1 = points[sfeat.first].first;
         Vector3D<> p2 = points[sfeat.second].first;
         Vector3D<> n1 = points[sfeat.first].second;
@@ -372,8 +362,8 @@ int main(int argc, char** argv)
         }
         Q step =  (closeQ - openQ)/10;
         std::vector<Q> openSamples(10,oq);
-        for(std::size_t j=1;j<openSamples.size();j++){
-            openSamples[j] =openQ + step*j;
+        for(std::size_t j = 1; j < openSamples.size(); j++) {
+            openSamples[j] = openQ + step*static_cast<double>(j);
         }
 
         gripper->setQ( oq, state);
@@ -403,7 +393,7 @@ int main(int argc, char** argv)
                 gripper->setQ( openSamples[j], state);
                 if(cdetect.inCollision(state, &result, true)){
                     // stop if its colliding with the surroundings and not the object
-                    BOOST_FOREACH(FramePair pair, result.collidingFrames ){
+                    for(FramePair pair : result.collidingFrames ) {
                         if( pair.first!=obj->getBase() && pair.second!=obj->getBase()){
                             inCol = true;
                             break;
@@ -498,7 +488,7 @@ int main(int argc, char** argv)
     Q diff(7, 0.01, 0.01, 0.01, 0.1, 0.1, 0.1, 15*Deg2Rad);
     std::list<const NNSearch::KDNode*> result;
     size_t nodeNr=0;
-    BOOST_FOREACH(NNSearch::KDNode& node, nodes){
+    for(NNSearch::KDNode& node : nodes) {
         result.clear();
         Q key  = node.key;
         nntree->nnSearchRect(key-diff,key+diff, result);
@@ -515,7 +505,7 @@ int main(int argc, char** argv)
         /*
         // count how many that are close rotationally to
         size_t nrClose = 0;
-        BOOST_FOREACH(const KDTreeQ::KDNode* nn, result){
+        for(const KDTreeQ::KDNode* nn : result) {
 
             EAA<> eaa(gres->objectTtcpTarget.R()*inverse( nn->valueAs<GraspResult::Ptr>()->objectTtcpTarget.R()) );
             if( eaa.angle() < 20*Deg2Rad)
@@ -538,7 +528,7 @@ int main(int argc, char** argv)
     try {
         GraspTask::saveRWTask( &gtask, outfile );
         //GraspTask::saveUIBK( &gtask, outfile );
-    } catch (const Exception& exp) {
+    } catch (const Exception&) {
        RW_WARN("Task Execution Widget: Unable to save tasks");
     }
 
@@ -618,7 +608,7 @@ Transform3D<> sampleParSurface(double minDist, double maxDist, TriMeshSurfaceSam
         // now we want to find any triangles that collide with the ray and which are parallel with the sampled
         cstrategy->inCollision(object,Transform3D<>::identity(), ray, rayTrans, data);
         typedef std::pair<int,int> PrimID;
-        BOOST_FOREACH(PrimID pid, data.getCollisionData()._geomPrimIds){
+        for(PrimID pid : data.getCollisionData()._geomPrimIds) {
             // search for a triangle that has a normal
             Triangle<> tri = mesh->getTriangle( pid.first );
             Vector3D<> normal = tri.calcFaceNormal();

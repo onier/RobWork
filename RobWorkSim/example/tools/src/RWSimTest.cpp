@@ -11,8 +11,6 @@
 #include <rwsim/dynamics/ContactPoint.hpp>
 #include <rwsim/dynamics/ContactCluster.hpp>
 
-#include <boost/foreach.hpp>
-
 using namespace rw::math;
 using namespace rwsim::dynamics;
 
@@ -300,9 +298,9 @@ private:
 std::pair<Transform3D<>, Vector3D<> > fit(std::vector<ContactPoint>& points){
     // re-fit the bounding box
     Eigen::MatrixXd covar( Eigen::MatrixXd::Zero(3, 3) );
-    int nrContacts = points.size();
+    const std::size_t nrContacts = points.size();
     Vector3D<> c;
-    BOOST_FOREACH(ContactPoint &p, points){
+    for(ContactPoint &p : points) {
         c += p.p;
         covar(0,0) += p.p(0)+p.p(0);
         covar(1,1) += p.p(1)+p.p(1);
@@ -312,7 +310,7 @@ std::pair<Transform3D<>, Vector3D<> > fit(std::vector<ContactPoint>& points){
         covar(1,2) += p.p(1)+p.p(2);
     }
 
-    const int n = nrContacts;
+    const std::size_t n = nrContacts;
     covar(0,0) = covar(0,0)-c(0)*c(0)/n;
     covar(1,1) = covar(1,1)-c(1)*c(1)/n;
     covar(2,2) = covar(2,2)-c(2)*c(2)/n;
@@ -359,7 +357,7 @@ std::pair<Transform3D<>, Vector3D<> > fit(std::vector<ContactPoint>& points){
 
     Vector3D<> max = rotInv * points[0].p;
     Vector3D<> min = max;
-    for(int i = 0; i<nrContacts; i++ ){
+    for(std::size_t i = 0; i < nrContacts; i++) {
         const Vector3D<> prot = rotInv * points[i].p;
         if( prot(0)>max(0) ) max(0) = prot(0);
         else if( prot(0)<min(0) ) min(0) = prot(0);
@@ -437,9 +435,10 @@ int main(int argc, char** argv)
 
 
 	//int num = ContactCluster::thresClustering(&src[0],10,&srcIdx[0],&dstIdx[0],&dst[0],(double)n);
-	int num = ContactCluster::normalThresClustering(&src[0],src.size(),
-	                                                &srcIdx[0],&dstIdx[0],
-	                                                &dst[0],n);
+	int num = ContactCluster::normalThresClustering(&src[0],
+		boost::numeric_cast<int>(src.size()),
+		&srcIdx[0],&dstIdx[0],
+		&dst[0],n);
 	std::cout << "Number of contacts: " << num << std::endl;
 	//for(int i=0;i<num;i++)
 	//    std::cout << "i:" << i << " -> " << dst[i].penetration << " " << dst[i].p<< " " << dst[i].n << std::endl;

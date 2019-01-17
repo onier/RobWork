@@ -29,9 +29,9 @@ void CutActionParam::save(const std::vector<CutActionParam>& params, const std::
 
         ostr << param.posGripper[0] << " "<< param.posGripper[1] << " "<< param.posGripper[2]<< " ";
         ostr << param.rpyGripper[0] << " "<< param.rpyGripper[1] << " "<< param.rpyGripper[2]<< "   ";
-        int qlen = param.gripperQ.size();
+        const std::size_t qlen = param.gripperQ.size();
         ostr << qlen << " ";
-        for (int i = 0; i < qlen; i++)
+        for (std::size_t i = 0; i < qlen; i++)
             ostr << param.gripperQ(i) << " ";
         ostr << "\n";
     }

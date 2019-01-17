@@ -56,7 +56,7 @@ int main(int argc, char** argv)
     try {
         const TaskSaver::Ptr saver = TaskSaver::Factory::getTaskSaver("xml");
         saver->save(&tasks, "SuctionCupTaskFile.xml");
-    } catch (const Exception& exp) {
+    } catch (const Exception&) {
        // QMessageBox::information(this, "Task Execution Widget", "Unable to save tasks");
     }
 

@@ -17,8 +17,9 @@ using namespace rw::math;
 
 int main(int argc, char** argv)
 {
-    Random::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
 
     if( argc < 4 ){
 		std::cout << "------ Usage: " << std::endl;

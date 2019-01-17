@@ -304,7 +304,7 @@ void SimTaskPlugin::btnPressed() {
         // and calculate the home lifting position
         //_home = wTe_home * target->get() * inverse(_bTe);
         _hand->setQ(openQ, state);
-        BOOST_FOREACH(RigidBody::Ptr object, _objects){
+        for(RigidBody::Ptr object : _objects) {
             Transform3D<> objHome = object->getMovableFrame()->getTransform( _homeState );
             object->getMovableFrame()->setTransform(objHome, state );
         }
@@ -402,7 +402,7 @@ void SimTaskPlugin::updateConfig(){
         // check all frames from device base to world
         if(_hand != NULL ){
             std::vector<Frame*> frames = Kinematics::childToParentChain(_hand->getBase(), _wc->getWorldFrame(), state);
-            BOOST_FOREACH(Frame *tmpKinFrame, frames){
+            for(Frame *tmpKinFrame : frames) {
                 if( KinematicBody::Ptr kbody = _dwc->findBody<KinematicBody>(tmpKinFrame->getName()) ){
                     baseName = kbody->getName();
                 }
@@ -446,7 +446,7 @@ void SimTaskPlugin::updateConfig(){
 */
     _objects.clear();
     std::vector<RigidBody::Ptr> rbodies = _dwc->findBodies<RigidBody>();
-    BOOST_FOREACH(RigidBody::Ptr object, rbodies){
+    for(RigidBody::Ptr object : rbodies) {
     	if(object->getBodyFrame()->getName()=="EndFrame")
     		continue;
     	std::map<std::string, Frame*> fmap = Kinematics::buildFrameMap(_hand->getBase(), state);
@@ -573,13 +573,13 @@ void SimTaskPlugin::loadTasks(bool automatic){
         const TaskLoader::Ptr loader = TaskLoader::Factory::getTaskLoader("xml");
         loader->load( taskFile );
         task = loader->getCartesianTask();
-    } catch (const Exception& exp) {
+    } catch (const Exception&) {
         QMessageBox::information(this, "SimTaskPlugin", "Unable to load tasks from file");
         return;
     }
     // iterate over all tasks and add them to the taskQueue
     _roottask = task;
-    int nrOfTargets = 0;
+    std::size_t nrOfTargets = 0;
     std::stack<rwlibs::task::CartesianTask::Ptr> tmpStack;
     tmpStack.push(task);
     while(!tmpStack.empty()){
@@ -589,19 +589,19 @@ void SimTaskPlugin::loadTasks(bool automatic){
         _taskQueue.push_back(tmpTask);
         nrOfTargets += tmpTask->getTargets().size();
 
-        BOOST_FOREACH(CartesianTarget::Ptr target, tmpTask->getTargets()){
+        for(CartesianTarget::Ptr target : tmpTask->getTargets()) {
             _alltargets.push_back( std::make_pair(tmpTask,target));
         }
 
-        BOOST_FOREACH(rwlibs::task::CartesianTask::Ptr subtask, tmpTask->getTasks()){
+        for(rwlibs::task::CartesianTask::Ptr subtask : tmpTask->getTasks()) {
             tmpStack.push(subtask);
         }
     }
 
-    _totalNrOfExperiments = nrOfTargets;
-    _showTaskSpinBox->setRange(0, _alltargets.size() );
-    _nrTaskSpinBox->setRange( 0, _alltargets.size() );
-    _nrTaskSpinBox->setValue( _alltargets.size()-1 );
+    _totalNrOfExperiments = boost::numeric_cast<int>(nrOfTargets);
+    _showTaskSpinBox->setRange(0, boost::numeric_cast<int>(_alltargets.size()) );
+    _nrTaskSpinBox->setRange( 0, boost::numeric_cast<int>(_alltargets.size()) );
+    _nrTaskSpinBox->setValue(boost::numeric_cast<int>(_alltargets.size()-1) );
     log().info() << "LOAD TASKS DONE, nr of tasks: " << nrOfTargets;
     setTask(0);
 
@@ -658,8 +658,8 @@ SimTaskPlugin::GraspedObject SimTaskPlugin::getObjectContacts(const rw::kinemati
     }
     if(result.size()==0)
         return GraspedObject();
-    int bestIdx = 0;
-    for(size_t i=1;i<result.size();i++){
+    std::size_t bestIdx = 0;
+    for(std::size_t i = 1; i < result.size(); i++) {
         if( result[i].contacts.size() > result[bestIdx].contacts.size() )
             bestIdx = i;
     }
@@ -678,7 +678,7 @@ rw::math::Q SimTaskPlugin::calcGraspQuality(const State& state){
 
     if(g3d.contacts.size()<4){
         std::vector<Contact3D > cons = g3d.contacts;
-        BOOST_FOREACH(Contact3D& c, cons){
+        for(Contact3D& c : cons) {
             // add a small random value to normal and position
             c.n += Vector3D<>(Math::ran(-0.1,0.1), Math::ran(-0.1,0.1),Math::ran(-0.1,0.1));
             c.n = normalize(c.n);
@@ -690,7 +690,7 @@ rw::math::Q SimTaskPlugin::calcGraspQuality(const State& state){
 
     std::cout << "***** NR OF CONTACTS IN GRASP: " << g3d.contacts.size() << std::endl;
     /*
-    BOOST_FOREACH(Contact3D con, g3d.contacts){
+    for(Contact3D con : g3d.contacts) {
         std::cout << "--- contact";
         std::cout << "\n-- nf: " << con.normalForce;
         std::cout << "\n-- mu: " << con.mu;
@@ -826,7 +826,7 @@ rwlibs::task::CartesianTarget::Ptr SimTaskPlugin::getTarget(){
 namespace {
     double getMaxObjectDistance(std::vector<RigidBody::Ptr> objects, const State& s1, const State& s2){
         double max = 0;
-        BOOST_FOREACH(RigidBody::Ptr object, objects){
+        for(RigidBody::Ptr object : objects) {
             Transform3D<> t1 = object->getTransformW(s1);
             Transform3D<> t2 = object->getTransformW(s2);
             if(MetricUtil::dist2(t1.P(),t2.P())>max)
@@ -1230,10 +1230,10 @@ void SimTaskPlugin::exportMathematica(const std::string& filename) {
        outfile << "// Description: {target.pos(3), target.rpy(3), TestStatus(1), GripperConfiguration("<<_openQ.size()<<"), "
                "GripperTObject.pos, GripperTObject.rpy, ObjectTtcpBefore.pos, ObjectTtcpBefore.rpy, ObjectTtcpAfter.pos, ObjectTtcpAfter.rpy}\n";
        outfile << "// TestStatus enum { UnInitialized=0, Success=1, CollisionInitially=2, ObjectMissed=3, ObjectDropped=4, ObjectSlipped=5, TimeOut=6, SimulationFailure=7}\n";
-       BOOST_FOREACH(CartesianTask::Ptr task, _taskQueue){
+       for(CartesianTask::Ptr task : _taskQueue) {
            std::vector<CartesianTarget::Ptr> targets = task->getTargets();
            outfile<<"{" << task->getId() << "}\n";
-           BOOST_FOREACH(CartesianTarget::Ptr target, targets) {
+           for(CartesianTarget::Ptr target : targets) {
               const Vector3D<>& pos = target->get().P();
               const RPY<> rpy(target->get().R());
               int status = target->getPropertyMap().get<int>("TestStatus", UnInitialized);
@@ -1302,7 +1302,7 @@ void SimTaskPlugin::saveTasks(bool automatic){
         const TaskSaver::Ptr saver = TaskSaver::Factory::getTaskSaver("xml");
         saver->save(_roottask, taskFile );
 
-    } catch (const Exception& exp) {
+    } catch (const Exception&) {
         QMessageBox::information(this, "Task Execution Widget", "Unable to save tasks");
     }
     std::stringstream sstr;

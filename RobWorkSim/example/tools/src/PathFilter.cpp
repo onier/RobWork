@@ -84,6 +84,8 @@ int main(int argc, char** argv)
 	std::vector<Transform3D<> > endTransMisses, startTransMisses;
 	//Unused: bool rotSet=false;
 	Vector3D<> rotAxis;
+	double time = 0;
+	double timeStart = -1;
 	for(std::size_t i=0;i<path.size();i++){
 	    const State &state = path[i].getValue();
 
@@ -93,19 +95,20 @@ int main(int argc, char** argv)
 	    Transform3D<> tStart = plate->getTransform( startPath[i].getValue() );
 
 	    if( MetricUtil::dist2(t.P(),p)<0.10 ){
-
-	        outpath.push_back(rw::trajectory::TimedState(outpath.size(), state) );
+			time += 1.0;
+	        outpath.push_back(rw::trajectory::TimedState(time, state) );
 
 	        const State &sstate =  startPath[i].getValue();
-	        startoutpath.push_back(rw::trajectory::TimedState(startoutpath.size()-1, sstate) );
+			timeStart += 1.0;
+	        startoutpath.push_back(rw::trajectory::TimedState(timeStart, sstate) );
 
 	        endTrans.push_back(t);
 	        startTrans.push_back(tStart);
 	    } else {
-            outpathmisses.push_back(rw::trajectory::TimedState(outpath.size(), state) );
+            outpathmisses.push_back(rw::trajectory::TimedState(time, state) );
 
             const State &sstate =  startPath[i].getValue();
-            startoutpathmisses.push_back(rw::trajectory::TimedState(startoutpath.size()-1, sstate) );
+            startoutpathmisses.push_back(rw::trajectory::TimedState(timeStart, sstate) );
 
 
 	        endTransMisses.push_back(t);

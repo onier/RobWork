@@ -1,5 +1,8 @@
 #include "SamplePlugin.hpp"
 
+#include <rw/math/Constants.hpp>
+#include <rw/math/Quaternion.hpp>
+#include <rw/models/Device.hpp>
 #include <rwlibs/opengl/RenderFrame.hpp>
 
 #include <RobWorkStudio.hpp>
@@ -91,8 +94,8 @@ void SamplePlugin::initialize() {
 
 void SamplePlugin::open(WorkCell* workcell)
 {
-    if(_renderFrame==NULL)
-        _renderFrame = ownedPtr( new RenderFrame(0.1) );
+    if(_renderFrame == NULL)
+        _renderFrame = ownedPtr( new RenderFrame(0.1f) );
 
     Frame *worldFrame = workcell->getWorldFrame();
 

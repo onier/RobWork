@@ -83,7 +83,7 @@ int main(int argc, char** argv)
     std::vector<std::string> infiles;
     if(vm.count("input")){
         const std::vector<std::string> &inputs = vm["input"].as<vector<string> >();
-        BOOST_FOREACH(std::string input, inputs){
+        for(std::string input : inputs) {
             path ip(input);
             if( is_directory(ip) ){
                 infiles = IOUtil::getFilesInFolder( ip.string(), false, true);
@@ -101,7 +101,7 @@ int main(int argc, char** argv)
         int targets = 0, results = 0;
         std::vector<int> testStat(GraspResult::SizeOfStatusArray,0);
 
-        BOOST_FOREACH(std::string ifile, baselinefiles){
+        for(std::string ifile : baselinefiles) {
             //std::cout << "Processing: " << ifile << std::endl;
             GraspTask::Ptr grasptask;
             try{
@@ -111,8 +111,8 @@ int main(int argc, char** argv)
               continue;
             }
             // get all stats from grasptask
-            BOOST_FOREACH(GraspSubTask& stask, grasptask->getSubTasks()){
-                BOOST_FOREACH(GraspTarget& target, stask.getTargets()){
+            for(GraspSubTask& stask : grasptask->getSubTasks()) {
+                for(GraspTarget& target : stask.getTargets()) {
                     targets++;
                     if(target.result==NULL){
                         testStat[GraspResult::UnInitialized]++;
@@ -140,9 +140,9 @@ int main(int argc, char** argv)
         // here we need to find the files in inputfiles that match the files in baseline files
         // the criteria is that the first part of the filename of input must match that of baseline
         std::vector<std::pair<std::string, std::string> > matches;
-        BOOST_FOREACH(std::string inputl, infiles){
+        for(std::string inputl : infiles) {
             std::string namein = path(inputl).filename().string();
-            BOOST_FOREACH(std::string basel, baselinefiles){
+            for(std::string basel : baselinefiles) {
                 std::string name = path(basel).filename().string();
                 if(name == namein.substr(0,name.size())){
                     matches.push_back(make_pair(basel,inputl));
@@ -158,7 +158,7 @@ int main(int argc, char** argv)
 
         // foreach match we write the test status of each grasp
         typedef std::pair<std::string,std::string> StrPair;
-        BOOST_FOREACH(StrPair data, matches){
+        for(StrPair data : matches) {
             if(!silent){
                 std::cout << "processing: \n-" << path(data.first).filename().string();
                 std::cout << "\n-" << path(data.second).filename().string() << std::endl;
@@ -268,8 +268,8 @@ void printConfMatrix(boost::numeric::ublas::bounded_matrix<int, 7, 7>& mat){
 
 std::vector<std::pair<GraspSubTask*,GraspTarget*> > getTargets(GraspTask::Ptr gtask){
     std::vector<std::pair<GraspSubTask*,GraspTarget*> > res;
-    BOOST_FOREACH(GraspSubTask& subtask, gtask->getSubTasks()){
-        BOOST_FOREACH(GraspTarget& gtarget, subtask.getTargets()){
+    for(GraspSubTask& subtask : gtask->getSubTasks()) {
+        for(GraspTarget& gtarget : subtask.getTargets()) {
             res.push_back( make_pair(&subtask,&gtarget) );
         }
     }

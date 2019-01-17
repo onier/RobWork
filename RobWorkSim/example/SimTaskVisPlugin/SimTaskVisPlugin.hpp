@@ -93,7 +93,7 @@ private:
     std::vector<rwlibs::task::CartesianTarget::Ptr> *_targets;
     int _currentTaskIndex;
     int _currentTargetIndex, _nextTargetIndex;
-    int _totalNrOfExperiments;
+    std::size_t _totalNrOfExperiments;
 
     std::vector<std::pair<rwlibs::task::CartesianTask::Ptr, rwlibs::task::CartesianTarget::Ptr> > _ymtargets;
 

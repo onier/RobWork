@@ -58,7 +58,7 @@ int main(int argc, char** argv)
 	Ptr<GraspTable> gtable = GraspTable::load(filename);
 	RW_ASSERT(gtable!=NULL);
 	Log::infoLog() << "Table size: " << gtable->size() << std::endl;
-	int nrOfGroups = gtable->size()/groupSize;
+	int nrOfGroups = boost::numeric_cast<int>(gtable->size())/groupSize;
 	int globalStat = 0;
 	for(int i=0;i<nrOfGroups; i++){
 		GraspTable::GraspData &ngrasp = gtable->getData()[i*groupSize];

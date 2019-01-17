@@ -445,8 +445,8 @@ rw::common::Ptr<CutResult> simulateCut(Knife& knife, ProximityModel::Ptr obj, Ob
 		return res;
 	}
 
-	int cuttingStartIndex = res->path.size()-2;
-	int cuttingEndIndex = res->path.size();
+	const std::size_t cuttingStartIndex = res->path.size()-2;
+	std::size_t cuttingEndIndex = res->path.size();
 
 	data.setCollisionQueryType( CollisionStrategy::AllContacts );
 	// the second step is to continue moving the knife in the direction of cutting
@@ -490,7 +490,7 @@ rw::common::Ptr<CutResult> simulateCut(Knife& knife, ProximityModel::Ptr obj, Ob
 	PlainTriMeshF cuttingMesh;
 	if(isDebugEnabled)
 	    std::cout << "Cutting start: " << cuttingStartIndex << std::endl;
-	for(int j=cuttingStartIndex+1;j<cuttingEndIndex;j++){
+	for(std::size_t j = cuttingStartIndex+1; j < cuttingEndIndex; j++) {
 		Transform3D<> knifeTrans_a = res->path[j-1];
 		Transform3D<> knifeTrans_b = res->path[j] ;
 		for(std::size_t x=1;x<knife.bladeedge.size();x++){
@@ -551,7 +551,7 @@ std::vector<TriMesh::Ptr> knifeMesh(TriMesh::Ptr knife, const Transform3D<>& wTk
     /*
     std::map<int, int> knifeMap, objectMap;
     typedef std::pair<int, int> IDs;
-    BOOST_FOREACH( IDs prims, data.getCollisionData()._geomPrimIds ){
+    for( IDs prims : data.getCollisionData()._geomPrimIds ) {
     	int knife_tri = prims.first;
     	int object_tri = prims.second;
     	knifeMap[knife_tri]++;
@@ -559,12 +559,12 @@ std::vector<TriMesh::Ptr> knifeMesh(TriMesh::Ptr knife, const Transform3D<>& wTk
     }
 
     std::cout << "KNIFE MAP" << std::endl;
-    BOOST_FOREACH( IDs data, knifeMap ){
+    for( IDs data : knifeMap ) {
     	std::cout << data.first << " = " << data.second << "\n";
     }
 
     std::cout << "OBJECT MAP" << std::endl;
-    BOOST_FOREACH( IDs data, objectMap ){
+    for( IDs data : objectMap ) {
     	std::cout << data.first << " = " << data.second << "\n";
     }
 */
@@ -574,7 +574,7 @@ std::vector<TriMesh::Ptr> knifeMesh(TriMesh::Ptr knife, const Transform3D<>& wTk
 
 
     typedef std::pair<int, int> IDs;
-    BOOST_FOREACH( IDs prims, data.getCollisionData()._geomPrimIds ){
+    for( IDs prims : data.getCollisionData()._geomPrimIds ) {
     	int knife_tri = prims.first;
     	int object_tri = prims.second;
     	collidingTrisObject.push_back(object_tri);
@@ -714,13 +714,14 @@ std::vector<TriMesh::Ptr> knifeMesh(TriMesh::Ptr knife, const Transform3D<>& wTk
 
     for(std::size_t i=0; i<imesh_object->size(); i++ ){
     	IndexedTriangle<uint32_t> itri = imesh_object->getIndexedTriangle(i);
-    	verticeToTris[itri.getVertexIdx(0)].push_back(i);
-    	verticeToTris[itri.getVertexIdx(1)].push_back(i);
-    	verticeToTris[itri.getVertexIdx(2)].push_back(i);
+		const int intI = boost::numeric_cast<int>(i);
+    	verticeToTris[itri.getVertexIdx(0)].push_back(intI);
+    	verticeToTris[itri.getVertexIdx(1)].push_back(intI);
+    	verticeToTris[itri.getVertexIdx(2)].push_back(intI);
     }
     enum{NONE=0, COLLIDING_TRI=1, LEFT_TRI, RIGHT_TRI};
     // now color all triangles on either side of the knife
-    BOOST_FOREACH(int colTri, collidingTrisObject){
+    for(int colTri : collidingTrisObject) {
     	triColor[colTri] = COLLIDING_TRI;
     }
     // next do floodfill and color all left and right triangles
@@ -729,7 +730,7 @@ std::vector<TriMesh::Ptr> knifeMesh(TriMesh::Ptr knife, const Transform3D<>& wTk
     	int vert = vertsLeft.top();
     	vertsLeft.pop();
     	// get triangles that are not colored
-    	BOOST_FOREACH(int tri, verticeToTris[vert]){
+    	for(int tri : verticeToTris[vert]) {
     		if(triColor[tri]!=NONE)
     			continue;
     		triColor[tri] = LEFT_TRI;
@@ -746,7 +747,7 @@ std::vector<TriMesh::Ptr> knifeMesh(TriMesh::Ptr knife, const Transform3D<>& wTk
     	int vert = vertsRight.top();
     	vertsRight.pop();
     	// get triangles that are not colored
-    	BOOST_FOREACH(int tri, verticeToTris[vert]){
+    	for(int tri : verticeToTris[vert]) {
     		if(triColor[tri]!=NONE)
     			continue;
     		triColor[tri] = RIGHT_TRI;

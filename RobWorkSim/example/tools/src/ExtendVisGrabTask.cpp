@@ -29,8 +29,6 @@
 #include <rwlibs/task/loader/TaskSaver.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
-#include <boost/foreach.hpp>
-
 using namespace std;
 using namespace rw::common;
 using rw::geometry::Geometry;
@@ -85,7 +83,7 @@ int main(int argc, char** argv)
     std::vector<std::string> colStlFiles;
     std::cout << "* Generating Non textured Collision files: " << colFiles.size() << std::endl;
     bool FORCE_COLLISION_MODELS = false;
-    BOOST_FOREACH(std::string file, colFiles){
+    for(std::string file : colFiles) {
         // test if its allready been generated
         char cmd2[1024];
         std::string outfile = file + ".stl";
@@ -153,7 +151,7 @@ int main(int argc, char** argv)
         std::vector<CartesianTask::Ptr> allTasks = getAllTasks( rootTask );
         std::vector<CartesianTask::Ptr> filteredTasks;
 
-        BOOST_FOREACH(CartesianTask::Ptr task, allTasks){
+        for(CartesianTask::Ptr task : allTasks) {
             Transform3D<> _wTe_n = task->getPropertyMap().get<Transform3D<> >("Nominal", Transform3D<>::identity());
             //_wTe_home = _currenttask->getPropertyMap().get<Transform3D<> >("Home", Transform3D<>::identity());
             //Vector3D<> approach = _currenttask->getPropertyMap().get<Vector3D<> >("Approach", Vector3D<>(0,0,0));
@@ -197,7 +195,7 @@ int main(int argc, char** argv)
 
             std::vector<CartesianTarget::Ptr> filteredTargets;
             Transform3D<> wTp = Kinematics::worldTframe(_mframe->getParent(state), state);
-            BOOST_FOREACH(CartesianTarget::Ptr target, task->getTargets() ){
+            for(CartesianTarget::Ptr target : task->getTargets() ) {
                 Transform3D<> start = inverse(wTp) * _wTe_n * target->get() * inverse(_bTe);
                 nrOfTargets++;
                 nrTargetsTask++;
@@ -226,8 +224,7 @@ int main(int argc, char** argv)
             sstr << taskFile << ".filtered.xml";
             saver->save(filterTask, sstr.str() );
             //RW_WARN("");
-        } catch (const Exception& exp) {
-
+        } catch (const Exception&) {
             // QMessageBox::information(this, "Task Execution Widget", "Unable to save tasks");
         }
 
@@ -249,17 +246,16 @@ void generateCollisionData(){
 
 }
 
-std::vector<CartesianTask::Ptr> getAllTasks(CartesianTask::Ptr task){
-    int nrOfTargets = 0;
+std::vector<CartesianTask::Ptr> getAllTasks(CartesianTask::Ptr task)
+{
     std::vector<CartesianTask::Ptr> alltasks;
     std::stack<rwlibs::task::CartesianTask::Ptr> tmpStack;
     tmpStack.push(task);
-    while(!tmpStack.empty()){
+    while(!tmpStack.empty()) {
         rwlibs::task::CartesianTask::Ptr tmpTask = tmpStack.top();
         tmpStack.pop();
         alltasks.push_back(tmpTask);
-        nrOfTargets += tmpTask->getTargets().size();
-        BOOST_FOREACH(rwlibs::task::CartesianTask::Ptr subtask, tmpTask->getTasks()){
+        for(rwlibs::task::CartesianTask::Ptr subtask : tmpTask->getTasks()) {
             tmpStack.push(subtask);
         }
     }
@@ -375,13 +371,13 @@ std::vector<std::string> mergeTaskFileList(std::string root, std::string preName
                         rwlibs::task::CartesianTask::Ptr task = loader->getCartesianTask();
                         task->setId( objectDirectory + "_" + "img_" + sIstr + "_" + graspType + "_" + gIstr );
                         task->getPropertyMap().set<string>("GraspType",graspType);
-                        task->getPropertyMap().set<int>("GraspTypeI",gtype);
+                        task->getPropertyMap().set<int>("GraspTypeI",boost::numeric_cast<int>(gtype));
                         task->getPropertyMap().set<string>("ObjectType",objectDirectory);
                         task->getPropertyMap().set<int>("GraspI",graspI);
                         task->getPropertyMap().set<string>("DWCFile", string(objectDirectory + "/" + "img_" + sIstr + ".dwc.xml"));
                         task->getPropertyMap().set<int>("SceneI",sceneI);
                         tasks->addTask( task );
-                    } catch (const Exception& exp) {
+                    } catch (const Exception&) {
                         RW_WARN("task file not loaded!");
                     }
                     nrExp++;
@@ -396,7 +392,7 @@ std::vector<std::string> mergeTaskFileList(std::string root, std::string preName
             try {
             	const TaskSaver::Ptr saver = TaskSaver::Factory::getTaskSaver("xml");
                 saver->save(tasks, merged_taskFile );
-            } catch (const Exception& exp) {
+            } catch (const Exception&) {
                // QMessageBox::information(this, "Task Execution Widget", "Unable to save tasks");
             }
         }
@@ -409,7 +405,7 @@ std::vector<std::string> mergeTaskFileList(std::string root, std::string preName
 
 std::vector<std::string> merge(std::vector<std::string> v1, std::vector<std::string> v2){
     std::vector<std::string> result = v1;
-    BOOST_FOREACH(std::string str, v2){
+    for(std::string str : v2) {
         result.push_back(str);
     }
     return result;
@@ -478,7 +474,7 @@ std::vector<std::string> merge(std::vector<std::string> v1, std::vector<std::str
                     loader.load( taskFile );
                     rwlibs::task::CartesianTask::Ptr task = loader.getCartesianTask();
                     std::vector<rwlibs::task::CartesianTask::Ptr> subtasks = task->getTasks();
-                    BOOST_FOREACH(rwlibs::task::CartesianTask::Ptr subtask, subtasks){
+                    for(rwlibs::task::CartesianTask::Ptr subtask : subtasks) {
                         std::cout << subtask->getId() << std::endl;
                         std::cout << subtask->getPropertyMap()->get<string>("GraspType","") << std::endl;
                         std::cout << subtask->getPropertyMap()->get<int>("GraspTypeI",-1) << std::endl;

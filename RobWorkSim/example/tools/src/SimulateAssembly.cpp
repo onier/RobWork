@@ -48,7 +48,7 @@ using namespace boost::filesystem;
 using namespace boost::program_options;
 
 int main(int argc, char** argv) {
-	//Math::seed( TimerUtil::currentTimeMs() );
+	//Random::seed( TimerUtil::currentTimeMs() );
 	options_description desc("Allowed options");
 	desc.add_options()
 	        		("help", "Produce this help message.")
@@ -80,14 +80,14 @@ int main(int argc, char** argv) {
 	Log::log().setLevel(Log::Info);
 	const std::vector<std::string> engines = PhysicsEngine::Factory::getEngineIDs();
 	std::cout << "Engines available: " << engines.size() << std::endl;
-	BOOST_FOREACH(const std::string& str, engines) {
+	for(const std::string& str : engines) {
 		std::cout << str << std::endl;
 	}
 
     std::vector<std::string> infiles;
     if(vm.count("input") ){
         const std::vector<std::string> &inputs = vm["input"].as<std::vector<std::string> >();
-        BOOST_FOREACH(std::string input, inputs){
+        for(std::string input : inputs) {
             path ip(input);
             if( is_directory(ip) ){
                 infiles = IOUtil::getFilesInFolder( ip.string(), false, true);

@@ -5,6 +5,7 @@
 
 #include <rw/common/LogFileWriter.hpp>
 #include <rw/loaders/path/PathLoader.hpp>
+#include <rw/math/Random.hpp>
 #include <rwlibs/task/GraspTask.hpp>
 #include <rwsim/loaders/DynamicWorkCellLoader.hpp>
 #include <rwsim/simulator/GraspTaskSimulator.hpp>
@@ -63,7 +64,7 @@ int main(int argc, char** argv)
               options(desc).positional(optionDesc).run(), vm);
     notify(vm);
 
-    rw::math::Math::seed( TimerUtil::currentTimeMs() );
+    rw::math::Random::seed( static_cast<unsigned int>(TimerUtil::currentTimeMs()) );
     // write standard welcome, status
     if (vm.count("help")) {
         cout << "Usage:\n\n"
@@ -79,7 +80,7 @@ int main(int argc, char** argv)
     std::vector<GraspTask::TestStatus> taskincludefilter;
     if(vm.count("include")){
         const std::vector<std::string> &includes = vm["include"].as<vector<string> >();
-        BOOST_FOREACH(std::string include, includes){
+        for(std::string include : includes) {
             if(include=="Success"){
                 includeMap[GraspResult::Success] = true;
                 taskincludefilter.push_back(GraspResult::Success);
@@ -102,7 +103,7 @@ int main(int argc, char** argv)
     std::vector<std::string> infiles;
     if(vm.count("input") ){
         const std::vector<std::string> &inputs = vm["input"].as<vector<string> >();
-        BOOST_FOREACH(std::string input, inputs){
+        for(std::string input : inputs) {
             path ip(input);
             if( is_directory(ip) ){
                 infiles = IOUtil::getFilesInFolder( ip.string(), false, true);
@@ -174,7 +175,7 @@ int main(int argc, char** argv)
                 TimerUtil::sleepMs(500);
                 std::vector<int> stat = graspSim->getStat();
                 std::cout << "\r";
-                BOOST_FOREACH(int i, stat){ std::cout << i << " "; }
+                for(int i : stat){ std::cout << i << " "; }
                 std::cout << std::flush;
             } while(graspSim->isRunning());
 
@@ -206,7 +207,7 @@ int main(int argc, char** argv)
 
     std::string playbackprefix = vm["playbackprefix"].as<std::string>();
 
-    BOOST_FOREACH(std::string ifile, infiles){
+    for(std::string ifile : infiles) {
         std::cout << "loading: " << path(ifile).filename() << " ";
 
         std::stringstream sstr;
@@ -229,10 +230,10 @@ int main(int argc, char** argv)
 
 
         // temporarilly change refframe to Object change
-        BOOST_FOREACH(GraspSubTask &stask, grasptask->getSubTasks()){
+        for(GraspSubTask &stask : grasptask->getSubTasks()) {
             stask.setRefFrame("object");
             // also remove results
-            BOOST_FOREACH(GraspTarget &target, stask.getTargets() ){
+            for(GraspTarget &target : stask.getTargets() ) {
                 target.result = NULL;
             }
         }
@@ -248,7 +249,7 @@ int main(int argc, char** argv)
             TimerUtil::sleepMs(500);
             std::vector<int> stat = graspSim->getStat();
             std::cout << "\r";
-            BOOST_FOREACH(int i, stat){ std::cout << i << " "; }
+            for(int i : stat){ std::cout << i << " "; }
             std::cout << std::flush;
         } while(graspSim->isRunning());
 
@@ -267,11 +268,11 @@ int main(int argc, char** argv)
 
         if (playbackprefix != "") {
         	std::map<GraspSubTask*,std::map<GraspTarget*,TimedStatePath> > timedStatePaths = graspSim->getTimedStatePaths();
-        	BOOST_FOREACH(GraspSubTask &task, grasptask->getSubTasks()) {
+        	for(GraspSubTask &task : grasptask->getSubTasks()) {
         		if (timedStatePaths.find(&task) != timedStatePaths.end()) {
         			std::map<GraspTarget*,TimedStatePath> &targetPath = timedStatePaths[&task];
         			std::size_t i = 0;
-        			BOOST_FOREACH(GraspTarget &target, task.getTargets()) {
+        			for(GraspTarget &target : task.getTargets()) {
                 		if (targetPath.find(&target) != targetPath.end()) {
                 			TimedStatePath &path = targetPath[&target];
                 			std::stringstream sstr;

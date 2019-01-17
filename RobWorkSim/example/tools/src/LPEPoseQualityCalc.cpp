@@ -3,6 +3,7 @@
 #include <string>
 #include <stdio.h>
 
+#include <rw/math/Random.hpp>
 #include <rw/math/Vector3D.hpp>
 #include <rwlibs/task/GraspTask.hpp>
 
@@ -90,8 +91,9 @@ std::vector<std::pair<Transform3D<>, RPY<> > > readPoses(std::string file){
 
 int main(int argc, char** argv)
 {
-    Math::seed(time(NULL));
-    srand ( time(NULL) );
+	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+	Random::seed(SEED);
+	srand(SEED);
 
     options_description desc("Allowed options");
     desc.add_options()
@@ -122,7 +124,7 @@ int main(int argc, char** argv)
     std::vector<double> qualityestimates( stable.size() );
     std::vector<double> qualityestimates_misses( misses.size() );
     // build the nodes
-    typedef std::pair<int, bool> Value;
+	typedef std::pair < std::size_t , bool > Value;
     typedef KDTreeQ<Value> NNSearch;
     std::vector<NNSearch::KDNode> nodes;
     for(std::size_t i=0;i<stable.size();i++){
@@ -152,7 +154,7 @@ int main(int argc, char** argv)
     std::list<const NNSearch::KDNode*> result;
     result.clear();
 
-    BOOST_FOREACH(NNSearch::KDNode &nn, nodes){
+    for(NNSearch::KDNode &nn : nodes) {
     //for(int i=0;i<stable.size();i++){
         result.clear();
         Transform3D<> t3d;
@@ -173,7 +175,7 @@ int main(int argc, char** argv)
         double yo = rpy(2);
 
         //Unused: int N = result.size();
-        BOOST_FOREACH(const NNSearch::KDNode* n, result ){
+        for(const NNSearch::KDNode* n : result ) {
             Value v = n->value;
             RPY<> rpyo;
             if(v.second)

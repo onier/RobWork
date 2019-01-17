@@ -25,7 +25,7 @@ void VisionSensor::update(BrainState& cstate, Memory& mem){
     //PropertyMap &objectsMap = cstate.getMap().add("VisualObjects", "A list of visual objects", PropertyMap())->getValue();
 
     Transform3D<> wTvision = Kinematics::worldTframe(_visionFrame, cstate.getRobWorkState() );
-    BOOST_FOREACH(Body::Ptr b, _dwc->getBodies() ){
+    for(Body::Ptr b : _dwc->getBodies() ) {
         Transform3D<> wTobj = b->getTransformW( cstate.getRobWorkState() );
 
         // transform wTobj to vision coordinates, and only record objects that are in the positive z-coordinate

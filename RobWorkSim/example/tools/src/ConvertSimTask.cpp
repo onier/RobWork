@@ -11,7 +11,6 @@
 
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/xml_parser.hpp>
-#include <boost/foreach.hpp>
 
 using namespace std;
 using namespace rw::common;
@@ -346,7 +345,7 @@ void writeUIBK(const std::string& taskFile, const std::string& outfile){
     std::ofstream fstr(outfile.c_str());
     writeHeader(fstr);
 
-    BOOST_FOREACH( rwlibs::task::CartesianTarget::Ptr target, task->getTargets() ){
+    for( rwlibs::task::CartesianTarget::Ptr target : task->getTargets() ) {
         Transform3D<> trans = wTe_n * target->get();
         fstr << "<grasp>\n";
         writeGripper(fstr, "Schunk Hand", Q::zero(2));
@@ -378,11 +377,11 @@ void writeLua(const std::string& tasksDir, const std::string& outfile){
     std::vector<std::string> files = IOUtil::getFilesInFolder(tasksDir, false, true, "*.xml" );
     // for each file we add the target to the lua script
 
-    BOOST_FOREACH(const std::string& taskfile, files){
+    for(const std::string& taskfile : files) {
         int fcount = 0;
         rwlibs::task::CartesianTask::Ptr task = readGraspTask(taskfile);
-        BOOST_FOREACH(rwlibs::task::CartesianTask::Ptr subtask, task->getTasks()){
-            BOOST_FOREACH(rwlibs::task::CartesianTarget::Ptr target, subtask->getTargets()){
+        for(rwlibs::task::CartesianTask::Ptr subtask : task->getTasks()) {
+            for(rwlibs::task::CartesianTarget::Ptr target : subtask->getTargets()) {
                 Transform3D<> t3d = target->get();
 
                 std::string tfile = taskfile;
@@ -428,11 +427,11 @@ void mergeRW(const std::string& tasksDir, const std::string& outfile){
             task = loader->getCartesianTask();
         }
         RW_WARN("1");
-        //BOOST_FOREACH(rwlibs::task::CartesianTask::Ptr subtask, task->getTasks()){
+        //for(rwlibs::task::CartesianTask::Ptr subtask : task->getTasks()) {
             RW_WARN("1");
             if(task==NULL)
                 continue;
-            BOOST_FOREACH(rwlibs::task::CartesianTarget::Ptr target, task->getTargets()){
+            for(rwlibs::task::CartesianTarget::Ptr target : task->getTargets()) {
                 RW_WARN("1");
                 mergedtask->addTarget(target);
                 RW_WARN("1");
