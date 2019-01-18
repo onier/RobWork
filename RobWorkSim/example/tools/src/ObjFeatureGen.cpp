@@ -218,7 +218,7 @@ int main(int argc, char** argv)
     long avgNeighSum = 0;
     std::list<const KDTreeQ::KDNode*> result;
     Q diff(3, 0.005, 10*Deg2Rad, 10*Deg2Rad);
-    BOOST_FOREACH( KDTreeQ::KDNode& node , nodes){
+    for( KDTreeQ::KDNode& node : nodes) {
         result.clear();
         //nntree->
         Q key = node.key;
@@ -248,7 +248,7 @@ int main(int argc, char** argv)
     std::vector<int> buckets(51,0);
     double scaleVal = maxNeigh/50.0;
     // create 50 buckets for the data
-    BOOST_FOREACH( KDTreeQ::KDNode& node , nodes){
+    for( KDTreeQ::KDNode& node : nodes) {
         KD_VALUE_TYPE value = boost::any_cast<KD_VALUE_TYPE>(node.value);
         int bucket_idx = 0;
 
@@ -267,7 +267,7 @@ int main(int argc, char** argv)
 
     // next we reduce the features by thresholding the max neigh count at maxNeigh_init/4
     std::vector<KDTreeQ::KDNode> nodes_reduced;
-    BOOST_FOREACH( KDTreeQ::KDNode& node , nodes){
+    for( KDTreeQ::KDNode& node : nodes) {
         KD_VALUE_TYPE value = boost::any_cast<KD_VALUE_TYPE>(node.value);
         if( value.get<2>() < 200 ){
             nodes_reduced.push_back( node );

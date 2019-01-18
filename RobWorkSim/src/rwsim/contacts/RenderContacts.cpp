@@ -35,14 +35,22 @@ struct RenderContacts::GLData {
 };
 
 RenderContacts::RenderContacts():
-	_gl(new GLData())
+	_gl(new GLData()),
+	_showPoints(std::make_pair(true,true)),
+	_showNormals(std::make_pair(true,true))
 {
+	setSphereRadius();
+	setNormalLength();
 }
 
 RenderContacts::RenderContacts(const std::vector<Contact> &contacts):
 	_contacts(contacts),
-	_gl(new GLData())
+	_gl(new GLData()),
+	_showPoints(std::make_pair(true,true)),
+	_showNormals(std::make_pair(true,true))
 {
+	setSphereRadius();
+	setNormalLength();
 }
 
 RenderContacts::~RenderContacts() {
@@ -58,40 +66,50 @@ std::vector<Contact> RenderContacts::getContacts() const {
 }
 
 void RenderContacts::draw(const DrawableNode::RenderInfo& info, DrawableNode::DrawType type, double alpha) const {
-	static double SPHERE_RADIUS = 0.005;
-	static double NORMAL_LENGTH = 0.05;
 	BOOST_FOREACH(const Contact& con, _contacts){
 		Vector3D<> posA = con.getPointA();
 		Vector3D<> posB = con.getPointB();
-		Vector3D<> n = normalize(con.getNormal())*NORMAL_LENGTH;
+		Vector3D<> n = normalize(con.getNormal())*_normalLength;
 
-		glPushMatrix();
+		if (_showPoints.first || _showNormals.first) {
+			glPushMatrix();
+			glTranslatef((GLfloat)posA(0),(GLfloat)posA(1),(GLfloat)posA(2));
 
-		glColor3f(1.0, 0.0, 0.0);
-		glTranslatef((GLfloat)posA(0),(GLfloat)posA(1),(GLfloat)posA(2));// Center The Cone
-		gluSphere( _gl->quadratic, SPHERE_RADIUS, 32, 32);    // Draw Our Sphere
+			if (_showPoints.first) {
+				glColor3f(_colorPoint[0], _colorPoint[1], _colorPoint[2]);
+				gluSphere( _gl->quadratic, _sphereRadius, 32, 32);
+			}
 
-		glBegin(GL_LINES);
-		glColor3f(1.0, 0.0, 0.0);
-		glVertex3d(0,0,0);
-		glVertex3d(n(0),n(1),n(2));
-		glEnd();
+			if (_showNormals.first) {
+				glBegin(GL_LINES);
+				glColor3f(_colorNormal[0], _colorNormal[1], _colorNormal[2]);
+				glVertex3d(0,0,0);
+				glVertex3d(n(0),n(1),n(2));
+				glEnd();
+			}
 
-		glPopMatrix();
+			glPopMatrix();
+		}
 
-		glPushMatrix();
+		if (_showPoints.second || _showNormals.second) {
+			glPushMatrix();
+			glTranslatef((GLfloat)posB(0),(GLfloat)posB(1),(GLfloat)posB(2));
 
-		glColor3f(1.0, 0.0, 0.0);
-		glTranslatef((GLfloat)posB(0),(GLfloat)posB(1),(GLfloat)posB(2));// Center The Cone
-		gluSphere( _gl->quadratic, SPHERE_RADIUS, 32, 32);    // Draw Our Sphere
+			if (_showPoints.second) {
+				glColor3f(_colorPoint[0], _colorPoint[1], _colorPoint[2]);
+				gluSphere( _gl->quadratic, _sphereRadius, 32, 32);
+			}
 
-		glBegin(GL_LINES);
-		glColor3f(1.0, 0.0, 0.0);
-		glVertex3d(0,0,0);
-		glVertex3d(-n(0),-n(1),-n(2));
-		glEnd();
+			if (_showNormals.second) {
+				glBegin(GL_LINES);
+				glColor3f(_colorNormal[0], _colorNormal[1], _colorNormal[2]);
+				glVertex3d(0,0,0);
+				glVertex3d(-n(0),-n(1),-n(2));
+				glEnd();
+			}
 
-		glPopMatrix();
+			glPopMatrix();
+		}
 	}
 }
 

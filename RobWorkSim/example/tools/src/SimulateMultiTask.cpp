@@ -188,7 +188,7 @@ void initVars(){
 
 std::vector<std::string> merge(std::vector<std::string> v1, std::vector<std::string> v2){
     std::vector<std::string> result = v1;
-    BOOST_FOREACH(std::string str, v2){
+    for(std::string str : v2) {
         result.push_back(str);
     }
     return result;
@@ -229,7 +229,7 @@ std::vector<CartesianTask::Ptr> getAllTasks(CartesianTask::Ptr task){
         tmpStack.pop();
         alltasks.push_back(tmpTask);
         nrOfTargets += tmpTask->getTargets().size();
-        BOOST_FOREACH(rwlibs::task::CartesianTask::Ptr subtask, tmpTask->getTasks()){
+        for(rwlibs::task::CartesianTask::Ptr subtask : tmpTask->getTasks()) {
             tmpStack.push(subtask);
         }
     }
@@ -255,8 +255,8 @@ bool hasUndoneTasks(std::string taskfile, bool& makeNewFile){
     CartesianTask::Ptr ctask = loader.getCartesianTask();
     std::vector<CartesianTask::Ptr> allTasks = getAllTasks( ctask );
     //RW_WARN("");
-    BOOST_FOREACH(CartesianTask::Ptr task, allTasks){
-        BOOST_FOREACH(CartesianTarget::Ptr target, task->getTargets() ){
+    for(CartesianTask::Ptr task : allTasks) {
+        for(CartesianTarget::Ptr target : task->getTargets() ) {
             int teststatus = target->getPropertyMap().get<int>("TestStatus", -1);
             if(teststatus<0)
                 return true;
@@ -276,7 +276,7 @@ int getNrOfTargets(std::string taskfile){
     loader.load(taskfile);
     std::vector<CartesianTask::Ptr> allTasks = getAllTasks( loader.getCartesianTask() );
     //RW_WARN("");
-    BOOST_FOREACH(CartesianTask::Ptr task, allTasks){
+    for(CartesianTask::Ptr task : allTasks) {
         nrTasks += task->getTargets().size();
     }
     return nrTasks;

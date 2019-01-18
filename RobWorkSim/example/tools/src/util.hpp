@@ -43,8 +43,8 @@ buildKDTree_pos_zaxis(rwlibs::task::GraspTask::Ptr gtask, std::vector<rwlibs::al
     typedef KDTreeQ<std::pair<GraspSubTask*,GraspTarget*> > NNSearch;
     // we need the simulated grasps to attach a quality to the experiments
     // first we build a NN-structure for efficient nearest neighbor search
-    BOOST_FOREACH(GraspSubTask& stask, gtask->getSubTasks()){
-        BOOST_FOREACH(GraspTarget& target,stask.targets ){
+    for(GraspSubTask& stask : gtask->getSubTasks()) {
+        for(GraspTarget& target : stask.targets ) {
             Transform3D<> t3d = target.getResult()->objectTtcpLift;
             //Transform3D<> t3d = target.pose;
             Vector3D<> p = t3d.P();
@@ -67,8 +67,8 @@ buildKDTree_zaxis(rwlibs::task::GraspTask::Ptr gtask) {
     // we need the simulated grasps to attach a quality to the experiments
     // first we build a NN-structure for efficient nearest neighbor search
     std::vector<NNSearch::KDNode> *simnodes = new std::vector<NNSearch::KDNode>();
-    BOOST_FOREACH(GraspSubTask& stask, gtask->getSubTasks()){
-        BOOST_FOREACH(GraspTarget& target,stask.targets ){
+    for(GraspSubTask& stask : gtask->getSubTasks()) {
+        for(GraspTarget& target : stask.targets ) {
             Transform3D<> t3d = target.pose;
             Vector3D<> n = t3d.R()*Vector3D<>::z();
             Q key(3, n[0], n[1], n[2]);
@@ -87,8 +87,8 @@ buildKDTree_eaa(rwlibs::task::GraspTask::Ptr gtask) {
     // we need the simulated grasps to attach a quality to the experiments
     // first we build a NN-structure for efficient nearest neighbor search
     std::vector<NNSearch::KDNode> *simnodes = new std::vector<NNSearch::KDNode>();
-    BOOST_FOREACH(GraspSubTask& stask, gtask->getSubTasks()){
-        BOOST_FOREACH(GraspTarget& target,stask.targets ){
+    for(GraspSubTask& stask : gtask->getSubTasks()) {
+        for(GraspTarget& target : stask.targets ) {
             Transform3D<> t3d = target.pose;
 
             EAA<> eaa( t3d.R() );
@@ -108,8 +108,8 @@ buildKDTree_pos_eaa(rwlibs::task::GraspTask::Ptr gtask, std::vector<rwlibs::algo
     typedef KDTreeQ<std::pair<GraspSubTask*,GraspTarget*> > NNSearch;
     // we need the simulated grasps to attach a quality to the experiments
     // first we build a NN-structure for efficient nearest neighbor search
-    BOOST_FOREACH(GraspSubTask& stask, gtask->getSubTasks()){
-        BOOST_FOREACH(GraspTarget& target,stask.targets ){
+    for(GraspSubTask& stask : gtask->getSubTasks()) {
+        for(GraspTarget& target : stask.targets ) {
             Transform3D<> t3d = target.pose;
             Vector3D<> p = t3d.P();
             //Vector3D<> n = t3d.R()*Vector3D<>::z();
