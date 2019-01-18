@@ -161,7 +161,7 @@ const std::vector<EngineTest::Result>& EngineTest::TestHandle::getResults() cons
 }
 
 EngineTest::Result& EngineTest::TestHandle::getResult(const std::string& name) {
-	BOOST_FOREACH(Result& result, _results) {
+	for(Result& result : _results) {
 		if(result.name == name)
 			return result;
 	}
@@ -195,7 +195,7 @@ void EngineTest::TestHandle::abort() {
 bool EngineTest::TestHandle::success() const {
 	if (_error.size() > 0)
 		return false;
-	BOOST_FOREACH(const Result& result, _results) {
+	for(const Result& result : _results) {
 		if (result.failures.size() > 0)
 			return false;
 	}
@@ -258,11 +258,11 @@ EngineTest::Factory::Factory():
 std::vector<std::string> EngineTest::Factory::getTests() {
 	const EngineTest::Factory ep;
     std::vector<std::string> ids;
-    BOOST_FOREACH(const Extension& ext, ep.internalExtensions()) {
+    for(const Extension& ext : ep.internalExtensions()) {
     	ids.push_back(ext.getProperties().get<std::string>("testID"));
     }
     const std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-    BOOST_FOREACH(const Extension::Descriptor& ext, exts){
+    for(const Extension::Descriptor& ext : exts) {
         ids.push_back( ext.getProperties().get("testID",ext.name) );
     }
     return ids;
@@ -270,12 +270,12 @@ std::vector<std::string> EngineTest::Factory::getTests() {
 
 bool EngineTest::Factory::hasTest(const std::string& test) {
 	const EngineTest::Factory ep;
-    BOOST_FOREACH(Extension& ext, internalExtensions()) {
+    for(Extension& ext : internalExtensions()) {
         if(ext.getProperties().get<std::string>("testID") == test)
             return true;
     }
     const std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-    BOOST_FOREACH(const Extension::Descriptor& ext, exts){
+    for(const Extension::Descriptor& ext : exts) {
         if(ext.getProperties().get("testID",ext.name) == test)
             return true;
     }
@@ -284,12 +284,12 @@ bool EngineTest::Factory::hasTest(const std::string& test) {
 
 EngineTest::Ptr EngineTest::Factory::getTest(const std::string& test) {
 	const EngineTest::Factory ep;
-    BOOST_FOREACH(Extension& ext, internalExtensions()) {
+    for(Extension& ext : internalExtensions()) {
         if(ext.getProperties().get<std::string>("testID") == test)
 			return ext.getObject().cast<EngineTest>();
     }
     const std::vector<Extension::Ptr> exts = ep.getExtensions();
-	BOOST_FOREACH(const Extension::Ptr& ext, exts){
+	for(const Extension::Ptr& ext : exts) {
 		const PropertyMap& props = ext->getProperties();
 		if(props.get("testID",ext->getName() ) == test){
 			return ext->getObject().cast<EngineTest>();

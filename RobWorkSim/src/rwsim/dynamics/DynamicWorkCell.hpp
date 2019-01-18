@@ -83,6 +83,8 @@ namespace dynamics {
         typedef std::vector<rwlibs::simulation::SimulatedSensor::Ptr> SensorList;
         //! @brief Smart pointer type for DynamicWorkCell.
         typedef rw::common::Ptr<DynamicWorkCell> Ptr;
+        //! @brief Smart pointer type for const DynamicWorkCell.
+        typedef rw::common::Ptr<const DynamicWorkCell> CPtr;
 
         /**
          * @brief Constructor
@@ -142,7 +144,7 @@ namespace dynamics {
         template<class T>
         std::vector<rw::common::Ptr<T> > findBodies() const{
             std::vector<rw::common::Ptr<T> > bodies;
-            BOOST_FOREACH(Body::Ptr b, _allbodies ){
+            for(const Body::Ptr b : _allbodies ){
                 if(rw::common::Ptr<T> tb = b.cast<T>()){
                     bodies.push_back(tb);
                 }
@@ -159,7 +161,7 @@ namespace dynamics {
         /**
          * @brief gets a list of all constraints in the dynamic workcell
          */
-        const ConstraintList& getConstraints() const { return _constraints;};
+        const ConstraintList& getConstraints() const { return _constraints; }
 
         /**
          * @brief find a specific constraint with name \b name
