@@ -40,7 +40,7 @@ public:
             p->children.push_back(this);
         }
         virtual ~Data(){
-            BOOST_FOREACH(Data* d, children){
+            for(Data* d : children) {
                 delete d;
             }
         };
@@ -474,7 +474,7 @@ public:
         /*
         template<class T>
         T* find(std::vector<Library<T> >& libs){
-            BOOST_FOREACH(Library<T>& lib, libs){
+            for(Library<T>& lib : libs) {
                 lib.
             }
         }
@@ -507,7 +507,7 @@ public:
         void printAllData(){
             typedef std::pair<std::string, Data*> DataPair;
             std::cout << "\n All data saved so far:" << std::endl;
-            BOOST_FOREACH(const DataPair& idAndData, idToData){
+            for(const DataPair& idAndData : idToData) {
                 std::cout << idAndData.first << std::endl;
             }
         }

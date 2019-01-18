@@ -30,7 +30,7 @@ using namespace rwlibs::task;
 TaskLoader::Ptr TaskLoader::Factory::getTaskLoader(const std::string& format, const std::string& id) {
 	TaskLoader::Factory ep;
 	std::vector<Extension::Ptr> exts = ep.getExtensions();
-	BOOST_FOREACH(Extension::Ptr ext, exts) {
+	for(Extension::Ptr ext : exts) {
 		if(!ext->getProperties().has(format))
 			continue;
 		if (!id.empty()) {
@@ -59,7 +59,7 @@ bool TaskLoader::Factory::hasTaskLoader(const std::string& format) {
 
 	TaskLoader::Factory ep;
 	std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-	BOOST_FOREACH(Extension::Descriptor& ext, exts){
+	for(Extension::Descriptor& ext : exts) {
 		if(!ext.getProperties().has(format))
 			continue;
 		return true;
@@ -72,7 +72,7 @@ std::vector<std::string> TaskLoader::Factory::getSupportedFormats() {
 	TaskLoader::Factory ep;
 	std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
 	ids.insert("xml");
-	BOOST_FOREACH(Extension::Descriptor& ext, exts) {
+	for(Extension::Descriptor& ext : exts) {
 		const PropertyMap& p = ext.getProperties();
 		for (PropertyMap::iterator it = p.getProperties().first; it != p.getProperties().second; it++) {
 			ids.insert(StringUtil::toLower((*it)->getIdentifier()));

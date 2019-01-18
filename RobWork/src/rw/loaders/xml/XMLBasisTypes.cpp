@@ -904,7 +904,7 @@ xercesc::DOMElement* XMLBasisTypes::createString(const std::string& str, xercesc
 
 xercesc::DOMElement* XMLBasisTypes::createStringList(const std::vector<std::string>& strings, xercesc::DOMDocument* doc){
     xercesc::DOMElement* element = doc->createElement(idStringList());
-    BOOST_FOREACH(const std::string& str, strings){
+    for(const std::string& str : strings) {
         element->appendChild(createString(str, doc));
     }
     return element;

@@ -155,7 +155,7 @@ std::vector<std::string> CollisionStrategy::Factory::getStrategies() {
     CollisionStrategy::Factory ep;
     std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
     ids.push_back("RW");
-    BOOST_FOREACH(Extension::Descriptor& ext, exts){
+    for(Extension::Descriptor& ext : exts) {
         ids.push_back( ext.getProperties().get("strategyID",ext.name) );
     }
     return ids;
@@ -168,7 +168,7 @@ bool CollisionStrategy::Factory::hasStrategy(const std::string& strategy) {
         return true;
     CollisionStrategy::Factory ep;
     std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-    BOOST_FOREACH(Extension::Descriptor& ext, exts){
+    for(Extension::Descriptor& ext : exts) {
     	std::string id = ext.getProperties().get("strategyID",ext.name);
     	std::transform(id.begin(),id.end(),id.begin(),::toupper);
         if(id == upper)
@@ -184,7 +184,7 @@ CollisionStrategy::Ptr CollisionStrategy::Factory::makeStrategy(const std::strin
         return ownedPtr(new ProximityStrategyRW());
     CollisionStrategy::Factory ep;
     std::vector<Extension::Ptr> exts = ep.getExtensions();
-    BOOST_FOREACH(Extension::Ptr& ext, exts){
+    for(Extension::Ptr& ext : exts) {
         std::string id = ext->getProperties().get("strategyID",ext->getName() );
         std::transform(id.begin(),id.end(),id.begin(),::toupper);
         if(id == upper){

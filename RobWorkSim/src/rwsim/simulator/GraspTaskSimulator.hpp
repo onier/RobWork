@@ -41,7 +41,7 @@ namespace simulator {
  * - calculate grasp success
  *
  * The home and target poses are controlled through a task description file. Which is
- * all so used to write back all the results of the simulation.
+ * also used to write back all the results of the simulation.
  *
  * The configuration of the simulation is setup through properties. These can be set from the
  * command prompt, loaded by file, or edited in the gui. These properties include:
@@ -191,7 +191,13 @@ public:
                 _simTime(0),
                 _graspTime(0),
                 _approachedTime(0),
-                _currentState(NEW_GRASP)
+                _currentState(NEW_GRASP),
+        		_task(NULL),
+				_target(NULL),
+				_restCount(0),
+				_taskRefFrame(NULL),
+				_stopped(false),
+				_graspController(NULL)
         {}
         double  _restingTime,
                 _simTime,

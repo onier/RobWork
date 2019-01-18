@@ -42,7 +42,7 @@ namespace {
 double getMaxObjectDistance(std::vector<RigidBody::Ptr> objects,
 		const State& s1, const State& s2) {
 	double max = 0;
-	BOOST_FOREACH(RigidBody::Ptr &object, objects) {
+	for(RigidBody::Ptr &object : objects) {
 		Transform3D<> t1 = object->getTransformW(s1);
 		Transform3D<> t2 = object->getTransformW(s2);
 		if (MetricUtil::dist2(t1.P(), t2.P()) > max)
@@ -53,19 +53,41 @@ double getMaxObjectDistance(std::vector<RigidBody::Ptr> objects,
 }
 
 GraspTaskSimulator::GraspTaskSimulator(
-		rwsim::dynamics::DynamicWorkCell::Ptr dwc, int nrThreads) :
-		_dwc(dwc), _requestSimulationStop(false), _stepDelayMs(0), _autoSaveInterval(
-				40), _maxObjectGripperDistanceThreshold(50), _stat(
-				GraspResult::SizeOfStatusArray, 0), _initialized(false), _nrOfThreads(
-				1), _currentTargetIndex(0), _alwaysResting(false), _wallTimeLimit(
-				30.0), _simTimeLimit(30.0), _storeTimedStatePaths(false), _forceSimulateAll(false){
+		rwsim::dynamics::DynamicWorkCell::Ptr dwc, int nrThreads):
+			_dwc(dwc),
+			_requestSimulationStop(false),
+			_stepDelayMs(0),
+			_autoSaveInterval(40),
+			_maxObjectGripperDistanceThreshold(50),
+			_stat(GraspResult::SizeOfStatusArray, 0),
+			_initialized(false),
+			_nrOfThreads(1),
+			_currentTargetIndex(0),
+			_alwaysResting(false),
+			_gripperDim(0),
+			_failed(0), _success(0), _slipped(0), _collision(0), _timeout(0), _simfailed(0), _skipped(0),
+			_nrOfExperiments(0), _lastSaveTaskIndex(0),
+			_totalNrOfExperiments(0),
+			_mbase(NULL),
+			_tcp(NULL),
+			_currentTask(NULL),
+			_currentTarget(NULL),
+			_wallTimeLimit(30.0),
+			_simTimeLimit(30.0),
+			_storeTimedStatePaths(false),
+			_forceSimulateAll(false)
+{
 	if (nrThreads > 0 && nrThreads < 8)
 		_nrOfThreads = nrThreads;
-
 }
 
 GraspTaskSimulator::~GraspTaskSimulator() {
-
+	if (_initialized) {
+		for (size_t i = 0; i < _simulators.size(); i++) {
+			_simulators[i]->getSimulator()->exitPhysics();
+		}
+		_initialized = false;
+	}
 }
 
 void GraspTaskSimulator::init(rwsim::dynamics::DynamicWorkCell::Ptr dwc,
@@ -218,7 +240,7 @@ void GraspTaskSimulator::startSimulation(
 	// first remove any SimTaskObjectSensor from the simulator
 	for (size_t i = 0; i < _simulators.size(); i++) {
 		if (_simStates.find(_simulators[i]) != _simStates.end()) {
-			BOOST_FOREACH(BodyContactSensor::Ptr sensor, _simStates[_simulators[i]]._bsensors) {
+			for(BodyContactSensor::Ptr sensor : _simStates[_simulators[i]]._bsensors) {
 				_simulators[i]->getSimulator()->removeSensor(sensor);
 			}
 		}
@@ -266,21 +288,20 @@ void GraspTaskSimulator::startSimulation(
 
 void GraspTaskSimulator::pauseSimulation() {
 	_requestSimulationStop = true;
-	BOOST_FOREACH(ThreadSimulator::Ptr tsim, _simulators) {
+	for(ThreadSimulator::Ptr tsim : _simulators) {
 		tsim->stop();
 	}
 }
 
 void GraspTaskSimulator::resumeSimulation() {
 	_requestSimulationStop = false;
-	BOOST_FOREACH(ThreadSimulator::Ptr tsim, _simulators) {
+	for(ThreadSimulator::Ptr tsim : _simulators) {
 		tsim->start();
 	}
 }
 
 bool GraspTaskSimulator::isRunning() {
-
-	BOOST_FOREACH(ThreadSimulator::Ptr tsim, _simulators) {
+	for(ThreadSimulator::Ptr tsim : _simulators) {
 		if (tsim->isRunning())
 			return true;
 	}
@@ -506,7 +527,7 @@ void GraspTaskSimulator::stepCB(ThreadSimulator* sim,
 
 				sstate._target->getResult()->contactsLift = gobj.contacts;
 				Vector3D<> contactAvg(0, 0, 0);
-				BOOST_FOREACH(Contact3D& c, sstate._target->getResult()->contactsLift) {
+				for(Contact3D& c : sstate._target->getResult()->contactsLift) {
 					contactAvg += c.p;
 				}
 				contactAvg =
@@ -538,7 +559,7 @@ void GraspTaskSimulator::stepCB(ThreadSimulator* sim,
 
 				sstate._target->getResult()->contactsLift = gobj.contacts;
 				Vector3D<> contactAvg(0, 0, 0);
-				BOOST_FOREACH(Contact3D& c, sstate._target->getResult()->contactsLift) {
+				for(Contact3D& c : sstate._target->getResult()->contactsLift) {
 					contactAvg += c.p;
 				}
 				contactAvg =
@@ -693,7 +714,7 @@ void GraspTaskSimulator::stepCB(ThreadSimulator* sim,
 				// check if its the object or the environment that is in collision
 				typedef std::pair<Frame*, Frame*> FramePair;
 				bool colObject = false;
-				BOOST_FOREACH(FramePair pair, res.collidingFrames) {
+				for(FramePair pair : res.collidingFrames) {
 					for (size_t i = 0; i < _objects.size(); i++) {
 						if (_objects[i]->getBodyFrame() == pair.first
 								|| _objects[i]->getBodyFrame() == pair.second) {

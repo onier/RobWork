@@ -143,7 +143,7 @@ StateTrajectory::Ptr TrajectoryFactory::makeLinearTrajectoryUnitStep(
 {
     TimedStatePath timed;
     double time = 0;
-    BOOST_FOREACH(const State& state, path) {
+    for(const State& state : path) {
         timed.push_back(Timed<State>(time, state));
         ++time;
     }

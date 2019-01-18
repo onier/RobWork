@@ -233,7 +233,7 @@ public:
 
     rw::common::Ptr<Extension> makeExtension(const std::string& id){
         Extension::Descriptor *desc=NULL;
-        BOOST_FOREACH(Extension::Descriptor &desc_tmp, _descs){
+        for(Extension::Descriptor &desc_tmp : _descs) {
             //std::cout << desc_tmp.id << "==" << id << std::endl;
             if(desc_tmp.id==id){
                 desc = &desc_tmp;

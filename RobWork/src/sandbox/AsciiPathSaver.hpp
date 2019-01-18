@@ -8,7 +8,6 @@
 #include <rw/math/Q.hpp>
 #include <rw/math/Vector3D.hpp>
 
-#include <boost/foreach.hpp>
 #include <vector>
 #include <fstream>
 

@@ -217,8 +217,8 @@ void TreeView::stateChangedListener(const rw::kinematics::State& state){
 //    std::cout << "CHECK FOR DAF CHANGES" << std::endl;
 
     bool forceUpdate = false;
-    BOOST_FOREACH( TreeView::FrameMap::value_type p, _frameMap){
-        if( Kinematics::isDAF(p.second) ){
+    for( TreeView::FrameMap::value_type p : _frameMap) {
+        if( Kinematics::isDAF(p.second) ) {
             // test if parent changed
             if(p.second->getParent(state)!=p.second->getParent(_state)){
                 forceUpdate = true;
@@ -632,7 +632,7 @@ void TreeView::constructDrawableList(std::vector<DrawableNode::Ptr>& drawables)
                 Frame* base = sdev->frames().front();
                 //assert(_state);
                 std::vector<DrawableNode::Ptr> newdrawables = scene->getDrawablesRec(base, _state);
-                BOOST_FOREACH(DrawableNode::Ptr d,newdrawables){ drawables.push_back(d); }
+                for(DrawableNode::Ptr d : newdrawables){ drawables.push_back(d); }
             }
         }
 
@@ -655,7 +655,7 @@ void TreeView::showSolidSlot()
     std::vector<DrawableNode::Ptr> drawables;
     constructDrawableList(drawables);
 
-    BOOST_FOREACH(DrawableNode::Ptr& node, drawables)
+    for(DrawableNode::Ptr& node : drawables)
         node->setDrawType(DrawableNode::SOLID);
 
     getRobWorkStudio()->updateAndRepaint();
@@ -666,7 +666,7 @@ void TreeView::toggleSlot()
     std::vector<DrawableNode::Ptr> drawables;
     constructDrawableList(drawables);
 
-    BOOST_FOREACH(DrawableNode::Ptr& node, drawables)
+    for(DrawableNode::Ptr& node : drawables)
         node->setVisible( !(node->isVisible()) );
 
     getRobWorkStudio()->updateAndRepaint();
@@ -677,7 +677,7 @@ void TreeView::showWireSlot()
     std::vector<DrawableNode::Ptr> drawables;
     constructDrawableList(drawables);
 
-    BOOST_FOREACH(DrawableNode::Ptr& node, drawables)
+    for(DrawableNode::Ptr& node : drawables)
         node->setDrawType(DrawableNode::WIRE);
 
     getRobWorkStudio()->updateAndRepaint();
@@ -688,7 +688,7 @@ void TreeView::showOutlineSlot()
     std::vector<DrawableNode::Ptr> drawables;
     constructDrawableList(drawables);
 
-    BOOST_FOREACH(DrawableNode::Ptr& node, drawables)
+    for(DrawableNode::Ptr& node : drawables)
         node->setDrawType(DrawableNode::OUTLINE);
 
     getRobWorkStudio()->updateAndRepaint();
@@ -704,7 +704,7 @@ void TreeView::showTransparentSlot()
         std::vector<DrawableNode::Ptr> drawables;
         constructDrawableList(drawables);
 
-        BOOST_FOREACH(DrawableNode::Ptr& node, drawables)
+        for(DrawableNode::Ptr& node : drawables)
             node->setTransparency(alpha);
     }
 
@@ -724,7 +724,7 @@ void TreeView::scaleSlot()
         this, "Select Scale", "Scale:", drawables[0]->getScale(), 0, 1000, 1, &ok);
 
     if (ok) {
-        BOOST_FOREACH(DrawableNode::Ptr& node, drawables)
+        for(DrawableNode::Ptr& node : drawables)
             node->setScale(scale);
     }
 
@@ -736,7 +736,7 @@ void TreeView::highlightSlot()
     std::vector<DrawableNode::Ptr> drawables;
     constructDrawableList(drawables);
 
-    BOOST_FOREACH(DrawableNode::Ptr& node, drawables)
+    for(DrawableNode::Ptr& node : drawables)
         node->setHighlighted(!node->isHighlighted());
 
     getRobWorkStudio()->updateAndRepaint();

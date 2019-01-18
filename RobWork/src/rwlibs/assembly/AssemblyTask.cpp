@@ -131,7 +131,7 @@ void AssemblyTask::saveRWTask(AssemblyTask::Ptr task, const std::string& name) {
 void AssemblyTask::saveRWTask(std::vector<AssemblyTask::Ptr> tasks, const std::string& name) {
     std::ofstream outfile(name.c_str());
     CartesianTask::Ptr root = ownedPtr(new CartesianTask());
-    BOOST_FOREACH(AssemblyTask::Ptr task, tasks) {
+    for(AssemblyTask::Ptr task : tasks) {
         CartesianTask::Ptr ctask = task->toCartesianTask();
         root->addTask(ctask);
     }
@@ -160,7 +160,7 @@ std::vector<AssemblyTask::Ptr> AssemblyTask::load(const std::string& filename, A
 	}
 
 	std::vector<AssemblyTask::Ptr> tasks;
-	BOOST_FOREACH(CartesianTask::Ptr ctask, root->getTasks()) {
+	for(CartesianTask::Ptr ctask : root->getTasks()) {
 		AssemblyTask::Ptr atask = ownedPtr( new AssemblyTask(ctask, registry) );
 		tasks.push_back(atask);
 	}
@@ -169,7 +169,7 @@ std::vector<AssemblyTask::Ptr> AssemblyTask::load(const std::string& filename, A
 
 std::vector<AssemblyTask::Ptr> AssemblyTask::load(const std::vector<std::string>& filenames, AssemblyRegistry::Ptr registry) {
 	std::vector<AssemblyTask::Ptr> tasks;
-	BOOST_FOREACH(const std::string& filename, filenames) {
+	for(const std::string& filename : filenames) {
 		const std::vector<AssemblyTask::Ptr> tmp = load(filename,registry);
 		tasks.insert(tasks.end(),tmp.begin(),tmp.end());
 	}
@@ -193,7 +193,7 @@ std::vector<AssemblyTask::Ptr> AssemblyTask::load(std::istringstream& inputStrea
 	}
 
 	std::vector<AssemblyTask::Ptr> tasks;
-	BOOST_FOREACH(CartesianTask::Ptr ctask, root->getTasks()) {
+	for(CartesianTask::Ptr ctask : root->getTasks()) {
 		AssemblyTask::Ptr atask = ownedPtr( new AssemblyTask(ctask, registry) );
 		tasks.push_back(atask);
 	}

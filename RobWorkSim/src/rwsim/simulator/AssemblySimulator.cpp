@@ -147,7 +147,7 @@ void AssemblySimulator::start(rw::common::Ptr<ThreadTask> task) {
 		_running = true;
 	}
 	_results.resize(_tasks.size());
-	BOOST_FOREACH(AssemblyResult::Ptr &res, _results) {
+	for(AssemblyResult::Ptr &res : _results) {
 		res = ownedPtr(new AssemblyResult());
 	}
 	if (task.isNull()) {
@@ -305,7 +305,7 @@ void AssemblySimulator::runSingle(std::size_t taskIndex, SimulatorLogScope::Ptr 
             std::vector<Q> solutions = orderSolutions(solver->solve(approach, simState.state),qPegDev);
             bool success = false;
             if (solutions.size() > 0) {
-                BOOST_FOREACH(Q q, solutions) {
+                for(Q q : solutions) {
                     State state = simState.state;
                     if (q.size() == 7) {
                         q[5] += q[6];
@@ -377,7 +377,7 @@ void AssemblySimulator::runSingle(std::size_t taskIndex, SimulatorLogScope::Ptr 
         }
     }
 
-    BOOST_FOREACH(const std::string &name, task->bodyContactSensors) {
+    for(const std::string &name : task->bodyContactSensors) {
         SimulatedSensor::Ptr sensor = _dwc->findSensor(name);
         if (sensor != NULL) {
             BodyContactSensor::Ptr bcSensor = sensor.cast<BodyContactSensor>();
@@ -515,9 +515,9 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 		realState.ftSensorFemale = Wrench6D<>(ftSensorFemale->getForce(),ftSensorFemale->getTorque());
 	realState.contact = hasContact(simState.femaleContactSensor,simState.male, simState.state);
 
-	BOOST_FOREACH(const BodyContactSensor::Ptr &sensor, simState.bodyContactSensors) {
+	for(const BodyContactSensor::Ptr &sensor : simState.bodyContactSensors) {
 		const std::vector<Contact3D>& contacts = sensor->getContacts(simState.state);
-		BOOST_FOREACH(const Contact3D& c, contacts) {
+		for(const Contact3D& c : contacts) {
 			const Transform3D<> wTsensor = Kinematics::worldTframe(sensor->getSensorModel()->getFrame(),simState.state);
 			const Vector3D<> p = wTsensor*c.p;
 			const Vector3D<> n = normalize(wTsensor.R()*c.n);
@@ -570,7 +570,7 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 			bool success = false;
 			Path<Q> qRes;
 			if (solutions.size() > 0) {
-				BOOST_FOREACH(Q q, solutions) {
+				for(Q q : solutions) {
 					State state = simState.state;
 					if (q.size() == 7) {
 						q[5] += q[6];
@@ -591,7 +591,7 @@ void AssemblySimulator::stateMachine(SimState &simState, AssemblyTask::Ptr task,
 				}
 			}
 			if (success) {
-				BOOST_FOREACH(const Q &q, qRes) {
+				for(const Q &q : qRes) {
 					simState.maleController->movePTP(q);
 				}
 				simState.phase = SimState::APPROACH;

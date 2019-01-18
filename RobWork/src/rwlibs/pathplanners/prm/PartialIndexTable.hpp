@@ -26,7 +26,6 @@
 
 #include <rw/common/macros.hpp>
 #include <rw/models/Device.hpp>
-#include <boost/foreach.hpp>
 
 namespace rwlibs { namespace pathplanners { namespace prm {
 
@@ -171,7 +170,7 @@ namespace rwlibs { namespace pathplanners { namespace prm {
         int getIndex(const rw::math::Q& q) const
         {
             int index = 0;
-            BOOST_FOREACH(const Dimension& dim, _dimensions) {
+            for(const Dimension& dim : _dimensions) {
                 int i1 = static_cast<int>(
                     (q(dim.index) - dim.qoffset) / dim.stepsize);
 

@@ -54,12 +54,12 @@ void LogConstraints::read(InputArchive& iarchive, const std::string& id) {
 
 void LogConstraints::write(OutputArchive& oarchive, const std::string& id) const {
 	oarchive.write(_constraints.size(),"Constraints");
-	BOOST_FOREACH(const Constraint& c, _constraints) {
+	for(const Constraint& c : _constraints) {
 		oarchive.write(c.frameA,"NameA");
 		oarchive.write(c.frameB,"NameB");
 		oarchive.write(c.type,"Type");
 		oarchive.write(c.posA,"PosA");
-		oarchive.write(c.posB,"posB");
+		oarchive.write(c.posB,"PosB");
 		oarchive.write(c.rotAlin,"RotAlin");
 		oarchive.write(c.rotBlin,"RotBlin");
 		oarchive.write(c.rotAang,"RotAang");

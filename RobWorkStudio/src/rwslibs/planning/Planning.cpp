@@ -170,7 +170,7 @@ Planning::Planning():
     pLayout->addWidget(new QLabel("Collision Detector"), row, 0);
     _cmbCollisionDetectors = new QComboBox();
     std::vector<std::string> ids = ProximityStrategyFactory::getCollisionStrategyIDs();
-    BOOST_FOREACH(std::string id, ids){
+    for(std::string id : ids) {
         _cmbCollisionDetectors->addItem(id.c_str());
     }
 

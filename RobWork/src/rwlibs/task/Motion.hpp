@@ -24,8 +24,6 @@
 
 #include <rw/common/Ptr.hpp>
 
-#include <boost/foreach.hpp>
-
 namespace rwlibs {
 namespace task {
 
@@ -245,7 +243,7 @@ public:
     virtual rw::common::Ptr<Motion<T> > clone(const std::vector<TargetPtr>& newTargets) {
     	TargetPtr start;
     	TargetPtr end;
-    	BOOST_FOREACH(TargetPtr target, newTargets) {
+    	for(TargetPtr target : newTargets) {
     		if (target->getIndex() == startTarget()->getIndex())
     			start = target;
     		if (target->getIndex() == endTarget()->getIndex())
@@ -338,7 +336,7 @@ public:
      virtual rw::common::Ptr<Motion<T> > clone(const std::vector<TargetPtr>& newTargets) {
      	TargetPtr start;
      	TargetPtr end;
-     	BOOST_FOREACH(TargetPtr target, newTargets) {
+     	for(TargetPtr target : newTargets) {
      		if (target->getIndex() == startTarget()->getIndex())
      			start = target;
      		if (target->getIndex() == endTarget()->getIndex())
@@ -444,7 +442,7 @@ public:
     //! @copydoc Motion::clone
     virtual rw::common::Ptr<Motion<T> > clone(const std::vector<TargetPtr>& newTargets) {
 		TargetPtr start, mid, end;
-		BOOST_FOREACH(TargetPtr target, newTargets) {
+		for(TargetPtr target : newTargets) {
 			if (target->getIndex() == _start->getIndex())
 				start = target;
 			if (target->getIndex() == _mid->getIndex())

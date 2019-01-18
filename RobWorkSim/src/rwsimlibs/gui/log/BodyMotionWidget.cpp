@@ -47,6 +47,7 @@ BodyMotionWidget::BodyMotionWidget(rw::common::Ptr<const LogPositions> entry, QW
 	_velocities(NULL)
 {
 	_ui->setupUi(this);
+	_ui->_motionScalingWidget->setVisible(false);
 
 	connect(_ui->_motionBodiesTable->selectionModel(),
 			SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
@@ -65,6 +66,11 @@ BodyMotionWidget::BodyMotionWidget(rw::common::Ptr<const LogVelocities> entry, Q
 	connect(_ui->_motionBodiesTable->selectionModel(),
 			SIGNAL(selectionChanged (const QItemSelection &, const QItemSelection &)),
 			this, SLOT(motionBodiesChanged(const QItemSelection &, const QItemSelection &)));
+
+	connect(_ui->_motionScalingLinA, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_motionScalingLinB, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_motionScalingAngA, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_motionScalingAngB, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
 }
 
 BodyMotionWidget::~BodyMotionWidget() {
@@ -189,6 +195,25 @@ std::string BodyMotionWidget::getName() const {
 	return "Motion";
 }
 
+void BodyMotionWidget::setProperties(rw::common::Ptr<rw::common::PropertyMap> properties) {
+	SimulatorLogEntryWidget::setProperties(properties);
+	if (!_properties.isNull()) {
+		if (!_properties->has("BodyMotionWidget_LinA"))
+			_properties->set<double>("BodyMotionWidget_LinA",_ui->_motionScalingLinA->value());
+		if (!_properties->has("BodyMotionWidget_LinB"))
+			_properties->set<double>("BodyMotionWidget_LinB",_ui->_motionScalingLinB->value());
+		if (!_properties->has("BodyMotionWidget_AngA"))
+			_properties->set<double>("BodyMotionWidget_AngA",_ui->_motionScalingAngA->value());
+		if (!_properties->has("BodyMotionWidget_AngB"))
+			_properties->set<double>("BodyMotionWidget_AngB",_ui->_motionScalingAngB->value());
+
+		_ui->_motionScalingLinA->setValue(_properties->get<double>("BodyMotionWidget_LinA"));
+		_ui->_motionScalingLinB->setValue(_properties->get<double>("BodyMotionWidget_LinB"));
+		_ui->_motionScalingAngA->setValue(_properties->get<double>("BodyMotionWidget_AngA"));
+		_ui->_motionScalingAngB->setValue(_properties->get<double>("BodyMotionWidget_AngB"));
+	}
+}
+
 void BodyMotionWidget::motionBodiesChanged(const QItemSelection& selection, const QItemSelection& deselection) {
 	if (_root == NULL || _dwc == NULL || _positions == NULL)
 		return;
@@ -213,7 +238,7 @@ void BodyMotionWidget::motionBodiesChanged(const QItemSelection& selection, cons
 			const Body::Ptr body = _dwc->findBody(name);
 			const GroupNode::Ptr bodyGroup = ownedPtr(new GroupNode(body->getName()));
 			const std::vector<Model3D::Ptr>& models = body->getObject()->getModels();
-			BOOST_FOREACH(const Model3D::Ptr model, models) {
+			for(const Model3D::Ptr model : models) {
 				const DrawableNode::Ptr node = _graph->makeDrawable(model->getName(),model,DrawableNode::Physical);
 				const Transform3D<>& t3d = _positions->getPosition(name);
 				node->setTransform(t3d);
@@ -234,7 +259,10 @@ void BodyMotionWidget::motionBodiesChanged(const QItemSelection& selection, cons
 			const std::string name = index.data().toString().toStdString();
 			const Body::Ptr body = _dwc->findBody(name);
 			_velocityGroup->removeChild(body->getName());
+			_velRenders[body->getName()].clear();
 		}
+		const double scaleLin = _ui->_motionScalingLinA->value()/_ui->_motionScalingLinB->value();
+		const double scaleAng = _ui->_motionScalingAngA->value()/(_ui->_motionScalingAngB->value()*Deg2Rad);
 		// Add selected bodies
 		foreach (QModelIndex index, selection.indexes()) {
 			if (index.column() > 0)
@@ -242,13 +270,12 @@ void BodyMotionWidget::motionBodiesChanged(const QItemSelection& selection, cons
 			const std::string name = index.data().toString().toStdString();
 			const Body::Ptr body = _dwc->findBody(name);
 			const GroupNode::Ptr bodyGroup = ownedPtr(new GroupNode(body->getName()));
-			BOOST_FOREACH(const Geometry::Ptr geo, body->getGeometry()) {
+			for(const Geometry::Ptr geo : body->getGeometry()) {
 				const RenderVelocity::Ptr render = ownedPtr(new RenderVelocity());
 				render->setVelocity(_velocities->getVelocity(name));
-				render->setScaleAngular(static_cast<float>(0.1/(Pi/2)));
-				//render->setScaleLinear(0.1/(Pi/2));
-				render->setScaleLinear(1.0f); // spring test
-				//render->setScaleAngular(0.1/(4*Pi)); // rotation test
+				render->setScaleLinear(static_cast<float>(scaleLin));
+				render->setScaleAngular(static_cast<float>(scaleAng));
+				_velRenders[body->getName()].push_back(render);
 				DrawableNode::Ptr node = ownedPtr(new Drawable(render,"VelocityRender",DrawableNode::Virtual));
 				const Transform3D<> t3d = _positions->getPosition(name);
 				const Vector3D<>& com = body->getInfo().masscenter;
@@ -257,6 +284,29 @@ void BodyMotionWidget::motionBodiesChanged(const QItemSelection& selection, cons
 				node->setVisible(true);
 			}
 			GroupNode::addChild(bodyGroup,_velocityGroup);
+		}
+	}
+	emit graphicsUpdated();
+}
+
+void BodyMotionWidget::scalingChanged(double d) {
+	if (!_properties.isNull()) {
+		if (QObject::sender() == _ui->_motionScalingLinA)
+			_properties->set("BodyMotionWidget_LinA",d);
+		else if (QObject::sender() == _ui->_motionScalingLinB)
+			_properties->set("BodyMotionWidget_LinB",d);
+		else if (QObject::sender() == _ui->_motionScalingAngA)
+			_properties->set("BodyMotionWidget_AngA",d);
+		else if (QObject::sender() == _ui->_motionScalingAngB)
+			_properties->set("BodyMotionWidget_AngB",d);
+	}
+
+	const double scaleLin = _ui->_motionScalingLinA->value()/_ui->_motionScalingLinB->value();
+	const double scaleAng = _ui->_motionScalingAngA->value()/(_ui->_motionScalingAngB->value()*Deg2Rad);
+	for (const std::pair<std::string, std::list<RenderVelocity::Ptr> > renders : _velRenders) {
+		for (const RenderVelocity::Ptr render : renders.second) {
+			render->setScaleLinear(static_cast<float>(scaleLin));
+			render->setScaleAngular(static_cast<float>(scaleAng));
 		}
 	}
 	emit graphicsUpdated();

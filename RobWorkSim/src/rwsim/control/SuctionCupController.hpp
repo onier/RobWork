@@ -8,12 +8,14 @@
 #ifndef SUCTIONCUPCONTROLLER_HPP_
 #define SUCTIONCUPCONTROLLER_HPP_
 
+#include <rw/math/Transform3D.hpp>
 #include <rwlibs/simulation/SimulatedController.hpp>
 
+namespace rwsim { namespace dynamics { class Body; } }
 namespace rwsim { namespace dynamics { class SuctionCup; } }
 
 namespace rwsim {
-namespace control1 {
+namespace control {
 
     /**
      * @brief controlls the forces and the internal states of the bodies that
@@ -39,7 +41,7 @@ namespace control1 {
 
         virtual ~SuctionCupController();
 
-        std::string getControllerName(){ return _name;};
+        std::string getControllerName(){ return _name;}
 
         //! @copydoc rwlibs::simulation::SimulatedController::update
         void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
@@ -50,7 +52,7 @@ namespace control1 {
         //! @copydoc SimulatedController::getController
         rwlibs::control::Controller* getController();
 
-        void setEnabled(bool enabled){ _enabled = enabled; };
+        void setEnabled(bool enabled){ _enabled = enabled; }
 
         bool isEnabled() const { return _enabled; }
 

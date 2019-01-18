@@ -41,7 +41,7 @@ public:
 	}
 
 	void run() {
-		BOOST_FOREACH(const std::string &file, _files) {
+		for(const std::string &file : _files) {
 			LoadTask::Ptr task = ownedPtr(new LoadTask(this,file));
 			addSubTask(task);
 		}

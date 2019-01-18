@@ -108,12 +108,12 @@ namespace simulator {
 
 		//! @brief Destructor.
 		virtual ~ODEBody(){
-			BOOST_FOREACH(ODEUtil::TriGeomData* data ,_triGeomDatas){
+			for(ODEUtil::TriGeomData* data : _triGeomDatas) {
 				delete data;
 			}
 			if (_bodyId != 0)
 				dBodyDestroy(_bodyId);
-		};
+		}
 
 		/**
 		 * @brief Called before collision checking and time stepping

@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
 	vector<Ptr<Plugin> > plugins = extReg->getPlugins();
 	
 	cout << "List of plugins: " << endl;
-	BOOST_FOREACH (Ptr<Plugin>& plugin, plugins) {
+	for(Ptr<Plugin>& plugin : plugins) {
 		cout << " + " << plugin->getName() << endl;
 	}
 	

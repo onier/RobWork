@@ -101,8 +101,8 @@ void ContactDetector::initializeGeometryMap() {
 	// run through all objects in workcell and collect the geometric information
 	State state = _wc->getDefaultState();
 	std::vector<Object::Ptr> objects = _wc->getObjects();
-	BOOST_FOREACH(Object::Ptr object, objects) {
-		BOOST_FOREACH(Geometry::Ptr geom, object->getGeometry(state) ){
+	for(Object::Ptr object : objects) {
+		for(Geometry::Ptr geom : object->getGeometry(state) ){
 			Frame* frame = geom->getFrame();
 			_frameToGeo[*frame].push_back(geom);
 		}
@@ -120,8 +120,8 @@ void ContactDetector::initializeModels(StrategyTableRow &strategy) {
 		for (; itB < objects.end(); itB++) {
 			Object::Ptr oA = *itA;
 			Object::Ptr oB = *itB;
-			BOOST_FOREACH(Geometry::Ptr geoA, oA->getGeometry(state) ){
-				BOOST_FOREACH(Geometry::Ptr geoB, oB->getGeometry(state) ){
+			for(Geometry::Ptr geoA : oA->getGeometry(state) ) {
+				for(Geometry::Ptr geoB : oB->getGeometry(state) ) {
 					if (strategy.strategy->match(geoA->getGeometryData(),geoB->getGeometryData())) {
 						std::map<std::string,ContactModel::Ptr>& mapA = strategy.models[*(geoA->getFrame())];
 						std::map<std::string,ContactModel::Ptr>& mapB = strategy.models[*(geoB->getFrame())];
@@ -159,7 +159,7 @@ ContactDetector::StrategyTable ContactDetector::getContactStrategies(const std::
 		StrategyTableRow stratMatch = *it;
 		std::vector<ProximitySetupRule> rules = stratMatch.rules.getProximitySetupRules();
 		bool match = false;
-		BOOST_FOREACH(ProximitySetupRule &rule, rules) {
+		for(ProximitySetupRule &rule : rules) {
 			if (rule.match(frameA,frameB))
 				match = true;
 		}
@@ -232,7 +232,7 @@ void ContactDetector::removeContactStrategy(std::size_t pri) {
 	// Now the strategy must get the ability to destroy internal data it might have associated
 	// with the ContactModels used by the strategy.
 	const std::vector<Frame*>& frames = _wc->getFrames();
-	BOOST_FOREACH(const Frame* const frame, frames) {
+	for(const Frame* const frame : frames) {
 		if (it->models.has(*frame)) {
 			std::map<std::string,ContactModel::Ptr>& mapA = it->models[*frame];
 			std::map<std::string,ContactModel::Ptr>::iterator itMap;
@@ -268,8 +268,8 @@ void ContactDetector::setDefaultStrategies(const PropertyMap& map) {
     std::vector<Object::Ptr> objects = _wc->getObjects();
     State state = _wc->getDefaultState();
     std::size_t spheres = 0;
-    BOOST_FOREACH(Object::Ptr object, objects) {
-        BOOST_FOREACH(Geometry::Ptr geom, object->getGeometry(state)){
+    for(Object::Ptr object : objects) {
+        for(Geometry::Ptr geom : object->getGeometry(state)) {
         	GeometryData::Ptr gdata = geom->getGeometryData();
         	GeometryData::GeometryType gtype = gdata->getType();
             if (gtype == GeometryData::SpherePrim) spheres++;
@@ -317,8 +317,8 @@ std::vector<Contact> ContactDetector::findContacts(const State& state, ContactDe
 		std::vector<Geometry::Ptr> unmatchedA = _frameToGeo[*pair.first];
 		std::vector<Geometry::Ptr> unmatchedB = _frameToGeo[*pair.second];
 		std::vector<std::pair<Geometry::Ptr,Geometry::Ptr> > geoPairs;
-		BOOST_FOREACH(Geometry::Ptr geoA, unmatchedA) {
-			BOOST_FOREACH(Geometry::Ptr geoB, unmatchedB) {
+		for(Geometry::Ptr geoA : unmatchedA) {
+			for(Geometry::Ptr geoB : unmatchedB) {
 				std::pair<Geometry::Ptr,Geometry::Ptr> pair;
 				pair.first = geoA;
 				pair.second = geoB;
@@ -331,7 +331,7 @@ std::vector<Contact> ContactDetector::findContacts(const State& state, ContactDe
 			StrategyTableRow stratMatch = *it;
 			std::vector<ProximitySetupRule> rules = stratMatch.rules.getProximitySetupRules();
 			bool match = false;
-			BOOST_FOREACH(ProximitySetupRule &rule, rules) {
+			for(ProximitySetupRule &rule : rules) {
 				if (rule.match(pair.first->getName(),pair.second->getName()))
 					match = true;
 			}
@@ -398,8 +398,8 @@ std::vector<Contact> ContactDetector::findContacts(const State& state, ContactDe
 		std::vector<Geometry::Ptr> unmatchedA = _frameToGeo[*pair.first];
 		std::vector<Geometry::Ptr> unmatchedB = _frameToGeo[*pair.second];
 		std::vector<std::pair<Geometry::Ptr,Geometry::Ptr> > geoPairs;
-		BOOST_FOREACH(Geometry::Ptr geoA, unmatchedA) {
-			BOOST_FOREACH(Geometry::Ptr geoB, unmatchedB) {
+		for(Geometry::Ptr geoA : unmatchedA) {
+			for(Geometry::Ptr geoB : unmatchedB) {
 				std::pair<Geometry::Ptr,Geometry::Ptr> pair;
 				pair.first = geoA;
 				pair.second = geoB;
@@ -412,7 +412,7 @@ std::vector<Contact> ContactDetector::findContacts(const State& state, ContactDe
 			StrategyTableRow stratMatch = *it;
 			std::vector<ProximitySetupRule> rules = stratMatch.rules.getProximitySetupRules();
 			bool match = false;
-			BOOST_FOREACH(ProximitySetupRule &rule, rules) {
+			for(ProximitySetupRule &rule : rules) {
 				if (rule.match(pair.first->getName(),pair.second->getName()))
 					match = true;
 			}
@@ -597,7 +597,7 @@ void ContactDetector::constructTable(std::vector<std::vector<ContactDetector::Ce
 		row[0].alignment = Cell::RIGHT;
 
 		std::vector<ProximitySetupRule> rules = strategy.rules.getProximitySetupRules();
-		BOOST_FOREACH(ProximitySetupRule rule,rules) {
+		for(ProximitySetupRule rule : rules) {
 			row[1].strings.push_back(rule.getPatterns().first);
 			row[2].strings.push_back(rule.getPatterns().second);
 		}
@@ -605,7 +605,7 @@ void ContactDetector::constructTable(std::vector<std::vector<ContactDetector::Ce
 		row[3].strings.push_back(strategy.strategy->getName());
 
 		std::vector<Frame*> frames = _wc->getFrames();
-		BOOST_FOREACH(Frame* frame, frames) {
+		for(Frame* frame : frames) {
 			bool first = true;
 			std::map<std::string, ContactModel::Ptr> models = strategy.models[*frame];
 			if (models.size() > 0) {
@@ -631,13 +631,13 @@ void ContactDetector::printTable(const std::vector<std::vector<Cell> > &table, s
 	if (table[0].size() == 0)
 		return;
 	std::vector<std::size_t> width;
-	BOOST_FOREACH(Cell col, table[0]) {
+	for(Cell col : table[0]) {
 		width.push_back(0);
 	}
-	BOOST_FOREACH(const std::vector<Cell> &row, table) {
+	for(const std::vector<Cell> &row : table) {
 		std::size_t colI = 0;
-		BOOST_FOREACH(Cell col, row) {
-			BOOST_FOREACH(std::string str, col.strings) {
+		for(Cell col : row) {
+			for(std::string str : col.strings) {
 				if (width[colI] < str.length())
 					width[colI] = str.length();
 			}
@@ -645,21 +645,21 @@ void ContactDetector::printTable(const std::vector<std::vector<Cell> > &table, s
 		}
 	}
 	std::size_t totalwidth = 0;
-	BOOST_FOREACH(std::size_t w, width) {
+	for(std::size_t w : width) {
 		totalwidth += w;
 	}
 	totalwidth += width.size()+1;
 	for (std::size_t i = 0; i < totalwidth; i++)
 		out << "-";
 	out << std::endl;
-	BOOST_FOREACH(const std::vector<Cell> &row, table) {
+	for(const std::vector<Cell> &row : table) {
 		std::size_t stringI = 0;
 		bool more = true;
 		while (more) {
 			more = false;
 			out << "|";
 			std::size_t colI = 0;
-			BOOST_FOREACH(Cell col, row) {
+			for(Cell col : row) {
 				if (stringI+1 < col.strings.size())
 					more = true;
 				if (col.alignment == Cell::RIGHT)

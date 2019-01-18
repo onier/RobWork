@@ -194,7 +194,7 @@ void ODEBody::postupdate(rw::kinematics::State& state){
 
         Transform3D<> pTb = inverse(wTp) * ODEUtil::getODEBodyT3D(_bodyId);
         pTb.P() -= pTb.R()*_offset;
-        //std::cout << "pTb" << pTb << std::endl;
+        //std::cout << "pTb" << pTb << " " << wTp << std::endl;
         _mframe->setTransform( pTb , state );
         //std::cout << "pTb" << _mframe->getTransform( state ) << std::endl;
 
@@ -258,7 +258,7 @@ void ODEBody::setTransform(const rw::kinematics::State& state){
 void ODEBody::setTransform(const rw::math::Transform3D<>& wTbody){
     if(_type==FIXED){
         // fixed object only has geometries. These may be offset individually
-        BOOST_FOREACH(ODEUtil::TriGeomData* gdata, _triGeomDatas){
+        for(ODEUtil::TriGeomData* gdata : _triGeomDatas) {
         	if (gdata->isPlaceable) {
         		Transform3D<> gt3d = wTbody * gdata->t3d;
         		ODEUtil::setODEGeomT3D(gdata->geomId, gt3d);
@@ -274,7 +274,7 @@ void ODEBody::setTransform(const rw::math::Transform3D<>& wTbody){
 void ODEBody::setTransformCOM(const rw::math::Transform3D<>& wTcom){
     if(_type==FIXED){
         // fixed object only has geometries. These may be offset individually
-        BOOST_FOREACH(ODEUtil::TriGeomData* gdata, _triGeomDatas){
+        for(ODEUtil::TriGeomData* gdata : _triGeomDatas) {
         	if (gdata->isPlaceable) {
         		Transform3D<> gt3d = wTcom * gdata->t3d;
         		ODEUtil::setODEGeomT3D(gdata->geomId, gt3d);
@@ -399,7 +399,7 @@ void ODEBody::reset(const rw::kinematics::State& state){
         Transform3D<> wTb = rw::kinematics::Kinematics::worldTframe( _rwframe, state);
         wTb.P() += wTb.R()*_offset;
 
-        BOOST_FOREACH(ODEUtil::TriGeomData* gdata, _triGeomDatas){
+        for(ODEUtil::TriGeomData* gdata : _triGeomDatas) {
         	if (gdata->isPlaceable) {
         		Transform3D<> gt3d = wTb * gdata->t3d;
         		ODEUtil::setODEGeomT3D(gdata->geomId, gt3d);
@@ -460,7 +460,7 @@ ODEBody* ODEBody::makeRigidBody(dynamics::Body::Ptr rwbody,  dSpaceID spaceId, O
     }
 
     // now associate all geometry with the body
-    BOOST_FOREACH(ODEUtil::TriGeomData* gdata, gdatas){
+    for(ODEUtil::TriGeomData* gdata : gdatas) {
     	if (!gdata->isPlaceable)
     		RW_THROW("ODE can not use Plane geometry for rigid objects!");
         odeBody->getTriGeomData().push_back(gdata);
@@ -476,7 +476,7 @@ ODEBody* ODEBody::makeRigidBody(dynamics::Body::Ptr rwbody,  dSpaceID spaceId, O
 
     //_rwODEBodyToFrame[odeBody] = rwbody->getBodyFrame();
     //_rwFrameToODEBody[rwbody->getBodyFrame()] = odeBody;
-    //BOOST_FOREACH(Frame* frame, rwbody->getFrames()){
+    //for(Frame* frame : rwbody->getFrames()) {
         //std::cout  << "--> Adding frame: " << frame->getName() << std::endl;
     //    _rwFrameToODEBody[frame] = odeBody;
     //}
@@ -522,7 +522,7 @@ ODEBody* ODEBody::makeKinematicBody(Body::Ptr kbody, dSpaceID spaceid, ODESimula
     //_rwODEBodyToFrame[odeBody] = kbody->getBodyFrame();
     //_rwFrameToODEBody[kbody->getBodyFrame()] = odeBody;
 
-    BOOST_FOREACH(ODEUtil::TriGeomData* gdata, gdatas){
+    for(ODEUtil::TriGeomData* gdata : gdatas) {
     	if (!gdata->isPlaceable)
     		RW_THROW("ODE can not use Plane geometry for kinematic objects!");
 
@@ -538,7 +538,7 @@ ODEBody* ODEBody::makeKinematicBody(Body::Ptr kbody, dSpaceID spaceid, ODESimula
         dGeomSetOffsetQuaternion(gdata->geomId, gdata->rot);
     }
 
-    //BOOST_FOREACH(Frame* frame, kbody->getFrames()){
+    //for(Frame* frame : kbody->getFrames()) {
     //    RW_DEBUGS( "(KB) --> Adding frame: " << frame->getName() );
     //    _rwFrameToODEBody[frame] = odeBody;
     //}
@@ -574,7 +574,7 @@ ODEBody* ODEBody::makeFixedBody(Body::Ptr rwbody, dSpaceID spaceid, ODESimulator
     int oid = sim->getContactMap().getDataID( info.objectType );
     ODEBody *odeBody = new ODEBody(geomids, rwbody, mid , oid);
 
-    BOOST_FOREACH(ODEUtil::TriGeomData* gdata, gdatas){
+    for(ODEUtil::TriGeomData* gdata : gdatas) {
         odeBody->getTriGeomData().push_back(gdata);
         // set position and rotation of body
         dGeomSetData(gdata->geomId, odeBody);

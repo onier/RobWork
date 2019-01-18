@@ -30,7 +30,7 @@ RigidObject::RigidObject(rw::kinematics::Frame* baseframe, std::vector<Geometry:
         _mass(1.0),
         _Ibody(rw::math::InertiaMatrix<>::makeSolidSphereInertia(1.0,0.1))
 {
-    BOOST_FOREACH(Geometry::Ptr geom, geoms){
+    for(Geometry::Ptr geom : geoms) {
         if(geom->getFrame()==NULL)
             geom->setFrame( baseframe );
     }
@@ -60,7 +60,7 @@ RigidObject::RigidObject(std::vector<rw::kinematics::Frame*> frames, std::vector
         _mass(1.0),
         _Ibody(rw::math::InertiaMatrix<>::makeSolidSphereInertia(1.0,0.1))
 {
-    BOOST_FOREACH(Geometry::Ptr geom, geoms){
+    for(Geometry::Ptr geom : geoms) {
         if(geom->getFrame()==NULL)
             geom->setFrame( getBase() );
     }

@@ -15,14 +15,10 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #ifndef RW_COMMON_EVENT_HPP
 #define RW_COMMON_EVENT_HPP
 
-
 #include <list>
-#include <boost/foreach.hpp>
-#include <boost/function_equal.hpp>
 
 namespace rw {
 namespace common {
@@ -60,7 +56,7 @@ namespace common {
 	 * }
 	 *
 	 * void fireStateChangedEvent(const rw::kinematics::State& state) {
-	 *     BOOST_FOREACH(const StateChangedEvent::Listener& listener, stateChangedEvent().getListeners()) {
+	 *     for(const StateChangedEvent::Listener& listener : stateChangedEvent().getListeners()) {
 	 *         listener.callback(state);
 	 *     }
 	 * }
@@ -243,7 +239,7 @@ namespace common {
         FireFunctor(Event<CallBackMethod>* event):_event(event){}
         //! @brief Functor operator for invoking the callback methods on all listeners.
         void operator()(){
-            BOOST_FOREACH(typename Event<CallBackMethod>::Listener& listener, _event->getListenerList()) { listener.callback( ); } }
+            for(typename Event<CallBackMethod>::Listener& listener : _event->getListenerList()) { listener.callback( ); } }
     private:
         Event<CallBackMethod> *_event;
     };
@@ -259,7 +255,7 @@ namespace common {
         FireFunctor(EventType* event):_event(event){}
         //! @brief Functor operator for invoking the callback methods on all listeners.
         void operator()(T1 t1){
-            BOOST_FOREACH(typename EventType::Listener& listener, _event->getListenerList()) { listener.callback( t1 ); } }
+            for(typename EventType::Listener& listener : _event->getListenerList()) { listener.callback( t1 ); } }
     private:
         EventType *_event;
     };
@@ -275,7 +271,7 @@ namespace common {
         FireFunctor(EventType* event):_event(event){}
         //! @brief Functor operator for invoking the callback methods on all listeners.
         void operator()(T1 t1, T2 t2){
-            BOOST_FOREACH(typename EventType::Listener& listener, _event->getListenerList()) { listener.callback( t1, t2 ); } }
+            for(typename EventType::Listener& listener : _event->getListenerList()) { listener.callback( t1, t2 ); } }
     private:
         EventType *_event;
     };
@@ -291,7 +287,7 @@ namespace common {
         FireFunctor(EventType* event):_event(event){}
         //! @brief Functor operator for invoking the callback methods on all listeners.
         void operator()(T1 t1, T2 t2, T3 t3){
-            BOOST_FOREACH(typename EventType::Listener& listener, _event->getListenerList()) { listener.callback( t1, t2, t3 ); } }
+            for(typename EventType::Listener& listener : _event->getListenerList()) { listener.callback( t1, t2, t3 ); } }
     private:
         EventType *_event;
     };
@@ -307,7 +303,7 @@ namespace common {
         FireFunctor(EventType* event):_event(event){}
         //! @brief Functor operator for invoking the callback methods on all listeners.
         void operator()(T1 t1, T2 t2, T3 t3, T4 t4){
-            BOOST_FOREACH(typename EventType::Listener& listener, _event->getListenerList()) { listener.callback( t1, t2, t3, t4 ); } }
+            for(typename EventType::Listener& listener : _event->getListenerList()) { listener.callback( t1, t2, t3, t4 ); } }
     private:
         EventType *_event;
     };

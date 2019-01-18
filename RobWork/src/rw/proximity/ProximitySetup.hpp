@@ -78,7 +78,7 @@ public:
      * @brief Combine setup of this and setup of \b b into this collision setup.
      */
 	void merge(const ProximitySetup& setup, const std::string& prefix) {
-		BOOST_FOREACH(const ProximitySetupRule& rule, setup.getProximitySetupRules()) {
+		for(const ProximitySetupRule& rule : setup.getProximitySetupRules()) {
 			std::pair<std::string, std::string> patterns = rule.getPatterns();
 			if (prefix != "") {
 				patterns.first = prefix+patterns.first;

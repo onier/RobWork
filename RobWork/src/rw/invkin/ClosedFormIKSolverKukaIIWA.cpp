@@ -35,7 +35,7 @@ ClosedFormIKSolverKukaIIWA::ClosedFormIKSolverKukaIIWA(const rw::common::Ptr<con
 	_qHigh(device->getBounds().second)
 {
 	_frames.push_back(_device->getBase());
-	BOOST_FOREACH(const Joint* const joint, _device->getJoints()) {
+	for(const Joint* const joint : _device->getJoints()) {
 		_frames.push_back(joint);
 	}
 	_frames.push_back(_device->getEnd());

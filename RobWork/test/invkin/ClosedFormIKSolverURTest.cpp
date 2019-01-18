@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE( ClosedFormIKSolverURTest ){
 	    BOOST_TEST_MESSAGE("- - - Found " << solutions.size() << " solutions: ");
 		BOOST_CHECK(solutions.size() > 0);
 		bool found = false;
-		BOOST_FOREACH(const Q& sol, solutions) {
+		for(const Q& sol : solutions) {
 		    BOOST_TEST_MESSAGE("- - - - " << sol);
 			if ((sol-qRef).normInf() <= EPS) {
 				found = true;

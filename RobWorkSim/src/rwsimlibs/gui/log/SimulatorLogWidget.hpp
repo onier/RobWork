@@ -30,6 +30,7 @@
 
 #include <map>
 
+namespace rw { namespace common { class PropertyMap; } }
 namespace rw { namespace graphics { class GroupNode; } }
 namespace rwlibs { namespace opengl { class Drawable; } }
 namespace rwsim { namespace dynamics { class DynamicWorkCell; } }
@@ -92,6 +93,12 @@ public:
 	//! @brief Re-read the log and update.
 	void updateInfo();
 
+	/**
+	 * @brief Set properties for widget.
+	 * @param properties [in/out] properties, such as default values for scaling of graphical elements.
+	 */
+	virtual void setProperties(rw::common::Ptr<rw::common::PropertyMap> properties);
+
 public slots:
 	//! @brief Update the graphical view.
 	void updateOpenGLView();
@@ -112,6 +119,7 @@ private:
 
     rw::common::Ptr<rw::graphics::GroupNode> _root;
 
+    rw::common::Ptr<rw::common::PropertyMap> _properties;
     std::map<const rwsim::log::SimulatorLog*, std::list<QWidget*> > _entryToWidgets;
 };
 //! @}

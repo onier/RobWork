@@ -46,7 +46,7 @@ AssemblyResult::AssemblyResult(CartesianTask::Ptr task) {
 	errorMessage = task->getPropertyMap().get<std::string>("ErrorMessage","");
 	realState.clear();
 	assumedState.clear();
-	BOOST_FOREACH(CartesianTarget::Ptr target, task->getTargets()) {
+	for(CartesianTarget::Ptr target : task->getTargets()) {
 		AssemblyState state(target);
 		double time = target->getPropertyMap().get<double>("Time",0);
 		Timed<AssemblyState> tstate(time,state);
@@ -89,7 +89,7 @@ CartesianTask::Ptr AssemblyResult::toCartesianTask() {
 	root->getPropertyMap().set<rw::math::Transform3D<> >("FemaleTmaleTargetEnd",femaleTmaleEnd);
 	root->getPropertyMap().set<rw::math::Transform3D<> >("Approach",approach);
 	root->getPropertyMap().set<std::string>("ErrorMessage",errorMessage);
-	BOOST_FOREACH(const Timed<AssemblyState> &tstate, realState) {
+	for(const Timed<AssemblyState> &tstate : realState) {
 		AssemblyState state = tstate.getValue();
 		double time = tstate.getTime();
 		CartesianTarget::Ptr target = AssemblyState::toCartesianTarget(state);
@@ -97,7 +97,7 @@ CartesianTask::Ptr AssemblyResult::toCartesianTask() {
 		target->getPropertyMap().set<std::string>("Type","Real");
 		root->addTarget(target);
 	}
-	BOOST_FOREACH(const Timed<AssemblyState> &tstate, assumedState) {
+	for(const Timed<AssemblyState> &tstate : assumedState) {
 		AssemblyState state = tstate.getValue();
 		double time = tstate.getTime();
 		CartesianTarget::Ptr target = AssemblyState::toCartesianTarget(state);
@@ -116,7 +116,7 @@ void AssemblyResult::saveRWResult(AssemblyResult::Ptr result, const std::string&
 void AssemblyResult::saveRWResult(std::vector<AssemblyResult::Ptr> results, const std::string& name) {
     std::ofstream outfile(name.c_str());
     CartesianTask::Ptr root = ownedPtr(new CartesianTask());
-    BOOST_FOREACH(AssemblyResult::Ptr result, results) {
+    for(AssemblyResult::Ptr result : results) {
         CartesianTask::Ptr ctask = result->toCartesianTask();
         root->addTask(ctask);
     }
@@ -145,7 +145,7 @@ std::vector<AssemblyResult::Ptr> AssemblyResult::load(const std::string& filenam
 	}
 
 	std::vector<AssemblyResult::Ptr> results;
-	BOOST_FOREACH(CartesianTask::Ptr ctask, root->getTasks()) {
+	for(CartesianTask::Ptr ctask : root->getTasks()) {
 		AssemblyResult::Ptr aresult = ownedPtr( new AssemblyResult(ctask) );
 		results.push_back(aresult);
 	}
@@ -169,7 +169,7 @@ std::vector<AssemblyResult::Ptr> AssemblyResult::load(std::istringstream& inputS
 	}
 
 	std::vector<AssemblyResult::Ptr> results;
-	BOOST_FOREACH(CartesianTask::Ptr ctask, root->getTasks()) {
+	for(CartesianTask::Ptr ctask : root->getTasks()) {
 		AssemblyResult::Ptr aresult = ownedPtr( new AssemblyResult(ctask) );
 		results.push_back(aresult);
 	}

@@ -19,7 +19,6 @@
 #ifndef RWLIBS_ALGORTIHMS_KDTREE_KDTREE_HPP_
 #define RWLIBS_ALGORTIHMS_KDTREE_KDTREE_HPP_
 
-#include <boost/foreach.hpp>
 #include <vector>
 #include <list>
 #include <algorithm>
@@ -118,7 +117,7 @@ namespace rwlibs { namespace algorithms {
 
             // copy the KDNodes into the tree nodes
             int i=0;
-            BOOST_FOREACH(KDNode& n, nodes){
+            for(KDNode& n : nodes) {
                 (*tNodes)[i]._kdnode = &n;
                 i++;
             }
@@ -144,7 +143,7 @@ namespace rwlibs { namespace algorithms {
 
             // copy the KDNodes into the tree nodes
             int i=0;
-            BOOST_FOREACH(KDNode* n, nodes){
+            for(KDNode* n : nodes) {
                 (*tNodes)[i]._kdnode = n;
                 i++;
             }

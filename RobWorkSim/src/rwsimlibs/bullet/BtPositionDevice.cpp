@@ -40,7 +40,7 @@ void BtPositionDevice::update(double dt, State& state){
     _kdev->getModel().setQ( _kdev->getQ(state), state);
     // for each joint update the position of the corresponding btRigidBody
 
-    BOOST_FOREACH(const FrameBodyPair& pair, _frameToBtBody ){
+    for(const FrameBodyPair& pair : _frameToBtBody ) {
         const Transform3D<> t3d = Kinematics::worldTframe( pair.first, state);
         pair.second->getMotionState()->setWorldTransform( BtUtil::makeBtTransform(t3d) );
     }

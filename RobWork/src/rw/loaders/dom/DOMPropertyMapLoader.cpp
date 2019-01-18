@@ -21,6 +21,8 @@
 #include <rw/loaders/dom/DOMPropertyMapFormat.hpp>
 #include <rw/common/DOMParser.hpp>
 
+#include <boost/foreach.hpp>
+
 using namespace rw;
 using namespace rw::math;
 using namespace rw::common;

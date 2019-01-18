@@ -30,7 +30,7 @@ Animal::Ptr AnimalFactory::getAnimal(const std::string& species) {
 	AnimalFactory animalFactory;
 	vector<Extension::Ptr> extensions = animalFactory.getExtensions();
 	
-	BOOST_FOREACH (Extension::Ptr& extension, extensions) {
+	for(Extension::Ptr& extension : extensions) {
 		
 		if (extension->getProperties().get("species", extension->getName()) == species) {
 			

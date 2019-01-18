@@ -113,7 +113,7 @@ void writeUIBK(GraspTask::Ptr gtask, const std::string& outfile) {
 	std::string tcpID = gtask->getTCPID();
 	std::string graspcontrollerID = gtask->getGraspControllerID();
 
-	BOOST_FOREACH(GraspSubTask &task, gtask->getSubTasks() ) {
+	for(GraspSubTask &task : gtask->getSubTasks() ) {
 
 		Transform3D<> wTe_n = task.offset; //->getPropertyMap().get<Transform3D<> >("Nominal", Transform3D<>::identity());
 		//Transform3D<> approachDef = task.approach; //task->getPropertyMap().get<Transform3D<> >("Approach", Transform3D<>::identity());
@@ -137,8 +137,8 @@ void writeUIBK(GraspTask::Ptr gtask, const std::string& outfile) {
 		fstr << "   <notes>  </notes>\n"; // don't have any notes yet
 
 		// we don't add predictiondef
-		//BOOST_FOREACH( rwlibs::task::CartesianTarget::Ptr target, task->getTargets() ){
-		BOOST_FOREACH( GraspTarget &target, task.targets ) {
+		//for( rwlibs::task::CartesianTarget::Ptr target : task->getTargets() ){
+		for( GraspTarget &target : task.targets ) {
 			Transform3D<> trans = wTe_n * target.pose;
 
 			//bool has = target->getPropertyMap().has("ObjectTtcpApproach");
@@ -175,7 +175,7 @@ rwlibs::task::CartesianTask::Ptr GraspTask::toCartesianTask() {
 	root->getPropertyMap().set<std::string>("GraspController",
 			_graspControllerID);
 	//std::cout << "SIZE SUBTASKS" << _subtasks.size() << std::endl;
-	BOOST_FOREACH(GraspSubTask &stask, _subtasks ) {
+	for(GraspSubTask &stask : _subtasks ) {
 		rwlibs::task::CartesianTask::Ptr subtask = ownedPtr(
 				new rwlibs::task::CartesianTask());
 		root->addTask(subtask);
@@ -194,7 +194,7 @@ rwlibs::task::CartesianTask::Ptr GraspTask::toCartesianTask() {
 			subtask->getPropertyMap().set<std::string>("ObjectID", stask.objectID);
 
 		//std::cout << "Size targets: " << stask.targets.size() << std::endl;
-		BOOST_FOREACH(GraspTarget &gtarget, stask.targets) {
+		for(GraspTarget &gtarget : stask.targets) {
 			CartesianTarget::Ptr ctarget = ownedPtr(
 					new CartesianTarget(gtarget.pose));
 
@@ -246,7 +246,7 @@ rwlibs::task::CartesianTask::Ptr GraspTask::toCartesianTask() {
 				std::vector<double> contactlist(
 						result->contactsGrasp.size() * 9, 0.0);
 				size_t idxOffset = 0;
-				BOOST_FOREACH(rw::sensor::Contact3D& contact, result->contactsGrasp) {
+				for(rw::sensor::Contact3D& contact : result->contactsGrasp) {
 					contactlist[idxOffset + 0] = contact.p(0);
 					contactlist[idxOffset + 1] = contact.p(1);
 					contactlist[idxOffset + 2] = contact.p(2);
@@ -272,7 +272,7 @@ rwlibs::task::CartesianTask::Ptr GraspTask::toCartesianTask() {
 				std::vector<double> contactlist(result->contactsLift.size() * 9,
 						0.0);
 				size_t idxOffset = 0;
-				BOOST_FOREACH(rw::sensor::Contact3D& contact, result->contactsLift) {
+				for(rw::sensor::Contact3D& contact : result->contactsLift) {
 					contactlist[idxOffset + 0] = contact.p(0);
 					contactlist[idxOffset + 1] = contact.p(1);
 					contactlist[idxOffset + 2] = contact.p(2);
@@ -354,15 +354,15 @@ void GraspTask::saveText(GraspTask::Ptr gtask, const std::string& name) {
 	std::string graspcontrollerID = gtask->getGraspControllerID();
 	//CartesianTask::Ptr root = gtask->getRootTask();
 
-	//BOOST_FOREACH(CartesianTask::Ptr task, root->getTasks()){
-	BOOST_FOREACH(GraspSubTask& task, gtask->getSubTasks()) {
+	//for(CartesianTask::Ptr task : root->getTasks()){
+	for(GraspSubTask& task : gtask->getSubTasks()) {
 		Q openQ = task.openQ; //getPropertyMap().get<Q>("OpenQ");
 		Q closeQ = task.closeQ; //->getPropertyMap().get<Q>("CloseQ");
 
 		//std::vector<CartesianTarget::Ptr> targets = task->getTargets();
 		//outfile<<"{" << task->getId() << "}\n";
-		//BOOST_FOREACH(CartesianTarget::Ptr target, targets) {
-		BOOST_FOREACH(GraspTarget& target, task.targets) {
+		//for(CartesianTarget::Ptr target : targets) {
+		for(GraspTarget& target : task.targets) {
 			Transform3D<> ttrans = target.pose;
 			//if(!target->getPropertyMap().has("ObjectTtcpTarget")){
 			//    ttrans = target->get();
@@ -965,14 +965,14 @@ void GraspTask::filterTasks(std::vector<GraspResult::TestStatus> &includeMask) {
 		includeMap[i] = false;
 	}
 
-	BOOST_FOREACH(GraspResult::TestStatus includeRule, includeMask) {
+	for(GraspResult::TestStatus includeRule : includeMask) {
 		includeMap[(int) includeRule] = true;
 	}
 
-	BOOST_FOREACH(GraspSubTask &stask, getSubTasks()) {
+	for(GraspSubTask &stask : getSubTasks()) {
 		std::vector<GraspTarget> stargets;
 
-		BOOST_FOREACH(GraspTarget &target, stask.targets) {
+		for(GraspTarget &target : stask.targets) {
 			if (target.result == NULL) {
 				continue;
 			}
@@ -990,8 +990,8 @@ void GraspTask::filterTasks(std::vector<GraspResult::TestStatus> &includeMask) {
 std::vector<std::pair<GraspSubTask*, GraspTarget*> > GraspTask::getAllTargets() {
 	std::vector<std::pair<GraspSubTask*, GraspTarget*> > result;
 
-	BOOST_FOREACH(GraspSubTask &stask, getSubTasks()) {
-		BOOST_FOREACH(GraspTarget &target, stask.getTargets() ) {
+	for(GraspSubTask &stask : getSubTasks()) {
+		for(GraspTarget &target : stask.getTargets() ) {
 			result.push_back(std::make_pair(&stask, &target));
 		}
 	}

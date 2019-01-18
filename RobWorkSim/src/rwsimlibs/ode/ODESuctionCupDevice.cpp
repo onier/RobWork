@@ -135,7 +135,7 @@ void ODESuctionCupDevice::updateNoRollBack(const rwlibs::simulation::Simulator::
     //std::cout <<  "Contacts: " << contacts.size() << std::endl;
     int cidx = 0; //, contactIdx =0;
     if(contacts.size()>0){
-        BOOST_FOREACH(Body::Ptr b, cbodies ){
+        for(Body::Ptr b : cbodies ) {
             if(b!=NULL){
                 object = b.get();
                 //contactIdx = cidx;
@@ -175,7 +175,7 @@ void ODESuctionCupDevice::updateNoRollBack(const rwlibs::simulation::Simulator::
                 // 1. get the trimesh of object
                 std::vector<bool> spikeContact(NR_OF_SPIKES, false);
                 //std::vector<Geometry::Ptr> geoms = object->getGeometry();
-                BOOST_FOREACH(CollisionResult::CollisionPair pair, result._collisionPairs){
+                for(CollisionResult::CollisionPair pair : result._collisionPairs) {
                     //Geometry::Ptr geom = geoms[ pair.geoIdxA ];
                     //TriMesh::Ptr mesh = geom->getGeometryData().cast<TriMesh>();
                     //if(mesh==NULL)
@@ -194,7 +194,7 @@ void ODESuctionCupDevice::updateNoRollBack(const rwlibs::simulation::Simulator::
                 _isInContact = true;
                 firstContact = true;
 
-                BOOST_FOREACH(bool incontact, spikeContact){
+                for(bool incontact : spikeContact) {
                     if(!incontact){
                         _isInContact = false;
                         firstContact = false;

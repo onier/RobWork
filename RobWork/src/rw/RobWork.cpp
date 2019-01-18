@@ -25,6 +25,7 @@
 #include <rw/common/Plugin.hpp>
 #include <rw/common/StringUtil.hpp>
 
+#include <boost/foreach.hpp>
 #include <boost/program_options/options_description.hpp>
 #include <boost/program_options/variables_map.hpp>
 #include <boost/program_options/option.hpp>
@@ -151,7 +152,7 @@ void RobWork::initialize(const std::vector<std::string>& plugins){
     }
 
     Log::debugLog() << "Looking for RobWork plugins in following directories:\n";
-    BOOST_FOREACH( PropertyBase::Ptr prop , pluginsMap.getProperties()){
+    BOOST_FOREACH( PropertyBase::Ptr prop, pluginsMap.getProperties()) {
     	// check if its a
     	Property<std::string>::Ptr propstr = prop.cast<Property<std::string> >();
     	if(propstr==NULL)
@@ -163,7 +164,7 @@ void RobWork::initialize(const std::vector<std::string>& plugins){
 
     std::vector<std::string> pluginsFiles;
     Log::debugLog() << "Loading plugins:\n";
-    BOOST_FOREACH(std::string dir, cfgDirs){
+    for(std::string dir : cfgDirs) {
     	path file( dir );
     	Log::debugLog() << " processing hint: " << dir << std::endl;
 #if(BOOST_FILESYSTEM_VERSION==2)
@@ -186,7 +187,7 @@ void RobWork::initialize(const std::vector<std::string>& plugins){
     		// find all files in the directory *.rwplugin.xml *.rwplugin.(dll,so)
     		std::vector<std::string> pl_files =
     				IOUtil::getFilesInFolder(file.string(), false, true, "*.rwplugin.*");
-    		BOOST_FOREACH(std::string pl_file, pl_files){
+    		for(std::string pl_file : pl_files) {
 				const std::string ext = StringUtil::getFileExtension(pl_file);
 				if (ext == ".xml" || ext == ".dll" || ext == ".so")
     				pluginsFiles.push_back(pl_file);
@@ -199,8 +200,7 @@ void RobWork::initialize(const std::vector<std::string>& plugins){
     // make sure not to add duplicates of plugins
     ExtensionRegistry::Ptr reg = ExtensionRegistry::getInstance();
 
-    BOOST_FOREACH(std::string pfilename, pluginsFiles){
-
+    for(std::string pfilename : pluginsFiles) {
     	std::time_t time = boost::filesystem::last_write_time(pfilename);
     	// check if plugin was allready added
     	path pfile(pfilename);

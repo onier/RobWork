@@ -35,7 +35,7 @@ ContactDetectorTracking::ContactDetectorTracking(const ContactDetectorTracking& 
 		}
 	}
 	// Update the tracking references to point to the new map
-	BOOST_FOREACH(ContactInfo &info, _info) {
+	for(ContactInfo &info : _info) {
 		info.tracking = &getStrategyTracking(info.models.first,info.models.second);
 	}
 }
@@ -59,7 +59,7 @@ ContactDetectorTracking& ContactDetectorTracking::operator=(const ContactDetecto
 			}
 		}
 		// Update the tracking references to point to the new map
-		BOOST_FOREACH(ContactInfo &info, _info) {
+		for(ContactInfo &info : _info) {
 			info.tracking = &getStrategyTracking(info.models.first,info.models.second);
 		}
 	}

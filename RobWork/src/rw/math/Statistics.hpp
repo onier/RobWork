@@ -3,7 +3,6 @@
 #define RW_MATH_STATISTICS_HPP
 
 #include <list>
-#include <boost/foreach.hpp>
 #include <vector>
 #include <iostream>
 #include <cmath>
@@ -24,7 +23,7 @@ public:
 	template <class V>
 	static T mean(const V& data) {
 		T sum = 0;
-		BOOST_FOREACH(T d, data) {
+		for(T d : data) {
 			sum += d;
 		}
 		return (T)sum/data.size();		
@@ -37,7 +36,7 @@ public:
   template <class V>
   static T angularMean(const V& data) {
     T s = 0, c = 0;
-    BOOST_FOREACH (T d, data) {
+    for(T d : data) {
       s += sin(d);
       c += cos(d);
     }
@@ -76,7 +75,7 @@ public:
 	template <class V>
 	static T variance(const V& data, const T& mean) {
 		T var = 0;
-		BOOST_FOREACH(T d, data) {
+		for(T d : data) {
 			var += Math::sqr(d-mean);
 		}
 		return var/(data.size()-1);			
@@ -90,7 +89,7 @@ public:
   static T angularVariance(const V& data, const T& mean) {
     T sm = sin(mean), cm = cos(mean);
     T var = 0;
-    BOOST_FOREACH (T d, data) {
+    for(T d : data) {
       T sd = sin(d), cd = cos(d);
       T angle = acos(sd * sm + cd * cm);
       var += Math::sqr(angle);
@@ -127,7 +126,7 @@ public:
 		if (data.size() == 0)
 			return 0;
 		T var = data.front();
-		BOOST_FOREACH(T d, data) {
+		for(T d : data) {
 			if (d < var)
 				var = d;
 		}
@@ -142,7 +141,7 @@ public:
 		if (data.size() == 0)
 			return 0;
 		T var = data.front();
-		BOOST_FOREACH(T d, data) {
+		for(T d : data) {
 			if (d > var)
 				var = d;
 		}
@@ -158,7 +157,7 @@ public:
 			return std::pair<T,T>(0,0);
 		T ma = data.front();
 		T mi = data.front();
-		BOOST_FOREACH(T d, data) {
+		for(T d : data) {
 			if (d < mi)
 				mi = d;
 			if (d > ma)

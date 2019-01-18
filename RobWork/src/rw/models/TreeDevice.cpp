@@ -85,7 +85,7 @@ namespace
         kinematicChain.push_back(first);
         for (I p = last.begin(); p != last.end(); ++p) {
 			std::vector<Frame*> chain = getChain(first, *p, state);
-			BOOST_FOREACH(Frame* frame, chain) {
+			for(Frame* frame : chain) {
 				std::vector<Frame*>::iterator it = std::find(kinematicChain.begin(), kinematicChain.end(), frame);
 				if (it == kinematicChain.end())
 					kinematicChain.push_back(frame);

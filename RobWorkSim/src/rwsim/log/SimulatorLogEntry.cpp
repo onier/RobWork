@@ -94,7 +94,7 @@ std::vector<std::string> SimulatorLogEntry::Factory::getEntryTypes() {
 	res.push_back(LogValues::getTypeID());
 	SimulatorLogEntry::Factory factory;
 	std::vector<Extension::Descriptor> exts = factory.getExtensionDescriptors();
-	BOOST_FOREACH(Extension::Descriptor& ext, exts){
+	for(Extension::Descriptor& ext : exts) {
 		res.push_back( ext.getProperties().get("entryType",ext.name) );
 	}
 	return res;
@@ -125,7 +125,7 @@ bool SimulatorLogEntry::Factory::hasEntryType(const std::string& entryType) {
 		return true;
 	SimulatorLogEntry::Factory factory;
 	std::vector<Extension::Descriptor> exts = factory.getExtensionDescriptors();
-	BOOST_FOREACH(Extension::Descriptor& ext, exts){
+	for(Extension::Descriptor& ext : exts) {
         if(ext.getProperties().get("entryType",ext.name) == entryType)
             return true;
 	}
@@ -158,7 +158,7 @@ SimulatorLogEntry::Ptr SimulatorLogEntry::Factory::makeEntry(const std::string& 
 
 	SimulatorLogEntry::Factory factory;
 	std::vector<Extension::Ptr> exts = factory.getExtensions();
-	BOOST_FOREACH(Extension::Ptr ext, exts){
+	for(Extension::Ptr ext : exts) {
 		if(ext->getProperties().get("entryType",ext->getName() ) == entryType){
 			const rw::common::Ptr<const SimulatorLogEntry> base = ext->getObject().cast<const SimulatorLogEntry>();
 			return base->createNew(parent);

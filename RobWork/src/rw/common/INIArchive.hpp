@@ -24,7 +24,6 @@
 #include <limits>
 
 #include <rw/common/macros.hpp>
-#include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 
@@ -133,7 +132,7 @@ protected:
 		template<class T>
 		void writeValue( const std::vector<T>& val, const std::string& id ){
 			(*_ofs) << id << "=";
-			BOOST_FOREACH(const T& rval, val){ (*_ofs) << rval << " "; }
+			for(const T& rval : val) { (*_ofs) << rval << " "; }
 			(*_ofs) << "\n";
 		}
 
@@ -257,7 +256,7 @@ protected:
 			std::vector<std::string> result;
 			val.clear();
 			boost::split(result, valname.second, boost::is_any_of("\t "));
-			BOOST_FOREACH(std::string& rval, result){
+			for(std::string& rval : result) {
 				if(rval.empty())
 					continue;
 				//std::cout << rval << " : ";
@@ -301,7 +300,7 @@ protected:
 				 getLine();
 				 std::vector<std::string> values;
 				 boost::split(values, _line, boost::is_any_of(" \n"));
-				 BOOST_FOREACH(std::string& rval, values) {
+				 for(std::string& rval : values) {
 					 if(rval.empty())
 						 continue;
 					 val(i,j) = boost::lexical_cast<double>(rval);

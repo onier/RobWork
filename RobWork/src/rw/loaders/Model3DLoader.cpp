@@ -6,7 +6,7 @@ rw::common::Ptr<Model3DLoader> Model3DLoader::Factory::getModel3DLoader(const st
 	using namespace rw::common;
 	Model3DLoader::Factory ep;
 	std::vector<Extension::Ptr> exts = ep.getExtensions();
-	BOOST_FOREACH(Extension::Ptr ext, exts){
+	for(Extension::Ptr ext : exts) {
 		if(!ext->getProperties().has(format))
 			continue;
 		// else try casting to ImageLoader
@@ -22,7 +22,7 @@ bool Model3DLoader::Factory::hasModel3DLoader(const std::string& format){
 	using namespace rw::common;
 	Model3DLoader::Factory ep;
 	std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-	BOOST_FOREACH(Extension::Descriptor& ext, exts){
+	for(Extension::Descriptor& ext : exts) {
 		if(!ext.getProperties().has(format))
 			continue;
 		return true;

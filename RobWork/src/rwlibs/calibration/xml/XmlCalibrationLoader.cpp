@@ -28,6 +28,8 @@
 #include <rw/models/SerialDevice.hpp>
 #include <rw/models/WorkCell.hpp>
 
+#include <boost/foreach.hpp>
+
 using namespace rwlibs::calibration;
 using namespace rw::common;
 using namespace rw::math;

@@ -53,7 +53,7 @@ namespace {
             _jointFrame = firstParentJoint;
             // check which index this joint has in the device
             int idx=0;
-            BOOST_FOREACH(Joint* j, _ddev->getJointDevice()->getJoints()){
+            for(Joint* j : _ddev->getJointDevice()->getJoints()) {
                 if(firstParentJoint==j){
                     _jointIdx = idx;
                     break;
@@ -289,7 +289,7 @@ void RigidDevice::registerIn(rw::kinematics::StateStructure::Ptr statestructure)
     DynamicDevice::registerIn(statestructure);
 
     // add all links to the register
-    BOOST_FOREACH(Body::Ptr link, getLinks()){
+    for(Body::Ptr link : getLinks()) {
         link->registerIn(statestructure);
     }
 

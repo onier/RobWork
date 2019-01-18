@@ -142,7 +142,7 @@ public:
 
 
     void addEntityToFront(rw::common::Ptr<Entity> entity) {
-        BOOST_FOREACH(rw::common::Ptr<Entity> ent, _entities) {
+        for(rw::common::Ptr<Entity> ent : _entities) {
             ent->setIndex(ent->getIndex() + 1);
         }
         _entities.insert(_entities.begin(), entity);
@@ -631,14 +631,14 @@ protected:
 			typename Task<T>::Ptr result = rw::common::ownedPtr(new Task<T>(this->getId()));
 
 			std::vector<typename Target<T>::Ptr > newTargets;
-			BOOST_FOREACH(typename Target<T>::Ptr target, this->getTargets()) {
+			for(typename Target<T>::Ptr target : this->getTargets()) {
 				newTargets.push_back(target->clone());
 			}
 
-			BOOST_FOREACH(Entity::Ptr entity, this->getEntities()) {
+			for(Entity::Ptr entity : this->getEntities()) {
 				switch (entity->entityType()) {
 				case EntityType::Target:
-					BOOST_FOREACH(typename Target<T>::Ptr target, newTargets) {
+					for(typename Target<T>::Ptr target : newTargets) {
 						if (target->getIndex() == entity->getIndex()) {
 							result->addTarget(target);
 							break;

@@ -34,8 +34,8 @@ Body::Body(const BodyInfo& info, rw::models::Object::Ptr obj):
 {
     if(_info.objects.size()==0)
         _info.objects.push_back(obj);
-    BOOST_FOREACH(Object::Ptr iobj, _info.objects){
-        BOOST_FOREACH(Frame* f, iobj->getFrames() ){
+    for(Object::Ptr iobj : _info.objects) {
+        for(Frame* f : iobj->getFrames() ) {
             _frames.push_back(f);
         }
 

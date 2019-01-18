@@ -100,7 +100,7 @@ void BtRWCollisionAlgorithm::processCollision(
 	RW_ASSERT(modelB != mapB.end());
 	const std::vector<Contact> contacts = match.strategy->findContacts(modelA->second,T0*comTframeA,modelB->second,T1*comTframeB,*_stratData);
 
-	BOOST_FOREACH(const Contact& c, contacts) {
+	for(const Contact& c : contacts) {
 		const btScalar dist = -c.getDepth();
 		btVector3 pos1;
 		btVector3 n;

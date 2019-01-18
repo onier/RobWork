@@ -103,7 +103,7 @@ void CollisionResultWidget::updateEntryWidget() {
 	_ui->_description->setText(QString::fromStdString(_result->getDescription()));
 	int bvTests = 0;
 	int primTests = 0;
-	BOOST_FOREACH(const LogCollisionResult::ResultInfo& info, results) {
+	for(const LogCollisionResult::ResultInfo& info : results) {
 		bvTests += info.result._nrBVTests;
 		primTests += info.result._nrPrimTests;
 	}
@@ -114,7 +114,7 @@ void CollisionResultWidget::updateEntryWidget() {
 	_ui->_framePairTable->setSortingEnabled(false);
 
 	int row = 0;
-	BOOST_FOREACH(const LogCollisionResult::ResultInfo& info, results) {
+	for(const LogCollisionResult::ResultInfo& info : results) {
 		const std::string nameA = (info.frameA == "") ? "Unknown" : info.frameA;
 		const std::string nameB = (info.frameB == "") ? "Unknown" : info.frameB;
 		// Note: setItem takes ownership of the QTableWidgetItems
@@ -209,8 +209,8 @@ void CollisionResultWidget::collisionPairsChanged(const QItemSelection& newSelec
 		const int geoIdxA = collPair.geoIdxA;
 		const int geoIdxB = collPair.geoIdxB;
 
-		BOOST_FOREACH(const Object::Ptr object, _dwc->getWorkcell()->getObjects()) {
-			BOOST_FOREACH(const Geometry::Ptr geo, object->getGeometry()) {
+		for(const Object::Ptr object : _dwc->getWorkcell()->getObjects()) {
+			for(const Geometry::Ptr geo : object->getGeometry()) {
 				if (geo->getFrame()->getName() == result.frameA && geo->getId() == result.geoNamesA[geoIdxA]) {
 					const TriMesh::Ptr data = geo->getGeometryData()->getTriMesh();
 					for (int i = startId; i < startId+size; i++) {

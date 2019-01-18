@@ -20,6 +20,7 @@
 #include "SimulatorLogEntryWidget.hpp"
 #include "SimulatorStatisticsWidget.hpp"
 
+#include <rw/common/PropertyMap.hpp>
 #include <rw/geometry/Line.hpp>
 
 #include <rwsim/dynamics/DynamicWorkCell.hpp>
@@ -55,7 +56,8 @@ SimulatorLogWidget::SimulatorLogWidget(QWidget* parent):
 	_glview(new SceneOpenGLViewer(_ui->_viewFrame)),
 	_log(NULL),
 	_model(new SimulatorLogModel(this)),
-	_root(ownedPtr(new GroupNode("World")))
+	_root(ownedPtr(new GroupNode("World"))),
+	_properties(ownedPtr(new PropertyMap()))
 {
 	_ui->setupUi(this);
 
@@ -76,6 +78,9 @@ SimulatorLogWidget::SimulatorLogWidget(QWidget* parent):
     grid->setColor(Vector3D<>(0.8f, 0.8f, 0.8f));
     GroupNode::addChild(grid,_root);
     grid->setVisible(true);
+
+    // No pivot point
+    _glview->getPivotDrawable()->setVisible(false);
 
     _glview->updateView();
 
@@ -124,7 +129,7 @@ void SimulatorLogWidget::compare(rw::common::Ptr<const rwsim::log::SimulatorLogS
 void SimulatorLogWidget::setSelectedTime(double time) {
 	if (isVisible()) {
 		int row = 0;
-		BOOST_FOREACH(SimulatorLog::Ptr const entry, _log->getChildren()) {
+		for(SimulatorLog::Ptr const entry : _log->getChildren()) {
 			const LogStep::Ptr step = entry.cast<LogStep>();
 			if (step != NULL) {
 				if (time >= step->timeBegin() && time < step->timeEnd())
@@ -143,6 +148,17 @@ void SimulatorLogWidget::updateInfo() {
 	_model->update();
 }
 
+void SimulatorLogWidget::setProperties(const PropertyMap::Ptr properties) {
+	_properties = properties;
+	for (const std::pair<const rwsim::log::SimulatorLog*, std::list<QWidget*> > widgets: _entryToWidgets) {
+		for (QWidget* const widget : widgets.second) {
+			if (SimulatorLogEntryWidget* const logentry = dynamic_cast<SimulatorLogEntryWidget*>(widget)) {
+				logentry->setProperties(_properties);
+			}
+		}
+	}
+}
+
 #include <rwlibs/opengl/DrawableGeometry.hpp>
 #include <rwlibs/opengl/RenderGeometry.hpp>
 using namespace rwlibs::opengl;
@@ -154,7 +170,7 @@ void SimulatorLogWidget::updateOpenGLView() {
 	while (groups.size() > 0) {
 		const GroupNode::Ptr group = groups.front();
 		groups.pop();
-		BOOST_FOREACH(const SceneNode::Ptr node, group->_childNodes) {
+		for(const SceneNode::Ptr node : group->_childNodes) {
 			const GroupNode::Ptr groupNode = node.cast<GroupNode>();
 			if (!groupNode.isNull()) {
 				groups.push(groupNode);
@@ -168,14 +184,14 @@ void SimulatorLogWidget::updateOpenGLView() {
 		}
 	}
 	std::list<RenderGeometry::Ptr> renders;
-	BOOST_FOREACH(const DrawableGeometry::Ptr node, nodes) {
-		BOOST_FOREACH(const Render::Ptr render, node->getRenders()) {
+	for(const DrawableGeometry::Ptr node : nodes) {
+		for(const Render::Ptr render : node->getRenders()) {
 			if (const RenderGeometry::Ptr rg = render.cast<RenderGeometry>())
 				renders.push_back(rg);
 		}
 	}
 	const ProjectionMatrix proj = _glview->getViewCamera()->getProjectionMatrix();
-	/*BOOST_FOREACH(const RenderGeometry::Ptr render, renders) {
+	/*for(const RenderGeometry::Ptr render : renders) {
 		const Geometry::Ptr geo = render->getGeometry();
 		const TriMesh::Ptr mesh = geo->getGeometryData()->getTriMesh();
 		for (std::size_t i = 0; i < mesh->getSize(); i++) {
@@ -202,7 +218,7 @@ void SimulatorLogWidget::selectionChanged(const QItemSelection& selected, const 
 			continue;
 		std::map<const SimulatorLog*, std::list<QWidget*> >::iterator it = _entryToWidgets.find(entry);
 		if (it != _entryToWidgets.end()) {
-			BOOST_FOREACH(QWidget* const widget, it->second) {
+			for(QWidget* const widget : it->second) {
 				_ui->_pageStack->removeTab(_ui->_pageStack->indexOf(widget));
 				delete widget;
 			}
@@ -210,7 +226,7 @@ void SimulatorLogWidget::selectionChanged(const QItemSelection& selected, const 
 		}
 		// Remove color from dependent entries
 		if (const SimulatorLogEntry* const leaf = dynamic_cast<const SimulatorLogEntry*>(entry)) {
-			BOOST_FOREACH(const SimulatorLogEntry::Ptr dep, leaf->getLinkedEntries()) {
+			for(const SimulatorLogEntry::Ptr dep : leaf->getLinkedEntries()) {
 				QModelIndex search = index;
 				bool found = false;
 				while (search.isValid() && !found) {
@@ -251,8 +267,9 @@ void SimulatorLogWidget::selectionChanged(const QItemSelection& selected, const 
 			}
 		} else {
 			const std::list<SimulatorLogEntryWidget*> widgets = SimulatorLogEntryWidget::Factory::makeWidgets(entry,_ui->_pageStack);
-			BOOST_FOREACH(SimulatorLogEntryWidget* const widget, widgets) {
+			for(SimulatorLogEntryWidget* const widget : widgets) {
 				widget->setDWC(_dwc);
+				widget->setProperties(_properties);
 				widget->showGraphics(_root,_glview->getScene());
 				widget->updateEntryWidget();
 				_ui->_pageStack->addTab(widget,QString::fromStdString(widget->getName()));
@@ -306,7 +323,7 @@ void SimulatorLogWidget::selectionChanged(const QItemSelection& selected, const 
 	foreach(const QModelIndex& index, _ui->_tree->selectionModel()->selectedIndexes()) {
 		const SimulatorLog* const entry = static_cast<const SimulatorLog*>(index.internalPointer());
 		if (const SimulatorLogEntry* const leaf = dynamic_cast<const SimulatorLogEntry*>(entry)) {
-			BOOST_FOREACH(const SimulatorLogEntry::Ptr dep, leaf->getLinkedEntries()) {
+			for(const SimulatorLogEntry::Ptr dep : leaf->getLinkedEntries()) {
 				QModelIndex search = index;
 				bool found = false;
 				while (search.isValid() && !found) {

@@ -105,7 +105,7 @@ void DeformableObject::setNode(int id, const rw::math::Vector3D<float>& v, rw::k
 		 return _rstate.getStateCache<DeformableObjectCache>(state)->_geoms;
 	 std::vector<rw::geometry::Geometry::Ptr> geoms;
 	 // get a copy of the models with the configuration from the state
-	 BOOST_FOREACH(rw::geometry::Geometry::Ptr geom, getGeometry()){
+	 for(rw::geometry::Geometry::Ptr geom : getGeometry()) {
 	 	 geoms.push_back( rw::common::ownedPtr( new rw::geometry::Geometry(*geom)) );
 	 }
 	 _rstate.getStateCache<DeformableObjectCache>(state)->_geoms = geoms;
@@ -122,7 +122,7 @@ void DeformableObject::setNode(int id, const rw::math::Vector3D<float>& v, rw::k
 	return _rstate.getStateCache<DeformableObjectCache>(state)->_models;
 
 	 // get a copy of the models with the configuration from the state
-	 BOOST_FOREACH(rw::graphics::Model3D::Ptr model, getModels()){
+	 for(rw::graphics::Model3D::Ptr model : getModels()) {
 	 	 models.push_back( rw::common::ownedPtr( new rw::graphics::Model3D(*model)) );
 	 }
 	 _rstate.getStateCache<DeformableObjectCache>(state)->_models = models;

@@ -82,7 +82,7 @@ void ConstraintWidget::updateEntryWidget() {
 	_ui->_constraintTable->setRowCount(nrOfEntries);
 	_ui->_constraintTable->setSortingEnabled(false);
 	int row = 0;
-	BOOST_FOREACH(const LogConstraints::Constraint& c, _constraints->getConstraints()) {
+	for(const LogConstraints::Constraint& c : _constraints->getConstraints()) {
 		const std::string& nameA = c.frameA;
 		const std::string& nameB = c.frameB;
 		const QString qnameA = QString::fromStdString(nameA);

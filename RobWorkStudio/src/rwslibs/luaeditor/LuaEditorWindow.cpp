@@ -97,7 +97,7 @@ void LuaEditorWindow::ShowContextMenu(const QPoint& pos){
     QMenu myMenu;
     QMenu deviceMenu("Devices");
     std::vector<rw::models::Device::Ptr> devs = _rws->getWorkcell()->getDevices();
-    BOOST_FOREACH(rw::models::Device::Ptr dev, devs){
+    for(rw::models::Device::Ptr dev : devs) {
         QMenu *devMenu = new QMenu(dev->getName().c_str());
         connect(devMenu, SIGNAL(triggered(QAction * )), this, SLOT(setCheckAction(QAction*)));
         QAction *action = devMenu->addAction( "Get Q" );
@@ -111,7 +111,7 @@ void LuaEditorWindow::ShowContextMenu(const QPoint& pos){
 
     QMenu objectMenu("Objects");
     std::vector<rw::models::Object::Ptr> objects = _rws->getWorkcell()->getObjects();
-    BOOST_FOREACH(rw::models::Object::Ptr dev, objects){
+    for(rw::models::Object::Ptr dev : objects) {
         QMenu *devMenu = new QMenu(dev->getName().c_str());
         connect(devMenu, SIGNAL(triggered(QAction * )), this, SLOT(setCheckAction(QAction*)));
 

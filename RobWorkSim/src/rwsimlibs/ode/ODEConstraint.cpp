@@ -200,7 +200,7 @@ void ODEConstraint::decomposeCompliance(const Eigen::MatrixXd &compliance, const
 	dec.freeDirs.clear();
 
 	// Now the fixed linear directions are found in cartesian space.
-	BOOST_FOREACH(const std::vector<double> &dir, linFixed) {
+	for(const std::vector<double> &dir : linFixed) {
 		Vector3D<> cDir;
 		for (std::size_t i = 0; i < dir.size(); i++) {
 			cDir += dir[i]*spring.rowToDir[i];
@@ -208,7 +208,7 @@ void ODEConstraint::decomposeCompliance(const Eigen::MatrixXd &compliance, const
 		dec.linFixedDirs.push_back(cDir);
 	}
 	// Now the fixed angular directions are found in cartesian space.
-	BOOST_FOREACH(const std::vector<double> &dir, angFixed) {
+	for(const std::vector<double> &dir : angFixed) {
 		Vector3D<> cDir;
 		for (std::size_t i = 0; i < dir.size(); i++) {
 			cDir += dir[i]*spring.rowToDir[i+spring.linComp];
@@ -216,7 +216,7 @@ void ODEConstraint::decomposeCompliance(const Eigen::MatrixXd &compliance, const
 		dec.angFixedDirs.push_back(cDir);
 	}
 	// Now the free directions are found.
-	BOOST_FOREACH(const std::vector<double> &dir, free) {
+	for(const std::vector<double> &dir : free) {
 		VectorND<6> cDir;
 		for (std::size_t i = 0; i < 6; i++)
 			cDir[i] = 0;

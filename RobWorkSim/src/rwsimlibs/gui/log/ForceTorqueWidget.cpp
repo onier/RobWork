@@ -63,6 +63,11 @@ ForceTorqueWidget::ForceTorqueWidget(rw::common::Ptr<const LogForceTorque> entry
 	headerLabels.push_back("Force");
 	headerLabels.push_back("Torque");
 	_ui->_table->setHorizontalHeaderLabels(headerLabels);
+
+	connect(_ui->_scalingLinA, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_scalingLinB, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_scalingAngA, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_scalingAngB, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
 }
 
 ForceTorqueWidget::~ForceTorqueWidget() {
@@ -106,7 +111,7 @@ void ForceTorqueWidget::updateEntryWidget() {
 	_ui->_pairs->setRowCount(nrOfPairs);
 	int row = 0;
 	_ui->_pairs->setSortingEnabled(false);
-	BOOST_FOREACH(const FramePair& pair, pairs) {
+	for(const FramePair& pair : pairs) {
 		// Count how many contacts there are for this pair
 		int contacts = 0;
 		for (int i = 0; i < _forces->sizeLinkedEntry(); i++) {
@@ -128,13 +133,32 @@ void ForceTorqueWidget::updateEntryWidget() {
 
 void ForceTorqueWidget::showGraphics(GroupNode::Ptr root, SceneGraph::Ptr graph) {
 	if (root == NULL && _root != NULL)
-		_root->removeChild("Bodies");
+		_root->removeChild("Wrenches");
 	_root = root;
 	_graph = graph;
 }
 
 std::string ForceTorqueWidget::getName() const {
 	return "Forces and Torques";
+}
+
+void ForceTorqueWidget::setProperties(rw::common::Ptr<rw::common::PropertyMap> properties) {
+	SimulatorLogEntryWidget::setProperties(properties);
+	if (!_properties.isNull()) {
+		if (!_properties->has("ForceTorqueWidget_LinA"))
+			_properties->set<double>("ForceTorqueWidget_LinA",_ui->_scalingLinA->value());
+		if (!_properties->has("ForceTorqueWidget_LinB"))
+			_properties->set<double>("ForceTorqueWidget_LinB",_ui->_scalingLinB->value());
+		if (!_properties->has("ForceTorqueWidget_AngA"))
+			_properties->set<double>("ForceTorqueWidget_AngA",_ui->_scalingAngA->value());
+		if (!_properties->has("ForceTorqueWidget_AngB"))
+			_properties->set<double>("ForceTorqueWidget_AngB",_ui->_scalingAngB->value());
+
+		_ui->_scalingLinA->setValue(_properties->get<double>("ForceTorqueWidget_LinA"));
+		_ui->_scalingLinB->setValue(_properties->get<double>("ForceTorqueWidget_LinB"));
+		_ui->_scalingAngA->setValue(_properties->get<double>("ForceTorqueWidget_AngA"));
+		_ui->_scalingAngB->setValue(_properties->get<double>("ForceTorqueWidget_AngB"));
+	}
 }
 
 void ForceTorqueWidget::pairsChanged(const QItemSelection&, const QItemSelection&) {
@@ -151,7 +175,7 @@ void ForceTorqueWidget::pairsChanged(const QItemSelection&, const QItemSelection
 	std::vector<std::size_t> contactsToShow;
 	for (int i = 0; i < _forces->sizeLinkedEntry(); i++) {
 		bool show = false;
-		BOOST_FOREACH(const NamePair& name, names) {
+		for(const NamePair& name : names) {
 			const std::string& nameA = _forces->getNameA(i);
 			const std::string& nameB = _forces->getNameB(i);
 			if (nameA == name.first && nameB == name.second)
@@ -171,7 +195,7 @@ void ForceTorqueWidget::pairsChanged(const QItemSelection&, const QItemSelection
 	_ui->_table->setRowCount(nrOfContactsToShow);
 	int row = 0;
 	_ui->_table->setSortingEnabled(false);
-	BOOST_FOREACH(const std::size_t i, contactsToShow) {
+	for(const std::size_t i : contactsToShow) {
 		const Wrench6D<> ftA = _forces->getWrenchBodyA(i);
 		const Wrench6D<> ftB = _forces->getWrenchBodyB(i);
 		const std::string& nameA = _forces->getNameA(i);
@@ -214,7 +238,10 @@ void ForceTorqueWidget::pairsChanged(const QItemSelection&, const QItemSelection
 void ForceTorqueWidget::contactSetChanged(const QItemSelection&, const QItemSelection&) {
 	const QModelIndexList indexes = _ui->_table->selectionModel()->selectedIndexes();
 	_root->removeChild("Wrenches");
+	_velRenders.clear();
 	GroupNode::Ptr wrenchGroup = ownedPtr(new GroupNode("Wrenches"));
+	const double scaleLin = _ui->_scalingLinA->value()/_ui->_scalingLinB->value();
+	const double scaleAng = _ui->_scalingAngA->value()/_ui->_scalingAngB->value();
 	foreach (QModelIndex index, indexes) {
 		if (index.column() > 0)
 			continue;
@@ -226,8 +253,10 @@ void ForceTorqueWidget::contactSetChanged(const QItemSelection&, const QItemSele
 		const Wrench6D<> ftB = _forces->getWrenchBodyB(i);
 		renderA->setVelocity(VelocityScrew6D<>(ftA.force(),EAA<>(ftA.torque())));
 		renderB->setVelocity(VelocityScrew6D<>(ftB.force(),EAA<>(ftB.torque())));
-		renderA->setScales(0.1f,0.1f);
-		renderB->setScales(0.1f,0.1f);
+		renderA->setScales(scaleLin,scaleAng);
+		renderB->setScales(scaleLin,scaleAng);
+		_velRenders.push_back(renderA);
+		_velRenders.push_back(renderB);
 		const DrawableNode::Ptr drawableA = _graph->makeDrawable("WrenchA",renderA,DrawableNode::Physical);
 		const DrawableNode::Ptr drawableB = _graph->makeDrawable("WrenchB",renderB,DrawableNode::Physical);
 		drawableA->setTransform(Transform3D<>(_forces->getPositionA(i)));
@@ -238,6 +267,27 @@ void ForceTorqueWidget::contactSetChanged(const QItemSelection&, const QItemSele
 		drawableB->setVisible(true);
 	}
 	GroupNode::addChild(wrenchGroup, _root);
+	emit graphicsUpdated();
+}
+
+void ForceTorqueWidget::scalingChanged(double d) {
+	if (!_properties.isNull()) {
+		if (QObject::sender() == _ui->_scalingLinA)
+			_properties->set("ForceTorqueWidget_LinA",d);
+		else if (QObject::sender() == _ui->_scalingLinB)
+			_properties->set("ForceTorqueWidget_LinB",d);
+		else if (QObject::sender() == _ui->_scalingAngA)
+			_properties->set("ForceTorqueWidget_AngA",d);
+		else if (QObject::sender() == _ui->_scalingAngB)
+			_properties->set("ForceTorqueWidget_AngB",d);
+	}
+
+	const double scaleLin = _ui->_scalingLinA->value()/_ui->_scalingLinB->value();
+	const double scaleAng = _ui->_scalingAngA->value()/_ui->_scalingAngB->value();
+	for (const RenderVelocity::Ptr render : _velRenders) {
+		render->setScaleLinear(static_cast<float>(scaleLin));
+		render->setScaleAngular(static_cast<float>(scaleAng));
+	}
 	emit graphicsUpdated();
 }
 

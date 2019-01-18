@@ -40,27 +40,6 @@ using rwsim::loaders::DynamicWorkCellLoader;
 using rwsim::simulator::GraspTaskSimulator;
 using namespace rwsim::dynamics;
 
-BOOST_AUTO_TEST_CASE( SimpleParallelGraspAndHoldStabilityTest )
-{
-
-}
-
-BOOST_AUTO_TEST_CASE( ComplexParallelGraspAndHoldStabilityTest )
-{
-
-}
-
-BOOST_AUTO_TEST_CASE( SimpleDexterousGraspAndHoldStabilityTest )
-{
-
-}
-
-BOOST_AUTO_TEST_CASE( ComplexDexterousGraspAndHoldStabilityTest )
-{
-
-}
-
-
 BOOST_AUTO_TEST_CASE( GraspTaskSimulatorTest )
 {
 	std::string dwc_file = testFilePath() + "/scene/grasping/pg70_box.dwc.xml";
@@ -91,7 +70,7 @@ BOOST_AUTO_TEST_CASE( GraspTaskSimulatorTest )
     do{
         TimerUtil::sleepMs(500);
         //std::cout << "\r";
-        //BOOST_FOREACH(int val, graspSim->getStat() ){ std::cout << val << " \t "; }
+        //for(int val : graspSim->getStat() ){ std::cout << val << " \t "; }
         //std::cout << std::endl;
         if(timeoutTimer.getTimeSec()>200){
         	BOOST_CHECK_MESSAGE(timeoutTimer.getTimeSec()<200, "Tasks where not simulated fast enough! Assumed errors in simulation.");
@@ -101,7 +80,6 @@ BOOST_AUTO_TEST_CASE( GraspTaskSimulatorTest )
 
     // check outcome
 
-
     // merge and save all times states to get debug feedback
     typedef std::map<rwlibs::task::GraspSubTask*, std::map<rwlibs::task::GraspTarget*,rw::trajectory::TimedStatePath> > TStateMap;
     typedef std::map<rwlibs::task::GraspTarget*,rw::trajectory::TimedStatePath> TStateMap2;
@@ -109,10 +87,10 @@ BOOST_AUTO_TEST_CASE( GraspTaskSimulatorTest )
 
     rw::trajectory::TimedStatePath spath;
     double timeOffset = 0;
-    BOOST_FOREACH(TStateMap::value_type val, paths ){
+    for(TStateMap::value_type val : paths ) {
     	// take each timed state from the map
-		BOOST_FOREACH(TStateMap2::value_type val2, val.second ){
-			for(std::size_t i = 0; i < val2.second.size(); i++) {
+		for(TStateMap2::value_type val2 : val.second ) {
+			for(rw::trajectory::TimedStatePath::size_type i = 0; i < val2.second.size(); i++) {
 				spath.push_back( val2.second[i] );
 				spath.back().getTime() = spath.back().getTime()+timeOffset;
 			}

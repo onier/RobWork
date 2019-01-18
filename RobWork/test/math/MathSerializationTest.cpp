@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(MathSerializationTest) {
     archives.push_back(new INIArchive());
     archives.push_back(new BINArchive());
 
-    BOOST_FOREACH(Archive* const archive, archives) {
+    for(Archive* const archive : archives) {
         InputArchive* const iar = dynamic_cast<InputArchive*>(archive);
         OutputArchive* const oar = dynamic_cast<OutputArchive*>(archive);
         if (iar == NULL || oar == NULL)
@@ -329,7 +329,7 @@ BOOST_AUTO_TEST_CASE(MathSerializationTest) {
     	}
     }
 
-    BOOST_FOREACH(Archive* const archive, archives) {
+    for(Archive* const archive : archives) {
     	delete archive;
     }
 }

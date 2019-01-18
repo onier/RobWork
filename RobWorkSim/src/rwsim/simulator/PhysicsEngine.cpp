@@ -15,7 +15,7 @@ std::vector<std::string> PhysicsEngine::Factory::getEngineIDs(){
     std::vector<std::string> ids;
     PhysicsEngine::Factory ep;
     std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-    BOOST_FOREACH(Extension::Descriptor& ext, exts){
+    for(Extension::Descriptor& ext : exts) {
         ids.push_back( ext.getProperties().get("engineID",ext.name) );
     }
     ids.push_back("RWPhysics");
@@ -30,7 +30,7 @@ bool PhysicsEngine::Factory::hasEngineID(const std::string& engineID){
     }
     PhysicsEngine::Factory ep;
     std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-    BOOST_FOREACH(Extension::Descriptor& ext, exts){
+    for(Extension::Descriptor& ext : exts) {
         if(ext.getProperties().get("engineID",ext.name) == engineID)
             return true;
     }
@@ -56,7 +56,7 @@ PhysicsEngine::Ptr PhysicsEngine::Factory::makePhysicsEngine(const std::string& 
 
     PhysicsEngine::Factory ep;
     std::vector<Extension::Ptr> exts = ep.getExtensions();
-    BOOST_FOREACH(Extension::Ptr& ext, exts){
+    for(Extension::Ptr& ext : exts) {
         if(ext->getProperties().get("engineID",ext->getName() ) == engineID){
             const rw::common::Ptr<const Dispatcher> dispatch = ext->getObject().cast<Dispatcher>();
             // optionally add any properties options...
@@ -75,7 +75,7 @@ PhysicsEngine::Ptr PhysicsEngine::Factory::makePhysicsEngine(const std::string& 
 
     PhysicsEngine::Factory ep;
     std::vector<Extension::Ptr> exts = ep.getExtensions();
-    BOOST_FOREACH(Extension::Ptr& ext, exts){
+    for(Extension::Ptr& ext : exts) {
         if(ext->getProperties().get("engineID",ext->getName() ) == engineID){
             const rw::common::Ptr<const Dispatcher> dispatch = ext->getObject().cast<Dispatcher>();
             PhysicsEngine::Ptr engine = dispatch->makePhysicsEngine();

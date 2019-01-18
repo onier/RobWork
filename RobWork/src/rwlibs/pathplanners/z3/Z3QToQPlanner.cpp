@@ -21,6 +21,8 @@
 #include <rwlibs/pathplanners/rrt/RRTTree.hpp>
 #include <rw/pathplanning/QSampler.hpp>
 
+#include <boost/foreach.hpp>
+
 using namespace rw::math;
 using namespace rw::pathplanning;
 using namespace rw::trajectory;
@@ -190,7 +192,7 @@ bool Z3QToQPlanner::doQuery(
 
             // Extend the start tree:
             std::vector<Node*> newStartLayer;
-            BOOST_FOREACH(Node* from, startLayer) {
+            for(Node* from : startLayer) {
                 QPath path;
                 const bool ok = connectToTree(
                     from, *goalTree, *_localPlanner, stop, path);
@@ -205,7 +207,7 @@ bool Z3QToQPlanner::doQuery(
 
             // Extend the goal tree:
             std::vector<Node*> newGoalLayer;
-            BOOST_FOREACH(Node* from, goalLayer) {
+            for(Node* from : goalLayer) {
                 QPath path;
                 const bool ok = connectToTree(
                     from, *startTree, *_localPlanner, stop, path);

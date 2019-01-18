@@ -115,7 +115,7 @@ std::list<Rule::Ptr> Rule::toRules(const PropertyMap& options) {
 
 PropertyMap::Ptr Rule::toPropertyMap(const std::list<rw::common::Ptr<const Mathematica::Expression> >& rules) {
 	const PropertyMap::Ptr map = ownedPtr(new PropertyMap());
-	BOOST_FOREACH(rw::common::Ptr<const Mathematica::Expression> rule, rules) {
+	for(rw::common::Ptr<const Mathematica::Expression> rule : rules) {
 		map->add(toProperty(*rule));
 	}
 	return map;

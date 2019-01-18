@@ -181,7 +181,7 @@ void ODETactileSensor::update(const rwlibs::simulation::Simulator::UpdateInfo& i
     }
 
     // add all direct contacts
-    BOOST_FOREACH(DirectContact& dc, _directContacts){
+    for(DirectContact& dc : _directContacts) {
         _rwsensor->addForceW( dc.p, dc.f, dc.n, state, dc.b);
     }
 

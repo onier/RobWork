@@ -53,7 +53,7 @@ InterpolatorTrajectory<rw::math::Q>::Ptr CubicSplineFactory::makeNaturalSpline(T
 {
 	QPath path;
 	std::vector<double> times;
-	BOOST_FOREACH(const TimedQ& tq, *tqpath) {
+	for(const TimedQ& tq : *tqpath) {
 		path.push_back(tq.getValue());
 		times.push_back(tq.getTime());
 	}
@@ -196,7 +196,7 @@ InterpolatorTrajectory<rw::math::Q>::Ptr CubicSplineFactory::makeClampedSpline(T
 {
 	QPath path;
 	std::vector<double> times;
-	BOOST_FOREACH(const TimedQ& tq, *tqpath) {
+	for(const TimedQ& tq : *tqpath) {
 		path.push_back(tq.getValue());
 		times.push_back(tq.getTime());
 	}

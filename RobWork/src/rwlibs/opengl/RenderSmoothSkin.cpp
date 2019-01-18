@@ -54,9 +54,9 @@ void RenderSmoothSkin::init(IndexedTriMesh<>::Ptr mesh,
     // create the weighting structure
     // first run through the weights to estimate the size of the array
     size_t sum = 0;
-    BOOST_FOREACH(BoneWeights& weight, weights){
+    for(BoneWeights& weight : weights) {
         sum += weight.size();
-        BOOST_FOREACH(VerticeWeight& vw, weight){
+        for(VerticeWeight& vw : weight) {
             vertsRef[vw.first]++;
         }
     }
@@ -67,7 +67,7 @@ void RenderSmoothSkin::init(IndexedTriMesh<>::Ptr mesh,
 
     // now calculate the position of each weight in the weight array
     uint32_t idx=0, vidx=0;
-    BOOST_FOREACH(int nrWeights, vertsRef){
+    for(int nrWeights : vertsRef) {
         vidx++;
         //if(nrWeights>0){
             vertsIndex[vidx] = idx;

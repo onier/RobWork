@@ -51,6 +51,8 @@
 #include <rw/geometry/Cylinder.hpp>
 #include <rw/geometry/Tube.hpp>
 
+#include <boost/foreach.hpp>
+
 using namespace rw::common;
 using namespace rw::loaders;
 using namespace rw::math;

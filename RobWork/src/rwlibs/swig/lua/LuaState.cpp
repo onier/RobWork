@@ -69,13 +69,13 @@ void LuaState::reset(){
 
     rwlibs::swig::openLuaLibRW( _lua );
 
-    BOOST_FOREACH(LuaLibrary::Ptr cb, _libraryCBs){
+    for(LuaLibrary::Ptr cb : _libraryCBs) {
         cb->initLibrary( *this );
     }
 
     // get extension point libs
     std::vector<LuaLibrary::Ptr> libs = LuaState::Factory::getLuaLibraries();
-    BOOST_FOREACH(LuaLibrary::Ptr cb, libs){
+    for(LuaLibrary::Ptr cb : libs) {
         cb->initLibrary( *this );
     }
 
@@ -90,7 +90,7 @@ std::vector<LuaState::LuaLibrary::Ptr> LuaState::Factory::getLuaLibraries(){
 	LuaState::Factory ep;
 	std::vector<Extension::Ptr> exts = ep.getExtensions();
 	std::vector<LuaState::LuaLibrary::Ptr> libs;
-	BOOST_FOREACH(Extension::Ptr ext, exts){
+	for(Extension::Ptr ext : exts) {
 		// else try casting to ImageLoader
 		LuaState::LuaLibrary::Ptr lib = ext->getObject().cast<LuaState::LuaLibrary>();
 		libs.push_back(lib);
@@ -103,7 +103,7 @@ std::vector<std::string> LuaState::Factory::getLuaLibraryIDs(){
 	LuaState::Factory ep;
 	std::vector<Extension::Ptr> exts = ep.getExtensions();
 	std::vector<std::string> libs;
-	BOOST_FOREACH(Extension::Ptr ext, exts){
+	for(Extension::Ptr ext : exts) {
 		// else try casting to ImageLoader
 		//LuaState::LuaLibrary::Ptr lib = ext->getObject().cast<LuaState::LuaLibrary>();
 		libs.push_back( ext->getId() );
@@ -115,7 +115,7 @@ LuaState::LuaLibrary::Ptr LuaState::Factory::getLuaLibrary(const std::string& id
 	using namespace rw::common;
 	LuaState::Factory ep;
 	std::vector<Extension::Ptr> exts = ep.getExtensions();
-	BOOST_FOREACH(Extension::Ptr ext, exts){
+	for(Extension::Ptr ext : exts) {
 		if(ext->getId()!=id)
 			continue;
 		LuaState::LuaLibrary::Ptr lib = ext->getObject().cast<LuaState::LuaLibrary>();

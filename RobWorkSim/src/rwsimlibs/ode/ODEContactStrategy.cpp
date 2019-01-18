@@ -21,6 +21,7 @@
 #include <rw/geometry/Cylinder.hpp>
 #include <rw/geometry/Geometry.hpp>
 #include <rw/geometry/Plane.hpp>
+#include <rw/geometry/Sphere.hpp>
 #include <rw/geometry/Tube.hpp>
 
 #include <rwsim/contacts/ContactModel.hpp>
@@ -39,8 +40,8 @@ using namespace rwsim::simulator;
 class ODEContactStrategy::ODEContactModel: public ContactModel {
 public:
 	typedef rw::common::Ptr<ODEContactModel> Ptr;
-	ODEContactModel(ODEContactStrategy* pOwner): ContactModel(pOwner), space(0) { setFrame(NULL); };
-	virtual ~ODEContactModel() {};
+	ODEContactModel(ODEContactStrategy* pOwner): ContactModel(pOwner), space(0) { setFrame(NULL); }
+	virtual ~ODEContactModel() {}
 	virtual std::string getName() const {
 		return "ODEContactModel";
 	}
@@ -115,13 +116,28 @@ ODEContactStrategy::~ODEContactStrategy() {
 }
 
 bool ODEContactStrategy::match(rw::common::Ptr<const GeometryData> geoA, rw::common::Ptr<const GeometryData> geoB) {
+	// Plane-Cylinder
 	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::CylinderPrim)
 		return true;
 	if (geoA->getType() == GeometryData::CylinderPrim && geoB->getType() == GeometryData::PlanePrim)
 		return true;
+	// Plane-Tube
 	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::TubePrim)
 		return true;
 	if (geoA->getType() == GeometryData::TubePrim && geoB->getType() == GeometryData::PlanePrim)
+		return true;
+	// Plane-Sphere
+	if (geoA->getType() == GeometryData::PlanePrim && geoB->getType() == GeometryData::SpherePrim)
+		return true;
+	if (geoA->getType() == GeometryData::SpherePrim && geoB->getType() == GeometryData::PlanePrim)
+		return true;
+	// Sphere-Sphere
+	if (geoA->getType() == GeometryData::SpherePrim && geoB->getType() == GeometryData::SpherePrim)
+		return true;
+	// Sphere-Cylinder
+	if (geoA->getType() == GeometryData::SpherePrim && geoB->getType() == GeometryData::CylinderPrim)
+		return true;
+	if (geoA->getType() == GeometryData::CylinderPrim && geoB->getType() == GeometryData::SpherePrim)
 		return true;
 	return false;
 }
@@ -142,11 +158,11 @@ std::vector<Contact> ODEContactStrategy::findContacts(
 	ODETracking* const odeTracking = dynamic_cast<ODETracking*>(tracking.getStrategyData());
 	RW_ASSERT(odeTracking);
 
-	BOOST_FOREACH(const ODEContactModel::ODEModel& model, mA->models) {
+	for(const ODEContactModel::ODEModel& model : mA->models) {
 		if (model.movable)
 			ODEUtil::setODEGeomT3D(model.geomId,wTa*model.transform);
 	}
-	BOOST_FOREACH(const ODEContactModel::ODEModel& model, mB->models) {
+	for(const ODEContactModel::ODEModel& model : mB->models) {
 		if (model.movable)
 			ODEUtil::setODEGeomT3D(model.geomId,wTb*model.transform);
 	}
@@ -159,7 +175,7 @@ std::vector<Contact> ODEContactStrategy::findContacts(
 	odeTracking->info.resize(contactData.contacts.size());
 
 	std::size_t i = 0;
-	BOOST_FOREACH(Contact& contact, contactData.contacts) {
+	for(Contact& contact : contactData.contacts) {
 		contact.setTransform(inverse(wTa)*wTb);
 		i++;
 	}
@@ -196,7 +212,7 @@ ProximityModel::Ptr ODEContactStrategy::createModel() {
 void ODEContactStrategy::destroyModel(ProximityModel* model) {
 	ODEContactModel* bmodel = dynamic_cast<ODEContactModel*>(model);
 	RW_ASSERT(bmodel);
-	BOOST_FOREACH(const ODEContactModel::ODEModel& model, bmodel->models) {
+	for(const ODEContactModel::ODEModel& model : bmodel->models) {
 		dGeomDestroy(model.geomId);
 	}
 	bmodel->models.clear();
@@ -216,6 +232,11 @@ bool ODEContactStrategy::addGeometry(ProximityModel* model, const Geometry& geom
 	if (const Cylinder* const geo = dynamic_cast<Cylinder*>(geomData.get())) {
 		newModel.movable = true;
 		newModel.geomId = dCreateCylinder(bmodel->space,geo->getRadius(),geo->getHeight());
+		bmodel->models.push_back(newModel);
+		return true;
+	} else if (const Sphere* const geo = dynamic_cast<Sphere*>(geomData.get())) {
+		newModel.movable = true;
+		newModel.geomId = dCreateSphere (bmodel->space,geo->getRadius());
 		bmodel->models.push_back(newModel);
 		return true;
 	} else if (const Tube* const geo = dynamic_cast<Tube*>(geomData.get())) {
@@ -280,13 +301,13 @@ void ODEContactStrategy::nearCallback(void *data, dGeomID o1, dGeomID o2) {
 
 	const ODEContactModel::ODEModel* model1 = NULL;
 	const ODEContactModel::ODEModel* model2 = NULL;
-	BOOST_FOREACH(const ODEContactModel::ODEModel& model, contactData->mA->models) {
+	for(const ODEContactModel::ODEModel& model : contactData->mA->models) {
 		if (model1 != NULL)
 			break;
 		if (model.geomId == o1)
 			model1 = &model;
 	}
-	BOOST_FOREACH(const ODEContactModel::ODEModel& model, contactData->mB->models) {
+	for(const ODEContactModel::ODEModel& model : contactData->mB->models) {
 		if (model2 != NULL)
 			break;
 		if (model.geomId == o2)

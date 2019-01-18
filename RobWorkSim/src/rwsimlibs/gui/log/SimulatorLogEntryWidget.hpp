@@ -1,4 +1,4 @@
-/********************************************************************************
+/******************************************************************************
  * Copyright 2015 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
@@ -13,7 +13,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- ********************************************************************************/
+ ******************************************************************************/
 
 #ifndef RWSIMLIBS_GUI_SIMULATORLOGENTRYWIDGET_HPP_
 #define RWSIMLIBS_GUI_SIMULATORLOGENTRYWIDGET_HPP_
@@ -28,6 +28,7 @@
 
 #include <rw/common/ExtensionPoint.hpp>
 
+namespace rw { namespace common { class PropertyMap; } }
 namespace rw { namespace graphics { class GroupNode; } }
 namespace rw { namespace graphics { class SceneGraph; } }
 namespace rwsim { namespace dynamics { class DynamicWorkCell; } }
@@ -86,6 +87,12 @@ public:
 	 * @return the name.
 	 */
 	virtual std::string getName() const = 0;
+
+	/**
+	 * @brief Set properties for widget.
+	 * @param properties [in/out] properties, such as default values for scaling of graphical elements.
+	 */
+	virtual void setProperties(rw::common::Ptr<rw::common::PropertyMap> properties);
 
 	//! @brief Dispatchers are responsible for creating new widgets of type SimulatorLogEntryWidget.
 	class Dispatcher {
@@ -148,6 +155,10 @@ public:
 signals:
 	//! @brief Signal is emitted if the graphics is updated.
 	void graphicsUpdated();
+
+protected:
+	//! @brief Widget properties.
+	rw::common::Ptr<rw::common::PropertyMap> _properties;
 };
 //! @}
 } /* namespace gui */

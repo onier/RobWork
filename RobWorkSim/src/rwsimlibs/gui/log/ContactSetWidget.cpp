@@ -60,6 +60,13 @@ ContactSetWidget::ContactSetWidget(rw::common::Ptr<const LogContactSet> entry, Q
 	headerLabels.push_back("Second");
 	headerLabels.push_back("Depth");
 	_ui->_contactTable->setHorizontalHeaderLabels(headerLabels);
+
+	connect(_ui->_scalingRadius, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_scalingNormal, SIGNAL(valueChanged(double)), this, SLOT(scalingChanged(double)));
+	connect(_ui->_showPointA,    SIGNAL(stateChanged(int)),    this, SLOT(showChanged(int)));
+	connect(_ui->_showPointB,    SIGNAL(stateChanged(int)),    this, SLOT(showChanged(int)));
+	connect(_ui->_showNormalA,   SIGNAL(stateChanged(int)),    this, SLOT(showChanged(int)));
+	connect(_ui->_showNormalB,   SIGNAL(stateChanged(int)),    this, SLOT(showChanged(int)));
 }
 
 ContactSetWidget::~ContactSetWidget() {
@@ -88,7 +95,7 @@ void ContactSetWidget::updateEntryWidget() {
 	_ui->_contacts->setText(QString::number(_contactSet->size()));
 	typedef std::pair<std::string, std::string> FramePair;
 	std::set<FramePair> pairs;
-	BOOST_FOREACH(const Contact& c, _contactSet->getContacts()) {
+	for(const Contact& c : _contactSet->getContacts()) {
 		const std::string& nameA = c.getNameA();
 		const std::string& nameB = c.getNameB();
 		if (nameA < nameB)
@@ -102,10 +109,10 @@ void ContactSetWidget::updateEntryWidget() {
 	_ui->_contactBodyPairs->setRowCount(nrOfPairs);
 	int row = 0;
 	_ui->_contactBodyPairs->setSortingEnabled(false);
-	BOOST_FOREACH(const FramePair& pair, pairs) {
+	for(const FramePair& pair : pairs) {
 		// Count how many contacts there are for this pair
 		int contacts = 0;
-		BOOST_FOREACH(const Contact& c, _contactSet->getContacts()) {
+		for(const Contact& c : _contactSet->getContacts()) {
 			if (c.getNameA() == pair.first && c.getNameB() == pair.second)
 				contacts++;
 			else if (c.getNameA() == pair.second && c.getNameB() == pair.first)
@@ -136,6 +143,31 @@ std::string ContactSetWidget::getName() const {
 	return "Contact Set";
 }
 
+void ContactSetWidget::setProperties(const PropertyMap::Ptr properties) {
+	SimulatorLogEntryWidget::setProperties(properties);
+	if (!_properties.isNull()) {
+		if (!_properties->has("ContactSetWidget_PointRadius"))
+			_properties->set<double>("ContactSetWidget_PointRadius",_ui->_scalingRadius->value()/1000.);
+		if (!_properties->has("ContactSetWidget_NormalLength"))
+			_properties->set<double>("ContactSetWidget_NormalLength",_ui->_scalingNormal->value()/1000.);
+		if (!_properties->has("ContactSetWidget_ShowPointA"))
+			_properties->set<bool>("ContactSetWidget_ShowPointA",_ui->_showPointA->isChecked());
+		if (!_properties->has("ContactSetWidget_ShowPointB"))
+			_properties->set<bool>("ContactSetWidget_ShowPointB",_ui->_showPointB->isChecked());
+		if (!_properties->has("ContactSetWidget_ShowNormalA"))
+			_properties->set<bool>("ContactSetWidget_ShowNormalA",_ui->_showNormalA->isChecked());
+		if (!_properties->has("ContactSetWidget_ShowNormalB"))
+			_properties->set<bool>("ContactSetWidget_ShowNormalB",_ui->_showNormalB->isChecked());
+
+		_ui->_scalingRadius->setValue(_properties->get<double>("ContactSetWidget_PointRadius")*1000.);
+		_ui->_scalingNormal->setValue(_properties->get<double>("ContactSetWidget_NormalLength")*1000.);
+		_ui->_showPointA->setChecked(_properties->get<bool>("ContactSetWidget_ShowPointA"));
+		_ui->_showPointB->setChecked(_properties->get<bool>("ContactSetWidget_ShowPointB"));
+		_ui->_showNormalA->setChecked(_properties->get<bool>("ContactSetWidget_ShowNormalA"));
+		_ui->_showNormalB->setChecked(_properties->get<bool>("ContactSetWidget_ShowNormalB"));
+	}
+}
+
 void ContactSetWidget::contactSetPairsChanged(const QItemSelection&, const QItemSelection&) {
 	typedef std::pair<std::string, std::string> NamePair;
 	const QModelIndexList indexes = _ui->_contactBodyPairs->selectionModel()->selectedIndexes();
@@ -151,7 +183,7 @@ void ContactSetWidget::contactSetPairsChanged(const QItemSelection&, const QItem
 	for (std::size_t i = 0; i < _contactSet->size(); i++) {
 		const Contact& c = _contactSet->getContact(i);
 		bool show = false;
-		BOOST_FOREACH(const NamePair& name, names) {
+		for(const NamePair& name : names) {
 			const std::string& nameA = c.getNameA();
 			const std::string& nameB = c.getNameB();
 			if (nameA == name.first && nameB == name.second)
@@ -171,7 +203,7 @@ void ContactSetWidget::contactSetPairsChanged(const QItemSelection&, const QItem
 	_ui->_contactTable->setRowCount(nrOfContactsToShow);
 	int row = 0;
 	_ui->_contactTable->setSortingEnabled(false);
-	BOOST_FOREACH(const std::size_t i, contactsToShow) {
+	for(const std::size_t i : contactsToShow) {
 		const Contact& c = _contactSet->getContact(i);
 		const std::string& nameA = c.getNameA();
 		const std::string& nameB = c.getNameB();
@@ -225,6 +257,7 @@ void ContactSetWidget::contactSetChanged(const QItemSelection&, const QItemSelec
 			contactsNon.push_back(c);
 	}
 	_root->removeChild("Contacts");
+	_contactRenders.clear();
 	GroupNode::Ptr contactGroup = ownedPtr(new GroupNode("Contacts"));
 	const RenderContacts::Ptr renderPen = ownedPtr(new RenderContacts());
 	const RenderContacts::Ptr renderNon = ownedPtr(new RenderContacts());
@@ -240,6 +273,63 @@ void ContactSetWidget::contactSetChanged(const QItemSelection&, const QItemSelec
 	drawablePen->setVisible(true);
 	drawableNon->setVisible(true);
 
+	const double radius = _ui->_scalingRadius->value()/1000.;
+	const double normal = _ui->_scalingNormal->value()/1000.;
+	const bool pointA = _ui->_showPointA->isChecked();
+	const bool pointB = _ui->_showPointB->isChecked();
+	const bool normalA = _ui->_showNormalA->isChecked();
+	const bool normalB = _ui->_showNormalB->isChecked();
+	renderPen->setSphereRadius(radius);
+	renderNon->setSphereRadius(radius);
+	renderPen->setNormalLength(normal);
+	renderNon->setNormalLength(normal);
+	renderPen->showPoints(pointA, pointB);
+	renderNon->showPoints(pointA, pointB);
+	renderPen->showNormals(normalA, normalB);
+	renderNon->showNormals(normalA, normalB);
+	_contactRenders.push_back(renderPen);
+	_contactRenders.push_back(renderNon);
+
+	emit graphicsUpdated();
+}
+
+void ContactSetWidget::scalingChanged(double d) {
+	if (!_properties.isNull()) {
+		if (QObject::sender() == _ui->_scalingRadius)
+			_properties->set("ContactSetWidget_PointRadius",d/1000.);
+		else if (QObject::sender() == _ui->_scalingNormal)
+			_properties->set("ContactSetWidget_NormalLength",d/1000.);
+	}
+
+	const double radius = _ui->_scalingRadius->value()/1000.;
+	const double normal = _ui->_scalingNormal->value()/1000.;
+	for (const RenderContacts::Ptr render : _contactRenders) {
+		render->setSphereRadius(radius);
+		render->setNormalLength(normal);
+	}
+	emit graphicsUpdated();
+}
+
+void ContactSetWidget::showChanged(int state) {
+	if (!_properties.isNull()) {
+		if (QObject::sender() == _ui->_showPointA)
+			_properties->set("ContactSetWidget_ShowPointA", state == Qt::Checked);
+		else if (QObject::sender() == _ui->_showPointB)
+			_properties->set("ContactSetWidget_ShowPointB", state == Qt::Checked);
+		else if (QObject::sender() == _ui->_showNormalA)
+			_properties->set("ContactSetWidget_ShowNormalA", state == Qt::Checked);
+		else if (QObject::sender() == _ui->_showNormalB)
+			_properties->set("ContactSetWidget_ShowNormalB", state == Qt::Checked);
+	}
+
+	const bool pointA = _ui->_showPointA->isChecked();
+	const bool pointB = _ui->_showPointB->isChecked();
+	const bool normalA = _ui->_showNormalA->isChecked();
+	const bool normalB = _ui->_showNormalB->isChecked();
+	for (const RenderContacts::Ptr render : _contactRenders) {
+		render->showPoints(pointA, pointB);
+		render->showNormals(normalA, normalB);
+	}
 	emit graphicsUpdated();
 }
 

@@ -29,7 +29,7 @@ using rw::models::WorkCell;
 WorkCellLoader::Ptr WorkCellLoader::Factory::getWorkCellLoader(const std::string& format){
 	WorkCellLoader::Factory ep;
 	std::vector<Extension::Ptr> exts = ep.getExtensions();
-	BOOST_FOREACH(Extension::Ptr ext, exts){
+	for(Extension::Ptr ext : exts) {
 		if(!ext->getProperties().has(format))
 			continue;
 		// else try casting to WorkCellLoader

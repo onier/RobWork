@@ -47,11 +47,11 @@ void LogValues::read(class InputArchive& iarchive, const std::string& id) {
 
 void LogValues::write(class OutputArchive& oarchive, const std::string& id) const {
 	oarchive.write(_values.size(),"Values");
-	BOOST_FOREACH(const double value, _values) {
+	for(const double value : _values) {
 		oarchive.write(value,"Value");
 	}
 	oarchive.write(_labels.size(),"Labels");
-	BOOST_FOREACH(const std::string& label, _labels) {
+	for(const std::string& label : _labels) {
 		oarchive.write(label,"Label");
 	}
 	SimulatorLogEntry::write(oarchive,id);

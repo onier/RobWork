@@ -50,7 +50,7 @@ void AssemblyRegistry::addStrategy(const std::string id, rw::common::Ptr<Assembl
 std::vector<std::string> AssemblyRegistry::getStrategies() const {
     std::vector<std::string> ids;
     const std::vector<Extension::Descriptor> exts = getExtensionDescriptors();
-    BOOST_FOREACH(const Extension::Descriptor& ext, exts){
+    for(const Extension::Descriptor& ext : exts) {
         ids.push_back( ext.getProperties().get("strategyID",ext.name) );
     }
     std::map<std::string, AssemblyControlStrategy::Ptr>::const_iterator it;
@@ -62,7 +62,7 @@ std::vector<std::string> AssemblyRegistry::getStrategies() const {
 
 bool AssemblyRegistry::hasStrategy(const std::string& id) const {
     const std::vector<Extension::Descriptor> exts = getExtensionDescriptors();
-    BOOST_FOREACH(const Extension::Descriptor& ext, exts){
+    for(const Extension::Descriptor& ext : exts) {
         if(ext.getProperties().get("strategyID",ext.name) == id)
             return true;
     }
@@ -74,7 +74,7 @@ bool AssemblyRegistry::hasStrategy(const std::string& id) const {
 
 AssemblyControlStrategy::Ptr AssemblyRegistry::getStrategy(const std::string &id) const {
 	const std::vector<Extension::Ptr> exts = getExtensions();
-	BOOST_FOREACH(const Extension::Ptr& ext, exts){
+	for(const Extension::Ptr& ext : exts) {
 		if (ext == NULL)
 			continue;
 		if(ext->getProperties().get("strategyID",ext->getName() ) == id){

@@ -276,7 +276,7 @@ std::vector<Frame*> WorkCell::getFrames() const {
 
 rw::sensor::SensorModel::Ptr WorkCell::findSensor(const std::string& name) const
 {
-    BOOST_FOREACH(rw::sensor::SensorModel::Ptr sensor, _sensors){
+    for(rw::sensor::SensorModel::Ptr sensor : _sensors) {
         if(name == sensor->getName())
             return sensor;
     }
@@ -285,7 +285,7 @@ rw::sensor::SensorModel::Ptr WorkCell::findSensor(const std::string& name) const
 
 rw::models::ControllerModel::Ptr WorkCell::findController(const std::string& name) const
 {
-    BOOST_FOREACH(ControllerModel::Ptr controller, _controllers){
+    for(ControllerModel::Ptr controller : _controllers) {
         if(name == controller->getName())
             return controller;
     }
@@ -294,7 +294,7 @@ rw::models::ControllerModel::Ptr WorkCell::findController(const std::string& nam
 
 Object::Ptr WorkCell::findObject(const std::string& name) const
 {
-    BOOST_FOREACH(Object::Ptr obj, _objects){
+    for(Object::Ptr obj : _objects) {
         if(name == obj->getName())
             return obj;
     }

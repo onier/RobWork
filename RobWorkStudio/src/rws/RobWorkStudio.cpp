@@ -167,7 +167,7 @@ RobWorkStudio::RobWorkStudio(const PropertyMap& map)
 
     //Initialize plugins
     //loadSettingsSetupPlugins(inifile);
-    //BOOST_FOREACH(const PluginSetup& plugin, plugins) {
+    //for(const PluginSetup& plugin : plugins) {
     //    addPlugin(plugin.plugin, plugin.visible, plugin.area);
     //}
 
@@ -175,7 +175,7 @@ RobWorkStudio::RobWorkStudio(const PropertyMap& map)
     //StringList slist;
     //slist.push_back("../../../RobWorkSim/libs/Debug/");
     //std::vector<PluginSetup> userPlugins = searchPlugins(slist);
-    //BOOST_FOREACH(const PluginSetup& plugin, plugins) {
+    //for(const PluginSetup& plugin : plugins) {
     //    addPlugin(plugin.plugin, plugin.visible, plugin.area);
     //}
 
@@ -245,7 +245,7 @@ void RobWorkStudio::closeEvent( QCloseEvent * e ){
 
     // save the settings of each plugin
     /*
-    BOOST_FOREACH(RobWorkStudioPlugin* plugin, _plugins){
+    for(RobWorkStudioPlugin* plugin : _plugins){
         bool visible = plugin->isVisible();
 
         bool floating = plugin->isFloating();
@@ -311,7 +311,7 @@ void RobWorkStudio::updateLastFiles()
         for(size_t i=0; i<nfiles.size();i++){
             int idx = (int)(nfiles.size()-1-i);
             bool skip = false;
-            BOOST_FOREACH(std::string &str, tmp){
+            for(std::string &str : tmp) {
                 if(str == nfiles[idx]){
                     skip=true;
                     break;
@@ -410,7 +410,7 @@ void RobWorkStudio::printCollisions() {
 	CollisionDetector::QueryResult res;
 	cd->inCollision(getState(), &res);
 	if (res.collidingFrames.size() > 0) {
-		BOOST_FOREACH(const FramePair& pair, res.collidingFrames) {
+		for(const FramePair& pair : res.collidingFrames) {
 			std::cout<<"Colliding: "<<pair.first->getName()<<" -- "<<pair.second->getName()<<std::endl;
 			Log::infoLog()<<"Colliding: "<<pair.first->getName()<<" -- "<<pair.second->getName()<<std::endl;
 		}
@@ -1094,8 +1094,8 @@ void RobWorkStudio::fireStateTrajectoryChangedEvent(const rw::trajectory::TimedS
 {
 
     _timedStatePath = trajectory;
-    BOOST_FOREACH(
-        const StateTrajectoryChangedEvent::Listener& listener,
+    for(
+        const StateTrajectoryChangedEvent::Listener& listener :
         stateTrajectoryChangedEvent().getListeners()) {
         listener.callback(trajectory);
     }

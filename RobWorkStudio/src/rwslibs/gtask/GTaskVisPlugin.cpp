@@ -61,7 +61,7 @@ namespace {
             glPushMatrix();
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             glDisable(GL_LIGHTING);
-            BOOST_FOREACH(Target target, _targets){
+            for(Target target : _targets) {
                 //if(!target.enabled)
                 //    continue;
                 const Vector3D<> &zoffset = _zoffset*( target.trans.R()*Vector3D<>::z() );
@@ -167,19 +167,19 @@ void GTaskVisPlugin::open(WorkCell* workcell)
     _targetDrawable = getRobWorkStudio()->getWorkCellScene()->addRender("pointRender", _render, workcell->getWorldFrame() );
 
 
-    BOOST_FOREACH(MovableFrame* object, workcell->findFrames<MovableFrame>() ){
+    for(MovableFrame* object : workcell->findFrames<MovableFrame>() ) {
         _frameSelectBox->addItem(object->getName().c_str());
     }
 
-    BOOST_FOREACH(Frame* object, workcell->findFrames<Frame>() ){
+    for(Frame* object : workcell->findFrames<Frame>() ) {
         _tcpSelectBox->addItem(object->getName().c_str());
     }
 
-    BOOST_FOREACH(MovableFrame* object, workcell->findFrames<MovableFrame>() ){
+    for(MovableFrame* object : workcell->findFrames<MovableFrame>() ) {
         _baseSelectBox->addItem(object->getName().c_str());
     }
 
-    BOOST_FOREACH(Device::Ptr dev, workcell->getDevices() ){
+    for(Device::Ptr dev : workcell->getDevices() ) {
         _deviceSelectBox->addItem(dev->getName().c_str());
     }
 
@@ -395,7 +395,7 @@ void GTaskVisPlugin::updateVis(){
         offset = -_fromThresSpin->value();
         scale = 1.0/(_toThresSpin->value()-_fromThresSpin->value());
 
-        BOOST_FOREACH(RenderTargets::Target& t, rtargets){
+        for(RenderTargets::Target& t : rtargets) {
 
             if( t.color[0]+t.color[1]+t.color[2]<0.00001 ){
                 t.color[0] = (1-(t.scale+offset)*scale);

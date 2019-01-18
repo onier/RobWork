@@ -58,22 +58,22 @@ DynamicWorkCell::DynamicWorkCell(WorkCell::Ptr workcell,
     _worldDimension(Vector3D<>(0,0,0), Vector3D<>(20,20,20)),
     _gravity(0,0,-9.82)
 {
-    BOOST_FOREACH(SimulatedController::Ptr b, _controllers){
+    for(SimulatedController::Ptr b : _controllers) {
     	if(!b->getControllerModel()->isRegistered())
     		workcell->add(b->getControllerModel());
     	if(!b->isRegistered())
     		b->registerIn(workcell->getStateStructure());
     }
 
-    BOOST_FOREACH(Constraint::Ptr b, _constraints){
+    for(Constraint::Ptr b : _constraints) {
     	workcell->getStateStructure()->addData(b.getSharedPtr());
     }
 
-    BOOST_FOREACH(DynamicDevice::Ptr b, _devices){
+    for(DynamicDevice::Ptr b : _devices) {
         b->registerIn( workcell->getStateStructure() );
     }
 
-    BOOST_FOREACH(Body::Ptr b, _allbodies){
+    for(Body::Ptr b : _allbodies) {
         _frameToBody[b->getBodyFrame()] = b;
         b->registerIn( workcell->getStateStructure() );
     }
@@ -84,7 +84,7 @@ DynamicWorkCell::~DynamicWorkCell()
 }
 
 DynamicDevice::Ptr DynamicWorkCell::findDevice(const std::string& name) const {
-    BOOST_FOREACH(const DynamicDevice::Ptr &ddev, _devices){
+    for(const DynamicDevice::Ptr &ddev : _devices) {
         if(ddev->getModel().getName()==name)
             return  ddev;
     }
@@ -94,7 +94,7 @@ DynamicDevice::Ptr DynamicWorkCell::findDevice(const std::string& name) const {
 bool DynamicWorkCell::inDevice(rw::common::Ptr<const Body> body) const {
 	// inspect name scope, if its the same as any device then
 	const std::string& bname = body->getName();
-    BOOST_FOREACH(DynamicDevice::Ptr dev, _devices){
+    for(DynamicDevice::Ptr dev : _devices) {
     	const std::string& devname = dev->getName();
         bool isInDev = true;
     	for(int i=0; i<(int)devname.length(); i++ )
@@ -109,7 +109,7 @@ bool DynamicWorkCell::inDevice(rw::common::Ptr<const Body> body) const {
 }
 
 rwlibs::simulation::SimulatedController::Ptr DynamicWorkCell::findController(const std::string& name) const {
-    BOOST_FOREACH(rwlibs::simulation::SimulatedController::Ptr ctrl, _controllers){
+    for(rwlibs::simulation::SimulatedController::Ptr ctrl : _controllers) {
         if( ctrl->getControllerName()==name )
             return ctrl;
     }
@@ -117,7 +117,7 @@ rwlibs::simulation::SimulatedController::Ptr DynamicWorkCell::findController(con
 }
 
 Body::Ptr DynamicWorkCell::findBody(const std::string& name) const {
-    BOOST_FOREACH(const Body::Ptr &body, _bodies){
+    for(const Body::Ptr &body : _bodies) {
         if(body->getName()==name)
             return body;
     }
@@ -125,7 +125,7 @@ Body::Ptr DynamicWorkCell::findBody(const std::string& name) const {
 }
 
 SimulatedSensor::Ptr DynamicWorkCell::findSensor(const std::string& name) const {
-	BOOST_FOREACH(SimulatedSensor::Ptr sensor, _sensors){
+	for(SimulatedSensor::Ptr sensor : _sensors) {
 		if (sensor->getName() == name)
             return sensor;
     }
@@ -162,7 +162,7 @@ void DynamicWorkCell::addSensor(rwlibs::simulation::SimulatedSensor::Ptr sensor)
 
 
 Constraint::Ptr DynamicWorkCell::findConstraint(const std::string& name) const {
-    BOOST_FOREACH(const Constraint::Ptr &constraint, _constraints){
+    for(const Constraint::Ptr &constraint : _constraints) {
         if(constraint->getName()==name)
             return constraint;
     }

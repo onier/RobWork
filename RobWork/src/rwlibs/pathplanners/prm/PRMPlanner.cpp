@@ -273,7 +273,7 @@ void PRMPlanner::addEdges(Node node)
         //std::cout << "Found: neighN " <<  _kdnodesSearchResult.size() << "\n";
 
         typedef const rwlibs::algorithms::KDTreeQ<Node>::KDNode* VALUE;
-        BOOST_FOREACH(VALUE nnode,  _kdnodesSearchResult ){
+        for(VALUE nnode :  _kdnodesSearchResult ) {
             neighborTimer.pause();
             double dist = _metric->distance(_graph[node].q, _graph[nnode->value].q);
             if( dist < _Rneighbor){

@@ -154,7 +154,7 @@ public:
 	 *
 	 * The default implementation of this function is as follows:
 	 * \verbatim
-	  	BOOST_FOREACH(const Exception& e, subtask->getExceptions()) {
+	  	for(const Exception& e : subtask->getExceptions()) {
 			registerFailure(e);
 		}
 		\endverbatim

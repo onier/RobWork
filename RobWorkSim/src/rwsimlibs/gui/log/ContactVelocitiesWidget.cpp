@@ -99,7 +99,7 @@ void ContactVelocitiesWidget::updateEntryWidget() {
 	_ui->_contacts->setText(QString::number(_contactSet->size()));
 	typedef std::pair<std::string, std::string> FramePair;
 	std::set<FramePair> pairs;
-	BOOST_FOREACH(const Contact& c, _contactSet->getContacts()) {
+	for(const Contact& c : _contactSet->getContacts()) {
 		const std::string& nameA = c.getNameA();
 		const std::string& nameB = c.getNameB();
 		if (nameA < nameB)
@@ -113,10 +113,10 @@ void ContactVelocitiesWidget::updateEntryWidget() {
 	_ui->_contactBodyPairs->setRowCount(nrOfPairs);
 	int row = 0;
 	_ui->_contactBodyPairs->setSortingEnabled(false);
-	BOOST_FOREACH(const FramePair& pair, pairs) {
+	for(const FramePair& pair : pairs) {
 		// Count how many contacts there are for this pair
 		int contacts = 0;
-		BOOST_FOREACH(const Contact& c, _contactSet->getContacts()) {
+		for(const Contact& c : _contactSet->getContacts()) {
 			if (c.getNameA() == pair.first && c.getNameB() == pair.second)
 				contacts++;
 			else if (c.getNameA() == pair.second && c.getNameB() == pair.first)
@@ -159,7 +159,7 @@ void ContactVelocitiesWidget::contactSetPairsChanged(const QItemSelection&, cons
 	for (std::size_t i = 0; i < _contactSet->size(); i++) {
 		const Contact& c = _contactSet->getContact(i);
 		bool show = false;
-		BOOST_FOREACH(const NamePair& name, names) {
+		for(const NamePair& name : names) {
 			const std::string& nameA = c.getNameA();
 			const std::string& nameB = c.getNameB();
 			if (nameA == name.first && nameB == name.second)
@@ -179,13 +179,13 @@ void ContactVelocitiesWidget::contactSetPairsChanged(const QItemSelection&, cons
 	_ui->_contactTable->setRowCount(nrOfContactsToShow);
 	int row = 0;
 	_ui->_contactTable->setSortingEnabled(false);
-	BOOST_FOREACH(const std::size_t i, contactsToShow) {
+	for(const std::size_t i : contactsToShow) {
 		const Contact& c = _contactSet->getContact(i);
 		const Vector3D<> velA = _velocities->getVelocityBodyA(i);
 		const Vector3D<> velB = _velocities->getVelocityBodyB(i);
 		const std::string& nameA = c.getNameA();
 		const std::string& nameB = c.getNameB();
-		const QString hover = toQString(c, velA, velB);
+		QString hover = toQString(c, velA, velB);
 		// Note: setItem takes ownership of the QTableWidgetItems
 		QTableWidgetItem *itemA, *itemB;
 		QTableWidgetItem *itemAx, *itemAy, *itemAz;
@@ -208,6 +208,27 @@ void ContactVelocitiesWidget::contactSetPairsChanged(const QItemSelection&, cons
 			itemBx = new QTableWidgetItem(QString::number(velA[0]));
 			itemBy = new QTableWidgetItem(QString::number(velA[1]));
 			itemBz = new QTableWidgetItem(QString::number(velA[2]));
+		}
+		if (dot(velB-velA,c.getNormal()) < 0) {
+			itemA->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemAx->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemAy->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemAz->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemB->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemBx->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemBy->setData(Qt::ForegroundRole, QColor(Qt::red));
+			itemBz->setData(Qt::ForegroundRole, QColor(Qt::red));
+			hover = hover + "\nPenetration velocity: " + QString::number(-dot(velB-velA,c.getNormal()));
+		} else {
+			itemA->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemAx->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemAy->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemAz->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemB->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemBx->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemBy->setData(Qt::ForegroundRole, QColor(Qt::green));
+			itemBz->setData(Qt::ForegroundRole, QColor(Qt::green));
+			hover = hover + "\nLeaving velocity: " + QString::number(dot(velB-velA,c.getNormal()));
 		}
 		itemA->setData(Qt::ToolTipRole,hover);
 		itemB->setData(Qt::ToolTipRole,hover);

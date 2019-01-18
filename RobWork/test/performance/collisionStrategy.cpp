@@ -82,8 +82,8 @@ void testPerConfiguration( CollisionTestSetup& setup , std::vector<std::pair<std
     int nrCollisions = 0;
     long nrOfBVTests = 0;
     long nrOfPrimTests = 0;
-    BOOST_FOREACH(std::vector<Transform3D<> >& config, setup.modelsConfigurations){
-        BOOST_FOREACH( ModelPair mpair, setup.modelPairs){
+    for(std::vector<Transform3D<> >& config : setup.modelsConfigurations) {
+        for( ModelPair mpair : setup.modelPairs) {
             ProximityModel::Ptr& modelA = setup.models[mpair.first];
             Transform3D<> Ta = config[mpair.first];
             ProximityModel::Ptr& modelB = setup.models[mpair.second];
@@ -123,10 +123,10 @@ void testPerObjectPair(CollisionTestSetup& setup, std::vector<std::pair<std::str
     data.setCollisionQueryType(setup.qtype);
     Timer time;
     int nrCollisions = 0;
-    BOOST_FOREACH( ModelPair mpair, setup.modelPairs){
+    for( ModelPair mpair : setup.modelPairs) {
         ProximityModel::Ptr& modelA = setup.models[mpair.first];
         ProximityModel::Ptr& modelB = setup.models[mpair.second];
-        BOOST_FOREACH(std::vector<Transform3D<> >& config, setup.modelsConfigurations){
+        for(std::vector<Transform3D<> >& config : setup.modelsConfigurations) {
             Transform3D<> Ta = config[mpair.first];
             Transform3D<> Tb = config[mpair.second];
 
@@ -171,7 +171,7 @@ void intializeBuildingSetup(CollisionTestSetup& setup, std::vector<std::pair<std
     data.setCollisionQueryType(setup.qtype);
     Timer time;
     std::vector<Transform3D<> >& config = setup.modelsConfigurations[0];
-    BOOST_FOREACH( ModelPair mpair, setup.modelPairs){
+    for( ModelPair mpair : setup.modelPairs) {
         ProximityModel::Ptr& modelA = setup.models[mpair.first];
         Transform3D<> Ta = config[mpair.first];
         ProximityModel::Ptr& modelB = setup.models[mpair.second];
@@ -297,7 +297,7 @@ BOOST_AUTO_TEST_CASE( testCollisionQueryPerformance )
     std::vector<std::vector<std::pair<std::string, double> > > timings;
 
     // now for each strategy we perform the series of tests
-    BOOST_FOREACH(std::string strategyname, ProximityStrategyFactory::getCollisionStrategyIDs()){
+    for(std::string strategyname : ProximityStrategyFactory::getCollisionStrategyIDs()) {
         //if(strategyname=="PQP")
         //    continue;
         colids.push_back(strategyname);

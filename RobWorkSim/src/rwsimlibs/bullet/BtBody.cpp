@@ -246,7 +246,7 @@ btCollisionShape* BtBody::createColShape(rw::common::Ptr<const Geometry> geometr
 
 btCompoundShape* BtBody::getColShape(Body::Ptr body, const Transform3D<>& bTcom) const {
 	btCompoundShape* const composite = new btCompoundShape();
-	BOOST_FOREACH(const Geometry::Ptr geometry, body->getGeometry()) {
+	for(const Geometry::Ptr geometry : body->getGeometry()) {
 		const Transform3D<> rw_comTgeo = inverse(bTcom)*geometry->getTransform();
 		const btTransform comTgeo = BtUtil::makeBtTransform( rw_comTgeo );
 		btCollisionShape* const colShape = createColShape(geometry);

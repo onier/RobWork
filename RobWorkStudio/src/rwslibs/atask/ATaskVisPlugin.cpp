@@ -21,6 +21,7 @@
 #include <QFileDialog>
 
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 
 using namespace rw::common;
 using namespace rw::math;
@@ -139,14 +140,14 @@ void ATaskVisPlugin::genericAnyEventListener(const std::string& event, boost::an
     		_contactLabel->setText(QString::fromStdString(sstr.str()));
     		if (_contactPointRender != NULL) {
     			_contactPointRender->clear();
-    			BOOST_FOREACH(const Transform3D<> contact, astate.contacts) {
+    			for(const Transform3D<> contact : astate.contacts) {
     				const Vector3D<> p = contact.P();
         			_contactPointRender->addPoint(p);
     			}
     		}
     		if (_contactNormalRender != NULL) {
     			_contactNormalRender->clear();
-    			BOOST_FOREACH(const Transform3D<> contact, astate.contacts) {
+    			for(const Transform3D<> contact : astate.contacts) {
     				const Vector3D<> p = contact.P();
     				const Vector3D<> n = contact.R().getCol(2);
     				_contactNormalRender->addLine(p,p+0.01*n);
@@ -316,10 +317,10 @@ void ATaskVisPlugin::constructPlayback() {
 		MovableFrame* female = wc->findFrame<MovableFrame>(_currentTask->femaleID);
 		std::vector<MovableFrame*> maleFlexFrames;
 		std::vector<MovableFrame*> femaleFlexFrames;
-		BOOST_FOREACH(const std::string &name, _currentTask->maleFlexFrames) {
+		for(const std::string &name : _currentTask->maleFlexFrames) {
 			maleFlexFrames.push_back(_wc->findFrame<MovableFrame>(name));
 		}
-		BOOST_FOREACH(const std::string &name, _currentTask->femaleFlexFrames) {
+		for(const std::string &name : _currentTask->femaleFlexFrames) {
 			femaleFlexFrames.push_back(_wc->findFrame<MovableFrame>(name));
 		}
 		if (male == NULL)
@@ -343,7 +344,7 @@ void ATaskVisPlugin::constructPlayback() {
 				apath = _currentResult->realState;
 			else
 				apath = _currentResult->assumedState;
-			BOOST_FOREACH(Timed<AssemblyState> &tastate, apath) {
+			for(Timed<AssemblyState> &tastate : apath) {
 				AssemblyState &astate = tastate.getValue();
 				double time = tastate.getTime();
 				State state = defState;

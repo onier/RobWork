@@ -25,8 +25,12 @@
  */
 
 #include "SimulatorLogEntryWidget.hpp"
+
 #include <rw/math/Wrench6D.hpp>
 
+#include <list>
+
+namespace rwlibs { namespace opengl { class RenderVelocity; } }
 namespace rwsim { namespace log { class LogForceTorque; } }
 
 namespace Ui { class ForceTorqueWidget; }
@@ -70,6 +74,9 @@ public:
 	//! @copydoc SimulatorLogEntryWidget::getName
 	virtual std::string getName() const;
 
+	//! @copydoc SimulatorLogEntryWidget::setProperties
+	virtual void setProperties(rw::common::Ptr<rw::common::PropertyMap> properties);
+
 	//! @copydoc SimulatorLogEntryWidget::Dispatcher
 	class Dispatcher: public SimulatorLogEntryWidget::Dispatcher {
 	public:
@@ -89,6 +96,7 @@ public:
 private slots:
 	void pairsChanged(const QItemSelection& newSelection, const QItemSelection& oldSelection);
 	void contactSetChanged(const QItemSelection& newSelection, const QItemSelection& oldSelection);
+	void scalingChanged(double d);
 
 private:
 	QString toQString(const rw::math::Vector3D<>& vec);
@@ -99,6 +107,7 @@ private:
     rw::common::Ptr<const rwsim::log::LogForceTorque> _forces;
     rw::common::Ptr<rw::graphics::GroupNode> _root;
     rw::common::Ptr<rw::graphics::SceneGraph> _graph;
+    std::list<rw::common::Ptr<rwlibs::opengl::RenderVelocity> > _velRenders;
 };
 //! @}
 } /* namespace gui */

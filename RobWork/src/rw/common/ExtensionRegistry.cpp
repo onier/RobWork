@@ -22,7 +22,7 @@ std::vector<Extension::Descriptor> ExtensionRegistry::getExtensionDescriptors(co
 		return std::vector<Extension::Descriptor>();
 
 	typedef std::pair<Extension::Descriptor, rw::common::Ptr<Plugin> > Desc;
-	BOOST_FOREACH(const Desc &desc, it->second){
+	for(const Desc &desc : it->second) {
 		result.push_back( desc.first );
 	}
 	return result;
@@ -37,7 +37,7 @@ std::vector<rw::common::Ptr<Extension> > ExtensionRegistry::getExtensions(const 
 		return result;
 
 	typedef std::pair<Extension::Descriptor, rw::common::Ptr<Plugin> > Desc;
-	BOOST_FOREACH(const Desc &desc, it->second){
+	for(const Desc &desc : it->second) {
 		result.push_back( desc.second->makeExtension( desc.first.id ) );
 	}
 	return result;
@@ -48,7 +48,7 @@ std::vector<rw::common::Ptr<Extension> > ExtensionRegistry::getExtensions(const 
 std::vector<rw::common::Ptr<Plugin> > ExtensionRegistry::getPlugins() const {
 	std::vector<rw::common::Ptr<Plugin> > result;
 	
-	BOOST_FOREACH (const rw::common::Ptr<Plugin> plugin, _plugins) {
+	for(const rw::common::Ptr<Plugin> plugin : _plugins) {
 		result.push_back(plugin);
 	}
 	
@@ -58,7 +58,7 @@ std::vector<rw::common::Ptr<Plugin> > ExtensionRegistry::getPlugins() const {
 
 void ExtensionRegistry::registerExtensions(rw::common::Ptr<Plugin> plugin){
 	// make sure plugins with same id does not add duplicates of extension points
-	BOOST_FOREACH(Extension::Descriptor desc, plugin->getExtensionDescriptors()){
+	for(Extension::Descriptor desc : plugin->getExtensionDescriptors()) {
 		if(_descMap.find(desc.point)!=_descMap.end() ){
 			// check if plugin/extension allready exists
 			std::vector< std::pair<Extension::Descriptor, rw::common::Ptr<Plugin> > > &res = _descMap[desc.point];
@@ -74,7 +74,7 @@ void ExtensionRegistry::registerExtensions(rw::common::Ptr<Plugin> plugin){
 }
 
 void ExtensionRegistry::unregisterExtensions(rw::common::Ptr<Plugin> plugin) {
-	BOOST_FOREACH(Extension::Descriptor desc, plugin->getExtensionDescriptors()){
+	for(Extension::Descriptor desc : plugin->getExtensionDescriptors()) {
 		if(_descMap.find(desc.point) != _descMap.end()) {
 			std::vector< std::pair<Extension::Descriptor, rw::common::Ptr<Plugin> > >& res = _descMap[desc.point];
 			std::vector< std::pair<Extension::Descriptor, rw::common::Ptr<Plugin> > >::iterator it = res.begin();

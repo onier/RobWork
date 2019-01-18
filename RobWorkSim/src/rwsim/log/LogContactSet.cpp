@@ -46,7 +46,7 @@ void LogContactSet::read(class InputArchive& iarchive, const std::string& id) {
 
 void LogContactSet::write(class OutputArchive& oarchive, const std::string& id) const {
 	oarchive.write(_contacts.size(),"ContactSet");
-	BOOST_FOREACH(const Contact& c, _contacts) {
+	for(const Contact& c : _contacts) {
 		c.write(oarchive,"");
 	}
 	SimulatorLogEntry::write(oarchive,id);
@@ -58,8 +58,23 @@ std::string LogContactSet::getType() const {
 
 bool LogContactSet::operator==(const SimulatorLog &b) const {
 	if (const LogContactSet* const entry = dynamic_cast<const LogContactSet*>(&b)) {
-		if (_contacts != entry->_contacts)
-			return false;
+		//if (_contacts != entry->_contacts)
+		//	return false;
+		std::list<Contact> unmatched;
+		unmatched.insert(unmatched.end(),_contacts.begin(),_contacts.end());
+		for (std::size_t i = 0; i < entry->_contacts.size(); i++) {
+			std::list<Contact>::iterator it;
+			bool found = false;
+			for (it = unmatched.begin(); it != unmatched.end(); it++) {
+				if (entry->_contacts[i] == *it) {
+					found = true;
+					unmatched.erase(it);
+					break;
+				}
+			}
+			if (!found)
+				return false;
+		}
 	}
 	return SimulatorLogEntry::operator==(b);
 }

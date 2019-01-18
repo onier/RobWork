@@ -29,6 +29,7 @@
 #include <rw/math/Vector3D.hpp>
 
 namespace rwsim { namespace contacts { class Contact; } }
+namespace rwsim { namespace contacts { class RenderContacts; } }
 namespace rwsim { namespace log { class LogContactSet; } }
 namespace rwsim { namespace log { class LogPositions; } }
 
@@ -73,6 +74,9 @@ public:
 	//! @copydoc SimulatorLogEntryWidget::getName
 	virtual std::string getName() const;
 
+	//! @copydoc SimulatorLogEntryWidget::setProperties
+	virtual void setProperties(rw::common::Ptr<rw::common::PropertyMap> properties);
+
 	//! @copydoc SimulatorLogEntryWidget::Dispatcher
 	class Dispatcher: public SimulatorLogEntryWidget::Dispatcher {
 	public:
@@ -92,6 +96,8 @@ public:
 private slots:
 	void contactSetPairsChanged(const QItemSelection& newSelection, const QItemSelection& oldSelection);
 	void contactSetChanged(const QItemSelection& newSelection, const QItemSelection& oldSelection);
+	void scalingChanged(double d);
+	void showChanged(int state);
 
 private:
 	QString toQString(const rw::math::Vector3D<>& vec);
@@ -103,6 +109,7 @@ private:
     rw::common::Ptr<const rwsim::log::LogPositions> _positions;
     rw::common::Ptr<rw::graphics::GroupNode> _root;
     rw::common::Ptr<rw::graphics::SceneGraph> _graph;
+    std::list<rw::common::Ptr<rwsim::contacts::RenderContacts> > _contactRenders;
 };
 //! @}
 } /* namespace gui */

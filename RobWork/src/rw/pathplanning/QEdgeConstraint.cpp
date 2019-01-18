@@ -114,7 +114,7 @@ namespace
 		{}
 	private:
 		bool doInCollision(const Q& qstart, const Q& qend) const {
-			BOOST_FOREACH(QEdgeConstraint::Ptr constraint, _constraints) {
+			for(QEdgeConstraint::Ptr constraint : _constraints) {
 				if (constraint->inCollision(qstart, qend))
 					return true;
 			}

@@ -66,7 +66,7 @@ std::vector<std::string> DistanceMultiStrategy::Factory::getStrategies() {
     DistanceMultiStrategy::Factory ep;
     std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
     //ids.push_back("Ridder");
-    BOOST_FOREACH(Extension::Descriptor& ext, exts){
+    for(Extension::Descriptor& ext : exts) {
         ids.push_back( ext.getProperties().get("strategyID",ext.name) );
     }
     return ids;
@@ -79,7 +79,7 @@ bool DistanceMultiStrategy::Factory::hasStrategy(const std::string& strategy) {
     //    return true;
 	DistanceMultiStrategy::Factory ep;
     std::vector<Extension::Descriptor> exts = ep.getExtensionDescriptors();
-    BOOST_FOREACH(Extension::Descriptor& ext, exts){
+    for(Extension::Descriptor& ext : exts) {
     	std::string id = ext.getProperties().get("strategyID",ext.name);
     	std::transform(id.begin(),id.end(),id.begin(),::toupper);
         if(id == upper)
@@ -95,7 +95,7 @@ DistanceMultiStrategy::Ptr DistanceMultiStrategy::Factory::makeStrategy(const st
     //    return ownedPtr(new RWPERollbackMethodRidder());
 	DistanceMultiStrategy::Factory ep;
 	std::vector<Extension::Ptr> exts = ep.getExtensions();
-	BOOST_FOREACH(Extension::Ptr& ext, exts){
+	for(Extension::Ptr& ext : exts) {
     	std::string id = ext->getProperties().get("strategyID",ext->getName() );
     	std::transform(id.begin(),id.end(),id.begin(),::toupper);
 		if(id == upper){

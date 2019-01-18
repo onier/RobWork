@@ -21,6 +21,8 @@
 #include <rw/common/DOMElem.hpp>
 #include <rw/common/DOMParser.hpp>
 
+#include <boost/foreach.hpp>
+
 using namespace rw::common;
 using namespace rw::loaders;
 using namespace rw::proximity;

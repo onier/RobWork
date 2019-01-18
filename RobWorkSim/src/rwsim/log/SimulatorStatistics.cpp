@@ -38,13 +38,13 @@ void SimulatorStatistics::update() {
 	// Collect all data from children (of type SimulatorLogValues or SimulatorLogScope)
 	DataSeries data;
 	const std::vector<SimulatorLog::Ptr> children = _log->getChildren();
-	BOOST_FOREACH(const SimulatorLog::Ptr child, children) {
+	for(const SimulatorLog::Ptr child : children) {
 		if (const SimulatorLogScope::Ptr scope = child.cast<SimulatorLogScope>()) {
 			const rw::common::Ptr<const SimulatorStatistics> stats = scope->getStatistics();
 			if (!stats.isNull()) {
 				const DataSeries& prop = stats->getPropagated();
 				for (DataSeries::const_iterator it = prop.begin(); it != prop.end(); it++) {
-					BOOST_FOREACH(double val, it->second) {
+					for(double val : it->second) {
 						data[it->first].push_back(val);
 					}
 				}
@@ -63,7 +63,7 @@ void SimulatorStatistics::update() {
 	// it belongs to this level.
 	for (DataSeries::iterator it = data.begin(); it != data.end(); it++) {
 		if (it->second.size() > 1) {
-			BOOST_FOREACH(double val, it->second) {
+			for(double val : it->second) {
 				_multipleValues[it->first].push_back(val);
 			}
 		} else {

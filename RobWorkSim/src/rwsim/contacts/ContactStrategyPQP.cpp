@@ -27,6 +27,9 @@
 #include <rwsim/dynamics/ContactPoint.hpp>
 #include <rwsim/dynamics/ContactCluster.hpp>
 #include <rwsim/dynamics/OBRManifold.hpp>
+#include <rwsim/log/SimulatorLogScope.hpp>
+#include <rwsim/log/LogContactSet.hpp>
+#include <rwsim/log/LogMessage.hpp>
 
 #include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
 
@@ -37,6 +40,7 @@ using namespace rw::math;
 using namespace rwlibs::proximitystrategies;
 using namespace rwsim::contacts;
 using namespace rwsim::dynamics;
+using namespace rwsim::log;
 
 struct ContactStrategyPQP::Model {
 	std::string geoId;
@@ -224,8 +228,17 @@ std::vector<Contact> ContactStrategyPQP::findContacts(
 		ProximityModel::Ptr b, const Transform3D<>& wTb,
 		ContactStrategyData& data,
 		ContactStrategyTracking& tracking,
-		rwsim::log::SimulatorLogScope* log) const
+		SimulatorLogScope* log) const
 {
+	SimulatorLogScope::Ptr stratLog = NULL;
+	if (log != NULL) {
+		stratLog = ownedPtr(new SimulatorLogScope(log));
+		stratLog->setDescription("ContactStrategyPQP");
+		stratLog->setFilename(__FILE__);
+		stratLog->setLineBegin(__LINE__);
+		log->appendChild(stratLog);
+	}
+
 	std::vector<Contact> contacts;
 	const TriMeshModel::Ptr mA = a.cast<TriMeshModel>();
 	const TriMeshModel::Ptr mB = b.cast<TriMeshModel>();
@@ -248,6 +261,19 @@ std::vector<Contact> ContactStrategyPQP::findContacts(
 	const double linThreshold = getUpdateThresholdLinear()*(pqpTracking->aTb.P()-aTb.P()).norm2();
 	const double angThreshold = getUpdateThresholdAngular()*dif.angle();
 	const double threshold = absoluteThreshold+linThreshold+angThreshold;
+	if (!stratLog.isNull()) {
+		const LogMessage::Ptr msg = ownedPtr(new LogMessage(stratLog.get()));
+		stratLog->appendChild(msg);
+		std::ostream& out = msg->stream();
+		msg->setFilename(__FILE__);
+		msg->setLine(__LINE__);
+		msg->setDescription("Thresholds");
+		out << "ContactStrategyPQPThreshold: " << getThreshold() << std::endl;
+		out << "ContactStrategyPQPUpdateThresholdAbsolute: " << absoluteThreshold << std::endl;
+		out << "ContactStrategyPQPUpdateThresholdLinear: " << getUpdateThresholdLinear() << "*" << (pqpTracking->aTb.P()-aTb.P()).norm2() << "=" << linThreshold << std::endl;
+		out << "ContactStrategyPQPUpdateThresholdAngular: " << getUpdateThresholdAngular() << "*" << dif.angle() << "=" << angThreshold << std::endl;
+		out << "Combined update threshold: " << threshold << std::endl;
+	}
 
 	for (std::size_t i = 0; i < mA->models.size(); i++) {
 		for (std::size_t j = 0; j < mB->models.size(); j++) {
@@ -258,22 +284,39 @@ std::vector<Contact> ContactStrategyPQP::findContacts(
 
 			std::vector<Contact> tmpContacts;
 			findContact(tmpContacts, modelA, wTa, modelB, wTb, pqpData, !oldContact);
-			BOOST_FOREACH(Contact &c, tmpContacts) {
+			for(Contact &c : tmpContacts) {
 				c.setModelA(mA);
 				c.setModelB(mB);
+			}
+			if (!stratLog.isNull()) {
+				LogContactSet::Ptr logContacts = ownedPtr(new LogContactSet(stratLog.get()));
+				stratLog->appendChild(logContacts);
+				logContacts->setFilename(__FILE__);
+				logContacts->setLine(__LINE__);
+				logContacts->setContacts(tmpContacts);
+				logContacts->setDescription("Contacts detected");
 			}
 
 			if (_filtering == MANIFOLD) {
 				tmpContacts = manifoldFilter(tmpContacts);
+				if (!stratLog.isNull()) {
+					LogContactSet::Ptr logContacts = ownedPtr(new LogContactSet(stratLog.get()));
+					stratLog->appendChild(logContacts);
+					logContacts->setFilename(__FILE__);
+					logContacts->setLine(__LINE__);
+					logContacts->setContacts(tmpContacts);
+					logContacts->setDescription("Manifold filtered");
+				}
 			}
 
-			BOOST_FOREACH(Contact &c, tmpContacts) {
+			for(Contact &c : tmpContacts) {
 				c.setDepth(getThreshold()+c.getDepth());
 			}
 
 			std::size_t curId = 0;
 			if (oldContact) {
-				BOOST_FOREACH(const PQPTracking::TrackInfo& info, currentInfos) {
+				const std::size_t contactsBefore = tmpContacts.size();
+				for(const PQPTracking::TrackInfo& info : currentInfos) {
 					const Vector3D<> posA = info.posA;
 					const Vector3D<> posB = info.posB;
 					std::vector<std::size_t> candidates;
@@ -304,13 +347,22 @@ std::vector<Contact> ContactStrategyPQP::findContacts(
 						tmpContacts.erase(tmpContacts.begin()+deepest);
 					}
 				}
+				if (!stratLog.isNull()) {
+					const LogMessage::Ptr msg = ownedPtr(new LogMessage(stratLog.get()));
+					stratLog->appendChild(msg);
+					std::ostream& out = msg->stream();
+					msg->setFilename(__FILE__);
+					msg->setLine(__LINE__);
+					msg->setDescription("Matching existing contacts");
+					out << "Matching " << currentInfos.size() << " existing contacts, reduced the contact set from " << contactsBefore << " to " << tmpContacts.size() << " remaining contacts." << std::endl;
+				}
 			}
 			// Add remaining contacts
 			PQPTracking::TrackInfo info;
 			info.modelIDa = i;
 			info.modelIDb = j;
 			info.userData = NULL;
-			BOOST_FOREACH(const Contact&c, tmpContacts) {
+			for(const Contact&c : tmpContacts) {
 				if (c.getDepth() > 0) {
 					info.id = curId;
 					info.posA = inverse(wTa)*c.getPointA();
@@ -321,13 +373,16 @@ std::vector<Contact> ContactStrategyPQP::findContacts(
 				}
 			}
 			tmpContacts.clear();
-			BOOST_FOREACH(PQPTracking::TrackInfo& info, newInfo) {
+			for(PQPTracking::TrackInfo& info : newInfo) {
 				info.total = curId;
 			}
 		}
 	}
 	pqpTracking->aTb = inverse(wTa)*wTb;
 	pqpTracking->info = newInfo;
+	if (log != NULL) {
+		stratLog->setLineEnd(__LINE__);
+	}
 	return contacts;
 }
 
@@ -336,7 +391,7 @@ std::vector<Contact> ContactStrategyPQP::updateContacts(
 		ProximityModel::Ptr b, const Transform3D<>& wTb,
 		ContactStrategyData& data,
 		ContactStrategyTracking& tracking,
-		rwsim::log::SimulatorLogScope* log) const
+		SimulatorLogScope* log) const
 {
 	std::vector<Contact> contacts;
 	const TriMeshModel::Ptr mA = a.cast<TriMeshModel>();
@@ -375,7 +430,7 @@ std::vector<Contact> ContactStrategyPQP::updateContacts(
 
 		std::vector<Contact> tmpContacts;
 		findContact(tmpContacts, modelA, wTa, modelB, wTb, pqpData, false);
-		BOOST_FOREACH(Contact &c, tmpContacts) {
+		for(Contact &c : tmpContacts) {
 			c.setModelA(mA);
 			c.setModelB(mB);
 		}
@@ -384,12 +439,12 @@ std::vector<Contact> ContactStrategyPQP::updateContacts(
 			tmpContacts = manifoldFilter(tmpContacts);
 		}
 
-		BOOST_FOREACH(Contact &c, tmpContacts) {
+		for(Contact &c : tmpContacts) {
 			c.setDepth(getThreshold()+c.getDepth());
 		}
 
 		std::size_t curId = 0;
-		BOOST_FOREACH(const PQPTracking::TrackInfo& info, currentInfos) {
+		for(const PQPTracking::TrackInfo& info : currentInfos) {
 			const Vector3D<> posA = info.posA;
 			const Vector3D<> posB = info.posB;
 			std::vector<std::size_t> candidates;
@@ -441,7 +496,7 @@ ProximityModel::Ptr ContactStrategyPQP::createModel() {
 void ContactStrategyPQP::destroyModel(ProximityModel* model) {
 	TriMeshModel* bmodel = dynamic_cast<TriMeshModel*>(model);
 	RW_ASSERT(bmodel);
-	BOOST_FOREACH(const Model& model, bmodel->models) {
+	for(const Model& model : bmodel->models) {
 		removeGeometry(bmodel,model.geoId);
 	}
 	bmodel->models.clear();
@@ -551,7 +606,7 @@ std::vector<Contact> ContactStrategyPQP::manifoldFilter(const std::vector<Contac
 
 	// run through all manifolds and get the contact points that will be used.
 	int contactIdx = 0;
-	BOOST_FOREACH(OBRManifold& obr, manifolds){
+	for(OBRManifold& obr : manifolds) {
 		const int nrContacts = obr.getNrOfContacts();
 		// if the manifold area is very small then we only use a single point
 		// for contact

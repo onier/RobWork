@@ -21,7 +21,6 @@
 
 #include <rw/trajectory/Trajectory.hpp>
 #include <rw/common/macros.hpp>
-#include <boost/foreach.hpp>
 
 namespace rw { namespace math { class Q; } }
 
@@ -136,7 +135,7 @@ private:
 		if (_trajectories.size() > 0)
 			last = _trajectories.front()->startTime();
 
-		BOOST_FOREACH(typename Trajectory<T>::Ptr& traj, _trajectories) {
+		for(typename Trajectory<T>::Ptr& traj : _trajectories) {
 			last += traj->duration();
 			_times.push_back(last);
 		}

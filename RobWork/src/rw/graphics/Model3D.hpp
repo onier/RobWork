@@ -29,8 +29,6 @@
 #include <rw/math/Transform3D.hpp>
 #include <rw/math/Vector2D.hpp>
 
-#include <boost/foreach.hpp>
-
 namespace rw { namespace geometry { class Geometry; } }
 namespace rw { namespace geometry { class TriMesh; } }
 

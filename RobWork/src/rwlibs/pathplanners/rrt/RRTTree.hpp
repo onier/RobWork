@@ -25,7 +25,6 @@
 
 #include "RRTNode.hpp"
 #include <vector>
-#include <boost/foreach.hpp>
 
 namespace rwlibs { namespace pathplanners {
 
@@ -90,7 +89,7 @@ namespace rwlibs { namespace pathplanners {
         //! @brief Destructor.
         ~RRTTree()
         {
-            BOOST_FOREACH(node_type* node, _nodes) {
+            for(node_type* node : _nodes) {
                 delete node;
             }
         }

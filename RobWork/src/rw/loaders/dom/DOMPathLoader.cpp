@@ -32,6 +32,7 @@
 
 #include "DOMBasisTypes.hpp"
 
+#include <boost/foreach.hpp>
 
 using namespace rw;
 using namespace rw::math;

@@ -39,7 +39,7 @@ void LogCollisionResult::read(class InputArchive& iarchive, const std::string& i
 	unsigned int n;
 	n = iarchive.readUInt("Results");
 	_results.resize(n);
-	BOOST_FOREACH(ResultInfo& info, _results) {
+	for(ResultInfo& info : _results) {
 		info.frameA = iarchive.readString("FrameA");
 		info.frameB = iarchive.readString("FrameB");
 		iarchive.read(info.geoNamesA, "GeometryIDsA");
@@ -47,7 +47,7 @@ void LogCollisionResult::read(class InputArchive& iarchive, const std::string& i
 		iarchive.read(info.result._aTb,"aTb");
 		n = iarchive.readUInt("CollisionPairs");
 		info.result._collisionPairs.resize(n);
-		BOOST_FOREACH(CollisionStrategy::Result::CollisionPair& pair, info.result._collisionPairs) {
+		for(CollisionStrategy::Result::CollisionPair& pair : info.result._collisionPairs) {
 			pair.geoIdxA = iarchive.readInt("GeoIdxA");
 			pair.geoIdxB = iarchive.readInt("GeoIdxB");
 			pair.startIdx = iarchive.readInt("StartIdx");
@@ -56,7 +56,7 @@ void LogCollisionResult::read(class InputArchive& iarchive, const std::string& i
 		n = iarchive.readUInt("GeomPrimIds");
 		info.result._geomPrimIds.resize(n);
 		typedef std::pair<int, int> IntPair;
-		BOOST_FOREACH(IntPair& pair, info.result._geomPrimIds) {
+		for(IntPair& pair : info.result._geomPrimIds) {
 			pair.first = iarchive.readInt("First");
 			pair.second = iarchive.readInt("Second");
 		}
@@ -68,14 +68,14 @@ void LogCollisionResult::read(class InputArchive& iarchive, const std::string& i
 
 void LogCollisionResult::write(class OutputArchive& oarchive, const std::string& id) const {
 	oarchive.write(_results.size(),"Results");
-	BOOST_FOREACH(const ResultInfo& info, _results) {
+	for(const ResultInfo& info : _results) {
 		oarchive.write(info.frameA,"FrameA");
 		oarchive.write(info.frameB,"FrameB");
 		oarchive.write(info.geoNamesA, "GeometryIDsA");
 		oarchive.write(info.geoNamesB, "GeometryIDsB");
 		oarchive.write(info.result._aTb,"aTb");
 		oarchive.write(info.result._collisionPairs.size(),"CollisionPairs");
-		BOOST_FOREACH(const CollisionStrategy::Result::CollisionPair& pair, info.result._collisionPairs) {
+		for(const CollisionStrategy::Result::CollisionPair& pair : info.result._collisionPairs) {
 			oarchive.write(pair.geoIdxA,"GeoIdxA");
 			oarchive.write(pair.geoIdxB,"GeoIdxB");
 			oarchive.write(pair.startIdx,"StartIdx");
@@ -83,7 +83,7 @@ void LogCollisionResult::write(class OutputArchive& oarchive, const std::string&
 		}
 		oarchive.write(info.result._geomPrimIds.size(),"GeomPrimIds");
 		typedef std::pair<int, int> IntPair;
-		BOOST_FOREACH(const IntPair& pair, info.result._geomPrimIds) {
+		for(const IntPair& pair : info.result._geomPrimIds) {
 			oarchive.write(pair.first,"First");
 			oarchive.write(pair.second,"Second");
 		}
@@ -135,8 +135,23 @@ bool LogCollisionResult::operator==(const SimulatorLog &b) const {
 	if (const LogCollisionResult* const entry = dynamic_cast<const LogCollisionResult*>(&b)) {
 		if (*_positions != *entry->_positions)
 			return false;
-		if (_results != entry->_results)
-			return false;
+		//if (_results != entry->_results)
+		//	return false;
+		std::list<ResultInfo> unmatched;
+		unmatched.insert(unmatched.end(),_results.begin(),_results.end());
+		for (std::size_t i = 0; i < entry->_results.size(); i++) {
+			std::list<ResultInfo>::iterator it;
+			bool found = false;
+			for (it = unmatched.begin(); it != unmatched.end(); it++) {
+				if (entry->_results[i] == *it) {
+					found = true;
+					unmatched.erase(it);
+					break;
+				}
+			}
+			if (!found)
+				return false;
+		}
 	}
 	return SimulatorLogEntry::operator==(b);
 }
@@ -221,7 +236,7 @@ void LogCollisionResult::addResult(const CollisionStrategy::Result& result) {
 }
 
 void LogCollisionResult::addResults(const std::vector<CollisionStrategy::Result>& results) {
-	BOOST_FOREACH(const CollisionStrategy::Result& result, results) {
+	for(const CollisionStrategy::Result& result : results) {
 		addResult(result);
 	}
 }

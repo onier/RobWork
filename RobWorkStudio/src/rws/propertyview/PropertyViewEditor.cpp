@@ -159,7 +159,7 @@ QtProperty* PropertyViewEditor::update(PropertyMap::Ptr map, std::string propnam
         case PropertyType::StringList:{
             std::vector<std::string> value = map->get<std::vector<std::string> >(identifier);
             QStringList list;
-            BOOST_FOREACH(std::string str, value){ list << QString(str.c_str()); };
+            for(std::string str : value) { list << QString(str.c_str()); };
             item = _variantManager->addProperty(QtVariantPropertyManager::enumTypeId(), QLatin1String(identifier.c_str()));
             item->setAttribute("enumNames", list);
             item->setValue(1);

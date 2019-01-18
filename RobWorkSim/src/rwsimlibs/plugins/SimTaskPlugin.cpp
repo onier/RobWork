@@ -132,7 +132,7 @@ void SimTaskPlugin::open(WorkCell* workcell)
 
     _objectComboBox->clear();
     std::vector<RigidBody::Ptr> bodies = _dwc->findBodies<RigidBody>();
-    BOOST_FOREACH(RigidBody::Ptr body, bodies){
+    for(RigidBody::Ptr body : bodies) {
         _objectComboBox->addItem(body->getName().c_str());
     }
 
@@ -263,7 +263,7 @@ void SimTaskPlugin::btnPressed() {
         // and calculate the home lifting position
         //_home = wTe_home * target->get() * inverse(_bTe);
         _hand->setQ(openQ, state);
-        BOOST_FOREACH(RigidBody *object, _objects){
+        for(RigidBody *object : _objects) {
             Transform3D<> objHome = object->getMovableFrame()->getTransform( _homeState );
             object->getMovableFrame()->setTransform(objHome, state );
         }
@@ -345,7 +345,7 @@ void SimTaskPlugin::btnPressed() {
                 if(_mergedResult->getSubTasks().size()==0){
                     _mergedResult = task;
                 } else {
-                    BOOST_FOREACH(GraspSubTask &stask, task->getSubTasks()){
+                    for(GraspSubTask &stask : task->getSubTasks()) {
                         _mergedResult->getSubTasks().push_back(stask);
                     }
                 }
@@ -453,7 +453,7 @@ GraspTask::Ptr SimTaskPlugin::generateTasks(int nrTasks){
     // check if type is actually the gripper name, else query the user
     if( _wc->findDevice(type)==NULL ){
         QStringList items, tcpitems;
-        BOOST_FOREACH(Device::Ptr dev, _wc->getDevices() ){
+        for(Device::Ptr dev : _wc->getDevices() ) {
             std::string name = dev->getName();
             items << tr( name.c_str() );
         }
@@ -467,7 +467,7 @@ GraspTask::Ptr SimTaskPlugin::generateTasks(int nrTasks){
        Device::Ptr dev = _wc->findDevice(gripperName);
        std::vector<Frame*> frames = Kinematics::findAllFrames( dev->getBase() );
        // now get the tcp to use
-       BOOST_FOREACH(Frame *f, frames ){
+       for(Frame *f : frames ) {
            std::string name = f->getName();
            tcpitems << tr( name.c_str() );
        }
@@ -652,7 +652,7 @@ GraspTask::Ptr SimTaskPlugin::generateTasks(int nrTasks){
                 dev->setQ(closeQ,state);
                 if( getRobWorkStudio()->getCollisionDetector()->inCollision(state, &result) ){
                     incollision = false;
-                    BOOST_FOREACH(kinematics::FramePair pair, result.collidingFrames){
+                    for(kinematics::FramePair pair : result.collidingFrames) {
                         //test if it collides with anything else than the object, if it does then its a failure
                         std::cout << pair.first->getName() << " -- "<< pair.second->getName() << std::endl;
                         if( (pair.first!=body->getBodyFrame()) && (pair.second!=body->getBodyFrame()) ){
@@ -713,10 +713,10 @@ void SimTaskPlugin::exportMathematica(const std::string& filename) {
        outfile << "// Description: {target.pos(3), target.rpy(3), TestStatus(1), GripperConfiguration("<<_openQ.size()<<"), "
                "GripperTObject.pos, GripperTObject.rpy, ObjectTtcpBefore.pos, ObjectTtcpBefore.rpy, ObjectTtcpAfter.pos, ObjectTtcpAfter.rpy}\n";
        outfile << "// TestStatus enum { UnInitialized=0, Success=1, CollisionInitially=2, ObjectMissed=3, ObjectDropped=4, ObjectSlipped=5, TimeOut=6, SimulationFailure=7}\n";
-       BOOST_FOREACH(CartesianTask::Ptr task, _taskQueue){
+       for(CartesianTask::Ptr task : _taskQueue) {
            std::vector<CartesianTarget::Ptr> targets = task->getTargets();
            outfile<<"{" << task->getId() << "}\n";
-           BOOST_FOREACH(CartesianTarget::Ptr target, targets) {
+           for(CartesianTarget::Ptr target : targets) {
               const Vector3D<>& pos = target->get().P();
               const RPY<> rpy(target->get().R());
               int status = target->getPropertyMap().get<int>("TestStatus", UnInitialized);

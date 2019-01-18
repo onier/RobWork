@@ -136,13 +136,13 @@ void EngineTestPlugin::toolBoxChanged(int index) {
 		_input = NULL;
 		_dwc = NULL;
 		const std::vector<std::string> engines = PhysicsEngine::Factory::getEngineIDs();
-		BOOST_FOREACH(const std::string& engine, engines) {
+		for(const std::string& engine : engines) {
 			QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(engine));
 			item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
 			_ui->engineList->addItem(item);
 		}
 		const std::vector<std::string> tests = EngineTest::Factory::getTests();
-		BOOST_FOREACH(const std::string& test, tests) {
+		for(const std::string& test : tests) {
 			QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(test));
 			item->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
 			_ui->testList->addItem(item);
@@ -224,7 +224,7 @@ void EngineTestPlugin::toolBoxChanged(int index) {
 void EngineTestPlugin::engineChanged(QListWidgetItem* current) {
 	if (current == NULL)
 		return;
-	if (!(current->flags() && Qt::ItemIsEnabled)) {
+	if (!(current->flags() & Qt::ItemIsEnabled)) {
 		_ui->testList->setCurrentItem(NULL);
 		_ui->testList->clearSelection();
 		current->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
@@ -263,7 +263,7 @@ void EngineTestPlugin::engineChanged(QListWidgetItem* current) {
 void EngineTestPlugin::testChanged(QListWidgetItem* current) {
 	if (current == NULL)
 		return;
-	if (!(current->flags() && Qt::ItemIsEnabled)) {
+	if (!(current->flags() & Qt::ItemIsEnabled)) {
 		_ui->engineList->setCurrentItem(NULL);
 		_ui->engineList->clearSelection();
 		current->setFlags(Qt::ItemIsEnabled | Qt::ItemIsUserCheckable | Qt::ItemIsSelectable);
@@ -308,6 +308,13 @@ void EngineTestPlugin::run() {
 		_log = NULL;
 		if (_ui->verboseCheck->isChecked()) {
 			_log = ownedPtr(new SimulatorLogScope());
+			if (_ui->logCheck->isChecked()) {
+				try {
+					//_log->setLogWriter(ownedPtr(new LogFileWriter(_ui->logFile->text().toStdString())));
+				} catch(const Exception& e) {
+					error(e.getMessage().getFullText());
+				}
+			}
 		}
 		message("Running simulation...");
 		_threadPool = ownedPtr(new ThreadPool());
@@ -345,8 +352,12 @@ void EngineTestPlugin::run() {
 void EngineTestPlugin::verbose() {
 	if (_logWidget == NULL)
 		_logWidget = new SimulatorLogWidget(NULL);
+	PropertyMap& properties = getRobWorkStudio()->getPropertyMap();
+	if (!properties.has("SimulatorLogWidgetProperties"))
+		properties.add("SimulatorLogWidgetProperties","Properties for SimulatorLogWidget",PropertyMap());
 	_logWidget->setDWC(_dwc);
 	_logWidget->setLog(_log);
+	_logWidget->setProperties(&properties.get<PropertyMap>("SimulatorLogWidgetProperties"));
 	_logWidget->show();
 	_logWidget->raise();
 	_logWidget->activateWindow();
@@ -443,6 +454,8 @@ bool EngineTestPlugin::event(QEvent *event) {
     	}
     	if (simEvent->done) {
     		const DynamicWorkCell::Ptr dwc = _testHandle->getDynamicWorkCell();
+    		if (dwc.isNull())
+    			RW_THROW("The EngineTest::TestHandle did not contain a valid DynamicWorkCell.");
     		getRobWorkStudio()->getPropertyMap().add<DynamicWorkCell::Ptr>(
     				"DynamicWorkcell",
 					"A workcell with dynamic description",
@@ -492,14 +505,14 @@ void EngineTestPlugin::resultShow() {
 			widget->show();
 			std::vector<double> x;
 			std::vector<double> y;
-			BOOST_FOREACH(const TimedQ& tq, result.values) {
+			for(const TimedQ& tq : result.values) {
 				const Q& q = tq.getValue();
 				for (std::size_t k = 0; k < q.size(); k++) {
 					x.push_back(tq.getTime());
 					y.push_back(q[k]);
 				}
 			}
-			widget->listPlot(x,y);
+			widget->listPlot(x,y,"","Time",result.name);
 			break;
 		}
 	}

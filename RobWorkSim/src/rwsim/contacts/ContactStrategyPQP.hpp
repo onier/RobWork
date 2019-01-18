@@ -174,13 +174,18 @@ private:
 	class PQPData;
 	class PQPTracking;
 
+	/**
+	 * @brief Reduce the number of contacts by creating surface manifolds with contacts that are close, and have similar normals.
+	 * @param contacts [in] the input normals.
+	 * @return a (possibly) reduced set of contacts.
+	 */
+	static std::vector<Contact> manifoldFilter(const std::vector<Contact> &contacts);
+
 	virtual void findContact(std::vector<Contact> &contacts,
 				const Model& a,	const rw::math::Transform3D<>& wTa,
 				const Model& b,	const rw::math::Transform3D<>& wTb,
 				PQPData* data,
 				bool distCheck = true) const;
-
-	static std::vector<Contact> manifoldFilter(const std::vector<Contact> &contacts);
 
 	bool _matchAll;
 	rwlibs::proximitystrategies::ProximityStrategyPQP* _narrowStrategy;

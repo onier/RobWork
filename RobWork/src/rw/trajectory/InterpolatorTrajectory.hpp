@@ -26,7 +26,6 @@
 
 #include <rw/common/macros.hpp>
 #include <rw/common/Ptr.hpp>
-#include <boost/foreach.hpp>
 
 #include "Trajectory.hpp"
 #include "Interpolator.hpp"
@@ -218,7 +217,7 @@ namespace rw { namespace trajectory {
          */
         void add(InterpolatorTrajectory<T>* trajectory)
         {
-            BOOST_FOREACH(const Segment& segment, trajectory->_segments) {
+            for(const Segment& segment : trajectory->_segments) {
                 addSegment(segment.blend1, segment.blend2, segment.interpolator);
             }
         }

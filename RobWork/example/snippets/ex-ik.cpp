@@ -9,7 +9,7 @@ void inverseKinematics(rw::common::Ptr<Device> device, const State& state, const
 {
     JacobianIKSolver solver(device, state);
 	std::vector<Q> solutions = solver.solve(target, state);
-	BOOST_FOREACH(Q q, solutions) {
+	for(Q q : solutions) {
 		std::cout<<"Solution = "<<q<<std::endl;
 	}
 }

@@ -26,6 +26,10 @@
 
 #include "SimulatorLogEntryWidget.hpp"
 
+#include <list>
+#include <map>
+
+namespace rwlibs { namespace opengl { class RenderVelocity; } }
 namespace rwsim { namespace log { class LogPositions; } }
 namespace rwsim { namespace log { class LogVelocities; } }
 
@@ -77,6 +81,9 @@ public:
 	//! @copydoc SimulatorLogEntryWidget::getName
 	virtual std::string getName() const;
 
+	//! @copydoc SimulatorLogEntryWidget::setProperties
+	virtual void setProperties(rw::common::Ptr<rw::common::PropertyMap> properties);
+
 	//! @copydoc SimulatorLogEntryWidget::Dispatcher
 	class Dispatcher: public SimulatorLogEntryWidget::Dispatcher {
 	public:
@@ -95,6 +102,7 @@ public:
 
 private slots:
 	void motionBodiesChanged(const QItemSelection& selection, const QItemSelection& deselection);
+	void scalingChanged(double d);
 
 private:
     Ui::BodyMotionWidget* const _ui;
@@ -105,6 +113,7 @@ private:
     rw::common::Ptr<rw::graphics::GroupNode> _positionGroup;
     rw::common::Ptr<rw::graphics::GroupNode> _velocityGroup;
     rw::common::Ptr<rw::graphics::SceneGraph> _graph;
+    std::map<std::string, std::list<rw::common::Ptr<rwlibs::opengl::RenderVelocity> > > _velRenders;
 };
 //! @}
 } /* namespace gui */

@@ -57,10 +57,10 @@ namespace {
 class BtContactModel: public ContactModel {
 public:
 	typedef rw::common::Ptr<BtContactModel> Ptr;
-	BtContactModel(BtContactStrategy* pOwner): ContactModel(pOwner) { setFrame(NULL); };
+	BtContactModel(BtContactStrategy* pOwner): ContactModel(pOwner) { setFrame(NULL); }
 	virtual ~BtContactModel() {
 		clear();
-	};
+	}
 	std::string getName() const {
 		return "BtContactModel";
 	}
@@ -69,7 +69,7 @@ public:
 	}
 	bool remove(const std::string& geomId) {
 		bool removed = false;
-		for (std::vector<BtContactModel::BtModel>::iterator it = models.begin(); it != models.end(); it++) {
+		for (std::list<BtContactModel::BtModel>::iterator it = models.begin(); it != models.end(); it++) {
 			if (it->geoId == geomId) {
 				models.erase(it);
 				removed = true;
@@ -118,12 +118,12 @@ public:
 		models.resize(models.size()-1);
 	}
 
-	const std::vector<BtModel>& getModels() const {
+	const std::list<BtModel>& getModels() const {
 		return models;
 	}
 
 private:
-	std::vector<BtModel> models;
+	std::list<BtModel> models; // this must be a list (for a vector, erase will destruct objects to relocate elements)
 };
 }
 
@@ -184,8 +184,8 @@ std::vector<Contact> BtContactStrategy::findContacts(
 	RW_ASSERT(mB != NULL);
 
 	std::vector<Contact> res;
-	BOOST_FOREACH(const BtContactModel::BtModel& modelA, mA->getModels()) {
-		BOOST_FOREACH(const BtContactModel::BtModel& modelB, mB->getModels()) {
+	for(const BtContactModel::BtModel& modelA : mA->getModels()) {
+		for(const BtContactModel::BtModel& modelB : mB->getModels()) {
 			const btTransform transformA = BtUtil::makeBtTransform(wTa*modelA.transform);
 			const btTransform transformB = BtUtil::makeBtTransform(wTb*modelB.transform);
 			btRigidBody* bodyA = modelA.body;
@@ -378,8 +378,8 @@ bool BtContactStrategy::removeGeometry(ProximityModel* model, const std::string&
 std::vector<std::string> BtContactStrategy::getGeometryIDs(ProximityModel* model) {
 	BtContactModel* bmodel = dynamic_cast<BtContactModel*>(model);
 	std::vector<std::string> res;
-	const std::vector<BtContactModel::BtModel>& models = bmodel->getModels();
-	for (std::vector<BtContactModel::BtModel>::const_iterator it = models.begin(); it != models.end(); it++) {
+	const std::list<BtContactModel::BtModel>& models = bmodel->getModels();
+	for (std::list<BtContactModel::BtModel>::const_iterator it = models.begin(); it != models.end(); it++) {
 		res.push_back(it->geoId);
 	}
 	return res;

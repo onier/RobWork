@@ -1,12 +1,13 @@
 #include "SuctionCupController.hpp"
 
 #include <rwsim/dynamics/SuctionCup.hpp>
+#include <rwsim/sensor/BodyContactSensor.hpp>
 
 using namespace rwsim::control;
 using namespace rwlibs::control;
 using namespace rwlibs::simulation;
 using namespace rwsim::dynamics;
-using namespace rwsim::sensor;
+using rwsim::sensor::BodyContactSensor;
 using namespace rw::kinematics;
 using namespace rw::models;
 using namespace rw::geometry;
@@ -16,10 +17,10 @@ using namespace rw::common;
 
 SuctionCupController::SuctionCupController(const std::string& name, rwsim::dynamics::SuctionCup::Ptr dev):
 		SimulatedController(rw::common::ownedPtr(new rw::models::ControllerModel(name,dev->getBaseBody()->getBodyFrame()))),
-        _dev(dev),_name(name)
+        _dev(dev),_enabled(true),_name(name)
 {
     // initialize springs between the body parts of the device
-    double length = _dev->getHeight();
+    //double length = _dev->getHeight();
 
     // 50N is the vacum force, k*y_max = -50, where y_max = -height
     // k=50N/height
@@ -38,7 +39,7 @@ SuctionCupController::SuctionCupController(const std::string& name, rwsim::dynam
     */
 
     // TODO: for now only 4 body parts is supported
-    _bodyTransforms.resize( _dev->getBodyParts().size());
+    _bodyTransforms.resize( _dev->getLinks().size());
     RW_ASSERT(_bodyTransforms.size()==4);
     _bodyTransforms[0] = Transform3D<>( Vector3D<>(0,-_dev->getRadius(),0) );
     _bodyTransforms[1] = Transform3D<>( Vector3D<>(-_dev->getRadius(),0,0) );
@@ -52,30 +53,30 @@ SuctionCupController::~SuctionCupController(){
 
 }
 
-void SuctionCupController::update(double dt, rw::kinematics::State& state){
+void SuctionCupController::update(const Simulator::UpdateInfo&, rw::kinematics::State& state){
     // check the contact state of the suction cup mouth
-    ;
-    std::vector<BodyContactSensor::Ptr> &sensors = _dev->getBodySensors();
-    bool inContact=true;
-    Body* body = NULL;
-    BOOST_FOREACH(BodyContactSensor::Ptr sensor, sensors){
-        const std::vector<rw::sensor::Contact3D>& contacts = sensor->getContacts();
+    //std::vector<BodyContactSensor::Ptr> &sensors = _dev->getBodySensors();
+    //bool inContact=true;
+	bool inContact=false;
+    Body::Ptr body = NULL;
+    /*for(BodyContactSensor::Ptr sensor : sensors) {
+        const std::vector<rw::sensor::Contact3D>& contacts = sensor->getContacts(state);
         if(contacts.size()==0){
             inContact = false;
             break;
         }
-        BOOST_FOREACH(Body *b, sensor->getBodies() ){
-            if(b!=NULL){
+        for(Body::Ptr b : sensor->getBodies(state) ) {
+            if(!b.isNull()){
                 body = b;
             }
 
         }
-    }
+    }*/
 
 
 
     // TODO: we have to update forces on all bodies to uphold the integrity of the "internal" bodies
-    if( body==NULL ){
+    if( body.isNull() ){
 /*
         std::cout << "NO CONTACT" << std::endl;
         // no contacts, apply forces such that the default configuration will be reached.
@@ -113,7 +114,7 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
         double mainstrainF_springforce = mainstrainF_elasticity * _dev->getHeight()-mainstrainF_length;
         ;
         // add the mainstrain force to the bodies
-        BOOST_FOREACH(Body* bodyPart, _dev->getBodyParts()){
+        for(Body* bodyPart : _dev->getBodyParts()) {
             bodyPart->addForceW( mainstrainF_dir*(mainstrainF_springforce/N), state  );
             std::cout << "mainStrain: " << mainstrainF_dir*(mainstrainF_springforce/N) << std::endl;
         }
@@ -170,7 +171,7 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
 
     }
 
-    if(!inContact && body!=NULL){
+    if(!inContact && !body.isNull()){
         std::cout << "SuctionCupController: All bodies are not in contact!" << std::endl;
         return;
     }
@@ -186,9 +187,9 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
 
         // calculate contact center
         Vector3D<> contactCenter(0,0,0);
-        std::vector<Transform3D<> > t3ds( _dev->getFrameParts().size() );
-        for(size_t i=0; i<_dev->getFrameParts().size(); i++){
-            t3ds[i] = Kinematics::worldTframe(_dev->getFrameParts()[i], state);
+        std::vector<Transform3D<> > t3ds( _dev->getLinks().size() );
+        for(size_t i=0; i<_dev->getLinks().size(); i++){
+            t3ds[i] = Kinematics::worldTframe(_dev->getLinks()[i]->getBodyFrame(), state);
             contactCenter += t3ds[i].P();
         }
 
@@ -203,7 +204,7 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
 
 
         // calculate force direction
-        Transform3D<> wTb = Kinematics::worldTframe(_dev->getBodyFrame(), state);
+        Transform3D<> wTb = Kinematics::worldTframe(_dev->getBaseBody()->getBodyFrame(), state);
         //Vector3D<> vacumForce = normalize(wTb.P()-contactCenter)*suctionForce;
 
         body->addForceWToPosW( normal*suctionForce , contactCenter, state );
@@ -214,7 +215,7 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
         // mouth piece is taken into account
 
 
-        const double N = _dev->getBodyParts().size();
+        const double N = _dev->getLinks().size();
         const double mainstrainF_elasticity = 50/_dev->getHeight(); // max force on 50N
         const double rotaionstrain_elasticity = (10*_dev->getRadius())/(90*Deg2Rad); // max force in point 10N and max angular displacement 90Deg, therefore t_max = (r*F_max)/90deg
         //const double torsionalstrain_elasticity = ;//
@@ -226,10 +227,10 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
         double mainstrainF_springforce = mainstrainF_elasticity * _dev->getHeight()-mainstrainF_length;
 
         // add the mainstrain force to the bodies
-        BOOST_FOREACH(Body* body, _dev->getBodyParts()){
+        for(Body::Ptr body : _dev->getLinks()) {
             body->addForceW( mainstrainF_dir*(mainstrainF_springforce/N), state  );
         }
-        _dev->getBodyPart()->addForceW( -mainstrainF_dir*mainstrainF_springforce, state );
+        _dev->getBaseBody()->addForceW( -mainstrainF_dir*mainstrainF_springforce, state );
 
 
         // now add forces related to the rotational stress
@@ -240,8 +241,8 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
             double torque = -ang*rotaionstrain_elasticity/N;
 
             // apply the torque onto all bodies
-            for(size_t i=0; i<_dev->getFrameParts().size(); i++){
-                Body* body = _dev->getBodyParts()[i];
+            for(size_t i=0; i<_dev->getLinks().size(); i++){
+                Body::Ptr body = _dev->getLinks()[i];
                 Vector3D<> toPoint = t3ds[i].P()-(rotationVector*dot( t3ds[i].P(), rotationVector));
 
                 // we calculate the force on the bodies as f = t/r
@@ -265,8 +266,8 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
         */
 
         // lastly secure all points relative to the fixed positions of the centerFrame
-        for(size_t i=0; i<_dev->getFrameParts().size(); i++){
-            Body* body = _dev->getBodyParts()[i];
+        for(size_t i=0; i<_dev->getLinks().size(); i++){
+            Body::Ptr body = _dev->getLinks()[i];
             Vector3D<> displacement = (centerFrame*_bodyTransforms[i]).P() - t3ds[i].P();
             Vector3D<> force = normalize(displacement)*displacement.norm2()*mainstrainF_elasticity*10;
             body->addForceW(force, state);
@@ -278,8 +279,8 @@ void SuctionCupController::update(double dt, rw::kinematics::State& state){
 void SuctionCupController::reset(const rw::kinematics::State& state){
     // reset the suction cup to the current state
 
-    for(size_t i=0; i<_dev->getFrameParts().size(); i++){
-        RigidBody* body = _dev->getBodyParts()[i];
+    for(size_t i=0; i<_dev->getLinks().size(); i++){
+        RigidBody::Ptr body = _dev->getLinks()[i].cast<RigidBody>();
         _bodyTransforms[i] = body->getMovableFrame()->getTransform(state);
 
     }
