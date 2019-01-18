@@ -18,6 +18,7 @@
 #include <QMessageBox>
 
 #include <boost/bind.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include <stack>
 
@@ -107,7 +108,16 @@ namespace {
 }
 
 SimTaskVisPlugin::SimTaskVisPlugin():
-    RobWorkStudioPlugin("SimTaskVisPluginUI", QIcon(":/pa_icon.png"))
+    RobWorkStudioPlugin("SimTaskVisPluginUI", QIcon(":/pa_icon.png")),
+    _wc(nullptr),
+    _hand(nullptr),
+    _mbase(nullptr),
+    _tcp(nullptr),
+    _targets(nullptr),
+    _currentTaskIndex(0),
+    _currentTargetIndex(0),
+    _nextTargetIndex(0),
+    _totalNrOfExperiments(0)
 {
     setupUi(this);
 

@@ -34,6 +34,7 @@
 #include <rw/common/InputArchive.hpp>
 #include <rw/common/OutputArchive.hpp>
 
+#include <boost/numeric/conversion/cast.hpp>
 #include <boost/tuple/tuple.hpp>
 
 namespace rwlibs { namespace algorithms {
@@ -269,14 +270,21 @@ namespace rwlibs { namespace algorithms {
 
     private:
         //! default constructor
-        KDTreeQ(){};
+        KDTreeQ():
+            _dim(0),
+            _nrOfNodes(0),
+            _root(NULL),
+            _nodes(new std::vector<TreeNode*>())
+        {
+        }
 
         //! constructor
         KDTreeQ(TreeNode *root, std::vector<TreeNode*> *nodes):
             _dim(root->_kdnode->key.size()),
+            _nrOfNodes(nodes->size()),
             _root(root),_nodes(nodes)
         {
-        };
+        }
 
         /**
         * @brief Internal representation of a KD Tree Node. To save processing time when deleting

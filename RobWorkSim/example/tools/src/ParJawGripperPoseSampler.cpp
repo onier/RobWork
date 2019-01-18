@@ -65,28 +65,28 @@ std::vector<double> surfaceArea;
 
 int main(int argc, char** argv)
 {
-	static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
-	Random::seed(SEED);
-	srand(SEED);
+    static const unsigned int SEED = static_cast<unsigned int>(time(NULL));
+    Random::seed(SEED);
+    srand(SEED);
 
     // we need
     // Declare the supported options.
     options_description desc("Allowed options");
     desc.add_options()
-        ("help", "produce help message")
-        ("wc", value<string>()->default_value(""), "The workcell.")
-        ("object", value<string>(), "then object name or stl file")
-        ("gripper", value<string>(), "the gripper.")
-        ("gripper-tcp", value<string>()->default_value("GRIPPER_TCP"), "the gripper tcp.")
-        ("gripper-base", value<string>()->default_value("GRIPPER_MOVER"), "the frame that moves the gripper.")
-        ("output,o", value<string>()->default_value("out.xml"), "the output file.")
-        ("oformat,b", value<string>()->default_value("RWTASK"), "The output format, RWTASK, UIBK, Text.")
-        ("open", value<Q>(), "default will be max q of gripper.")
-        ("close", value<Q>(), "default will be min q of gripper.")
-        ("jawdist", value<double>(), "The distance between jaw 1 and jaw 2 when closed.")
-        ("samples", value<int>()->default_value(2000), "Nr of grasp samples that should be generated.")
+            ("help", "produce help message")
+            ("wc", value<string>()->default_value(""), "The workcell.")
+            ("object", value<string>(), "then object name or stl file")
+            ("gripper", value<string>(), "the gripper.")
+            ("gripper-tcp", value<string>()->default_value("GRIPPER_TCP"), "the gripper tcp.")
+            ("gripper-base", value<string>()->default_value("GRIPPER_MOVER"), "the frame that moves the gripper.")
+            ("output,o", value<string>()->default_value("out.xml"), "the output file.")
+            ("oformat,b", value<string>()->default_value("RWTASK"), "The output format, RWTASK, UIBK, Text.")
+            ("open", value<Q>(), "default will be max q of gripper.")
+            ("close", value<Q>(), "default will be min q of gripper.")
+            ("jawdist", value<double>(), "The distance between jaw 1 and jaw 2 when closed.")
+            ("samples", value<int>()->default_value(2000), "Nr of grasp samples that should be generated.")
 
-    ;
+            ;
     positional_options_description optionDesc;
     optionDesc.add("input",-1);
 
@@ -99,15 +99,15 @@ int main(int argc, char** argv)
     variables_map vm;
     //store(parse_command_line(argc, argv, desc), vm);
     store(command_line_parser(argc, argv).
-              options(desc).positional(optionDesc).run(), vm);
+            options(desc).positional(optionDesc).run(), vm);
     notify(vm);
 
     rw::math::Random::seed(static_cast<unsigned int>(TimerUtil::currentTimeMs()) );
     // write standard welcome, status
     if (vm.count("help")) {
         cout << "Usage:\n\n"
-                  << "\t" << argv[0] <<" [options] -o<outfile> <expFile1> <expFile2> <...> <expFileN> \n"
-                  << "\n";
+                << "\t" << argv[0] <<" [options] -o<outfile> <expFile1> <expFile2> <...> <expFileN> \n"
+                << "\n";
         cout << desc << "\n";
         return 1;
     }
@@ -164,9 +164,9 @@ int main(int argc, char** argv)
 
 
 
-	std::string grippername = vm["gripper"].as<std::string>();
-	std::string grippertcp = vm["gripper-tcp"].as<std::string>();
-	std::string gripperbase = vm["gripper-base"].as<std::string>();
+    std::string grippername = vm["gripper"].as<std::string>();
+    std::string grippertcp = vm["gripper-tcp"].as<std::string>();
+    std::string gripperbase = vm["gripper-base"].as<std::string>();
 
     // TODO: this should be automized
     Frame* gripperTCP = wc->findFrame( grippertcp );
@@ -175,31 +175,31 @@ int main(int argc, char** argv)
     MovableFrame* gripperMovable = wc->findFrame<MovableFrame>( gripperbase );
     RW_ASSERT(gripperMovable!=NULL);
 
-	Geometry::Ptr geo = object_geo;
+    Geometry::Ptr geo = object_geo;
 
-	Device::Ptr gripper = wc->findDevice(grippername);
-	RW_ASSERT(gripper!=NULL);
+    Device::Ptr gripper = wc->findDevice(grippername);
+    RW_ASSERT(gripper!=NULL);
 
-	// setup openq and closeq
-	Q OPENQ = gripper->getBounds().second;
-	Q CLOSEQ = gripper->getBounds().first;
+    // setup openq and closeq
+    Q OPENQ = gripper->getBounds().second;
+    Q CLOSEQ = gripper->getBounds().first;
 
-	if(vm.count("open")>0){ OPENQ = vm["open"].as<Q>(); }
+    if(vm.count("open")>0){ OPENQ = vm["open"].as<Q>(); }
 
-	if(vm.count("close")>0){ CLOSEQ = vm["close"].as<Q>(); }
+    if(vm.count("close")>0){ CLOSEQ = vm["close"].as<Q>(); }
 
-	// check if qopn and qclose properties exist on the gripper tcp frame
-	if( gripperTCP->getPropertyMap().has("qclose") )
-	    CLOSEQ = gripperTCP->getPropertyMap().get<Q>("qclose") * Deg2Rad;
+    // check if qopn and qclose properties exist on the gripper tcp frame
+    if( gripperTCP->getPropertyMap().has("qclose") )
+        CLOSEQ = gripperTCP->getPropertyMap().get<Q>("qclose") * Deg2Rad;
 
-	if( gripperTCP->getPropertyMap().has("qopen") )
-	    OPENQ = gripperTCP->getPropertyMap().get<Q>("qopen") * Deg2Rad;
+    if( gripperTCP->getPropertyMap().has("qopen") )
+        OPENQ = gripperTCP->getPropertyMap().get<Q>("qopen") * Deg2Rad;
 
-	double jawdist = 1;
+    double jawdist = 1;
     if(vm.count("jawdist")!=0) //RW_THROW("jawdist option must be specified!");
         jawdist = vm["jawdist"].as<double>();
 
-	double minWidth =gripperTCP->getPropertyMap().get<double>("minJawWidth",0);
+    double minWidth =gripperTCP->getPropertyMap().get<double>("minJawWidth",0);
     double maxWidth =gripperTCP->getPropertyMap().get<double>("maxJawWidth",jawdist);
 
     Q openQ = OPENQ;
@@ -208,17 +208,17 @@ int main(int argc, char** argv)
     std::cout << "QClose : " << closeQ << std::endl;
 
 
-	TriMeshSurfaceSampler sampler(geo);
-	sampler.setRandomPositionEnabled(false);
-	sampler.setRandomRotationEnabled(false);
+    TriMeshSurfaceSampler sampler(geo);
+    sampler.setRandomPositionEnabled(false);
+    sampler.setRandomRotationEnabled(false);
 
-	std::string type = gripper->getName();
+    std::string type = gripper->getName();
 
-	// these should be the object transformation
+    // these should be the object transformation
     Vector3D<> pos(0, 0, 0);
     Rotation3D<> rot(1, 0, 0,
-                     0, 1, 0,
-                     0, 0, 1);
+            0, 1, 0,
+            0, 0, 1);
 
     GraspTask gtask;
     gtask.getSubTasks().resize(1);
@@ -373,7 +373,7 @@ int main(int argc, char** argv)
         Quaternion<> quat( target.R() );
         quat.normalize();
         target.R() = quat.toRotation3D();
-*/
+         */
         // place gripper in target position
         // target is defined in object coordinates
         Transform3D<> mbaseTtcp = Kinematics::frameTframe(gripperMovable,gripperTCP, state);
@@ -513,7 +513,7 @@ int main(int argc, char** argv)
         }
         std::cout << "\n" << nodeNr << "\t" << nrNeighbors << "\t"<< nrClose << std::flush;
         node.valueAs<GraspResult::Ptr>()->qualityAfterLifting = Q(1, nrClose*1.0);
-        */
+         */
 
         std::cout << "\n" << nodeNr << "\t" << nrNeighbors << "\t" <<  nrNeighbors_all << std::flush;
         gres->qualityAfterLifting = Q(1, (nrNeighbors*1.0/(nrNeighbors_all+0.0001)) );
@@ -529,10 +529,10 @@ int main(int argc, char** argv)
         GraspTask::saveRWTask( &gtask, outfile );
         //GraspTask::saveUIBK( &gtask, outfile );
     } catch (const Exception&) {
-       RW_WARN("Task Execution Widget: Unable to save tasks");
+        RW_WARN("Task Execution Widget: Unable to save tasks");
     }
 
-	return 0;
+    return 0;
 }
 
 const Q normalize(const Q& v)
@@ -643,4 +643,3 @@ Transform3D<> sampleParSurface(double minDist, double maxDist, TriMeshSurfaceSam
     } while( !targetFound );
     return target;
 }
-

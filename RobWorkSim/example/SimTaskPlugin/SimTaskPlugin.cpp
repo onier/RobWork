@@ -60,7 +60,23 @@ using namespace rwsim::simulator;
 const int NR_OF_QUALITY_MEASURES = 3;
 
 SimTaskPlugin::SimTaskPlugin():
-    RobWorkStudioPlugin("SimTaskPluginUI", QIcon(":/pa_icon.png"))
+    RobWorkStudioPlugin("SimTaskPluginUI", QIcon(":/pa_icon.png")),
+    _wc(nullptr),
+    _mbase(nullptr),
+    _tcp(nullptr),
+    _targets(nullptr),
+    _currentTaskIndex(0),
+    _currentTargetIndex(0), _nextTargetIndex(0),
+    _nrOfExperiments(0), _totalNrOfExperiments(0),
+    _failed(0), _success(0), _slipped(0), _collision(0), _timeout(0),
+    _simfailed(0), _skipped(0),
+    _currentState(SimState::NEW_GRASP),
+    _graspTime(0), _approachedTime(0),
+    _restingTime(0), _simTime(0),
+    _stopped(true),
+    _configured(false),
+    _maxObjectGripperDistance(0),
+    _lastSaveTaskIndex(0)
 {
     setupUi(this);
 
@@ -164,7 +180,7 @@ void SimTaskPlugin::startSimulation() {
     _controller = scontroller->getControllerHandle(_sim).cast<rwlibs::control::JointController>();
     _progressBar->setRange( 0 , _totalNrOfExperiments);
     _progressBar->setValue( 0 );
-    _currentState = NEW_GRASP;
+    _currentState = SimState::NEW_GRASP;
     _wallTimer.resetAndResume();
     _wallTotalTimer.resetAndResume();
 
@@ -847,18 +863,18 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
     }
     _simState = state;
 
-    if(_wallTimer.getTime()>60){ //seconds
+    if(_wallTimer.getTime()>60) { //seconds
         _timeout++;
         getTarget()->getPropertyMap().set<Q>("GripperConfiguration", _graspedQ);
         getTarget()->getPropertyMap().set<int>("TestStatus", TimeOut);
-        _currentState = NEW_GRASP;
+        _currentState = SimState::NEW_GRASP;
     }
 
-    if(_sim->getTime()>20.0 && _currentState != NEW_GRASP){
+    if(_sim->getTime()>20.0 && _currentState != SimState::NEW_GRASP) {
         _timeout++;
         getTarget()->getPropertyMap().set<Q>("GripperConfiguration", _graspedQ);
         getTarget()->getPropertyMap().set<int>("TestStatus", TimeOut);
-        _currentState = NEW_GRASP;
+        _currentState = SimState::NEW_GRASP;
     }
 
     //Transform3D<> cT3d = Kinematics::worldTframe(_object->getBodyFrame(), state);
@@ -873,10 +889,10 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
             Transform3D<> restTransform = Kinematics::frameTframe(_mbase, _objects[i]->getBodyFrame(), state);
             getTarget()->getPropertyMap().set<Transform3D<> >("GripperTObject"+boost::lexical_cast<std::string>(i), restTransform);
         }
-        _currentState = NEW_GRASP;
+        _currentState = SimState::NEW_GRASP;
     }
 
-    if(_currentState!=NEW_GRASP ){
+    if(_currentState != SimState::NEW_GRASP ) {
         if( getMaxObjectDistance( _objects, _homeState, state) > _maxObjectGripperDistance ){
             double mdist=getMaxObjectDistance( _objects, _homeState, state);
             _simfailed++;
@@ -889,11 +905,11 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
                 Transform3D<> restTransform = Kinematics::frameTframe(_mbase, _objects[i]->getBodyFrame(), state);
                 getTarget()->getPropertyMap().set<Transform3D<> >("GripperTObject"+boost::lexical_cast<std::string>(i), restTransform);
             }
-            _currentState = NEW_GRASP;
+            _currentState =SimState:: NEW_GRASP;
         }
     }
 
-    if(_currentState ==APPROACH){
+    if(_currentState == SimState::APPROACH) {
 
         Transform3D<> ct3d = Kinematics::worldTframe(_dhand->getBase()->getBodyFrame(), state);
         bool isLifted = MetricUtil::dist2( ct3d.P(), _approach.P() )<0.002;
@@ -901,10 +917,10 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
         //if(_sim->getTime()>1.2){
 
         //std::cout << "APPROACH: " << std::endl;
-        if(isLifted){
+        if(isLifted) {
             std::cout << "GRASPING" << std::endl;
             _controller->setTargetPos(_closeQ);
-            _currentState=GRASPING;
+            _currentState = SimState::GRASPING;
             _approachedTime = _sim->getTime();
             _restingTime = _approachedTime;
 
@@ -916,10 +932,10 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
 
 
     //std::cout << "step callback" << std::endl;
-    if(_currentState==GRASPING){
+    if(_currentState == SimState::GRASPING) {
         //std::cout << "grasping" << std::endl;
         _graspedQ = _hand->getQ(state);
-        if(_sim->getTime()> _approachedTime+0.2){
+        if(_sim->getTime() > _approachedTime+0.2) {
             // test if the grasp is in rest
             bool isResting = DynamicUtil::isResting(_dhand, state, 0.02);
             //std::cout << isResting << "&&" << _sim->getTime() << "-" << _restingTime << ">0.08" << std::endl;
@@ -942,23 +958,23 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
 
                 }
                 GraspedObject gobj = getObjectContacts(state);
-                if( gobj.object == NULL ){
+                if( gobj.object.isNull() ) {
                     _failed++;
                     std::cout << "NEW_GRASP" << std::endl;
                     std::cout << "ObjectMissed" << std::endl;
                     getTarget()->getPropertyMap().set<int>("TestStatus", ObjectMissed);
                     getTarget()->getPropertyMap().set<Q>("QualityBeforeLifting", Q::zero(2));
-                    _currentState = NEW_GRASP;
+                    _currentState = SimState::NEW_GRASP;
                 } else {
                     std::cout << "LIFTING" << std::endl;
                     Q qualities = calcGraspQuality(state);
                     getTarget()->getPropertyMap().set<Q>("QualityBeforeLifting", qualities);
                     _sim->setTarget(_dhand->getBase(), _home, nstate);
                     _tsim->reset(nstate);
-                    _currentState = LIFTING;
+                    _currentState = SimState::LIFTING;
                 }
             }
-            if( !isResting ){
+            if( !isResting ) {
                 _restingTime = _sim->getTime();
             }
 
@@ -967,7 +983,7 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
         }
     }
 
-    if(_currentState==LIFTING){
+    if(_currentState == SimState::LIFTING) {
         // test if object has been lifted
         bool isLifted = true;
         Transform3D<> ct3d = Kinematics::worldTframe(_dhand->getBase()->getBodyFrame(), state);
@@ -1053,7 +1069,7 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
             }
 
 
-            _currentState = NEW_GRASP;
+            _currentState = SimState::NEW_GRASP;
         }
 
 
@@ -1067,7 +1083,7 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
         */
     }
 
-    if(_currentState==NEW_GRASP){
+    if(_currentState == SimState::NEW_GRASP) {
         State nstate = getRobWorkStudio()->getState();
         // pop new task from queue
         // if all tasks
@@ -1151,7 +1167,7 @@ void SimTaskPlugin::step(ThreadSimulator* sim, const rw::kinematics::State& stat
         _sim->setTarget(_dhand->getBase(), _approach, nstate);
         _controller->setTargetPos(_openQ);
         _wallTimer.resetAndResume();
-        _currentState = APPROACH;
+        _currentState = SimState::APPROACH;
         Transform3D<> t3d  = Kinematics::frameTframe(_tcp, _objects[0]->getBodyFrame(), nstate);
         getTarget()->getPropertyMap().set<Transform3D<> > ("ObjectTtcpTarget", inverse(t3d) );
 

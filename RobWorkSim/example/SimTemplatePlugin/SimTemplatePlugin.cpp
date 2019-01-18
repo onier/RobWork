@@ -19,7 +19,8 @@ using namespace rwsim::dynamics;
 using namespace rwsim::simulator;
 
 SimTemplatePlugin::SimTemplatePlugin():
-    RobWorkStudioPlugin("SimTemplatePluginUI", QIcon(":/pa_icon.png"))
+    RobWorkStudioPlugin("SimTemplatePluginUI", QIcon(":/pa_icon.png")),
+    _wc(nullptr)
 {
     setupUi(this);
 

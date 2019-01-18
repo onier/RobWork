@@ -155,7 +155,7 @@ private:
 
     int _failed, _success, _slipped, _collision, _timeout, _simfailed,_skipped;
 
-    typedef enum{GRASPING, LIFTING, NEW_GRASP, APPROACH} SimState;
+    enum class SimState : unsigned char {GRASPING, LIFTING, NEW_GRASP, APPROACH};
     SimState _currentState;
 
     double _graspTime,
@@ -171,14 +171,6 @@ private:
     double _maxObjectGripperDistance;
     rw::common::Ptr<rw::proximity::CollisionDetector> _collisionDetector;
     //rw::common::Timer _wallTimer;
-    /**
-     *
-     *
-     *
-     * restingtime
-     *
-     *
-     */
 
     rw::common::PropertyMap _config;
     PropertyViewEditor *_propertyView;

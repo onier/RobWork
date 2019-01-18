@@ -11,6 +11,8 @@
 #include <rw/math/Random.hpp>
 #include <rw/math/Vector3D.hpp>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 using namespace rw::common;
 using namespace rw::graspplanning;
 using namespace rw::math;

@@ -29,6 +29,8 @@
 #include <rwlibs/task/loader/TaskSaver.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 using namespace std;
 using namespace rw::common;
 using rw::geometry::Geometry;

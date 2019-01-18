@@ -42,7 +42,6 @@ using namespace rw::proximity;
 using namespace rw::trajectory;
 using rwlibs::proximitystrategies::ProximityStrategyPQP;
 
-rw::common::Ptr<TriMesh> offsetSurface(const TriMesh& triMesh, double dist);
 bool isDebugEnabled = false;
 
 struct Knife {

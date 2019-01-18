@@ -11,6 +11,8 @@
 #include <rwsim/dynamics/ContactPoint.hpp>
 #include <rwsim/dynamics/ContactCluster.hpp>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 using namespace rw::math;
 using namespace rwsim::dynamics;
 
