@@ -119,7 +119,7 @@ namespace common {
 		 * @param id [in] Id associated with the callback (only used for removing a
 		 * specific listener)
 		 */
-		void add(CallBackMethod callback, const void* obj = NULL, int id = 0)
+		void add(CallBackMethod callback, const void* obj = nullptr, int id = 0)
 		{
 			_listeners.push_back(Listener(callback, obj, id));
 		}
