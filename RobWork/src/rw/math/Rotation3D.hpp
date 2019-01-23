@@ -593,5 +593,22 @@ template <> void read(rw::math::Rotation3D<double>& sobject, rw::common::InputAr
 template <> void read(rw::math::Rotation3D<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
+namespace boost { namespace serialization {
+    /**
+     * @brief Boost serialization.
+     * @param archive [in] the boost archive to read from or write to.
+     * @param R [in/out] the rotation matrix to read/write.
+     * @param version [in] class version (currently version 0).
+     * @relatedalso rw::math::Rotation3D
+     */
+    template<class Archive, class T>
+    void serialize(Archive & archive, rw::math::Rotation3D<T> & R,
+            const unsigned int version)
+    {
+        archive & R(0,0); archive & R(0,1); archive & R(0,2);
+        archive & R(1,0); archive & R(1,1); archive & R(1,2);
+        archive & R(2,0); archive & R(2,1); archive & R(2,2);
+    }
+}} // end namespaces
 
 #endif // end include guard

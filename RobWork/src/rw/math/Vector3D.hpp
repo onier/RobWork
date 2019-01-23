@@ -541,4 +541,22 @@ namespace serialization {
     template<> void read(rw::math::Vector3D<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
+namespace boost { namespace serialization {
+    /**
+     * @brief Boost serialization.
+     * @param archive [in] the boost archive to read from or write to.
+     * @param vector [in/out] the vector to read/write.
+     * @param version [in] class version (currently version 0).
+     * @relatedalso rw::math::Vector3D
+     */
+    template<class Archive, class T>
+    void serialize(Archive & archive, rw::math::Vector3D<T> & vector,
+            const unsigned int version)
+    {
+        archive & vector[0];
+        archive & vector[1];
+        archive & vector[2];
+    }
+}} // end namespaces
+
 #endif // end include guard

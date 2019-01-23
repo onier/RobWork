@@ -567,6 +567,58 @@ namespace serialization {
 	template<> void read(rw::math::Q& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
+namespace boost { namespace serialization {
+    /**
+     * @brief Boost serialization.
+     * @param archive [in] the boost archive to read from or write to.
+     * @param q [in/out] the vector to read/write.
+     * @param version [in] class version (currently version 0).
+     * @relatedalso rw::math::Q
+     */
+    template<class Archive>
+    void serialize(Archive & archive, rw::math::Q & q,
+            const unsigned int version)
+    {
+        split_free(archive, q, version); // split into load and save
+    }
 
+    /**
+     * @brief Boost serialization.
+     * @param archive [in] the boost archive to write to.
+     * @param q [in] the vector to write.
+     * @param version [in] class version (currently version 0).
+     * @relatedalso rw::math::Q
+     */
+    template<class Archive>
+    void save(Archive & archive, const rw::math::Q & q,
+            const unsigned int version)
+    {
+        const rw::math::Q::Base& e = q.e();
+        archive << e.size();
+        for (rw::math::Q::Base::Index i = 0; i < e.size(); i++) {
+            archive << e[i];
+        }
+    }
+
+    /**
+     * @brief Boost serialization.
+     * @param archive [in] the boost archive to read from.
+     * @param q [out] the vector to read.
+     * @param version [in] class version (currently version 0).
+     * @relatedalso rw::math::Q
+     */
+    template<class Archive>
+    void load(Archive & archive, rw::math::Q & q,
+            const unsigned int version)
+    {
+        rw::math::Q::Base& e = q.e();
+        rw::math::Q::Base::Index size;
+        archive >> size;
+        e.resize(size);
+        for (rw::math::Q::Base::Index i = 0; i < size; i++) {
+            archive >> e[i];
+        }
+    }
+}} // end namespaces
 
 #endif // end include guard

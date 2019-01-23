@@ -186,6 +186,7 @@ SET(MATH_TEST_LIBRARIES
 
 SET(MATH_TEST_SRC
   math/PolynomialTest.cpp
+  math/SerializationTest.cpp
   math/StatisticsTest.cpp
 )
 ADD_EXECUTABLE( rw_math-gtest ${MATH_TEST_SRC})       

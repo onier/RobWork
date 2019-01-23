@@ -585,5 +585,21 @@ template<> void read(rw::math::Transform3D<double>& sobject, rw::common::InputAr
 template<> void read(rw::math::Transform3D<float>& sobject, rw::common::InputArchive& iarchive, const std::string& id);
 }}} // end namespaces
 
+namespace boost { namespace serialization {
+    /**
+     * @brief Boost serialization.
+     * @param archive [in] the boost archive to read from or write to.
+     * @param transform [in/out] the transformation to read/write.
+     * @param version [in] class version (currently version 0).
+     * @relatedalso rw::math::Transform3D
+     */
+    template<class Archive, class T>
+    void serialize(Archive & archive, rw::math::Transform3D<T> & transform,
+            const unsigned int version)
+    {
+        archive & transform.P();
+        archive & transform.R();
+    }
+}} // end namespaces
 
 #endif // end include guard
