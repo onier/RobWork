@@ -16,7 +16,7 @@
 		<Box x="0.1" y="2" z="0.2" />
 	</Drawable>
 </Frame>
-<Frame name="Wall3" refframe="WORLD">
+<Frame name="Wall3" refframe="WORLD" type="Movable">
 	<RPY> 0 0 0 </RPY> <Pos> 0 1 0 </Pos>
 	<Drawable name="Box2d">
 		<RPY> 0 0 0</RPY>
