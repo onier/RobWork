@@ -32,6 +32,9 @@
 #include <vector>
 #include "Timed.hpp"
 
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/serialization.hpp>
+
 namespace rw { namespace trajectory {
 
 template <class T>
@@ -44,7 +47,7 @@ public:
 	/**
 	 * @brief Default constructor
 	 */
-	Path() {};
+	Path() {}
 
 	/**
 	 * @brief Constructor adding \b cnt elements. Objects of type T is added using default constructor
@@ -77,6 +80,16 @@ public:
 	 */
 	Path(const std::vector<T>& v): std::vector<T>(v)
 	{}
+
+	private:
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & boost::serialization::base_object< std::vector<T> >(*this);
+	}
 
 };
 

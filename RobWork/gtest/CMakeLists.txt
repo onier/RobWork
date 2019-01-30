@@ -286,6 +286,22 @@ TARGET_LINK_LIBRARIES( rw_task-gtest ${TASK_TEST_LIBRARIES})
 ADD_RW_GTEST(rw_task-gtest)
 
 ########################################################################
+# Trajectory
+########################################################################
+
+SET(TRAJECTORY_TEST_LIBRARIES
+ ${GTEST_BOTH_LIBRARIES}
+ rw
+)
+
+SET(TRAJECTORY_TEST_SRC
+  trajectory/PathTest.cpp
+)
+ADD_EXECUTABLE( rw_trajectory-gtest ${TRAJECTORY_TEST_SRC})       
+TARGET_LINK_LIBRARIES( rw_trajectory-gtest ${TRAJECTORY_TEST_LIBRARIES})
+ADD_RW_GTEST(rw_trajectory-gtest)
+
+########################################################################
 # Target for generation of all detailed reports
 ########################################################################
 
