@@ -44,14 +44,19 @@ public:
 	 * @brief Do the Delaunay triangulation of a set of 2D points.
 	 *
 	 * The border of the triangulation will be the convex hull of the vertices.
-	 * It is possible to attach a value to each of the vertices, which will be the third coordinate in the returned 3D triangle mesh.
+	 * It is possible to attach a value to each of the vertices, which will be
+	 * the third coordinate in the returned 3D triangle mesh.
 	 * If no values are given, the third coordinate will simply be zero.
 	 *
 	 * @param vertices [in] the set of 2D points to triangulate.
 	 * @param values [in] (optional) attach a value to each of the vertices.
-	 * @return an indexed triangle mesh in 3D, where the first two coordinates gives the triangulation and the third coordinate holds corresponding \b values if given.
+	 * @return an indexed triangle mesh in 3D, where the first two coordinates
+	 * gives the triangulation and the third coordinate holds corresponding
+	 * \b values if given.
 	 */
-	static rw::geometry::IndexedTriMesh<>::Ptr triangulate(const std::vector<rw::math::Vector2D<> >& vertices, const std::vector<double>& values = std::vector<double>());
+	static rw::geometry::IndexedTriMesh<>::Ptr triangulate(
+	        const std::vector<rw::math::Vector2D<> >& vertices,
+	        const std::vector<double>& values = std::vector<double>());
 
 private:
 	Delaunay();
