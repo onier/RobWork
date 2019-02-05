@@ -17,7 +17,7 @@ void loadFile(ThreadPool* pool, const std::string &file) {
 	Image::Ptr image;
 	try {
 		image = ImageLoader::Factory::load(file);
-	} catch (Exception &e) {
+	} catch (Exception&) {
 		image = NULL;
 	}
 	if (pool->isStopping())

@@ -40,7 +40,7 @@ using rwlibs::simulation::SimulatedCamera;
 struct SimpleGLViewer::InternalData {
 	InternalData():
 		_x(0), _y(0), _width(640), _height(480),
-		_arcBall(new ArcBall(_width,_height)),
+		_arcBall(new ArcBall(static_cast<GLfloat>(_width), static_cast<GLfloat>(_height))),
 		_mainWindow(0),
 		_curCameraView(0), _camView(false),
 		_mouseState(NONE),
@@ -122,28 +122,33 @@ public:
 		//glMaterialfv(matRendering, GL_EMISSION, matEmission);
 		//glMateriali(matRendering, GL_SHININESS, 128);
 
+		const GLfloat x = static_cast<GLfloat>(_x);
+		const GLfloat y = static_cast<GLfloat>(_y);
+		const GLfloat w = static_cast<GLfloat>(_width);
+		const GLfloat h = static_cast<GLfloat>(_height);
+
 		glPolygonMode(GL_FRONT, GL_FILL);
 		glBegin(GL_QUADS);
 		glColor4fv(_colorBottom);
-		glVertex2f(_x, _y);
-		glVertex2f(_width, _y);
+		glVertex2f(x, y);
+		glVertex2f(w, y);
 		glColor4fv(_colorTop);
-		glVertex2f(_width, _height);
-		glVertex2f(_x, _height);
+		glVertex2f(w, h);
+		glVertex2f(x, h);
 		glEnd();
 
 		glPopMatrix();
 		//glEnable(GL_TEXTURE_2D);
 	}
 
-	void setTopColor(const Vector3D<>& color){
+	void setTopColor(const Vector3D<GLfloat>& color) {
 		_colorTop[0] = color[0];
 		_colorTop[1] = color[1];
 		_colorTop[2] = color[2];
 		_colorTop[3] = 1;
 	}
 
-	void setBottomColor(const Vector3D<>& color){
+	void setBottomColor(const Vector3D<GLfloat>& color) {
 		_colorBottom[0] = color[0];
 		_colorBottom[1] = color[1];
 		_colorBottom[2] = color[2];
@@ -201,16 +206,19 @@ void placeCenter(float x, float y){
     GLdouble objx, objy, objz;
     gluUnProject(winx, winy, depth, modelMatrix, projMatrix, viewport, &objx, &objy, &objz);
     std::cout << data->_pivotPoint << std::endl;
+	const float objxcast = static_cast<float>(objx);
+	const float objycast = static_cast<float>(objy);
+	const float objzcast = static_cast<float>(objz);
     if (depth != 1) {
       data->_viewPos -= data->_viewRotation*data->_pivotPoint;
-      data->_pivotPoint(0) = objx;
-      data->_pivotPoint(1) = objy;
-      data->_pivotPoint(2) = objz;
+      data->_pivotPoint(0) = objxcast;
+      data->_pivotPoint(1) = objycast;
+      data->_pivotPoint(2) = objzcast;
       data->_viewPos += data->_viewRotation*data->_pivotPoint;
     }
     std::cout << objx << "  "<< objy<< " "<< objz << std::endl;
     // update arcball center
-	data->_arcBall->setCenter( std::pair<float,float>(objx,objy) );
+	data->_arcBall->setCenter( std::make_pair(objxcast, objycast) );
 }
 
 /**************************************** myGlutKeyboard() **********/
@@ -289,8 +297,8 @@ void myGlutMouse(int button, int button_state, int x, int y )
     const int window = glutGetWindow();
 	SimpleGLViewer::InternalData* const data = viewers[window]->_data;
 
-	data->_lastPos(0) = x;
-	data->_lastPos(1) = y;
+	data->_lastPos(0) = static_cast<float>(x);
+	data->_lastPos(1) = static_cast<float>(y);
 
     // Select the mouse drag mode.
     int mods = glutGetModifiers();
@@ -328,12 +336,14 @@ void myGlutMotion(int x, int y)
     switch(data->_mouseState){
         case(SimpleGLViewer::InternalData::ROTATE):
         {
+			const float xf = static_cast<float>(x);
+			const float yf = static_cast<float>(y);
             Quaternion<float> quat(0.0f,0.0f,0.0f,0.0f);
-            data->_arcBall->drag( std::pair<float,float>(x,y), quat); // Update End Vector And Get Rotation As Quaternion
+            data->_arcBall->drag( std::make_pair(xf, yf), quat); // Update End Vector And Get Rotation As Quaternion
 
             Rotation3D<float> thisRot = quat.toRotation3D(); // Convert Quaternion Into Rotation3D
             data->_viewRotation = thisRot*data->_viewRotation; // Accumulate Last Rotation Into This One
-            data->_arcBall->click(x,y);
+            data->_arcBall->click(xf, yf);
             redraw = true;
             break;
         }
@@ -357,8 +367,8 @@ void myGlutMotion(int x, int y)
         default:
             break;
     }
-    data->_lastPos(0) = x;
-    data->_lastPos(1) = y;
+    data->_lastPos(0) = static_cast<float>(x);
+    data->_lastPos(1) = static_cast<float>(y);
     if(redraw)
         glutPostRedisplay();
 }
@@ -379,7 +389,7 @@ void myGlutReshape( int width, int height )
 
     glViewport(0, 0, width, height);
     // resize arcball window
-    data->_arcBall->setBounds(width,height);
+    data->_arcBall->setBounds(static_cast<float>(width), static_cast<float>(height));
 
     glMatrixMode(GL_PROJECTION);
     {
@@ -400,15 +410,15 @@ void myGlutSpecial(int key, int x, int y) {
     // Arrow keys are used for moving the camera.
     if (GLUT_ACTIVE_CTRL & glutGetModifiers()) {
         switch (key) {
-            case GLUT_KEY_UP: data->_viewPos(2)   -= 0.15; break;
-            case GLUT_KEY_DOWN: data->_viewPos(2) += 0.15; break;
+            case GLUT_KEY_UP: data->_viewPos(2)   -= 0.15f; break;
+            case GLUT_KEY_DOWN: data->_viewPos(2) += 0.15f; break;
         }
     } else if (GLUT_ACTIVE_SHIFT & glutGetModifiers()) {
         switch (key) {
-            case GLUT_KEY_LEFT:  data->_viewPos(0) -= 0.05; break;
-            case GLUT_KEY_RIGHT: data->_viewPos(0) += 0.05; break;
-            case GLUT_KEY_UP:    data->_viewPos(1) += 0.05; break;
-            case GLUT_KEY_DOWN:  data->_viewPos(1) -= 0.05; break;
+            case GLUT_KEY_LEFT:  data->_viewPos(0) -= 0.05f; break;
+            case GLUT_KEY_RIGHT: data->_viewPos(0) += 0.05f; break;
+            case GLUT_KEY_UP:    data->_viewPos(1) += 0.05f; break;
+            case GLUT_KEY_DOWN:  data->_viewPos(1) -= 0.05f; break;
         }
     }
     if(data->_keyListener != NULL){
@@ -601,7 +611,7 @@ void SimpleGLViewer::renderView(View::Ptr) {
 }
 
 void SimpleGLViewer::zoom(double amount) {
-	_data->_viewPos -= _data->_viewRotation.getCol(2)*amount;
+	_data->_viewPos -= _data->_viewRotation.getCol(2)*static_cast<float>(amount);
 }
 
 void SimpleGLViewer::autoZoom() {
@@ -710,8 +720,8 @@ bool SimpleGLViewer::start(){
 
     // add a node to render background
     rw::common::Ptr<RenderQuad> backgroundRender = ownedPtr(new RenderQuad());
-    backgroundRender->setTopColor( Vector3D<>(1.0,1.0,1.0) );
-    backgroundRender->setBottomColor( Vector3D<>(0.2,0.2,1.0) );
+    backgroundRender->setTopColor( Vector3D<GLfloat>(1.0f,1.0f,1.0f) );
+    backgroundRender->setBottomColor( Vector3D<GLfloat>(0.2f,0.2f,1.0f) );
     backgroundRender->setViewPort(0,0,640,480);
 
     const rw::common::Ptr<DrawableNode> backgroundnode = _scene->makeDrawable("BackgroundRender", backgroundRender, DrawableNode::ALL);
@@ -881,7 +891,7 @@ void SimpleGLViewer::initLights(){
 
     GLfloat light1_ambient[] =  {1.0f, 0.0f, 0.0f, 1.0f};
     GLfloat light1_diffuse[] =  {.6f, .3f, 0.3f, 1.0f};
-    GLfloat light1_specular[] = { 0.5, 0.2, 0.2, 1.0f};
+    GLfloat light1_specular[] = { 0.5f, 0.2f, 0.2f, 1.0f};
     GLfloat light1_position[] = {.5f, .5f, 1.0f, 0.0f};
 
     glLightfv(GL_LIGHT1, GL_AMBIENT, light1_ambient);

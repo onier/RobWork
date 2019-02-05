@@ -21,7 +21,7 @@ public:
 		}
 		try {
 			_image = ImageLoader::Factory::load(_file);
-		} catch (Exception &e) {
+		} catch (Exception&) {
 			_image = NULL;
 		}
 	}

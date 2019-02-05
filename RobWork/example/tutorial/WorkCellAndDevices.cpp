@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
     // get device name
     std::string sdevicename = sdevice->getName();
     // the degrees of freedom of this device
-    int dof = sdevice->getDOF();
+    const std::size_t dof = sdevice->getDOF();
     // set the configuration of the device to zero
     sdevice->setQ( Q::zero(dof) , state );
 

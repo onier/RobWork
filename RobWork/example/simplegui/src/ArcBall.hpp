@@ -1,6 +1,11 @@
 #ifndef _ArcBall_h
 #define _ArcBall_h
 
+#include <rw/common/os.hpp>
+
+#if defined(RW_WIN32)
+#include <windows.h>
+#endif
 #include <GL/gl.h>												// Header File For The OpenGL32 Library
 #include <GL/glu.h>												// Header File For The GLu32 Library
 
