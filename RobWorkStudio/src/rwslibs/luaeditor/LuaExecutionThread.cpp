@@ -30,7 +30,7 @@ using namespace rw::common;
 using namespace rws;
 
 
-
+/*
 namespace {
 
 	void luaLineHook(lua_State *L, lua_Debug *ar){
@@ -42,6 +42,7 @@ namespace {
 	}
 
 }
+*/
 
 void LuaExecutionThread::set(const std::string& cmd,
              rwlibs::swig::LuaState::Ptr lstate,

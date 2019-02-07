@@ -47,8 +47,6 @@
      typedef enum{Nothing, Executed, ExecutedError, HighLighted} LineState;
      void setLineState(size_t linenr, LineState state){
     	 //std::cout << "setLineState: " << linenr << std::endl;
-    	 if(linenr<0)
-    		 return;
     	 if(_executedLines.size()<=linenr)
     		 _executedLines.resize(linenr+100);
     	 _executedLines[linenr] = state;

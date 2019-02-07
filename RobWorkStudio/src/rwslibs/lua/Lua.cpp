@@ -46,6 +46,7 @@ using namespace rws;
 //----------------------------------------------------------------------
 // Standard plugin methods
 
+/*
 namespace
 {
     void append(QTextEdit* output, const std::string& str)
@@ -62,13 +63,14 @@ namespace
             lua_pop(lua, 1);
         }
     }
-
 }
+*/
 
 Lua::Lua()
     :
     RobWorkStudioPlugin("LuaConsole", QIcon(":/lua.png")),
-    _editor(NULL)
+    _openEditorAction(nullptr),
+    _editor(nullptr)
 {
     // Misc.
     // remove the native use of showAction

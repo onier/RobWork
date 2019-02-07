@@ -582,7 +582,7 @@ void Planning::loadPath() {
     }
 }
 
-
+/*
 namespace {
     Q getRandQ(Device* device, CollisionDetector& collisionDetector, State& state) {
         Q q(device->getDOF());
@@ -597,7 +597,7 @@ namespace {
         return q;
     }
 }
-
+*/
 
 #ifndef RWS_USE_STATIC_LINK_PLUGINS
 #if !RWS_USE_QT5
