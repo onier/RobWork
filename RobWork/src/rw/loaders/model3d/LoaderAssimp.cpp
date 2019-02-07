@@ -40,13 +40,6 @@ static Transform3D<float> toRWTransform(const aiMatrix4x4 &matrix) {
 			matrix.c1, matrix.c2, matrix.c3);
 	return T;
 }
-static Vector3D<float> toRWVector(const aiVector3D &vector) {
-	Vector3D<float> v;
-	v[0] = vector.x;
-	v[1] = vector.y;
-	v[2] = vector.z;
-	return v;
-}
 }
 
 LoaderAssimp::LoaderAssimp() {

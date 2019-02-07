@@ -537,7 +537,7 @@ namespace
         static TagProperty<string> getter("DrawableID");
         return getter;
     }
-
+/*
     const TagProperty<bool>& tagPropDrawableHighlight()
     {
         static TagProperty<bool> getter("DrawableHighlight");
@@ -562,7 +562,7 @@ namespace
         static TagProperty<double> getter("GeoScale");
         return getter;
     }
-
+*/
     const TagProperty<double>& tagPropJointPosLimit()
     {
         static TagProperty<double> getter("JointPosLimit");
@@ -664,7 +664,7 @@ namespace
         static TagProperty<Nil> getter("Link");
         return getter;
     }
-
+/*
     const TagProperty<Nil>& tagPropObject()
     {
         static TagProperty<Nil> getter("Object");
@@ -676,7 +676,7 @@ namespace
         static TagProperty<Nil> getter("Camera");
         return getter;
     }
-
+*/
     // Transform values.
 
     const TagProperty<Q>& tagPropI()
@@ -1098,6 +1098,7 @@ namespace
     }
 
     // The geo scale of the frame or 1 otherwise.
+    /*
     double getOptionalGeoScale(const Frame& frame)
     {
     	if (tagPropGeoScale().has(frame)) {
@@ -1112,6 +1113,7 @@ namespace
             return 1;
         }
     }
+    */
 
     // We need to rewrite these functions so that they work for sequences of
     // model identifiers also.
@@ -1343,16 +1345,16 @@ namespace
        If the frame is an active joint, it is added to \a activeJoints.
     */
     Frame* makeTagFrameHelper(
-        Frame* parent,
         const Tag& tag,
         const string& frame_name,
         const Transform3D<>& transform,
         vector<Joint*>& activeJoints,
         const Prefix& prefix)
     {
+        //Frame* parent;
         // This is kind of neat: If the DAF tag has been set, we simply set the
         // parent to NULL, and things will then just work.
-        if (tagPropDAF().has(tag)) parent = 0;
+        //if (tagPropDAF().has(tag)) parent = 0;
 
         // If we have an active joint:
         if (tagPropActiveJoint().has(tag)) {
@@ -1474,7 +1476,6 @@ namespace
 
         // Make a single frame for the tag attributes.
         Frame* tag_frame = makeTagFrameHelper(
-            parent,
             tag,
             frame_name,
             frame_transform,

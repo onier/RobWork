@@ -25,7 +25,7 @@
 using namespace rw::geometry;
 using namespace rw::math;
 using namespace rw::common;
-
+/*
 namespace {
 	std::string toString(float dx, float dy, int dz)
     {
@@ -36,7 +36,7 @@ namespace {
 		return str.str();
  	}
 }
-
+*/
 Cylinder::Cylinder():
 	_radius(1),_height(1)
 {

@@ -343,7 +343,7 @@ namespace rw { namespace math {
          * if (*this)[0] < q[0] then true is returned. If (*this)[0] > q[0] false is returned and
          * only if (*this)[0] == q[0] is the next index considered.
          */
-        const bool operator<(const Vector& q) const
+        bool operator<(const Vector& q) const
         {
             RW_ASSERT(size() == q.size());
             for (size_t i = 0; i<size(); i++) {

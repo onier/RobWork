@@ -103,11 +103,11 @@ namespace {
         return XMLTrajectoryFormat::idQLinearInterpolator();
     }
 
-
+/*
     template<> const XMLCh* Identifiers<Q>::cubicSplineInterpolatorId() {
         return XMLTrajectoryFormat::idQCubicSplineInterpolator();
     }
-
+*/
     template<> const XMLCh* Identifiers<Q>::circularInterpolatorId() {
         return NULL;
     }
@@ -117,11 +117,11 @@ namespace {
     template<> const XMLCh* Identifiers<Vector3D<> >::linearInterpolatorId() {
         return XMLTrajectoryFormat::idV3DLinearInterpolator();
     }
-
+/*
     template<> const XMLCh* Identifiers<Vector3D<> >::cubicSplineInterpolatorId() {
         return XMLTrajectoryFormat::idV3DCubicSplineInterpolator();
     }
-
+*/
     template<> const XMLCh* Identifiers<Vector3D<> >::circularInterpolatorId() {
         return XMLTrajectoryFormat::idV3DCircularInterpolator();
     }
@@ -131,11 +131,11 @@ namespace {
         return XMLTrajectoryFormat::idR3DLinearInterpolator();
     }
 
-
+/*
     template<> const XMLCh* Identifiers<Rotation3D<> >::cubicSplineInterpolatorId() {
         return XMLTrajectoryFormat::idR3DCubicSplineInterpolator();
     }
-
+*/
     template<> const XMLCh* Identifiers<Rotation3D<> >::circularInterpolatorId() {
         return NULL;
     }
@@ -146,11 +146,11 @@ namespace {
         return XMLTrajectoryFormat::idT3DLinearInterpolator();
     }
 
-
+/*
     template<> const XMLCh* Identifiers<Transform3D<> >::cubicSplineInterpolatorId() {
         return XMLTrajectoryFormat::idT3DCubicSplineInterpolator();
     }
-
+*/
     template<> const XMLCh* Identifiers<Transform3D<> >::circularInterpolatorId() {
         return NULL;
     }

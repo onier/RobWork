@@ -230,7 +230,7 @@ struct MassParameters {
 	InertiaMatrix<> inertia;
 	double volume;
 };
-
+/*
 InertiaMatrix<> moveInertiaPoint(double mass, const InertiaMatrix<>& inertia, const Vector3D<>& cog) {
 	InertiaMatrix<> J = inertia;
 	J(0,0) -= mass * (cog[1]*cog[1] + cog[2]*cog[2]);
@@ -241,7 +241,7 @@ InertiaMatrix<> moveInertiaPoint(double mass, const InertiaMatrix<>& inertia, co
 	J(2,0) = J(0,2) += mass * cog[2] * cog[0];
 	return J;
 }
-
+*/
 MassParameters mirtichMassParameters(double mass, const Transform3D<>& t3d, const rw::common::Ptr<const TriMesh> trimesh, bool noInertia = false)
 {
 	MassParameters par;

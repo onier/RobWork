@@ -23,7 +23,7 @@
 using namespace rw::geometry;
 using namespace rw::math;
 using namespace rw::common;
-
+/*
 namespace
 {
 	std::string toString(double dx, double dy, double dz){
@@ -32,7 +32,7 @@ namespace
 		return str.str();
  	}
 }
-
+*/
 Box::Box(const rw::math::Q& initQ){
 	setParameters(initQ);
 }

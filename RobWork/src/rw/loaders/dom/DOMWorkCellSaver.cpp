@@ -140,7 +140,7 @@ namespace {
         }
         return frame->getName();
     }
-
+/*
     std::string scopedName(DummyWorkcell &dwc, Frame *frame){
         if(isFrameInDevice(frame)){
             return scopedName(frameToDevice[frame], frame);
@@ -148,7 +148,7 @@ namespace {
 
         return frame->getName();
     }
-
+*/
     std::string getDeviceType(Device &dev){
         if( dynamic_cast<SerialDevice*>(&dev)){
             return std::string("SerialDevice");

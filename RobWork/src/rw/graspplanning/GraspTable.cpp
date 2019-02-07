@@ -50,7 +50,7 @@ rw::common::Ptr<GraspTable> GraspTable::load(const std::string& filename){
 	unsigned int tablesize, handdof, nrquality,version;
 	istr.getline(line, linesize);
 	//std::cout << "Got line!" << std::endl;
-	sscanf (line,"%s %i", chunk, &version);
+	sscanf (line,"%s %u", chunk, &version);
 	//std::cout << "Scanning line!" << std::endl;
 	//std::cout << "GraspTableVersion: " << version << std::endl;
 	if(version!=GTABLE_VERSION)
@@ -61,7 +61,7 @@ rw::common::Ptr<GraspTable> GraspTable::load(const std::string& filename){
 	istr.getline(line, linesize);
 	sscanf (line,"%s %s",chunk, objectId);
 	istr.getline(line, linesize);
-	sscanf (line,"%s %i",chunk,&tablesize);
+	sscanf (line,"%s %u",chunk,&tablesize);
     // fstr << "TableSize: " << _graspData.size() << "\n";
 
     GraspTable *gtable = new GraspTable(handname,objectId);
@@ -74,9 +74,9 @@ rw::common::Ptr<GraspTable> GraspTable::load(const std::string& filename){
 		return gtable;
 
 	istr.getline(line, linesize);
-	sscanf (line,"%s %i",chunk,&handdof);
+	sscanf (line,"%s %u",chunk,&handdof);
 	istr.getline(line, linesize);
-	sscanf (line,"%s %i",chunk,&nrquality);
+	sscanf (line,"%s %u",chunk,&nrquality);
 
 	//std::cout << "HandDOF: " << handdof << "\n";
     //std::cout << "NrOfQualityMeasures: " << nrquality << "\n";

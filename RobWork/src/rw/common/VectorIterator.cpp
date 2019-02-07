@@ -15,16 +15,4 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #include "VectorIterator.hpp"
-using namespace rw::common;
-
-namespace
-{
-    // Force an instantiation.
-    VectorIterator<char> f()
-    {
-        std::vector<char*> vals;
-        return VectorIterator<char>(vals.begin());
-    }
-}

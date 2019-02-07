@@ -72,7 +72,11 @@ namespace rw { namespace math {
          * @brief Creates a Quaternion from another Quaternion
          * @param quat [in] Quaternion
          */
-        Quaternion(const Quaternion<T>& quat) : _q(quat._q) {}
+        Quaternion(const Quaternion<T>& quat) :
+            Rotation3DVector<T>(),
+            _q(quat._q)
+        {
+        }
 
         /**
          * @brief Extracts a Quaternion from Rotation matrix using

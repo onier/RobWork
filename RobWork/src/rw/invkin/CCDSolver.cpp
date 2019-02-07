@@ -48,7 +48,7 @@ namespace
         else
             return UnknownType;
     }
-
+/*
     double objFunc(double x, double k1, double k2, double k3 )
     {
         double cosx = cos(x);
@@ -132,7 +132,7 @@ namespace
                     // second deriv = (k1-k2)*cos(x) - k3*sin(x)
                     double qMinMax = objFunc(qMin,k1,k2,k3);
                     //std::cout << "MinMax q: " << qMinMax << std::endl;
-                    if( (-Pi<qMin) && (qMin<Pi) /*&& (k1-k2)*cos(qMin)-k3*sin(qMin)<0*/ ){
+                    if( (-Pi<qMin) && (qMin<Pi) ){ // && (k1-k2)*cos(qMin)-k3*sin(qMin)<0
                         if( qMinMax > maxObjFunc ){
                             dq=qMin;
                             maxObjFunc = qMinMax;
@@ -141,16 +141,16 @@ namespace
 
                     double qMaxMax = objFunc(qMax,k1,k2,k3);
                     //std::cout << "MaxMax q: " << qMaxMax << std::endl;
-                    if( (-Pi<qMax) && (qMax<Pi) /*&& (k1-k2)*cos(qMax)-k3*sin(qMax)<0*/ ){
+                    if( (-Pi<qMax) && (qMax<Pi) ){ // && (k1-k2)*cos(qMax)-k3*sin(qMax)<0
                         if( qMaxMax > maxObjFunc ){
                             dq=qMax;
                             maxObjFunc = qMaxMax;
                         }
                     }
 
-                    /*if( dq>0.8 ){
-                       dq *= 0.8/dq;
-                    }*/
+                    //if( dq>0.8 ){
+                    //   dq *= 0.8/dq;
+                    //}
 
                     // calculate q
                     double q = rJoint->getData(state)[0] + dq;
@@ -185,6 +185,7 @@ namespace
         }
         return false;
     }
+*/
 }
 
 CCDSolver::CCDSolver(const SerialDevice* device, const State& state) :

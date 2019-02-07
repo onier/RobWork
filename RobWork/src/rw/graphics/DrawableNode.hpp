@@ -68,7 +68,7 @@ namespace rw { namespace graphics {
     		    	 User2=2048, //!< User2
     		    	 User3=4096, //!< User3
     		    	 User4=8096, //!< User4
-    		    	 ALL=0xFFFFFFFF
+    		    	 ALL=0x7FFFFFFF
     	} DrawableTypeMask;
 
         /**

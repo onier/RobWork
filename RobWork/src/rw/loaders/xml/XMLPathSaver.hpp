@@ -284,7 +284,7 @@ public:
 private:
 	static const Initializer initializer;
 
-    XMLPathSaver() {};
+    XMLPathSaver() {}
 
     template <class T, class PATH>
     static xercesc::DOMDocument* createDOMDocument(const PATH& path, const XMLCh* pathId) {

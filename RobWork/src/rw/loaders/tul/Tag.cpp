@@ -474,7 +474,7 @@ namespace
 
     // We are not using these utilities right now, but they are great to have
     // handy when debugging.
-
+/*
     std::string getType(const iter_t& node)
     {
         if (node->value.id() == TULGrammar::tagID) return "tagID";
@@ -488,7 +488,7 @@ namespace
 
         return "(unknown)";
     }
-
+*/
     void loadTagFileHelper(const std::string& file, std::vector<Tag>& result)
     {
         tree_parse_info<iterator_t> info;

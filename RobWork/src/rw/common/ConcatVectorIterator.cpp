@@ -15,32 +15,4 @@
  * limitations under the License.
  ********************************************************************************/
 
-
 #include "ConcatVectorIterator.hpp"
-
-using namespace rw::common;
-
-namespace
-{
-    int f()
-    {
-        std::vector<char*> curr;
-        std::vector<char*> next;
-
-        ConcatVectorIterator<char> begin(&curr, curr.begin(), &next);
-
-        ConstConcatVectorIterator<char> const_begin(begin);
-
-        ConstConcatVectorIterator<char> f = begin;
-        ++f;
-
-        const_begin++;
-
-        char& x = *begin;
-
-        const char& c = *const_begin;
-        if (c == x) return -1;
-
-        return 0;
-    }
-}

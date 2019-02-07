@@ -58,6 +58,7 @@ SET(COMMON_TEST_LIBRARIES
 
 SET(COMMON_TEST_SRC
   common/CommonTest.cpp
+  common/IteratorTest.cpp
   common/PairMapTest.cpp
   common/PluginTest.cpp
 )
@@ -186,6 +187,7 @@ SET(MATH_TEST_LIBRARIES
  )
 
 SET(MATH_TEST_SRC
+  math/MetricFactoryTest.cpp
   math/PolynomialTest.cpp
   math/SerializationTest.cpp
   math/StatisticsTest.cpp

@@ -297,14 +297,14 @@ Model3D::Ptr LoaderAC3D::load(const std::string& filename){
     RW_THROW("Failed to load AC3D file: '"<<filename<<"'. Unknown Exception.");
 
 }
-
+/*
 namespace {
     void printArray(std::ostream& out, float *arr, int len){
         for(int i=0;i<len;i++)
             out << " " << arr[i];
     }
 }
-
+*/
 //void LoaderAC3D::save(Model3DPtr model, const std::string& filename){
 
     /*

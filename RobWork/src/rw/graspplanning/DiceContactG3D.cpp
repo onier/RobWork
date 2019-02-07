@@ -30,7 +30,7 @@ using namespace rw::math;
 using namespace rw::graspplanning;
 
 namespace {
-
+/*
     Vector3D<> calcRandomPtInTriangle(const Triangle<>& tri){
         double b0 = Random::ran(0.0,1.0);
         double b1 = ( 1.0f - b0 ) * Random::ran(0.0,1.0);
@@ -42,7 +42,7 @@ namespace {
 
         return tri[0] + vertex1 * b0 + vertex2 * b1 + vertex3 * b2;
     }
-
+*/
     Vector3D<> calcCenterPtInTriangle(const Triangle<>& tri){
         return (tri[2]+tri[1]+tri[0])/3;
     }
@@ -50,11 +50,11 @@ namespace {
 }
 
 DiceContactG3D::DiceContactG3D():
-	_obj(NULL),
+	_obj(nullptr),
 	_mu(0.5),
-	_nrOfContacts(3)
+	_nrOfContacts(3),
+	_cfilter(nullptr)
 {
-
 }
 
 void DiceContactG3D::initialize(const TriMesh& obj, int nrOfContacts, double mu){

@@ -182,24 +182,24 @@ namespace {
 
     template<class SRCTYPE>
     void convertRGB2GRAY(const Image& src, Image& dst, float weights[3]){
-        //std::cout << "dst.getPixelDepth()" << dst.getPixelDepth() << std::endl;
-        switch(dst.getPixelDepth()){
-        case(Image::Depth8U):
-            convertRGB2GRAY<SRCTYPE, unsigned char>(src, dst, weights); break;
-        case(Image::Depth8S):
-            RW_ASSERT(0);
-        case(Image::Depth16U):
-            convertRGB2GRAY<SRCTYPE,unsigned short>(src, dst, weights); break;
-        case(Image::Depth16S):
-            RW_ASSERT(0);
-        case(Image::Depth32S):
-            RW_ASSERT(0);
-        case(Image::Depth32F):
-            RW_ASSERT(0);
-            //convertRGB2GRAY<SRCTYPE,float>(src, dst, weights); break;
-        default:
-            RW_ASSERT(0);
-        }
+            //std::cout << "dst.getPixelDepth()" << dst.getPixelDepth() << std::endl;
+            switch(dst.getPixelDepth()){
+                case(Image::Depth8U):
+                    convertRGB2GRAY<SRCTYPE, unsigned char>(src, dst, weights); break;
+                case(Image::Depth8S):
+                    RW_ASSERT(0); break;
+                case(Image::Depth16U):
+                    convertRGB2GRAY<SRCTYPE,unsigned short>(src, dst, weights); break;
+                case(Image::Depth16S):
+                    RW_ASSERT(0); break;
+                case(Image::Depth32S):
+                    RW_ASSERT(0); break;
+                case(Image::Depth32F):
+                    RW_ASSERT(0); break;
+                //convertRGB2GRAY<SRCTYPE,float>(src, dst, weights); break;
+                default:
+                    RW_ASSERT(0);
+            }
     }
 
     /*
@@ -249,15 +249,15 @@ void ImageUtil::RGB2GRAY(const Image& src, Image& dst){
     case(Image::Depth8U):
         convertRGB2GRAY<unsigned char>(src, dst, weights); break;
     case(Image::Depth8S):
-        RW_ASSERT(0);
+        RW_ASSERT(0); break;
     case(Image::Depth16U):
         convertRGB2GRAY<unsigned short>(src, dst, weights); break;
     case(Image::Depth16S):
-        RW_ASSERT(0);
+        RW_ASSERT(0); break;
     case(Image::Depth32S):
-        RW_ASSERT(0);
+        RW_ASSERT(0); break;
     case(Image::Depth32F):
-        RW_ASSERT(0);
+        RW_ASSERT(0); break;
         //convertRGB2GRAY<SRCTYPE,float>(src, dst, weights); break;
     default:
         RW_ASSERT(0);

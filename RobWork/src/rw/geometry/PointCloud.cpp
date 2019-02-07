@@ -69,7 +69,7 @@ void PointCloud::savePCD(const PointCloud& img, const std::string& filename, con
     }
     output.close();
 }
-
+/*
 namespace {
     PointCloud::Ptr loadPCD_0_7(const std::string& filename ){
         //Start by storing the current locale. This is retrieved by passing NULL to setlocale
@@ -126,7 +126,7 @@ namespace {
         return img;
     }
 }
-
+*/
 
 PointCloud::Ptr PointCloud::loadPCD(const std::string& filename ){
     //Start by storing the current locale. This is retrieved by passing NULL to setlocale

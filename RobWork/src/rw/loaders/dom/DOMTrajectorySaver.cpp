@@ -85,11 +85,11 @@ namespace {
         return DOMTrajectoryLoader::idQLinearInterpolator();
     }
 
-
+/*
     template<> const std::string& Identifiers<Q>::cubicSplineInterpolatorId() {
         return DOMTrajectoryLoader::idQCubicSplineInterpolator();
     }
-
+*/
     template<> const std::string& Identifiers<Q>::circularInterpolatorId() {
 		const static std::string str = "";
         return str;
@@ -100,11 +100,11 @@ namespace {
     template<> const std::string& Identifiers<Vector3D<> >::linearInterpolatorId() {
         return DOMTrajectoryLoader::idV3DLinearInterpolator();
     }
-
+/*
     template<> const std::string& Identifiers<Vector3D<> >::cubicSplineInterpolatorId() {
         return DOMTrajectoryLoader::idV3DCubicSplineInterpolator();
     }
-
+*/
     template<> const std::string& Identifiers<Vector3D<> >::circularInterpolatorId() {
         return DOMTrajectoryLoader::idV3DCircularInterpolator();
     }
@@ -114,11 +114,11 @@ namespace {
         return DOMTrajectoryLoader::idR3DLinearInterpolator();
     }
 
-
+/*
     template<> const std::string& Identifiers<Rotation3D<> >::cubicSplineInterpolatorId() {
         return DOMTrajectoryLoader::idR3DCubicSplineInterpolator();
     }
-
+*/
     template<> const std::string& Identifiers<Rotation3D<> >::circularInterpolatorId() {
 		const static std::string str = "";
 		return str;
@@ -128,11 +128,11 @@ namespace {
         return DOMTrajectoryLoader::idT3DLinearInterpolator();
     }
 
-
+/*
     template<> const std::string& Identifiers<Transform3D<> >::cubicSplineInterpolatorId() {
         return DOMTrajectoryLoader::idT3DCubicSplineInterpolator();
     }
-
+*/
     template<> const std::string& Identifiers<Transform3D<> >::circularInterpolatorId() {
 		const static std::string str = "";
         return str;

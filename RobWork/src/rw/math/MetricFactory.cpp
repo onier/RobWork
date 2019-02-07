@@ -27,30 +27,6 @@
 using namespace rw::math;
 using namespace rw::common;
 
-namespace
-{
-    // This should compile:
-    void f()
-    {
-		Metric<Q>::Ptr q =
-            MetricFactory::makeWeightedManhattan(Q());
-
-		Metric<Vector2D<> >::Ptr v2 =
-            MetricFactory::makeWeightedManhattan(Vector2D<>());
-
-		Metric<Vector3D<> >::Ptr v3 =
-            MetricFactory::makeWeightedManhattan(Vector3D<>());
-
-		Metric<std::vector<double> >::Ptr sv =
-            MetricFactory::makeWeightedManhattan(
-                std::vector<double>());
-
-		Metric<boost::numeric::ublas::vector<double> >::Ptr bv =
-            MetricFactory::makeWeightedManhattan(
-                boost::numeric::ublas::vector<double>());
-    }
-}
-
 // These should all compile:
 
 // --

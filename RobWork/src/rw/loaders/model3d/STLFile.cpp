@@ -171,13 +171,13 @@ namespace
     //    Stereolithography Interface Specification,
     //    October 1989.
     //
-
+/*
     char* skipWhiteSpace(char *input){
     	char *next;
     	for ( next = input; *next == '\t' && *next == ' '; next++){}
     	return next;
     }
-
+*/
     struct ParserState {
 
     	ParserState(const std::string& name, std::istream& istream):
