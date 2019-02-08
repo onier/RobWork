@@ -22,26 +22,48 @@
 
 using namespace rw::common;
 
-TEST(ConcatVectorIterator, compile) {
-    std::vector<char*> curr;
-    std::vector<char*> next;
+namespace {
+    std::string str1 = "abc";
+    std::string str2 = "de";
+}
+
+TEST(Iterator, ConcatVectorIterator) {
+    std::vector<char*> curr = {&str1[0], &str1[1], &str1[2]};
+    std::vector<char*> next = {&str2[0], &str2[1]};
 
     ConcatVectorIterator<char> begin(&curr, curr.begin(), &next);
+    ConcatVectorIterator<char> end(&next, next.end(), NULL);
 
     ConstConcatVectorIterator<char> const_begin(begin);
 
     ConstConcatVectorIterator<char> f = begin;
-    ++f;
+    EXPECT_EQ('a', *f);
+    EXPECT_EQ('b', *++f);
 
-    const_begin++;
+    EXPECT_EQ('a', *const_begin++);
+    EXPECT_EQ('b', *const_begin);
 
     char& x = *begin;
+    EXPECT_EQ('a', x);
 
     const char& c = *const_begin;
-    EXPECT_TRUE(c == x);
+    EXPECT_EQ('b', c);
+
+    EXPECT_EQ('c', *++const_begin);
+    EXPECT_EQ('c', *const_begin++);
+    EXPECT_EQ('d', *const_begin);
+    const_begin++;
+    EXPECT_EQ('e', *const_begin++);
+    EXPECT_TRUE(const_begin == end);
 }
 
-TEST(VectorIterator, compile) {
-    std::vector<char*> vals;
-    VectorIterator<char>(vals.begin());
+TEST(Iterator, VectorIterator) {
+    std::vector<char*> vals = {&str1[0], &str1[1], &str1[2]};
+    VectorIterator<char> it(vals.begin());
+    EXPECT_EQ('a', *it);
+    EXPECT_EQ('a', *it++);
+    EXPECT_EQ('b', *it);
+    EXPECT_EQ('c', *++it);
+    it++;
+    EXPECT_TRUE(it == VectorIterator<char>(vals.end()));
 }
