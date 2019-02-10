@@ -594,7 +594,12 @@ namespace boost { namespace serialization {
             const unsigned int version)
     {
         const rw::math::Q::Base& e = q.e();
+#if BOOST_VERSION >= 105900
         archive << e.size();
+#else
+        rw::math::Q::Base::Index size = e.size();
+        archive << size;
+#endif
         for (rw::math::Q::Base::Index i = 0; i < e.size(); i++) {
             archive << e[i];
         }
