@@ -5,11 +5,11 @@
 # for example change compiler flags.
 
 # Enable the RW_ASSERT macro
-SET(RW_ENABLE_ASSERT ON)
+OPTION(RW_ENABLE_ASSERT "Enables RW_ASSERT macro: on|off" ON)
 
 # Enable tests and sandbox
 SET(RW_BUILD_TESTS ON)
-SET(RW_ENABLE_PERFORMANCE_TESTS ON)
+OPTION(RW_ENABLE_PERFORMANCE_TESTS "Set when you want to build the performance tests" ON)
 #SET(RW_BUILD_SANDBOX OFF)
 SET(RW_BUILD_EXAMPLES OFF)
 

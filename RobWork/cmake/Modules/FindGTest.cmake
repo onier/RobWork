@@ -161,6 +161,11 @@ endif()
 
 find_path(GTEST_INCLUDE_DIR gtest/gtest.h
     HINTS
+        $ENV{GTEST_ROOT}/googletest/include
+        ${GTEST_ROOT}/googletest/include
+)
+find_path(GTEST_INCLUDE_DIR gtest/gtest.h
+    HINTS
         $ENV{GTEST_ROOT}/include
         ${GTEST_ROOT}/include
 )
@@ -169,11 +174,22 @@ mark_as_advanced(GTEST_INCLUDE_DIR)
 # First try to build from sources if possible
 if (NOT GTEST_SOURCE)
     find_path(GTEST_SOURCE
-        src/gtest_main.cc
-        PATHS
-            /usr/src/gtest
+        googletest/src/gtest_main.cc
         DOC "Source code for GTest"
         ONLY_CMAKE_FIND_ROOT_PATH)
+    if(NOT GTEST_SOURCE STREQUAL GTEST_SOURCE-NOTFOUND)
+        link_directories(${CMAKE_BINARY_DIR}/imported-gtest/googletest)
+    else()
+        find_path(GTEST_SOURCE
+            src/gtest_main.cc
+            PATHS
+                /usr/src/gtest
+            DOC "Source code for GTest"
+            ONLY_CMAKE_FIND_ROOT_PATH)
+        if(NOT GTEST_SOURCE STREQUAL GTEST_SOURCE-NOTFOUND)
+            link_directories(${CMAKE_BINARY_DIR}/imported-gtest)
+        endif()
+    endif()
 endif()
 if(GTEST_SOURCE STREQUAL GTEST_SOURCE-NOTFOUND)
 	# No sources - look for precompiled libraries (this is not recommended)
@@ -193,14 +209,13 @@ if(GTEST_SOURCE STREQUAL GTEST_SOURCE-NOTFOUND)
 	endif()
 else()
     message(STATUS "Found GTest sources: ${GTEST_SOURCE}")
+    option(BUILD_GMOCK "Builds the googlemock subproject" OFF)
+    option(INSTALL_GTEST "Enable installation of googletest. (Projects embedding googletest may want to turn this OFF.)" OFF)
     add_subdirectory(${GTEST_SOURCE} ${CMAKE_BINARY_DIR}/imported-gtest EXCLUDE_FROM_ALL)
     set(GTEST_LIBRARY gtest CACHE INTERNAL "GTest library")
     set(GTEST_MAIN_LIBRARY gtest_main CACHE INTERNAL "GTest library for main()")
     mark_as_advanced(GTEST_LIBRARY)
     mark_as_advanced(GTEST_MAIN_LIBRARY)
-endif()
-if(NOT GTEST_SOURCE STREQUAL GTEST_SOURCE-NOTFOUND)
-    link_directories(${CMAKE_BINARY_DIR}/imported-gtest)
 endif()
 
 include(FindPackageHandleStandardArgs)

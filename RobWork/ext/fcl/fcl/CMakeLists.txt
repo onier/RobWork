@@ -9,6 +9,9 @@ endif()
 IF(POLICY CMP0048)
 	CMAKE_POLICY(SET CMP0048 NEW) # we do not set PROJECT_VERSION variable so silence warning
 ENDIF()
+IF(POLICY CMP0074)
+	CMAKE_POLICY(SET CMP0074 NEW)
+ENDIF()
 
 project(fcl CXX C)
 
@@ -139,6 +142,7 @@ if(NOT CCD_FOUND)
         message(FATAL_ERROR "Libccd is required by FCL")
     endif()
 endif()
+MESSAGE("CCD include dir: ${CCD_INCLUDE_DIRS}")
 include_directories(${CCD_INCLUDE_DIRS})
 link_directories(${CCD_LIBRARY_DIRS})
 

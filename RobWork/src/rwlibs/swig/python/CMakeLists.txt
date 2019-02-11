@@ -30,15 +30,19 @@ IF( build )
 INCLUDE(UseSWIG)
     INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
     SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES CPLUSPLUS ON)
-	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall")
-	
+    SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall")
+    if(POLICY CMP0078)
+        set(LIB_NAME "_rw")
+    else()
+        set(LIB_NAME "rw")
+    endif()
     SET(CMAKE_SWIG_OUTDIR ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
-		SWIG_ADD_LIBRARY(rw TYPE MODULE LANGUAGE python SOURCES ../rw.i ../ScriptTypes.cpp)
+		SWIG_ADD_LIBRARY(${LIB_NAME} TYPE MODULE LANGUAGE python SOURCES ../rw.i ../ScriptTypes.cpp)
 	ELSE()
 		SWIG_ADD_MODULE(rw python ../rw.i ../ScriptTypes.cpp)
 	ENDIF()
-    SWIG_LINK_LIBRARIES(rw
+    SWIG_LINK_LIBRARIES(${LIB_NAME}
     	rw_pathplanners
     	rw_pathoptimization
     	rw_assembly

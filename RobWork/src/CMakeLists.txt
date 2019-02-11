@@ -4,10 +4,7 @@ add_subdirectory(rw)
 add_subdirectory(rwlibs)
 
 # Build sandbox if chosen
-IF (NOT DEFINED RW_BUILD_SANDBOX)
-  SET(RW_BUILD_SANDBOX OFF)
-ENDIF()
-OPTION(RW_BUILD_SANDBOX "Set when you want to build the sandbox library" ${RW_BUILD_SANDBOX})
+OPTION(RW_BUILD_SANDBOX "Set when you want to build the sandbox library" OFF)
 IF ( RW_BUILD_SANDBOX )
   ADD_SUBDIRECTORY(sandbox)
   SET(RW_SANDBOX_LIB sandbox)
