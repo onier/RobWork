@@ -29,7 +29,7 @@ namespace rwhw {
 	{
 	public:
 
-		TactileMaskMatrix(unsigned int columns, unsigned int rows):
+		TactileMaskMatrix(std::size_t columns, std::size_t rows):
 			_data(columns,rows)
 		{
 			_data = boost::numeric::ublas::zero_matrix<bool>(columns,rows);
@@ -37,15 +37,15 @@ namespace rwhw {
 
 		virtual ~TactileMaskMatrix(){}
 
-		int getWidth(){ return _data.size1(); };
+		std::size_t getWidth(){ return _data.size1(); }
 
-		int getHeight(){ return _data.size2(); };
+		std::size_t getHeight(){ return _data.size2(); }
 
-		void set(int column, int row, bool val){
+		void set(std::size_t column, std::size_t row, bool val){
 			_data(column, row) = val;
 		}
 
-		bool get(int column, int row)
+		bool get(std::size_t column, std::size_t row)
 		{
 			return _data(column, row);
 		}

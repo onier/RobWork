@@ -221,7 +221,7 @@ namespace rwhw {
                meanBias.first += it->first;
                meanBias.second += it->second;
             }
-            const double n(biases.size());
+            const double n = static_cast<double>(biases.size());
             meanBias.first /= n;
             meanBias.second /= n;
             

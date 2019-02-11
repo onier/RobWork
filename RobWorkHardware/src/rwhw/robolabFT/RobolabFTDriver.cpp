@@ -68,11 +68,11 @@ RobolabFT::RobolabFTData RobolabFT::read(){
 	tmpData.timestamp= _timestamp;
 	std::string str(_dataOut);
 	//std::cout<<"str: "<<str<<"_dataOut is :"<<_dataOut<<std::endl;
-	int lenght = str.find("\n");
+	const std::size_t lenght = str.find("\n");
 	//if(lenght>0){
 		str=str.substr(0,lenght);
 
-		int found = str.find(" ");
+		std::size_t found = str.find(" ");
 		if(lenght==0)std::cout<<"lenght: "<<lenght<<" found: "<<found<<"_dataOut is:"<<_dataOut<<"str is:"<<str<<std::endl;
 		subString=str.substr(0,found);
 		value= atoi(subString.c_str());

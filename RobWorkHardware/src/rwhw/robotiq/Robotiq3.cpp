@@ -44,7 +44,7 @@ double Robotiq3::getVelocityInMetersPerSecFromTicks( const int ticks) const {
 int Robotiq3::getTicksFromVelocityInMetersPerSec( const double velocity) const {
     // velocity in meters per second
     // return ticks are 0..255 (as sent to hand)
-    return ((velocity*1000.0)-22.0)*255.0 / (110.0-22.0);
+    return boost::numeric_cast<int>(((velocity*1000.0)-22.0)*255.0 / (110.0-22.0));
 }
 
 double Robotiq3::getApproximateForceInNewtonFromTicks( const int ticks) const {
@@ -56,7 +56,7 @@ double Robotiq3::getApproximateForceInNewtonFromTicks( const int ticks) const {
 int Robotiq3::getApproximateTicksFromForceInNewton( const double force) const {
     // force in Newton
     // return ticks are 0..255 (as sent to hand)
-    return (force - 15.0)*255.0/(60.0-15.0);
+    return boost::numeric_cast<int>((force - 15.0)*255.0/(60.0-15.0));
 }
 
 ModbusPackage Robotiq3::getMoveCMDRequestPackage(const rw::math::Q & target) const {

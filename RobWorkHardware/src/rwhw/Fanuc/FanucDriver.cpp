@@ -49,7 +49,7 @@ namespace
     }
 }
 
-FanucDriver::FanucDriver(std::string ipNr, size_t updateRate)
+FanucDriver::FanucDriver(std::string ipNr, int updateRate)
     :
     _updateRate(updateRate),
     _ipNr(ipNr),

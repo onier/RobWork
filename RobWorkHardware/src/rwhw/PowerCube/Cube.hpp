@@ -77,7 +77,7 @@ namespace rwhw {
          * @brief gets all handles of cubes in the range [from,to] if the cube is
          * detected/connected
          */
-        static std::vector<Cube*> getCubes(size_t from, size_t to, CubePort* p);
+        static std::vector<Cube*> getCubes(int from, int to, CubePort* p);
 
         /**
          * @brief emits a reset all command. All cubes connected to port p is reset.

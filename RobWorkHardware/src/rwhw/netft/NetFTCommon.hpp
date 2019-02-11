@@ -24,13 +24,13 @@ namespace rwhw {
           */
          inline double operator()(const std::vector<double>& x, const std::vector<double>& y) {
             // Get length and check
-            const unsigned int len = x.size();
+            const std::size_t len = x.size();
             if(len == 0 || y.size() != len-1)
                RW_THROW("Error: inconsistent vector sizes!");
             
             // Filter
             double yf = 0.0;
-            for(unsigned int i = 0; i < len; ++i) {
+            for(std::size_t i = 0; i < len; ++i) {
                yf += _b[i]*x[i];
                if(i > 0)
                   yf -= _a[i]*y[i-1];

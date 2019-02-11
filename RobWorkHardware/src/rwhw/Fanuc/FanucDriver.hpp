@@ -41,7 +41,7 @@ namespace rwhw {
          * @param ipNr [in] IP address of the robot controller
          * @param updateRate [in] the rate at which the controller recieves data.
          */
-        FanucDriver(std::string ipNr, size_t updateRate);
+        FanucDriver(std::string ipNr, int updateRate);
 
         /**
          * @brief destruct object
@@ -153,7 +153,7 @@ namespace rwhw {
         rw::math::Q getPos();
 
     private:
-        size_t _updateRate;
+        int _updateRate;
         std::string _ipNr;
 
 

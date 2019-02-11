@@ -30,7 +30,7 @@ namespace rwhw {
 	{
 	public:
 
-		TactileMatrix(unsigned int columns, unsigned int rows):
+		TactileMatrix(std::size_t columns, std::size_t rows):
 			_data(columns,rows)
 		{
 			//std::cout << "Tactile ( " << columns << ":" << rows << ")" << std::endl;
@@ -39,12 +39,12 @@ namespace rwhw {
 
 		virtual ~TactileMatrix(){}
 
-		void set(int column, int row, float val){
+		void set(std::size_t column, std::size_t row, float val){
 			//std::cout << "Set :" << column << ";"<< row << ";"<< val << std::endl;
 			_data(column, row) = val;
 		}
 
-		float get(int column, int row){
+		float get(std::size_t column, std::size_t row){
 			return _data(column, row);
 		}
 

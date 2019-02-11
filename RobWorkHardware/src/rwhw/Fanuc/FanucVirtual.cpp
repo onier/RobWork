@@ -36,7 +36,7 @@ using namespace boost::numeric;
 
 namespace
 {
-    long currentTimeMs()
+    long long currentTimeMs()
     {
         return TimerUtil::currentTimeMs();
     }
@@ -61,9 +61,9 @@ FanucVirtual::FanucVirtual(
     VecPairs velLimit;
     VecPairs accLimit;
 
-    int dof = _model->getDOF();
+    const std::size_t dof = _model->getDOF();
 
-    for(int i=0;i<dof;i++){
+    for(std::size_t i = 0; i < dof; i++) {
         posLimit.push_back(std::make_pair(_model->getBounds().first[i], _model->getBounds().second[i]));
         std::pair<double, double> tmp;
         tmp.first = _model->getVelocityLimits()[i];
@@ -175,8 +175,8 @@ void FanucVirtual::update(){
         std::cerr << "The FanucDriver is not connected to the robot controller" << std::endl;
         return;
     }
-    long time = currentTimeMs();
-    double timediff = ((double)(time-_timeStamp))/1000.0;
+    const long long time = currentTimeMs();
+    double timediff = (static_cast<double>(time-_timeStamp))/1000.0;
     _timeStamp = time;
     //timediff = 0.05;
     // update global speed if necesary

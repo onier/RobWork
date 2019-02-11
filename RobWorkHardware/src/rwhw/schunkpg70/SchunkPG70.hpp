@@ -37,7 +37,7 @@ private:
 	rwhw::CubePort* _cubePort;
 	rwhw::Cube* _cube;
 	bool _connected;
-	double _graspCurrent;
+	float _graspCurrent;
 	//float _defMinPos, _defMaxPos, _defMaxDeltaVel;
 	//float _defTorqueRatio, _defCurRatio;
 	//float _defMinVel, _defMaxVel, _defMinAcc, _defMaxAcc;

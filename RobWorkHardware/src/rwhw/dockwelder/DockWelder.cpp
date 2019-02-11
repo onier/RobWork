@@ -226,7 +226,7 @@ DockWelder::Status DockWelder::status() {
     buf[VGTBLOCKSIZE-1] = 0;
     Status s;
     if(sscanf(buf,
-              "%ld\n"
+              "%lld\n"
               "%d %d %d %d %d %d\n"
               "%lg %lg %lg %lg %lg %lg %lg\n"
               "%d %d %d %d %d %d %d\n"

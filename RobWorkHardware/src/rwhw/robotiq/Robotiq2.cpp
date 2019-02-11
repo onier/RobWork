@@ -50,7 +50,7 @@ double Robotiq2::getFingerDistanceInMetersFromTicks( const int ticks) const {
 int Robotiq2::getTicksFromFingerDistanceInMeters( const double distance) const {
     // distance in meters
     // return ticks are 0..255 (as sent to hand)
-    return ((1.0 - (distance*1000.0)/87.0) * (230.0-13.0)) + 13;
+    return boost::numeric_cast<int>(((1.0 - (distance*1000.0)/87.0) * (230.0-13.0)) + 13);
 }
 
 double Robotiq2::getVelocityInMetersPerSecFromTicks( const int ticks) const {
@@ -62,7 +62,7 @@ double Robotiq2::getVelocityInMetersPerSecFromTicks( const int ticks) const {
 int Robotiq2::getTicksFromVelocityInMetersPerSec( const double velocity) const {
     // velocity in millimeters per second
     // return ticks are 0..255 (as sent to hand)
-    return ((velocity*1000.0)-13.0)*255.0 / (100.0-13.0);
+    return boost::numeric_cast<int>(((velocity*1000.0)-13.0)*255.0 / (100.0-13.0));
 }
 
 double Robotiq2::getApproximateForceInNewtonFromTicks( const int ticks) const {
@@ -74,7 +74,7 @@ double Robotiq2::getApproximateForceInNewtonFromTicks( const int ticks) const {
 int Robotiq2::getApproximateTicksFromForceInNewton( const double force) const {
     // force in Newton
     // return ticks are 0..255 (as sent to hand)
-    return (force - 30.0)*255.0/(100.0-30.0);
+    return boost::numeric_cast<int>((force - 30.0)*255.0/(100.0-30.0));
 }
 
 ModbusPackage Robotiq2::getMoveCMDRequestPackage(const rw::math::Q & target) const {

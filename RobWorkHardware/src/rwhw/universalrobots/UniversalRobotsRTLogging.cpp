@@ -69,7 +69,7 @@ void UniversalRobotsRTLogging::run() {
 		// TODO: check when last package was received. If this is more than 100 milliseconds then
 		// something bad probably happened
 		if(_connected){
-			long time = TimerUtil::currentTimeMs();
+			const long long time = TimerUtil::currentTimeMs();
 			if(time-_lastPackageTime>1000){
 				_lostConnection = true;
 			} else {

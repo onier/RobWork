@@ -8,7 +8,11 @@
 #include <string>
 #include <float.h>
 
-#include <boost/detail/endian.hpp>
+#if BOOST_VERSION >= 105500
+#include <boost/predef/other/endian.h> // added in Boost 1.55
+#else
+#include <boost/detail/endian.hpp> // deprecated from Boost 1.69
+#endif
 
 using namespace rw::models;
 using namespace rw::math;
@@ -164,7 +168,7 @@ void Robotiq::run() {
             // read status package from gripper
             {
                 //Get the length of the available data
-                uint32_t bytesReady = _socket->available();
+                const std::size_t bytesReady = _socket->available();
 
                 // if bytes available then read modbus header
                 if (bytesReady > 7) {
@@ -352,12 +356,24 @@ void Robotiq::setReg(boost::uint8_t& reg, const boost::uint8_t& val)  const{
 }
 
 void Robotiq::setReg(boost::uint16_t& reg, const boost::uint16_t& val) const{
-#if !defined(BOOST_BIG_ENDIAN)
-    uint8_t val1 = val & 0xFF;
-    uint8_t val2 = (val >> 8) & 0xFF;
-    reg = val1 << 8 | val2;
+
+#if BOOST_VERSION >= 105500
+#if !defined(BOOST_ENDIAN_BIG_BYTE)
+	uint8_t val1 = val & 0xFF;
+	uint8_t val2 = (val >> 8) & 0xFF;
+	reg = val1 << 8 | val2;
 #else
-    reg = val;
+	reg = val;
+#endif
+#else
+// deprecated from Boost 1.69
+#if !defined(BOOST_BIG_ENDIAN)
+	uint8_t val1 = val & 0xFF;
+	uint8_t val2 = (val >> 8) & 0xFF;
+	reg = val1 << 8 | val2;
+#else
+	reg = val;
+#endif
 #endif
 
 }
@@ -373,9 +389,16 @@ void Robotiq::getReg(const boost::uint16_t& reg, boost::uint16_t& val) const{
 
 }
 
-boost::uint8_t Robotiq::toVal8(const int val) const{
-    int tmp = val;
-    if (tmp > 0xFF) return 0xFF;
-    if (tmp < 0) return 0;
-    return tmp & 0xFF;
+boost::uint8_t Robotiq::toVal8(int val) const
+{
+	if (val > 0xFF) return 0xFF;
+	if (val < 0) return 0;
+	return val & 0xFF;
+}
+
+boost::uint8_t Robotiq::toVal8(double val) const
+{
+	if (val > 0xFF) return 0xFF;
+	if (val < 0) return 0;
+	return static_cast<uint8_t>(val) & 0xFF;
 }

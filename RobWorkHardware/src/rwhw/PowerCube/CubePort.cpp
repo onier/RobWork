@@ -149,7 +149,7 @@ namespace {
             buff[n++] = 0x02; // STX
             buff[n++] = 0x04 | ((moduleAddr>>3)&0x3); // TELID_SENDDAT
             bcc += buff[n-1];
-            buff[n++] = ((moduleAddr&0x7)<<5) | cmd.data.size(); // TELID_SENDDAT
+            buff[n++] = ((moduleAddr&0x7)<<5) | boost::numeric_cast<unsigned char>(cmd.data.size()); // TELID_SENDDAT
             bcc += buff[n-1];
             for(size_t i=0;i<cmd.data.size(); i++){
                 if( cmd.data[i] == 0x02 ){

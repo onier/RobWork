@@ -167,7 +167,7 @@ namespace rwhw {
         rw::math::Q _qCurrent, _dqCurrent;
 
         // timestamp for qCurrent and qdCurrent in ms
-        long _timeStamp;
+        long long _timeStamp;
         //
         typedef enum{IdleCMD, CntCMD, FineCMD, CallCMD} CommandType;
         // The next command to execute

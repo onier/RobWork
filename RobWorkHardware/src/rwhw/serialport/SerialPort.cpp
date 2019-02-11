@@ -31,10 +31,10 @@ bool SerialPort::read(
 {
     unsigned int index = 0;
 
-    const unsigned long time =
+    const long long time =
         rw::common::TimerUtil::currentTimeMs() + timeout;
 
-    unsigned long currTime = time;
+    long long currTime = time;
     do {
         index += read( &(buf[index]), n-index );
         if(index >= n){

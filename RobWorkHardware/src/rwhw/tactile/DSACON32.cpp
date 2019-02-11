@@ -62,15 +62,15 @@ namespace {
 
     void parseMatrixMask(unsigned char payload[], unsigned short payloadSize, TactileMaskMatrix *mask)
     {
-        int numX = mask->getMatrix().size1();
-        int numY = mask->getMatrix().size2();
+        const std::size_t numX = mask->getMatrix().size1();
+		const std::size_t numY = mask->getMatrix().size2();
 
         int errorCode = ConvertUtil::toInt16(payload, 0);
         if (errorCode != 0)
             RW_THROW("Parse error: " << errorCode);
 
-        int i = 0;
-        int j = 0;
+        std::size_t i = 0;
+		std::size_t j = 0;
         bool finish = false;
         for(unsigned short n=2; n<payloadSize; n++)
         {
@@ -238,12 +238,13 @@ DSACON32* DSACON32::GetInstance(SerialPort& port)
     std::vector<TactileMaskMatrix> staticMasks;
     for(unsigned short n=0; n<sConfig.numMatrices; n++)
     {
-        if(!QueryMatrixConfig(&port, n, &(mConfigs[n])))
+		const unsigned char nChar = boost::numeric_cast<unsigned char>(n);
+        if(!QueryMatrixConfig(&port, nChar, &(mConfigs[n])))
             RW_THROW("Unable to get configuration for matrix #" << n);
-        if(!ReadDescriptorString(&port, 0x01, n, &(mConfigs[n].descrStr)))
+        if(!ReadDescriptorString(&port, 0x01, nChar, &(mConfigs[n].descrStr)))
             RW_THROW("Unable to get descriptor string for matrix #" << n);
         staticMasks.push_back(TactileMaskMatrix(mConfigs[n].cellsX, mConfigs[n].cellsY));
-        if(!ReadMatrixMask(&port, 0, n, &staticMasks.back()))
+        if(!ReadMatrixMask(&port, 0, nChar, &staticMasks.back()))
             RW_THROW("Unable to get static mask for matrix #" << n);
     }
 
@@ -358,10 +359,10 @@ void DSACON32::parseDataFrame(unsigned char *payload, unsigned short payloadSize
     if (_useCompression)
     {
         pit = _pads.begin();
-        int numX = pit->getMatrix().size1();
-        int numY = pit->getMatrix().size2();
-        int i = 0;
-        int j = 0;
+        std::size_t numX = pit->getMatrix().size1();
+		std::size_t numY = pit->getMatrix().size2();
+        std::size_t i = 0;
+		std::size_t j = 0;
         for(int k=11; k<payloadSize; k++)
         {
             unsigned char loByte = payload[k];
@@ -396,13 +397,13 @@ void DSACON32::parseDataFrame(unsigned char *payload, unsigned short payloadSize
         int k = 5;
         for(pit=_pads.begin(); pit!=_pads.end(); pit++)
         {
-            int numX = pit->getMatrix().size1();
-            int numY = pit->getMatrix().size2();
+            const std::size_t numX = pit->getMatrix().size1();
+			const std::size_t numY = pit->getMatrix().size2();
             for(int j=0; j<numY; j++)
             {
                 for(int i=0; i<numX; i++)
                 {
-                    pit->set(i, j, ConvertUtil::toInt16(payload, k));
+                    pit->set(i, j, static_cast<float>(ConvertUtil::toInt16(payload, k)));
                     k += 2;
                 }
             }

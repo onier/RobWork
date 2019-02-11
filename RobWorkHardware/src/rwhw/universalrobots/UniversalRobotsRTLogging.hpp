@@ -104,7 +104,7 @@ class UniversalRobotsRTLogging {
 	bool _connected;
 	bool _hasData;
 	bool _lostConnection;
-	long _lastPackageTime;
+	long long _lastPackageTime;
 	bool _stop;
 	void run();
 

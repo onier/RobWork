@@ -215,9 +215,9 @@ private:
     //static const unsigned int max_buf_len = 5000000;
     //char buf[max_buf_len];
 
-    boost::uint8_t _packageIDCounter;
+    boost::uint16_t _packageIDCounter;
 
-    std::map<boost::uint8_t, std::pair<ModbusPackage, bool> > _packagesIntransit;
+    std::map<boost::uint16_t, std::pair<ModbusPackage, bool> > _packagesIntransit;
 
     std::queue<ModbusPackage> _packagesOutgoing;
     std::queue<ModbusPackage> _packagesRecieved;
@@ -244,7 +244,8 @@ protected:
     void setReg(boost::uint8_t& reg, const boost::uint8_t& val) const;
     void setReg(boost::uint16_t& reg, const boost::uint16_t& val) const;
     void getReg(const boost::uint16_t& reg, boost::uint16_t& val) const;
-    boost::uint8_t toVal8(const int val) const;
+	boost::uint8_t toVal8(int val) const;
+	boost::uint8_t toVal8(double val) const;
 
     rw::math::Q _currentQ, _currentCurrent;
     rw::math::Q _target, _speed, _force;

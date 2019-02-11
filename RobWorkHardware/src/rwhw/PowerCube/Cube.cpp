@@ -103,9 +103,10 @@ bool Cube::ping( int moduleNr, CubePort* port )
     return false;
 }
 
-std::vector<Cube*> Cube::getCubes(size_t from, size_t to, CubePort* port ){
+std::vector<Cube*> Cube::getCubes(int from, int to, CubePort* port )
+{
     std::vector<Cube*> cubes;
-    for(size_t i=from; i<to; i++ ){
+    for(int i = from; i < to; i++ ) {
         bool connected = Cube::ping(i, port);
         if( !connected )
             continue;

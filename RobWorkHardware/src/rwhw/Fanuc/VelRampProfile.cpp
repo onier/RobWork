@@ -41,13 +41,13 @@ Q VelRampProfile::getVelocity(
     const Q& velVec,
     double dt) const
 {
-    int dof = goalVec.size();
+    const std::size_t dof = goalVec.size();
     Q qtarget = goalVec;
     Q qcurrent = posVec;
     Q vcurrent = velVec;
     Q qdot(dof);
 
-    for (int i = 0; i < dof; i++) {
+    for (std::size_t i = 0; i < dof; i++) {
         double dist = qtarget(i) - qcurrent(i);
 
         if (fabs(dist) < 0.01) // round close to zero values to zero

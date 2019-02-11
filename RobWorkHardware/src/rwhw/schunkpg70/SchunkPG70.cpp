@@ -326,7 +326,7 @@ bool SchunkPG70::status(unsigned int &status) {
 	try {
 		status =_cube->getCubeState();
 		std::cout<<"status "<<status<<std::endl;
-	} catch(rw::common::Exception& e) {
+	} catch(rw::common::Exception&) {
 		return false;
 	}
 	return true;
