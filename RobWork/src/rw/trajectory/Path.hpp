@@ -32,8 +32,16 @@
 #include <vector>
 #include "Timed.hpp"
 
+// GCC Regression in valarray included through vector.hpp and get_data.hpp in
+// Boost 1.63 and earlier. Only use the serialization code when GCC version is
+// at least 4.9.4, 5.4 or 6.1 or 7 and newer.
+#if !defined(__GNUC__) || BOOST_VERSION >= 106400 || __GNUC__ >= 7 || \
+    (__GNUC__ == 6 && __GNUC_MINOR__ >= 1) ||                         \
+    (__GNUC__ == 5 && __GNUC_MINOR__ >= 4) ||                         \
+    (__GNUC__ == 4 && __GNUC_MINOR__ >= 9 && __GNUC_PATCHLEVEL__ >= 4)
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/serialization.hpp>
+#endif
 
 namespace rw { namespace trajectory {
 
@@ -81,6 +89,10 @@ public:
 	Path(const std::vector<T>& v): std::vector<T>(v)
 	{}
 
+#if !defined(__GNUC__) || BOOST_VERSION >= 106400 || __GNUC__ >= 7 || \
+    (__GNUC__ == 6 && __GNUC_MINOR__ >= 1) ||                         \
+    (__GNUC__ == 5 && __GNUC_MINOR__ >= 4) ||                         \
+    (__GNUC__ == 4 && __GNUC_MINOR__ >= 9 && __GNUC_PATCHLEVEL__ >= 4)
 	private:
 
 	friend class boost::serialization::access;
@@ -90,7 +102,7 @@ public:
 	{
 		ar & boost::serialization::base_object< std::vector<T> >(*this);
 	}
-
+#endif
 };
 
 /**
