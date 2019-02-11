@@ -20,17 +20,20 @@
 #include <rw/math/Random.hpp>
 #include <rw/trajectory/Path.hpp>
 
+#if !defined(__GNUC__) || BOOST_VERSION >= 106400 || __GNUC__ >= 7 || \
+    (__GNUC__ == 6 && __GNUC_MINOR__ >= 1) ||                         \
+    (__GNUC__ == 5 && __GNUC_MINOR__ >= 4) ||                         \
+    (__GNUC__ == 4 && __GNUC_MINOR__ >= 9 && __GNUC_PATCHLEVEL__ >= 4)
 #include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
 #include <sstream>
+#endif
 
 using namespace rw::math;
 using rw::trajectory::QPath;
 
 TEST(BoostSerialization, Path) {
-    std::stringstream stream;
-
     QPath path(5);
 
     for(std::size_t i = 0 ; i < path.size(); ++i) {
@@ -41,7 +44,13 @@ TEST(BoostSerialization, Path) {
             path[i][k] = Random::ran(-10, 10);
         }
     }
+    EXPECT_EQ(std::size_t(5), path.size());
 
+#if !defined(__GNUC__) || BOOST_VERSION >= 106400 || __GNUC__ >= 7 || \
+    (__GNUC__ == 6 && __GNUC_MINOR__ >= 1) ||                         \
+    (__GNUC__ == 5 && __GNUC_MINOR__ >= 4) ||                         \
+    (__GNUC__ == 4 && __GNUC_MINOR__ >= 9 && __GNUC_PATCHLEVEL__ >= 4)
+    std::stringstream stream;
     boost::archive::text_oarchive oa(stream);
     oa << path;
 
@@ -54,4 +63,5 @@ TEST(BoostSerialization, Path) {
     for(std::size_t i = 0; i < std::min(path.size(),loadedpath.size()); ++i) {
         EXPECT_EQ(path[i], loadedpath[i]);
     }
+#endif
 }
