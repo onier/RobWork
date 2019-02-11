@@ -70,8 +70,10 @@ target_link_libraries(ex-load-task ${ROBWORK_LIBRARIES} ${USER_LIBRARIES})
 add_executable(ex-load-workcell ex-load-workcell.cpp)
 target_link_libraries(ex-load-workcell ${ROBWORK_LIBRARIES} ${USER_LIBRARIES})
 
-add_executable(ex-lua-interpreter ex-lua-interpreter.cpp)
-target_link_libraries(ex-lua-interpreter ${ROBWORK_LIBRARIES} ${USER_LIBRARIES})
+if (RW_BUILD_WITH_LUA)
+  add_executable(ex-lua-interpreter ex-lua-interpreter.cpp)
+  target_link_libraries(ex-lua-interpreter ${ROBWORK_LIBRARIES} ${USER_LIBRARIES})
+endif()
 
 add_executable(ex-task ex-task.cpp)
 target_link_libraries(ex-task ${ROBWORK_LIBRARIES} ${USER_LIBRARIES})
