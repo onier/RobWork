@@ -1,5 +1,7 @@
 #include "Robotiq3.hpp"
 
+#include <boost/numeric/conversion/cast.hpp>
+
 using namespace rwhw;
 using namespace rw::math;
 using namespace rw::common;

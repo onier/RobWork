@@ -19,6 +19,8 @@
 
 #include <rw/common/macros.hpp>
 
+#include <boost/numeric/conversion/cast.hpp>
+
 using namespace rw::common;
 using namespace rwhw;
 
@@ -197,6 +199,7 @@ DSACON32::DSACON32(SerialPort &port, const ControllerConfig &cConfig,
                    const SensorConfig &sConfig, MatrixConfig *mConfigs,
                    const std::vector<TactileMaskMatrix> &staticMasks):
     _sPort(&port),
+    _timeStamp(0),
     _useCompression(false),
     _fps(5),
     _cConfig(cConfig),
@@ -399,9 +402,9 @@ void DSACON32::parseDataFrame(unsigned char *payload, unsigned short payloadSize
         {
             const std::size_t numX = pit->getMatrix().size1();
 			const std::size_t numY = pit->getMatrix().size2();
-            for(int j=0; j<numY; j++)
+            for(std::size_t j=0; j<numY; j++)
             {
-                for(int i=0; i<numX; i++)
+                for(std::size_t i=0; i<numX; i++)
                 {
                     pit->set(i, j, static_cast<float>(ConvertUtil::toInt16(payload, k)));
                     k += 2;

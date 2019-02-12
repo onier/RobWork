@@ -28,4 +28,4 @@ SET(FILES_CPP CACHE INTERNAL "" FORCE)
 ADD_SUBDIRECTORY(src)
 
 add_library(PluginTest ${FILES_CPP})
-target_link_libraries(PluginTest -lm ${ROBWORK_LIBRARIES})
+target_link_libraries(PluginTest ${ROBWORK_LIBRARIES})

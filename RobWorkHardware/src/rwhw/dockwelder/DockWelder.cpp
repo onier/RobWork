@@ -225,8 +225,9 @@ DockWelder::Status DockWelder::status() {
     read(buf);
     buf[VGTBLOCKSIZE-1] = 0;
     Status s;
+    long time;
     if(sscanf(buf,
-              "%lld\n"
+              "%ld\n"
               "%d %d %d %d %d %d\n"
               "%lg %lg %lg %lg %lg %lg %lg\n"
               "%d %d %d %d %d %d %d\n"
@@ -236,7 +237,7 @@ DockWelder::Status DockWelder::status() {
               "%d %d %d %d %d %d\n"
               "%d %d\n"
               "%d %80c",
-              &(s.t),
+              &time,
               &(s.isServoOn),
               &(s.isLoaded),
               &(s.isMoving),
@@ -261,6 +262,7 @@ DockWelder::Status DockWelder::status() {
               &(s.lj20),&(s.hj20),
               &(s.nError),(s.errbuf))!=48)
         RW_THROW("Error in returned status");
+    s.t = time;
     return s;
 
 }

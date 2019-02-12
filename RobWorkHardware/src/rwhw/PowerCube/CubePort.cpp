@@ -21,6 +21,8 @@
 
 #include "PCubeProtocol.hpp"
 
+#include <boost/numeric/conversion/cast.hpp>
+
 using namespace rwhw;
 using namespace rw::common;
 
