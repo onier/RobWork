@@ -1,0 +1,278 @@
+def rtde_control():
+
+    global force_mode_type = 2
+    global selection_vector = [0, 0, 0, 0, 0, 0]
+    global task_frame = p[0, 0, 0, 0, 0, 0]
+    global wrench = [0, 0, 0, 0, 0, 0]
+    global limits = [0, 0, 0, 0, 0, 0]
+
+    def signal_ready():
+        write_output_integer_register(0, 2)
+    end
+
+    def set_executing_cmd():
+        write_output_integer_register(0, 0)
+    end
+
+    def clear_executing_cmd():
+        write_output_integer_register(0, 1)
+    end
+
+    def rtde_cmd():
+        return read_input_integer_register(0)
+    end
+
+    def process_cmd():
+        cmd = read_input_integer_register(0)
+
+        if cmd == 1:
+            textmsg("movej")
+            q = [0, 0, 0, 0, 0, 0]
+            q[0] = read_input_float_register(0)
+            q[1] = read_input_float_register(1)
+            q[2] = read_input_float_register(2)
+            q[3] = read_input_float_register(3)
+            q[4] = read_input_float_register(4)
+            q[5] = read_input_float_register(5)
+            velocity = read_input_float_register(6)
+            acceleration = read_input_float_register(7)
+            textmsg("Target q:")
+            textmsg(q)
+            movej(q, a=acceleration, v=velocity)
+            textmsg("movej done")
+        elif cmd == 2:
+            textmsg("movej_ik")
+            pose = p[0, 0, 0, 0, 0, 0]
+            pose[0] = read_input_float_register(0)
+            pose[1] = read_input_float_register(1)
+            pose[2] = read_input_float_register(2)
+            pose[3] = read_input_float_register(3)
+            pose[4] = read_input_float_register(4)
+            pose[5] = read_input_float_register(5)
+            velocity = read_input_float_register(6)
+            acceleration = read_input_float_register(7)
+            textmsg("Target pose:")
+            textmsg(pose)
+            q = get_inverse_kin(pose)
+            textmsg("Target q:")
+            textmsg(q)
+            movej(q, a=acceleration, v=velocity)
+            textmsg("movej_ik done")
+        elif cmd == 3:
+            textmsg("movel")
+            pose = p[0, 0, 0, 0, 0, 0]
+            pose[0] = read_input_float_register(0)
+            pose[1] = read_input_float_register(1)
+            pose[2] = read_input_float_register(2)
+            pose[3] = read_input_float_register(3)
+            pose[4] = read_input_float_register(4)
+            pose[5] = read_input_float_register(5)
+            velocity = read_input_float_register(6)
+            acceleration = read_input_float_register(7)
+            textmsg("Target pose:")
+            textmsg(pose)
+            movel(pose, a=acceleration, v=velocity)
+            textmsg("movel done")
+        elif cmd == 4:
+            textmsg("movel_fk")
+            q = [0, 0, 0, 0, 0, 0]
+            q[0] = read_input_float_register(0)
+            q[1] = read_input_float_register(1)
+            q[2] = read_input_float_register(2)
+            q[3] = read_input_float_register(3)
+            q[4] = read_input_float_register(4)
+            q[5] = read_input_float_register(5)
+            velocity = read_input_float_register(6)
+            acceleration = read_input_float_register(7)
+            textmsg("Target q:")
+            textmsg(q)
+            movel(q, a=acceleration, v=velocity)
+            textmsg("movel_fk done")
+        elif cmd == 5:
+            textmsg("movec")
+            pose_via = p[0, 0, 0, 0, 0, 0]
+            pose_via[0] = read_input_float_register(0)
+            pose_via[1] = read_input_float_register(1)
+            pose_via[2] = read_input_float_register(2)
+            pose_via[3] = read_input_float_register(3)
+            pose_via[4] = read_input_float_register(4)
+            pose_via[5] = read_input_float_register(5)
+            pose_to = p[0, 0, 0, 0, 0, 0]
+            pose_to[0] = read_input_float_register(6)
+            pose_to[1] = read_input_float_register(7)
+            pose_to[2] = read_input_float_register(8)
+            pose_to[3] = read_input_float_register(9)
+            pose_to[4] = read_input_float_register(10)
+            pose_to[5] = read_input_float_register(11)
+            velocity = read_input_float_register(12)
+            acceleration = read_input_float_register(13)
+            movec_mode = read_input_integer_register(1)
+            textmsg("pose_via:")
+            textmsg(pose_via)
+            textmsg("pose_to:")
+            textmsg(pose_to)
+            movec(pose_to, pose_via, a=acceleration, v=velocity, mode=movec_mode)
+            stopl(10)
+            textmsg("movec done")
+        elif cmd == 6:
+            textmsg("force_mode_start")
+            force_mode_type = read_input_integer_register(1)
+            selection_vector[0] = read_input_integer_register(2)
+            selection_vector[1] = read_input_integer_register(3)
+            selection_vector[2] = read_input_integer_register(4)
+            selection_vector[3] = read_input_integer_register(5)
+            selection_vector[4] = read_input_integer_register(6)
+            selection_vector[5] = read_input_integer_register(7)
+
+            task_frame[0] = read_input_float_register(0)
+            task_frame[1] = read_input_float_register(1)
+            task_frame[2] = read_input_float_register(2)
+            task_frame[3] = read_input_float_register(3)
+            task_frame[4] = read_input_float_register(4)
+            task_frame[5] = read_input_float_register(5)
+
+            wrench[0] = read_input_float_register(6)
+            wrench[1] = read_input_float_register(7)
+            wrench[2] = read_input_float_register(8)
+            wrench[3] = read_input_float_register(9)
+            wrench[4] = read_input_float_register(10)
+            wrench[5] = read_input_float_register(11)
+
+            limits[0] = read_input_float_register(12)
+            limits[1] = read_input_float_register(13)
+            limits[2] = read_input_float_register(14)
+            limits[3] = read_input_float_register(15)
+            limits[4] = read_input_float_register(16)
+            limits[5] = read_input_float_register(17)
+
+            force_mode(task_frame, selection_vector, wrench, force_mode_type, limits)
+            textmsg("force_mode started")
+        elif cmd == 7:
+            textmsg("force_mode_update")
+            wrench[0] = read_input_float_register(0)
+            wrench[1] = read_input_float_register(1)
+            wrench[2] = read_input_float_register(2)
+            wrench[3] = read_input_float_register(3)
+            wrench[4] = read_input_float_register(4)
+            wrench[5] = read_input_float_register(5)
+            force_mode(task_frame, selection_vector, wrench, force_mode_type, limits)
+            textmsg("force_mode_update done")
+        elif cmd == 8:
+            textmsg("force_mode_stop")
+            end_force_mode()
+            stopl(10)
+            textmsg("force_mode stopped")
+        elif cmd == 9:
+            textmsg("zero_ftsensor")
+            zero_ftsensor()
+            textmsg("ftsensor zeroed")
+        elif cmd == 10:
+            textmsg("speedj")
+            qd = [0, 0, 0, 0, 0, 0]
+            qd[0] = read_input_float_register(0)
+            qd[1] = read_input_float_register(1)
+            qd[2] = read_input_float_register(2)
+            qd[3] = read_input_float_register(3)
+            qd[4] = read_input_float_register(4)
+            qd[5] = read_input_float_register(5)
+            acceleration = read_input_float_register(6)
+            time = read_input_float_register(7)
+            if time > 0:
+                speedj(qd, acceleration, time)
+            else:
+                speedj(qd, acceleration)
+            end
+            stopj(10)
+            textmsg("speedj done")
+        elif cmd == 11:
+            textmsg("speedl")
+            xd = [0, 0, 0, 0, 0, 0]
+            xd[0] = read_input_float_register(0)
+            xd[1] = read_input_float_register(1)
+            xd[2] = read_input_float_register(2)
+            xd[3] = read_input_float_register(3)
+            xd[4] = read_input_float_register(4)
+            xd[5] = read_input_float_register(5)
+            acceleration = read_input_float_register(6)
+            time = read_input_float_register(7)
+            if time > 0:
+                speedl(xd, acceleration, time)
+            else:
+                speedl(xd, acceleration)
+            end
+            stopl(10)
+            textmsg("speedl done")
+        elif cmd == 12:
+            textmsg("servoj")
+            q = [0, 0, 0, 0, 0, 0]
+            q[0] = read_input_float_register(0)
+            q[1] = read_input_float_register(1)
+            q[2] = read_input_float_register(2)
+            q[3] = read_input_float_register(3)
+            q[4] = read_input_float_register(4)
+            q[5] = read_input_float_register(5)
+            velocity = read_input_float_register(6)
+            acceleration = read_input_float_register(7)
+            time = read_input_float_register(8)
+            lookahead_time = read_input_float_register(9)
+            gain = read_input_float_register(10)
+            textmsg("Target q:")
+            textmsg(q)
+            servoj(q, a=acceleration, v=velocity, t=time, lookahead_time=lookahead_time, gain=gain)
+            stopj(20)
+            textmsg("servoj done")
+        elif cmd == 13:
+            textmsg("servoc")
+            pose = p[0, 0, 0, 0, 0, 0]
+            pose[0] = read_input_float_register(0)
+            pose[1] = read_input_float_register(1)
+            pose[2] = read_input_float_register(2)
+            pose[3] = read_input_float_register(3)
+            pose[4] = read_input_float_register(4)
+            pose[5] = read_input_float_register(5)
+            velocity = read_input_float_register(6)
+            acceleration = read_input_float_register(7)
+            blend = read_input_float_register(8)
+            textmsg("Target pose:")
+            textmsg(pose)
+            servoc(pose, a=acceleration, v=velocity, r=blend)
+            stopj(20)
+            textmsg("servoc done")
+
+        elif cmd == 255:
+            stopj(20)
+            textmsg("Received stop!")
+        end
+
+        return cmd != 255
+    end
+
+    #
+    # RTDE Control script - Main loop
+    #
+
+    textmsg("RTDE Control Script Loaded")
+
+    # Initialize force torque sensor
+    zero_ftsensor()
+
+    keep_running = True
+    executing_cmd = False
+    signal_ready()
+
+    while keep_running:
+        if rtde_cmd() == 0:
+            clear_executing_cmd()
+            executing_cmd = False
+        else:
+            set_executing_cmd()
+            if not executing_cmd:
+                keep_running = process_cmd()
+            end
+            executing_cmd = True
+        end
+        sync()
+    end
+    textmsg("RTDE Control Script Terminated")
+end
+run program
