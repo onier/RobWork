@@ -228,6 +228,7 @@ SET(PATHOPTIMIZATION_TEST_LIBRARIES
 
 SET(PATHOPTIMIZATION_TEST_SRC
   pathoptimization/ClearanceOptimizerTest.cpp
+  pathoptimization/PathLengthOptimizerTest.cpp
 )
 ADD_EXECUTABLE( rw_pathoptimization-gtest ${PATHOPTIMIZATION_TEST_SRC})       
 TARGET_LINK_LIBRARIES( rw_pathoptimization-gtest ${PATHOPTIMIZATION_TEST_LIBRARIES})

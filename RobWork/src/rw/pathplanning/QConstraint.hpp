@@ -168,7 +168,7 @@ namespace rw { namespace pathplanning {
 		 * @brief Update constraint.
 		 * @param state [in] the state.
 		 */
-		virtual void doUpdate(const rw::kinematics::State& state) {};
+		virtual void doUpdate(const rw::kinematics::State& state) {}
 
         /**
            Constructor

@@ -352,7 +352,7 @@ namespace rw { namespace math {
 	}
 
 	/**
-	* @brief calculates the ounter clock-wise angle from v1 to
+	* @brief calculates the counter clock-wise angle from v1 to
 	* v2. the value returned will be in the interval [-2Pi,2Pi]
 	*/
 	template <class T>

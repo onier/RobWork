@@ -91,15 +91,19 @@ void PathLengthOptimizer::pathPruning(QList& result) const
     it2++; it2++;
 
     while (it2 != result.end()) {
-		// The start and end configurations does not change
-		if (validPath(*it1, *it2, false, false)) {
+        // The start and end configurations does not change
+        if (validPath(*it1, *it2, false, false)) {
             it2 = result.erase(++it1);
             it1 = it2;
-            it1--;
-            it2++;
+            --it1;
+            if(it1 != result.begin()) {
+               --it1;
+            } else {
+                ++it2;
+            }
         } else {
-            it1++;
-            it2++;
+            ++it1;
+            ++it2;
         }
     }
 }
