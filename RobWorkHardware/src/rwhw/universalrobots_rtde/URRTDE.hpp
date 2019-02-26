@@ -18,6 +18,14 @@
 #ifndef RWHW_UNIVERSALROBOTS_RTDE_URRTDE_HPP_
 #define RWHW_UNIVERSALROBOTS_RTDE_URRTDE_HPP_
 
+#include <string>
+#include <rtde_control_interface.h>
+#include <rtde_receive_interface.h>
+#include <rw/math/Q.hpp>
+#include <rw/trajectory/Path.hpp>
+#include <rw/math/Wrench6D.hpp>
+#include <rw/math/EAA.hpp>
+
 /**
  * @file URRTDE.hpp
  *
@@ -30,13 +38,137 @@ namespace rwhw {
 
     //! @{
     /**
-     * @brief To be written...
+     * @brief URRTDE class provides a control interface for the UR Robots using RTDE
      */
     class URRTDE
     {
         public:
-            URRTDE();
+            explicit URRTDE(std::string robot_ip, std::vector<std::string> variables = {});
             virtual ~URRTDE();
+
+            // Control interface functions
+
+            void stopRobot();
+
+            void moveJ(const rw::math::Q& q, double speed, double acceleration);
+            void moveJ(const rw::trajectory::QPath& q_path);
+            void moveJ_IK(const rw::math::Transform3D<> &pose, double speed, double acceleration);
+
+            void moveL(const rw::math::Transform3D<>& pose, double speed, double acceleration);
+            void moveL(const rw::trajectory::Transform3DPath& pose_path);
+            void moveL_FK(const rw::math::Q& q, double speed, double acceleration);
+
+            void moveC(const rw::math::Transform3D<>& pose_via, const rw::math::Transform3D<>& pose_to,
+                        double speed, double acceleration);
+
+            void speedJ(const rw::math::Q& qd, double acceleration, double time = 0.0);
+            void speedL(const rw::math::Q& xd, double acceleration, double time = 0.0);
+
+            void servoJ(const rw::math::Q& q, double speed, double acceleration,
+                        double time, double lookahead_time, double gain);
+            void servoC(const rw::math::Transform3D<>& pose, double speed, double acceleration, double blend);
+
+            void forceModeStart(const rw::math::Transform3D<>& task_frame, const rw::math::Q& selection_vector,
+                                const rw::math::Wrench6D<>& wrench, int type, const rw::math::Q& limits);
+
+            void forceModeUpdate(const rw::math::Wrench6D<>& wrench);
+
+            void forceModeStop();
+
+            void zeroFtSensor();
+
+            void setStandardDigitalOut(std::uint8_t output_id, bool signal_level);
+
+            void setToolDigitalOut(std::uint8_t output_id, bool signal_level);
+
+            // Receive interface functions
+
+            /**
+              * @returns Time elapsed since the controller was started [s]
+              */
+            double getTimestamp();
+
+            /**
+              * @returns Target joint positions
+              */
+            rw::math::Q getTargetQ();
+
+            /**
+              * @returns Target joint velocities
+              */
+            rw::math::Q getTargetQd();
+
+            /**
+              * @returns Target joint accelerations
+              */
+            rw::math::Q getTargetQdd();
+
+            /**
+              * @returns Target joint currents
+              */
+            rw::math::Q getTargetCurrent();
+
+            /**
+              * @returns Target joint moments (torques)
+              */
+            rw::math::Q getTargetMoment();
+
+            /**
+              * @returns Actual joint positions
+              */
+            rw::math::Q getActualQ();
+
+            rw::math::Q getActualQd();
+
+            rw::math::Q getActualCurrent();
+
+            rw::math::Q getJointControlOutput();
+
+            rw::math::Transform3D<> getActualTCPPose();
+
+            rw::math::Q getActualTCPSpeed();
+
+            rw::math::Wrench6D<> getActualTCPForce();
+
+            rw::math::Transform3D<> getTargetTCPPose();
+
+            rw::math::Q getTargetTCPSpeed();
+
+            uint64_t getActualDigitalInputBits();
+
+            rw::math::Q getJointTemperatures();
+
+            double getActualExecutionTime();
+
+            int32_t getRobotMode();
+
+            std::vector<int32_t> getJointMode();
+
+            int32_t getSafetyMode();
+
+            rw::math::Q getActualToolAccelerometer();
+
+            double getSpeedScaling();
+
+            double getTargetSpeedFraction();
+
+            double getActualMomentum();
+
+            double getActualMainVoltage();
+
+            double getActualRobotVoltage();
+
+            double getActualRobotCurrent();
+
+            rw::math::Q getActualJointVoltage();
+
+            uint64_t getActualDigitalOutputBits();
+
+            uint32_t getRuntimeState();
+
+        private:
+            std::shared_ptr<RTDEControlInterface> rtde_control_;
+            std::shared_ptr<RTDEReceiveInterface> rtde_receive_;
     };
 //! @}
 

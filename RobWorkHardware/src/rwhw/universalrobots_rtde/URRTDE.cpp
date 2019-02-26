@@ -17,16 +17,238 @@
 
 #include "URRTDE.hpp"
 
-#include <rtde.h>
-
 using namespace rwhw;
 
-URRTDE::URRTDE()
+URRTDE::URRTDE(std::string robot_ip, std::vector<std::string> variables)
 {
-    RTDE rtde("localhost");
-    rtde.connect();
+    // Initialize interface
+    rtde_control_ = std::make_shared<RTDEControlInterface>(robot_ip);
+    rtde_receive_ = std::make_shared<RTDEReceiveInterface>(robot_ip, variables);
 }
 
 URRTDE::~URRTDE()
 {
 }
+
+void URRTDE::stopRobot() {
+    rtde_control_->stopRobot();
+}
+
+void URRTDE::moveJ(const rw::math::Q& q, double speed, double acceleration) {
+    rtde_control_->moveJ(q.toStdVector(), speed, acceleration);
+}
+
+void URRTDE::moveJ(const rw::trajectory::QPath& q_path) {
+    std::vector<std::vector<double>> path;
+    for(const auto &q : q_path)
+        path.push_back(q.toStdVector());
+    rtde_control_->moveJ(path);
+}
+
+void URRTDE::moveJ_IK(const rw::math::Transform3D<> &pose, double speed, double acceleration) {
+    rw::math::Vector3D<> pos = pose.P();
+    rw::math::EAA<> eaa(pose.R());
+    std::vector<double> std_pose = {pos[0], pos[1], pos[2], eaa[0], eaa[1], eaa[2]};
+    rtde_control_->moveJ_IK(std_pose, speed, acceleration);
+}
+
+void URRTDE::moveL(const rw::math::Transform3D<> &pose, double speed, double acceleration) {
+    rw::math::Vector3D<> pos = pose.P();
+    rw::math::EAA<> eaa(pose.R());
+    std::vector<double> std_pose = {pos[0], pos[1], pos[2], eaa[0], eaa[1], eaa[2]};
+    rtde_control_->moveL(std_pose, speed, acceleration);
+}
+
+void URRTDE::moveL(const rw::trajectory::Transform3DPath& pose_path) {
+
+}
+
+void URRTDE::moveL_FK(const rw::math::Q& q, double speed, double acceleration) {
+    rtde_control_->moveL_FK(q.toStdVector(), speed, acceleration);
+}
+
+void URRTDE::moveC(const rw::math::Transform3D<>& pose_via, const rw::math::Transform3D<> &pose_to, double speed,
+                   double acceleration) {
+
+}
+
+void URRTDE::speedJ(const rw::math::Q& qd, double acceleration, double time) {
+    rtde_control_->speedJ(qd.toStdVector(), acceleration, time);
+}
+
+void URRTDE::speedL(const rw::math::Q& xd, double acceleration, double time) {
+    rtde_control_->speedL(xd.toStdVector(), acceleration, time);
+}
+
+void URRTDE::servoJ(const rw::math::Q& q, double speed, double acceleration, double time, double lookahead_time,
+                    double gain) {
+
+}
+
+void URRTDE::servoC(const rw::math::Transform3D<>& pose, double speed, double acceleration, double blend) {
+
+}
+
+void URRTDE::forceModeStart(const rw::math::Transform3D<>& task_frame, const rw::math::Q& selection_vector,
+                            const rw::math::Wrench6D<>& wrench, int type, const rw::math::Q& limits) {
+
+}
+
+void URRTDE::forceModeUpdate(const rw::math::Wrench6D<>& wrench) {
+    const rw::math::Vector3D<> force = wrench.force();
+    const rw::math::Vector3D<> torque = wrench.torque();
+    std::vector<double> std_wrench = {force[0], force[1], force[2], torque[0], torque[1], torque[2]};
+    rtde_control_->forceModeUpdate(std_wrench);
+}
+
+void URRTDE::forceModeStop() {
+    rtde_control_->forceModeStop();
+}
+
+void URRTDE::zeroFtSensor() {
+    rtde_control_->zeroFtSensor();
+}
+
+void URRTDE::setStandardDigitalOut(std::uint8_t output_id, bool signal_level) {
+    rtde_control_->setStandardDigitalOut(output_id, signal_level);
+}
+
+void URRTDE::setToolDigitalOut(std::uint8_t output_id, bool signal_level) {
+    rtde_control_->setToolDigitalOut(output_id, signal_level);
+}
+
+double URRTDE::getTimestamp() {
+    return rtde_receive_->getTimestamp();
+}
+
+rw::math::Q URRTDE::getTargetQ() {
+    return rw::math::Q(rtde_receive_->getTargetQ());
+}
+
+rw::math::Q URRTDE::getTargetQd() {
+    return rw::math::Q(rtde_receive_->getTargetQd());
+}
+
+rw::math::Q URRTDE::getTargetQdd() {
+    return rw::math::Q(rtde_receive_->getTargetQdd());
+}
+
+rw::math::Q URRTDE::getTargetCurrent() {
+    return rw::math::Q(rtde_receive_->getTargetCurrent());
+}
+
+rw::math::Q URRTDE::getTargetMoment() {
+    return rw::math::Q(rtde_receive_->getTargetMoment());
+}
+
+rw::math::Q URRTDE::getActualQ() {
+    return rw::math::Q(rtde_receive_->getActualQ());
+}
+
+rw::math::Q URRTDE::getActualQd() {
+    return rw::math::Q(rtde_receive_->getActualQd());
+}
+
+rw::math::Q URRTDE::getActualCurrent() {
+    return rw::math::Q(rtde_receive_->getActualCurrent());
+}
+
+rw::math::Q URRTDE::getJointControlOutput() {
+    return rw::math::Q(rtde_receive_->getJointControlOutput());
+}
+
+rw::math::Transform3D<> URRTDE::getActualTCPPose() {
+    const std::vector<double> std_pose = rtde_receive_->getActualTCPPose();
+    rw::math::Vector3D<> pos(std_pose[0], std_pose[1], std_pose[2]);
+    rw::math::EAA<> eaa(std_pose[3], std_pose[4], std_pose[5]);
+    rw::math::Transform3D<> tcp_pose(pos, eaa.toRotation3D());
+    return tcp_pose;
+}
+
+rw::math::Q URRTDE::getActualTCPSpeed() {
+    return rw::math::Q(rtde_receive_->getActualTCPSpeed());
+}
+
+rw::math::Wrench6D<> URRTDE::getActualTCPForce() {
+    const std::vector<double> std_w = rtde_receive_->getActualTCPForce();
+    rw::math::Wrench6D<> wrench(std_w[0], std_w[1], std_w[2], std_w[3], std_w[4], std_w[5]);
+    return wrench;
+}
+
+rw::math::Transform3D<> URRTDE::getTargetTCPPose() {
+    const std::vector<double> std_pose = rtde_receive_->getTargetTCPPose();
+    rw::math::Vector3D<> pos(std_pose[0], std_pose[1], std_pose[2]);
+    rw::math::EAA<> eaa(std_pose[3], std_pose[4], std_pose[5]);
+    rw::math::Transform3D<> tcp_pose(pos, eaa.toRotation3D());
+    return tcp_pose;
+}
+
+rw::math::Q URRTDE::getTargetTCPSpeed() {
+    return rw::math::Q(rtde_receive_->getTargetTCPSpeed());
+}
+
+uint64_t URRTDE::getActualDigitalInputBits() {
+    return rtde_receive_->getActualDigitalInputBits();
+}
+
+rw::math::Q URRTDE::getJointTemperatures() {
+    return rw::math::Q(rtde_receive_->getJointTemperatures());
+}
+
+double URRTDE::getActualExecutionTime() {
+    return rtde_receive_->getActualExecutionTime();
+}
+
+int32_t URRTDE::getRobotMode() {
+    return rtde_receive_->getRobotMode();
+}
+
+std::vector<int32_t> URRTDE::getJointMode() {
+    return rtde_receive_->getJointMode();
+}
+
+int32_t URRTDE::getSafetyMode() {
+    return rtde_receive_->getSafetyMode();
+}
+
+rw::math::Q URRTDE::getActualToolAccelerometer() {
+    return rw::math::Q(rtde_receive_->getActualToolAccelerometer());
+}
+
+double URRTDE::getSpeedScaling() {
+    return rtde_receive_->getSpeedScaling();
+}
+
+double URRTDE::getTargetSpeedFraction() {
+    return rtde_receive_->getTargetSpeedFraction();
+}
+
+double URRTDE::getActualMomentum() {
+    return rtde_receive_->getActualMomentum();
+}
+
+double URRTDE::getActualMainVoltage() {
+    return rtde_receive_->getActualMainVoltage();
+}
+
+double URRTDE::getActualRobotVoltage() {
+    return rtde_receive_->getActualRobotVoltage();
+}
+
+double URRTDE::getActualRobotCurrent() {
+    return rtde_receive_->getActualRobotCurrent();
+}
+
+rw::math::Q URRTDE::getActualJointVoltage() {
+    return rw::math::Q(rtde_receive_->getActualJointVoltage());
+}
+
+uint64_t URRTDE::getActualDigitalOutputBits() {
+    return rtde_receive_->getActualDigitalOutputBits();
+}
+
+uint32_t URRTDE::getRuntimeState() {
+    return rtde_receive_->getRuntimeState();
+}
+
+
