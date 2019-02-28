@@ -19,6 +19,7 @@ int main(int argc, char* argv[])
 
   std::vector<double> joint_q1 = {-1.54, -1.83, -2.28, -0.59, 1.60, 0.023};
   std::vector<double> joint_q2 = {-0.69, -2.37, -1.79, -0.37, 1.93, 0.87};
+  std::vector<double> joint_q3 = {-1.30, -1.36, -1.90, -1.05, 1.50, 0.03};
 
   std::vector<double> path_pose1 = {-0.143, -0.435, 0.20, -0.001, 3.12, 0.04, velocity, acceleration, 0};
   std::vector<double> path_pose2 = {-0.143, -0.51, 0.21, -0.001, 3.12, 0.04, velocity, acceleration, 0.02};
@@ -79,15 +80,20 @@ int main(int argc, char* argv[])
   rtde_control.speedL(tool_speed, acceleration, time);*/
 
   // Test servoJ
-  double time = 0.2;
+  double time = 0.3;
   double lookahead_time = 0.1;
   double gain = 300;
-  for (unsigned int i=0; i<20; i++)
+
+  rtde_control.servoJ(joint_q1, velocity, acceleration, time, lookahead_time, gain);
+  for (unsigned int i=0; i<30; i++)
   {
-    rtde_control.servoJ(joint_q1, velocity, acceleration, time, lookahead_time, gain);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    rtde_control.servoJ(joint_q2, velocity, acceleration, time, lookahead_time, gain);
+    rtde_control.servoUpdate(joint_q1);
+    std::this_thread::sleep_for(std::chrono::milliseconds(280));
+    rtde_control.servoUpdate(joint_q2);
+    std::this_thread::sleep_for(std::chrono::milliseconds(280));
   }
+
+  rtde_control.servoStop();
 
   // Test servoC
   //rtde_control.servoC(tcp_pose1, velocity, acceleration, 0.01);*/

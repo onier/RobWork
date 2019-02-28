@@ -5,6 +5,8 @@
 #include <rtde_receive_interface.h>
 namespace py = pybind11;
 
+namespace rtde_control
+{
 PYBIND11_MODULE(rtde_control, m)
 {
   m.doc() = "RTDE Control Interface";
@@ -12,17 +14,18 @@ PYBIND11_MODULE(rtde_control, m)
       .def(py::init<std::string>())
       .def("stopRobot", &RTDEControlInterface::stopRobot)
       .def("moveJ",
-           (void (RTDEControlInterface::*)(const std::vector<std::vector<double>>& path)) & RTDEControlInterface::moveJ,
+           (bool (RTDEControlInterface::*)(const std::vector<std::vector<double>> &path)) & RTDEControlInterface::moveJ,
            "moveJ with path")
-      .def("moveJ",
-           (void (RTDEControlInterface::*)(const std::vector<double>& q, double speed, double acceleration)) & RTDEControlInterface::moveJ,
+      .def("moveJ", (bool (RTDEControlInterface::*)(const std::vector<double> &q, double speed, double acceleration)) &
+                        RTDEControlInterface::moveJ,
            "moveJ without path")
       .def("moveJ_IK", &RTDEControlInterface::moveJ_IK)
       .def("moveL",
-           (void (RTDEControlInterface::*)(const std::vector<std::vector<double>>& path)) & RTDEControlInterface::moveL,
+           (bool (RTDEControlInterface::*)(const std::vector<std::vector<double>> &path)) & RTDEControlInterface::moveL,
            "moveL with path")
       .def("moveL",
-           (void (RTDEControlInterface::*)(const std::vector<double>& pose, double speed, double acceleration)) & RTDEControlInterface::moveL,
+           (bool (RTDEControlInterface::*)(const std::vector<double> &pose, double speed, double acceleration)) &
+               RTDEControlInterface::moveL,
            "moveL without path")
       .def("moveL_FK", &RTDEControlInterface::moveL_FK)
       .def("moveC", &RTDEControlInterface::moveC)
@@ -36,12 +39,15 @@ PYBIND11_MODULE(rtde_control, m)
       .def("zeroFtSensor", &RTDEControlInterface::zeroFtSensor)
       .def("setStandardDigitalOut", &RTDEControlInterface::setStandardDigitalOut)
       .def("setToolDigitalOut", &RTDEControlInterface::setToolDigitalOut)
-      .def("__repr__", [](const RTDEControlInterface& a)
-      {
+      .def("__repr__", [](const RTDEControlInterface &a)
+           {
         return "<rtde_control.RTDEControlInterface>";
       });
 }
+};
 
+namespace rtde_receive
+{
 PYBIND11_MODULE(rtde_receive, m)
 {
   m.doc() = "RTDE Receive Interface";
@@ -78,8 +84,9 @@ PYBIND11_MODULE(rtde_receive, m)
       .def("getActualJointVoltage", &RTDEReceiveInterface::getActualJointVoltage)
       .def("getActualDigitalOutputBits", &RTDEReceiveInterface::getActualDigitalOutputBits)
       .def("getRuntimeState", &RTDEReceiveInterface::getRuntimeState)
-      .def("__repr__", [](const RTDEReceiveInterface& a)
-      {
+      .def("__repr__", [](const RTDEReceiveInterface &a)
+           {
         return "<rtde_receive.RTDEReceiveInterface>";
       });
 }
+};

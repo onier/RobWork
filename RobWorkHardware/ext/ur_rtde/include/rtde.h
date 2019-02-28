@@ -36,6 +36,8 @@ class RTDE
       SERVOC = 13,
       SET_STD_DIGITAL_OUT = 14,
       SET_TOOL_DIGITAL_OUT = 15,
+      SERVO_UPDATE = 16,
+      SERVO_STOP = 17,
       STOP = 255
     };
 

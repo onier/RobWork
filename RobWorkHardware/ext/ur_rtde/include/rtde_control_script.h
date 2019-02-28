@@ -5,17 +5,20 @@ const std::string NEW_LINE= "\n"; const std::string QUOTATION = "\""; std::strin
 "    global task_frame = p[0, 0, 0, 0, 0, 0]" + NEW_LINE  + 
 "    global wrench = [0, 0, 0, 0, 0, 0]" + NEW_LINE  + 
 "    global limits = [0, 0, 0, 0, 0, 0]" + NEW_LINE  + 
+"    global servo_target = [0, 0, 0, 0, 0, 0]" + NEW_LINE  + 
+"    global servo_time = 0.2" + NEW_LINE  + 
+"    global servo_lookahead_time = 0.1" + NEW_LINE  + 
+"    global servo_gain = 300" + NEW_LINE  + 
+"    global thrd = 0" + NEW_LINE  + 
 "" + NEW_LINE  + 
-"    def signal_ready():" + NEW_LINE  + 
-"        write_output_integer_register(0, 2)" + NEW_LINE  + 
+"    thread servo_thread():" + NEW_LINE  + 
+"        while (True):" + NEW_LINE  + 
+"            servoj(servo_target, t=servo_time, lookahead_time=servo_lookahead_time, gain=servo_gain)" + NEW_LINE  + 
+"        end" + NEW_LINE  + 
 "    end" + NEW_LINE  + 
 "" + NEW_LINE  + 
-"    def set_executing_cmd():" + NEW_LINE  + 
-"        write_output_integer_register(0, 0)" + NEW_LINE  + 
-"    end" + NEW_LINE  + 
-"" + NEW_LINE  + 
-"    def clear_executing_cmd():" + NEW_LINE  + 
-"        write_output_integer_register(0, 1)" + NEW_LINE  + 
+"    def signal_ready(val):" + NEW_LINE  + 
+"        write_output_integer_register(0, val)" + NEW_LINE  + 
 "    end" + NEW_LINE  + 
 "" + NEW_LINE  + 
 "    def rtde_cmd():" + NEW_LINE  + 
@@ -213,13 +216,11 @@ const std::string NEW_LINE= "\n"; const std::string QUOTATION = "\""; std::strin
 "            q[5] = read_input_float_register(5)" + NEW_LINE  + 
 "            velocity = read_input_float_register(6)" + NEW_LINE  + 
 "            acceleration = read_input_float_register(7)" + NEW_LINE  + 
-"            time = read_input_float_register(8)" + NEW_LINE  + 
-"            lookahead_time = read_input_float_register(9)" + NEW_LINE  + 
-"            gain = read_input_float_register(10)" + NEW_LINE  + 
-"            textmsg("+QUOTATION+"Target q:"+QUOTATION+")" + NEW_LINE  + 
-"            textmsg(q)" + NEW_LINE  + 
-"            servoj(q, a=acceleration, v=velocity, t=time, lookahead_time=lookahead_time, gain=gain)" + NEW_LINE  + 
-"            stopj(20)" + NEW_LINE  + 
+"            servo_time = read_input_float_register(8)" + NEW_LINE  + 
+"            servo_lookahead_time = read_input_float_register(9)" + NEW_LINE  + 
+"            servo_gain = read_input_float_register(10)" + NEW_LINE  + 
+"            servo_move = True" + NEW_LINE  + 
+"            global thrd = run servo_thread()" + NEW_LINE  + 
 "            textmsg("+QUOTATION+"servoj done"+QUOTATION+")" + NEW_LINE  + 
 "        elif cmd == 13:" + NEW_LINE  + 
 "            textmsg("+QUOTATION+"servoc"+QUOTATION+")" + NEW_LINE  + 
@@ -238,9 +239,23 @@ const std::string NEW_LINE= "\n"; const std::string QUOTATION = "\""; std::strin
 "            servoc(pose, a=acceleration, v=velocity, r=blend)" + NEW_LINE  + 
 "            stopj(20)" + NEW_LINE  + 
 "            textmsg("+QUOTATION+"servoc done"+QUOTATION+")" + NEW_LINE  + 
-"" + NEW_LINE  + 
+"        elif cmd == 16:" + NEW_LINE  + 
+"            textmsg("+QUOTATION+"servo_update"+QUOTATION+")" + NEW_LINE  + 
+"            q = [0, 0, 0, 0, 0, 0]" + NEW_LINE  + 
+"            q[0] = read_input_float_register(0)" + NEW_LINE  + 
+"            q[1] = read_input_float_register(1)" + NEW_LINE  + 
+"            q[2] = read_input_float_register(2)" + NEW_LINE  + 
+"            q[3] = read_input_float_register(3)" + NEW_LINE  + 
+"            q[4] = read_input_float_register(4)" + NEW_LINE  + 
+"            q[5] = read_input_float_register(5)" + NEW_LINE  + 
+"            enter_critical" + NEW_LINE  + 
+"            servo_target = q" + NEW_LINE  + 
+"            exit_critical" + NEW_LINE  + 
+"            textmsg("+QUOTATION+"servo_update done"+QUOTATION+")" + NEW_LINE  + 
+"        elif cmd == 17:" + NEW_LINE  + 
+"            kill thrd" + NEW_LINE  + 
+"            stopj(30)" + NEW_LINE  + 
 "        elif cmd == 255:" + NEW_LINE  + 
-"            stopj(20)" + NEW_LINE  + 
 "            textmsg("+QUOTATION+"Received stop!"+QUOTATION+")" + NEW_LINE  + 
 "        end" + NEW_LINE  + 
 "" + NEW_LINE  + 
@@ -258,14 +273,14 @@ const std::string NEW_LINE= "\n"; const std::string QUOTATION = "\""; std::strin
 "" + NEW_LINE  + 
 "    keep_running = True" + NEW_LINE  + 
 "    executing_cmd = False" + NEW_LINE  + 
-"    signal_ready()" + NEW_LINE  + 
+"    signal_ready(1)" + NEW_LINE  + 
 "" + NEW_LINE  + 
 "    while keep_running:" + NEW_LINE  + 
 "        if rtde_cmd() == 0:" + NEW_LINE  + 
-"            clear_executing_cmd()" + NEW_LINE  + 
+"            signal_ready(1)" + NEW_LINE  + 
 "            executing_cmd = False" + NEW_LINE  + 
 "        else:" + NEW_LINE  + 
-"            set_executing_cmd()" + NEW_LINE  + 
+"            signal_ready(0)" + NEW_LINE  + 
 "            if not executing_cmd:" + NEW_LINE  + 
 "                keep_running = process_cmd()" + NEW_LINE  + 
 "            end" + NEW_LINE  + 

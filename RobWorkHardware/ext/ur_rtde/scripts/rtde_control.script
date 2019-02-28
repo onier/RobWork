@@ -5,17 +5,20 @@ def rtde_control():
     global task_frame = p[0, 0, 0, 0, 0, 0]
     global wrench = [0, 0, 0, 0, 0, 0]
     global limits = [0, 0, 0, 0, 0, 0]
+    global servo_target = [0, 0, 0, 0, 0, 0]
+    global servo_time = 0.2
+    global servo_lookahead_time = 0.1
+    global servo_gain = 300
+    global thrd = 0
 
-    def signal_ready():
-        write_output_integer_register(0, 2)
+    thread servo_thread():
+        while (True):
+            servoj(servo_target, t=servo_time, lookahead_time=servo_lookahead_time, gain=servo_gain)
+        end
     end
 
-    def set_executing_cmd():
-        write_output_integer_register(0, 0)
-    end
-
-    def clear_executing_cmd():
-        write_output_integer_register(0, 1)
+    def signal_ready(val):
+        write_output_integer_register(0, val)
     end
 
     def rtde_cmd():
@@ -213,13 +216,11 @@ def rtde_control():
             q[5] = read_input_float_register(5)
             velocity = read_input_float_register(6)
             acceleration = read_input_float_register(7)
-            time = read_input_float_register(8)
-            lookahead_time = read_input_float_register(9)
-            gain = read_input_float_register(10)
-            textmsg("Target q:")
-            textmsg(q)
-            servoj(q, a=acceleration, v=velocity, t=time, lookahead_time=lookahead_time, gain=gain)
-            stopj(20)
+            servo_time = read_input_float_register(8)
+            servo_lookahead_time = read_input_float_register(9)
+            servo_gain = read_input_float_register(10)
+            servo_move = True
+            global thrd = run servo_thread()
             textmsg("servoj done")
         elif cmd == 13:
             textmsg("servoc")
@@ -238,9 +239,23 @@ def rtde_control():
             servoc(pose, a=acceleration, v=velocity, r=blend)
             stopj(20)
             textmsg("servoc done")
-
+        elif cmd == 16:
+            textmsg("servo_update")
+            q = [0, 0, 0, 0, 0, 0]
+            q[0] = read_input_float_register(0)
+            q[1] = read_input_float_register(1)
+            q[2] = read_input_float_register(2)
+            q[3] = read_input_float_register(3)
+            q[4] = read_input_float_register(4)
+            q[5] = read_input_float_register(5)
+            enter_critical
+            servo_target = q
+            exit_critical
+            textmsg("servo_update done")
+        elif cmd == 17:
+            kill thrd
+            stopj(30)
         elif cmd == 255:
-            stopj(20)
             textmsg("Received stop!")
         end
 
@@ -258,14 +273,14 @@ def rtde_control():
 
     keep_running = True
     executing_cmd = False
-    signal_ready()
+    signal_ready(1)
 
     while keep_running:
         if rtde_cmd() == 0:
-            clear_executing_cmd()
+            signal_ready(1)
             executing_cmd = False
         else:
-            set_executing_cmd()
+            signal_ready(0)
             if not executing_cmd:
                 keep_running = process_cmd()
             end
