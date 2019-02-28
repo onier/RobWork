@@ -30,91 +30,113 @@ URRTDE::~URRTDE()
 {
 }
 
+bool URRTDE::reuploadScript() {
+    return rtde_control_->reuploadScript();
+}
+
 void URRTDE::stopRobot() {
     rtde_control_->stopRobot();
 }
 
-void URRTDE::moveJ(const rw::math::Q& q, double speed, double acceleration) {
-    rtde_control_->moveJ(q.toStdVector(), speed, acceleration);
+bool URRTDE::moveJ(const rw::math::Q& q, double speed, double acceleration) {
+    return rtde_control_->moveJ(q.toStdVector(), speed, acceleration);
 }
 
-void URRTDE::moveJ(const rw::trajectory::QPath& q_path) {
+bool URRTDE::moveJ(const rw::trajectory::QPath& q_path) {
     std::vector<std::vector<double>> path;
     for(const auto &q : q_path)
         path.push_back(q.toStdVector());
-    rtde_control_->moveJ(path);
+    return rtde_control_->moveJ(path);
 }
 
-void URRTDE::moveJ_IK(const rw::math::Transform3D<> &pose, double speed, double acceleration) {
+bool URRTDE::moveJ_IK(const rw::math::Transform3D<> &pose, double speed, double acceleration) {
     rw::math::Vector3D<> pos = pose.P();
     rw::math::EAA<> eaa(pose.R());
     std::vector<double> std_pose = {pos[0], pos[1], pos[2], eaa[0], eaa[1], eaa[2]};
-    rtde_control_->moveJ_IK(std_pose, speed, acceleration);
+    return rtde_control_->moveJ_IK(std_pose, speed, acceleration);
 }
 
-void URRTDE::moveL(const rw::math::Transform3D<> &pose, double speed, double acceleration) {
+bool URRTDE::moveL(const rw::math::Transform3D<> &pose, double speed, double acceleration) {
     rw::math::Vector3D<> pos = pose.P();
     rw::math::EAA<> eaa(pose.R());
     std::vector<double> std_pose = {pos[0], pos[1], pos[2], eaa[0], eaa[1], eaa[2]};
-    rtde_control_->moveL(std_pose, speed, acceleration);
+    return rtde_control_->moveL(std_pose, speed, acceleration);
 }
 
-void URRTDE::moveL(const rw::trajectory::Transform3DPath& pose_path) {
-
+bool URRTDE::moveL(const rw::trajectory::Transform3DPath& pose_path) {
+    std::vector<std::vector<double>> path;
+    for(const auto &transform : pose_path)
+    {
+        rw::math::Vector3D<> pos = transform.P();
+        rw::math::EAA<> eaa(transform.R());
+        // TODO: Currently speed and acceleration and blend are hardcoded for this mode.
+        std::vector<double> std_pose = {pos[0], pos[1], pos[2], eaa[0], eaa[1], eaa[2], 0.6, 1.2, 0};
+        path.push_back(std_pose);
+    }
+    return rtde_control_->moveL(path);
 }
 
-void URRTDE::moveL_FK(const rw::math::Q& q, double speed, double acceleration) {
-    rtde_control_->moveL_FK(q.toStdVector(), speed, acceleration);
+bool URRTDE::moveL_FK(const rw::math::Q& q, double speed, double acceleration) {
+    return rtde_control_->moveL_FK(q.toStdVector(), speed, acceleration);
 }
 
-void URRTDE::moveC(const rw::math::Transform3D<>& pose_via, const rw::math::Transform3D<> &pose_to, double speed,
-                   double acceleration) {
-
+bool URRTDE::speedJ(const rw::math::Q& qd, double acceleration, double time) {
+    return rtde_control_->speedJ(qd.toStdVector(), acceleration, time);
 }
 
-void URRTDE::speedJ(const rw::math::Q& qd, double acceleration, double time) {
-    rtde_control_->speedJ(qd.toStdVector(), acceleration, time);
+bool URRTDE::speedL(const rw::math::Q& xd, double acceleration, double time) {
+    return rtde_control_->speedL(xd.toStdVector(), acceleration, time);
 }
 
-void URRTDE::speedL(const rw::math::Q& xd, double acceleration, double time) {
-    rtde_control_->speedL(xd.toStdVector(), acceleration, time);
-}
-
-void URRTDE::servoJ(const rw::math::Q& q, double speed, double acceleration, double time, double lookahead_time,
+bool URRTDE::servoJ(const rw::math::Q& q, double speed, double acceleration, double time, double lookahead_time,
                     double gain) {
-
+    return rtde_control_->servoJ(q.toStdVector(), speed, acceleration, time, lookahead_time, gain);
 }
 
-void URRTDE::servoC(const rw::math::Transform3D<>& pose, double speed, double acceleration, double blend) {
-
+bool URRTDE::servoUpdate(const rw::math::Q& q) {
+    return rtde_control_->servoUpdate(q.toStdVector());
 }
 
-void URRTDE::forceModeStart(const rw::math::Transform3D<>& task_frame, const rw::math::Q& selection_vector,
+bool URRTDE::servoStop() {
+    return rtde_control_->servoStop();
+}
+
+bool URRTDE::forceModeStart(const rw::math::Transform3D<>& task_frame, const rw::math::Q& selection_vector,
                             const rw::math::Wrench6D<>& wrench, int type, const rw::math::Q& limits) {
-
-}
-
-void URRTDE::forceModeUpdate(const rw::math::Wrench6D<>& wrench) {
+    rw::math::Vector3D<> pos = task_frame.P();
+    rw::math::EAA<> eaa(task_frame.R());
+    std::vector<double> std_task_frame = {pos[0], pos[1], pos[2], eaa[0], eaa[1], eaa[2]};
+    std::vector<double> std_selection_vector_double = selection_vector.toStdVector();
+    std::vector<int> std_selection_vector(std_selection_vector_double.begin(), std_selection_vector_double.end());
     const rw::math::Vector3D<> force = wrench.force();
     const rw::math::Vector3D<> torque = wrench.torque();
     std::vector<double> std_wrench = {force[0], force[1], force[2], torque[0], torque[1], torque[2]};
-    rtde_control_->forceModeUpdate(std_wrench);
+
+    return rtde_control_->forceModeStart(std_task_frame, std_selection_vector, std_wrench, type,
+                                         limits.toStdVector());
 }
 
-void URRTDE::forceModeStop() {
-    rtde_control_->forceModeStop();
+bool URRTDE::forceModeUpdate(const rw::math::Wrench6D<>& wrench) {
+    const rw::math::Vector3D<> force = wrench.force();
+    const rw::math::Vector3D<> torque = wrench.torque();
+    std::vector<double> std_wrench = {force[0], force[1], force[2], torque[0], torque[1], torque[2]};
+    return rtde_control_->forceModeUpdate(std_wrench);
 }
 
-void URRTDE::zeroFtSensor() {
-    rtde_control_->zeroFtSensor();
+bool URRTDE::forceModeStop() {
+    return rtde_control_->forceModeStop();
 }
 
-void URRTDE::setStandardDigitalOut(std::uint8_t output_id, bool signal_level) {
-    rtde_control_->setStandardDigitalOut(output_id, signal_level);
+bool URRTDE::zeroFtSensor() {
+    return rtde_control_->zeroFtSensor();
 }
 
-void URRTDE::setToolDigitalOut(std::uint8_t output_id, bool signal_level) {
-    rtde_control_->setToolDigitalOut(output_id, signal_level);
+bool URRTDE::setStandardDigitalOut(std::uint8_t output_id, bool signal_level) {
+    return rtde_control_->setStandardDigitalOut(output_id, signal_level);
+}
+
+bool URRTDE::setToolDigitalOut(std::uint8_t output_id, bool signal_level) {
+    return rtde_control_->setToolDigitalOut(output_id, signal_level);
 }
 
 double URRTDE::getTimestamp() {

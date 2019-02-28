@@ -49,37 +49,43 @@ namespace rwhw {
             // Control interface functions
 
             void stopRobot();
+            bool reuploadScript();
 
-            void moveJ(const rw::math::Q& q, double speed, double acceleration);
-            void moveJ(const rw::trajectory::QPath& q_path);
-            void moveJ_IK(const rw::math::Transform3D<> &pose, double speed, double acceleration);
+            bool moveJ(const rw::math::Q& q, double speed, double acceleration);
+            bool moveJ(const rw::trajectory::QPath& q_path);
+            bool moveJ_IK(const rw::math::Transform3D<> &pose, double speed, double acceleration);
 
-            void moveL(const rw::math::Transform3D<>& pose, double speed, double acceleration);
-            void moveL(const rw::trajectory::Transform3DPath& pose_path);
-            void moveL_FK(const rw::math::Q& q, double speed, double acceleration);
+            bool moveL(const rw::math::Transform3D<>& pose, double speed, double acceleration);
+            bool moveL(const rw::trajectory::Transform3DPath& pose_path);
+            bool moveL_FK(const rw::math::Q& q, double speed, double acceleration);
 
-            void moveC(const rw::math::Transform3D<>& pose_via, const rw::math::Transform3D<>& pose_to,
+            bool moveC(const rw::math::Transform3D<>& pose_via, const rw::math::Transform3D<>& pose_to,
                         double speed, double acceleration);
 
-            void speedJ(const rw::math::Q& qd, double acceleration, double time = 0.0);
-            void speedL(const rw::math::Q& xd, double acceleration, double time = 0.0);
+            bool speedJ(const rw::math::Q& qd, double acceleration, double time = 0.0);
+            bool speedL(const rw::math::Q& xd, double acceleration, double time = 0.0);
 
-            void servoJ(const rw::math::Q& q, double speed, double acceleration,
+            bool servoJ(const rw::math::Q& q, double speed, double acceleration,
                         double time, double lookahead_time, double gain);
-            void servoC(const rw::math::Transform3D<>& pose, double speed, double acceleration, double blend);
 
-            void forceModeStart(const rw::math::Transform3D<>& task_frame, const rw::math::Q& selection_vector,
+            bool servoUpdate(const rw::math::Q& q);
+
+            bool servoStop();
+
+            bool servoC(const rw::math::Transform3D<>& pose, double speed, double acceleration, double blend);
+
+            bool forceModeStart(const rw::math::Transform3D<>& task_frame, const rw::math::Q& selection_vector,
                                 const rw::math::Wrench6D<>& wrench, int type, const rw::math::Q& limits);
 
-            void forceModeUpdate(const rw::math::Wrench6D<>& wrench);
+            bool forceModeUpdate(const rw::math::Wrench6D<>& wrench);
 
-            void forceModeStop();
+            bool forceModeStop();
 
-            void zeroFtSensor();
+            bool zeroFtSensor();
 
-            void setStandardDigitalOut(std::uint8_t output_id, bool signal_level);
+            bool setStandardDigitalOut(std::uint8_t output_id, bool signal_level);
 
-            void setToolDigitalOut(std::uint8_t output_id, bool signal_level);
+            bool setToolDigitalOut(std::uint8_t output_id, bool signal_level);
 
             // Receive interface functions
 
