@@ -16,6 +16,8 @@
  ******************************************************************************/
 
 #include "URRTDE.hpp"
+#include <rtde_control_interface.h>
+#include <rtde_receive_interface.h>
 
 using namespace rwhw;
 

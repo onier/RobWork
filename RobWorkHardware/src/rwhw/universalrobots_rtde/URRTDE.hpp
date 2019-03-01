@@ -18,13 +18,16 @@
 #ifndef RWHW_UNIVERSALROBOTS_RTDE_URRTDE_HPP_
 #define RWHW_UNIVERSALROBOTS_RTDE_URRTDE_HPP_
 
-#include <string>
-#include <rtde_control_interface.h>
-#include <rtde_receive_interface.h>
 #include <rw/math/Q.hpp>
-#include <rw/trajectory/Path.hpp>
-#include <rw/math/Wrench6D.hpp>
+#include <rw/math/Transform3D.hpp>
 #include <rw/math/EAA.hpp>
+#include <rw/math/Wrench6D.hpp>
+#include <rw/trajectory/Path.hpp>
+#include <string>
+#include <vector>
+
+class RTDEControlInterface;
+class RTDEReceiveInterface;
 
 /**
  * @file URRTDE.hpp
