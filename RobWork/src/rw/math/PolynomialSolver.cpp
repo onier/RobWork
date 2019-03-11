@@ -184,7 +184,7 @@ bool PolynomialSolver::analyticalSolutions(std::vector<std::complex<double> >& r
     if (trivial) {
         const Polynomial<std::complex<double> >& p = _polynomial;
         const double order = static_cast<double>(p.order());
-        const std::complex<double> val = -p[0]/p[order];
+        const std::complex<double> val = -p[0]/p[p.order()];
         const double z = std::pow(std::abs(val),1./order);
         const double arg = std::arg(val);
         if (p.order() == 1) {
@@ -213,7 +213,7 @@ bool PolynomialSolver::analyticalSolutions(std::vector<std::complex<double> >& r
             res.push_back((-p[1]+K)/(p[2]*2.));
             res.push_back((-p[1]-K)/(p[2]*2.));
         } else if (_polynomial.order() == 3) {
-            const double scale = std::fabs(p[3]);
+            const double scale = std::abs(p[3]);
             const std::complex<double> a = p[3]/scale;
             const std::complex<double> b = p[2]/scale;
             const std::complex<double> c = p[1]/scale;
