@@ -88,8 +88,53 @@ MACRO(RW_SYS_INFO INFO)
     SET(${INFO} ${SUFFIX})
 ENDMACRO()
 
+######################################################################
+# Try to find the revision, first from Git, then from SVN
+#
+MACRO(RW_GET_REVISION DIR PREFIX)
+  FIND_PACKAGE(Git QUIET)
+  IF(Git_FOUND)
+    execute_process(COMMAND ${GIT_EXECUTABLE} -C ${DIR} describe --dirty --always
+      OUTPUT_VARIABLE ${PREFIX}_WC_INFO
+      RESULT_VARIABLE Git_info_result
+      OUTPUT_STRIP_TRAILING_WHITESPACE)
+    IF(NOT ${Git_info_result} EQUAL 0)
+      MESSAGE(STATUS "Does not appear to be from Git repository. Command \"${GIT_EXECUTABLE} -C ${DIR} describe --dirty --always\" failed.")
 
+      # Try to find Subversion revision
+      FIND_PACKAGE(Subversion QUIET)
+      IF(Subversion_FOUND)
+        #Subversion_WC_INFO(${DIR} RobWork)
 
+        set(_Subversion_SAVED_LC_ALL "$ENV{LC_ALL}")
+        set(ENV{LC_ALL} C)
+
+        execute_process(COMMAND ${Subversion_SVN_EXECUTABLE} info ${DIR}
+          OUTPUT_VARIABLE ${PREFIX}_WC_INFO
+          ERROR_VARIABLE Subversion_svn_info_error
+          RESULT_VARIABLE Subversion_svn_info_result
+          OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+        if(NOT ${Subversion_svn_info_result} EQUAL 0)
+          message(STATUS "Does not appear to be from SVN repository. Command \"${Subversion_SVN_EXECUTABLE} info ${DIR}\" failed.") # with output:\n${Subversion_svn_info_error}
+        else()
+          string(REGEX REPLACE "^(.*\n)?Revision: ([^\n]+).*"
+            "\\2" ${PREFIX}_WC_REVISION "${${PREFIX}_WC_INFO}")
+        endif()
+
+        # restore the previous LC_ALL
+        set(ENV{LC_ALL} ${_Subversion_SAVED_LC_ALL})
+
+        MESSAGE(STATUS "Current revision is ${${PREFIX}_WC_REVISION}")
+        SET(${PREFIX}_REVISION ${${PREFIX}_WC_REVISION})
+      ENDIF(Subversion_FOUND)
+    ELSE()
+      SET(${PREFIX}_WC_REVISION ${${PREFIX}_WC_INFO})
+      SET(${PREFIX}_REVISION ${${PREFIX}_WC_REVISION})
+      MESSAGE(STATUS "Current Git revision is ${${PREFIX}_REVISION}")
+    ENDIF()
+  ENDIF()
+ENDMACRO()
 
 #############################################################################
 # This is a default project setup. It enables multiple build trees for 

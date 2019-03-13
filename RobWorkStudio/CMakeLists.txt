@@ -91,14 +91,7 @@ ENDIF()
 ###############################################################
 # Try to find the current revision 
 #
-FIND_PACKAGE(Subversion QUIET)
-IF(Subversion_FOUND)
-    Subversion_WC_INFO(${RWS_ROOT} RobWorkStudio)
-    MESSAGE(STATUS "RobWorkStudio: Current revision is ${RobWorkStudio_WC_REVISION}")
-    SET(ROBWORKSTUDIO_REVISION ${RobWorkStudio_WC_REVISION})
-ELSE()
-    MESSAGE(STATUS "RobWorkStudio: No revision info!")
-ENDIF(Subversion_FOUND)
+RW_GET_REVISION(${RWS_ROOT} ROBWORKSTUDIO)
 
 ###############################################################
 # CONFIGURATION

@@ -19,13 +19,9 @@ ENDIF()
 
 RW_SYS_INFO(INFO)
 SET(SUFFIX "${INFO}")
-# Try to find the current revision 
-FIND_PACKAGE(Subversion)
-IF(Subversion_FOUND)
-    Subversion_WC_INFO(${RW_ROOT} RobWork)
-    SET(ROBWORK_REVISION ${RobWork_WC_REVISION})
-    SET(SUFFIX "${SUFFIX}-r${RobWork_WC_REVISION}")    
-ENDIF(Subversion_FOUND)
+# Try to find the current revision
+RW_GET_REVISION(${RW_ROOT} ROBWORK)
+SET(SUFFIX "${SUFFIX}-r${ROBWORK_WC_REVISION}")
 
 SET(PROJECT_NAME "RobWork")
 SET(IGNORE_PQP "/PQP/")

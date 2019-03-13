@@ -122,15 +122,8 @@ ELSE ()
 ENDIF()
 
 ###############################################################
-# Try to find the current revision 
-FIND_PACKAGE(Subversion QUIET)
-IF(Subversion_FOUND)
-    Subversion_WC_INFO(${RWHW_ROOT} RobWorkHardware)
-    MESSAGE(STATUS "RobWorkHardware: Current revision is ${RobWorkHardware_WC_REVISION}")
-    SET(ROBWORKHARDWARE_REVISION ${RobWorkHardware_WC_REVISION})
-ELSE()
-    MESSAGE(STATUS "RobWorkHardware: No revision info!")
-ENDIF(Subversion_FOUND)
+# Try to find the current revision
+RW_GET_REVISION(${RWHW_ROOT} ROBWORKHARDWARE)
 
 ###############################################################
 # CONFIGURATION
