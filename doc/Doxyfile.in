@@ -113,7 +113,7 @@ FILE_PATTERNS          = *.hpp \
 RECURSIVE              = YES
 EXCLUDE                =
 EXCLUDE_SYMLINKS       = NO
-EXCLUDE_PATTERNS       =
+EXCLUDE_PATTERNS       = */sandbox/*
 EXCLUDE_SYMBOLS        =
 EXAMPLE_PATH           = ../RobWork/example \
                          ../RobWorkStudio/example \
