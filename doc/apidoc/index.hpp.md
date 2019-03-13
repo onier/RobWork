@@ -78,13 +78,7 @@ Other topics include
 - [Softbody Simulation](@ref page_rw_softbodysimulation)
 
 # Download # {#sec_index_download}
-- *RobWork* can be fetched from the SVN repository <a href="https://svnsrv.sdu.dk/svn/RobWork/trunk">https://svnsrv.sdu.dk/svn/RobWork/trunk</a>
-
-Use the following credentials:
-
-
-- Username: 'Guest'
-- Password: ''
+- *RobWork* can be fetched from the Git repository <a href="https://gitlab.com/sdurobotics/RobWork">https://gitlab.com/sdurobotics/RobWork</a>
 
 # Installation # {#sec_index_installation}
 - Installation instructions are included in \ref page_rw_installation_ubuntu, \ref page_rw_installation_centos and \ref page_rw_installation_windows. 

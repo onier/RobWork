@@ -4,8 +4,8 @@ Installation on Windows {#page_rw_installation_windows}
 
 # Introduction # {#sec_rw_install_win_intro}
 This guide shows the steps for building the RobWork packages on a Windows platform.
-The guide is written based on a setup with Windows 10 and Visual Studio 2017 and the guide is last revised in November 2018.
-If you have any suggestions or additions to the guide, please post them on the issue tracker at https://gitlab.com/caro-sdu/RobWork/issues .
+The guide is written based on a setup with Windows 10 and Visual Studio 2017 and the guide is last revised in March 2019.
+If you have any suggestions or additions to the guide, please post them on the issue tracker at https://gitlab.com/sdurobotics/RobWork/issues .
 
 RobWork is basically multiple projects:
 - RobWork : is the core part including math, kinematics, planning and so on.
@@ -55,9 +55,8 @@ The following dependencies will be described bellow. Please read the important d
 ## ¤ Build Tools ## {#sec_win_dependencies_tools}
 
 To be able to checkout code it is necessary to install some source code management (SCM) tools, such as Subversion, Git and Mercurial.
-To be able to checkout the code from our own SVN repository, a SVN client is needed. The latest version of the Tortoise SVN client is recommended for this.
-Tortoise SVN comes with a GUI that is easy to use and is nicely integrated with Explorer.
-Git and Mercurial clients are not strictly required, but depending on your needs it might be worthwhile to install them.
+To be able to checkout the code from our own Git repository, a Git client is needed.
+SVN and Mercurial clients are not strictly required, but depending on your needs it might be worthwhile to install them.
 
 The three SCM tools can be installed in only 20 minutes, and can be expected to use around 360 MB in total.
 
@@ -68,6 +67,8 @@ Download from https://tortoisesvn.net
 Installation of the Tortoise SVN client is straightforward. Expect to use 45 MB on the installation. During installation we recommend that you also install the "command line client tools" as shown below:
 
 \image html installation/TortoiseSVN_addCLI.png "The TortoiseSVN installation options with CLI tools selected."
+
+Tortoise SVN comes with a GUI that is easy to use and is nicely integrated with Explorer.
 
 **Git client:**
 
@@ -121,6 +122,7 @@ The following table gives an overview of the version numbers for future referenc
 
 | Visual Studio Name | Visual Studio Version | Visual C++ Compiler Toolset | Visual C/C++ Compiler Version |
 |--------------------|-----------------------|-----------------------------|-------------------------------|
+| Visual Studio 2017 | 15.9                  | 14.16                       | 19.16                         |
 | Visual Studio 2017 | 15.8                  | 14.15                       | 19.15                         |
 | Visual Studio 2017 | 15.7                  | 14.14                       | 19.14                         |
 | Visual Studio 2017 | 15.6                  | 14.13                       | 19.13                         |
@@ -143,7 +145,9 @@ If you already have an older version of CMake installed, please check that it is
 
 | CMake Version | Maximum Visual Studio Version Supported | Maximum Boost Version Supported |
 |---------------|-----------------------------------------|---------------------------------|
-| 3.12.0-3.12.4*| Visual Studio 15 2017                   | 1.68.0                          |
+| 3.14.0-rc4*   | Visual Studio 16 2019 Preview           | 1.70.0                          |
+| 3.13.0-3.13.4*| Visual Studio 15 2017                   | 1.69.0                          |
+| 3.12.0-3.12.4 | Visual Studio 15 2017                   | 1.68.0                          |
 | 3.11.0-3.11.4 | Visual Studio 15 2017                   | 1.67.0                          |
 | 3.9.3-3.10.3  | Visual Studio 15 2017                   | 1.65.1                          |
 | 3.8.0-3.9.2   | Visual Studio 15 2017                   | 1.64.0                          |
@@ -174,11 +178,12 @@ Choose the newest precompiled library version, based on your Visual C++ toolset 
 
 | Boost Version   | Maximum Visual C++ Toolset (Source) | Maximum Visual C++ Toolset (Precompiled) |
 |-----------------|-------------------------------------|------------------------------------------|
-| 1.68.0          | 14.12 (VS 15.5)                     | 14.1                                     |
-| 1.67.0          | 14.11 (VS 15.4)                     | 14.1                                     |
-| 1.66.0          | 14.11 (VS 15.4)                     | 14.1                                     |
-| 1.65.1          | 14.11 (VS 15.3)                     | 14.1                                     |
-| 1.64.0 - 1.65.0 | 14.10                               | 14.1                                     |
+| 1.69.0          | 14.12 (VS 15.5)                     | 14.1x                                    |.
+| 1.68.0          | 14.12 (VS 15.5)                     | 14.1x                                    |
+| 1.67.0          | 14.11 (VS 15.4)                     | 14.1x                                    |
+| 1.66.0          | 14.11 (VS 15.4)                     | 14.1x                                    |
+| 1.65.1          | 14.11 (VS 15.3)                     | 14.1x                                    |
+| 1.64.0 - 1.65.0 | 14.10                               | 14.1x                                    |
 | 1.63.0          | 14.10                               | 14.0                                     |
 | 1.59.0 - 1.62.0 | 14.00                               | 14.0                                     |
 | 1.57.0 - 1.58.0 | 14.00                               | 12.0                                     |
@@ -186,7 +191,10 @@ Choose the newest precompiled library version, based on your Visual C++ toolset 
 
 In this table, the "Maximum Visual C++ Toolset (Source)" version is the maximum supported version in the Boost source.
 The newest Visual Studio versions will not be recognized as safe/tested versions by Boost, which means that Boost will issue a lot of warnings while compiling RobWork.
-Usually, these warnings can simply be ignored, and things will work fine anyway. As shown in the table, the precompiled libraries for new Visual Studio versions, is built a while after they are introduced
+Usually, these warnings can simply be ignored, and things will work fine anyway.
+From Boost 1.67, these warnings are no longer shown for newer Visual Studio toolsets. 
+
+As shown in the table, the precompiled libraries for new Visual Studio versions, is built a while after they are introduced
 in the code. If you want to use Visual Studio 2017, the table shows that you must choose at least Boost 1.64 if you want to use precompiled libraries (or 1.63 if you compile Boost yourself).
 
 The file to download has a name with a format similar to "boost_1_66_0-msvc-14.1-64.exe".
@@ -350,30 +358,20 @@ When the dependencies have been installed, RobWork is ready to be built. First, 
 
 Expect to use a total of 3 GB for the RobWork projects.
 
-## Getting RobWork source files from SVN ## {#sec_win_build_svn}
-Make a new directory where you want to install RobWork. When the dependencies are installed, go ahead and download the newest version of RobWork from the SVN repository at: 
+## Getting RobWork source files from Git ## {#sec_win_build_scm}
+When all the dependencies have been installed, go ahead and download the newest version of RobWork from the Git repository at: 
 
-https://svnsrv.sdu.dk/svn/RobWork/trunk
+https://gitlab.com/sdurobotics/RobWork
 
-Right-click where you want to check out, choose "SVN Checkout.." and insert the resporitory URL as shown below. Also set the checkout directory (should be empty!), and press OK.
+Right-click on your desktop or somewhere in explorer. Choose "Git GUI Here", then "Clone Existing Repository". Insert the resporitory URL as shown below, and specify the target directory. The target path must be a non-existing directory. Press Clone and wait. When done, the main Git window will open. You can just close this Window.
 
-\image html installation/RW_checkout.png "The SVN checkout dialog for RobWork."
-
-You will be asked for username and password: 
-
-- Username: 'Guest'
-- Password: ''
+\image html installation/RW_checkout.png "The Git checkout dialog for RobWork."
 
 Alternatively, this can be done from the terminal: (be sure that you are located in the directory where you want to install RobWork)
 
-	svn co --username Guest --password '' https://svnsrv.sdu.dk/svn/RobWork/trunk/ .
+	git clone https://gitlab.com/sdurobotics/RobWork.git .
 
-There should now be RobWork, RobWorkStudio, RobWorkSim and RobWorkHardware folders. It is also possible to check out the projecs individually:
-
-	https://svnsrv.sdu.dk/svn/RobWork/trunk/RobWork
-	https://svnsrv.sdu.dk/svn/RobWork/trunk/RobWorkStudio
-	https://svnsrv.sdu.dk/svn/RobWork/trunk/RobWorkSim
-	https://svnsrv.sdu.dk/svn/RobWork/trunk/RobWorkHardware
+There should now be RobWork, RobWorkStudio, RobWorkSim and RobWorkHardware folders inside the target directory.
 
 ## Compiling RobWork ## {#sec_win_build_compile}
 
@@ -383,7 +381,7 @@ The CMake output will typically reveal early in the process if a dependency was 
 Building RobWork can take quite some time, and it is a pitty building everything, just to discover that some functionality was disabled due to a unmet dependency
 (especially a problem for the optional dependencies).
 
-To build RobWork, open a Visual Studio 64-bit command prompt and go to the directory where RobWork was checked out from SVN.
+To build RobWork, open a Visual Studio 64-bit command prompt and go to the directory where RobWork was checked out from Git.
 Add new build directories for the RobWork packages you want to compile, such as:
 
 	mkdir Build
@@ -413,7 +411,7 @@ Look carefully through the CMake output and check that there is no errors, and t
 Now that the CMake files has been built, we are ready to compile the project. In the Build\\RW folder there will now be a RobWork.sln solution that can be opened in Visual Studio.
 Choose the correct configuration (Release for instance) and build the solution.
 
-If errors are encountered, try to decode them and adjust the paths if that is what is needed. CMake caches the result for the following runs of CMake. It is often a good idea to delete the CMakeCache.txt file to force CMake to run from scratch. The benefit of the cache is that you can run the CMake without specifying all the paths, as long as it has been run once before with the paths given. The disadvantage is that it might cause things to behave odd if you later change essential options CMake. If you update RobWork to a newer revision from the SVN server, it is also possible that options can change (even though it is rare). If you encounter problems after such an update, always try to remove the CMakeCache.txt, rerun CMake and try to compile again.
+If errors are encountered, try to decode them and adjust the paths if that is what is needed. CMake caches the result for the following runs of CMake. It is often a good idea to delete the CMakeCache.txt file to force CMake to run from scratch. The benefit of the cache is that you can run the CMake without specifying all the paths, as long as it has been run once before with the paths given. The disadvantage is that it might cause things to behave odd if you later change essential options CMake. If you update RobWork to a newer revision from the Git server, it is also possible that options can change (even though it is rare). If you encounter problems after such an update, always try to remove the CMakeCache.txt, rerun CMake and try to compile again.
 
 If you go to the RobWork folder, you will se the following directory layout:
 

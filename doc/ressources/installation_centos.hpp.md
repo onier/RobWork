@@ -3,7 +3,7 @@ Installation on CentOS {#page_rw_installation_centos}
 [TOC]
 
 # Introduction # {#sec_rw_install_centos_intro}
-RobWork needs to be built from source by the user. This guide shows the steps for doing this in CentOS 7. If you have any suggestions or additions to the guide, please post it on the issue tracker https://gitlab.com/caro-sdu/RobWork/issues .
+RobWork needs to be built from source by the user. This guide shows the steps for doing this in CentOS 7. If you have any suggestions or additions to the guide, please post it on the issue tracker https://gitlab.com/sdurobotics/RobWork/issues .
 
 The main motivation for supporting CentOS, is the potential use of RobWork on the SDU Abacus cluster. See also https://abacus.deic.dk . 
 
@@ -24,8 +24,8 @@ Unfortunately, in CentOS it is also necessary to compile some optional dependenc
 ## ¤ Build Tools ## {#sec_centos_dependencies_tools}
 
 To be able to checkout code it is necessary to install some source code management (SCM) tools, such as Subversion, Git and Mercurial.
-To be able to checkout the code from our own SVN repository, a SVN client is needed.
-Git and Mercurial clients are not strictly required, but depending on your needs it might be worthwhile to install them.
+To be able to checkout the code from our own Git repository, a Git client is needed.
+SVN and Mercurial clients are not strictly required, but depending on your needs it might be worthwhile to install them.
 
 	sudo yum install subversion git mercurial
 
@@ -124,25 +124,20 @@ It is not currently possible to give any general instructions for RobWorkHardwar
 
 When the dependencies have been installed, RobWork is ready to be built. First, the source must be downloaded, followed by the build procedure.
 
-## Getting source files from SVN ## {#sec_centos_build_svn}
+## Getting source files from Git ## {#sec_centos_build_scm}
 Make a new directory where you want to install RobWork (in this guide, we will install in ~/RobWork): 
 
 	mkdir RobWork
 	cd RobWork
 
 
-When the depencies are installed, go ahead and download the newest version of RobWork from the SVN repository at: 
+When the dependencies are installed, go ahead and download the newest version of RobWork from the Git repository at: 
 
-https://svnsrv.sdu.dk/svn/RobWork/trunk/
-
-Using: 
-
-- Username: 'Guest'
-- Password: ''
+https://gitlab.com/sdurobotics/RobWork
 
 In the terminal, this is done as follows: (be sure that you are located in the directory where you want to install RobWork)
 
-	svn co --username Guest --password '' https://svnsrv.sdu.dk/svn/RobWork/trunk/ .
+	git clone https://gitlab.com/sdurobotics/RobWork.git .
 
 ## Setup CMake Options & Environment ## {#sec_rw_install_centos_environment}
 

@@ -3,7 +3,7 @@ Installation on Ubuntu {#page_rw_installation_ubuntu}
 [TOC]
 
 # Introduction # {#sec_rw_install_ubuntu_intro}
-At the moment, no precompiled Debian packages are available for download. Therefore, RobWork needs to be built by the user. This guide shows the steps for doing this in Ubuntu 14.04, 16.04, 18.04 and 18.10. The compilation on these platforms are tested weekly. If you have any suggestions or additions to the guide, please post it on the issue tracker https://gitlab.com/caro-sdu/RobWork/issues . This guide was last revised in November 2018.
+At the moment, no precompiled Debian packages are available for download. Therefore, RobWork needs to be built by the user. This guide shows the steps for doing this in Ubuntu 14.04, 16.04, 18.04 and 18.10. The compilation on these platforms are tested weekly. If you have any suggestions or additions to the guide, please post it on the issue tracker https://gitlab.com/sdurobotics/RobWork/issues . This guide was last revised in March 2019.
 
 RobWork is basically multiple projects:
 - RobWork : is the core part including math, kinematics, planning and so on.
@@ -22,8 +22,8 @@ In Linux it is quite easy to set up the dependencies as these are available as p
 ## ¤ Build Tools ## {#sec_ubuntu_dependencies_tools}
 
 To be able to checkout code it is necessary to install some source code management (SCM) tools, such as Subversion, Git and Mercurial.
-To be able to checkout the code from our own SVN repository, a SVN client is needed.
-Git and Mercurial clients are not strictly required, but depending on your needs it might be worthwhile to install them.
+To be able to checkout the code from our own Git repository, a Git client is needed.
+SVN and Mercurial clients are not strictly required, but depending on your needs it might be worthwhile to install them.
 
 	sudo apt-get install subversion git mercurial
 
@@ -115,25 +115,20 @@ It is not currently possible to give any general instructions for RobWorkHardwar
 
 When the dependencies have been installed, RobWork is ready to be built. First, the source must be downloaded, followed by the build procedure.
 
-## Getting source files from SVN ## {#sec_ubuntu_build_svn}
+## Getting source files from Git ## {#sec_ubuntu_build_scm}
 Make a new directory where you want to install RobWork (in this guide, we will install in ~/RobWork): 
 
 	mkdir RobWork
 	cd RobWork
 
 
-When the dependencies are installed, go ahead and download the newest version of RobWork from the SVN repository at: 
+When the dependencies are installed, go ahead and download the newest version of RobWork from the Git repository at: 
 
-https://svnsrv.sdu.dk/svn/RobWork/trunk/
-
-Using: 
-
-- Username: 'Guest'
-- Password: ''
+https://gitlab.com/sdurobotics/RobWork
 
 In the terminal, this is done as follows: (be sure that you are located in the directory where you want to install RobWork)
 
-	svn co --username Guest --password '' https://svnsrv.sdu.dk/svn/RobWork/trunk/ .
+	git clone https://gitlab.com/sdurobotics/RobWork.git .
 
 ## Setup CMake Options & Environment ## {#sec_rw_install_ubuntu_environment}
 
