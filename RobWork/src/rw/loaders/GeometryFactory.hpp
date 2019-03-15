@@ -25,7 +25,7 @@
 #include <rw/geometry/Primitive.hpp>
 #include <rw/geometry/GeometryData.hpp>
 
-//! @file rw/geometry/GeometryFactory.hpp
+//! @file rw/loaders/GeometryFactory.hpp
 
 namespace rw { namespace loaders {
 

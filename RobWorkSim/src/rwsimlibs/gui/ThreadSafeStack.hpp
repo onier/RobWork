@@ -1,5 +1,5 @@
 /**
- *       @file  WorkPileQueue.hpp
+ *       @file  rwsimlibs/gui/ThreadSafeStack.hpp
  *      @brief  Class implementing a concurrent queue
  *
  * Currently not very concurrent!

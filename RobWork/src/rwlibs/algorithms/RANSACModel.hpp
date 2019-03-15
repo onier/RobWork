@@ -19,7 +19,7 @@
 #define RWLIBS_ALGORITHMS_RANSACMODEL_HPP
 
 /**
- * @file RansacModel.hpp
+ * @file RANSACModel.hpp
  */
 
 #include <rw/common/Ptr.hpp>

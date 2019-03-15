@@ -29,7 +29,7 @@ namespace rw {
 namespace proximity {
     //! @addtogroup proximity
     // @{
-    //! @file rw/proximity/CollisionData.hpp
+    //! @file rw/proximity/CollisionStrategy.hpp
 
      // for backward compatability
     typedef CollisionStrategy::Result CollisionResult;
