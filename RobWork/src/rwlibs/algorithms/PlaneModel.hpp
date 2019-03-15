@@ -23,7 +23,7 @@
 
 
 /**
- * @file PlaneModel.hpp
+ * @file rwlibs/algorithms/PlaneModel.hpp
  */
 
 #include <rw/math/Vector3D.hpp>

@@ -19,7 +19,7 @@
 #define ROBWORKSTUDIO_GTEST_TESTENVIRONMENT_HPP_
 
 /**
- * @file TestEnvironment.hpp
+ * @file RobWorkStudio/gtest/TestEnvironment.hpp
  *
  * \copydoc ::TestEnvironment
  */

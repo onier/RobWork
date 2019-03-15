@@ -19,7 +19,7 @@
 #define RWSIM_SIMULATOR_ASSEMBLYSIMULATOR_HPP_
 
 /**
- * @file AssemblyTaskSimulator.hpp
+ * @file AssemblySimulator.hpp
  *
  * \copydoc rwsim::simulator::AssemblyTaskSimulator
  */
