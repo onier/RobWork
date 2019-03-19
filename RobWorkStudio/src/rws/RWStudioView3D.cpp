@@ -454,13 +454,13 @@ void RWStudioView3D::keyPressEvent(QKeyEvent *e)
     }
 
     // Zoom commands:
-    else if(e->key() == Qt::Key_Asterisk && (e->modifiers() & Qt::ControlModifier)) {
+    else if(e->key() == Qt::Key_Asterisk && (e->modifiers() == Qt::ControlModifier || e->modifiers() == Qt::ControlModifier | Qt::KeypadModifier)) {
         zoomAutoSlot();
     }
-    else if(e->key() == Qt::Key_Plus && (e->modifiers() & Qt::ControlModifier)) {
+    else if(e->key() == Qt::Key_Plus && (e->modifiers() == Qt::ControlModifier || e->modifiers() == Qt::ControlModifier | Qt::KeypadModifier)) {
         zoomInSlot();
     }
-    else if(e->key() == Qt::Key_Minus && (e->modifiers() & Qt::ControlModifier)) {
+    else if(e->key() == Qt::Key_Minus && (e->modifiers() == Qt::ControlModifier || e->modifiers() == Qt::ControlModifier | Qt::KeypadModifier)) {
         zoomOutSlot();
     }
     
@@ -956,20 +956,27 @@ void RWStudioView3D::showPivotPointSlot()
 {
     showPivotPoint(_showPivotPointAction->isChecked());
 }
+
 void RWStudioView3D::zoomInSlot()
 {
-    _view->zoom(2.0);
-    _view->updateView();
+  rw::math::Transform3D<> Tview = _view->getTransform();
+  rw::math::Transform3D<> newTview = Transform3D<>(1.0/ZOOM_STEP_MULT * Tview.P(), Tview.R());
+  _view->setTransform(newTview);
+  _view->updateView(); 
 }
+
 void RWStudioView3D::zoomOutSlot()
 {
-    _view->zoom(-2.0);
-    _view->updateView();
+  rw::math::Transform3D<> Tview = _view->getTransform();
+  rw::math::Transform3D<> newTview = Transform3D<>(ZOOM_STEP_MULT * Tview.P(), Tview.R());
+  _view->setTransform(newTview);
+  _view->updateView(); 
 }
+
 void RWStudioView3D::zoomAutoSlot()
 {
-    _view->autoZoom();
-    _view->updateView();
+  _view->autoZoom();
+  _view->updateView();
 }
 
 void RWStudioView3D::showPivotPoint(bool visible)
