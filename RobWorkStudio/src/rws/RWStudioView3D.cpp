@@ -454,13 +454,13 @@ void RWStudioView3D::keyPressEvent(QKeyEvent *e)
     }
 
     // Zoom commands:
-    else if(e->key() == Qt::Key_Asterisk && e->modifiers() == Qt::ControlModifier) {
+    else if(e->key() == Qt::Key_Asterisk && (e->modifiers() & Qt::ControlModifier)) {
         zoomAutoSlot();
     }
-    else if(e->key() == Qt::Key_Plus && e->modifiers() == Qt::ControlModifier) {
+    else if(e->key() == Qt::Key_Plus && (e->modifiers() & Qt::ControlModifier)) {
         zoomInSlot();
     }
-    else if(e->key() == Qt::Key_Minus && e->modifiers() == Qt::ControlModifier) {
+    else if(e->key() == Qt::Key_Minus && (e->modifiers() & Qt::ControlModifier)) {
         zoomOutSlot();
     }
     
