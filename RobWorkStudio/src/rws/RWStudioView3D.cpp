@@ -457,10 +457,16 @@ void RWStudioView3D::keyPressEvent(QKeyEvent *e)
     else if(e->key() == Qt::Key_Asterisk && (e->modifiers() == Qt::ControlModifier || e->modifiers() == Qt::ControlModifier | Qt::KeypadModifier)) {
         zoomAutoSlot();
     }
-    else if(e->key() == Qt::Key_Plus && (e->modifiers() == Qt::ControlModifier || e->modifiers() == Qt::ControlModifier | Qt::KeypadModifier)) {
+    else if(
+      (e->key() == Qt::Key_Plus && (e->modifiers() == Qt::ControlModifier || e->modifiers() == Qt::ControlModifier | Qt::KeypadModifier))
+      || e->key() == Qt::Key_X
+    ) {
         zoomInSlot();
     }
-    else if(e->key() == Qt::Key_Minus && (e->modifiers() == Qt::ControlModifier || e->modifiers() == Qt::ControlModifier | Qt::KeypadModifier)) {
+    else if(
+      (e->key() == Qt::Key_Minus && (e->modifiers() == Qt::ControlModifier || e->modifiers() == Qt::ControlModifier | Qt::KeypadModifier))
+      || e->key() == Qt::Key_Z
+    ) {
         zoomOutSlot();
     }
     
