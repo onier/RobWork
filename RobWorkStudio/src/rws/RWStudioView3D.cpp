@@ -20,6 +20,7 @@
 #include "RWStudioView3D.hpp"
 
 #include <rw/common/macros.hpp>
+#include <rw/math/EAA.hpp>
 #include <rw/geometry/Line.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 #include <rwlibs/opengl/RenderCameraFrustum.hpp>
@@ -193,7 +194,7 @@ void RWStudioView3D::setupActions(){
      connect(_zoomOutAction, SIGNAL(triggered()), this, SLOT(zoomOutSlot()));
 
      // outline action
-     _zoomAutoAction = new QAction(QIcon(":/images/zoom_auto.png"), tr("Autozoom (A)"), this); // owned
+     _zoomAutoAction = new QAction(QIcon(":/images/zoom_auto.png"), tr("Autozoom (Ctrl + *)"), this); // owned
      connect(_zoomAutoAction, SIGNAL(triggered()), this, SLOT(zoomAutoSlot()));
 
      QActionGroup* zoomButtons = new QActionGroup(this); // owned
@@ -453,7 +454,7 @@ void RWStudioView3D::keyPressEvent(QKeyEvent *e)
     }
 
     // Zoom commands:
-    else if(e->key() == Qt::Key_A) {
+    else if(e->key() == Qt::Key_Asterisk && e->modifiers() == Qt::ControlModifier) {
         zoomAutoSlot();
     }
     else if(e->key() == Qt::Key_Plus && e->modifiers() == Qt::ControlModifier) {
@@ -461,6 +462,36 @@ void RWStudioView3D::keyPressEvent(QKeyEvent *e)
     }
     else if(e->key() == Qt::Key_Minus && e->modifiers() == Qt::ControlModifier) {
         zoomOutSlot();
+    }
+    
+    // Rotate view commands:
+    else if(e->key() == Qt::Key_W) {
+      rw::math::Transform3D<> Tview = _view->getTransform();
+      Rotation3D<> rot = EAA<>(Tview.R() * Vector3D<>::x(), -ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
+      rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
+      _view->setTransform(newTview);
+      _view->updateView();
+    }
+    else if(e->key() == Qt::Key_S) {
+      rw::math::Transform3D<> Tview = _view->getTransform();
+      Rotation3D<> rot = EAA<>(Tview.R() * Vector3D<>::x(), ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
+      rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
+      _view->setTransform(newTview);
+      _view->updateView();
+    }
+    else if(e->key() == Qt::Key_A) {
+      rw::math::Transform3D<> Tview = _view->getTransform();
+      Rotation3D<> rot = EAA<>(Vector3D<>::z(), -ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
+      rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
+      _view->setTransform(newTview);
+      _view->updateView();
+    }
+    else if(e->key() == Qt::Key_D) {
+      rw::math::Transform3D<> Tview = _view->getTransform();
+      Rotation3D<> rot = EAA<>(Vector3D<>::z(), ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
+      rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
+      _view->setTransform(newTview);
+      _view->updateView();
     }
 
 // change camera view according to the keyboard inputs
