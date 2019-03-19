@@ -121,7 +121,9 @@ struct DummyModel {
 
     DummyModel():
         _refframe(""),_isDrawable(true),_colmodel(true),
-        _transform(rw::math::Transform3D<>::identity())
+        _transform(rw::math::Transform3D<>::identity()),
+        _r(0.6), _g(0.6), _b(0.6), _a(1.0),
+        _customMaterial(false)
     {}
 
     std::string _name;
@@ -131,6 +133,8 @@ struct DummyModel {
     rw::math::Transform3D<> _transform;
     std::vector<DummyGeometry> _geo;
     std::vector<std::string> _scope;
+    double _r, _g, _b, _a;
+    bool _customMaterial;
 };
 
 struct DummyRigidBody{

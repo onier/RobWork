@@ -228,6 +228,7 @@ namespace {
                             ,
                         !transform3d_p
                             [ var( _model._transform ) = arg1 ] >>
+                        
                         *(geometry_r
                             [ push_back_a( _model._geo ) ])
                     )) [ var( _model._isDrawable ) = false ];
@@ -246,6 +247,11 @@ namespace {
                             , // used to initialize _model
                         !transform3d_p
                             [ var( _model._transform ) = arg1 ] >>
+                        *(XMLElem_p("RGB",
+                            real_p[ var( _model._r ) = arg1 ] >>
+                            real_p[ var( _model._g ) = arg1 ] >>
+                            real_p[ var( _model._b ) = arg1 ][ var( _model._customMaterial ) = true ]
+                          )) >>
                         *( geometry_r
                             [ push_back_a( _model._geo ) ])
                     )) [ var( _model._isDrawable ) = true ];

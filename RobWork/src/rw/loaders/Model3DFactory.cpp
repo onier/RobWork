@@ -74,22 +74,23 @@ namespace
     }
 }
 
-Model3D::Ptr Model3DFactory::getModel(const std::string& str, const std::string& name, bool useCache)
+Model3D::Ptr Model3DFactory::getModel(const std::string& str, const std::string& name, bool useCache, Model3D::Material mat)
 {
-    if (getCache().isInCache(str,"")) {
+    if (useCache && getCache().isInCache(str,"")) {
         Model3D::Ptr res = ownedPtr( new Model3D( *getCache().get(str) ) );
         res->setName( name );
+        std::cout << "Model from cache: " << str << std::endl;
         return res;
     }
     if (str[0] == '#') {
-        return constructFromGeometry(str, name);
+        return constructFromGeometry(str, name, useCache, mat);
     }
     else {
-        return loadModel(str, name, useCache);
+        return loadModel(str, name, useCache, mat);
     }
 }
 
-Model3D::Ptr Model3DFactory::constructFromGeometry(const std::string& str, const std::string& name, bool useCache)
+Model3D::Ptr Model3DFactory::constructFromGeometry(const std::string& str, const std::string& name, bool useCache, Model3D::Material mat)
 {
     if( useCache ){
     	if (getCache().isInCache(str,"")){
@@ -100,7 +101,7 @@ Model3D::Ptr Model3DFactory::constructFromGeometry(const std::string& str, const
     }
 	Geometry::Ptr geometry = GeometryFactory::getGeometry(str);
 	Model3D *model = new Model3D(name);
-	model->addTriMesh( Model3D::Material("stlmat",0.6f,0.6f,0.6f), *geometry->getGeometryData()->getTriMesh() );
+	model->addTriMesh( mat, *geometry->getGeometryData()->getTriMesh() );
 
     return ownedPtr( model );
 }
@@ -111,7 +112,7 @@ Model3DFactory::FactoryCache& Model3DFactory::getCache()
 	return cache;
 }
 
-Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const std::string& name, bool useCache)
+Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const std::string& name, bool useCache, Model3D::Material mat)
 {
     const std::string& filename = IOUtil::resolveFileName(raw_filename, extensions);
     const std::string& filetype = StringUtil::toUpper(StringUtil::getFileExtension(filename));
@@ -143,7 +144,7 @@ Model3D::Ptr Model3DFactory::loadModel(const std::string &raw_filename, const st
 
         Model3D *model = new Model3D(name);
 
-        model->addTriMesh(Model3D::Material("stlmat",0.6f,0.6f,0.6f), *data);
+        model->addTriMesh(mat, *data);
         model->optimize(30*rw::math::Deg2Rad);
 
         getCache().add(filename, model, moddate);
