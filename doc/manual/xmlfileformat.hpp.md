@@ -403,6 +403,18 @@ of view 40
 When the 'Camera' property name is used, this will also, when opened in RobWorkStudio, draw the outline of the camera frame.
 In this case the camera parameters will always be interpreted in the order fovy,width,height, as shown above, ignoring the description given.
 
+\b Example
+A user property for enabling the display of the frame axis. This will automatically execute the TreeView plugin action of turning on the visibility
+of the frame axis.
+
+\verbatim
+<Frame name="my_frame">
+    <RPY>0 0 0</RPY>
+    <Pos>0 0 1</RPY>
+    <Property name="ShowFrameAxis">true</Property>
+</Frame>
+\endverbatim
+
 \subsection sec_rwxml_transform Transform
 \b Attributes
 
