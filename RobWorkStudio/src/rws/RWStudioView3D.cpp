@@ -40,6 +40,11 @@
 
 #include <boost/foreach.hpp>
 
+
+const double ROTATE_VIEW_STEP_DEG = 5.0;
+const double ZOOM_STEP_MULT = 1.1;
+    
+
 using namespace rw::graphics;
 using namespace rw::geometry;
 using namespace rw::math;
@@ -472,32 +477,32 @@ void RWStudioView3D::keyPressEvent(QKeyEvent *e)
     
     // Rotate view commands:
     else if(e->key() == Qt::Key_W) {
-      rw::math::Transform3D<> Tview = _view->getTransform();
-      Rotation3D<> rot = EAA<>(Tview.R() * Vector3D<>::x(), -ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
-      rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
-      _view->setTransform(newTview);
-      _view->updateView();
+        rw::math::Transform3D<> Tview = _view->getTransform();
+        Rotation3D<> rot = EAA<>(Tview.R() * Vector3D<>::x(), -ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
+        rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
+        _view->setTransform(newTview);
+        _view->updateView();
     }
     else if(e->key() == Qt::Key_S) {
-      rw::math::Transform3D<> Tview = _view->getTransform();
-      Rotation3D<> rot = EAA<>(Tview.R() * Vector3D<>::x(), ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
-      rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
-      _view->setTransform(newTview);
-      _view->updateView();
+        rw::math::Transform3D<> Tview = _view->getTransform();
+        Rotation3D<> rot = EAA<>(Tview.R() * Vector3D<>::x(), ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
+        rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
+        _view->setTransform(newTview);
+        _view->updateView();
     }
     else if(e->key() == Qt::Key_A) {
-      rw::math::Transform3D<> Tview = _view->getTransform();
-      Rotation3D<> rot = EAA<>(Vector3D<>::z(), -ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
-      rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
-      _view->setTransform(newTview);
-      _view->updateView();
+        rw::math::Transform3D<> Tview = _view->getTransform();
+        Rotation3D<> rot = EAA<>(Vector3D<>::z(), -ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
+        rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
+        _view->setTransform(newTview);
+        _view->updateView();
     }
     else if(e->key() == Qt::Key_D) {
-      rw::math::Transform3D<> Tview = _view->getTransform();
-      Rotation3D<> rot = EAA<>(Vector3D<>::z(), ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
-      rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
-      _view->setTransform(newTview);
-      _view->updateView();
+        rw::math::Transform3D<> Tview = _view->getTransform();
+        Rotation3D<> rot = EAA<>(Vector3D<>::z(), ROTATE_VIEW_STEP_DEG * Deg2Rad).toRotation3D();
+        rw::math::Transform3D<> newTview = Transform3D<>(rot * Tview.P(), rot * Tview.R());
+        _view->setTransform(newTview);
+        _view->updateView();
     }
 
 // change camera view according to the keyboard inputs
@@ -965,24 +970,24 @@ void RWStudioView3D::showPivotPointSlot()
 
 void RWStudioView3D::zoomInSlot()
 {
-  rw::math::Transform3D<> Tview = _view->getTransform();
-  rw::math::Transform3D<> newTview = Transform3D<>(1.0/ZOOM_STEP_MULT * Tview.P(), Tview.R());
-  _view->setTransform(newTview);
-  _view->updateView(); 
+    rw::math::Transform3D<> Tview = _view->getTransform();
+    rw::math::Transform3D<> newTview = Transform3D<>(1.0/ZOOM_STEP_MULT * Tview.P(), Tview.R());
+    _view->setTransform(newTview);
+    _view->updateView(); 
 }
 
 void RWStudioView3D::zoomOutSlot()
 {
-  rw::math::Transform3D<> Tview = _view->getTransform();
-  rw::math::Transform3D<> newTview = Transform3D<>(ZOOM_STEP_MULT * Tview.P(), Tview.R());
-  _view->setTransform(newTview);
-  _view->updateView(); 
+    rw::math::Transform3D<> Tview = _view->getTransform();
+    rw::math::Transform3D<> newTview = Transform3D<>(ZOOM_STEP_MULT * Tview.P(), Tview.R());
+    _view->setTransform(newTview);
+    _view->updateView(); 
 }
 
 void RWStudioView3D::zoomAutoSlot()
 {
-  _view->autoZoom();
-  _view->updateView();
+    _view->autoZoom();
+    _view->updateView();
 }
 
 void RWStudioView3D::showPivotPoint(bool visible)

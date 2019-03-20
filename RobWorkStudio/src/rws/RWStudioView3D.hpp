@@ -64,9 +64,6 @@ public:
 	//! @brief Smart pointer type for RWStudioView3D.
     typedef rw::common::Ptr<RWStudioView3D> Ptr;
     
-    const double ROTATE_VIEW_STEP_DEG = 5.0;
-    const double ZOOM_STEP_MULT = 1.1;
-    
 public:
     /**
      * @brief Constructs an OpenGL based QT Widget
