@@ -228,6 +228,7 @@ namespace {
                             ,
                         !transform3d_p
                             [ var( _model._transform ) = arg1 ] >>
+                        
                         *(geometry_r
                             [ push_back_a( _model._geo ) ])
                     )) [ var( _model._isDrawable ) = false ];
@@ -246,9 +247,17 @@ namespace {
                             , // used to initialize _model
                         !transform3d_p
                             [ var( _model._transform ) = arg1 ] >>
+                        *(rgb_r) >>
                         *( geometry_r
                             [ push_back_a( _model._geo ) ])
                     )) [ var( _model._isDrawable ) = true ];
+                    
+                rgb_r = XMLElem_p("RGB",
+                          real_p[ var( _model._r ) = arg1 ] >>
+                          real_p[ var( _model._g ) = arg1 ] >>
+                          real_p[ var( _model._b ) = arg1 ] >>
+                          *real_p[ var( _model._a ) = arg1 ][ var( _model._customMaterial ) = true ]
+                        );
 
                 geometry_r = eps_p[ var( _geo ) = construct_<DummyGeometry>() ] >>
                     ( XMLAttElem_p("Polytope",
@@ -300,6 +309,7 @@ namespace {
 
         private:
             rule<ScannerT> model_r,colmodel_r,drawable_r;
+            rule<ScannerT> rgb_r;
             rule<ScannerT, result_closure<DummyGeometry>::context_t > geometry_r;
             DummyModel _model;
             DummyGeometry _geo;
