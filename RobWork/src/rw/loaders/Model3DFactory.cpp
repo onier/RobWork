@@ -79,7 +79,6 @@ Model3D::Ptr Model3DFactory::getModel(const std::string& str, const std::string&
     if (useCache && getCache().isInCache(str,"")) {
         Model3D::Ptr res = ownedPtr( new Model3D( *getCache().get(str) ) );
         res->setName( name );
-        std::cout << "Model from cache: " << str << std::endl;
         return res;
     }
     if (str[0] == '#') {

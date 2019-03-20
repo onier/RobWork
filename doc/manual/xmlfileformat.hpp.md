@@ -365,7 +365,7 @@ be used as collision model.
 
 \b Child Elements
 
-!((\b RPY >> \b Pos) | \b Transform) >> *(Polytope | Sphere | Box | Cone | Cylinder)
+!((\b RPY >> \b Pos) | \b Transform) >> *(RGB) >> *(Polytope | Sphere | Box | Cone | Cylinder)
 
 \b Example
 
@@ -440,6 +440,29 @@ A rotation matrix with 90 degree rotation around z-axis
 
 \verbatim
 <RPY> 90 0 0 </RPY>
+\endverbatim
+
+\subsection sec_rwxml_rgb RGB
+\b Attributes
+
+\b Child Elements
+Defines the simple material colors for the visual model. This material is used if the model does not support the color/material information (e.g. when geometric primitive or STL model is used).
+\verbatim
+r >> g >> b >> *a
+\endverbatim
+
+\b Example
+Simple material color with RGB values [1.0, 0.0, 0.0] (red color).
+
+\verbatim
+<RGB> 1.0 0.0 0.0 </RGB>
+\endverbatim
+
+\b Example
+Simple material color with transparency: RGBA values [1.0, 1.0, 0.0 0.5] (transparent yellow color).
+
+\verbatim
+<RGB> 1.0 1.0 0.0 0.5 </RGB>
 \endverbatim
 
 \subsection sec_rwxml_pos Pos
