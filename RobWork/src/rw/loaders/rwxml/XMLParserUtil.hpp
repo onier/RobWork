@@ -105,7 +105,7 @@ struct DummyCalibration {
 struct DummyGeometry {
     DummyGeometry():
         _radius(1.0),_x(1.0),_y(1.0),_z(1.0),
-        _filename(""), _type(CubeType)
+        _filename(""), _type(CubeType), _level(20)
     {}
     double _radius; // sphere, cone
     double _x; // cube
@@ -115,6 +115,7 @@ struct DummyGeometry {
     std::string _filename;
     std::string _parameters;
     GeoType _type;
+    int _level; // sphere, tube, cone, cylinder, custom
 };
 
 struct DummyModel {

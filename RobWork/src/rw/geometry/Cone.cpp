@@ -26,12 +26,14 @@ using namespace rw::geometry;
 using namespace rw::math;
 using namespace rw::common;
 
-Cone::Cone(const rw::math::Q& initQ) {
+Cone::Cone(const rw::math::Q& initQ, int levels):
+    Primitive(levels)
+{
 	setParameters(initQ);
 }
 
-Cone::Cone(double height, double radiusTop, double radiusBot):
-        _radiusTop(radiusTop), _radiusBottom(radiusBot), _height(height)
+Cone::Cone(double height, double radiusTop, double radiusBot, int levels):
+    Primitive(levels), _radiusTop(radiusTop), _radiusBottom(radiusBot), _height(height)
 {
 
 }

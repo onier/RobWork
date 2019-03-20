@@ -36,7 +36,7 @@ namespace geometry {
 		/**
 		 * @brief constructor
 		 */
-		Cylinder();
+		Cylinder(int levels=16);
 
 		/**
 		 * @brief Constructs cylinder primitive with the specified setup
@@ -45,14 +45,16 @@ namespace geometry {
 		 *
 		 * @param radius [in] radius of the cylinder.
 		 * @param height [in] height of the cylinder.
+     * @param levels [in] granularity of the mesh
 		 */
-		Cylinder(float radius, float height);
+		Cylinder(float radius, float height, int levels=16);
 		
 		/**
 		 * @brief Constructor.
 		 * @param initQ [in] vector with (height, radius)
+     * @param levels [in] granularity of the mesh
 		 */
-		Cylinder(const rw::math::Q& initQ);
+		Cylinder(const rw::math::Q& initQ, int levels=16);
 
 		/**
 		 * @brief Construct cylinder primitive with specified radius and height and with the given transform.
@@ -62,8 +64,9 @@ namespace geometry {
 		 * @param transform [in] The transform specifying how the pose of the cylinder
 		 * @param radius [in] radius of the cylinder.
 		 * @param height [in] height of the cylinder.
+     * @param levels [in] granularity of the mesh
 		 */
-		Cylinder(const rw::math::Transform3D<>& transform, float radius, float height);
+		Cylinder(const rw::math::Transform3D<>& transform, float radius, float height, int levels=16);
 
 		//! @brief destructor
 		virtual ~Cylinder();

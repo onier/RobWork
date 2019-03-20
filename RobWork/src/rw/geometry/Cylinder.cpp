@@ -37,25 +37,28 @@ namespace {
  	}
 }
 */
-Cylinder::Cylinder():
-	_radius(1),_height(1)
+Cylinder::Cylinder(int levels):
+  Primitive(levels), _radius(1), _height(1)
 {
 }
 
 
-Cylinder::Cylinder(float radius, float height):
-	_radius(radius),_height(height)
+Cylinder::Cylinder(float radius, float height, int levels):
+	Primitive(levels), _radius(radius), _height(height)
 {
 }
 
-Cylinder::Cylinder(const Transform3D<>& transform, float radius, float height):
+Cylinder::Cylinder(const Transform3D<>& transform, float radius, float height, int levels):
+  Primitive(levels), 
 	_transform(cast<float>(transform)),
 	_radius(radius),
 	_height(height)
 {
 }
 
-Cylinder::Cylinder(const rw::math::Q& initQ) {
+Cylinder::Cylinder(const rw::math::Q& initQ, int levels):
+  Primitive(levels)
+{
 	setParameters(initQ);
 }
 

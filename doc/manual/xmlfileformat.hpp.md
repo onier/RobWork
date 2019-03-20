@@ -503,11 +503,13 @@ x >> y >> z
 
 \subsection sec_rwxml_sphere Sphere
 \b Attributes
-- \b radius: radius of the sphere in m
+- \b radius: radius of the sphere in m.
+- \b level (optional, default=20): mesh resolution.
 
 \b Example
 \verbatim
 <Sphere radius="0.05" />
+<Sphere radius="0.05" level="20" />
 \endverbatim
 
 \subsection sec_rwxml_box Box
@@ -525,21 +527,38 @@ x >> y >> z
 \subsection sec_rwxml_cone Cone
 \b Attributes
 - \b radius: radius of bottom circle of cone.
-- \b z: height of cone
+- \b z: height of cone.
+- \b level (optional, default=20): mesh resolution.
 
 \b Example
 \verbatim
 <Cone radius="0.1" z="0.1" />
+<Cone radius="0.1" z="0.1" level="10"/>
 \endverbatim
 
 \subsection sec_rwxml_cylinder Cylinder
 \b Attributes
 - \b radius: radius of the cylinder.
-- \b z: length of zylinder
+- \b z: length of cylinder
+- \b level (optional, default=20): mesh resolution.
 
 \b Example
 \verbatim
 <Cylinder radius="0.1" z="0.1" />
+<Cylinder radius="0.1" z="0.1" level="20"/>
+\endverbatim
+
+\subsection sec_rwxml_tube Tube
+\b Attributes
+- \b radius: radius of outer surface of the tube.
+- \b thickness: thickness of the tube surface.
+- \b z: height of the tube.
+- \b level (optional, default=20): mesh resolution.
+
+\b Example
+\verbatim
+<Tube radius="0.1" thickness="0.01" z="0.1"/>
+<Tube radius="0.1" thickness="0.01" z="0.1" level="10"/>
 \endverbatim
 
 \subsection sec_rwxml_collisionsetup CollisionSetup
