@@ -67,7 +67,7 @@ namespace rw { namespace trajectory {
         /**
            @brief A path of time stamped states.
 
-           The time stamp of the first state is \offset, and the time for the
+           The time stamp of the first state is \b offset, and the time for the
            remaining states are computed using the maximum joint speed
            velocities of \b workcell.
          */
