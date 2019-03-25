@@ -42,7 +42,7 @@ namespace geometry {
         //static PlainTriMeshN0D triangulatePolygon(const std::vector< rw::math::Vector3D<> >& points)
 
         /**
-         * @brief Triangulates the polygon described by \bpoints
+         * @brief Triangulates the polygon described by \b points
 		 * 
          * The polygon need to be simple (no edges crossing and no holes). Both convex and concave polygons are supported
          *
@@ -52,7 +52,7 @@ namespace geometry {
         static bool processPoints(const std::vector<rw::math::Vector2D<> >& points, std::vector<int>& result);
 
         /**
-         * @brief Triangulates the polygon described by \bpoints
+         * @brief Triangulates the polygon described by \b points
 		 * 
 		 * The polygon need to be simple (no edges crossing and no holes). Both convex and concave polygons are supported
 		 *
@@ -76,7 +76,7 @@ namespace geometry {
 		 static bool processPolygon(Polygon<>::Ptr polygon, std::vector<int>& result, double colinearCriteria = 1e-5, double precision = 1e-5);
         
 		/**
-		 * @brief Computes area of the polygon defined by \bcontour
+		 * @brief Computes area of the polygon defined by \b contour
 		 */
         static double calcArea(const std::vector<rw::math::Vector2D<> > &contour);
 
