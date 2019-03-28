@@ -358,7 +358,7 @@ void Robotiq::setReg(boost::uint8_t& reg, const boost::uint8_t& val)  const{
 void Robotiq::setReg(boost::uint16_t& reg, const boost::uint16_t& val) const{
 
 #if BOOST_VERSION >= 105500
-#if !defined(BOOST_ENDIAN_BIG_BYTE)
+#if !BOOST_ENDIAN_BIG_BYTE
 	uint8_t val1 = val & 0xFF;
 	uint8_t val2 = (val >> 8) & 0xFF;
 	reg = val1 << 8 | val2;
