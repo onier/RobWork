@@ -39,15 +39,17 @@ public:
 	 * @param radius [in] inner radius of the tube.
 	 * @param thickness [in] thickness of the tube.
 	 * @param height [in] height of the cylinder.
+   * @param levels [in] granularity of the mesh.
 	 */
-	Tube(float radius, float thickness, float height);
+	Tube(float radius, float thickness, float height, int levels=16);
 
 	/**
 	 * @brief Constructs tube primitive based on vector with parameters
 	 *
 	 * @param initQ [in] vector of (radius, height)
+   * @param levels [in] granularity of the mesh
 	 */
-	Tube(const rw::math::Q& initQ);
+	Tube(const rw::math::Q& initQ, int levels=16);
 
 	//! @brief destructor
 	virtual ~Tube();

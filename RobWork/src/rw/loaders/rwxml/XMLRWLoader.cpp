@@ -165,7 +165,7 @@ void addPropertyToMap(const DummyProperty &dprop, common::PropertyMap& map){
         	map.add(dprop._name, dprop._desc, val);
     	} catch(const std::exception& e) {
 
-    		RW_WARN("Could not parse double property value: " << dprop._name << ". An error occoured:\n " << std::string(e.what()));
+    		RW_WARN("Could not parse double property value: " << dprop._name << ". An error occured:\n " << std::string(e.what()));
 
     	}
     } else if(dprop._type=="Q"){
@@ -246,17 +246,17 @@ Frame* addModelToFrame(DummyModel& model, Frame *parent, StateStructure *tree, D
 			val << "#Box " << model._geo[i]._x << " " << model._geo[i]._y << " " << model._geo[i]._z;
 			break;
 		case SphereType:
-			val << "#Sphere " << model._geo[i]._radius;
+			val << "#Sphere " << model._geo[i]._radius << " " << model._geo[i]._level;
 			break;
 		case ConeType:
-			val << "#Cone " << model._geo[i]._radius << " " << model._geo[i]._z;
+			val << "#Cone " << model._geo[i]._radius << " " << model._geo[i]._z << " " << model._geo[i]._level;
 			break;
 		case CylinderType:
-			val << "#Cylinder " << model._geo[i]._radius << " " << model._geo[i]._z << " " << 20;
+			val << "#Cylinder " << model._geo[i]._radius << " " << model._geo[i]._z << " " << model._geo[i]._level;
 			break;
 		case TubeType:
 			// #Tube radius thickness height divisions
-			val << "#Tube " << model._geo[i]._radius << " " << model._geo[i]._x << " " << model._geo[i]._z << " " << 20;
+			val << "#Tube " << model._geo[i]._radius << " " << model._geo[i]._x << " " << model._geo[i]._z << " " << model._geo[i]._level;
 			break;
 		case CustomType:
 			val << "#Custom " << model._geo[i]._filename << " " << model._geo[i]._parameters;

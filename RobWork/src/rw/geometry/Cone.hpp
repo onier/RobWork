@@ -39,18 +39,19 @@ namespace geometry {
 	class Cone: public Primitive {
 	public:
 		//! @brief constructor
-		Cone(const rw::math::Q& initQ);
+		Cone(const rw::math::Q& initQ, int levels=16);
 
 		/**
 		 * @brief constructor
 		 * @param height [in] height of cone
 		 * @param radiusTop [in] radius of the top end
 		 * @param radiusBot [in] radius of the bottom end
+     * @param levels [in] granularity of the mesh
 		 */
-		Cone(double height, double radiusTop, double radiusBot);
+		Cone(double height, double radiusTop, double radiusBot, int levels=16);
 
-        //! @brief destructor
-        virtual ~Cone();
+    //! @brief destructor
+    virtual ~Cone();
 
 		//! @brief the height
 		double getHeight(){ return _height;}
