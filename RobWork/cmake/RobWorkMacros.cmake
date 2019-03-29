@@ -46,7 +46,7 @@ MACRO(RW_SYS_INFO INFO)
         ELSE()
             IF(EXISTS "/etc/lsb-release")
                 EXECUTE_PROCESS(COMMAND cat /etc/lsb-release OUTPUT_VARIABLE SUFFIX)
-                STRING( REGEX MATCHALL "\".+\"" SUFFIX ${SUFFIX} )            
+                STRING( REGEX MATCHALL "\".+\"" SUFFIX ${SUFFIX} )
                 # this will add kernel version eg Linux_3.0....
                 SET(SUFFIX "${SUFFIX}_${ARCH}_${RW_BUILD_TYPE}")
                 STRING( REPLACE "\"" "" SUFFIX ${SUFFIX} )
@@ -54,8 +54,14 @@ MACRO(RW_SYS_INFO INFO)
             
             ELSEIF(EXISTS "/etc/os-release")
                 EXECUTE_PROCESS(COMMAND cat /etc/os-release OUTPUT_VARIABLE SUFFIX)
-                STRING( REGEX MATCHALL "ID=\".+\"" SUFFIX1 ${SUFFIX} )
-                STRING( REGEX MATCHALL "VERSION_ID=\".+\"" SUFFIX2 ${SUFFIX} )
+                STRING( REGEX MATCHALL "[^_]ID=\"[^\"]+\"" SUFFIX1 ${SUFFIX} )
+                STRING( LENGTH ${SUFFIX1} SUFFIX1_LEN)
+                MATH(EXPR SUFFIX1_LEN "${SUFFIX1_LEN}-6")
+                STRING( SUBSTRING ${SUFFIX1} 5 ${SUFFIX1_LEN} SUFFIX1)
+                STRING( REGEX MATCHALL "VERSION_ID=\"[^\"]+\"" SUFFIX2 ${SUFFIX} )
+                STRING( LENGTH ${SUFFIX2} SUFFIX2_LEN)
+                MATH(EXPR SUFFIX2_LEN "${SUFFIX2_LEN}-13")
+                STRING( SUBSTRING ${SUFFIX2} 12 ${SUFFIX2_LEN} SUFFIX2)
                 # this will add kernel version eg Linux_3.0....
                 SET(SUFFIX "${SUFFIX1}-${SUFFIX2}-${ARCH}_${RW_BUILD_TYPE}")
                 STRING( REPLACE "\"" "" SUFFIX ${SUFFIX} )
@@ -94,7 +100,8 @@ ENDMACRO()
 MACRO(RW_GET_REVISION DIR PREFIX)
   FIND_PACKAGE(Git QUIET)
   IF(Git_FOUND)
-    execute_process(COMMAND ${GIT_EXECUTABLE} -C ${DIR} describe --dirty --always
+    execute_process(COMMAND ${GIT_EXECUTABLE} describe --dirty --always
+      WORKING_DIRECTORY ${DIR}
       OUTPUT_VARIABLE ${PREFIX}_WC_INFO
       RESULT_VARIABLE Git_info_result
       OUTPUT_STRIP_TRAILING_WHITESPACE)
