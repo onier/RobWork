@@ -41,7 +41,7 @@ IF( build )
     SET(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/java_src/dk/robwork)
     # SWIG
 	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
-		SWIG_ADD_LIBRARY(rw_jni MODULE LANGUAGE java SOURCES ../rw.i ../ScriptTypes.cpp)
+		SWIG_ADD_LIBRARY(rw_jni TYPE MODULE LANGUAGE java SOURCES ../rw.i ../ScriptTypes.cpp)
 	ELSE()
 		SWIG_ADD_MODULE(rw_jni java ../rw.i ../ScriptTypes.cpp)
 	ENDIF()
