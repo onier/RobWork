@@ -100,7 +100,8 @@ ENDMACRO()
 MACRO(RW_GET_REVISION DIR PREFIX)
   FIND_PACKAGE(Git QUIET)
   IF(Git_FOUND)
-    execute_process(COMMAND ${GIT_EXECUTABLE} -C ${DIR} describe --dirty --always
+    execute_process(COMMAND ${GIT_EXECUTABLE} describe --dirty --always
+      WORKING_DIRECTORY ${DIR}
       OUTPUT_VARIABLE ${PREFIX}_WC_INFO
       RESULT_VARIABLE Git_info_result
       OUTPUT_STRIP_TRAILING_WHITESPACE)
