@@ -60,7 +60,11 @@ IF( build )
         COMMENT "Removing old Java source..."
     )
     ADD_CUSTOM_TARGET(CleanDep DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CleanDep )
-    ADD_DEPENDENCIES(rws_jni CleanDep)
+    IF((CMAKE_GENERATOR MATCHES "Make") AND (NOT CMAKE_VERSION VERSION_LESS 3.12))
+        ADD_DEPENDENCIES(rws_jni_swig_compilation CleanDep)
+    ELSE()
+        ADD_DEPENDENCIES(rws_jni CleanDep)
+    ENDIF()
     # Compile java code and create JAR and Javadoc
 	ADD_CUSTOM_COMMAND(TARGET rws_jni
 		POST_BUILD

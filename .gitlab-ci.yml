@@ -1,0 +1,4 @@
+include:
+  - project: 'sdurobotics/RobWork'
+    ref: master
+    file: .gitlab-ci-common.yml
