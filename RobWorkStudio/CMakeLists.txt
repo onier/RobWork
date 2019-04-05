@@ -60,6 +60,10 @@ SET(RW_STATIC_LINK_PLUGINS ${RWS_USE_STATIC_LINK_PLUGINS})
 # linking options
 OPTION(RWS_USE_STATIC_LINK_COMPONENTS "Set to false if dynamic link libraries of components is needed" ON)
 
+# Subdirectories adds plugins and libraries to these variables
+SET(RWS_PLUGIN_LIBRARIES)
+SET(RWS_COMPONENT_LIBRARIES)
+
 # sub directories to process
 ADD_SUBDIRECTORY(ext)
 ADD_SUBDIRECTORY(src)

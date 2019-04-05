@@ -35,7 +35,7 @@ IF( build )
     TARGET_LINK_LIBRARIES(rwhw_universalrobots PUBLIC ${ROBWORK_LIBRARIES})
     RW_ADD_INCLUDES(universalrobots "rwhw/universalrobots" ${SRC_HPP} urscript.hpp)
 
-    SET( ENV{ROBWORKHARDWARE_LIBRARIES} "$ENV{ROBWORKHARDWARE_LIBRARIES}rwhw_universalrobots;")
+    set(ROBWORKHARDWARE_LIBRARIES ${ROBWORKHARDWARE_LIBRARIES} rwhw_universalrobots PARENT_SCOPE)
 ELSE()
     MESSAGE(STATUS "RobWorkHardware: ${component_name} component DISABLED")
 ENDIF()

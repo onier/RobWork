@@ -24,6 +24,6 @@ IF( build AND DEFINED WIN32)
       ./FanucVirtual.cpp
       ./VelRampProfile.cpp
     )
-    SET( ENV{ROBWORKHARDWARE_LIBRARIES} "$ENV{ROBWORKHARDWARE_LIBRARIES}rwhw_fanucdevice;")
+    set(ROBWORKHARDWARE_LIBRARIES ${ROBWORKHARDWARE_LIBRARIES} rwhw_fanucdevice PARENT_SCOPE)
 ENDIF()
 
