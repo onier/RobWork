@@ -1,6 +1,6 @@
-SET(RWS_PLUGIN_LIBRARIES $ENV{RWS_PLUGIN_LIBRARIES})
-SET(RWS_COMPONENT_LIBRARIES $ENV{RWS_COMPONENT_LIBRARIES})
-
 add_subdirectory(lua)
 add_subdirectory(java)
 add_subdirectory(python)
+
+# Propagate libraries to parent directory
+set(RWS_COMPONENT_LIBRARIES ${RWS_COMPONENT_LIBRARIES} PARENT_SCOPE)

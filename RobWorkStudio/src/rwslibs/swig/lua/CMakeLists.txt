@@ -56,7 +56,7 @@ IF( build )
                 ${ROBWORK_LIBRARIES}
     )
 
-    SET(ENV{RWS_COMPONENT_LIBRARIES} "$ENV{RWS_COMPONENT_LIBRARIES}rws_lua_s;")
+    set(RWS_COMPONENT_LIBRARIES ${RWS_COMPONENT_LIBRARIES} rws_lua_s PARENT_SCOPE)
     #MESSAGE("${ROBWORKSTUDIO_LIBRARIES} \n ROBWORK ${ROBWORK_LIBRARIES}" )
     # this is used to indicate static linking to Visual Studio or mingw 
     	# this is used to indicate static linking to Visual Studio or mingw
