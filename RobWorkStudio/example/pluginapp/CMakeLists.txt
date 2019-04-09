@@ -12,7 +12,7 @@
 #
 # Test CMake version
 #
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 
 # The name of the project.
 PROJECT(PluginApp)
@@ -24,8 +24,8 @@ SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 IF(WIN32)
   # On Windows platforms, the RW/RWS installers create the necessary environment variables
   IF(DEFINED ENV{RW_ROOT} AND DEFINED ENV{RWS_ROOT})
-    SET(RW_ROOT "$ENV{RW_ROOT}")
-    SET(RWSTUDIO_ROOT "$ENV{RWS_ROOT}")
+    file(TO_CMAKE_PATH "$ENV{RW_ROOT}" RW_ROOT)
+    file(TO_CMAKE_PATH "$ENV{RWS_ROOT}" RWSTUDIO_ROOT)
   ELSE()
     SET(RW_ROOT "${ROOT}/../../../RobWork")
     SET(RWSTUDIO_ROOT "${ROOT}/../../../RobWorkStudio")
@@ -56,7 +56,6 @@ MESSAGE("-- Build type: " ${CMAKE_BUILD_TYPE})
 #Include default settings for constructing a robwork dependent project
 SET(RobWork_DIR ${RW_ROOT}/cmake) 
 FIND_PACKAGE(RobWork REQUIRED)
-INCLUDE_DIRECTORIES( ${ROBWORK_INCLUDE_DIRS} )
 LINK_DIRECTORIES( ${ROBWORK_LIBRARY_DIRS} )
 MESSAGE("-- RobWork found: " ${RW_ROOT})
 
@@ -97,6 +96,7 @@ SET(SrcFiles SamplePlugin.cpp)
 
 # The shared library to build:
 ADD_LIBRARY(SamplePlugin MODULE ${SrcFiles} ${MocSrcFiles}  ${RccSrcFiles})
-TARGET_LINK_LIBRARIES(SamplePlugin ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES})
+TARGET_LINK_LIBRARIES(SamplePlugin PUBLIC ${ROBWORKSTUDIO_LIBRARIES} ${ROBWORK_LIBRARIES})
+TARGET_INCLUDE_DIRECTORIES(SamplePlugin PUBLIC ${ROBWORK_INCLUDE_DIRS})
 
 MESSAGE("-- " ${PROJECT_NAME} " done!")

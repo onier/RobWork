@@ -12,7 +12,7 @@
 #
 # Test CMake version
 #
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.11)
 
 # The name of the project.
 PROJECT(BoostStrap)
