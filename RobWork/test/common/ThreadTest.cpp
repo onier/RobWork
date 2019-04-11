@@ -472,6 +472,78 @@ int runTask() {
 	return 0;
 }
 
+#if BOOST_VERSION >= 105900
+// Do a test where thread pool is allowed to finish all work (timeout = 5 seconds)
+BOOST_AUTO_TEST_CASE(ThreadPoolTest, *boost::unit_test::timeout(5)) {
+    // get the execution monitor instance
+    boost::unit_test::unit_test_monitor_t& theMonitor = boost::unit_test::unit_test_monitor_t::instance();
+    try {
+        theMonitor.execute(boost::bind(&runPool, false));
+    }
+    catch (boost::execution_exception &e) {
+        if (e.code() == boost::execution_exception::timeout_error) {
+            boost::mutex::scoped_lock lock(testMutex);
+            BOOST_CHECK_MESSAGE(false, "Timeout while testing ThreadPool - possibly a deadlock.");
+        }
+        else {
+            throw(e);
+        }
+    }
+}
+
+// Do a test where thread pool is stopped before work is finished (timeout = 20 seconds)
+BOOST_AUTO_TEST_CASE(ThreadPoolTest_Abort, *boost::unit_test::timeout(20)) {
+    // get the execution monitor instance
+    boost::unit_test::unit_test_monitor_t& theMonitor = boost::unit_test::unit_test_monitor_t::instance();
+    try {
+        theMonitor.execute(boost::bind(&runPool, true));
+    }
+    catch (boost::execution_exception &e) {
+        if (e.code() == boost::execution_exception::timeout_error) {
+            boost::mutex::scoped_lock lock(testMutex);
+            BOOST_CHECK_MESSAGE(false, "Timeout while testing ThreadPool - possibly a deadlock.");
+        }
+        else {
+            throw(e);
+        }
+    }
+}
+
+// Do a simple test with empty tasks
+BOOST_AUTO_TEST_CASE(ThreadTaskTest, *boost::unit_test::timeout(5)) {
+    // get the execution monitor instance
+    boost::unit_test::unit_test_monitor_t& theMonitor = boost::unit_test::unit_test_monitor_t::instance();
+    try {
+        theMonitor.execute(boost::bind(&runTaskEmpty));
+    }
+    catch (boost::execution_exception &e) {
+        if (e.code() == boost::execution_exception::timeout_error) {
+            boost::mutex::scoped_lock lock(testMutex);
+            BOOST_CHECK_MESSAGE(false, "Timeout while testing ThreadTask - possibly a deadlock.");
+        }
+        else {
+            throw(e);
+        }
+    }
+}
+
+// Do a complex test where order of function calls is tested
+BOOST_AUTO_TEST_CASE(ThreadTaskTest_InvocationOrder, * boost::unit_test::timeout(20)) {
+    // get the execution monitor instance
+    boost::unit_test::unit_test_monitor_t& theMonitor = boost::unit_test::unit_test_monitor_t::instance();
+    try {
+        theMonitor.execute( boost::bind( &runTask ) );
+    } catch(boost::execution_exception &e) {
+        if (e.code() == boost::execution_exception::timeout_error) {
+            boost::mutex::scoped_lock lock(testMutex);
+            BOOST_CHECK_MESSAGE(false, "Timeout while testing ThreadTask - possibly a deadlock.");
+        } else {
+            throw(e);
+        }
+    }
+}
+
+#else
 BOOST_AUTO_TEST_CASE(ThreadTest) {
     BOOST_TEST_MESSAGE("- ThreadTest");
 
@@ -534,3 +606,4 @@ BOOST_AUTO_TEST_CASE(ThreadTest) {
     	}
     }
 }
+#endif
