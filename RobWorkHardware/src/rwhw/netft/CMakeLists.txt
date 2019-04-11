@@ -5,6 +5,7 @@ SET(SUBSYS_DEPS rw )
 SET(build TRUE)
 SET(default TRUE)
 
+set(Boost_NO_BOOST_CMAKE TRUE) # From Boost 1.70, CMake files are provided by Boost - we are not yet ready to handle it
 
 FIND_PACKAGE(Boost REQUIRED COMPONENTS system regex QUIET)
 set(DEFAULT TRUE)
