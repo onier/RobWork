@@ -11,6 +11,7 @@ find_package(ur_rtde ${RTDE_VERSION_REQUIRED} QUIET CONFIG)
 if(NOT ur_rtde_FOUND)
 	# Try the internal one
 	option(PYTHON_BINDINGS "Build python bindings for libraries" OFF)
+	set(Boost_NO_BOOST_CMAKE TRUE) # From Boost 1.70, CMake files are provided by Boost - we are not yet ready to handle it
 	add_subdirectory(${RWHW_ROOT}/ext/ur_rtde ur_rtde_ext)
 	set(DEFAULT TRUE)
 	set(REASON "Building internal ur_rtde library")

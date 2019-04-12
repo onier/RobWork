@@ -4,7 +4,7 @@ Installation on Windows {#page_rw_installation_windows}
 
 # Introduction # {#sec_rw_install_win_intro}
 This guide shows the steps for building the RobWork packages on a Windows platform.
-The guide is written based on a setup with Windows 10 and Visual Studio 2017 and the guide is last revised in March 2019.
+The guide is written based on a setup with Windows 10 and Visual Studio 2017 and the guide is last revised in April 2019.
 If you have any suggestions or additions to the guide, please post them on the issue tracker at https://gitlab.com/sdurobotics/RobWork/issues .
 
 RobWork is basically multiple projects:
@@ -122,15 +122,16 @@ The following table gives an overview of the version numbers for future referenc
 
 | Visual Studio Name | Visual Studio Version | Visual C++ Compiler Toolset | Visual C/C++ Compiler Version |
 |--------------------|-----------------------|-----------------------------|-------------------------------|
+| Visual Studio 2019 | 16.0                  | 14.2                        | 19.20                         |
 | Visual Studio 2017 | 15.9                  | 14.16                       | 19.16                         |
 | Visual Studio 2017 | 15.8                  | 14.15                       | 19.15                         |
 | Visual Studio 2017 | 15.7                  | 14.14                       | 19.14                         |
 | Visual Studio 2017 | 15.6                  | 14.13                       | 19.13                         |
 | Visual Studio 2017 | 15.5                  | 14.12                       | 19.12                         |
 | Visual Studio 2017 | 15.3 & 15.4           | 14.11                       | 19.11                         |
-| Visual Studio 2017 | 15.1 & 15.2           | 14.10                       | 19.10                         |
-| Visual Studio 2015 | 14.0                  | 14.00                       | 19.00                         |
-| Visual Studio 2013 | 12.0                  | 12.00                       | 18.00                         |
+| Visual Studio 2017 | 15.0, 15.1 & 15.2     | 14.1                        | 19.10                         |
+| Visual Studio 2015 | 14.0                  | 14.0                        | 19.00                         |
+| Visual Studio 2013 | 12.0                  | 12.0                        | 18.00                         |
 
 Notice that a given version of the Visual Studio IDE can in principle be used to compile with different toolset/compiler versions.
 One can think of the toolset as a set of tools: the compiler, linker, C/C++ runtime libraries used etc.
@@ -145,8 +146,8 @@ If you already have an older version of CMake installed, please check that it is
 
 | CMake Version | Maximum Visual Studio Version Supported | Maximum Boost Version Supported |
 |---------------|-----------------------------------------|---------------------------------|
-| 3.14.0-rc4*   | Visual Studio 16 2019 Preview           | 1.70.0                          |
-| 3.13.0-3.13.4*| Visual Studio 15 2017                   | 1.69.0                          |
+| 3.14.0-3.14.1*| Visual Studio 16 2019                   | 1.70.0                          |
+| 3.13.0-3.13.4 | Visual Studio 15 2017                   | 1.69.0                          |
 | 3.12.0-3.12.4 | Visual Studio 15 2017                   | 1.68.0                          |
 | 3.11.0-3.11.4 | Visual Studio 15 2017                   | 1.67.0                          |
 | 3.9.3-3.10.3  | Visual Studio 15 2017                   | 1.65.1                          |
@@ -178,7 +179,7 @@ Choose the newest precompiled library version, based on your Visual C++ toolset 
 
 | Boost Version   | Maximum Visual C++ Toolset (Source) | Maximum Visual C++ Toolset (Precompiled) |
 |-----------------|-------------------------------------|------------------------------------------|
-| 1.69.0          | 14.12 (VS 15.5)                     | 14.1x                                    |.
+| 1.69.0          | 14.12 (VS 15.5)                     | 14.1x                                    |
 | 1.68.0          | 14.12 (VS 15.5)                     | 14.1x                                    |
 | 1.67.0          | 14.11 (VS 15.4)                     | 14.1x                                    |
 | 1.66.0          | 14.11 (VS 15.4)                     | 14.1x                                    |
@@ -283,7 +284,7 @@ https://www.qt.io
 
 You need to choose the Open Source version. Notice that Qt is only free for open source projects. Also, you need to register to download Qt.
 
-<b>WARNING! Please avoid Qt 5.8</b>  ( see issue https://gitlab.com/caro-sdu/RobWork/issues/37 )
+<b>WARNING! Please avoid Qt 5.8</b>  ( see issue https://gitlab.com/sdurobotics/RobWork/issues/37 )
 
 Run the Online installer for Windows, and select the components you want. Simply select your Visual Studio version under the version of Qt you want to use.
 
@@ -333,11 +334,12 @@ Bullet takes up around 440 MB, and takes around 15 minutes to compile.
 
 Make a Build folder and run CMake to generate a Visual Studio solution. From within the Build folder, run in a terminal:
 
-	cmake .. -G "Visual Studio 15 2017 Win64" -DUSE_DOUBLE_PRECISION=ON -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DBUILD_EXTRAS=OFF -DBUILD_UNIT_TESTS=OFF -DBUILD_CPU_DEMOS=OFF -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_BULLET2_DEMOS=OFF -DINSTALL_LIBS=ON -DCMAKE_INSTALL_PREFIX:PATH="C:\some\path\to\bullet3\install"
+	cmake .. -G "Visual Studio 15 2017 Win64" -DUSE_DOUBLE_PRECISION=ON -DUSE_MSVC_RUNTIME_LIBRARY_DLL=ON -DUSE_MSVC_DISABLE_RTTI=OFF -DBUILD_EXTRAS=OFF -DBUILD_UNIT_TESTS=OFF -DBUILD_CPU_DEMOS=OFF -DBUILD_OPENGL3_DEMOS=OFF -DBUILD_BULLET2_DEMOS=OFF -DINSTALL_LIBS=ON -DCMAKE_INSTALL_PREFIX:PATH="C:\some\path\to\bullet3\install"
 
 Choose the generator that fits your Visual Studio version with the -G option, and remember to replace "C:\some\path\to\bullet3\install" with the full path to the directory to install to.
 Modify the options to suit your needs.
 The shown options will make sure that Bullet is built with double precision, shared runtime and switch off building of things that are normally unnecessary when used in RobWorkSim.
+Notice that switching off USE_MSVC_DISABLE_RTTI is only required from Bullet 2.87 and newer.
 To build Bullet, open BULLET_PHYSICS.sln, choose the Release configuration and build the solutions. To install, build the INSTALL target.
 
 The directory layout is shown below. Note down the path to the install folder, which we will refer to as BULLET_ROOT later on.

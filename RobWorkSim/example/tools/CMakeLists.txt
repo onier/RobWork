@@ -3,6 +3,10 @@
 #
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6.0)
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 # The name of the project.
 PROJECT(RWSimTools)
 
