@@ -3801,7 +3801,6 @@
 /RobWorkStudio/CMakeCache.txt
 /RobWorkStudio/Makefile
 /RobWorkStudio/RobWork.cmake
-/RobWorkStudio/bin
 /RobWorkStudio/CMakeFiles
 /RobWorkStudio/apidocs
 /RobWorkStudio/.cproject
@@ -3819,6 +3818,29 @@
 /RobWorkStudio/CTestConfig.cmake
 /RobWorkStudio/debug
 /RobWorkStudio/release
+
+# /RobWorkStudio/bin/
+/RobWorkStudio/bin/cmake_install.cmake
+/RobWorkStudio/bin/CMakeCache.txt
+/RobWorkStudio/bin/Makefile
+/RobWorkStudio/bin/RobWork.cmake
+/RobWorkStudio/bin/bin
+/RobWorkStudio/bin/CMakeFiles
+/RobWorkStudio/bin/apidocs
+/RobWorkStudio/bin/.cproject
+/RobWorkStudio/bin/.project
+/RobWorkStudio/bin/build
+/RobWorkStudio/bin/.csettings
+/RobWorkStudio/bin/CPackConfig.cmake
+/RobWorkStudio/bin/CPackSourceConfig.cmake
+/RobWorkStudio/bin/.cproject
+/RobWorkStudio/bin/.project
+/RobWorkStudio/bin/none
+/RobWorkStudio/bin/release
+/RobWorkStudio/bin/Release
+/RobWorkStudio/bin/debug
+/RobWorkStudio/bin/Debug
+/RobWorkStudio/bin/relwithdebinfo
 
 # /RobWorkStudio/cmake/
 /RobWorkStudio/cmake/RobWorkStudioConfigDebug.cmake
