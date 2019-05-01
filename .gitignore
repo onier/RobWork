@@ -48,6 +48,7 @@
 /RobWork/cmake/RobWorkConfigVersion.cmake
 /RobWork/cmake/dependencies.cmake
 /RobWork/cmake/RobWorkBuildConfigRelease.cmake
+/RobWork/cmake/RobWorkBuildConfig_none.cmake
 /RobWork/cmake/RobWorkBuildConfig_debug.cmake
 /RobWork/cmake/RobWorkBuildConfig_release.cmake
 /RobWork/cmake/RobWorkBuildConfig_relwithdebinfo.cmake
@@ -2557,6 +2558,7 @@
 /RobWorkHardware/Makefile
 /RobWorkHardware/RobWork.cmake
 /RobWorkHardware/bin
+/RobWorkHardware/libs
 /RobWorkHardware/CMakeFiles
 /RobWorkHardware/apidocs
 /RobWorkHardware/.cproject
@@ -2568,27 +2570,6 @@
 /RobWorkHardware/.cproject
 /RobWorkHardware/.project
 /RobWorkHardware/config.cmake
-
-# /RobWorkHardware/bin/
-/RobWorkHardware/bin/cmake_install.cmake
-/RobWorkHardware/bin/CMakeCache.txt
-/RobWorkHardware/bin/Makefile
-/RobWorkHardware/bin/RobWork.cmake
-/RobWorkHardware/bin/bin
-/RobWorkHardware/bin/CMakeFiles
-/RobWorkHardware/bin/apidocs
-/RobWorkHardware/bin/.cproject
-/RobWorkHardware/bin/.project
-/RobWorkHardware/bin/build
-/RobWorkHardware/bin/.csettings
-/RobWorkHardware/bin/CPackConfig.cmake
-/RobWorkHardware/bin/CPackSourceConfig.cmake
-/RobWorkHardware/bin/.cproject
-/RobWorkHardware/bin/.project
-/RobWorkHardware/bin/Release
-/RobWorkHardware/bin/release
-/RobWorkHardware/bin/debug
-/RobWorkHardware/bin/relwithdebinfo
 
 # /RobWorkHardware/build/
 /RobWorkHardware/build/cmake_install.cmake
@@ -2610,6 +2591,7 @@
 /RobWorkHardware/build/RobWorkHardwareBuildConfigRelease.cmake
 
 # /RobWorkHardware/cmake/
+/RobWorkHardware/cmake/RobWorkHardwareBuildConfig_none.cmake
 /RobWorkHardware/cmake/RobWorkHardwareBuildConfig_release.cmake
 /RobWorkHardware/cmake/RobWorkHardwareBuildConfig_debug.cmake
 /RobWorkHardware/cmake/RobWorkHardwareConfig.cmake
@@ -2876,27 +2858,6 @@
 /RobWorkHardware/ext/ur_rtde/.git
 /RobWorkHardware/ext/ur_rtde/.gitignore
 /RobWorkHardware/ext/ur_rtde/.gitlab-ci.yml
-
-# /RobWorkHardware/libs/
-/RobWorkHardware/libs/cmake_install.cmake
-/RobWorkHardware/libs/CMakeCache.txt
-/RobWorkHardware/libs/Makefile
-/RobWorkHardware/libs/RobWork.cmake
-/RobWorkHardware/libs/bin
-/RobWorkHardware/libs/CMakeFiles
-/RobWorkHardware/libs/apidocs
-/RobWorkHardware/libs/.cproject
-/RobWorkHardware/libs/.project
-/RobWorkHardware/libs/build
-/RobWorkHardware/libs/.csettings
-/RobWorkHardware/libs/CPackConfig.cmake
-/RobWorkHardware/libs/CPackSourceConfig.cmake
-/RobWorkHardware/libs/.cproject
-/RobWorkHardware/libs/.project
-/RobWorkHardware/libs/Release
-/RobWorkHardware/libs/release
-/RobWorkHardware/libs/debug
-/RobWorkHardware/libs/relwithdebinfo
 
 # /RobWorkHardware/src/
 /RobWorkHardware/src/cmake_install.cmake
@@ -3394,6 +3355,7 @@
 /RobWorkSim/cmake/RobWorkSimBuildConfigRelWithDebInfo.cmake
 /RobWorkSim/cmake/RobWorkSimConfigVersion.cmake
 /RobWorkSim/cmake/RobWorkSimConfig.cmake
+/RobWorkSim/cmake/RobWorkSimBuildConfig_none.cmake
 /RobWorkSim/cmake/RobWorkSimBuildConfig_debug.cmake
 /RobWorkSim/cmake/RobWorkSimBuildConfig_release.cmake
 /RobWorkSim/cmake/RobWorkSimBuildConfig_relwithdebinfo.cmake
@@ -3858,28 +3820,6 @@
 /RobWorkStudio/debug
 /RobWorkStudio/release
 
-# /RobWorkStudio/bin/
-/RobWorkStudio/bin/cmake_install.cmake
-/RobWorkStudio/bin/CMakeCache.txt
-/RobWorkStudio/bin/Makefile
-/RobWorkStudio/bin/RobWork.cmake
-/RobWorkStudio/bin/bin
-/RobWorkStudio/bin/CMakeFiles
-/RobWorkStudio/bin/apidocs
-/RobWorkStudio/bin/.cproject
-/RobWorkStudio/bin/.project
-/RobWorkStudio/bin/build
-/RobWorkStudio/bin/.csettings
-/RobWorkStudio/bin/CPackConfig.cmake
-/RobWorkStudio/bin/CPackSourceConfig.cmake
-/RobWorkStudio/bin/.cproject
-/RobWorkStudio/bin/.project
-/RobWorkStudio/bin/release
-/RobWorkStudio/bin/Release
-/RobWorkStudio/bin/debug
-/RobWorkStudio/bin/Debug
-/RobWorkStudio/bin/relwithdebinfo
-
 # /RobWorkStudio/cmake/
 /RobWorkStudio/cmake/RobWorkStudioConfigDebug.cmake
 /RobWorkStudio/cmake/RobWorkStudioBuildConfig.cmake
@@ -3889,6 +3829,7 @@
 /RobWorkStudio/cmake/dependencies.cmake
 /RobWorkStudio/cmake/RobWorkStudioConfigVersion.cmake
 /RobWorkStudio/cmake/RobWorkStudioConfig.cmake
+/RobWorkStudio/cmake/RobWorkStudioBuildConfig_none.cmake
 /RobWorkStudio/cmake/RobWorkStudioBuildConfig_debug.cmake
 /RobWorkStudio/cmake/RobWorkStudioBuildConfig_release.cmake
 /RobWorkStudio/cmake/RobWorkStudioBuildConfig_relwithdebinfo.cmake
@@ -4463,6 +4404,7 @@
 /RobWorkStudio/test/common/.project
 
 # /doc/
+/doc/Doxyfile
 /doc/cmake_install.cmake
 /doc/CMakeCache.txt
 /doc/Makefile

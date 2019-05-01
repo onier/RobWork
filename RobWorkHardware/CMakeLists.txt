@@ -54,7 +54,7 @@ RW_OPTIONS(RWHW)
 # Add an "uninstall" target
 CONFIGURE_FILE("${RWHW_ROOT}/cmake/uninstall_target.cmake.in"
                "${CMAKE_BINARY_DIR}/uninstall_target.cmake" IMMEDIATE @ONLY)
-ADD_CUSTOM_TARGET(uninstall "${CMAKE_COMMAND}" -P
+ADD_CUSTOM_TARGET(uninstall_rwhw "${CMAKE_COMMAND}" -P
                   "${CMAKE_BINARY_DIR}/uninstall_target.cmake")
 
 ###########################################
