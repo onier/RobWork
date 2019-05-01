@@ -171,7 +171,8 @@ MACRO(RW_INIT_PROJECT ROOT PROJECT_NAME PREFIX VERSION)
         
     # Specify wether to default compile in Release, Debug, MinSizeRel, RelWithDebInfo mode
     IF (NOT CMAKE_BUILD_TYPE)
-        SET(${PREFIX}_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type: Release, Debug, RelWithDebInfo, MinSizeRel." FORCE)
+#        SET(${PREFIX}_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type: Release, Debug, RelWithDebInfo, MinSizeRel." FORCE)
+        SET(${PREFIX}_BUILD_TYPE "None" CACHE STRING "Build type: Release, Debug, RelWithDebInfo, MinSizeRel." FORCE)
     else ()
 	# we need to force the right configuration
 	STRING(TOLOWER ${CMAKE_BUILD_TYPE} TMP_BUILD_TYPE)
@@ -183,6 +184,8 @@ MACRO(RW_INIT_PROJECT ROOT PROJECT_NAME PREFIX VERSION)
 		SET(${PREFIX}_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type: Release, Debug, RelWithDebInfo, MinSizeRel." FORCE)
 	ELSEIF ( ${TMP_BUILD_TYPE} STREQUAL "minsizerel")
 		SET(${PREFIX}_BUILD_TYPE "MinSizeRel" CACHE STRING "Build type: Release, Debug, RelWithDebInfo, MinSizeRel." FORCE)
+	ELSEIF ( ${TMP_BUILD_TYPE} STREQUAL "none")
+		SET(${PREFIX}_BUILD_TYPE "None" CACHE STRING "Build type: Release, Debug, RelWithDebInfo, MinSizeRel." FORCE)
 	ELSE ()
 		MESSAGE(FATAL_ERROR "Build type: ${CMAKE_BUILD_TYPE} not supported! please select one of: Release, Debug, RelWithDebInfo, MinSizeRel")
 	ENDIF ()
