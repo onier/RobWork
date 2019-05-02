@@ -47,7 +47,7 @@ INCLUDE(${RW_ROOT}/cmake/RobWorkMacros.cmake)
 
 RW_INIT_PROJECT(${RWHW_ROOT} RobWorkHardware RWHW ${ROBWORKHARDWARE_VERSION})
 RW_GET_OS_INFO()
-RW_SET_INSTALL_DIRS(RobWork RWHW)
+RW_SET_INSTALL_DIRS(RobWorkHardware RWHW)
 RW_OPTIONS(RWHW)
 
 ###########################################
