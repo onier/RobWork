@@ -71,8 +71,6 @@ namespace rwhw {
             bool servoJ(const rw::math::Q& q, double speed, double acceleration,
                         double time, double lookahead_time, double gain);
 
-            bool servoUpdate(const rw::math::Q& q);
-
             bool servoStop();
 
             bool servoC(const rw::math::Transform3D<>& pose, double speed, double acceleration, double blend);
