@@ -63,6 +63,31 @@ class RTDEUtility
     return output;
   }
 
+  static inline std::vector<char> packDouble(double d)
+  {
+    std::vector<char> output;
+    union temp
+    {
+      double value;
+      char c[8];
+    } in{}, out{};
+
+    in.value = d;
+    out.c[0] = in.c[7];
+    out.c[1] = in.c[6];
+    out.c[2] = in.c[5];
+    out.c[3] = in.c[4];
+    out.c[4] = in.c[3];
+    out.c[5] = in.c[2];
+    out.c[6] = in.c[1];
+    out.c[7] = in.c[0];
+
+    for (auto const& character : out.c)
+      output.push_back(character);
+
+    return output;
+  }
+
   static inline std::vector<double> unpackVector3d(const std::vector<char>& data, uint32_t& message_offset)
   {
     std::vector<double> vector_3d;

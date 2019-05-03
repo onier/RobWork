@@ -45,6 +45,7 @@ if(${CODE})
 endif()
 
 set(LIB_SOURCE_FILES
+		src/robot_state.cpp
         src/rtde.cpp
         src/dashboard_client.cpp
         src/script_client.cpp
@@ -152,12 +153,22 @@ if(${CODE})
 		set_target_properties(rtde PROPERTIES LINK_FLAGS -Wl,--no-undefined)
 	endif()
 
+	if(NOT DEFINED LIB_INSTALL_DIR)
+		set(LIB_INSTALL_DIR "lib")
+	endif()
+	if(NOT DEFINED BIN_INSTALL_DIR)
+		set(BIN_INSTALL_DIR "bin")
+	endif()
+	if(NOT DEFINED INCLUDE_INSTALL_DIR)
+		set(INCLUDE_INSTALL_DIR "include")
+	endif()
+
 	install(TARGETS rtde
 			EXPORT RTDETargets
-			LIBRARY DESTINATION lib
-			ARCHIVE DESTINATION lib
-			RUNTIME DESTINATION bin
-			INCLUDES DESTINATION include
+			LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+			ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+			RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+			INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
 			)
 	if(${PYTHON_BINDINGS})
 		install(TARGETS rtde_control rtde_receive
@@ -168,7 +179,7 @@ if(${CODE})
 			FILES
 			${LIB_HEADER_FILES}
 			"${CMAKE_CURRENT_BINARY_DIR}/rtde_export.h"
-			DESTINATION include
+			DESTINATION ${INCLUDE_INSTALL_DIR}
 			COMPONENT ur_rtde
 	)
 
@@ -189,12 +200,12 @@ if(${CODE})
 	install(EXPORT RTDETargets
 		FILE ur_rtdeTargets.cmake
 		NAMESPACE ur_rtde::
-		DESTINATION lib/cmake/ur_rtde
+		DESTINATION ${LIB_INSTALL_DIR}/cmake/ur_rtde
 	)
 	install(
 		FILES cmake/ur_rtdeConfig.cmake
 		"${CMAKE_CURRENT_BINARY_DIR}/ur_rtde/ur_rtdeConfigVersion.cmake"
-		DESTINATION lib/cmake/ur_rtde
+		DESTINATION ${LIB_INSTALL_DIR}/cmake/ur_rtde
 		COMPONENT ur_rtde
 	)
 endif()
