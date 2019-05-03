@@ -8,11 +8,10 @@ set(REASON)
 set(RTDE_VERSION_REQUIRED 1.0.0)
 
 find_package(ur_rtde ${RTDE_VERSION_REQUIRED} QUIET CONFIG)
+set(UR_RTDE_INTERNAL OFF)
 if(NOT ur_rtde_FOUND)
 	# Try the internal one
-	option(PYTHON_BINDINGS "Build python bindings for libraries" OFF)
-	set(Boost_NO_BOOST_CMAKE TRUE) # From Boost 1.70, CMake files are provided by Boost - we are not yet ready to handle it
-	add_subdirectory(${RWHW_ROOT}/ext/ur_rtde ur_rtde_ext)
+	set(UR_RTDE_INTERNAL ON)
 	set(DEFAULT TRUE)
 	set(REASON "Building internal ur_rtde library")
 else()
@@ -25,6 +24,11 @@ RW_SUBSYS_DEPEND( build ${SUBSYS_NAME} DEPS ${SUBSYS_DEPS} )
 RW_ADD_DOC( ${SUBSYS_NAME} )
 
 IF( build )
+	if(UR_RTDE_INTERNAL)
+		option(PYTHON_BINDINGS "Build python bindings for libraries" OFF)
+		set(Boost_NO_BOOST_CMAKE TRUE) # From Boost 1.70, CMake files are provided by Boost - we are not yet ready to handle it
+		add_subdirectory(${RWHW_ROOT}/ext/ur_rtde ur_rtde_ext)
+	endif()
 	#find_package(ur_rtde ${RTDE_VERSION_REQUIRED} REQUIRED CONFIG)
 
     SET(SRC_CPP URRTDE.cpp)
