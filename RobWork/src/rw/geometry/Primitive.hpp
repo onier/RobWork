@@ -50,7 +50,7 @@ namespace geometry {
     	 * @note primitives allways return a new trimesh
     	 */
 		TriMesh::Ptr getTriMesh(bool forceCopy=true) {
-    		return createMesh(20);
+    		return createMesh(_levels);
     	}
 
     	/**
@@ -87,8 +87,15 @@ namespace geometry {
             return false;
         }
 
-        //! @brief Constructor.
-        Primitive(){}
+        /**
+         * @brief Constructor.
+         * 
+         * @param levels [in] mesh resolution.
+         */
+        Primitive(int levels=20) : _levels(levels) {}
+    
+    private:
+      int _levels;
 
     };
     //! @}

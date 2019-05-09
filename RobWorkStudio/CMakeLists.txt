@@ -1,6 +1,10 @@
 # Test CMake version
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 IF(DEFINED CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
 build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
@@ -59,6 +63,10 @@ LINK_DIRECTORIES( ${ROBWORKSTUDIO_LIBRARY_DIRS} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 SET(RW_STATIC_LINK_PLUGINS ${RWS_USE_STATIC_LINK_PLUGINS})
 # linking options
 OPTION(RWS_USE_STATIC_LINK_COMPONENTS "Set to false if dynamic link libraries of components is needed" ON)
+
+# Subdirectories adds plugins and libraries to these variables
+SET(RWS_PLUGIN_LIBRARIES)
+SET(RWS_COMPONENT_LIBRARIES)
 
 # sub directories to process
 ADD_SUBDIRECTORY(ext)

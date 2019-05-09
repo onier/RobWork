@@ -95,10 +95,6 @@ bool URRTDE::servoJ(const rw::math::Q& q, double speed, double acceleration, dou
     return rtde_control_->servoJ(q.toStdVector(), speed, acceleration, time, lookahead_time, gain);
 }
 
-bool URRTDE::servoUpdate(const rw::math::Q& q) {
-    return rtde_control_->servoUpdate(q.toStdVector());
-}
-
 bool URRTDE::servoStop() {
     return rtde_control_->servoStop();
 }

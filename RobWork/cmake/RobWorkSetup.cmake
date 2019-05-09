@@ -52,6 +52,7 @@ SET(CMAKE_MODULE_PATH ${RW_ROOT}/cmake/Modules ${CMAKE_MODULE_PATH})
 # Test libraries are optional and can be compiled from header instead.
 #
 
+set(Boost_NO_BOOST_CMAKE TRUE) # From Boost 1.70, CMake files are provided by Boost - we are not yet ready to handle it
 UNSET(Boost_USE_STATIC_LIBS)
 UNSET(Boost_FIND_QUIETLY)
 SET(Boost_LIBRARIES_TMP "")
@@ -110,7 +111,7 @@ ELSEIF(DEFINED WIN32)
 ENDIF()
 SET(Boost_LIBRARIES ${Boost_LIBRARIES_TMP})
 
-MESSAGE(STATUS "RobWork: Boost version ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION} found!")
+MESSAGE(STATUS "RobWork: Boost version ${Boost_MAJOR_VERSION}.${Boost_MINOR_VERSION}.${Boost_SUBMINOR_VERSION} found!")
 
 # Print test libraries status
 IF(Boost_TEST_EXEC_MONITOR_FOUND AND Boost_UNIT_TEST_FRAMEWORK_FOUND)

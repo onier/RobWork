@@ -23,5 +23,5 @@ IF( build )
          SRCalibrationData.cpp SwissRanger.cpp
          SRCalibrationData.hpp SwissRanger.hpp SRConstants.hpp)
     RW_ADD_INCLUDES(swissranger "rwhw/swissranger" SRCalibrationData.hpp SwissRanger.hpp SRConstants.hpp)
-    set( ENV{ROBWORKHARDWARE_LIBRARIES} "$ENV{ROBWORKHARDWARE_LIBRARIES}rwhw_swissranger;")
+    set(ROBWORKHARDWARE_LIBRARIES ${ROBWORKHARDWARE_LIBRARIES} rwhw_swissranger PARENT_SCOPE)
 ENDIF()

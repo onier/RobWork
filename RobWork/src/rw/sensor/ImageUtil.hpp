@@ -20,7 +20,7 @@
 #define RW_SENSOR_IMAGEUTIL_HPP
 
 /**
- * @file ImageUtil.hpp
+ * @file rw/sensor/ImageUtil.hpp
  */
 
 #include <rw/common/Ptr.hpp>

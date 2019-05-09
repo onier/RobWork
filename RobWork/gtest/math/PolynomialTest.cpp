@@ -551,9 +551,9 @@ TEST(PolynomialSolver, Degree3) {
 		PolynomialSolver solver(pol);
 		std::vector<std::complex<double> > sols = solver.getSolutions();
 		ASSERT_EQ(std::size_t(3),sols.size());
-        EXPECT_NEAR(0.,std::abs(sols[0]-std::complex<double>(-7,-12)),2e-15);
-        EXPECT_NEAR(0.,std::abs(sols[1]-std::complex<double>(1,-3)),5e-15);
-		EXPECT_NEAR(0.,std::abs(sols[2]-std::complex<double>(-7,12)),1e-15);
+		EXPECT_NEAR(0.,std::abs(sols[0]-std::complex<double>(-7,-12)),3e-15);
+		EXPECT_NEAR(0.,std::abs(sols[1]-std::complex<double>(1,-3)),5e-15);
+		EXPECT_NEAR(0.,std::abs(sols[2]-std::complex<double>(-7,12)),2e-15);
 		ASSERT_EQ(std::size_t(0),solver.getRealSolutions().size());
 	}
 }

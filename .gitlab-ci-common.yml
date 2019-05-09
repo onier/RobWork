@@ -1,0 +1,299 @@
+stages:
+  - build
+
+.linux-common:
+  stage: build
+  tags:
+    - linux
+  before_script:
+    - "[ -d Build ] || mkdir Build"
+    - "[ -d Build/RW ] || mkdir Build/RW"
+    - "[ -d Build/RWExamples ] || mkdir Build/RWExamples"
+    - "[ -d Build/RWHW ] || mkdir Build/RWHW"
+    - "[ -d Build/RWS ] || mkdir Build/RWS"
+    - "[ -d Build/RWSExamples ] || mkdir Build/RWSExamples"
+    - "[ -d Build/RWSExamples/pluginapp ] || mkdir Build/RWSExamples/pluginapp"
+    - "[ -d Build/RWSExamples/pluginUIapp ] || mkdir Build/RWSExamples/pluginUIapp"
+    - "[ -d Build/RWSExamples/tutorial ] || mkdir Build/RWSExamples/tutorial"
+    - "[ -d Build/RWSExamples/UDPKinPlugin ] || mkdir Build/RWSExamples/UDPKinPlugin"
+    - "[ -d Build/RWSim ] || mkdir Build/RWSim"
+    - "[ -d Build/RWSimExamples ] || mkdir Build/RWSimExamples"
+    - "[ -d gtest ] || mkdir gtest"
+  artifacts:
+    expire_in: 10 weeks
+    reports:
+      junit: [RW*-CTest.xml, gtest/*]
+
+.linux-minimal:
+  extends: .linux-common
+  only:
+    refs:
+      - merge_requests
+  except:
+    refs:
+      - merge_requests@sdurobotics/RobWork
+  script:
+    - cd Build
+    # Build RobWork
+    - cd RW
+    - cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_DISABLE_FIND_PACKAGE_XercesC=True -DCMAKE_DISABLE_FIND_PACKAGE_SWIG=True -DRW_USE_FCL=OFF -DRW_USE_ASSIMP=OFF ../../RobWork
+    - make -j3
+    - cd ..
+    # Build RobWorkHardware
+    - cd RWHW
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../RobWorkHardware
+    - make -j3
+    - cd ..
+    # Build RobWorkStudio
+    - cd RWS
+    - cmake -DCMAKE_BUILD_TYPE=Release -DBUILD_rws_lua=OFF -DBUILD_rws_java=OFF -DBUILD_rws_python=OFF ../../RobWorkStudio
+    - make -j3 RobWorkStudio
+    - cd ..
+    # Run RobWork tests
+    - cd RW
+    - make -j 1 -k rw-gtest_reports
+    - mv ../../RobWork/bin/**/gtest_reports/* ../../gtest/
+    - ctest --no-compress-output -T Test -j 1
+    - mv ./Testing/**/Test.xml ../../RWS-Test.xml
+    - cd ..
+    # Run RobWorkStudio tests
+    - cd RWS
+    - export DISPLAY=:0
+    - Xvfb $DISPLAY -screen 0 640x480x24 &
+    - make -j 1 -k rws-gtest_reports
+    - mv ../../RobWorkStudio/bin/**/gtest_reports/* ../../gtest/
+    - ctest --no-compress-output -T Test -j 1
+    - mv ./Testing/**/Test.xml ../../RWS-CTest.xml
+    - cd ..
+
+.linux-full:
+  extends: .linux-common
+  only:
+    refs:
+      - branches@sdurobotics/RobWork
+      - tags@sdurobotics/RobWork
+      - schedules
+      - web
+      - merge_requests@sdurobotics/RobWork
+      - /^ci-.*$/
+  except:
+    refs:
+      - /^wip-.*$/
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /WIP:.*/i
+  script:
+    - cd Build
+    # Build RobWork
+    - cd RW
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../RobWork
+    - make -j6
+    - cd ..
+    # Build RobWorkHardware
+    - cd RWHW
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../RobWorkHardware
+    - make -j6
+    - cd ..
+    # Build RobWorkStudio
+    - cd RWS
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../RobWorkStudio
+    - make -j6
+    - cd ..
+    # Build RobWorkSim
+    - cd RWSim
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../RobWorkSim
+    - make -j6
+    - cd ..
+    # Build RobWork Examples
+    - cd RWExamples
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../RobWork/example
+    - make -j6
+    - cd ..
+    # Build RobWorkStudio Examples
+    - cd RWSExamples
+    - cd pluginapp
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../../RobWorkStudio/example/pluginapp
+    - make -j6
+    - cd ..
+    - cd pluginUIapp
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../../RobWorkStudio/example/pluginUIapp
+    - make -j6
+    - cd ..
+    - cd tutorial
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../../RobWorkStudio/example/tutorial
+    - make -j6
+    - cd ..
+    - cd UDPKinPlugin
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../../RobWorkStudio/example/UDPKinPlugin
+    - make -j6
+    - cd ..
+    - cd ..
+    # Build RobWorkSim Examples
+    - cd RWSimExamples
+    - cmake -DCMAKE_BUILD_TYPE=Release ../../RobWorkSim/example
+    - make -j6
+    - cd ..
+    # Run RobWork tests
+    - cd RW
+    - make -j 1 -k rw-gtest_reports
+    - mv ../../RobWork/bin/**/gtest_reports/* ../../gtest/
+    - ctest --no-compress-output -T Test -j 1
+    - mv ./Testing/**/Test.xml ../../RWS-Test.xml
+    - cd ..
+    # Run RobWorkStudio tests
+    - cd RWS
+    - export DISPLAY=:0
+    - Xvfb $DISPLAY -screen 0 640x480x24 &
+    - make -j 1 -k rws-gtest_reports
+    - mv ../../RobWorkStudio/bin/**/gtest_reports/* ../../gtest/
+    - ctest --no-compress-output -T Test -j 1
+    - mv ./Testing/**/Test.xml ../../RWS-CTest.xml
+    - cd ..
+    # Run RobWorkSim tests
+    - cd RWSim
+    - make -j 1 -k rwsim-gtest_reports
+    - mv ../../RobWorkSim/bin/**/gtest_reports/* ../../gtest/
+    - ctest --no-compress-output -T Test -j 1
+    - mv ./Testing/**/Test.xml ../../RWSim-CTest.xml
+    - cd ..
+
+.windows-common:
+  stage: build
+  tags:
+    - windows
+  before_script:
+    - "if not exist Build mkdir Build"
+    - "if not exist Build\\RW mkdir Build\\RW"
+    - "if not exist Build\\RWExamples mkdir Build\\RWExamples"
+    - "if not exist Build\\RWHW mkdir Build\\RWHW"
+    - "if not exist Build\\RWS mkdir Build\\RWS"
+    - "if not exist Build\\RWSExamples mkdir Build\\RWSExamples"
+    - "if not exist Build\\RWSExamples\\pluginapp mkdir Build\\RWSExamples\\pluginapp"
+    - "if not exist Build\\RWSExamples\\pluginUIapp mkdir Build\\RWSExamples\\pluginUIapp"
+    - "if not exist Build\\RWSExamples\\tutorial mkdir Build\\RWSExamples\\tutorial"
+    - "if not exist Build\\RWSExamples\\UDPKinPlugin mkdir Build\\RWSExamples\\UDPKinPlugin"
+    - "if not exist Build\\RWSim mkdir Build\\RWSim"
+    - "if not exist Build\\RWSimExamples mkdir Build\\RWSimExamples"
+    - "if not exist gtest mkdir gtest"
+  artifacts:
+    expire_in: 10 weeks
+    reports:
+      junit: [RW*-CTest.xml, gtest/*]
+
+.windows-full:
+  extends: .windows-common
+  only:
+    refs:
+      - branches@sdurobotics/RobWork
+      - tags@sdurobotics/RobWork
+      - schedules
+      - web
+      - merge_requests@sdurobotics/RobWork
+      - /^ci-.*$/
+  except:
+    refs:
+      - /^wip-.*$/
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /WIP:.*/i
+  script:
+    - cd Build
+    # Build RobWork
+    - cd RW
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../RobWork
+    - msbuild RobWork.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    # Build RobWorkHardware
+    - cd RWHW
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=OFF -DPROJECT_SHARED_LIBS=OFF ../../RobWorkHardware
+    - msbuild RobWorkHardware.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    # Build RobWorkStudio
+    - cd RWS
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../RobWorkStudio
+    - msbuild RobWorkStudio.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    # Build RobWorkSim
+    - cd RWSim
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../RobWorkSim
+    - msbuild RobWorkSim.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    # Build RobWork Examples
+    - cd RWExamples
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../RobWork/example
+    - msbuild Project.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    # Build RobWorkStudio Examples
+    - cd RWSExamples
+    - cd pluginapp
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../../RobWorkStudio/example/pluginapp
+    - msbuild PluginApp.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    - cd pluginUIapp
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../../RobWorkStudio/example/pluginUIapp
+    - msbuild PluginUIApp.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    - cd tutorial
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../../RobWorkStudio/example/tutorial
+    - msbuild SamplePluginApp.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    - cd UDPKinPlugin
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../../RobWorkStudio/example/UDPKinPlugin
+    - msbuild PluginUIApp.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    - cd ..
+    # Build RobWorkSim Examples
+    - cd RWSimExamples
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" ../../RobWorkSim/example
+    - msbuild RWSimExamples.sln /property:Configuration=Release /maxcpucount:6
+    - cd ..
+    # Run RobWork tests
+    - cd RW
+    - msbuild gtest/rw-gtest_reports.vcxproj /p:Configuration=Release
+    - move ..\\..\\RobWork\\bin\\release\\gtest_reports\\* ..\\..\\gtest\\
+    - ctest -C Release --no-compress-output -T Test -j 1
+    - FOR /D %%F IN ("Testing\\*") DO IF EXIST %%F\\Test.xml move %%F\\Test.xml ..\\..\\RW-CTest.xml
+    - cd ..
+    # Run RobWorkStudio tests
+    - cd RWS
+    - msbuild gtest/rws-gtest_reports.vcxproj /p:Configuration=Release
+    - move ..\\..\\RobWorkStudio\\bin\\release\\gtest_reports\\* ..\\..\\gtest\\
+    - ctest -C Release --no-compress-output -T Test -j 1
+    - FOR /D %%F IN ("Testing\\*") DO IF EXIST %%F\\Test.xml move %%F\\Test.xml ..\\..\\RWS-CTest.xml
+    - cd ..
+    # Run RobWorkSim tests
+    - cd RWSim
+    - msbuild gtest/rwsim-gtest_reports.vcxproj /p:Configuration=Release
+    - move ..\\..\\RobWorkSim\\bin\\Release\\gtest_reports\\* ..\\..\\gtest\\
+    - ctest -C Release --no-compress-output -T Test -j 1
+    - FOR /D %%F IN ("Testing\\*") DO IF EXIST %%F\\Test.xml move %%F\\Test.xml ..\\..\\RWSim-CTest.xml
+    - cd ..
+
+build:ubuntu-1404:
+  extends: .linux-full
+  image: registry.gitlab.com/sdurobotics/docker-images/robwork-build:ubuntu-1404
+
+build:ubuntu-1604:
+  extends: .linux-full
+  image: registry.gitlab.com/sdurobotics/docker-images/robwork-build:ubuntu-1604
+
+build:ubuntu-1804:
+  extends: .linux-full
+  image: registry.gitlab.com/sdurobotics/docker-images/robwork-build:ubuntu-1804
+
+build-minimal:ubuntu-1804:
+  extends: .linux-minimal
+  image: registry.gitlab.com/sdurobotics/docker-images/robwork-build:ubuntu-1804
+
+build:ubuntu-1810:
+  extends: .linux-full
+  image: registry.gitlab.com/sdurobotics/docker-images/robwork-build:ubuntu-1810
+
+build:ubuntu-1904:
+  extends: .linux-full
+  image: registry.gitlab.com/sdurobotics/docker-images/robwork-build:ubuntu-1904
+
+build:centos-7:
+  extends: .linux-full
+  image: registry.gitlab.com/sdurobotics/docker-images/robwork-build:centos-7
+
+build:windows10-vs15:
+  extends: .windows-full

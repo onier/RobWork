@@ -40,6 +40,7 @@
 #include <QFileDialog>
 
 #include <boost/bind.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include <vector>
 
@@ -812,7 +813,6 @@ void TreeView::open(WorkCell* workcell)
 
     // connect the workcell changed handler
     _workcell->workCellChangedEvent().add(boost::bind(&TreeView::workcellChangedListener, this, _1), this);
-
 }
 
 void TreeView::workcellChangedListener(int){
@@ -828,23 +828,40 @@ void TreeView::setupFrame(Frame& frame, QTreeWidgetItem* parentItem)
 {
     //State state = getRobWorkStudio()->getState();
     QTreeWidgetItem* item = new QTreeWidgetItem();
-    if (parentItem != NULL)
+    if (parentItem != NULL) {
         parentItem->addChild(item); // own item
-    else
+    } else {
         _treewidget->addTopLevelItem(item); // own item
+    }
+    
     std::string name = getFrameName(frame);
     item->setText(0, name.c_str());
 
     registerFrameItem(&frame, item);
-    if ( dynamic_cast<Joint*>(&frame) )
+    
+    if ( dynamic_cast<Joint*>(&frame) ) {
         item->setIcon(0,QIcon(":/images/joint.png"));
-    else
+    } else {
         item->setIcon(0,QIcon(":/images/frame.png"));
+    }
+    
     Frame::iterator_pair children = frame.getChildren(_state);
     for (Frame::iterator it = children.first; it != children.second; ++it) {
         setupFrame(*it, item);
     }
+    
     setupDrawables(&frame, item);
+    
+    
+    
+    std::string showAxisArg = frame.getPropertyMap().get<std::string>("ShowFrameAxis", std::string("false"));
+    if (showAxisArg == "true") {
+      getRobWorkStudio()->getWorkCellScene()->setFrameAxisVisible(true, &frame, _frameAxisSize);
+    } else if (showAxisArg == "false") {
+      getRobWorkStudio()->getWorkCellScene()->setFrameAxisVisible(false, &frame, _frameAxisSize);
+    } else {
+      log().warning() << "Unrecognized ShowFrameAxis property value " << showAxisArg << "; expected: true/false." << std::endl;
+    }
 }
 
 void TreeView::close()

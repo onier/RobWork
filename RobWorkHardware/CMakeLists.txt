@@ -2,6 +2,10 @@
 # Test CMake version and CMAKE_BUILD_TYPE
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 IF(DEFINED CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
 build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
@@ -67,8 +71,8 @@ ADD_CUSTOM_TARGET(uninstall "${CMAKE_COMMAND}" -P
 # make sure that libraries can reach the cmake modules
 SET(CMAKE_MODULE_PATH ${RWHW_ROOT}/cmake/Modules ${CMAKE_MODULE_PATH})
 
-# now we collect all added libraries in an environment variable
-set( ENV{ROBWORKHARDWARE_LIBRARIES} "")
+# Subdirectories will add libraries to this variable
+set(ROBWORKHARDWARE_LIBRARIES)
 
 # also make sure flags from robwork is also used in robworkhardware
 SET(RWHW_CXX_FLAGS "${RW_BUILD_WITH_CXX_FLAGS}" 
@@ -148,7 +152,6 @@ endforeach()
 # TODO these depend on packages...
 SET(ROBWORKHARDWARE_LIBRARY_DIRS ${RWHW_CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 SET(ROBWORKHARDWARE_INCLUDE_DIR ${RWHW_ROOT}/src)
-SET(ROBWORKHARDWARE_LIBRARIES $ENV{ROBWORKHARDWARE_LIBRARIES})
 CONFIGURE_FILE(
   ${RWHW_ROOT}/cmake/RobWorkHardwareBuildConfig.cmake.in
   "${RWHW_ROOT}/cmake/RobWorkHardwareBuildConfig_${RW_BUILD_TYPE}.cmake"

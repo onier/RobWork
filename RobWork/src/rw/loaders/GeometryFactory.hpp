@@ -25,7 +25,7 @@
 #include <rw/geometry/Primitive.hpp>
 #include <rw/geometry/GeometryData.hpp>
 
-//! @file rw/geometry/GeometryFactory.hpp
+//! @file rw/loaders/GeometryFactory.hpp
 
 namespace rw { namespace loaders {
 
@@ -49,7 +49,7 @@ namespace rw { namespace loaders {
      * discretization level.
      *
      * Sphere:
-     * Syntax: "#Sphere radi"
+     * Syntax: "#Sphere radi level"
      * where radi is the radius of the sphere
      * 
      * Tube:
@@ -59,7 +59,7 @@ namespace rw { namespace loaders {
      * discretization level.
      *
      * Cone:
-     * Syntax: "#Cone radius height
+     * Syntax: "#Cone radius height level
      * where  "height" is a float specifying cone height,
      * and "radius" is a float specyfying cone radius at at the bottom.
      * 

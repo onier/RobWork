@@ -16,6 +16,6 @@ IF( build )
     RW_ADD_LIBRARY(rwhw_schunkpg70 schunkpg70 ${SRC_CPP} ${SRC_HPP})
     TARGET_LINK_LIBRARIES(rwhw_schunkpg70 PUBLIC rwhw_pcube rwhw_serialport ${ROBWORK_LIBRARIES})
     RW_ADD_INCLUDES(schunkpg70 "rwhw/schunkpg70" ${SRC_HPP})
-    
-    set( ENV{ROBWORKHARDWARE_LIBRARIES} "$ENV{ROBWORKHARDWARE_LIBRARIES}rwhw_schunkpg70;")
+
+    set(ROBWORKHARDWARE_LIBRARIES ${ROBWORKHARDWARE_LIBRARIES} rwhw_schunkpg70 PARENT_SCOPE)
 ENDIF()

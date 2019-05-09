@@ -365,7 +365,7 @@ be used as collision model.
 
 \b Child Elements
 
-!((\b RPY >> \b Pos) | \b Transform) >> *(Polytope | Sphere | Box | Cone | Cylinder)
+!((\b RPY >> \b Pos) | \b Transform) >> *(RGB) >> *(Polytope | Sphere | Box | Cone | Cylinder)
 
 \b Example
 
@@ -402,6 +402,18 @@ of view 40
 
 When the 'Camera' property name is used, this will also, when opened in RobWorkStudio, draw the outline of the camera frame.
 In this case the camera parameters will always be interpreted in the order fovy,width,height, as shown above, ignoring the description given.
+
+\b Example
+A user property for enabling the display of the frame axis. This will automatically execute the TreeView plugin action of turning on the visibility
+of the frame axis.
+
+\verbatim
+<Frame name="my_frame">
+    <RPY>0 0 0</RPY>
+    <Pos>0 0 1</RPY>
+    <Property name="ShowFrameAxis">true</Property>
+</Frame>
+\endverbatim
 
 \subsection sec_rwxml_transform Transform
 \b Attributes
@@ -442,6 +454,29 @@ A rotation matrix with 90 degree rotation around z-axis
 <RPY> 90 0 0 </RPY>
 \endverbatim
 
+\subsection sec_rwxml_rgb RGB
+\b Attributes
+
+\b Child Elements
+Defines the simple material colors for the visual model. This material is used if the model does not support the color/material information (e.g. when geometric primitive or STL model is used).
+\verbatim
+r >> g >> b >> *a
+\endverbatim
+
+\b Example
+Simple material color with RGB values [1.0, 0.0, 0.0] (red color).
+
+\verbatim
+<RGB> 1.0 0.0 0.0 </RGB>
+\endverbatim
+
+\b Example
+Simple material color with transparency: RGBA values [1.0, 1.0, 0.0 0.5] (transparent yellow color).
+
+\verbatim
+<RGB> 1.0 1.0 0.0 0.5 </RGB>
+\endverbatim
+
 \subsection sec_rwxml_pos Pos
 \b Attributes
 
@@ -468,11 +503,13 @@ x >> y >> z
 
 \subsection sec_rwxml_sphere Sphere
 \b Attributes
-- \b radius: radius of the sphere in m
+- \b radius: radius of the sphere in m.
+- \b level (optional, default=20): mesh resolution.
 
 \b Example
 \verbatim
 <Sphere radius="0.05" />
+<Sphere radius="0.05" level="20" />
 \endverbatim
 
 \subsection sec_rwxml_box Box
@@ -490,21 +527,38 @@ x >> y >> z
 \subsection sec_rwxml_cone Cone
 \b Attributes
 - \b radius: radius of bottom circle of cone.
-- \b z: height of cone
+- \b z: height of cone.
+- \b level (optional, default=20): mesh resolution.
 
 \b Example
 \verbatim
 <Cone radius="0.1" z="0.1" />
+<Cone radius="0.1" z="0.1" level="10"/>
 \endverbatim
 
 \subsection sec_rwxml_cylinder Cylinder
 \b Attributes
 - \b radius: radius of the cylinder.
-- \b z: length of zylinder
+- \b z: length of cylinder
+- \b level (optional, default=20): mesh resolution.
 
 \b Example
 \verbatim
 <Cylinder radius="0.1" z="0.1" />
+<Cylinder radius="0.1" z="0.1" level="20"/>
+\endverbatim
+
+\subsection sec_rwxml_tube Tube
+\b Attributes
+- \b radius: radius of outer surface of the tube.
+- \b thickness: thickness of the tube surface.
+- \b z: height of the tube.
+- \b level (optional, default=20): mesh resolution.
+
+\b Example
+\verbatim
+<Tube radius="0.1" thickness="0.01" z="0.1"/>
+<Tube radius="0.1" thickness="0.01" z="0.1" level="10"/>
 \endverbatim
 
 \subsection sec_rwxml_collisionsetup CollisionSetup

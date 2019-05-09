@@ -47,7 +47,7 @@ BOOST_AUTO_TEST_CASE( EstimateVolumeTest ){
 		// Sphere test
 		const double radius = 0.02;
 		const Sphere sphere(radius);
-		const double volEst = GeometryUtil::estimateVolume(*sphere.createMesh(0));
+		const double volEst = GeometryUtil::estimateVolume(*sphere.createMesh(6));
 		BOOST_CHECK_CLOSE(volEst,4.*Pi*radius*radius*radius/3.,0.2);
 	}
 	{
@@ -157,7 +157,7 @@ BOOST_AUTO_TEST_CASE( EstimateCOGTest ){
 		// Sphere test
 		const double radius = 0.02;
 		const Sphere sphere(radius);
-		const Vector3D<> cogEst = GeometryUtil::estimateCOG(*sphere.createMesh(0));
+		const Vector3D<> cogEst = GeometryUtil::estimateCOG(*sphere.createMesh(6));
 		BOOST_CHECK_SMALL(dot(cogEst,Vector3D<>::x()),std::numeric_limits<double>::epsilon());
 		BOOST_CHECK_SMALL(dot(cogEst,Vector3D<>::y()),std::numeric_limits<double>::epsilon());
 		BOOST_CHECK_SMALL(dot(cogEst,Vector3D<>::z()),std::numeric_limits<double>::epsilon());
@@ -290,7 +290,7 @@ BOOST_AUTO_TEST_CASE( EstimateInertiaTest ){
 		// Sphere test
 		const double radius = 0.02;
 		const Sphere sphere(radius);
-		const std::vector<Geometry::Ptr> geoms(1,ownedPtr(new Geometry(sphere.createMesh(0)))); // note: sphere ignores granulation
+		const std::vector<Geometry::Ptr> geoms(1,ownedPtr(new Geometry(sphere.createMesh(6))));
 		const InertiaMatrix<> inertiaEst = GeometryUtil::estimateInertia(mass, geoms, ref);
 		const double I = 2.*mass*radius*radius/5.;
 		BOOST_CHECK_CLOSE(dot(inertiaEst*Vector3D<>::x(),Vector3D<>::x()),I,0.1);

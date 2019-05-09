@@ -37,7 +37,7 @@ IF( build )
     SET(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/java_src/dk/robwork)
     # SWIG
 	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
-		SWIG_ADD_LIBRARY(rwsim_jni MODULE LANGUAGE java SOURCES ../rwsim.i ThreadSimulatorStepCallbackEnv.cpp ../ScriptTypes.cpp)
+		SWIG_ADD_LIBRARY(rwsim_jni TYPE MODULE LANGUAGE java SOURCES ../rwsim.i ThreadSimulatorStepCallbackEnv.cpp ../ScriptTypes.cpp)
 	ELSE()
 		SWIG_ADD_MODULE(rwsim_jni java ../rwsim.i ThreadSimulatorStepCallbackEnv.cpp ../ScriptTypes.cpp)
 	ENDIF()
@@ -56,7 +56,11 @@ IF( build )
         COMMENT "Removing old Java source..."
     )
     ADD_CUSTOM_TARGET(CleanDep DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CleanDep )
-    ADD_DEPENDENCIES(rwsim_jni CleanDep)
+    IF((CMAKE_GENERATOR MATCHES "Make") AND (NOT CMAKE_VERSION VERSION_LESS 3.12))
+        ADD_DEPENDENCIES(rwsim_jni_swig_compilation CleanDep)
+    ELSE()
+        ADD_DEPENDENCIES(rwsim_jni CleanDep)
+    ENDIF()
     # Compile java code and create JAR and Javadoc
     ADD_CUSTOM_COMMAND(TARGET rwsim_jni
     	POST_BUILD

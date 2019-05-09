@@ -41,7 +41,7 @@ namespace rw {
 class DOMWorkCellSaver {
 public:
     /**
-	 * @brief Saves \bworkcell to the file \bfileName
+	 * @brief Saves \b workcell to the file \b fileName
 	 * @param workcellCalibration [in] workcellCalibration to store
 	 * @param fileName [in] Name of the file to which to write.
 	 */
@@ -49,7 +49,7 @@ public:
     static void save(rw::common::Ptr<const rw::models::WorkCell> workcell, const rw::kinematics::State& state, std::string fileName);
 
     /**
-     * @brief Writes \bworkcellCalibration to stream.
+     * @brief Writes \b workcellCalibration to stream.
      * @param workcellCalibration [in] workcellCalibration to write
      * @param ostream [in] Stream to write to
      */

@@ -582,92 +582,92 @@ public:
     //------------------------ writing value of DOMElem
 
 	/** 
-	 * @brief Writes \bval to \belem.
+	 * @brief Writes \b val to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
      * @return newly created DOMElem
 	 */
 	static rw::common::DOMElem::Ptr write(int val, rw::common::DOMElem::Ptr elem, bool addHeader=true);
 
 	/** 
-	 * @brief Writes \bval to \belem.
+	 * @brief Writes \b val to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
 	 * @return newly created DOMElem
      */
 	static rw::common::DOMElem::Ptr write(double val, rw::common::DOMElem::Ptr elem, bool addHeader=true);
 
 
 	/** 
-	 * @brief Writes \bstr to \belem.
+	 * @brief Writes \b str to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
 	 * @return newly created DOMElem
      */
 	static rw::common::DOMElem::Ptr write(const std::string& str, rw::common::DOMElem::Ptr elem, bool addHeader=true);
 
 
 	/** 
-	 * @brief Writes the content of \bval to \belem.
+	 * @brief Writes the content of \b val to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
 	 * @return newly created DOMElem
      */
 	static rw::common::DOMElem::Ptr write(const rw::math::Q& val, rw::common::DOMElem::Ptr elem, bool addHeader=true);
 
 	/** 
-	 * @brief Writes the content of \bval to \belem.
+	 * @brief Writes the content of \b val to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
 	 * @return newly created DOMElem
      */
 	static rw::common::DOMElem::Ptr write(const rw::math::Vector3D<>& val, rw::common::DOMElem::Ptr elem, bool addHeader=true);
 
 	/** 
-	 * @brief Writes the content of \bval to \belem.
+	 * @brief Writes the content of \b val to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
 	 * @return newly created DOMElem
      */
 	static rw::common::DOMElem::Ptr write(const rw::math::Vector2D<>& val, rw::common::DOMElem::Ptr elem, bool addHeader=true);
 
 
 	/** 
-	 * @brief Writes the content of \bval to \belem.
+	 * @brief Writes the content of \b val to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
 	 * @return newly created DOMElem
      */
 	static rw::common::DOMElem::Ptr write(const rw::math::Transform2D<>& val, rw::common::DOMElem::Ptr elem, bool addHeader=true);
     
 	/** 
-	 * @brief Writes the content of \bval to \belem.
+	 * @brief Writes the content of \b val to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
 	 * @return newly created DOMElem
      */
 	static rw::common::DOMElem::Ptr write(const rw::math::Transform3D<>& val, rw::common::DOMElem::Ptr elem, bool addHeader=true);
     
 	/** 
-	 * @brief Writes the content of \bval to \belem.
+	 * @brief Writes the content of \b val to \b elem.
 	 * @param val [in] Value to write
 	 * @param elem [in] Element to which to write
-	 * @param addHeader [in] Whether or not to set the header of \belem
+	 * @param addHeader [in] Whether or not to set the header of \b elem
 	 * @return newly created DOMElem
      */
 	static rw::common::DOMElem::Ptr write(const Eigen::MatrixXd& val, rw::common::DOMElem::Ptr elem, bool addHeader=true);
 
 	
 	/**
-	 * @brief Reads in a matrix from \belement
+	 * @brief Reads in a matrix from \b element
 	 * @param elem [in] The element from which to read
 	 * @return Eigen matrix 
 	 */

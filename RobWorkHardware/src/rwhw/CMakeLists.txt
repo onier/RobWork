@@ -19,3 +19,6 @@ add_subdirectory(netft)
 add_subdirectory(trakstar)
 add_subdirectory(robolabFT)
 add_subdirectory(robotiq)
+
+# Propagate libraries to parent directory
+set(ROBWORKHARDWARE_LIBRARIES ${ROBWORKHARDWARE_LIBRARIES} PARENT_SCOPE)

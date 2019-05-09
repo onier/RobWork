@@ -19,7 +19,7 @@
 #define RWHW_MOTOMANIA20_HPP
 
 /**
- * @file MotomanIA10.hpp
+ * @file MotomanIA20.hpp
  */
 
 #include <rwhw/serialport/SerialPort.hpp>

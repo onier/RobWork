@@ -38,13 +38,13 @@ public:
 	typedef rw::common::Ptr<FixedFrameCalibration> Ptr;
 
 	/** 
-	* @brief Constructs FixedFrameCalibration for \bframe. Initializes correction to the current transformation of the frame.
+	* @brief Constructs FixedFrameCalibration for \b frame. Initializes correction to the current transformation of the frame.
 	* @param frame [in] Frame to correct with the FixedFrameCalibration
 	*/
 	FixedFrameCalibration(rw::kinematics::FixedFrame::Ptr frame);
 
 	/**
-	 * @brief Construct FixedFrameCalibration for \bframe, with \bcorrectedTransform as the calibrated transform
+	 * @brief Construct FixedFrameCalibration for \b frame, with \b correctedTransform as the calibrated transform
 	 * @param frame [in] Frame to correct with the FixedFrameCalibration
 	 * @param correctionTransform [in] Initial correction.
 	 */

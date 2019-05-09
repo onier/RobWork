@@ -80,14 +80,34 @@ RTDEControlInterface::RTDEControlInterface(std::string hostname, int port) : hos
   rtde_->sendInputSetup(wrench_input);
 
   // Recipe 8
-  std::vector<std::string> set_std_digital_out_input = {
-      "input_int_register_0", "standard_digital_output_mask", "standard_digital_output"};
+  std::vector<std::string> set_std_digital_out_input = {"input_int_register_0", "standard_digital_output_mask",
+                                                        "standard_digital_output"};
   rtde_->sendInputSetup(set_std_digital_out_input);
 
   // Recipe 9
-  std::vector<std::string> set_tool_digital_out_input = {
-      "input_int_register_0", "tool_digital_output_mask", "tool_digital_output"};
+  std::vector<std::string> set_tool_digital_out_input = {"input_int_register_0", "tool_digital_output_mask",
+                                                         "tool_digital_output"};
   rtde_->sendInputSetup(set_tool_digital_out_input);
+
+  // Recipe 10
+  std::vector<std::string> set_payload_input = {"input_int_register_0", "input_double_register_0",
+                                                "input_double_register_1", "input_double_register_2",
+                                                "input_double_register_3"};
+  rtde_->sendInputSetup(set_payload_input);
+
+  // Recipe 11
+  std::vector<std::string> force_mode_parameters_input = {"input_int_register_0", "input_double_register_0"};
+  rtde_->sendInputSetup(force_mode_parameters_input);
+
+  // Recipe 12
+  std::vector<std::string> set_speed_slider = {"input_int_register_0", "speed_slider_mask", "speed_slider_fraction"};
+  rtde_->sendInputSetup(set_speed_slider);
+
+  // Recipe 13
+  std::vector<std::string> set_std_analog_output = {"input_int_register_0", "standard_analog_output_mask",
+                                                    "standard_analog_output_type", "standard_analog_output_0",
+                                                    "standard_analog_output_1"};
+  rtde_->sendInputSetup(set_std_analog_output);
 
   // Start RTDE data synchronization
   rtde_->sendStart();
@@ -393,12 +413,11 @@ bool RTDEControlInterface::servoJ(const std::vector<double>& q, double speed, do
   return sendCommand(robot_cmd);
 }
 
-bool RTDEControlInterface::servoUpdate(const std::vector<double> &q)
+bool RTDEControlInterface::speedStop()
 {
   RTDE::RobotCommand robot_cmd;
-  robot_cmd.type_ = RTDE::RobotCommand::Type::SERVO_UPDATE;
-  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_7;
-  robot_cmd.val_ = q;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::SPEED_STOP;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_5;
   return sendCommand(robot_cmd);
 }
 
@@ -410,7 +429,7 @@ bool RTDEControlInterface::servoStop()
   return sendCommand(robot_cmd);
 }
 
-bool RTDEControlInterface::servoC(const std::vector<double> &pose, double speed, double acceleration, double blend)
+bool RTDEControlInterface::servoC(const std::vector<double>& pose, double speed, double acceleration, double blend)
 {
   verifyValueIsWithin(speed, UR_VELOCITY_MIN, UR_VELOCITY_MAX);
   verifyValueIsWithin(acceleration, UR_ACCELERATION_MIN, UR_ACCELERATION_MAX);
@@ -432,7 +451,7 @@ bool RTDEControlInterface::setStandardDigitalOut(std::uint8_t output_id, bool si
   robot_cmd.type_ = RTDE::RobotCommand::Type::SET_STD_DIGITAL_OUT;
   robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_8;
 
-  if(signal_level)
+  if (signal_level)
   {
     robot_cmd.std_digital_out_mask_ = static_cast<uint8_t>(std::pow(2.0, output_id));
     robot_cmd.std_digital_out_ = static_cast<uint8_t>(std::pow(2.0, output_id));
@@ -452,7 +471,7 @@ bool RTDEControlInterface::setToolDigitalOut(std::uint8_t output_id, bool signal
   robot_cmd.type_ = RTDE::RobotCommand::Type::SET_TOOL_DIGITAL_OUT;
   robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_9;
 
-  if(signal_level)
+  if (signal_level)
   {
     robot_cmd.std_tool_out_mask_ = static_cast<uint8_t>(std::pow(2.0, output_id));
     robot_cmd.std_tool_out_ = static_cast<uint8_t>(std::pow(2.0, output_id));
@@ -466,9 +485,101 @@ bool RTDEControlInterface::setToolDigitalOut(std::uint8_t output_id, bool signal
   return sendCommand(robot_cmd);
 }
 
+bool RTDEControlInterface::setPayload(double mass, const std::vector<double>& cog)
+{
+  RTDE::RobotCommand robot_cmd;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::SET_PAYLOAD;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_10;
+  robot_cmd.val_.push_back(mass);
+  if (!cog.empty())
+  {
+    for (const auto& val : cog)
+      robot_cmd.val_.push_back(val);
+  }
+  else
+  {
+    robot_cmd.val_.push_back(0);
+    robot_cmd.val_.push_back(0);
+    robot_cmd.val_.push_back(0);
+  }
+  return sendCommand(robot_cmd);
+}
+
+bool RTDEControlInterface::teachMode()
+{
+  RTDE::RobotCommand robot_cmd;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::TEACH_MODE;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_5;
+  return sendCommand(robot_cmd);
+}
+
+bool RTDEControlInterface::endTeachMode()
+{
+  RTDE::RobotCommand robot_cmd;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::END_TEACH_MODE;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_5;
+  return sendCommand(robot_cmd);
+}
+
+bool RTDEControlInterface::forceModeSetDamping(double damping)
+{
+  RTDE::RobotCommand robot_cmd;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::FORCE_MODE_SET_DAMPING;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_11;
+  robot_cmd.val_.push_back(damping);
+  return sendCommand(robot_cmd);
+}
+
+bool RTDEControlInterface::forceModeSetGainScaling(double scaling)
+{
+  RTDE::RobotCommand robot_cmd;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::FORCE_MODE_SET_GAIN_SCALING;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_11;
+  robot_cmd.val_.push_back(scaling);
+  return sendCommand(robot_cmd);
+}
+
+bool RTDEControlInterface::setSpeedSlider(double speed)
+{
+  RTDE::RobotCommand robot_cmd;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::SET_SPEED_SLIDER;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_12;
+  robot_cmd.speed_slider_mask_ = 1;  // use speed_slider_fraction to set speed slider value
+  robot_cmd.speed_slider_fraction_ = speed;
+  return sendCommand(robot_cmd);
+}
+
+bool RTDEControlInterface::setAnalogOutputVoltage(std::uint8_t output_id, double voltage_ratio)
+{
+  RTDE::RobotCommand robot_cmd;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::SET_STD_ANALOG_OUT;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_13;
+  robot_cmd.std_analog_output_mask_ = static_cast<uint8_t>(std::pow(2.0, output_id));
+  robot_cmd.std_analog_output_type_ = 1;  // set output type to voltage
+  if (output_id == 0)
+    robot_cmd.std_analog_output_0_ = voltage_ratio;
+  else if (output_id == 1)
+    robot_cmd.std_analog_output_1_ = voltage_ratio;
+  return sendCommand(robot_cmd);
+}
+
+bool RTDEControlInterface::setAnalogOutputCurrent(std::uint8_t output_id, double current_ratio)
+{
+  RTDE::RobotCommand robot_cmd;
+  robot_cmd.type_ = RTDE::RobotCommand::Type::SET_STD_ANALOG_OUT;
+  robot_cmd.recipe_id_ = RTDE::RobotCommand::Recipe::RECIPE_13;
+  robot_cmd.std_analog_output_mask_ = static_cast<uint8_t>(std::pow(2.0, output_id));
+  robot_cmd.std_analog_output_type_ = 0;  // set output type to current
+  if (output_id == 0)
+    robot_cmd.std_analog_output_0_ = current_ratio;
+  else if (output_id == 1)
+    robot_cmd.std_analog_output_1_ = current_ratio;
+  return sendCommand(robot_cmd);
+}
+
 int RTDEControlInterface::getControlScriptState()
 {
-  if(robot_state_ != nullptr)
+  if (robot_state_ != nullptr)
   {
     // Receive RobotState
     rtde_->receiveData(robot_state_);

@@ -23,17 +23,20 @@
 using namespace rw::geometry;
 using namespace rw::math;
 
-Line::Line() :
+Line::Line():
+  Primitive(),
 	_p1(Vector3D<>()),
 	_p2(Vector3D<>::z())
 {
 }
 
-Line::Line(const rw::math::Q& initQ) {
+Line::Line(const rw::math::Q& initQ): Primitive()
+{
 	setParameters(initQ);
 }
 
 Line::Line(const rw::math::Vector3D<>& p1, const rw::math::Vector3D<>& p2) :
+  Primitive(),
 	_p1(p1),
 	_p2(p2)
 {}

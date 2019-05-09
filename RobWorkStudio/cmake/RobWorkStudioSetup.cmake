@@ -54,6 +54,7 @@ MESSAGE(STATUS "RobWorkStudio: ROOT dir: ${RWS_ROOT}")
 # Find and setup OpenGL.
 FIND_PACKAGE(OpenGL REQUIRED)
 
+set(Boost_NO_BOOST_CMAKE TRUE) # From Boost 1.70, CMake files are provided by Boost - we are not yet ready to handle it
 # And some extra packages for boost
 UNSET(Boost_USE_STATIC_LIBS)
 UNSET(Boost_FIND_QUIETLY)
@@ -70,7 +71,6 @@ ELSEIF(DEFINED WIN32)
 ENDIF()
 
 # Find and setup Qt.
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.3)
 FIND_PACKAGE(Qt5Core QUIET)
 FIND_PACKAGE(Qt5Gui QUIET)
 FIND_PACKAGE(Qt5Widgets QUIET)
