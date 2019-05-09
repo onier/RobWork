@@ -25,6 +25,8 @@ add_subdirectory(propertyview)
 add_subdirectory(treeview)
 add_subdirectory(planning)
 add_subdirectory(sensors)
+add_subdirectory(workcelleditor)
+add_subdirectory(workcelleditorplugin)
 add_subdirectory(luaeditor)
 add_subdirectory(lua)
 # depends on all above

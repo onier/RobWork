@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>wceditoricon.png</file>
+    </qresource>
+</RCC>
