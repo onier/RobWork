@@ -31,6 +31,9 @@ INCLUDE(UseSWIG)
     INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
     SET_SOURCE_FILES_PROPERTIES(../rws.i PROPERTIES CPLUSPLUS ON)
 	SET_SOURCE_FILES_PROPERTIES(../rws.i PROPERTIES SWIG_FLAGS "-includeall")
+    if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
+    	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall;-doxygen")
+    endif()
 	
 	SET(CMAKE_SWIG_OUTDIR ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
@@ -47,5 +50,17 @@ INCLUDE(UseSWIG)
     IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
       SET_TARGET_PROPERTIES(${SWIG_MODULE_rws_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
     ENDIF()
+
+    if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
+        find_program(pydoc pydoc)
+        if (pydoc)
+            add_custom_command(TARGET ${SWIG_MODULE_rws_REAL_NAME}
+                POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../../../RobWork/libs/${RW_BUILD_TYPE} ${pydoc} -w rws
+                WORKING_DIRECTORY ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+                COMMENT "Creating pydoc..."
+            )
+        endif()
+    endif()
      
 ENDIF()
