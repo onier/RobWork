@@ -46,6 +46,10 @@ using rwlibs::task::Task;
 	%rename(add) operator+;
 #endif
 
+#if (defined(SWIGPYTHON) || defined(SWIGLUA))
+%feature("flatnested");
+#endif
+
 %include <stl.i>
 
 /*
@@ -311,24 +315,9 @@ public:
  * RWLIBS SIMULATION
  ********************************************/
 
-struct UpdateInfo {
-	UpdateInfo();
-	UpdateInfo(double dt_step);
-	
-	double dt;
-	double dt_prev;
-	double time;
-	bool rollback;
-};
-
-%nestedworkaround Simulator::UpdateInfo;
 %nodefaultctor Simulator;
 class Simulator {
 public:
-
-	/*
-	 * Nested structs not supported
-	 * 
    struct UpdateInfo {
 	   UpdateInfo();
 	   UpdateInfo(double dt_step);
@@ -338,7 +327,6 @@ public:
 	   double time;
 	   bool rollback;
    };
-   */
    
    virtual ~Simulator();
    virtual void step(double dt) = 0;
@@ -591,9 +579,12 @@ class DrawableNode {
 public:
 
     enum DrawType {
-        SOLID, //! Render in solid
-        WIRE, //! Render in wireframe
-        OUTLINE //! Render both solid and wireframe
+        //! Render in solid
+        SOLID,
+        //! Render in wireframe
+        WIRE,
+        //! Render both solid and wireframe
+        OUTLINE
     };
 
     virtual void setHighlighted(bool b) = 0;
@@ -1501,10 +1492,17 @@ public:
     Path(size_t cnt, const T& value);
     Path(const std::vector<T>& v);
 
+#if (defined (SWIGJAVA) && SWIG_VERSION >= 0x040000)
+    %extend {
+        int size(){ return boost::numeric_cast<int>($self->std::vector<T >::size()); }
+        T& elem(size_t idx){ return (*$self)[idx]; }
+    };
+#else
     %extend {
         size_t size(){ return $self->std::vector<T >::size(); }
         T& elem(size_t idx){ return (*$self)[idx]; }
     };
+#endif
 };
 
 %template (TimedQVector) std::vector<Timed<rw::math::Q> >;
@@ -1681,7 +1679,7 @@ public:
 
     rw::math::Q x(double t) const;
     rw::math::Q dx(double t) const;
-    rw::math::rw::math::Qddx(double t) const;
+    rw::math::Q ddx(double t) const;
     double duration() const;
 };
 
@@ -1777,9 +1775,9 @@ public:
     RampInterpolatorQ(const rw::math::Q& start, const rw::math::Q& end, const rw::math::Q& vellimits, const rw::math::Q& acclimits);
     //RampInterpolatorQ(const rw::math::Q& start, const rw::math::Q& end, const rw::math::Q& vellimits, const rw::math::Q& acclimits, double duration);
 
-    rw::math::Qx(double t) const;
-    rw::math::Qdx(double t) const;
-    rw::math::Qddx(double t) const;
+    rw::math::Q x(double t) const;
+    rw::math::Q dx(double t) const;
+    rw::math::Q ddx(double t) const;
     double duration() const;
 };
 

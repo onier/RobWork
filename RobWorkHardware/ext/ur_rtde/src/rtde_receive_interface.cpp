@@ -19,14 +19,15 @@ RTDEReceiveInterface::RTDEReceiveInterface(std::string hostname, std::vector<std
   {
     // Assume all variables
     variables_ = {
-        "timestamp",            "target_q",                   "target_qd",            "target_qdd",
-        "target_current",       "target_moment",              "actual_q",             "actual_qd",
-        "actual_current",       "joint_control_output",       "actual_TCP_pose",      "actual_TCP_speed",
-        "actual_TCP_force",     "target_TCP_pose",            "target_TCP_speed",     "actual_digital_input_bits",
-        "joint_temperatures",   "actual_execution_time",      "robot_mode",           "joint_mode",
-        "safety_mode",          "actual_tool_accelerometer",  "speed_scaling",        "target_speed_fraction",
-        "actual_momentum",      "actual_main_voltage",        "actual_robot_voltage", "actual_robot_current",
-        "actual_joint_voltage", "actual_digital_output_bits", "runtime_state"};
+        "timestamp",              "target_q",                   "target_qd",              "target_qdd",
+        "target_current",         "target_moment",              "actual_q",               "actual_qd",
+        "actual_current",         "joint_control_output",       "actual_TCP_pose",        "actual_TCP_speed",
+        "actual_TCP_force",       "target_TCP_pose",            "target_TCP_speed",       "actual_digital_input_bits",
+        "joint_temperatures",     "actual_execution_time",      "robot_mode",             "joint_mode",
+        "safety_mode",            "actual_tool_accelerometer",  "speed_scaling",          "target_speed_fraction",
+        "actual_momentum",        "actual_main_voltage",        "actual_robot_voltage",   "actual_robot_current",
+        "actual_joint_voltage",   "actual_digital_output_bits", "runtime_state",          "standard_analog_input0",
+        "standard_analog_input0", "standard_analog_output0",    "standard_analog_output1"};
   }
 
   // Setup output
@@ -40,7 +41,7 @@ RTDEReceiveInterface::RTDEReceiveInterface(std::string hostname, std::vector<std
 
   // Start executing receiveCallback
   th_ = std::make_shared<boost::thread>(boost::bind(&RTDEReceiveInterface::receiveCallback, this));
-  
+
   // Wait until the first robot state has been received
   std::this_thread::sleep_for(std::chrono::milliseconds(10));
 }
@@ -221,4 +222,24 @@ uint64_t RTDEReceiveInterface::getActualDigitalOutputBits()
 uint32_t RTDEReceiveInterface::getRuntimeState()
 {
   return robot_state_->getRuntime_state();
+}
+
+double RTDEReceiveInterface::getStandardAnalogInput0()
+{
+  return robot_state_->getStandard_analog_input_0();
+}
+
+double RTDEReceiveInterface::getStandardAnalogInput1()
+{
+  return robot_state_->getStandard_analog_input_1();
+}
+
+double RTDEReceiveInterface::getStandardAnalogOutput0()
+{
+  return robot_state_->getStandard_analog_output_0();
+}
+
+double RTDEReceiveInterface::getStandardAnalogOutput1()
+{
+  return robot_state_->getStandard_analog_output_1();
 }

@@ -135,15 +135,14 @@ class RTDEControlInterface
                           double lookahead_time, double gain);
 
   /**
-    * @brief Update servo position
-    * @param q joint positions [rad]
-    */
-  RTDE_EXPORT bool servoUpdate(const std::vector<double>& q);
-
-  /**
     * @brief Stop servos
     */
   RTDE_EXPORT bool servoStop();
+
+  /**
+    * @brief Stop speeding
+    */
+  RTDE_EXPORT bool speedStop();
 
   /**
     * @brief Servo to position (circular in tool-space). Accelerates to and moves with constant tool speed v.
@@ -206,6 +205,68 @@ class RTDEControlInterface
     * @param signal_level The signal level. (boolean)
     */
   RTDE_EXPORT bool setToolDigitalOut(std::uint8_t output_id, bool signal_level);
+
+  /**
+    * @brief Set payload
+    * @param mass Mass in kilograms
+    * @param cog Center of Gravity, a vector [CoGx, CoGy, CoGz] specifying the displacement (in meters) from the
+    * toolmount. If not specified the current CoG will be used.
+    */
+  RTDE_EXPORT bool setPayload(double mass, const std::vector<double> &cog = {});
+
+  /**
+    * @brief Set robot in freedrive mode. In this mode the robot can be moved around by hand in the same way as
+    * by pressing the "freedrive" button. The robot will not be able to follow a trajectory (eg. a movej) in this mode.
+    */
+  RTDE_EXPORT bool teachMode();
+
+  /**
+    * @brief Set robot back in normal position control mode after freedrive mode.
+    */
+  RTDE_EXPORT bool endTeachMode();
+
+  /**
+    * @brief Sets the damping parameter in force mode.
+    * @param damping Between 0 and 1, default value is 0.005
+    *
+    * A value of 1 is full damping, so the robot will decellerate quickly if no force is present.
+    * A value of 0 is no damping, here the robot will maintain the speed.
+    *
+    * The value is stored until this function is called again. Call this function
+    * before force mode is entered (otherwise default value will be used).
+    */
+  RTDE_EXPORT bool forceModeSetDamping(double damping);
+
+  /**
+    * @brief Scales the gain in force mode.
+    * @param scaling scaling parameter between 0 and 2, default is 1.
+    *
+    * A value larger than 1 can make force mode unstable, e.g. in case of collisions or pushing against hard surfaces.
+    *
+    * The value is stored until this function is called again. Call this function before force mode is entered
+    * (otherwise default value will be used)
+    */
+  RTDE_EXPORT bool forceModeSetGainScaling(double scaling);
+
+  /**
+    * @brief Set the speed slider on the controller
+    * @param speed set the speed slider on the controller as a fraction value between 0 and 1 (1 is 100%)
+    */
+  RTDE_EXPORT bool setSpeedSlider(double speed);
+
+  /**
+    * @brief Set Analog output voltage
+    * @param output_id The number (id) of the output, integer: [0:1]
+    * @param voltage_ratio voltage set as a (ratio) of the voltage span [0..1], 1 means full voltage.
+    */
+  RTDE_EXPORT bool setAnalogOutputVoltage(std::uint8_t output_id, double voltage_ratio);
+
+  /**
+    * @brief Set Analog output current
+    * @param output_id The number (id) of the output, integer: [0:1]
+    * @param current_ratio current set as a (ratio) of the current span [0..1], 1 means full current.
+    */
+  RTDE_EXPORT bool setAnalogOutputCurrent(std::uint8_t output_id, double current_ratio);
 
  private:
   bool sendCommand(const RTDE::RobotCommand& cmd);

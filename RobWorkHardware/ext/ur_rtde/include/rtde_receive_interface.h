@@ -107,6 +107,14 @@ class RTDEReceiveInterface
 
   RTDE_EXPORT uint32_t getRuntimeState();
 
+  RTDE_EXPORT double getStandardAnalogInput0();
+
+  RTDE_EXPORT double getStandardAnalogInput1();
+
+  RTDE_EXPORT double getStandardAnalogOutput0();
+
+  RTDE_EXPORT double getStandardAnalogOutput1();
+
   RTDE_EXPORT void receiveCallback();
 
  private:

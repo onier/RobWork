@@ -79,6 +79,7 @@ bool RTDE::negotiateProtocolVersion()
   sendAll(cmd, payload);
   DEBUG("Done sending RTDE_REQUEST_PROTOCOL_VERSION");
   receive();
+  return true;
 }
 
 bool RTDE::sendInputSetup(const std::vector<std::string>& input_names)
@@ -91,6 +92,7 @@ bool RTDE::sendInputSetup(const std::vector<std::string>& input_names)
   sendAll(cmd, input_names_str);
   DEBUG("Done sending RTDE_CONTROL_PACKAGE_SETUP_INPUTS");
   receive();
+  return true;
 }
 
 bool RTDE::sendOutputSetup(const std::vector<std::string>& output_names, double frequency)
@@ -112,6 +114,7 @@ bool RTDE::sendOutputSetup(const std::vector<std::string>& output_names, double 
   sendAll(cmd, payload);
   DEBUG("Done sending RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS");
   receive();
+  return true;
 }
 
 void RTDE::send(const RobotCommand& robot_cmd)
@@ -154,6 +157,29 @@ void RTDE::send(const RobotCommand& robot_cmd)
   {
     cmd_packed.push_back(robot_cmd.std_tool_out_mask_);
     cmd_packed.push_back(robot_cmd.std_tool_out_);
+  }
+
+  if (robot_cmd.type_ == RobotCommand::SET_SPEED_SLIDER)
+  {
+    std::vector<char> speed_slider_mask_packed = RTDEUtility::packInt32(robot_cmd.speed_slider_mask_);
+    cmd_packed.insert(cmd_packed.end(), std::make_move_iterator(speed_slider_mask_packed.begin()),
+                      std::make_move_iterator(speed_slider_mask_packed.end()));
+
+    std::vector<char> speed_slider_fraction_packed = RTDEUtility::packDouble(robot_cmd.speed_slider_fraction_);
+    cmd_packed.insert(cmd_packed.end(), std::make_move_iterator(speed_slider_fraction_packed.begin()),
+                      std::make_move_iterator(speed_slider_fraction_packed.end()));
+  }
+
+  if (robot_cmd.type_ == RobotCommand::SET_STD_ANALOG_OUT)
+  {
+    cmd_packed.push_back(robot_cmd.std_analog_output_mask_);
+    cmd_packed.push_back(robot_cmd.std_analog_output_type_);
+    std::vector<char> std_analog_output_0_packed = RTDEUtility::packDouble(robot_cmd.std_analog_output_0_);
+    cmd_packed.insert(cmd_packed.end(), std::make_move_iterator(std_analog_output_0_packed.begin()),
+                      std::make_move_iterator(std_analog_output_0_packed.end()));
+    std::vector<char> std_analog_output_1_packed = RTDEUtility::packDouble(robot_cmd.std_analog_output_1_);
+    cmd_packed.insert(cmd_packed.end(), std::make_move_iterator(std_analog_output_1_packed.begin()),
+                      std::make_move_iterator(std_analog_output_1_packed.end()));
   }
 
   cmd_packed.insert(cmd_packed.begin(), robot_cmd.recipe_id_);
@@ -208,8 +234,8 @@ void RTDE::receive()
   DEBUG("Receiving...");
   // Read Header
   std::vector<char> data(HEADER_SIZE);
-  size_t reply_length = boost::asio::read(*socket_, boost::asio::buffer(data));
-  DEBUG("Reply length is: " << reply_length);
+  boost::asio::read(*socket_, boost::asio::buffer(data));
+  //DEBUG("Reply length is: " << reply_length);
   uint32_t message_offset = 0;
   uint16_t msg_size = RTDEUtility::getUInt16(data, message_offset);
   uint8_t msg_cmd = data.at(2);
@@ -242,19 +268,19 @@ void RTDE::receive()
     case RTDE_GET_URCONTROL_VERSION:
     {
       DEBUG("ControlVersion: ");
-      std::uint32_t message_offset = 0;
-      std::uint32_t v_major = RTDEUtility::getUInt32(data, message_offset);
-      std::uint32_t v_minor = RTDEUtility::getUInt32(data, message_offset);
-      std::uint32_t v_bugfix = RTDEUtility::getUInt32(data, message_offset);
-      std::uint32_t v_build = RTDEUtility::getUInt32(data, message_offset);
-      DEBUG(v_major << "." << v_minor << "." << v_bugfix << "." << v_build);
+      //std::uint32_t message_offset = 0;
+      //std::uint32_t v_major = RTDEUtility::getUInt32(data, message_offset);
+      //std::uint32_t v_minor = RTDEUtility::getUInt32(data, message_offset);
+      //std::uint32_t v_bugfix = RTDEUtility::getUInt32(data, message_offset);
+      //std::uint32_t v_build = RTDEUtility::getUInt32(data, message_offset);
+      //DEBUG(v_major << "." << v_minor << "." << v_bugfix << "." << v_build);
       break;
     }
 
     case RTDE_CONTROL_PACKAGE_SETUP_INPUTS:
     {
-      char id = data.at(0);
-      DEBUG("ID:" << (int)id);
+      //char id = data.at(0);
+      //DEBUG("ID:" << (int)id);
       std::string datatypes(std::begin(data) + 1, std::end(data));
       DEBUG("Datatype:" << datatypes);
       break;
@@ -262,8 +288,8 @@ void RTDE::receive()
 
     case RTDE_CONTROL_PACKAGE_SETUP_OUTPUTS:
     {
-      char id = data.at(0);
-      DEBUG("ID:" << id);
+      //char id = data.at(0);
+      //DEBUG("ID:" << id);
       std::string datatypes(std::begin(data) + 1, std::end(data));
       DEBUG("Datatype:" << datatypes);
       output_types_ = RTDEUtility::split(datatypes, ',');
@@ -313,8 +339,8 @@ void RTDE::receiveData(std::shared_ptr<RobotState>& robot_state)
   DEBUG("Receiving...");
   // Read Header
   std::vector<char> data(HEADER_SIZE);
-  size_t reply_length = boost::asio::read(*socket_, boost::asio::buffer(data));
-  DEBUG("Reply length is: " << reply_length);
+  boost::asio::read(*socket_, boost::asio::buffer(data));
+  //DEBUG("Reply length is: " << reply_length);
   uint32_t message_offset = 0;
   uint16_t msg_size = RTDEUtility::getUInt16(data, message_offset);
   uint8_t msg_cmd = data.at(2);
@@ -410,6 +436,14 @@ void RTDE::receiveData(std::shared_ptr<RobotState>& robot_state)
           robot_state->setActual_digital_output_bits(RTDEUtility::getUInt64(data, message_offset));
         else if (output_name == "runtime_state")
           robot_state->setRuntime_state(RTDEUtility::getUInt32(data, message_offset));
+        else if (output_name == "standard_analog_input0")
+          robot_state->setStandard_analog_input_0(RTDEUtility::getDouble(data, message_offset));
+        else if (output_name == "standard_analog_input1")
+          robot_state->setStandard_analog_input_1(RTDEUtility::getDouble(data, message_offset));
+        else if (output_name == "standard_analog_output0")
+          robot_state->setStandard_analog_output_0(RTDEUtility::getDouble(data, message_offset));
+        else if (output_name == "standard_analog_output1")
+          robot_state->setStandard_analog_output_1(RTDEUtility::getDouble(data, message_offset));
         else if (output_name == "output_int_register_0")
           robot_state->setOutput_int_register_0(RTDEUtility::getInt32(data, message_offset));
         else if (output_name == "output_int_register_1")
@@ -527,7 +561,7 @@ std::tuple<std::uint32_t, std::uint32_t, std::uint32_t, std::uint32_t> RTDE::get
   sendAll(cmd, "");
   DEBUG("Done sending RTDE_GET_URCONTROL_VERSION");
   std::vector<char> data(HEADER_SIZE);
-  size_t reply_length = boost::asio::read(*socket_, boost::asio::buffer(data));
+  boost::asio::read(*socket_, boost::asio::buffer(data));
   uint32_t message_offset = 0;
   uint16_t msg_size = RTDEUtility::getUInt16(data, message_offset);
   uint8_t msg_cmd = data.at(2);

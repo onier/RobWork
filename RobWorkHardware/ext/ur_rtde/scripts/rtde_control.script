@@ -5,11 +5,38 @@ def rtde_control():
     global task_frame = p[0, 0, 0, 0, 0, 0]
     global wrench = [0, 0, 0, 0, 0, 0]
     global limits = [0, 0, 0, 0, 0, 0]
+    global is_servoing = 0
+    global is_speeding = 0
     global servo_target = [0, 0, 0, 0, 0, 0]
     global servo_time = 0.2
     global servo_lookahead_time = 0.1
     global servo_gain = 300
-    global thrd = 0
+
+    global speed_type = 0
+    global speed_target = [0, 0, 0, 0, 0, 0]
+    global speed_acceleration = 0.5
+    global speed_time = 0.5
+
+    global servo_thrd = 0
+    global speed_thrd = 0
+
+    thread speed_thread():
+        while (True):
+            if speed_type == 0:
+                if speed_time > 0:
+                    speedl(speed_target, a=speed_acceleration, t=speed_time)
+                else:
+                    speedl(speed_target, a=speed_acceleration)
+                end
+            else:
+                if speed_time > 0:
+                    speedj(speed_target, a=speed_acceleration, t=speed_time)
+                else:
+                    speedj(speed_target, a=speed_acceleration)
+                end
+            end
+        end
+    end
 
     thread servo_thread():
         while (True):
@@ -178,14 +205,20 @@ def rtde_control():
             qd[3] = read_input_float_register(3)
             qd[4] = read_input_float_register(4)
             qd[5] = read_input_float_register(5)
-            acceleration = read_input_float_register(6)
-            time = read_input_float_register(7)
-            if time > 0:
-                speedj(qd, acceleration, time)
-            else:
-                speedj(qd, acceleration)
+
+            enter_critical
+            speed_type = 1
+            speed_acceleration = read_input_float_register(6)
+            speed_time = read_input_float_register(7)
+            speed_target = qd
+            exit_critical
+
+            if is_speeding == 0:
+                is_speeding = 1
+                if speed_thrd == 0:
+                    global speed_thrd = run speed_thread()
+                end
             end
-            stopj(10)
             textmsg("speedj done")
         elif cmd == 11:
             textmsg("speedl")
@@ -196,14 +229,20 @@ def rtde_control():
             xd[3] = read_input_float_register(3)
             xd[4] = read_input_float_register(4)
             xd[5] = read_input_float_register(5)
-            acceleration = read_input_float_register(6)
-            time = read_input_float_register(7)
-            if time > 0:
-                speedl(xd, acceleration, time)
-            else:
-                speedl(xd, acceleration)
+            enter_critical
+            speed_type = 0
+            speed_acceleration = read_input_float_register(6)
+            speed_time = read_input_float_register(7)
+            speed_target = xd
+            exit_critical
+
+            if is_speeding == 0:
+                is_speeding = 1
+                if speed_thrd == 0:
+                    global speed_thrd = run speed_thread()
+                end
             end
-            stopl(10)
+
             textmsg("speedl done")
         elif cmd == 12:
             textmsg("servoj")
@@ -216,11 +255,20 @@ def rtde_control():
             q[5] = read_input_float_register(5)
             velocity = read_input_float_register(6)
             acceleration = read_input_float_register(7)
+
+            enter_critical
+            servo_target = q
             servo_time = read_input_float_register(8)
             servo_lookahead_time = read_input_float_register(9)
             servo_gain = read_input_float_register(10)
-            servo_move = True
-            global thrd = run servo_thread()
+            exit_critical
+
+            if is_servoing == 0:
+                is_servoing = 1
+                if servo_thrd == 0:
+                    global servo_thrd = run servo_thread()
+                end
+            end
             textmsg("servoj done")
         elif cmd == 13:
             textmsg("servoc")
@@ -240,21 +288,60 @@ def rtde_control():
             stopj(20)
             textmsg("servoc done")
         elif cmd == 16:
-            textmsg("servo_update")
-            q = [0, 0, 0, 0, 0, 0]
-            q[0] = read_input_float_register(0)
-            q[1] = read_input_float_register(1)
-            q[2] = read_input_float_register(2)
-            q[3] = read_input_float_register(3)
-            q[4] = read_input_float_register(4)
-            q[5] = read_input_float_register(5)
+            textmsg("speed_stop")
             enter_critical
-            servo_target = q
+            is_speeding = 0
+            kill speed_thrd
+            speed_thrd = 0
+            if speed_type == 0:
+                stopl(10)
+            else:
+                stopj(10)
+            end
             exit_critical
-            textmsg("servo_update done")
+            textmsg("speed_stop done")
         elif cmd == 17:
-            kill thrd
-            stopj(30)
+            textmsg("servo_stop")
+            enter_critical
+            is_servoing = 0
+            kill servo_thrd
+            servo_thrd = 0
+            exit_critical
+            stopj(20)
+            textmsg("servo_stop done")
+        elif cmd == 18:
+            textmsg("set_payload")
+            mass = read_input_float_register(0)
+            cog_x = read_input_float_register(1)
+            cog_y = read_input_float_register(2)
+            cog_z = read_input_float_register(3)
+            cog = [cog_x, cog_y, cog_z]
+            if cog_x == 0 and cog_y == 0 and cog_z == 0:
+                set_payload(mass, get_target_payload_cog())
+            else:
+                set_payload(mass, cog)
+            end
+            textmsg("active payload:")
+            textmsg(get_target_payload())
+            textmsg("set_payload done")
+        elif cmd == 19:
+            textmsg("teach_mode")
+            teach_mode()
+            textmsg("teach_mode done")
+        elif cmd == 20:
+            textmsg("end_teach_mode")
+            end_teach_mode()
+            textmsg("end_teach_mode done")
+        elif cmd == 21:
+            textmsg("force_mode_set_damping")
+            damping = read_input_float_register(0)
+            force_mode_set_damping(damping)
+            textmsg("force_mode_set_damping done")
+        elif cmd == 22:
+            textmsg("force_mode_set_gain_scaling")
+            scaling = read_input_float_register(0)
+            force_mode_set_gain_scaling(scaling)
+            textmsg("force_mode_set_gain_scaling done")
         elif cmd == 255:
             textmsg("Received stop!")
         end
@@ -270,6 +357,10 @@ def rtde_control():
 
     # Initialize force torque sensor
     zero_ftsensor()
+
+    # Initialize gain and damping for force mode to a more stable default
+    force_mode_set_gain_scaling(0.5)
+    force_mode_set_damping(0.025)
 
     keep_running = True
     executing_cmd = False
