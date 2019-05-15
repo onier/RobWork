@@ -43,13 +43,13 @@ INCLUDE(${RWS_ROOT}/cmake/RobWorkStudioMacros.cmake)
 
 RW_INIT_PROJECT(${RWS_ROOT} RobWorkStudio RWS ${ROBWORKSTUDIO_VERSION})
 RW_GET_OS_INFO()
-RW_SET_INSTALL_DIRS(RobWork RWS)
+RW_SET_INSTALL_DIRS(RobWorkStudio RWS)
 RW_OPTIONS(RWS)
 
 # Add an "uninstall" target
 configure_file("${RWS_ROOT}/cmake/uninstall_target.cmake.in"
                "${CMAKE_BINARY_DIR}/uninstall_target.cmake" IMMEDIATE @ONLY)
-add_custom_target(uninstall "${CMAKE_COMMAND}" -P
+add_custom_target(uninstall_rws "${CMAKE_COMMAND}" -P
                   "${CMAKE_BINARY_DIR}/uninstall_target.cmake")
 
 # This sets up ROBWORKSTUDIO_INCLUDE_DIR and ROBWORKSTUDIO_LIBRARIES

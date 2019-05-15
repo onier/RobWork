@@ -203,7 +203,7 @@ stages:
     - cd ..
     # Build RobWorkHardware
     - cd RWHW
-    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=OFF -DPROJECT_SHARED_LIBS=OFF ../../RobWorkHardware
+    - cmake -DCMAKE_BUILD_TYPE=Release -G "Visual Studio 15 2017 Win64" -DBUILD_SHARED_LIBS=OFF -DRWHW_SHARED_LIBS=OFF ../../RobWorkHardware
     - msbuild RobWorkHardware.sln /property:Configuration=Release /maxcpucount:6
     - cd ..
     # Build RobWorkStudio
