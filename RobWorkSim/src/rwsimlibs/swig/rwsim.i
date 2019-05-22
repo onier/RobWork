@@ -84,6 +84,10 @@ void java_ThreadSimulatorStepCallback(ThreadSimulator* sim, State &state, void *
 
 %pragma(java) jniclassclassmodifiers="class"
 
+#if (defined(SWIGPYTHON) || defined(SWIGLUA))
+%feature("flatnested");
+#endif
+
 %include <stl.i>
 
 %template (DynamicWorkCellPtr) rw::common::Ptr<DynamicWorkCell>;
@@ -501,8 +505,10 @@ public:
     std::string integratorType;
     //std::vector<Frame*> frames;
 
+#if !defined(SWIGPYTHON)
     void print() const;
     void print(std::ostream& ostr) const;
+#endif
 };
 
 class Body
@@ -649,16 +655,6 @@ public:
 %template (RigidBodyPtr) rw::common::Ptr<RigidBody>;
 %template (RigidBodyPtrVector) std::vector<rw::common::Ptr<RigidBody> >;
 
-struct SpringParams {
-public:
-	SpringParams();
-	bool enabled;
-	Matrix compliance;
-	Matrix damping;
-};
-
-%nestedworkaround Constraint::SpringParams;
-
 %nodefaultctor Constraint;
 class Constraint {
 public:
@@ -673,6 +669,14 @@ public:
 		PrismaticUniversal,
 		Free
 	} ConstraintType;
+
+	struct SpringParams {
+	public:
+		SpringParams();
+		bool enabled;
+		Matrix compliance;
+		Matrix damping;
+	};
 
 	Constraint(const std::string& name, const ConstraintType &type, Body* b1, Body* b2);
 	virtual ~Constraint();

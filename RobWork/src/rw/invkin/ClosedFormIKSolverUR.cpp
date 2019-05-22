@@ -110,13 +110,11 @@ std::vector<Q> ClosedFormIKSolverUR::solve(const Transform3D<>& baseTend, const 
 	const Vector3D<> tcpZ = baseTend.R().getCol(2);//*Vector3D<>::z();
 	const Vector3D<> baseTdh5 = baseTend.P()-tcpZ*_lTcp;
 
-	const std::pair<double,double> baseAngles = findBaseAngle(Vector2D<>(baseTdh5[0],baseTdh5[1]), state);
-
-	// Now add up to 4 solutions for the first base angle
-	addBaseAngleSolutions(baseTend,baseTdh5,state,baseAngles.first,res);
-
-	// ... and up to 4 solutions for the second base angle
-	addBaseAngleSolutions(baseTend,baseTdh5,state,baseAngles.second,res);
+	const std::vector<double> baseAngles = findBaseAngle(Vector2D<>(baseTdh5[0],baseTdh5[1]), state);
+	for (const double& angle : baseAngles) {
+	    // Now add up to 4 solutions for each base angle
+	    addBaseAngleSolutions(baseTend,baseTdh5,state,angle,res);
+	}
 
 	return res;
 }
@@ -249,29 +247,28 @@ void ClosedFormIKSolverUR::setCheckJointLimits(bool check) {
 	_checkJointLimits = check;
 }
 
-std::pair<double,double> ClosedFormIKSolverUR::findBaseAngle(const Vector2D<> &pos, const State& state) const {
-	std::pair<double,double> res;
-	const double arg = Math::sqr(pos.norm2())-_baseRadiusSqr;
-	if ( arg > 0) {
-		const double D = std::sqrt(arg);
-	
-		res.first	= std::atan2(-D*pos[0]+_baseRadius*pos[1],+D*pos[1]+_baseRadius*pos[0]);
-		res.second	= std::atan2(+D*pos[0]+_baseRadius*pos[1],-D*pos[1]+_baseRadius*pos[0]);
-		res.first  += Pi/2;
-		res.second  += Pi/2;
-		if (res.first > Pi)
-			res.first -= 2*Pi;
-		if (res.second > Pi)
-			res.second -= 2*Pi;
-	} else {
-		const Q qcurrent = _device->getQ(state);
-		res.first = qcurrent(0);
-		if (qcurrent(0) > 0)
-			res.second = qcurrent(0)-Pi;
-		else
-			res.second = qcurrent(0)+Pi;
-	}
-	return res;
+std::vector<double> ClosedFormIKSolverUR::findBaseAngle(const Vector2D<> &pos, const State& state) const {
+    std::vector<double> res;
+    const double arg = Math::sqr(pos.norm2())-_baseRadiusSqr;
+    if ( arg > 0) {
+        const double D = std::sqrt(arg);
+        double first  = std::atan2(-D*pos[0]+_baseRadius*pos[1],+D*pos[1]+_baseRadius*pos[0]);
+        double second = std::atan2(+D*pos[0]+_baseRadius*pos[1],-D*pos[1]+_baseRadius*pos[0]);
+        first  += Pi/2;
+        second += Pi/2;
+        if (first > Pi)
+            first -= 2*Pi;
+        if (second > Pi)
+            second -= 2*Pi;
+        res.push_back(first);
+        res.push_back(second);
+    } else if ( arg == 0) {
+        double first  = std::atan2(_baseRadius*pos[1],_baseRadius*pos[0]);
+        first  += Pi/2;
+        if (first > Pi)
+            first -= 2*Pi;
+    }
+    return res;
 }
 
 std::pair<Vector3D<>,Vector3D<> > ClosedFormIKSolverUR::findCirclePlaneIntersection(const Vector3D<>& circleCenter, double radius, const Vector3D<>& circleDir1, const Vector3D<>& circleDir2, const Vector3D<>& planeNormal) {

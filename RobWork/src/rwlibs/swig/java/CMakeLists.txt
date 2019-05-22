@@ -34,6 +34,9 @@ IF( build )
     
     SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES CPLUSPLUS ON)
 	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall")
+    if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
+    	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall;-doxygen")
+    endif()
     
    INCLUDE_DIRECTORIES(${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
     set(CMAKE_SWIG_FLAGS "-package" "dk.robwork")
@@ -66,11 +69,11 @@ IF( build )
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
         COMMENT "Removing old Java source..."
     )
-    ADD_CUSTOM_TARGET(CleanDep DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CleanDep )
+    ADD_CUSTOM_TARGET(CleanDepRW DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CleanDep )
     IF((CMAKE_GENERATOR MATCHES "Make") AND (NOT CMAKE_VERSION VERSION_LESS 3.12))
-        ADD_DEPENDENCIES(rw_jni_swig_compilation CleanDep)
+        ADD_DEPENDENCIES(rw_jni_swig_compilation CleanDepRW)
     ELSE()
-        ADD_DEPENDENCIES(rw_jni CleanDep)
+        ADD_DEPENDENCIES(rw_jni CleanDepRW)
     ENDIF()
     # Compile java code and create JAR and Javadoc
 	ADD_CUSTOM_COMMAND(TARGET rw_jni

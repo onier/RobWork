@@ -47,7 +47,6 @@ public:
 		
 		-- using __getitem__ and __setitem__ methods. */
 		%typemap(in) int[2](int temp[2]) {
-			int i;
 			if (PyTuple_Check($input)) {
 				if (!PyArg_ParseTuple($input, "ii", temp, temp+1)) {
 					PyErr_SetString(PyExc_TypeError, "tuple must have 2 elements");
@@ -150,12 +149,12 @@ public:
     %extend {
 #if (defined(SWIGLUA) || defined(SWIGPYTHON))
         char *__str__() { return printCString<rw::math::Vector2D<T> >(*$self); }
-        double __getitem__(int i)const {return (*$self)[i]; }
-        void __setitem__(int i,double d){ (*$self)[i] = d; }
+        T __getitem__(int i)const {return (*$self)[i]; }
+        void __setitem__(int i,T d){ (*$self)[i] = d; }
 #elif defined(SWIGJAVA)
         std::string toString() const { return toString<rw::math::Vector2D<T> >(*$self); }
-        double get(std::size_t i) const { return (*$self)[i]; }
-        void set(std::size_t i,double d){ (*$self)[i] = d; }
+        T get(std::size_t i) const { return (*$self)[i]; }
+        void set(std::size_t i,T d){ (*$self)[i] = d; }
 #endif
     };
 
@@ -193,11 +192,14 @@ public:
 #if (defined(SWIGLUA) || defined(SWIGPYTHON))
         char *__str__() { return printCString<rw::math::Vector3D<T> >(*$self); }
         T __getitem__(int i)const {return (*$self)[i]; }
-        void __setitem__(int i,double d){ (*$self)[i] = d; }
+        void __setitem__(int i,T d){ (*$self)[i] = d; }
 #elif defined(SWIGJAVA)
         std::string toString() const { return toString<rw::math::Vector3D<T> >(*$self); }
         T get(std::size_t i) const { return (*$self)[i]; }
-        void set(std::size_t i,double d){ (*$self)[i] = d; }
+        void set(std::size_t i,T d){ (*$self)[i] = d; }
+#endif
+#if defined(SWIGPYTHON)
+        Wrench6D<T> multiply(const Wrench6D<T>& bV) { return (*$self)*bV; }
 #endif
     };
 };
@@ -230,7 +232,7 @@ public:
     
     void normalize();
     
-    bool equal(const Rotation3D<T>& rot, double precision) const;
+    bool equal(const Rotation3D<T>& rot, T precision) const;
 
     bool operator==(const Rotation3D<T> &rhs) const;
     
@@ -246,15 +248,18 @@ public:
 #if (defined(SWIGLUA) || defined(SWIGPYTHON))
         char *__str__() { return printCString<Rotation3D<T> >(*$self); }
         T __getitem__(int x,int y)const {return (*$self)(x,y); }
-        void __setitem__(int x,int y,double d){ (*$self)(x,y) = d; }
+        void __setitem__(int x,int y,T d){ (*$self)(x,y) = d; }
 #elif defined(SWIGJAVA)
         std::string toString() const { return toString<Rotation3D<T> >(*$self); }
         T get(std::size_t row, std::size_t column) const { return (*$self)(row, column); }
-        void set(std::size_t row, std::size_t column, double d){ (*$self)(row, column) = d; }
+        void set(std::size_t row, std::size_t column, T d){ (*$self)(row, column) = d; }
+#endif
+#if defined(SWIGPYTHON)
+        Wrench6D<T> multiply(const Wrench6D<T>& bV) { return (*$self)*bV; }
 #endif
     };
 
-#if defined(SWIGJAVA)    
+#if !defined(SWIGLUA)    
     %extend {
     	rw::math::InertiaMatrix<T> multiply(const rw::math::InertiaMatrix<T>& bRc) { return (*$self)*bRc; }
     };
@@ -297,14 +302,14 @@ public:
 #if (defined(SWIGLUA) || defined(SWIGPYTHON))
         char *__str__() { return printCString<EAA<T> >(*$self); }
         T __getitem__(int i)const {return (*$self)[i]; }
-        void __setitem__(int i,double d){ (*$self)[i] = d; }
+        void __setitem__(int i,T d){ (*$self)[i] = d; }
     	T& x() { return (*$self)[0]; }
     	T& y() { return (*$self)[1]; }
     	T& z() { return (*$self)[2]; }
 #elif defined(SWIGJAVA)
         std::string toString() const { return toString<EAA<T> >(*$self); }
         T get(std::size_t i) const { return (*$self)[i]; }
-        void set(std::size_t i,double d){ (*$self)[i] = d; }
+        void set(std::size_t i,T d){ (*$self)[i] = d; }
     	T x() const { return (*$self)[0]; }
     	T y() const { return (*$self)[1]; }
     	T z() const { return (*$self)[2]; }
@@ -365,7 +370,7 @@ public:
     void normalize();
 
     rw::math::Rotation3D<T> toRotation3D() const;
-    Quaternion<T> slerp(const Quaternion<T>& v, const double t) const;
+    Quaternion<T> slerp(const Quaternion<T>& v, T t) const;
 
     T getQx() const;
     T getQy() const;
@@ -400,8 +405,8 @@ public:
     Transform3D operator*(const Transform3D<T>& other) const;
     rw::math::Vector3D<T> operator*(const rw::math::Vector3D<T>& other) const;
 
-    static Transform3D<T> DH(double alpha, double a, double d, double theta);
-    static Transform3D<T> craigDH(double alpha, double a, double d, double theta);
+    static Transform3D<T> DH(T alpha, T a, T d, T theta);
+    static Transform3D<T> craigDH(T alpha, T a, T d, T theta);
 	
     rw::math::Vector3D<T>& P();
     rw::math::Rotation3D<T>& R();
@@ -415,6 +420,9 @@ public:
         char *__str__() { return printCString<Transform3D<T> >(*$self); }
 #elif defined(SWIGJAVA)
         std::string toString() const { return toString<Transform3D<T> >(*$self); }
+#endif
+#if defined(SWIGPYTHON)
+        Wrench6D<T> multiply(const Wrench6D<T>& bV) { return (*$self)*bV; }
 #endif
     };
 };
@@ -507,8 +515,9 @@ public:
 #endif
     };
 
-    const Wrench6D<T> operator*( double s) const;
-    
+    const Wrench6D<T> operator*(T s) const;
+
+#if !defined(SWIGPYTHON)
     friend const Wrench6D<T> operator*(const Transform3D<T>& aTb,
                                               const Wrench6D<T>& bV);
     
@@ -516,14 +525,15 @@ public:
 
 
     friend const Wrench6D operator*(const rw::math::Rotation3D<T>& aRb, const Wrench6D<T>& bV);
+#endif
 
     const Wrench6D<T> operator+(const Wrench6D<T>& wrench) const;    
     const Wrench6D<T> operator-(const Wrench6D<T>& wrench) const;
 
-    double norm1() const;
+    T norm1() const;
     
-    double norm2() const ;
-    double normInf() const ;
+    T norm2() const ;
+    T normInf() const ;
 };
 
 template<class T> class InertiaMatrix{
@@ -563,7 +573,7 @@ public:
     //const Base& m() const;
     //Base& m();
 
-#if !defined(SWIGJAVA)
+#if defined(SWIGLUA)
     friend InertiaMatrix<T> operator*(const rw::math::Rotation3D<T>& aRb, const InertiaMatrix<T>& bRc);
     friend InertiaMatrix<T> operator*(const InertiaMatrix<T>& aRb, const Rotation3D<T>& bRc);
     friend InertiaMatrix<T> operator+(const InertiaMatrix<T>& I1, const InertiaMatrix<T>& I2);
@@ -572,7 +582,7 @@ public:
     //friend std::ostream& operator<<(std::ostream &os, const InertiaMatrix<T>& r);
 #endif
 
-#if defined(SWIGJAVA)    
+#if !defined(SWIGLUA)    
     %extend {
     	InertiaMatrix<T> multiply(const Rotation3D<T>& bRc) { return (*$self)*bRc; }
     	InertiaMatrix<T> add(const InertiaMatrix<T>& I2) { return (*$self)+I2; }
@@ -580,9 +590,9 @@ public:
     };
 #endif
 
-    static InertiaMatrix<T> makeSolidSphereInertia(double mass, double radi);
-    static InertiaMatrix<T> makeHollowSphereInertia(double mass, double radi);
-    static InertiaMatrix<T> makeCuboidInertia(double mass, double x, double y, double z);
+    static InertiaMatrix<T> makeSolidSphereInertia(T mass, T radi);
+    static InertiaMatrix<T> makeHollowSphereInertia(T mass, T radi);
+    static InertiaMatrix<T> makeCuboidInertia(T mass, T x, T y, T z);
 };
 
 }}

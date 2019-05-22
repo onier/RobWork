@@ -32,32 +32,73 @@ BOOST_AUTO_TEST_CASE( ClosedFormIKSolverURTest ){
 	static const double EPS = 1e-14;
 
     BOOST_TEST_MESSAGE("- Testing ClosedFormIKSolverUR");
-	const WorkCell::Ptr wc = WorkCellLoader::Factory::load(testFilePath() + "devices/UR6855A/UR6855A.wc.xml");
-	BOOST_REQUIRE(wc != NULL);
-	SerialDevice::Ptr device = wc->findDevice<SerialDevice>("UR-6-85-5-A");
-	BOOST_REQUIRE(device != NULL);
-	const ClosedFormIKSolverUR solver(device,wc->getDefaultState());
 
-	{
-		State state = wc->getDefaultState();
-	    BOOST_TEST_MESSAGE("- - Testing configuration q={0.352,-2.408,-0.785,-1.78,2.199,0.785}");
-		const Q qRef = Q(6,0.352,-2.408,-0.785,-1.78,2.199,0.785);
-		device->setQ(qRef,state);
-		const Transform3D<> T = device->baseTend(state);
-		const std::vector<Q> solutions = solver.solve(T, state);
-	    BOOST_TEST_MESSAGE("- - - Found " << solutions.size() << " solutions: ");
-		BOOST_CHECK(solutions.size() > 0);
-		bool found = false;
-		for(const Q& sol : solutions) {
-		    BOOST_TEST_MESSAGE("- - - - " << sol);
-			if ((sol-qRef).normInf() <= EPS) {
-				found = true;
-			}
-			device->setQ(sol,state);
-			const Transform3D<> Tfound = device->baseTend(state);
-			BOOST_CHECK_SMALL((Tfound.P()-T.P()).normInf(),EPS);
-			BOOST_CHECK(T.R().equal(Tfound.R(),EPS));
-		}
-		BOOST_CHECK(found);
-	}
+    {
+        const WorkCell::Ptr wc = WorkCellLoader::Factory::load(testFilePath() + "devices/UR6855A/UR6855A.wc.xml");
+        BOOST_REQUIRE(wc != NULL);
+        SerialDevice::Ptr device = wc->findDevice<SerialDevice>("UR-6-85-5-A");
+        BOOST_REQUIRE(device != NULL);
+        const ClosedFormIKSolverUR solver(device,wc->getDefaultState());
+
+        State state = wc->getDefaultState();
+        BOOST_TEST_MESSAGE("- - Testing configuration q={0.352,-2.408,-0.785,-1.78,2.199,0.785}");
+        const Q qRef = Q(6,0.352,-2.408,-0.785,-1.78,2.199,0.785);
+        device->setQ(qRef,state);
+        const Transform3D<> T = device->baseTend(state);
+        const std::vector<Q> solutions = solver.solve(T, state);
+        BOOST_TEST_MESSAGE("- - - Found " << solutions.size() << " solutions: ");
+        BOOST_CHECK(solutions.size() > 0);
+        bool found = false;
+        for(const Q& sol : solutions) {
+            BOOST_TEST_MESSAGE("- - - - " << sol);
+            if ((sol-qRef).normInf() <= EPS) {
+                found = true;
+            }
+            device->setQ(sol,state);
+            const Transform3D<> Tfound = device->baseTend(state);
+            BOOST_CHECK_SMALL((Tfound.P()-T.P()).normInf(),EPS);
+            BOOST_CHECK(T.R().equal(Tfound.R(),EPS));
+        }
+        BOOST_CHECK(found);
+    }
+
+    {
+        const WorkCell::Ptr wc = WorkCellLoader::Factory::load(testFilePath() + "devices/UR5e/UR5e.xml");
+        BOOST_REQUIRE(wc != NULL);
+        SerialDevice::Ptr device = wc->findDevice<SerialDevice>("UR5e_2018");
+        BOOST_REQUIRE(device != NULL);
+        const ClosedFormIKSolverUR solver(device,wc->getDefaultState());
+
+        State state;
+        Transform3D<> T;
+        std::vector<Q> solutions;
+
+        state = wc->getDefaultState();
+        BOOST_TEST_MESSAGE("- - Testing configuration q={0.352,-2.408,-0.785,-1.78,2.199,0.785}");
+        const Q qRef = Q(6,0.352,-2.408,-0.785,-1.78,2.199,0.785);
+        device->setQ(qRef,state);
+        T = device->baseTend(state);
+        solutions = solver.solve(T, state);
+        BOOST_TEST_MESSAGE("- - - Found " << solutions.size() << " solutions: ");
+        BOOST_CHECK(solutions.size() > 0);
+        bool found = false;
+        for(const Q& sol : solutions) {
+            BOOST_TEST_MESSAGE("- - - - " << sol);
+            if ((sol-qRef).normInf() <= EPS) {
+                found = true;
+            }
+            device->setQ(sol,state);
+            const Transform3D<> Tfound = device->baseTend(state);
+            BOOST_CHECK_SMALL((Tfound.P()-T.P()).normInf(),EPS);
+            BOOST_CHECK(T.R().equal(Tfound.R(),EPS));
+        }
+        BOOST_CHECK(found);
+
+        state = wc->getDefaultState();
+        BOOST_TEST_MESSAGE("- - Testing transform with no solutions.");
+        T = Transform3D<>(Vector3D<>(0.0853719, -0.0565455, 0.725042), RPY<>(-0.785398, 3.16998e-17, 4.71377e-17));
+        solutions = solver.solve(T, state);
+        BOOST_TEST_MESSAGE("- - - Found " << solutions.size() << " solutions");
+        BOOST_CHECK(solutions.size() == 0);
+    }
 }

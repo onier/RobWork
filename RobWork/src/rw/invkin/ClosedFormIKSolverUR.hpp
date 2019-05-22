@@ -69,7 +69,7 @@ private:
     std::pair<rw::math::Vector3D<>,rw::math::Vector3D<> > getJoint4Positions(const rw::math::Vector3D<> &baseTdh5, const rw::math::Vector3D<> &tcpZ, const rw::kinematics::State &state) const;
     std::pair<std::pair<double,double>,std::pair<double,double> > getElbowJoints(const rw::math::Vector3D<> &intersection, rw::kinematics::State &state) const;
     rw::math::Q getOrientationJoints(const rw::math::Transform3D<> &baseTend, const rw::math::Vector3D<> &baseTdh5, rw::kinematics::State &state) const;
-	std::pair<double,double> findBaseAngle(const rw::math::Vector2D<> &pos, const rw::kinematics::State& state) const;
+	std::vector<double> findBaseAngle(const rw::math::Vector2D<> &pos, const rw::kinematics::State& state) const;
 
 	// Generic geometric functions
 	static std::pair<rw::math::Vector3D<>,rw::math::Vector3D<> > findCirclePlaneIntersection(const rw::math::Vector3D<> &circleCenter, double radius, const rw::math::Vector3D<> &circleDir1, const rw::math::Vector3D<> &circleDir2, const rw::math::Vector3D<> &planeNormal);
