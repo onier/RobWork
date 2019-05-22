@@ -22,20 +22,22 @@
 #include <QComboBox>
 #include <QDoubleSpinBox>
 
-class GeometryComboBox : public QWidget {
- Q_OBJECT
+class GeometryComboBox : public QComboBox {
+Q_OBJECT
 
- public:
-  GeometryComboBox();
+public:
+    GeometryComboBox();
 
-  void setColor(const QColor& color);
-  const QColor& color() const;
+    void setColor(const QColor &color);
 
- public slots:
-  void changeColor();
+    const QColor &color() const;
 
- private:
-  QColor color_;
+public slots:
+
+    void changeColor();
+
+private:
+    QColor color_;
 
 };
 

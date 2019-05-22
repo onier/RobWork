@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2018 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Copyright 2019 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,7 @@
 #include "WorkcellHighlighter.hpp"
 
 WorkcellHighlighter::WorkcellHighlighter(QTextDocument *parent)
-   : QSyntaxHighlighter(parent)
-{
+        : QSyntaxHighlighter(parent) {
     HighlightingRule rule;
 
     /*keywordFormat.setForeground(Qt::darkBlue);
@@ -61,6 +60,24 @@ WorkcellHighlighter::WorkcellHighlighter(QTextDocument *parent)
     drawable_format.setFontWeight(QFont::Bold);
     rule.pattern = QRegularExpression(drawable_pattern);
     rule.format = drawable_format;
+    highlightingRules.append(rule);
+
+    QString col_model_pattern = "\\bCollisionModel\\b";
+    QTextCharFormat col_model_format;
+    QBrush col_model_brush;
+    col_model_format.setForeground(QColor(255, 87, 79));
+    col_model_format.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(col_model_pattern);
+    rule.format = col_model_format;
+    highlightingRules.append(rule);
+
+    QString property_pattern = "\\bProperty\\b";
+    QTextCharFormat property_format;
+    QBrush property_brush;
+    property_format.setForeground(Qt::darkGreen);
+    property_format.setFontWeight(QFont::Bold);
+    rule.pattern = QRegularExpression(property_pattern);
+    rule.format = property_format;
     highlightingRules.append(rule);
 
     QString serial_device_pattern = "\\bSerialDevice\\b";
@@ -129,12 +146,14 @@ WorkcellHighlighter::WorkcellHighlighter(QTextDocument *parent)
 
     attributeFormat.setForeground(QColor(215, 95, 0));
     rule.pattern = QRegularExpression(R"**((?<range2>[\w\d\-\:]+)[ ]*=[ ]*"[^"]*")**",
-                                    QRegularExpression::DotMatchesEverythingOption | QRegularExpression::MultilineOption);
+                                      QRegularExpression::DotMatchesEverythingOption |
+                                      QRegularExpression::MultilineOption);
     rule.format = attributeFormat;
     highlightingRules.append(rule);
 
     rule.pattern = QRegularExpression(R"**((?<!\\)([\"'])(.+?)(?<!\\)\1)**",
-       QRegularExpression::DotMatchesEverythingOption | QRegularExpression::MultilineOption);
+                                      QRegularExpression::DotMatchesEverythingOption |
+                                      QRegularExpression::MultilineOption);
     rule.format = quotationFormat;
     highlightingRules.append(rule);
 
@@ -148,33 +167,32 @@ WorkcellHighlighter::WorkcellHighlighter(QTextDocument *parent)
     commentEndExpression = QRegularExpression("\\]");
 }
 
-void WorkcellHighlighter::highlightBlock(const QString &text)
-{
-    foreach (const HighlightingRule &rule, highlightingRules) {
-      QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
-      while (matchIterator.hasNext()) {
-        QRegularExpressionMatch match = matchIterator.next();
-        setFormat(match.capturedStart(), match.capturedLength(), rule.format);
-      }
-    }
+void WorkcellHighlighter::highlightBlock(const QString &text) {
+            foreach (const HighlightingRule &rule, highlightingRules) {
+            QRegularExpressionMatchIterator matchIterator = rule.pattern.globalMatch(text);
+            while (matchIterator.hasNext()) {
+                QRegularExpressionMatch match = matchIterator.next();
+                setFormat(match.capturedStart(), match.capturedLength(), rule.format);
+            }
+        }
     setCurrentBlockState(0);
 
     int startIndex = 0;
     if (previousBlockState() != 1)
-     startIndex = text.indexOf(commentStartExpression);
+        startIndex = text.indexOf(commentStartExpression);
 
     while (startIndex >= 0) {
-     QRegularExpressionMatch match = commentEndExpression.match(text, startIndex);
-     int endIndex = match.capturedStart();
-     int commentLength = 0;
-     if (endIndex == -1) {
-       setCurrentBlockState(1);
-       commentLength = text.length() - startIndex;
-     } else {
-       commentLength = endIndex - startIndex
-           + match.capturedLength();
-     }
-     setFormat(startIndex, commentLength, multiLineCommentFormat);
-     startIndex = text.indexOf(commentStartExpression, startIndex + commentLength);
+        QRegularExpressionMatch match = commentEndExpression.match(text, startIndex);
+        int endIndex = match.capturedStart();
+        int commentLength = 0;
+        if (endIndex == -1) {
+            setCurrentBlockState(1);
+            commentLength = text.length() - startIndex;
+        } else {
+            commentLength = endIndex - startIndex
+                            + match.capturedLength();
+        }
+        setFormat(startIndex, commentLength, multiLineCommentFormat);
+        startIndex = text.indexOf(commentStartExpression, startIndex + commentLength);
     }
 }

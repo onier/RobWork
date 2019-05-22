@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2018 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Copyright 2019 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,34 +27,32 @@
 
 class QTextDocument;
 
-class WorkcellHighlighter : public QSyntaxHighlighter
-{
-   Q_OBJECT
+class WorkcellHighlighter : public QSyntaxHighlighter {
+Q_OBJECT
 
 public:
-   WorkcellHighlighter(QTextDocument *parent = 0);
+    WorkcellHighlighter(QTextDocument *parent = 0);
 
 protected:
-   void highlightBlock(const QString &text);
+    void highlightBlock(const QString &text);
 
 private:
-   struct HighlightingRule
-   {
-       QRegularExpression pattern;
-       QTextCharFormat format;
-   };
-   QVector<HighlightingRule> highlightingRules;
+    struct HighlightingRule {
+        QRegularExpression pattern;
+        QTextCharFormat format;
+    };
+    QVector<HighlightingRule> highlightingRules;
 
-   QRegularExpression commentStartExpression;
-   QRegularExpression commentEndExpression;
+    QRegularExpression commentStartExpression;
+    QRegularExpression commentEndExpression;
 
-   QTextCharFormat keywordFormat;
-   QTextCharFormat classFormat;
-   QTextCharFormat singleLineCommentFormat;
-   QTextCharFormat multiLineCommentFormat;
-   QTextCharFormat quotationFormat;
-   QTextCharFormat attributeFormat;
-   QTextCharFormat functionFormat;
+    QTextCharFormat keywordFormat;
+    QTextCharFormat classFormat;
+    QTextCharFormat singleLineCommentFormat;
+    QTextCharFormat multiLineCommentFormat;
+    QTextCharFormat quotationFormat;
+    QTextCharFormat attributeFormat;
+    QTextCharFormat functionFormat;
 };
 
 #endif

@@ -7,21 +7,22 @@
 #include <QColor>
 #include <QPushButton>
 
-class SetColorButton : public QPushButton
-{
-  Q_OBJECT
+class SetColorButton : public QPushButton {
+Q_OBJECT
 
- public:
-  SetColorButton();
+public:
+    SetColorButton();
 
-  void setColor(const QColor& color);
-  const QColor& color() const;
+    void setColor(const QColor &color);
 
- public slots:
-      void changeColor();
+    const QColor &color() const;
 
- private:
-  QColor color_;
+public slots:
+
+    void changeColor();
+
+private:
+    QColor color_;
 };
 
 #endif //SETCOLORBUTTON_HPP

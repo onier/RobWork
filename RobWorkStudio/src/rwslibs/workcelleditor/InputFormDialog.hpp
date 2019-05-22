@@ -30,45 +30,42 @@
 #include <QString>
 #include <QVariant>
 
-namespace InputFormDialog
-{
+namespace InputFormDialog {
 
-class FormData
-{
- public:
-  QVariant& operator[](const QString& key);
+    class FormData {
+    public:
+        QVariant &operator[](const QString &key);
 
-  std::vector<std::pair<QString, QVariant>>::iterator begin();
-  std::vector<std::pair<QString, QVariant>>::iterator end();
+        std::vector<std::pair<QString, QVariant>>::iterator begin();
 
-  template <typename T>
-  T at(const QString& key) const
-  {
-    auto value = getValue(key);
+        std::vector<std::pair<QString, QVariant>>::iterator end();
 
-    Q_ASSERT_X(!value.isNull(), "FormTemplate::at", "invalid key");
-    Q_ASSERT_X(value.canConvert<T>(), "FormTemplate::at", "invalid type");
+        template<typename T>
+        T at(const QString &key) const {
+            auto value = getValue(key);
 
-    return value.value<T>();
-  }
+            Q_ASSERT_X(!value.isNull(), "FormTemplate::at", "invalid key");
+            Q_ASSERT_X(value.canConvert<T>(), "FormTemplate::at", "invalid type");
 
- private:
-  QVariant getValue(const QString& key) const;
+            return value.value<T>();
+        }
 
-  std::vector<std::pair<QString, QVariant>> data_;
-};
+    private:
+        QVariant getValue(const QString &key) const;
 
-struct FormOptions
-{
-  bool listReturnsIndex = false;
-  bool listDisplaysAsRadios = false;
+        std::vector<std::pair<QString, QVariant>> data_;
+    };
 
-  int numericMin = -100;
-  int numericMax = 100;
-  int numericPrecision = 2;
-};
+    struct FormOptions {
+        bool listReturnsIndex = false;
+        bool listDisplaysAsRadios = false;
 
-bool getInput(const QString& title, FormData& data, const FormOptions& options = FormOptions());
+        int numericMin = -100;
+        int numericMax = 100;
+        int numericPrecision = 2;
+    };
+
+    bool getInput(const QString &title, FormData &data, const FormOptions &options = FormOptions());
 
 }
 

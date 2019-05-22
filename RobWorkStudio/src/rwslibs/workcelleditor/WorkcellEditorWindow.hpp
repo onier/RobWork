@@ -1,5 +1,5 @@
 /********************************************************************************
- * Copyright 2018 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
+ * Copyright 2019 The Robotics Group, The Maersk Mc-Kinney Moller Institute,
  * Faculty of Engineering, University of Southern Denmark
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,10 +22,11 @@
 #include <rw/common/PropertyMap.hpp>
 #include <map>
 
-namespace rw { namespace common { class Log; } }
-namespace rwlibs { namespace swig { class LuaState; } }
+namespace rw { namespace common { class Log; }}
+namespace rwlibs { namespace swig { class LuaState; }}
 
 class WCCodeEditor;
+
 class WorkcellHighlighter;
 
 namespace Ui {
@@ -33,17 +34,19 @@ namespace Ui {
 }
 
 class TreeModelCompleter;
+
 class QCompleter;
+
 class QAbstractItemModel;
 
 namespace rws {
-	class RobWorkStudio;
+    class RobWorkStudio;
 
     /**
      * @brief A workcell editor that enables editing of workcells within robworkstudio.
      */
-    class WorkcellEditorWindow: public QMainWindow {
-        Q_OBJECT
+    class WorkcellEditorWindow : public QMainWindow {
+    Q_OBJECT
     public:
 
         /**
@@ -52,33 +55,47 @@ namespace rws {
          * @param rwstudio [in] instance of RobWorkStudio
          * @param parent [in] the Qt parent widget
          */
-        WorkcellEditorWindow(rw::common::Ptr<rw::common::Log> output, rws::RobWorkStudio* rwstudio, QWidget *parent);
+        WorkcellEditorWindow(rw::common::Ptr<rw::common::Log> output, rws::RobWorkStudio *rwstudio, QWidget *parent);
 
         //! @brief destructor
         virtual ~WorkcellEditorWindow();
 
     public slots:
+
         void on_actionNew_triggered(bool);
+
         void on_actionOpen_triggered(bool);
+
         void on_actionSave_triggered(bool);
+
         void on_actionSave_As_triggered(bool);
+
         void on_actionRun_triggered(bool);
+
         void on_actionReload_triggered(bool);
+
         void on_actionClose_triggered(bool);
+
         void on_actionAdd_Frame_triggered(bool);
+
         void on_actionAdd_Drawable_triggered(bool);
 
+        void on_actionAdd_CollisionModel_triggered(bool);
+
         void textChanged();
+
         void runFinished();
-        void ShowContextMenu(const QPoint& p);
-        void setCheckAction(QAction*);
+
+        void ShowContextMenu(const QPoint &p);
+
+        void setCheckAction(QAction *);
 
     private:
-        QAbstractItemModel *modelFromFile(const QString& fileName, TreeModelCompleter* completer);
+        QAbstractItemModel *modelFromFile(const QString &fileName, TreeModelCompleter *completer);
 
         struct EditorTab {
-        	typedef rw::common::Ptr<EditorTab> Ptr;
-        	std::string _id;
+            typedef rw::common::Ptr<EditorTab> Ptr;
+            std::string _id;
             WCCodeEditor *_editor;
             WorkcellHighlighter *_highlighter;
             TreeModelCompleter *_completer;
@@ -88,13 +105,17 @@ namespace rws {
         EditorTab::Ptr makeEditor();
 
         bool save();
+
         bool saveAs();
-        bool save(const std::string& filename);
+
+        bool save(const std::string &filename);
+
         EditorTab::Ptr getCurrentTab();
 
     private:
         //! hold
-        std::map<QWidget*, EditorTab::Ptr> _editors;
+        std::map<QWidget *, EditorTab::Ptr> _editors;
+
         class Ui::WorkcellEditorWindow *_ui;
 
         rw::common::Ptr<rw::common::Log> _output;
@@ -103,7 +124,7 @@ namespace rws {
         bool _isRunning;
 
         QTabWidget *_tabPane;
-        rws::RobWorkStudio* _rws;
+        rws::RobWorkStudio *_rws;
     };
 
 }

@@ -21,28 +21,25 @@
 
 using namespace rw::common;
 
-FileDialogButton::FileDialogButton(QString path) : QPushButton()
-{
+FileDialogButton::FileDialogButton(QString path) : QPushButton() {
     setText("Select CAD File");
     _path = path;
     connect(this, SIGNAL(clicked()), this, SLOT(selectFile()));
 }
 
-void FileDialogButton::selectFile()
-{
+void FileDialogButton::selectFile() {
     QString fullPath = QFileDialog::getOpenFileName(this, tr("Select CAD file"), _path, tr("CAD Files (*.stl *.obj)"));
     std::string file_name = StringUtil::getFileName(fullPath.toStdString());
-    std::string wcDir = _path.toStdString()+"/";
+    std::string wcDir = _path.toStdString() + "/";
     std::string relFilePath =
-        StringUtil::getRelativeDirectoryName(fullPath.toStdString(), StringUtil::getDirectoryName(wcDir));
-    std::string finalPath = relFilePath+file_name;
-    if(relFilePath.empty())
+            StringUtil::getRelativeDirectoryName(fullPath.toStdString(), StringUtil::getDirectoryName(wcDir));
+    std::string finalPath = relFilePath + file_name;
+    if (relFilePath.empty())
         _filename = fullPath;
     else
         _filename = QString::fromStdString(finalPath);
 }
 
-const QString& FileDialogButton::getFilename() const
-{
+const QString &FileDialogButton::getFilename() const {
     return _filename;
 }

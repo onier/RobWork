@@ -16,3 +16,7 @@
  ********************************************************************************/
 
 #include "GeometryComboBox.hpp"
+
+GeometryComboBox::GeometryComboBox() : QComboBox() {
+
+}

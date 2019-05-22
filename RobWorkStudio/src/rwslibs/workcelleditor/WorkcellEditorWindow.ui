@@ -14,42 +14,6 @@
    <string>Workcell Editor</string>
   </property>
   <widget class="QWidget" name="centralwidget"/>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>697</width>
-     <height>25</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menuFile">
-    <property name="title">
-     <string>File</string>
-    </property>
-    <addaction name="actionNew"/>
-    <addaction name="actionOpen"/>
-    <addaction name="actionReload"/>
-    <addaction name="separator"/>
-    <addaction name="separator"/>
-    <addaction name="actionSave_All"/>
-    <addaction name="actionSave"/>
-    <addaction name="actionSave_As"/>
-    <addaction name="separator"/>
-    <addaction name="actionClose"/>
-    <addaction name="separator"/>
-    <addaction name="actionExit"/>
-   </widget>
-   <widget class="QMenu" name="menuRun">
-    <property name="title">
-     <string>Run</string>
-    </property>
-    <addaction name="separator"/>
-    <addaction name="actionRun"/>
-   </widget>
-   <addaction name="menuFile"/>
-   <addaction name="menuRun"/>
-  </widget>
   <widget class="QToolBar" name="_fileToolBar">
    <property name="windowTitle">
     <string>toolBar</string>
@@ -204,10 +168,10 @@
   </action>
   <action name="actionAdd_CollisionModel">
    <property name="text">
-    <string>Add CollisionModel</string>
+    <string>Add Collision Model</string>
    </property>
    <property name="toolTip">
-    <string>Add CollisionModel</string>
+    <string>Add Collision Model</string>
    </property>
   </action>
  </widget>
