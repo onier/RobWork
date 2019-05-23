@@ -1,8 +1,10 @@
-#include <dashboard_client.h>
+#include <ur_rtde/dashboard_client.h>
 #include <iostream>
 
 using boost::asio::ip::tcp;
 
+namespace ur_rtde
+{
 DashboardClient::DashboardClient(std::string hostname, int port)
     : hostname_(std::move(hostname)), port_(port), conn_state_(ConnectionState::DISCONNECTED)
 {
@@ -46,7 +48,7 @@ void DashboardClient::send(const std::string &str)
 
 void DashboardClient::loadURP(const std::string &urp_name)
 {
-  std::string load_urp = "load "+urp_name+"\n";
+  std::string load_urp = "load " + urp_name + "\n";
   send(load_urp);
 }
 
@@ -86,7 +88,7 @@ bool DashboardClient::running()
 
 void DashboardClient::popup(const std::string &message)
 {
-  std::string popup = "popup "+message+"\n";
+  std::string popup = "popup " + message + "\n";
   send(popup);
 }
 
@@ -124,3 +126,5 @@ void DashboardClient::unlockProtectiveStop()
   std::string unlock_p_stop = "unlock protective stop\n";
   send(unlock_p_stop);
 }
+
+}  // namespace ur_rtde

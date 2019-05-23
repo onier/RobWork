@@ -316,13 +316,13 @@ def rtde_control():
             cog_y = read_input_float_register(2)
             cog_z = read_input_float_register(3)
             cog = [cog_x, cog_y, cog_z]
-            if cog_x == 0 and cog_y == 0 and cog_z == 0:
-                set_payload(mass, get_target_payload_cog())
-            else:
+$V5         if cog_x == 0 and cog_y == 0 and cog_z == 0:
+$V5             set_payload(mass, get_target_payload_cog())
+$V5         else:
                 set_payload(mass, cog)
-            end
-            textmsg("active payload:")
-            textmsg(get_target_payload())
+$V5         end
+$V5         textmsg("active payload:")
+$V5         textmsg(get_target_payload())
             textmsg("set_payload done")
         elif cmd == 19:
             textmsg("teach_mode")
@@ -340,7 +340,7 @@ def rtde_control():
         elif cmd == 22:
             textmsg("force_mode_set_gain_scaling")
             scaling = read_input_float_register(0)
-            force_mode_set_gain_scaling(scaling)
+$V5         force_mode_set_gain_scaling(scaling)
             textmsg("force_mode_set_gain_scaling done")
         elif cmd == 255:
             textmsg("Received stop!")
@@ -359,7 +359,7 @@ def rtde_control():
     zero_ftsensor()
 
     # Initialize gain and damping for force mode to a more stable default
-    force_mode_set_gain_scaling(0.5)
+$V5 force_mode_set_gain_scaling(0.5)
     force_mode_set_damping(0.025)
 
     keep_running = True

@@ -1,6 +1,8 @@
-#include <rtde_receive_interface.h>
+#include <ur_rtde/rtde_receive_interface.h>
 #include <iostream>
 
+namespace ur_rtde
+{
 RTDEReceiveInterface::RTDEReceiveInterface(std::string hostname, std::vector<std::string> variables, int port)
     : variables_(std::move(variables)), hostname_(std::move(hostname)), port_(port)
 {
@@ -27,7 +29,7 @@ RTDEReceiveInterface::RTDEReceiveInterface(std::string hostname, std::vector<std
         "safety_mode",            "actual_tool_accelerometer",  "speed_scaling",          "target_speed_fraction",
         "actual_momentum",        "actual_main_voltage",        "actual_robot_voltage",   "actual_robot_current",
         "actual_joint_voltage",   "actual_digital_output_bits", "runtime_state",          "standard_analog_input0",
-        "standard_analog_input0", "standard_analog_output0",    "standard_analog_output1"};
+        "standard_analog_input0", "standard_analog_output0",    "standard_analog_output1", "robot_status_bits"};
   }
 
   // Setup output
@@ -164,6 +166,11 @@ int32_t RTDEReceiveInterface::getRobotMode()
   return robot_state_->getRobot_mode();
 }
 
+uint32_t RTDEReceiveInterface::getRobotStatus()
+{
+  return robot_state_->getRobot_status();
+}
+
 std::vector<int32_t> RTDEReceiveInterface::getJointMode()
 {
   return robot_state_->getJoint_mode();
@@ -243,3 +250,5 @@ double RTDEReceiveInterface::getStandardAnalogOutput1()
 {
   return robot_state_->getStandard_analog_output_1();
 }
+
+}  // namespace ur_rtde

@@ -15,39 +15,51 @@ The ur_rtde library API consists of the following parts:
 RTDE Control Interface API
 ==========================
 
-.. doxygenclass:: RTDEControlInterface
-   :project: ur_rtde
-   :members:
+.. doxygenclass:: ur_rtde::RTDEControlInterface
+    :project: ur_rtde
+    :path: ../doxygen/xml
+    :members:
 
 .. _rtde-receive-api:
 
 RTDE Receive Interface API
 ==========================
 
-.. doxygenclass:: RTDEReceiveInterface
-      :project: ur_rtde
-      :members:
-      :undoc-members:
+.. doxygenclass:: ur_rtde::RTDEReceiveInterface
+    :project: ur_rtde
+    :path: ../doxygen/xml
+    :members:
+    :undoc-members:
 
 .. _rtde-api:
 
 RTDE Class API
 ==============
 
-.. doxygenfile:: rtde.h
-
+.. doxygenclass:: ur_rtde::RTDE
+    :project: ur_rtde
+    :path: ../doxygen/xml
+    :members:
+    :undoc-members:
 
 .. _script-client-api:
 
 Script Client API
 =================
 
-.. doxygenfile:: script_client.h
-
+.. doxygenclass:: ur_rtde::ScriptClient
+    :project: ur_rtde
+    :path: ../doxygen/xml
+    :members:
+    :undoc-members:
 
 .. _dashboard-client-api:
 
 Dashboard Client API
 ====================
 
-.. doxygenfile:: dashboard_client.h
+.. doxygenclass:: ur_rtde::DashboardClient
+    :project: ur_rtde
+    :path: ../doxygen/xml
+    :members:
+    :undoc-members:
