@@ -34,13 +34,13 @@
 #include <rw/common/Log.hpp>
 #include <rwlibs/swig/ScriptTypes.hpp>
 #include <rws/RobWorkStudio.hpp>
-#include <rw/loaders/xml/XercesUtils.hpp>
+//#include <rw/loaders/xml/XercesUtils.hpp>
 #include <rw/loaders/WorkCellLoader.hpp>
 #include "InputFormDialog.hpp"
 
 #include "ui_WorkcellEditorWindow.h"
 
-using namespace xercesc;
+//using namespace xercesc;
 using namespace rw::common;
 using namespace rw::loaders;
 using namespace rw::math;
