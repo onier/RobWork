@@ -53,13 +53,13 @@ set(LIB_SOURCE_FILES
 		src/rtde_receive_interface.cpp)
 
 set(LIB_HEADER_FILES
-        include/rtde.h
-        include/rtde_utility.h
-        include/dashboard_client.h
-        include/robot_state.h
-        include/script_client.h
-        include/rtde_control_interface.h
-		include/rtde_receive_interface.h)
+        include/ur_rtde/rtde.h
+        include/ur_rtde/rtde_utility.h
+        include/ur_rtde/dashboard_client.h
+        include/ur_rtde/robot_state.h
+        include/ur_rtde/script_client.h
+        include/ur_rtde/rtde_control_interface.h
+		include/ur_rtde/rtde_receive_interface.h)
 
 if(${PYTHON_BINDINGS})
 	find_package(pybind11 REQUIRED)
@@ -78,7 +78,7 @@ if(${CODE})
 	string(REGEX REPLACE "\"" "\"+QUOTATION+\"" FILEVAR ${RTDE_CONTROL_SCRIPT})
 	string(REGEX REPLACE "\\\n" "\" + NEW_LINE  + \n\"" FILEVAR ${FILEVAR})
 	set(end "\";")
-	file(WRITE include/rtde_control_script.h "${header}${FILEVAR}${end}")
+	file(WRITE include/ur_rtde/rtde_control_script.h "${header}${FILEVAR}${end}")
 
 	add_library(rtde SHARED ${LIB_SOURCE_FILES} ${LIB_HEADER_FILES})
 	target_include_directories(rtde
@@ -160,7 +160,7 @@ if(${CODE})
 		set(BIN_INSTALL_DIR "bin")
 	endif()
 	if(NOT DEFINED INCLUDE_INSTALL_DIR)
-		set(INCLUDE_INSTALL_DIR "include")
+		set(INCLUDE_INSTALL_DIR "include/ur_rtde")
 	endif()
 
 	install(TARGETS rtde

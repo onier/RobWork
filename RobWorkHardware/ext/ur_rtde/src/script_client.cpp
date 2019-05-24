@@ -1,14 +1,19 @@
-#include <script_client.h>
+#include <ur_rtde/script_client.h>
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <streambuf>
-#include "rtde_control_script.h"
+#include "ur_rtde/rtde_control_script.h"
 
 using boost::asio::ip::tcp;
 
-ScriptClient::ScriptClient(std::string hostname, int port)
-    : hostname_(std::move(hostname)), port_(port), conn_state_(ConnectionState::DISCONNECTED)
+namespace ur_rtde
+{
+ScriptClient::ScriptClient(std::string hostname, uint32_t major_control_version, int port)
+    : hostname_(std::move(hostname)),
+      major_control_version_(major_control_version),
+      port_(port),
+      conn_state_(ConnectionState::DISCONNECTED)
 {
 }
 
@@ -45,7 +50,7 @@ void ScriptClient::disconnect()
 
 bool ScriptClient::sendScriptCommand(const std::string &cmd_str)
 {
-  if(isConnected() && !cmd_str.empty())
+  if (isConnected() && !cmd_str.empty())
   {
     boost::asio::write(*socket_, boost::asio::buffer(cmd_str));
   }
@@ -60,9 +65,40 @@ bool ScriptClient::sendScriptCommand(const std::string &cmd_str)
 
 bool ScriptClient::sendScript()
 {
-  if(isConnected() && !UR_SCRIPT.empty())
+  std::string ur_script = UR_SCRIPT;
+
+  // Remove commands not fitting for the specific version of the controller
+  std::string major_control_id;
+  switch (major_control_version_)
   {
-    boost::asio::write(*socket_, boost::asio::buffer(UR_SCRIPT));
+    case 3:
+      major_control_id = "V3";
+      break;
+    case 5:
+      major_control_id = "V5";
+      break;
+    default:
+      std::cerr << "Unknown major controller version specified: " << major_control_id;
+      break;
+  }
+
+  std::size_t n = ur_script.find("$");
+  while (n != std::string::npos)
+  {
+    if (ur_script.substr(n + 1, 3) != major_control_id)
+    {
+      ur_script.erase(n, ur_script.find("\n", n) - n + 1);
+    }
+    else
+    {
+      ur_script.erase(n, 4);
+    }
+    n = ur_script.find("$");
+  }
+
+  if (isConnected() && !ur_script.empty())
+  {
+    boost::asio::write(*socket_, boost::asio::buffer(ur_script));
   }
   else
   {
@@ -93,7 +129,7 @@ bool ScriptClient::sendScript(const std::string &file_name)
     return false;
   }
 
-  if(isConnected() && !str.empty())
+  if (isConnected() && !str.empty())
   {
     boost::asio::write(*socket_, boost::asio::buffer(str));
   }
@@ -105,3 +141,5 @@ bool ScriptClient::sendScript(const std::string &file_name)
 
   return true;
 }
+
+}  // namespace ur_rtde

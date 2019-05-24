@@ -1,9 +1,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
-#include <rtde_control_interface.h>
-#include <rtde_receive_interface.h>
+#include <ur_rtde/rtde_control_interface.h>
+#include <ur_rtde/rtde_receive_interface.h>
 namespace py = pybind11;
+using namespace ur_rtde;
 
 namespace rtde_control
 {

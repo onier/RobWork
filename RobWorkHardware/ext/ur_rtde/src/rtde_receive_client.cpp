@@ -1,14 +1,15 @@
-#include <rtde_receive_interface.h>
+#include <ur_rtde/rtde_receive_interface.h>
 #include <iostream>
 #include <chrono>
 #include <numeric>
 
-using namespace std::chrono;
+using namespace ur_rtde;
+
 int main(int argc, char *argv[])
 {
   RTDEReceiveInterface rtde_receive("127.0.0.1");
 
-  while(1)
+  while (1)
   {
     std::cout << "Actual q is: " << std::endl;
     for (const auto &d : rtde_receive.getActualQ())
