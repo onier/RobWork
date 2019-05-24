@@ -47,7 +47,7 @@ RW_OPTIONS(RW)
 # Add an "uninstall" target
 configure_file("${RW_ROOT}/cmake/uninstall_target.cmake.in"
                "${CMAKE_BINARY_DIR}/uninstall_target.cmake" IMMEDIATE @ONLY)
-add_custom_target(uninstall "${CMAKE_COMMAND}" -P
+add_custom_target(uninstall_rw "${CMAKE_COMMAND}" -P
                   "${CMAKE_BINARY_DIR}/uninstall_target.cmake")
 
 
@@ -234,13 +234,5 @@ ENDIF()
 # Packaging
 INCLUDE(cmake/packing.cmake)
 
-string(REPLACE ";" "\n" TOFILE_DST "$ENV{RW_LIB_FILES_CPP}")
-file(WRITE "source_files" "${TOFILE_DST}")
 string(REPLACE ";" "\n" TOFILE_DST "${ROBWORK_INCLUDE_DIR}")
 file(WRITE "include_dirs" "${TOFILE_DST}")
-
-##SET(ENV{RW_LIB_FILES_CPP} "$ENV{RW_LIB_FILES_CPP}${SRC_FILES_CPP};")
-#SET(ENV{RW_LIB_FILES_HPP} "$ENV{RW_LIB_FILES_HPP}${SRC_FILES_HPP};")
-
-
-

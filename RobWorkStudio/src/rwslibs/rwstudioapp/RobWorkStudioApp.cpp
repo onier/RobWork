@@ -32,6 +32,7 @@
     #include <rwslibs/planning/Planning.hpp>
     #include <rwslibs/propertyview/PropertyView.hpp>
     #include <rwslibs/sensors/Sensors.hpp>
+    #include <rwslibs/workcelleditorplugin/WorkcellEditorPlugin.hpp>
 #ifdef RWS_HAVE_LUA
     #include <rwslibs/lua/Lua.hpp>
 #endif
@@ -120,6 +121,7 @@ void initReasource(){
                      rwstudio.addPlugin(new rws::PropertyView(), false, Qt::LeftDockWidgetArea);
                      rwstudio.addPlugin(new rws::Planning(), false, Qt::LeftDockWidgetArea);
                      rwstudio.addPlugin(new rws::Sensors(), false, Qt::RightDockWidgetArea);
+                     rwstudio.addPlugin(new rws::WorkcellEditorPlugin(), false, Qt::LeftDockWidgetArea);
 
 
                      #if RWS_HAVE_LUA

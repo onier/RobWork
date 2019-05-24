@@ -63,7 +63,8 @@ class RWStudioView3D: public QWidget {
 public:
 	//! @brief Smart pointer type for RWStudioView3D.
     typedef rw::common::Ptr<RWStudioView3D> Ptr;
-
+    
+public:
     /**
      * @brief Constructs an OpenGL based QT Widget
      * @param rwStudio [in] robworkstudio

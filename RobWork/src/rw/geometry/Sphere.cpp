@@ -55,8 +55,24 @@ namespace {
 // there will be 4^(levels+1) faces in there sphere
 //std::vector<Triangle> createsphere(int levels)
 
-TriMesh::Ptr Sphere::createMesh(int granulation) const{
+TriMesh::Ptr Sphere::createMesh(int resolution) const{
 	std::vector<Triangle<> > triangles, triangles_dst, *trimesh_dst, *trimesh_src;
+  
+  /* Let's find the helper granulation value of the sphere generator.
+   * Old version of this code used value 6 for granulation, which was
+   * supposed to match the detail achieved by other primitives
+   * with resolution of 20.
+   * It should be that the default value for resolution results in the same
+   * level of detail as in the previous version. Should resolution parameter
+   * increase the number of faces linearly?
+   * 
+   *    for level=20 faces=16384
+   *      -> faces = resolution/20 * 16384
+   *    if faces = 4^(granulation+1)
+   *      -> granulation = log_4(faces)-1
+   */
+  double faces = resolution/20.0 * 16384;
+  double granulation = log(faces) / log(4) - 1;
 
 	// build a tetrahedron
 	Vector3D<> v0(0.0, 0.0, 1.0);
@@ -71,7 +87,7 @@ TriMesh::Ptr Sphere::createMesh(int granulation) const{
 
 	trimesh_dst = &triangles_dst;
 	trimesh_src = &triangles;
-	for (int ctr = 0; ctr < _levels; ctr++){
+	for (int ctr = 0; ctr < granulation; ctr++){
 	    spherehelper(*trimesh_src, *trimesh_dst, _radius);
 		std::swap(trimesh_src, trimesh_dst);
 		trimesh_dst->clear();

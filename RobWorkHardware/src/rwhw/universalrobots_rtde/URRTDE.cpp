@@ -16,10 +16,11 @@
  ******************************************************************************/
 
 #include "URRTDE.hpp"
-#include <rtde_control_interface.h>
-#include <rtde_receive_interface.h>
+#include <ur_rtde/rtde_control_interface.h>
+#include <ur_rtde/rtde_receive_interface.h>
 
 using namespace rwhw;
+using namespace ur_rtde;
 
 URRTDE::URRTDE(std::string robot_ip, std::vector<std::string> variables)
 {
@@ -95,12 +96,12 @@ bool URRTDE::servoJ(const rw::math::Q& q, double speed, double acceleration, dou
     return rtde_control_->servoJ(q.toStdVector(), speed, acceleration, time, lookahead_time, gain);
 }
 
-bool URRTDE::servoUpdate(const rw::math::Q& q) {
-    return rtde_control_->servoUpdate(q.toStdVector());
-}
-
 bool URRTDE::servoStop() {
     return rtde_control_->servoStop();
+}
+
+bool URRTDE::speedStop() {
+    return rtde_control_->speedStop();
 }
 
 bool URRTDE::forceModeStart(const rw::math::Transform3D<>& task_frame, const rw::math::Q& selection_vector,
@@ -139,6 +140,51 @@ bool URRTDE::setStandardDigitalOut(std::uint8_t output_id, bool signal_level) {
 
 bool URRTDE::setToolDigitalOut(std::uint8_t output_id, bool signal_level) {
     return rtde_control_->setToolDigitalOut(output_id, signal_level);
+}
+
+bool URRTDE::setPayload(double mass, const std::vector<double> &cog)
+{
+    return rtde_control_->setPayload(mass, cog);
+}
+
+bool URRTDE::teachMode()
+{
+    return rtde_control_->teachMode();
+}
+
+bool URRTDE::endTeachMode()
+{
+    return rtde_control_->endTeachMode();
+}
+
+bool URRTDE::forceModeSetDamping(double damping)
+{
+    return rtde_control_->forceModeSetDamping(damping);
+}
+
+bool URRTDE::forceModeSetGainScaling(double scaling)
+{
+    return rtde_control_->forceModeSetGainScaling(scaling);
+}
+
+bool URRTDE::setSpeedSlider(double speed)
+{
+    return rtde_control_->setSpeedSlider(speed);
+}
+
+bool URRTDE::setAnalogOutputVoltage(std::uint8_t output_id, double voltage_ratio)
+{
+    return rtde_control_->setAnalogOutputVoltage(output_id, voltage_ratio);
+}
+
+bool URRTDE::setAnalogOutputCurrent(std::uint8_t output_id, double current_ratio)
+{
+    return rtde_control_->setAnalogOutputCurrent(output_id, current_ratio);
+}
+
+bool URRTDE::isProgramRunning()
+{
+    return rtde_control_->isProgramRunning();
 }
 
 double URRTDE::getTimestamp() {
@@ -227,6 +273,10 @@ int32_t URRTDE::getRobotMode() {
     return rtde_receive_->getRobotMode();
 }
 
+uint32_t URRTDE::getRobotStatus() {
+    return rtde_receive_->getRobotStatus();
+}
+
 std::vector<int32_t> URRTDE::getJointMode() {
     return rtde_receive_->getJointMode();
 }
@@ -273,6 +323,22 @@ uint64_t URRTDE::getActualDigitalOutputBits() {
 
 uint32_t URRTDE::getRuntimeState() {
     return rtde_receive_->getRuntimeState();
+}
+
+double URRTDE::getStandardAnalogInput0() {
+    return rtde_receive_->getStandardAnalogInput0();
+}
+
+double URRTDE::getStandardAnalogInput1() {
+    return rtde_receive_->getStandardAnalogInput1();
+}
+
+double URRTDE::getStandardAnalogOutput0() {
+    return rtde_receive_->getStandardAnalogOutput0();
+}
+
+double URRTDE::getStandardAnalogOutput1() {
+    return rtde_receive_->getStandardAnalogOutput1();
 }
 
 

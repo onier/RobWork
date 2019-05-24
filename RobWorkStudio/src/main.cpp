@@ -43,6 +43,7 @@
     #include <rwslibs/planning/Planning.hpp>
     #include <rwslibs/propertyview/PropertyView.hpp>
     #include <rwslibs/sensors/Sensors.hpp>
+    #include <rwslibs/workcelleditorplugin/WorkcellEditorPlugin.hpp>
 #ifdef RW_HAVE_EIGEN
     //#include <rwlibs/calibration/Calibration.hpp>
 #endif
@@ -123,6 +124,7 @@ int main(int argc, char** argv)
                     rwstudio.addPlugin(new rws::PropertyView(), false, Qt::LeftDockWidgetArea);
                     rwstudio.addPlugin(new rws::Planning(), false, Qt::LeftDockWidgetArea);
                     rwstudio.addPlugin(new rws::Sensors(), false, Qt::RightDockWidgetArea);
+                    rwstudio.addPlugin(new rws::WorkcellEditorPlugin(), false, Qt::LeftDockWidgetArea);
 
 					#ifdef RW_HAVE_EIGEN
                     rwstudio.addPlugin(new rws::Calibration(), false, Qt::RightDockWidgetArea);

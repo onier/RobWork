@@ -1,7 +1,9 @@
-#include <rtde_control_interface.h>
+#include <ur_rtde/rtde_control_interface.h>
 #include <thread>
 #include <chrono>
 #include <iostream>
+
+using namespace ur_rtde;
 
 int main(int argc, char* argv[])
 {
@@ -31,7 +33,7 @@ int main(int argc, char* argv[])
   path.push_back(path_pose3);
 
   // Send a linear path with blending in between - (currently uses separate script)
-  //rtde_control.moveL(path);
+  // rtde_control.moveL(path);
 
   // Send a linear movement
   /*rtde_control.moveL(tcp_pose1, velocity, acceleration);
@@ -76,8 +78,13 @@ int main(int argc, char* argv[])
   /*std::vector<double> joint_speed = {0.2, 0.3, 0.1, 0.05, 0, 0};
   std::vector<double> tool_speed = {0.5, 0.4, 0.0, 1.57, 0, 0};
   double time = 0.5;
-  rtde_control.speedJ(joint_speed, acceleration, time);
-  rtde_control.speedL(tool_speed, acceleration, time);*/
+
+  for (unsigned int i=0; i<10; i++)
+  {
+    rtde_control.speedJ(joint_speed, acceleration);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+  }
+  rtde_control.speedStop();*/
 
   // Test servoJ
   double time = 0.3;
@@ -85,22 +92,37 @@ int main(int argc, char* argv[])
   double gain = 300;
 
   rtde_control.servoJ(joint_q1, velocity, acceleration, time, lookahead_time, gain);
-  for (unsigned int i=0; i<30; i++)
+  for (unsigned int i = 0; i < 30; i++)
   {
-    rtde_control.servoUpdate(joint_q1);
+    rtde_control.servoJ(joint_q1, velocity, acceleration, time, lookahead_time, gain);
     std::this_thread::sleep_for(std::chrono::milliseconds(280));
-    rtde_control.servoUpdate(joint_q2);
+    rtde_control.servoJ(joint_q2, velocity, acceleration, time, lookahead_time, gain);
     std::this_thread::sleep_for(std::chrono::milliseconds(280));
   }
 
   rtde_control.servoStop();
 
+  // rtde_control.teachMode();
+  // rtde_control.endTeachMode();
+
+  // rtde_control.forceModeSetDamping(0.025);
+  // rtde_control.forceModeSetGainScaling(0.5);
+
+  // rtde_control.setSpeedSlider(0.3);
+
+  // std::vector<double> cog = {0, 0, 0};
+  // rtde_control.setPayload(1.3);
+  // rtde_control.setPayload(1.2, cog);
+
+  // rtde_control.setAnalogOutputCurrent(0, 0.5);
+  // rtde_control.setAnalogOutputCurrent(1, 0.25);
+
   // Test servoC
-  //rtde_control.servoC(tcp_pose1, velocity, acceleration, 0.01);*/
+  // rtde_control.servoC(tcp_pose1, velocity, acceleration, 0.01);*/
 
   // Test standard and tool digital out
-  //rtde_control.setStandardDigitalOut(2, true);
-  //rtde_control.setToolDigitalOut(1, true);
+  // rtde_control.setStandardDigitalOut(2, true);
+  // rtde_control.setToolDigitalOut(1, true);
 
   rtde_control.stopRobot();
 

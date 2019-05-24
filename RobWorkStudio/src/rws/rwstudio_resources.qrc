@@ -35,9 +35,9 @@
         <file>../images/bottom_view_100.png</file>
         <file>../images/rear_view_100.png</file>
 
-	<file>../images/zoom_auto.png</file>
-	<file>../images/zoom_in.png</file>
-	<file>../images/zoom_out.png</file>
+	    <file>../images/zoom_auto.png</file>
+	    <file>../images/zoom_in.png</file>
+	    <file>../images/zoom_out.png</file>
 
         
         <file alias="jog.png" >../rwslibs/jog/jog.png</file>
@@ -58,7 +58,12 @@
         <file alias="treeview.png" >../rwslibs/treeview/treeview.png</file>
         <file alias="planning.png" >../rwslibs/planning/planning.png</file>
         <file alias="lua.png">../rwslibs/lua/lua.png</file>
+        <file alias="wceditoricon.png">../rwslibs/workcelleditorplugin/wceditoricon.png</file>
         <file alias="sensors.png" >../rwslibs/sensors/sensors.png</file>
 		<file alias="wordlist.txt">../rwslibs/luaeditor/wordlist.txt</file>
+        <file alias="word_list.txt">../rwslibs/workcelleditor/word_list.txt</file>
+
+        <file alias="rwxml_workcell.xsd">../../../RobWork/xml-schemas/rwxml_workcell.xsd</file>
+
     </qresource>
 </RCC>

@@ -1,7 +1,7 @@
 |Build badge|
 
-.. |Build badge| image:: https://img.shields.io/badge/build-passed-brightgreen.svg
-   :target: https://gitlab.com/prier/ur_rtde/commits/master
+.. |Build badge| image:: https://gitlab.com/sdurobotics/ur_rtde/badges/master/pipeline.svg
+   :target: https://gitlab.com/sdurobotics/ur_rtde/commits/master
 
 ----------
 
@@ -12,10 +12,11 @@ A C++ interface for sending and receiving data to/from an UR robot using the `Re
 The interface can also by used with python, through the provided python bindings.
 
 .. toctree::
-	:caption: Table of Contents
-	:glob:
+   :caption: Table of Contents
+   :glob:
 
-	examples/examples
-	api/api
+   installation/installation
+   examples/examples
+   api/api
 
 

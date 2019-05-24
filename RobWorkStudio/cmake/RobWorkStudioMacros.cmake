@@ -35,10 +35,6 @@ MACRO(RWS_ADD_PLUGIN _name _component _lib_type)
     #  TARGET_LINK_LIBRARIES(${TargetName} ${ROBWORKSTUDIO_LIBRARIES})
     #  INSTALL(TARGETS ${TargetName} DESTINATION ${BIN_INSTALL_DIR})
     #ENDIF ()
-    IF( "${_lib_type}" STREQUAL "STATIC" )
-        #MESSAGE("STATIC:  ${_name} ${_lib_type}")  
-        SET(ENV{RWS_PLUGIN_LIBRARIES} "$ENV{RWS_PLUGIN_LIBRARIES}${_name};")
-    ENDIF()
     # Set the VERSION and SOVERSION of the library to the RobWorkStudio major and minor versions
     # On MAC OS we can not do this if we are building a Module (where it does not make much sense anyway)
     IF( NOT( "${_lib_type}" STREQUAL "MODULE" AND ${CMAKE_SYSTEM_NAME} MATCHES "Darwin" ) )
@@ -58,10 +54,9 @@ MACRO(RWS_ADD_PLUGIN _name _component _lib_type)
     #endif(USE_PROJECT_FOLDERS)
 
     install(TARGETS ${_name}
-        RUNTIME DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} COMPONENT ${_component}
-        LIBRARY DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} COMPONENT ${_component}
-        ARCHIVE DESTINATION ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} COMPONENT ${_component})
-        
+        RUNTIME DESTINATION ${BIN_INSTALL_DIR} COMPONENT ${_component}
+        LIBRARY DESTINATION ${LIB_INSTALL_DIR} COMPONENT ${_component}
+        ARCHIVE DESTINATION ${LIB_INSTALL_DIR} COMPONENT ${_component})
 
 endmacro()
 
@@ -77,9 +72,6 @@ MACRO(RWS_ADD_COMPONENT _name _component)
     IF(NOT RWS_USE_STATIC_LINK_PLUGINS)
       target_link_libraries(${_name} rws qtpropertybrowser ${ROBWORK_LIBRARIES} ${QT_LIBRARIES})
     ENDIF()
-
-    
-    SET(ENV{RWS_COMPONENT_LIBRARIES} "$ENV{RWS_COMPONENT_LIBRARIES}${_name};")
     
     # Only link if needed
     if(WIN32 AND MSVC)

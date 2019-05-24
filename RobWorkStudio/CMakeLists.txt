@@ -1,6 +1,10 @@
 # Test CMake version
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 
+if(POLICY CMP0074)
+  cmake_policy(SET CMP0074 NEW)
+endif()
+
 IF(DEFINED CMAKE_BUILD_TYPE)
    SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
 build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
@@ -39,13 +43,13 @@ INCLUDE(${RWS_ROOT}/cmake/RobWorkStudioMacros.cmake)
 
 RW_INIT_PROJECT(${RWS_ROOT} RobWorkStudio RWS ${ROBWORKSTUDIO_VERSION})
 RW_GET_OS_INFO()
-RW_SET_INSTALL_DIRS(RobWork RWS)
+RW_SET_INSTALL_DIRS(RobWorkStudio RWS)
 RW_OPTIONS(RWS)
 
 # Add an "uninstall" target
 configure_file("${RWS_ROOT}/cmake/uninstall_target.cmake.in"
                "${CMAKE_BINARY_DIR}/uninstall_target.cmake" IMMEDIATE @ONLY)
-add_custom_target(uninstall "${CMAKE_COMMAND}" -P
+add_custom_target(uninstall_rws "${CMAKE_COMMAND}" -P
                   "${CMAKE_BINARY_DIR}/uninstall_target.cmake")
 
 # This sets up ROBWORKSTUDIO_INCLUDE_DIR and ROBWORKSTUDIO_LIBRARIES
@@ -59,6 +63,10 @@ LINK_DIRECTORIES( ${ROBWORKSTUDIO_LIBRARY_DIRS} ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY
 SET(RW_STATIC_LINK_PLUGINS ${RWS_USE_STATIC_LINK_PLUGINS})
 # linking options
 OPTION(RWS_USE_STATIC_LINK_COMPONENTS "Set to false if dynamic link libraries of components is needed" ON)
+
+# Subdirectories adds plugins and libraries to these variables
+SET(RWS_PLUGIN_LIBRARIES)
+SET(RWS_COMPONENT_LIBRARIES)
 
 # sub directories to process
 ADD_SUBDIRECTORY(ext)

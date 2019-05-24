@@ -26,12 +26,13 @@ using namespace rw::geometry;
 using namespace rw::math;
 using namespace rw::common;
 
-Tube::Tube(float radius, float thickness, float height):
-	_radius(radius),_thickness(thickness),_height(height)
+Tube::Tube(float radius, float thickness, float height, int levels):
+	Primitive(levels), _radius(radius),_thickness(thickness),_height(height)
 {
 }
 
-Tube::Tube(const rw::math::Q& initQ)
+Tube::Tube(const rw::math::Q& initQ, int levels):
+  Primitive(levels)
 {
 	setParameters(initQ);
 }

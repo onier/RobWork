@@ -1,0 +1,39 @@
+<SerialDevice name="UR5e_2018">
+	<Frame name="Base" />
+	
+	<DHJoint name="Joint0" alpha="0"   a="0"      d="0"     offset="0" type="schilling" />
+	<DHJoint name="Joint1" alpha="90"  a="0"      d="0.163" offset="0" type="schilling" />
+	<DHJoint name="Joint2" alpha="0"   a="-0.425" d="0.007" offset="0" type="schilling" />
+	<DHJoint name="Joint3" alpha="0"   a="-0.392" d="0"     offset="0" type="schilling" />
+	<DHJoint name="Joint4" alpha="90"  a="0"      d="0.127" offset="0" type="schilling" />
+	<DHJoint name="Joint5" alpha="-90" a="0"      d="0.100" offset="0" type="schilling" />
+
+	<Frame name="Flange" refframe="Joint5">
+		<RPY>0 0 0</RPY>
+		<Pos>0 0 0.100</Pos>
+	</Frame>
+
+	<PosLimit refjoint="Joint0" min="-360" max="360" />
+	<PosLimit refjoint="Joint1" min="-450" max="270" />
+	<PosLimit refjoint="Joint2" min="-360" max="360" />
+	<PosLimit refjoint="Joint3" min="-450" max="270" />
+	<PosLimit refjoint="Joint4" min="-360" max="360" />
+	<PosLimit refjoint="Joint5" min="-360" max="360" />
+
+	<VelLimit refjoint="Joint0" max="180" />
+	<VelLimit refjoint="Joint1" max="180" />
+	<VelLimit refjoint="Joint2" max="180" />
+	<VelLimit refjoint="Joint3" max="180" />
+	<VelLimit refjoint="Joint4" max="180" />
+	<VelLimit refjoint="Joint5" max="180" />
+
+	<AccLimit refjoint="Joint0" max="120" />
+	<AccLimit refjoint="Joint1" max="120" />
+	<AccLimit refjoint="Joint2" max="120" />
+	<AccLimit refjoint="Joint3" max="120" />
+	<AccLimit refjoint="Joint4" max="120" />
+	<AccLimit refjoint="Joint5" max="120" />
+
+	<Q name="Home">1.57 -2.4 2.4 -1.57 -1.57 0</Q>
+
+</SerialDevice>

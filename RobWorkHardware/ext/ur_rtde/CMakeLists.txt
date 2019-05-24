@@ -45,6 +45,7 @@ if(${CODE})
 endif()
 
 set(LIB_SOURCE_FILES
+		src/robot_state.cpp
         src/rtde.cpp
         src/dashboard_client.cpp
         src/script_client.cpp
@@ -52,13 +53,13 @@ set(LIB_SOURCE_FILES
 		src/rtde_receive_interface.cpp)
 
 set(LIB_HEADER_FILES
-        include/rtde.h
-        include/rtde_utility.h
-        include/dashboard_client.h
-        include/robot_state.h
-        include/script_client.h
-        include/rtde_control_interface.h
-		include/rtde_receive_interface.h)
+        include/ur_rtde/rtde.h
+        include/ur_rtde/rtde_utility.h
+        include/ur_rtde/dashboard_client.h
+        include/ur_rtde/robot_state.h
+        include/ur_rtde/script_client.h
+        include/ur_rtde/rtde_control_interface.h
+		include/ur_rtde/rtde_receive_interface.h)
 
 if(${PYTHON_BINDINGS})
 	find_package(pybind11 REQUIRED)
@@ -77,7 +78,7 @@ if(${CODE})
 	string(REGEX REPLACE "\"" "\"+QUOTATION+\"" FILEVAR ${RTDE_CONTROL_SCRIPT})
 	string(REGEX REPLACE "\\\n" "\" + NEW_LINE  + \n\"" FILEVAR ${FILEVAR})
 	set(end "\";")
-	file(WRITE include/rtde_control_script.h "${header}${FILEVAR}${end}")
+	file(WRITE include/ur_rtde/rtde_control_script.h "${header}${FILEVAR}${end}")
 
 	add_library(rtde SHARED ${LIB_SOURCE_FILES} ${LIB_HEADER_FILES})
 	target_include_directories(rtde
@@ -152,12 +153,22 @@ if(${CODE})
 		set_target_properties(rtde PROPERTIES LINK_FLAGS -Wl,--no-undefined)
 	endif()
 
+	if(NOT DEFINED LIB_INSTALL_DIR)
+		set(LIB_INSTALL_DIR "lib")
+	endif()
+	if(NOT DEFINED BIN_INSTALL_DIR)
+		set(BIN_INSTALL_DIR "bin")
+	endif()
+	if(NOT DEFINED INCLUDE_INSTALL_DIR)
+		set(INCLUDE_INSTALL_DIR "include/ur_rtde")
+	endif()
+
 	install(TARGETS rtde
 			EXPORT RTDETargets
-			LIBRARY DESTINATION lib
-			ARCHIVE DESTINATION lib
-			RUNTIME DESTINATION bin
-			INCLUDES DESTINATION include
+			LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+			ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+			RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+			INCLUDES DESTINATION ${INCLUDE_INSTALL_DIR}
 			)
 	if(${PYTHON_BINDINGS})
 		install(TARGETS rtde_control rtde_receive
@@ -168,7 +179,7 @@ if(${CODE})
 			FILES
 			${LIB_HEADER_FILES}
 			"${CMAKE_CURRENT_BINARY_DIR}/rtde_export.h"
-			DESTINATION include
+			DESTINATION ${INCLUDE_INSTALL_DIR}
 			COMPONENT ur_rtde
 	)
 
@@ -189,12 +200,12 @@ if(${CODE})
 	install(EXPORT RTDETargets
 		FILE ur_rtdeTargets.cmake
 		NAMESPACE ur_rtde::
-		DESTINATION lib/cmake/ur_rtde
+		DESTINATION ${LIB_INSTALL_DIR}/cmake/ur_rtde
 	)
 	install(
 		FILES cmake/ur_rtdeConfig.cmake
 		"${CMAKE_CURRENT_BINARY_DIR}/ur_rtde/ur_rtdeConfigVersion.cmake"
-		DESTINATION lib/cmake/ur_rtde
+		DESTINATION ${LIB_INSTALL_DIR}/cmake/ur_rtde
 		COMPONENT ur_rtde
 	)
 endif()

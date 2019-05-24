@@ -23,7 +23,7 @@ IF( build )
           rwhw_motomanIA20
           MotomanIA20.cpp
         )
-        SET( ENV{ROBWORKHARDWARE_LIBRARIES} "$ENV{ROBWORKHARDWARE_LIBRARIES}rwhw_motomanIA20;")
+        set(ROBWORKHARDWARE_LIBRARIES ${ROBWORKHARDWARE_LIBRARIES} rwhw_motomanIA20 PARENT_SCOPE)
         MESSAGE(STATUS "RobWorkHardware: ${SUBSYS_NAME} component ENABLED")
     ELSE()
         MESSAGE(STATUS "RobWorkHardware: ${SUBSYS_NAME} component DISABLED - linux only")

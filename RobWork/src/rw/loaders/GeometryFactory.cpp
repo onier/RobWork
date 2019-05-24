@@ -81,7 +81,7 @@ namespace
 					"Negative discretization level "
 					<< divisions);
 
-			return ownedPtr(new Geometry(ownedPtr(new Cylinder(radius, height))));
+			return ownedPtr(new Geometry(ownedPtr(new Cylinder(radius, height, divisions))));
 		} else {
 			RW_THROW("Could not read (radius, height, divisions).");
 			return NULL;
@@ -95,7 +95,7 @@ namespace
 		if (sstr >> radius >> thickness >> height >> divisions) {
 			if (divisions < 0)
 				RW_THROW("Negative discretization level " << divisions);
-			return ownedPtr(new Geometry(ownedPtr(new Tube(radius, thickness, height))));
+			return ownedPtr(new Geometry(ownedPtr(new Tube(radius, thickness, height, divisions))));
 		} else {
 			RW_THROW("Could not read (radius, thickness, height, divisions).");
 			return NULL;
@@ -143,8 +143,9 @@ namespace
 
 	Geometry::Ptr constructSphere(std::stringstream& sstr){
 		float radius;
-		if (sstr >> radius) {
-			return ownedPtr(new Geometry(ownedPtr(new Sphere(radius))));
+    int divisions;
+		if (sstr >> radius >> divisions) {
+			return ownedPtr(new Geometry(ownedPtr(new Sphere(radius, divisions))));
 		} else {
 			RW_THROW("Could not read (radius).");
 			return NULL;
@@ -154,8 +155,9 @@ namespace
 
 	Geometry::Ptr constructCone(std::stringstream& sstr){
 		float height, radiusTop;
-		if (sstr >> radiusTop >> height) {
-			return ownedPtr(new Geometry(ownedPtr(new Cone(height, radiusTop, 0))));
+    int divisions;
+		if (sstr >> radiusTop >> height >> divisions) {
+			return ownedPtr(new Geometry(ownedPtr(new Cone(height, radiusTop, 0, divisions))));
 		} else {
 			RW_THROW("Could not read (radius, height).");
 			return NULL;

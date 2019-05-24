@@ -1,9 +1,10 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/functional.h>
-#include <rtde_control_interface.h>
-#include <rtde_receive_interface.h>
+#include <ur_rtde/rtde_control_interface.h>
+#include <ur_rtde/rtde_receive_interface.h>
 namespace py = pybind11;
+using namespace ur_rtde;
 
 namespace rtde_control
 {
@@ -31,14 +32,21 @@ PYBIND11_MODULE(rtde_control, m)
       .def("moveC", &RTDEControlInterface::moveC)
       .def("speedJ", &RTDEControlInterface::speedJ)
       .def("speedL", &RTDEControlInterface::speedL)
+      .def("speedStop", &RTDEControlInterface::speedStop)
       .def("servoJ", &RTDEControlInterface::servoJ)
       .def("servoC", &RTDEControlInterface::servoC)
+      .def("servoStop", &RTDEControlInterface::servoStop)
       .def("forceModeStart", &RTDEControlInterface::forceModeStart)
-      .def("forceModeUpdate", &RTDEControlInterface::forceModeUpdate)
       .def("forceModeStop", &RTDEControlInterface::forceModeStop)
+      .def("forceModeSetDamping", &RTDEControlInterface::forceModeSetDamping)
+      .def("forceModeSetGainScaling", &RTDEControlInterface::forceModeSetGainScaling)
       .def("zeroFtSensor", &RTDEControlInterface::zeroFtSensor)
       .def("setStandardDigitalOut", &RTDEControlInterface::setStandardDigitalOut)
       .def("setToolDigitalOut", &RTDEControlInterface::setToolDigitalOut)
+      .def("setPayload", &RTDEControlInterface::setPayload)
+      .def("setSpeedSlider", &RTDEControlInterface::setSpeedSlider)
+      .def("setAnalogOutputCurrent", &RTDEControlInterface::setAnalogOutputCurrent)
+      .def("setAnalogOutputVoltage", &RTDEControlInterface::setAnalogOutputCurrent)
       .def("__repr__", [](const RTDEControlInterface &a)
            {
         return "<rtde_control.RTDEControlInterface>";
@@ -84,6 +92,10 @@ PYBIND11_MODULE(rtde_receive, m)
       .def("getActualJointVoltage", &RTDEReceiveInterface::getActualJointVoltage)
       .def("getActualDigitalOutputBits", &RTDEReceiveInterface::getActualDigitalOutputBits)
       .def("getRuntimeState", &RTDEReceiveInterface::getRuntimeState)
+      .def("getStandardAnalogInput0", &RTDEReceiveInterface::getStandardAnalogInput0)
+      .def("getStandardAnalogInput1", &RTDEReceiveInterface::getStandardAnalogInput1)
+      .def("getStandardAnalogOutput0", &RTDEReceiveInterface::getStandardAnalogOutput0)
+      .def("getStandardAnalogOutput1", &RTDEReceiveInterface::getStandardAnalogOutput1)
       .def("__repr__", [](const RTDEReceiveInterface &a)
            {
         return "<rtde_receive.RTDEReceiveInterface>";

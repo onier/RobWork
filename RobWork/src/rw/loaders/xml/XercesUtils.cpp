@@ -49,12 +49,14 @@ xercesc::DOMDocument* XercesDocumentReader::readDocument(XercesDOMParser& parser
 
 
     parser.setErrorHandler(&errorHandler);
-    parser.setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+    //parser.setValidationScheme(xercesc::XercesDOMParser::Val_Auto);
+    parser.setValidationScheme(xercesc::XercesDOMParser::Val_Always);
+    parser.setValidationSchemaFullChecking(true);
 
     parser.parse(filename.c_str());
     if (parser.getErrorCount() != 0) {
-		std::cerr<<std::endl<<std::endl<<"Error(s) parsing file '"<<filename<<"': "<<std::endl<<XMLStr(errorHandler.getMessages()).str()<<std::endl;
-        RW_THROW(""<<parser.getErrorCount()<<"Error(s) parsing "<<filename<<": "<<XMLStr(errorHandler.getMessages()).str());
+	std::cerr<<std::endl<<std::endl<<"Error(s) parsing file '"<<filename<<"': "<<std::endl<<errorHandler.getMessages()<<std::endl;
+        RW_THROW(""<<parser.getErrorCount()<<" Error(s) parsing "<<filename<<": "<<XMLStr(errorHandler.getMessages()).str());
     }
     return parser.getDocument();
 }

@@ -5,6 +5,7 @@ SET(SUBSYS_DEPS rw )
 SET(build TRUE)
 SET(default TRUE)
 
+set(Boost_NO_BOOST_CMAKE TRUE) # From Boost 1.70, CMake files are provided by Boost - we are not yet ready to handle it
 
 FIND_PACKAGE(Boost REQUIRED COMPONENTS system regex QUIET)
 set(DEFAULT TRUE)
@@ -32,7 +33,7 @@ IF( build )
     TARGET_LINK_LIBRARIES(rwhw_netft PUBLIC ${ROBWORK_LIBRARIES})
     RW_ADD_INCLUDES(netft "rwhw/netft" ${SRC_HPP})
 
-    SET( ENV{ROBWORKHARDWARE_LIBRARIES} "$ENV{ROBWORKHARDWARE_LIBRARIES}rwhw_netft;${Boost_LIBRARIES};")
+    set(ROBWORKHARDWARE_LIBRARIES ${ROBWORKHARDWARE_LIBRARIES} rwhw_netft PARENT_SCOPE)
 ENDIF()
 
 

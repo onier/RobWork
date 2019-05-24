@@ -4,8 +4,6 @@
 ADD_SUBDIRECTORY(rws)
 
 # compile the component libraries (plugins and other static libs) 
-SET(ENV{RWS_COMPONENT_LIBRARIES} "")
-SET(ENV{RWS_PLUGIN_LIBRARIES} "")
 ADD_SUBDIRECTORY(rwslibs)
 
 # Then sandbox if choosen
@@ -14,8 +12,9 @@ IF ( RWS_BUILD_SANDBOX )
     ADD_SUBDIRECTORY(sandbox)
 ENDIF()
 
-SET(RWS_PLUGIN_LIBRARIES $ENV{RWS_PLUGIN_LIBRARIES} CACHE STRING "plugin libs" FORCE)
-SET(RWS_COMPONENT_LIBRARIES $ENV{RWS_COMPONENT_LIBRARIES} CACHE STRING "component libs" FORCE)
+# Propagate libraries to parent directory
+set(RWS_PLUGIN_LIBRARIES ${RWS_PLUGIN_LIBRARIES} PARENT_SCOPE)
+set(RWS_COMPONENT_LIBRARIES ${RWS_COMPONENT_LIBRARIES} PARENT_SCOPE)
 
 # now create the actual RobWorkStudio executable
 # Now the RobWorkStudio executable need to be build:

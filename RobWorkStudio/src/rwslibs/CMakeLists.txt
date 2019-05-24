@@ -25,6 +25,8 @@ add_subdirectory(propertyview)
 add_subdirectory(treeview)
 add_subdirectory(planning)
 add_subdirectory(sensors)
+add_subdirectory(workcelleditor)
+add_subdirectory(workcelleditorplugin)
 add_subdirectory(luaeditor)
 add_subdirectory(lua)
 # depends on all above
@@ -32,4 +34,6 @@ add_subdirectory(rwstudioapp)
 # this needs to be last
 add_subdirectory(swig)
 
-
+# Propagate libraries to parent directory
+set(RWS_PLUGIN_LIBRARIES ${RWS_PLUGIN_LIBRARIES} PARENT_SCOPE)
+set(RWS_COMPONENT_LIBRARIES ${RWS_COMPONENT_LIBRARIES} PARENT_SCOPE)
