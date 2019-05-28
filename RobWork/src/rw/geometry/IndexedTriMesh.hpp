@@ -610,6 +610,9 @@ namespace geometry {
 
 	};
 
+    extern template class rw::geometry::IndexedTriMeshN0<float>;
+    extern template class rw::geometry::IndexedTriMeshN0<double>;
+
 	//! @brief The type for a IndexedTriMesh with no normals of double value type and uint16_t as index type.
     typedef IndexedTriMeshN0<> IndexedTriMeshN0D;
     //! @brief The type for a IndexedTriMesh with no normals of float value type and uint16_t as index type.

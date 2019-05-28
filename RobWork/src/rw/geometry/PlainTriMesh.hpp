@@ -218,6 +218,14 @@ namespace geometry {
 
 	};
 
+	extern template class rw::geometry::PlainTriMesh<Triangle<double> >;
+	extern template class rw::geometry::PlainTriMesh<TriangleN1<double> >;
+	extern template class rw::geometry::PlainTriMesh<TriangleN3<double> >;
+
+	extern template class rw::geometry::PlainTriMesh<Triangle<float> >;
+	extern template class rw::geometry::PlainTriMesh<TriangleN1<float> >;
+	extern template class rw::geometry::PlainTriMesh<TriangleN3<float> >;
+
 	//! @brief tri mesh, double, no normals
 	typedef PlainTriMesh<Triangle<double> > PlainTriMeshD;
 	//! @brief tri mesh, float, no normals

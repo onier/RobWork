@@ -628,6 +628,9 @@ namespace rw { namespace math {
 			static_cast<Q>(vs(5)));
 	}
 
+	extern template class rw::math::VelocityScrew6D<double>;
+	extern template class rw::math::VelocityScrew6D<float>;
+
     /*@}*/
 }} // end namespaces
 

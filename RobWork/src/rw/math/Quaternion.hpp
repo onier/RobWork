@@ -636,6 +636,9 @@ private:
 			static_cast<Q>(quaternion(3)));
 	}
 
+	extern template class rw::math::Quaternion<double>;
+	extern template class rw::math::Quaternion<float>;
+
     /*@}*/
 }} // end namespaces
 

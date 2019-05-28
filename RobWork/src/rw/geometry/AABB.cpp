@@ -17,5 +17,7 @@
 
 #include "AABB.hpp"
 
+template class rw::geometry::BV<rw::geometry::AABB<double> >;
 template class rw::geometry::AABB<double>;
+template class rw::geometry::BV<rw::geometry::AABB<float> >;
 template class rw::geometry::AABB<float>;

@@ -26,6 +26,15 @@
 using namespace rw::common;
 using namespace rw::math;
 
+
+
+template<class T>
+const Rotation3D<T>& Rotation3D<T>::identity()
+{
+    static Rotation3D id(1,0,0,0,1,0,0,0,1);
+    return id;
+}
+
 template<class T>
 bool Rotation3D<T>::isProperRotation() const {
     return LinearAlgebra::isSO(e());

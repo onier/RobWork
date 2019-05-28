@@ -494,6 +494,9 @@ namespace rw { namespace math {
         return q;
     }
 
+    extern template class rw::math::Vector<double>;
+    extern template class rw::math::Vector<float>;
+
     /*@}*/
 
 }} // end namespaces

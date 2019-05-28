@@ -580,6 +580,9 @@ namespace rw { namespace math {
 			static_cast<Q>(vs(5)));
 	}
 
+	extern template class rw::math::Wrench6D<double>;
+	extern template class rw::math::Wrench6D<float>;
+
     /*@}*/
 }} // end namespaces
 

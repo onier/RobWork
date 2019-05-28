@@ -76,4 +76,9 @@ template<typename T> struct Traits<rw::geometry::AABB<T> >{
 
 } // rw
 
+extern template class rw::geometry::BV<rw::geometry::AABB<double> >;
+extern template class rw::geometry::AABB<double>;
+extern template class rw::geometry::BV<rw::geometry::AABB<float> >;
+extern template class rw::geometry::AABB<float>;
+
 #endif /* AABB_HPP_ */

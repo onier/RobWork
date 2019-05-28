@@ -509,6 +509,8 @@ namespace rw { namespace math {
             static_cast<Q>(v(2)));
     }
 
+    extern template class rw::math::Vector3D<double>;
+    extern template class rw::math::Vector3D<float>;
 
     /**@}*/
 }} // end namespaces

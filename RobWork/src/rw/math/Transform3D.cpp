@@ -62,6 +62,15 @@ const Transform3D<T> Transform3D<T>::craigDH(T alpha, T a, T d, T theta)
 }
 
 template<class T>
+const Transform3D<T>& Transform3D<T>::identity()
+{
+        static const Transform3D id(
+                Vector3D<T>(0, 0, 0),
+                Rotation3D<T>::identity());
+        return id;
+}
+
+template<class T>
 typename Transform3D<T>::EigenMatrix4x4 Transform3D<T>::e() const
 {
     EigenMatrix4x4 matrix;

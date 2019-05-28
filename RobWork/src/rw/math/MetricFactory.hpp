@@ -25,6 +25,9 @@
 #include "EAA.hpp"
 #include "Metric.hpp"
 #include "MetricUtil.hpp"
+#include "Vector2D.hpp"
+
+#include <rw/kinematics/State.hpp>
 
 namespace rw { namespace math {
 
@@ -455,6 +458,96 @@ namespace rw { namespace math {
         MetricFactory(const MetricFactory&);
         MetricFactory& operator=(const MetricFactory&);
     };
+
+    extern template class rw::math::ManhattanMetric<Q>;
+    extern template class rw::math::WeightedManhattanMetric<Q>;
+
+    extern template class rw::math::EuclideanMetric<Q>;
+    extern template class rw::math::WeightedEuclideanMetric<Q>;
+
+    extern template class rw::math::InfinityMetric<Q>;
+    extern template class rw::math::WeightedInfinityMetric<Q>;
+
+    extern template class rw::math::ManhattanMetric<Vector2D<> >;
+    extern template class rw::math::WeightedManhattanMetric<Vector2D<> >;
+
+    extern template class rw::math::EuclideanMetric<Vector2D<> >;
+    extern template class rw::math::WeightedEuclideanMetric<Vector2D<> >;
+
+    extern template class rw::math::InfinityMetric<Vector2D<> >;
+    extern template class rw::math::WeightedInfinityMetric<Vector2D<> >;
+
+    extern template class rw::math::ManhattanMetric<Vector2D<float> >;
+    extern template class rw::math::WeightedManhattanMetric<Vector2D<float> >;
+
+    extern template class rw::math::EuclideanMetric<Vector2D<float> >;
+    extern template class rw::math::WeightedEuclideanMetric<Vector2D<float> >;
+
+    extern template class rw::math::InfinityMetric<Vector2D<float> >;
+    extern template class rw::math::WeightedInfinityMetric<Vector2D<float> >;
+
+    extern template class rw::math::ManhattanMetric<Vector3D<> >;
+    extern template class rw::math::WeightedManhattanMetric<Vector3D<> >;
+
+    extern template class rw::math::EuclideanMetric<Vector3D<> >;
+    extern template class rw::math::WeightedEuclideanMetric<Vector3D<> >;
+
+    extern template class rw::math::InfinityMetric<Vector3D<> >;
+    extern template class rw::math::WeightedInfinityMetric<Vector3D<> >;
+
+    extern template class rw::math::ManhattanMetric<Vector3D<float> >;
+    extern template class rw::math::WeightedManhattanMetric<Vector3D<float> >;
+
+    extern template class rw::math::EuclideanMetric<Vector3D<float> >;
+    extern template class rw::math::WeightedEuclideanMetric<Vector3D<float> >;
+
+    extern template class rw::math::InfinityMetric<Vector3D<float> >;
+    extern template class rw::math::WeightedInfinityMetric<Vector3D<float> >;
+
+    extern template class rw::math::ManhattanMetric<boost::numeric::ublas::vector<double> >;
+    extern template class rw::math::WeightedManhattanMetric<boost::numeric::ublas::vector<double> >;
+
+    extern template class rw::math::EuclideanMetric<boost::numeric::ublas::vector<double> >;
+    extern template class rw::math::WeightedEuclideanMetric<boost::numeric::ublas::vector<double> >;
+
+    extern template class rw::math::InfinityMetric<boost::numeric::ublas::vector<double> >;
+    extern template class rw::math::WeightedInfinityMetric<boost::numeric::ublas::vector<double> >;
+
+    extern template class rw::math::ManhattanMetric<boost::numeric::ublas::vector<float> >;
+    extern template class rw::math::WeightedManhattanMetric<boost::numeric::ublas::vector<float> >;
+
+    extern template class rw::math::EuclideanMetric<boost::numeric::ublas::vector<float> >;
+    extern template class rw::math::WeightedEuclideanMetric<boost::numeric::ublas::vector<float> >;
+
+    extern template class rw::math::InfinityMetric<boost::numeric::ublas::vector<float> >;
+    extern template class rw::math::WeightedInfinityMetric<boost::numeric::ublas::vector<float> >;
+
+    extern template class rw::math::ManhattanMetric<std::vector<double> >;
+    extern template class rw::math::WeightedManhattanMetric<std::vector<double> >;
+
+    extern template class rw::math::EuclideanMetric<std::vector<double> >;
+    extern template class rw::math::WeightedEuclideanMetric<std::vector<double> >;
+
+    extern template class rw::math::InfinityMetric<std::vector<double> >;
+    extern template class rw::math::WeightedInfinityMetric<std::vector<double> >;
+
+    extern template class rw::math::ManhattanMetric<std::vector<float> >;
+    extern template class rw::math::WeightedManhattanMetric<std::vector<float> >;
+
+    extern template class rw::math::EuclideanMetric<std::vector<float> >;
+    extern template class rw::math::WeightedEuclideanMetric<std::vector<float> >;
+
+    extern template class rw::math::InfinityMetric<std::vector<float> >;
+    extern template class rw::math::WeightedInfinityMetric<std::vector<float> >;
+
+    extern template class rw::math::ManhattanMetric<rw::kinematics::State>;
+    extern template class rw::math::WeightedManhattanMetric<rw::kinematics::State>;
+
+    extern template class rw::math::EuclideanMetric<rw::kinematics::State>;
+    extern template class rw::math::WeightedEuclideanMetric<rw::kinematics::State>;
+
+    extern template class rw::math::InfinityMetric<rw::kinematics::State>;
+    extern template class rw::math::WeightedInfinityMetric<rw::kinematics::State>;
 
     /* @} */
 }} // end namespaces

@@ -202,6 +202,8 @@ namespace geometry {
         return true;
     }
 
+    extern template class rw::geometry::TriTriIntersectDeviller<double>;
+    extern template class rw::geometry::TriTriIntersectDeviller<float>;
 }
 }
 

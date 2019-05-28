@@ -211,14 +211,7 @@ namespace rw { namespace math {
          * \right]
          * @f$
          */
-        // Is implemented in header because of some bugs in mingw
-        static const Transform3D& identity()
-        {
-            static const Transform3D id(
-                Vector3D<T>(0, 0, 0),
-                Rotation3D<T>::identity());
-            return id;
-        }
+        static const Transform3D& identity();
 
 
 
@@ -508,6 +501,10 @@ namespace rw { namespace math {
         Rotation3D<T> _R;
     };
 
+
+    // Explicit template specifications.
+    extern template class rw::math::Transform3D<double>;
+    extern template class rw::math::Transform3D<float>;
 
 
     /**
