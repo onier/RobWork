@@ -484,9 +484,8 @@ namespace rw { namespace math {
             static_cast<Q>(v(2)));
     }
 
-
-
-
+    extern template class rw::math::VectorND<3,double>;
+    extern template class rw::math::VectorND<3,float>;
 
     /**@}*/
 }} // end namespaces

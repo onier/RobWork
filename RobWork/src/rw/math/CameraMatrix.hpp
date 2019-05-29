@@ -111,6 +111,9 @@ namespace math {
 		Base _matrix;
 
 	};
+
+	extern template class rw::math::CameraMatrix<double>;
+	extern template class rw::math::CameraMatrix<float>;
 }
 }
 

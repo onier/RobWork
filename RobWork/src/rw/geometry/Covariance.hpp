@@ -140,6 +140,8 @@ namespace geometry {
 		Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> _covar;
 	};
 
+	extern template class rw::geometry::Covariance<double>;
+	extern template class rw::geometry::Covariance<float>;
 }
 }
 

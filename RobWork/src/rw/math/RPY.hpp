@@ -181,6 +181,9 @@ namespace rw { namespace math {
 			static_cast<Q>(rpy(2)));
 	}
 
+	extern template class rw::math::RPY<double>;
+	extern template class rw::math::RPY<float>;
+
     /*@}*/
 }} // end namespaces
 

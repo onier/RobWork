@@ -382,6 +382,9 @@ namespace rw { namespace math {
 		return res;
 	}
 
+	extern template class rw::math::InertiaMatrix<double>;
+	extern template class rw::math::InertiaMatrix<float>;
+
     /*@}*/
 }} // end namespaces
 

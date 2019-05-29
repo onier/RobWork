@@ -212,6 +212,9 @@ namespace geometry {
 
 	    return true;  // should equal 0
 	}
+
+	extern template class rw::geometry::OBBCollider<double>;
+	extern template class rw::geometry::OBBCollider<float>;
 }
 }
 

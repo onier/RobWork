@@ -72,6 +72,9 @@ namespace rw { namespace math {
         Rotation3DVector() {}
     };
 
+    extern template class rw::math::Rotation3DVector<double>;
+    extern template class rw::math::Rotation3DVector<float>;
+
     /**@}*/
 }} // end namespaces
 

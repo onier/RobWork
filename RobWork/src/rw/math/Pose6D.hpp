@@ -217,6 +217,9 @@ namespace rw { namespace math {
             << ", " << v(3) << ", " << v(4) << ", " << v(5) << "}";
     }
 
+    extern template class rw::math::Pose6D<double>;
+    extern template class rw::math::Pose6D<float>;
+
     /*@}*/
 }} // end namespaces
 

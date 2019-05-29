@@ -265,11 +265,16 @@ public:
 	}
 
 };
-
 }
 
 //! define traits of the OBB
 template<typename T> struct Traits<geometry::OBB<T> >{ typedef T value_type; };
 
 }
+
+extern template class rw::geometry::OBV<rw::geometry::OBB<double> >;
+extern template class rw::geometry::OBB<double>;
+extern template class rw::geometry::OBV<rw::geometry::OBB<float> >;
+extern template class rw::geometry::OBB<float>;
+
 #endif /*OBB_HPP_*/

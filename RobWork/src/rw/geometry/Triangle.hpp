@@ -397,6 +397,15 @@ namespace geometry {
         inline Triangle<T>& getTriangle() { return _triN0; }
 
 	};
+
+	extern template class rw::geometry::Triangle<double>;
+	extern template class rw::geometry::TriangleN1<double>;
+	extern template class rw::geometry::TriangleN3<double>;
+
+	extern template class rw::geometry::Triangle<float>;
+	extern template class rw::geometry::TriangleN1<float>;
+	extern template class rw::geometry::TriangleN3<float>;
+
 	// @}
 } // geometry
 } // rw

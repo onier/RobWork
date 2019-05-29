@@ -375,6 +375,9 @@ namespace rw { namespace math {
 			static_cast<Q>(eaa(2)));
 	}
 
+	extern template class rw::math::EAA<double>;
+	extern template class rw::math::EAA<float>;
+
     /*@}*/
 
 }} // end namespaces

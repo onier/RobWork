@@ -409,6 +409,9 @@ namespace rw { namespace math {
         return Rotation2D<T>(aRb(0,0), aRb(1,0), aRb(0,1), aRb(1,1));
     }
 
+    extern template class rw::math::Rotation2D<double>;
+    extern template class rw::math::Rotation2D<float>;
+
     /**@}*/
 }} // end namespaces
 

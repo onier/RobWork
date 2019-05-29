@@ -283,6 +283,8 @@ namespace rw { namespace math {
         //return PerspectiveTransform2D<T>(trans(aRb.m()));
     }
 
+	extern template class rw::math::PerspectiveTransform2D<double>;
+	extern template class rw::math::PerspectiveTransform2D<float>;
 
 }} // end namespaces
 

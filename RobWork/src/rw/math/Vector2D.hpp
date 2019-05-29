@@ -422,6 +422,9 @@ namespace rw { namespace math {
     bool operator!=(const Vector2D<T>& a, const Vector2D<T>& b)
     { return !(a == b); }
 
+    extern template class rw::math::Vector2D<double>;
+    extern template class rw::math::Vector2D<float>;
+
     /**@}*/
 }} // end namespaces
 

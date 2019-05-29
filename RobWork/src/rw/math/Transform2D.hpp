@@ -255,6 +255,9 @@ namespace rw { namespace math {
             inverse(aTb.R()));
     }
 
+    extern template class rw::math::Transform2D<double>;
+    extern template class rw::math::Transform2D<float>;
+
     /*@}*/
 
 }} // end namespaces

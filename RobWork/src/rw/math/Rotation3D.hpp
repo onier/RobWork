@@ -176,12 +176,7 @@ namespace rw { namespace math {
          * \right]
          * @f$
          */
-        static const Rotation3D& identity()
-        {
-            //static Rotation3D id(boost::numeric::ublas::identity_matrix<T>(3));
-			static Rotation3D id(1,0,0,0,1,0,0,0,1);
-            return id;
-        }
+        static const Rotation3D& identity();
 
 
         /**
@@ -497,7 +492,7 @@ namespace rw { namespace math {
     template<class Q, class T>
     const Rotation3D<Q> cast(const Rotation3D<T>& rot)
     {
-        Rotation3D<Q> res(Rotation3D<Q>::identity());
+        Rotation3D<Q> res;
         for (size_t i = 0; i < 3; i++)
             for (size_t j = 0; j < 3; j++)
                 res(i, j) = static_cast<Q>(rot(i, j));
@@ -559,7 +554,9 @@ namespace rw { namespace math {
             << ")";
     }
 
-
+    // Explicit template specifications.
+    extern template class rw::math::Rotation3D<double>;
+    extern template class rw::math::Rotation3D<float>;
 
     /**@}*/
 }} // end namespaces
