@@ -121,7 +121,7 @@ namespace rwhw { namespace camera {
         void setFrameRate(double framerate);
 
         /**
-         * @copydoc rw::sensor::Camera::getCaptureMode
+         * @copydoc rw::sensor::CameraFirewire::getCaptureMode
          */
         virtual CameraFirewire::CaptureMode getCaptureMode();
 
@@ -132,32 +132,32 @@ namespace rwhw { namespace camera {
         CameraFirewire::ColorCode getColorMode();
 
         /**
-         * @copydoc rw::sensor::Camera::setCaptureMode
+         * @copydoc rw::sensor::CameraFirewire::setCaptureMode
          */
         virtual bool setCaptureMode(CameraFirewire::CaptureMode mode);
 
         /**
-		 * @copydoc rw::sensor::Camera::setColorMode
+		 * @copydoc rw::sensor::CameraFirewire::setColorMode
 		 */
         virtual bool setColorMode(CameraFirewire::ColorCode);
 
         /**
-         * @copydoc rw::sensor::Camera::getCapturePolicy
+         * @copydoc rw::sensor::CameraFirewire::getCapturePolicy
          */
         CameraFirewire::CapturePolicy getCapturePolicy();
 
         /**
-		 * @copydoc rw::sensor::Camera::setCapturePolicy
+		 * @copydoc rw::sensor::CameraFirewire::setCapturePolicy
 		 */
 		 bool setCapturePolicy(CameraFirewire::CapturePolicy);
 
         /**
-         * @copydoc rw::sensor::Camera::geFeature
+         * @copydoc rw::sensor::CameraFirewire::geFeature
          */
         virtual double getFeature(CameraFirewire::CameraFeature setting);
 
         /**
-         * @copydoc rw::sensor::Camera::setFeature
+         * @copydoc rw::sensor::CameraFirewire::setFeature
          */
         virtual bool setFeature(CameraFirewire::CameraFeature setting, double value);
 

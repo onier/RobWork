@@ -136,22 +136,22 @@ namespace control {
 		//! @brief Disable control of all bodies.
 		void disableBodyControl();
 
-		//! @copydoc SimulatedController::update
+		//! @copydoc rwlibs::simulation::SimulatedController::update
 		void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::reset
+		//! @copydoc rwlibs::simulation::SimulatedController::reset
 		void reset(const rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::getControllerName
+		//! @copydoc rwlibs::simulation::SimulatedController::getControllerName
 		std::string getControllerName(){ return getName(); };
 
-		//! @copydoc SimulatedController::setEnabled
+		//! @copydoc rwlibs::simulation::SimulatedController::setEnabled
         void setEnabled(bool enabled){ _enabled = enabled; };
 
-		//! @copydoc SimulatedController::isEnabled
+		//! @copydoc rwlibs::simulation::SimulatedController::isEnabled
         bool isEnabled() const { return _enabled; } ;
 
-		//! @copydoc SimulatedController::getControllerHandle
+		//! @copydoc rwlibs::simulation::SimulatedController::getControllerHandle
         rwlibs::control::Controller::Ptr getControllerHandle(rwlibs::simulation::Simulator::Ptr sim){ return this;}
 
 	private:

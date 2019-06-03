@@ -54,10 +54,10 @@ namespace sensor {
 		virtual ~SimulatedFTSensor();
 
 		//// Interface inherited from SimulatedSensor
-		//! @copydoc SimulatedSensor::update
+		//! @copydoc rwlibs::simulation::SimulatedSensor::update
 		void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-		//! @copydoc SimulatedSensor::reset
+		//! @copydoc rwlibs::simulation::SimulatedSensor::reset
 		void reset(const rw::kinematics::State& state);
 
 		//// Interface inherited from SimulatedTactileSensor
