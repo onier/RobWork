@@ -124,7 +124,7 @@ struct GJK
   {
     /// @brief support direction
     Vec3f d; 
-    /// @brieg support vector (i.e., the furthest point on the shape along the support direction)
+    /// @brief support vector (i.e., the furthest point on the shape along the support direction)
     Vec3f w;
   };
 

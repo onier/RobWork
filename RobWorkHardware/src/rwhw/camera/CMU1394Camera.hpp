@@ -130,7 +130,8 @@ namespace rwhw {
         virtual bool setCaptureMode(CaptureMode mode);
 
         /**
-         * @copydoc rw::sensor::Camera::getDimension
+         * @brief returns the Dimension of this camera
+         * @return the camera Dimension
          */
         std::pair<unsigned int,unsigned int> getDimension();
 

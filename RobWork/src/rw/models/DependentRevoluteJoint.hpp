@@ -115,7 +115,7 @@ namespace rw { namespace models {
                          const kinematics::State& state,
                          math::Jacobian& jacobian) const;
 
-        //! @copydoc Joint::getFixedtransform
+        //! @copydoc Joint::getFixedTransform()
         rw::math::Transform3D<> getFixedTransform() const{ return _helper.getFixedTransform();};
 
         //! @copydoc Joint::setFixedTransform()

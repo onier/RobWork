@@ -25,13 +25,13 @@ public:
 	virtual ~GuendelContactModel(){};
 	
 	/**
-	 * @copydoc dynamics::ContactModel::preImpulseCalc 
+	 * @copydoc ContactModel::preImpulseCalc 
 	 */
     virtual void preImpulseCalc(Contact& contact,
                                 ContactPoint& point);
     
     /**
-     * @copydoc dynamics::ContactModel::preImpulseCalc 
+     * @copydoc ContactModel::preImpulseCalc 
      */
     virtual void calcCollisionImpulse(Contact& contact, 
                                     ContactPoint& point,
@@ -39,7 +39,7 @@ public:
                                     double& timpulse);
 
     /**
-     * @copydoc dynamics::ContactModel::preImpulseCalc 
+     * @copydoc ContactModel::preImpulseCalc 
      */
     virtual void calcContactImpulse(Contact& contact, 
                                     ContactPoint& point,
@@ -47,7 +47,7 @@ public:
                                     double& timpulse);
     
     /**
-     * @copydoc dynamics::ContactModel::preImpulseCalc 
+     * @copydoc ContactModel::preImpulseCalc 
      */
     virtual void addImpulse(Contact& contact,
                             ContactPoint& point,

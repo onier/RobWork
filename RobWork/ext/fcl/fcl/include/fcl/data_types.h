@@ -72,7 +72,7 @@ public:
     vids[0] = p1; vids[1] = p2; vids[2] = p3;
   }
 
-  /// @access the triangle index
+  /// @brief the triangle index
   inline std::size_t operator[](int i) const { return vids[i]; }
 
   inline std::size_t& operator[](int i) { return vids[i]; }
