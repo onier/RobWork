@@ -21,7 +21,10 @@
 /**
  * @file AssemblySimulator.hpp
  *
+ * @brief A simulator for execution of AssemblyTasks.
+ * @cond
  * \copydoc rwsim::simulator::AssemblyTaskSimulator
+ * @endcond
  */
 
 #include <vector>

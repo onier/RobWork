@@ -152,12 +152,12 @@ namespace rw { namespace proximity {
         std::vector<std::string> getGeometryIDs(rw::proximity::ProximityModel* model);
 
         /**
-         * @copydoc rw::proximity::CollisionStrategy::setFirstContact
+         * @brief not implemented yet in rw::proximity::CollisionStrategy::setFirstContact
          */
         void setFirstContact(bool b);
 
         /**
-         * @copydoc rw::proximity::CollisionStrategy::collision
+         * @copydoc rw::proximity::CollisionStrategy::doInCollision
          */
         bool doInCollision(
 			rw::proximity::ProximityModel::Ptr a,

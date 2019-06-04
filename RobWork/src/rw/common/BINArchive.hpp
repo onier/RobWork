@@ -197,10 +197,10 @@ namespace common {
 		virtual void doRead(std::vector<double>& val, const std::string& id){readValue(val,id);}
 		virtual void doRead(std::vector<std::string>& val, const std::string& id) ;
 
-		//! @copydoc InputArchive::doRead(const Eigen::MatrixXd&, const std::string&)
+		//! @copydoc InputArchive::doRead(Eigen::MatrixXd&, const std::string&)
 	    virtual void doRead(Eigen::MatrixXd& val, const std::string& id){ readMatrix(val,id); }
 
-		//! @copydoc InputArchive::doRead(const Eigen::VectorXd&, const std::string&)
+		//! @copydoc InputArchive::doRead(Eigen::VectorXd&, const std::string&)
 	    virtual void doRead(Eigen::VectorXd& val, const std::string& id){ readMatrix(val,id); }
 
         //template<class T>

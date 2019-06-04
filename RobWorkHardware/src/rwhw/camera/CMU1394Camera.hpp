@@ -120,12 +120,12 @@ namespace rwhw {
         void setFrameRate(double framerate);
 
         /**
-         * @copydoc rw::sensor::Camera::getCaptureMode
+         * @copydoc rw::sensor::CameraFirewire::getCaptureMode
          */
         virtual CaptureMode getCaptureMode();
 
         /**
-         * @copydoc rw::sensor::Camera::setCaptureMode
+         * @copydoc rw::sensor::CameraFirewire::setCaptureMode
          */
         virtual bool setCaptureMode(CaptureMode mode);
 
@@ -135,7 +135,7 @@ namespace rwhw {
         std::pair<unsigned int,unsigned int> getDimension();
 
         /**
-         * @copydoc rw::sensor::Camera::getCapturePolicy
+         * @copydoc rw::sensor::CameraFirewire::getCapturePolicy
          */
         CapturePolicy getCapturePolicy();
         /**

@@ -143,7 +143,7 @@ namespace rwhw {
 
 
         /**
-         * @copydoc rw::sensor::Camera::getCapturePolicy
+         * @copydoc rw::sensor::CameraFirewire::getCapturePolicy
          */
         CapturePolicy getCapturePolicy();
 

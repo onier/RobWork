@@ -51,10 +51,10 @@ namespace sensor {
 
 		//// Interface inherited from SimulatedSensor
 
-		//! @copydoc SimulatedSensor::update
+		//! @copydoc rwlibs::simulation::SimulatedSensor::update
 		void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-		//! @copydoc SimulatedSensor::reset
+		//! @copydoc rwlibs::simulation::SimulatedSensor::reset
 		void reset(const rw::kinematics::State& state);
 
 		/**
@@ -125,13 +125,13 @@ namespace sensor {
 			//! @brief The bodies in contact with the sensor (temporary).
 			std::vector<rw::common::Ptr<rwsim::dynamics::Body> > _bodies;
 
-            //! @copydoc StateCache::size
+            //! @copydoc rw::kinematics::StateCache::size
             size_t size() const{
                 return (_contacts.size()+_contactsTmp.size())*sizeof(rw::sensor::Contact3D) +
                 		(_bodiesTmp.size()+_bodies.size())*sizeof(rw::common::Ptr<rwsim::dynamics::Body>);
             }
 
-            //! @copydoc StateCache::clone
+            //! @copydoc rw::kinematics::StateCache::clone
             rw::common::Ptr<rw::kinematics::StateCache> clone() const{
                 return rw::common::ownedPtr( new ClassState( *this ) );
             }

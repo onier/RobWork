@@ -81,13 +81,13 @@ namespace trajectory {
         //! @copydoc Trajectory::ddx(double) const
         T ddx(double t) const;
 
-        //! @copydoc Trajectory::duration(double) const
+        //! @copydoc Trajectory::duration() const
         double duration() const { return endTime(); }
 
-        //! @copydoc Trajectory::startTime(double) const
+        //! @copydoc Trajectory::startTime() const
         double startTime() const { return 0.0; }
 
-        //! @copydoc Trajectory::endTime(double) const
+        //! @copydoc Trajectory::endTime() const
         double endTime() const { return t_total; }
 
 		//! @copydoc Trajectory<T>::getIterator(double) const
