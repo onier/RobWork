@@ -52,27 +52,27 @@ namespace simulator {
 		bool setContactDetector(rw::common::Ptr<rwsim::contacts::ContactDetector> detector);
 
 		/**
-		 * @copydoc Simulator::initPhysics
+		 * @copydoc PhysicsEngine::initPhysics
 		 */
 		void initPhysics(rw::kinematics::State& state);
 
 		/**
-		 * @copydoc Simulator::step
+		 * @copydoc PhysicsEngine::step
 		 */
 		void step(double dt, rw::kinematics::State& state);
 
 		/**
-		 * @copydoc Simulator::resetScene
+		 * @copydoc PhysicsEngine::resetScene
 		 */
 		void resetScene(rw::kinematics::State& state);
 
 		/**
-		 * @copydoc Simulator::exitPhysics
+		 * @copydoc PhysicsEngine::exitPhysics
 		 */
 		void exitPhysics();
 
 		/**
-		 * @copydoc Simulator::getTime
+		 * @copydoc PhysicsEngine::getTime
 		 */
 		double getTime(){
 			return _time;
@@ -81,7 +81,7 @@ namespace simulator {
 		void attach(dynamics::Body::Ptr b1, dynamics::Body::Ptr b2){}
 		void detach(dynamics::Body::Ptr b1, dynamics::Body::Ptr b2){};
 		/**
-		 * @copydoc Simulator::createDebugRender
+		 * @copydoc PhysicsEngine::createDebugRender
 		 */
 		drawable::SimulatorDebugRender::Ptr createDebugRender();
 

@@ -50,7 +50,7 @@ public:
 	//! @brief Destructor.
 	virtual ~BtVelocityDevice();
 
-	//! @brief @copydoc BtDevice::udpate
+	//! @brief @copydoc BtDevice::update
 	virtual void update(double dt, rw::kinematics::State& state);
 
 	//! @brief @copydoc BtDevice::postUpdate

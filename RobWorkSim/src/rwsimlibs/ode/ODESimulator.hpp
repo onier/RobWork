@@ -140,27 +140,27 @@ namespace simulator {
 
 		// inherited functions
 		/**
-		 * @copydoc step
+		 * @copydoc rwsim::simulator::PhysicsEngine::step
 		 */
 		void step(double dt, rw::kinematics::State& state);
 
 		/**
-		 * @copydoc resetScene
+		 * @copydoc rwsim::simulator::PhysicsEngine::resetScene
 		 */
 		void resetScene(rw::kinematics::State& state);
 
 		/**
-		 * @copydoc initPhysics
+		 * @copydoc rwsim::simulator::PhysicsEngine::initPhysics
 		 */
 		void initPhysics(rw::kinematics::State& state);
 
 		/**
-		 * @copydoc exitPhysics
+		 * @copydoc rwsim::simulator::PhysicsEngine::exitPhysics
 		 */
 		void exitPhysics();
 
 		/**
-		 * @copydoc getTime
+		 * @copydoc rwsim::simulator::PhysicsEngine::getTime
 		 */
 		double getTime(){
 			return _time;
@@ -168,19 +168,19 @@ namespace simulator {
 
 		void DWCChangedListener(dynamics::DynamicWorkCell::DWCEventType type, boost::any data);
 
-		//! @copydoc Simulator::setEnabled
+		//! @copydoc rwsim::simulator::PhysicsEngine::setEnabled
 		void setEnabled(dynamics::Body::Ptr body, bool enabled);
 
-		//! @copydoc Simulator::setEnabled
+		//! @copydoc rwsim::simulator::PhysicsEngine::setEnabled
 		void setDynamicsEnabled(dynamics::Body::Ptr body, bool enabled);
 
-		//! @copydoc Simulator::createDebugRender
+		//! @copydoc rwsim::simulator::PhysicsEngine::createDebugRender
 		drawable::SimulatorDebugRender::Ptr createDebugRender();
 
-		//! @copydoc Simulator::getPropertyMap
+		//! @copydoc rwsim::simulator::PhysicsEngine::getPropertyMap
 		virtual rw::common::PropertyMap& getPropertyMap(){ return _propertyMap;};
 
-		//! @copydoc Simulator::emitPropertyChanged
+		//! @copydoc rwsim::simulator::PhysicsEngine::emitPropertyChanged
 		void emitPropertyChanged();
 
 		void addController(rwlibs::simulation::SimulatedController::Ptr controller);

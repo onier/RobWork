@@ -67,67 +67,67 @@ public:
 	//! @brief Destructor.
 	virtual ~BtSimulator();
 
-	//! @copydoc PhysicsEngine::load
+	//! @copydoc rwsim::simulator::PhysicsEngine::load
 	void load(rw::common::Ptr<rwsim::dynamics::DynamicWorkCell> dwc);
 
-	//! @copydoc PhysicsEngine::setContactDetector
+	//! @copydoc rwsim::simulator::PhysicsEngine::setContactDetector
 	bool setContactDetector(rw::common::Ptr<rwsim::contacts::ContactDetector> detector);
 
-	//! @copydoc PhysicsEngine::step
+	//! @copydoc rwsim::simulator::PhysicsEngine::step
 	void step(double dt, rw::kinematics::State& state);
 
-	//! @copydoc PhysicsEngine::resetScene
+	//! @copydoc rwsim::simulator::PhysicsEngine::resetScene
 	void resetScene(rw::kinematics::State& state);
 
-	//! @copydoc PhysicsEngine::initPhysics
+	//! @copydoc rwsim::simulator::PhysicsEngine::initPhysics
 	void initPhysics(rw::kinematics::State& state);
 
-	//! @copydoc PhysicsEngine::exitPhysics
+	//! @copydoc rwsim::simulator::PhysicsEngine::exitPhysics
 	void exitPhysics();
 
-	//! @copydoc PhysicsEngine::getTime
+	//! @copydoc rwsim::simulator::PhysicsEngine::getTime
 	double getTime();
 
-	//! @copydoc PhysicsEngine::setEnabled
+	//! @copydoc rwsim::simulator::PhysicsEngine::setEnabled
 	void setEnabled(rw::common::Ptr<rwsim::dynamics::Body> body, bool enabled);
 
-	//! @copydoc PhysicsEngine::setDynamicsEnabled
+	//! @copydoc rwsim::simulator::PhysicsEngine::setDynamicsEnabled
 	void setDynamicsEnabled(rw::common::Ptr<rwsim::dynamics::Body> body, bool enabled);
 
-	//! @copydoc PhysicsEngine::createDebugRender
+	//! @copydoc rwsim::simulator::PhysicsEngine::createDebugRender
 	rwsim::drawable::SimulatorDebugRender::Ptr createDebugRender();
 
-	//! @copydoc PhysicsEngine::getPropertyMap
+	//! @copydoc rwsim::simulator::PhysicsEngine::getPropertyMap
 	rw::common::PropertyMap& getPropertyMap();
 
-	//! @copydoc PhysicsEngine::emitPropertyChanged
+	//! @copydoc rwsim::simulator::PhysicsEngine::emitPropertyChanged
 	void emitPropertyChanged();
 
-	//! @copydoc PhysicsEngine::addController
+	//! @copydoc rwsim::simulator::PhysicsEngine::addController
 	void addController(rw::common::Ptr<rwlibs::simulation::SimulatedController> controller);
 
-	//! @copydoc PhysicsEngine::removeController
+	//! @copydoc rwsim::simulator::PhysicsEngine::removeController
 	void removeController(rw::common::Ptr<rwlibs::simulation::SimulatedController> controller);
 
-	//! @copydoc PhysicsEngine::addBody
+	//! @copydoc rwsim::simulator::PhysicsEngine::addBody
 	void addBody(rw::common::Ptr<rwsim::dynamics::Body> body, rw::kinematics::State& state);
 
-	//! @copydoc PhysicsEngine::addDevice
+	//! @copydoc rwsim::simulator::PhysicsEngine::addDevice
 	void addDevice(rw::common::Ptr<rwsim::dynamics::DynamicDevice> device, rw::kinematics::State& state);
 
-	//! @copydoc PhysicsEngine::addSensor
+	//! @copydoc rwsim::simulator::PhysicsEngine::addSensor
 	void addSensor(rwlibs::simulation::SimulatedSensor::Ptr sensor, rw::kinematics::State& state);
 
-	//! @copydoc PhysicsEngine::removeSensor
+	//! @copydoc rwsim::simulator::PhysicsEngine::removeSensor
 	void removeSensor(rwlibs::simulation::SimulatedSensor::Ptr sensor);
 
-	//! @copydoc PhysicsEngine::attach
+	//! @copydoc rwsim::simulator::PhysicsEngine::attach
 	void attach(rw::common::Ptr<rwsim::dynamics::Body> b1, rw::common::Ptr<rwsim::dynamics::Body> b2);
 
-	//! @copydoc PhysicsEngine::detach
+	//! @copydoc rwsim::simulator::PhysicsEngine::detach
 	void detach(rw::common::Ptr<rwsim::dynamics::Body> b1, rw::common::Ptr<rwsim::dynamics::Body> b2);
 
-	//! @copydoc PhysicsEngine::getSensors
+	//! @copydoc rwsim::simulator::PhysicsEngine::getSensors
 	std::vector<rwlibs::simulation::SimulatedSensor::Ptr> getSensors();
 
 	/**
