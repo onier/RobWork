@@ -447,6 +447,25 @@ ELSE ()
     MESSAGE( STATUS "RobWork: Assimp DISABLED!" )
 ENDIF ()
 
+# Find Python - prefer version 3 (should be done before GTest)
+#set(Python_ADDITIONAL_VERSIONS 3.8)
+find_package(PythonInterp 3 QUIET)
+find_package(PythonLibs 3 QUIET)
+
+if (NOT PYTHONINTERP_FOUND)
+    find_package(PythonInterp QUIET)
+endif()
+if (NOT PythonLibs)
+    find_package(PythonLibs QUIET)
+endif()
+
+if(PYTHONINTERP_FOUND)
+    message(STATUS "Found Python interpreter ${PYTHON_VERSION_STRING}")
+endif()
+if(PYTHONLIBS_FOUND)
+    message(STATUS "Found Python libraries ${PYTHONLIBS_VERSION_STRING}")
+endif()
+
 #
 # If the user wants to use the Google Test package then search for it.
 # Set RW_DISABLE_GTEST to ON to disable Google Test completely.
