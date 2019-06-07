@@ -21,7 +21,6 @@
 #include <rw/math/MetricUtil.hpp>
 #include <rw/models/DependentPrismaticJoint.hpp>
 #include <rwsim/dynamics/BodyUtil.hpp>
-#include <boost/foreach.hpp>
 
 #include "ODESimulator.hpp"
 #include "ODEJoint.hpp"
@@ -54,11 +53,11 @@ ODEVelocityDevice::ODEVelocityDevice(
 }
 */
 ODEVelocityDevice::~ODEVelocityDevice(){
-	BOOST_FOREACH(ODEJoint* joint, _odeJoints){
+	for(ODEJoint* joint : _odeJoints) {
 		delete joint;
 	}
 
-	BOOST_FOREACH(ODEBody* body, _ode_bodies){
+	for(ODEBody* body : _ode_bodies) {
 		delete body;
 	}
 
@@ -334,7 +333,7 @@ ODEVelocityDevice::ODEVelocityDevice(
 namespace {
       void addToMap(ODEBody* b, std::map<Frame*, ODEBody*>& frameToODEBody){
           std::vector<Frame*> frames = b->getRwBody()->getFrames();
-          BOOST_FOREACH(Frame* f, frames){
+          for(Frame* f : frames) {
               frameToODEBody[f] = b;
           }
       }
@@ -364,7 +363,7 @@ void ODEVelocityDevice::init(RigidDevice *rdev, const rw::kinematics::State &sta
      std::vector< std::pair<Body::Ptr, Body::Ptr> > childToParentList;
      baseODEBody->setTransform(state);
      // first we create rigid bodies from all of the links of the RigidDevice
-     BOOST_FOREACH(Body::Ptr body, rdev->getLinks()){
+     for(Body::Ptr body : rdev->getLinks()) {
          //std::cout << "LINK: " << body->getName() << std::endl;
          ODEBody *odebody = ODEBody::makeRigidBody(body, spaceId, _sim);
          odebody->setTransform( state );
@@ -399,7 +398,7 @@ void ODEVelocityDevice::init(RigidDevice *rdev, const rw::kinematics::State &sta
      std::map<Joint*,ODEJoint*> jointMap;
      // now locate all joints connecting the child-parent body pairs
      typedef std::pair<Body::Ptr,Body::Ptr> BodyPair;
-     BOOST_FOREACH( BodyPair bodyPair, childToParentList){
+     for( BodyPair bodyPair : childToParentList) {
          std::vector<Frame*> chain = Kinematics::parentToChildChain(bodyPair.second->getBodyFrame(), bodyPair.first->getBodyFrame(), state);
          chain.push_back(bodyPair.first->getBodyFrame());
          std::vector<Joint*> joints;
@@ -455,7 +454,7 @@ void ODEVelocityDevice::init(RigidDevice *rdev, const rw::kinematics::State &sta
      Q maxForce = rdev->getMotorForceLimits();
      size_t i =0;
      rw::models::JointDevice::Ptr jdev = rdev->getJointDevice();
-     BOOST_FOREACH(Joint *joint, jdev->getJoints() ){
+     for(Joint *joint : jdev->getJoints() ) {
          ODEJoint *odeJoint = jointMap[joint];
          RW_ASSERT(odeJoint!=NULL);
          _odeJoints.push_back(odeJoint);
@@ -469,7 +468,7 @@ void ODEVelocityDevice::init(RigidDevice *rdev, const rw::kinematics::State &sta
      /*
      size_t i =0;
      rw::models::JointDevice::Ptr jdev = rdev->getJointDevice();
-     BOOST_FOREACH(Joint *joint, jdev->getJoints() ){
+     for(Joint *joint : jdev->getJoints() ) {
          Body *parentb = jointParentMap[joint];
          Body *childb = jointChildMap[joint];
          Frame *parent = parentb->getBodyFrame();
@@ -529,7 +528,7 @@ ODEVelocityDevice* ODEVelocityDevice::makeDevice(RigidDevice *rdev,
     Frame *rwBase = rDev->getModel().getBase();
 
     size_t i =0;
-    BOOST_FOREACH(RigidJoint *rjoint, rDev->getBodies() ){
+    for(RigidJoint *rjoint : rDev->getBodies() ) {
         Frame *joint = &rjoint->getFrame();
         Frame *parent = joint->getParent(initState);
         //std::cout  << parent->getName() << "-->" << joint->getName() << std::endl;

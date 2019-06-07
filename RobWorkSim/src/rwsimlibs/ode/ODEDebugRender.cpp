@@ -24,7 +24,6 @@
 #include <rwlibs/opengl/DrawableUtil.hpp>
 #include <rw/math.hpp>
 #include <rw/kinematics.hpp>
-#include <boost/foreach.hpp>
 #include "ODESuctionCupDevice.hpp"
 
 using namespace rwsim::drawable;
@@ -59,11 +58,11 @@ void ODEDebugRender::draw(const rw::graphics::DrawableNode::RenderInfo& info, Dr
 {
     //std::cout << "render" << std::endl;
     if (DRAW_COLLISION_GEOMETRY & _drawMask) {
-        BOOST_FOREACH(ODEBody* b, _sim->getODEBodies() ){
+        for(ODEBody* b : _sim->getODEBodies() ){
             //std::cout << b->getFrame()->getName() << std::endl;
             std::vector<ODEUtil::TriGeomData*> trimeshs = b->getTriGeomData();
 
-            BOOST_FOREACH(ODEUtil::TriGeomData* trigeom, trimeshs){
+            for(ODEUtil::TriGeomData* trigeom : trimeshs) {
                 //std::cout << "- tri" << std::endl;
                 ODEUtil::TriMeshData::Ptr trimesh = trigeom->tridata;
                 // multiply stack transform with geom transform
@@ -149,7 +148,7 @@ void ODEDebugRender::draw(const rw::graphics::DrawableNode::RenderInfo& info, Dr
     if( (DRAW_BODY_FORCES & _drawMask) && info._state != NULL ){
         Vector3D<> gravity = _sim->getGravity();
         std::vector<ODEBody*> bodies = _sim->getODEBodies();
-        BOOST_FOREACH(ODEBody *body, bodies){
+        for(ODEBody *body : bodies) {
             Body *rwbody = body->getRwBody().get();
             if(rwbody==NULL)
                 continue;
@@ -174,7 +173,7 @@ void ODEDebugRender::draw(const rw::graphics::DrawableNode::RenderInfo& info, Dr
 
     if (DRAW_COLLISION_GEOMETRY & _drawMask) {
         std::vector<ODEDevice*> devices = _sim->getODEDevices();
-        BOOST_FOREACH(ODEDevice* dev, devices){
+        for(ODEDevice* dev : devices) {
             ODESuctionCupDevice* sdev = dynamic_cast<ODESuctionCupDevice*>( dev );
             if( sdev != NULL ){
                 rw::geometry::TriMesh::Ptr mesh = sdev->getSpikedMesh();

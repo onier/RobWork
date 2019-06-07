@@ -27,8 +27,6 @@
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/math/EAA.hpp>
 
-#include <boost/foreach.hpp>
-
 using namespace rw::common;
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -154,7 +152,7 @@ ODEUtil::TriMeshData::Ptr ODEUtil::buildTriMesh(GeometryData::Ptr gdata, bool in
 
     data->triMeshID = triMeshDataId;
     int vertIdx = 0;
-    BOOST_FOREACH(const Vector3D<float>& v, imesh->getVertices()){
+    for(const Vector3D<float>& v : imesh->getVertices()) {
         data->vertices[vertIdx+0] = v(0);
         data->vertices[vertIdx+1] = v(1);
         data->vertices[vertIdx+2] = v(2);

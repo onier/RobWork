@@ -408,7 +408,7 @@ struct AddFrameToDevice {
                 _device._frames.push_back(frame);
             } else {
                 if(frame._refframe != "")
-                    std::cout << "*** Warning: base frame of device is referencing to a frame!!"
+                    std::cout << "*** Warning: base frame of device is referencing to a frame \"" << frame._refframe << "\"!!"
                               << "***          This will be ignored!" << std::endl;
                 frame._refframe = "";
                 _device._frames.push_back(frame);
