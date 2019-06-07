@@ -27,46 +27,58 @@ RW_SUBSYS_DEPEND( build ${SUBSYS_NAME} DEPS ${SUBSYS_DEPS} )
 RW_ADD_DOC( ${SUBSYS_NAME} )
 
 IF( build )
-INCLUDE(UseSWIG)
+    INCLUDE(UseSWIG)
     INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
-    SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES CPLUSPLUS ON)
-    SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall")
+    set(SWIG_FLAGS "-includeall")
+    if (PYTHON_VERSION_MAJOR GREATER_EQUAL 3)
+        set(SWIG_FLAGS "${SWIG_FLAGS};-py3")
+    endif() 
     if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
-    	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall;-doxygen")
-    endif()
-    if(POLICY CMP0078)
-        set(LIB_NAME "_rw")
-    else()
-        set(LIB_NAME "rw")
+        set(SWIG_FLAGS "${SWIG_FLAGS};-doxygen")
     endif()
     SET(CMAKE_SWIG_OUTDIR ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
-		SWIG_ADD_LIBRARY(${LIB_NAME} TYPE MODULE LANGUAGE python SOURCES ../rw.i ../ScriptTypes.cpp)
-	ELSE()
-		SWIG_ADD_MODULE(rw python ../rw.i ../ScriptTypes.cpp)
-	ENDIF()
-    SWIG_LINK_LIBRARIES(${LIB_NAME}
-    	rw_pathplanners
-    	rw_pathoptimization
-    	rw_assembly
-    	rw_task
-    	rw_proximitystrategies
-    	rw
-    	${PYTHON_LIBRARIES}
-    )
-    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-      SET_TARGET_PROPERTIES(${SWIG_MODULE_rw_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
-    ENDIF()
 
-    if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
-        find_program(pydoc pydoc)
-        if (pydoc)
-            add_custom_command(TARGET ${SWIG_MODULE_rw_REAL_NAME}
-                POST_BUILD
-                COMMAND ${pydoc} -w rw
-                WORKING_DIRECTORY ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}
-                COMMENT "Creating pydoc..."
-            )
-        endif()
+    if(POLICY CMP0078)
+        set(LIB_PREFIX "_")
+    else()
+        set(LIB_PREFIX "")
     endif()
+
+    add_custom_target(${SUBSYS_NAME})
+
+    foreach(RW_MODULE rw rw_assembly rw_pathoptimization rw_pathplanners rw_proximitystrategies rw_task)
+        SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES CPLUSPLUS ON)
+        SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES SWIG_FLAGS "${SWIG_FLAGS}")
+        IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
+		    SWIG_ADD_LIBRARY(${LIB_PREFIX}${RW_MODULE} TYPE MODULE LANGUAGE python SOURCES ../${RW_MODULE}.i ../ScriptTypes.cpp)
+	    ELSE()
+		    SWIG_ADD_MODULE(${RW_MODULE} python ../${RW_MODULE}.i ../ScriptTypes.cpp)
+	    ENDIF()
+        IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+          SET_TARGET_PROPERTIES(${SWIG_MODULE_${RW_MODULE}_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+        ENDIF()
+        add_dependencies(${SUBSYS_NAME} ${SWIG_MODULE_${RW_MODULE}_REAL_NAME})
+
+        if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
+            find_program(pydoc pydoc3)
+            if (NOT pydoc)
+                find_program(pydoc pydoc)
+            endif()
+            if (pydoc)
+                add_custom_command(TARGET ${SWIG_MODULE_${RW_MODULE}_REAL_NAME}
+                    POST_BUILD
+                    COMMAND ${pydoc} -w ${RW_MODULE}
+                    WORKING_DIRECTORY ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}
+                    COMMENT "Creating pydoc..."
+                )
+            endif()
+        endif()
+    endforeach()
+
+    SWIG_LINK_LIBRARIES(${LIB_PREFIX}rw rw ${PYTHON_LIBRARIES})
+    SWIG_LINK_LIBRARIES(${LIB_PREFIX}rw_assembly rw_assembly rw ${PYTHON_LIBRARIES})
+    SWIG_LINK_LIBRARIES(${LIB_PREFIX}rw_pathoptimization rw_pathoptimization rw ${PYTHON_LIBRARIES})
+    SWIG_LINK_LIBRARIES(${LIB_PREFIX}rw_pathplanners rw_pathplanners rw ${PYTHON_LIBRARIES})
+    SWIG_LINK_LIBRARIES(${LIB_PREFIX}rw_proximitystrategies rw_proximitystrategies rw ${PYTHON_LIBRARIES})
+    SWIG_LINK_LIBRARIES(${LIB_PREFIX}rw_task rw_task rw ${PYTHON_LIBRARIES})
 ENDIF()

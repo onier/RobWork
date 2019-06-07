@@ -21,14 +21,28 @@ using rw::trajectory::Timed;
 using rw::trajectory::Trajectory;
 using rw::trajectory::InterpolatorTrajectory;
 using rw::pathplanning::PathPlanner;
-using rwlibs::task::Task;
 %}
 
 %pragma(java) jniclassclassmodifiers="class"
+#if defined (SWIGJAVA)
+SWIG_JAVABODY_PROXY(public, public, SWIGTYPE)
+SWIG_JAVABODY_TYPEWRAPPER(public, public, public, SWIGTYPE)
+#endif
+
+#if defined(SWIGPYTHON)
+%feature("doxygen:ignore:beginPythonOnly", range="end:endPythonOnly", contents="parse");
+%feature("doxygen:ignore:beginJavaOnly", range="end:endJavaOnly");
+#elif defined(SWIGJAVA)
+%feature("doxygen:ignore:beginPythonOnly", range="end:endPythonOnly");
+%feature("doxygen:ignore:beginJavaOnly", range="end:endJavaOnly", contents="parse");
+#else
+%feature("doxygen:ignore:beginPythonOnly", range="end:endPythonOnly");
+%feature("doxygen:ignore:beginJavaOnly", range="end:endJavaOnly");
+#endif
 
 %include <std_string.i>
 %include <std_vector.i>
-%include <shared_ptr.i>
+//%include <shared_ptr.i>
 
 #if !defined(SWIGJAVA)
 %include "carrays.i"
@@ -123,26 +137,44 @@ namespace std {
  ********************************************/
 
 namespace rw { namespace common {
-template<class T> class Ptr {
+
+/**
+  * @brief The Ptr type represents a smart pointer that can take ownership
+  * of the underlying object.
+  *
+  * If the underlying object is owned by the smart pointer, it is destructed
+  * when there is no more smart pointers pointing to the object.
+  */
+template<class T> class Ptr
+{
 public:
+    //! @brief Empty smart pointer (Null).
     Ptr();
-     
-#if defined(SWIGJAVA)
- %typemap (in) T* %{
-  jclass objcls = jenv->GetObjectClass(jarg1_);
-  const jfieldID memField = jenv->GetFieldID(objcls, "swigCMemOwn", "Z");
-  jenv->SetBooleanField(jarg1_, memField, (jboolean)false);
-  $1 = *(T **)&jarg1;
- %} 
+
+    /**
+      * @brief Construct new smart pointer that takes ownership of the
+      * underlying object.
+      *
+      * @param ptr The object to take ownership of.
+      */
     Ptr(T* ptr);
- %clear T*;
-#else
-    Ptr(T* ptr);
-#endif
+
+    /**
+      * @brief Construct smart pointer from other smart pointer.
+      *
+      * @param p the other (compatible) smart pointer.
+      */
+    template <class S>
+    Ptr(const Ptr<S>& p);
 
     bool isShared();
+
+    /**
+      * @brief Check if smart pointer is null.
+      *
+      * @return true if smart pointer is null.
+      */
     bool isNull();
-    //bool operator==(void* p) const;
 
     template<class A>
     bool operator==(const rw::common::Ptr<A>& p) const;
@@ -150,11 +182,47 @@ public:
 	%rename(dereference) get;
 #endif
     T* get() const;
+
     T *operator->() const;
 };
+
+#if defined(SWIGPYTHON)
+ %pythonprepend ownedPtr(T*) %{
+  args[0].thisown = 0
+ %}
+#endif
+/**
+  * @brief Construct a smart pointer that takes ownership over a raw object \b ptr.
+  *
+  * @param ptr the object to take ownership of.
+  */
+template <class T>
+Ptr<T> ownedPtr(T* ptr);
+
 }}
 
-
+%define OWNEDPTR(ownedPtr_type)
+namespace rw { namespace common {
+#if defined(SWIGJAVA)
+ %typemap (in) ownedPtr_type* %{
+  jclass objcls = jenv->GetObjectClass(jarg1_);
+  const jfieldID memField = jenv->GetFieldID(objcls, "swigCMemOwn", "Z");
+  jenv->SetBooleanField(jarg1_, memField, (jboolean)false);
+  $1 = *(std::remove_const<ownedPtr_type>::type **)&jarg1;
+ %}
+#elif defined(SWIGLUA)
+ %typemap (in,checkfn="SWIG_isptrtype") ownedPtr_type* %{
+  if (!SWIG_IsOK(SWIG_ConvertPtr(L,$input,(void**)&$1,$descriptor,SWIG_POINTER_DISOWN))){
+    SWIG_fail_ptr("$symname",$input,$descriptor);
+  }
+ %}
+#endif
+ %template (ownedPtr) ownedPtr<ownedPtr_type>;
+#if (defined(SWIGLUA) || defined(SWIGJAVA))
+ %clear ownedPtr_type*;
+#endif
+}}
+%enddef
 
 /** @addtogroup swig */
 /* @{ */
@@ -176,6 +244,10 @@ public:
     
 	%extend {
 		
+		bool getBool(const std::string& id){ return $self->get<bool>(id); }
+		void setBool(const std::string& id, bool val){  $self->set<bool>(id,val); }
+		void set(const std::string& id, bool val){  $self->set<bool>(id,val); }
+
 		std::string& getString(const std::string& id){ return $self->get<std::string>(id); }
 		void setString(const std::string& id, std::string val){  $self->set<std::string>(id,val); }
 		void set(const std::string& id, std::string val){  $self->set<std::string>(id,val); }
@@ -211,8 +283,501 @@ public:
  
 };
 %template (PropertyMapPtr) rw::common::Ptr<PropertyMap>;
+OWNEDPTR(PropertyMap)
+
+/**
+ * \brief Provides basic log functionality.
+ *
+ * The Log class owns a number of LogWriters in a static map, which can be accessed
+ * using a string identifier. All logs are global.
+ *
+ * By default the Log class contains a Debug, Info, Warning and Error log. These can be accessed
+ * statically as:
+ * \code
+ * Log::debugLog() <<  "This is an debug message";
+ * Log::infoLog() << "This is an info message";
+ * Log::warnLog() << "This is an error message";
+ * Log::errorLog() << "This is an error message";
+ * \endcode
+ * or on the log instance
+ * \code
+ * Log &log = Log::log();
+ * log.debug() <<  "This is an debug message";
+ * log.info() << "This is an info message";
+ * log.warn() << "This is an error message";
+ * log.error() << "This is an error message";
+ * \endcode
+ * or using one one the RW_LOG, RW_LOGLINE or RW_LOG2 macros, e.g.
+ * \code
+ * RW_LOG_INFO("The value of x is "<<x);
+ * RW_LOG_DEBUG("The value of x is "<<x);
+ * RW_LOG_ERROR(Log::infoId(), "The value of x is "<<x);
+ * \endcode
+ *
+ * You can control what logs are active both using a loglevel and by using a log mask.
+ * The loglevel enables all logs with LogIndex lower or equal to the loglevel. As default
+ * loglevel is LogIndex::info which means debug and all user logs are disabled. However,
+ * logs can be individually enabled using log masks which will override loglevel setting.
+ *
+ * Notice that logmasks cannot disable logs that are below or equal to loglevel.
+ *
+ * change loglevel:
+ * \code
+ * Log::log().setLevel(Log::Debug);
+ * \endcode
+ *
+ *
+ */
+class Log
+{
+public:
+    //! @brief loglevel mask
+	enum LogIndexMask {
+		FatalMask=1, CriticalMask=2,
+		ErrorMask=4, WarningMask=8,
+		InfoMask=16, DebugMask=32,
+		User1Mask=64, User2Mask=128,
+		User3Mask=256, User4Mask=512,
+		User5Mask=1024, User6Mask=2048,
+		User7Mask=4096, User8Mask=8096,
+		AllMask = 0xFFFF
+	};
 
 
+
+	/**
+	 * @brief Indices for different logs. The loglevel will be Info as default. Everything below the
+	 * loglevel is enabled.
+	 *
+	 */
+	enum LogIndex {
+		Fatal=0, Critical=1,
+		Error=2, Warning=3,
+		Info=4, Debug=5,
+		User1=6, User2=7,
+		User3=8, User4=9,
+		User5=10, User6=11,
+		User7=12, User8=13
+	};
+
+	/**
+	 * @brief Convert a LogIndex to a mask.
+	 * @param idx [in] the LogIndex.
+	 * @return the mask enabling the given log level.
+	 */
+    static LogIndexMask toMask(LogIndex idx){
+            LogIndexMask toMaskArr[] = {FatalMask, CriticalMask,
+                                      ErrorMask, WarningMask,
+                                                InfoMask, DebugMask,
+                                                User1Mask, User2Mask,
+                                                User3Mask, User4Mask,
+                                                User5Mask, User6Mask,
+                                                User7Mask, User8Mask,
+                                                AllMask};
+            return toMaskArr[idx];
+        }
+
+	/**
+	 * @brief convenience function for getting the LogWriter
+	 * that is associated with the info loglevel
+	 * @return info LogWriter
+	 */
+    static LogWriter& infoLog();
+
+	/**
+	 * @brief convenience function for getting the LogWriter
+	 * that is associated with the warning loglevel
+	 * @return warning LogWriter
+	 */
+    static LogWriter& warningLog();
+
+
+	/**
+	 * @brief convenience function for getting the LogWriter
+	 * that is associated with the error loglevel
+	 * @return error LogWriter
+	 */
+    static LogWriter& errorLog();
+
+	/**
+	 * @brief convenience function for getting the LogWriter
+	 * that is associated with the debug loglevel
+	 * @return debug LogWriter
+	 */
+    static LogWriter& debugLog();
+
+	/**
+	 * @brief returns the global log instance. Global in the sence
+	 * of whatever is linked staticly together.
+	 * @return a Log
+	 */
+    static rw::common::Ptr<Log> getInstance();
+
+    /**
+     * @brief convenience function of getInstance
+     * @return a Log
+     */
+    static Log& log();
+
+    /**
+     * @brief sets the instance of the log class
+     * @param log [in] the log that will be used through the static log methods.
+     */
+    static void setLog(rw::common::Ptr<Log> log);
+
+    //************************* Here follows the member interface
+
+    /**
+     * @brief constructor
+     */
+    Log();
+
+    /**
+     * @brief Destructor
+     */
+    virtual ~Log();
+
+    /**
+     * @brief set the loglevel. Any log with LogIndex equal to or less than
+     * loglevel will be enabled. Any log above will be disabled unless an
+     * enabled mask is specified for that log
+     * @param loglevel [in] the level
+     */
+    void setLevel(LogIndex loglevel);
+
+
+    /**
+     * @brief gets the log writer associated to logindex \b id
+     * @param id [in] logindex
+     * @return log writer
+     */
+    rw::common::Ptr<LogWriter> getWriter(LogIndex id);
+
+    /**
+     * @brief Associates a LogWriter with the LogIndex \b id.
+     *
+     * SetWriter can either be used to redefine an existing log or to create a new
+     * custom output.
+     *
+     * Example:
+     * \code
+     * Log::SetWriter(Log::User1, new LogStreamWriter(std::cout));
+     * RW_LOG(Log::User1, "Message send to User log 1");
+     * \endcode
+     *
+     * @param id [in] the LogIndex that the logwriter is associated with.
+     * @param writer [in] LogWriter object to use
+     */
+    void setWriter(LogIndex id, rw::common::Ptr<LogWriter> writer);
+
+    /**
+     * @brief Associates a LogWriter with the logs specified with \b mask.
+     *
+     * SetWriter can either be used to redefine an existing log or to create a new
+     * custom output.
+     *
+     * Example:
+     * \code
+     * log.setWriterForMask(Log::InfoMask | Log::DebugMask, new LogStreamWriter(std::cout));
+     * RW_LOG(Log::Info, "Message send to User log 1");
+     * \endcode
+     *
+     * @param mask [in] the LogIndexMask that the logwriter is associated with.
+     * @param writer [in] LogWriter object to use
+     */
+	void setWriterForMask(int mask, rw::common::Ptr<LogWriter> writer);
+
+    %extend {
+		/**
+		 * @brief Returns the LogWriter that is associated with LogIndex \b id
+		 *
+		 * If the \b id is unknown an exception is thrown.
+		 *
+		 * @param id [in] loglevel
+		 * @return Reference to LogWriter object
+		 */
+		LogWriter& getLogWriter(LogIndex id) {
+			return $self->get(id);
+		}
+    };
+
+    /**
+     * @brief Writes \b message to the log
+     *
+     * If the \b id cannot be found an exception is thrown
+     *
+     * @param id [in] Log identifier
+     * @param message [in] String message to write
+     */
+    void write(LogIndex id, const std::string& message);
+
+    /**
+     * @brief Writes \b message to the logwriter associated with LogIndex \b id
+     *
+     * If the \b id cannot be found an exception is thrown
+
+     *
+     * @param id [in] Log identifier
+     * @param message [in] Message to write
+     */
+    void write(LogIndex id, const Message& message);
+
+    /**
+     * @brief Writes \b message followed by a '\\n' to the log
+     *
+     * If the \b id cannot be found an exception is thrown
+     *
+     * @param id [in] Log identifier
+     * @param message [in] Message to write
+     */
+    void writeln(LogIndex id, const std::string& message);
+
+    /**
+     * @brief Calls flush on the specified log
+     *
+     * If the \b id cannot be found an exception is thrown
+     *
+     * @param id [in] loglevel
+     */
+    void flush(LogIndex id);
+
+
+    /**
+     * @brief Calls flush on all logs
+     */
+    void flushAll();
+
+
+    /**
+     * @brief Removes a log
+     *
+     * If the \b id cannot be found an exception is thrown
+     *
+     * @param id [in] Log identifier
+     */
+    void remove(LogIndex id);
+
+	/**
+	 * @brief Removes all log writers
+	 */
+	void removeAll();
+
+	//! @brief Make indentation to make logs easier to read.
+	void increaseTabLevel();
+
+	//! @brief Decrease the indentation.
+	void decreaseTabLevel();
+
+	/**
+	 * @brief convenience function for getting the LogWriter
+	 * that is associated with the info loglevel
+	 * @return info LogWriter
+	 */
+    LogWriter& info();
+
+	/**
+	 * @brief convenience function for getting the LogWriter
+	 * that is associated with the warning loglevel
+	 * @return info LogWriter
+	 */
+    LogWriter& warning();
+
+	/**
+	 * @brief convenience function for getting the LogWriter
+	 * that is associated with the error loglevel
+	 * @return info LogWriter
+	 */
+    LogWriter& error();
+
+	/**
+	 * @brief convenience function for getting the LogWriter
+	 * that is associated with the debug loglevel
+	 * @return info LogWriter
+	 */
+    LogWriter& debug();
+
+	/**
+	 * @brief Enable log(s) given by log mask.
+	 * @param mask [in] the mask for the logs to enable.
+	 */
+	void setEnable(int mask);
+
+   /**
+     * @brief Checks if the given LogIndex is enabled. This can be used to
+     * determine if a certain log level will be displayed or not.
+     * @param idx [in] the level
+     */
+    bool isEnabled(LogIndex idx);
+
+	/**
+	 * @brief Disable log(s) given by log mask.
+	 * @param mask [in] the mask for the logs to disable.
+	 */
+	void setDisable(int mask);
+};
+
+%template (LogPtr) rw::common::Ptr<Log>;
+OWNEDPTR(Log)
+
+/**
+ * @brief Write interface for Logs
+ *
+ * LogWriter provides an output strategy for a log.
+ */
+class LogWriter
+{
+public:
+    /**
+     * @brief Descructor
+     */
+    virtual ~LogWriter();
+
+    /**
+     * @brief Flush method
+     */
+    void flush();
+
+	/**
+	 * @brief Set the tab level
+	 */
+	void setTabLevel(int tabLevel);
+
+
+    /**
+     * @brief Writes \b str to the log
+     * @param str [in] message to write
+     */
+    void write(const std::string& str);
+
+    /**
+     * @brief Writes \b msg to the log
+     *
+     * Default behavior is to use write(const std::string&) for the standard
+     * streaming representation of \b msg.
+     *
+     * @param msg [in] message to write
+     */
+    void write(const Message& msg);
+
+    /**
+     * @brief Writes \b str as a line
+     *
+     * By default writeln writes \b str followed by a '\\n'. However, logs
+     * are free to implement a line change differently.
+     */
+    void writeln(const std::string& str);
+
+    /**
+     * @brief general stream operator
+     */
+    template< class T>
+    LogWriter& operator<<( T t );
+
+#if defined(SWIGPYTHON)
+    /**
+     * @brief specialized stream operator
+     */
+    LogWriter& operator<<(const std::string& str);
+
+    /**
+     * @brief Write Message to log.
+     * @param msg [in] the message.
+     * @return a reference to this LogWriter for chaining of stream operators.
+     */
+    LogWriter& operator<<(const Message& msg);
+
+
+    /**
+     * @brief specialized stream operator
+     */
+    LogWriter& operator<<(const char* str);
+
+    /**
+     * @brief Handle the std::endl and other stream functions.
+     */
+    LogWriter& operator<<(std::ostream& (*pf)(std::ostream&));
+#endif
+
+protected:
+    LogWriter();
+
+	virtual void doWrite(const std::string& message) = 0;
+	virtual void doSetTabLevel(int tabLevel) = 0;
+	virtual void doFlush() = 0;
+};
+
+%template (LogWriterPtr) rw::common::Ptr<LogWriter>;
+
+/**
+ * @brief Standard type for user messages of robwork.
+ *
+ * Messages are used for exception, warnings, and other things that are
+ * reported to the user.
+ *
+ * Message values should contain the source file name and line number so
+ * that it is easy to look up the place in the code responsible for the
+ * generation of the message.
+ *
+ * RW_THROW and RW_WARN of macros.hpp have been introduced for the throwing
+ * of exceptions and emission of warnings.
+ */
+class Message
+{
+public:
+    /**
+     * @brief Constructor
+     *
+     * Messages of RobWork are all annotated by the originating file name,
+     * the originating line number, and a message text for the user.
+     *
+     * Supplying all the file, line, and message parameters can be a little
+     * painfull, so a utility for creating messages is available from the
+     * file macros.hpp.
+     *
+     * @param file [in] The source file name.
+     *
+     * @param line [in] The source file line number.
+     *
+     * @param message [in] A message for a user.
+     */
+    Message(const std::string& file,
+            int line,
+            const std::string& message = "");
+
+    /**
+     * @brief The name of source file within which the message was
+     * constructed.
+     *
+     * @return The exception file name.
+     */
+    const std::string& getFile() const;
+
+    /**
+     * @brief The line number for the file at where the message was
+     * constructed.
+     *
+     * @return The exception line number.
+     */
+    int getLine() const;
+
+    /**
+     * @brief The message text meant for the user.
+     *
+     * @return The message text.
+     */
+    const std::string& getText() const;
+
+    /**
+     * @brief Returns a full description of the message containing file, line number and message.
+     */
+    std::string getFullText() const;
+
+    /**
+     * @brief general stream operator
+     */
+    template< class T>
+    Message& operator<<( T t );
+};
 
 class ThreadPool { 
 public:
@@ -221,13 +786,14 @@ public:
     unsigned int getNumberOfThreads() const;
     void stop();
     bool isStopping();
-//    typedef boost::function<void(ThreadPool*)> WorkFunction;
-//    void addWork(WorkFunction work);
 	unsigned int getQueueSize();
 	void waitForEmptyQueue();
 };
 
+%template (MessagePtr) rw::common::Ptr<Message>;
+
 %template (ThreadPoolPtr) rw::common::Ptr<ThreadPool>;
+OWNEDPTR(ThreadPool)
 
 class ThreadTask {
 public:
@@ -262,6 +828,7 @@ public:
 
 %template (ThreadTaskPtr) rw::common::Ptr<ThreadTask>;
 %template (ThreadTaskPtrVector) std::vector<rw::common::Ptr<ThreadTask> >;
+OWNEDPTR(ThreadTask)
 
 class Plugin {
 protected:
@@ -307,7 +874,6 @@ public:
 };
 
 %template (ExtensionRegistryPtr) rw::common::Ptr<ExtensionRegistry>;
-
 
 
 
@@ -376,6 +942,7 @@ public:
 };
 
 %template (GeometryDataPtr) rw::common::Ptr<GeometryData>;
+OWNEDPTR(GeometryData);
 
 class TriMesh: public GeometryData {
 public:
@@ -453,13 +1020,32 @@ public:
     GeometryType getType() const;
 };
 
+/**
+ * @brief Cylinder primitive.
+ */
 class Cylinder: public Primitive {
 public:
+    //! @brief Default constructor with no parameters.
 	Cylinder();
+
+	/**
+	  * @brief Cylinder with parameters specified.
+	  *
+	  * @param radius the radius.
+	  * @param height the height.
+	  */
+
 	Cylinder(float radius, float height);
 	virtual ~Cylinder();
 	double getRadius() const;
 	double getHeight() const;
+	
+	/**
+	  * @brief Create a mesh representation of the cylinder.
+	  *
+	  * @param resolution the resolution.
+	  * @return the TriMesh.
+	  */
 	rw::common::Ptr<TriMesh> createMesh(int resolution) const;
 	rw::math::Q getParameters() const;
 	GeometryType getType() const;
@@ -504,6 +1090,7 @@ public:
 
 %template (GeometryPtr) rw::common::Ptr<Geometry>;
 %template (GeometryPtrVector) std::vector<rw::common::Ptr<Geometry> >;
+OWNEDPTR(Geometry);
 
 class STLFile {
 public:
@@ -568,6 +1155,9 @@ class PointCloud: public GeometryData {
 %template (WorkCellScenePtr) rw::common::Ptr<WorkCellScene>;
 %template (DrawableNodePtr) rw::common::Ptr<DrawableNode>;
 %template (DrawableNodePtrVector) std::vector<rw::common::Ptr<DrawableNode> >;
+
+OWNEDPTR(WorkCellScene);
+
 %constant int DNodePhysical = DrawableNode::Physical;
 %constant int DNodeVirtual = DrawableNode::Virtual;
 %constant int DNodeDrawableObject = DrawableNode::DrawableObject;
@@ -650,6 +1240,7 @@ public:
 
 %template (Model3DPtr) rw::common::Ptr<Model3D>;
 %template (Model3DPtrVector) std::vector<rw::common::Ptr<Model3D> >;
+OWNEDPTR(Model3D);
 
 class WorkCellScene {
  public:
@@ -757,6 +1348,7 @@ public:
 };
 
 %template (IterativeIKPtr) rw::common::Ptr<IterativeIK>;
+OWNEDPTR(IterativeIK);
 
 class JacobianIKSolver : public IterativeIK
 {
@@ -787,6 +1379,7 @@ public:
 };
 
 %template (JacobianIKSolverPtr) rw::common::Ptr<JacobianIKSolver>;
+OWNEDPTR(JacobianIKSolver);
 
 class IKMetaSolver: public IterativeIK
 {
@@ -814,6 +1407,7 @@ public:
 };
 
 %template (IKMetaSolverPtr) rw::common::Ptr<IKMetaSolver>;
+OWNEDPTR(IKMetaSolver);
 
 class ClosedFormIK: public InvKinSolver
 {
@@ -847,6 +1441,7 @@ class State
 {
 public:
 	std::size_t size() const;
+	State clone();
 };
 %template (StateVector) std::vector<State>;
 
@@ -874,6 +1469,7 @@ public:
 	const std::vector<Frame*>& getFrames() const;
 };
 %template (StateStructurePtr) rw::common::Ptr<StateStructure>;
+OWNEDPTR(StateStructure);
 
 class Frame : public StateData
 {
@@ -979,25 +1575,95 @@ class Joint: public Frame
  * LOADERS
  ********************************************/
 
+/**
+ * @brief Extendible interface for loading of WorkCells from files.
+ *
+ * By default, the following formats are supported:
+ *
+ * - File extensions ".wu", ".wc", ".tag", ".dev" will be loaded using
+ *   the TULLoader.
+ * - Remaining file extensions will be loaded using the standard RobWork
+ *   XML format (XMLRWLoader).
+ *
+ * The Factory defines an extension point "rw.loaders.WorkCellLoader"
+ * that makes it possible to add loaders for other file formats than the
+ * ones above. Extensions take precedence over the default loaders.
+ *
+ * The WorkCell loader is chosen based on a case-insensitive file extension
+ * name. So "scene.wc.xml" will be loaded by the same loader as
+ * "scene.WC.XML"
+ *
+ * WorkCells are supposed to be loaded using the WorkCellLoaderFactory.load function:
+ * @beginPythonOnly
+ * ::\n
+ *     wc = WorkCellLoaderFactory.load("scene.wc.xml")
+ *     if wc.isNull():
+ *         raise Exception("WorkCell could not be loaded")
+ * @endPythonOnly
+ * @beginJavaOnly <pre> \code
+ * WorkCellPtr wc = WorkCellLoaderFactory.load("scene.wc.xml");
+ * if (wc.isNull())
+ *     throw new Exception("WorkCell could not be loaded.");
+ * \endcode </pre> @endJavaOnly
+ * Alternatively a WorkCell can be loaded in the less convenient way:
+ * @beginPythonOnly
+ * ::\n
+ *    loader = WorkCellLoaderFactory.getWorkCellLoader(".wc.xml");
+ *    wc = loader.load("scene.wc.xml")
+ *    if wc.isNull():
+ *        raise Exception("WorkCell could not be loaded")
+ * @endPythonOnly
+ * @beginJavaOnly <pre> \code
+ * WorkCellLoaderPtr loader = WorkCellLoaderFactory.getWorkCellLoader(".wc.xml");
+ * WorkCellPtr wc = loader.loadWorkCell("scene.wc.xml");
+ * if (wc.isNull())
+ *     throw new Exception("WorkCell could not be loaded.");
+ * \endcode </pre> @endJavaOnly
+ */
 class WorkCellLoader {
 public:
 	virtual ~WorkCellLoader();
+    /**
+     * @brief Load a WorkCell from a file.
+     *
+     * @param filename [in] path to workcell file.
+     */
 	virtual rw::common::Ptr<WorkCell> loadWorkCell(const std::string& filename) = 0;
-	virtual void setScene(rw::common::Ptr<WorkCellScene> scene );
-	virtual rw::common::Ptr<WorkCellScene> getScene();
 
 protected:
 	WorkCellLoader();
-	WorkCellLoader(rw::common::Ptr<WorkCellScene> scene);
 };
 
 %template (WorkCellLoaderPtr) rw::common::Ptr<WorkCellLoader>;
 
-
+/**
+ * @brief A factory for WorkCellLoader. This factory also defines the
+ * "rw.loaders.WorkCellLoader" extension point where new loaders can be
+ * registered.
+ */
 class WorkCellLoaderFactory {
 public:
-	WorkCellLoaderFactory();
+	/**
+	 * @brief Get loaders for a specific format.
+	 *
+	 * @param format [in] the extension (including initial dot).
+	 * The extension name is case-insensitive.
+	 * @return a suitable loader.
+	 */
 	static rw::common::Ptr<WorkCellLoader> getWorkCellLoader(const std::string& format);
+
+    /**
+     * @brief Loads/imports a WorkCell from a file.
+     *
+     * An exception is thrown if the file can't be loaded.
+     * The RobWork XML format is supported by default, as well as
+     * TUL WorkCell format.
+     *
+     * @param filename [in] name of the WorkCell file.
+     */
+	static rw::common::Ptr<WorkCell> load(const std::string& filename);
+private:
+	WorkCellLoaderFactory();
 };
 
 class ImageLoader {
@@ -1132,6 +1798,27 @@ namespace rw { namespace math {
  * MODELS
  ********************************************/
  
+ %nodefaultctor JacobianCalculator;
+//! @brief JacobianCalculator provides an interface for obtaining a Jacobian
+class JacobianCalculator
+{
+public:
+    //! @brief Destructor
+    virtual ~JacobianCalculator();
+
+    %extend {
+		/**
+		 * @brief Returns the Jacobian associated to \b state
+		 * @param state [in] State for which to calculate the Jacobian
+		 * @return Jacobian for \b state
+		 */
+		virtual rw::math::Jacobian getJacobian(const State& state) const {
+			return $self->get(state);
+		}
+    };
+};
+
+%template (JacobianCalculatorPtr) rw::common::Ptr<JacobianCalculator>;
 
 class WorkCell {
 public:
@@ -1207,6 +1894,7 @@ public:
     virtual rw::math::InertiaMatrix<double> getInertia(State& state) const = 0;
 };
 %template (ObjectPtr) rw::common::Ptr<Object>;
+OWNEDPTR(Object);
 
 class RigidObject : public Object {
 public:
@@ -1233,9 +1921,9 @@ public:
     rw::math::InertiaMatrix<double> getInertia(State& state) const;
     rw::math::Vector3D<double> getCOM(State& state) const;
 };
+
 %template (RigidObjectPtr) rw::common::Ptr<RigidObject>;
-
-
+OWNEDPTR(RigidObject);
 
 class DeformableObject: public Object
 {
@@ -1265,8 +1953,9 @@ public:
     rw::math::InertiaMatrix<double> getInertia(State& state) const;
     void update(rw::common::Ptr<Model3D> model, const State& state);
 };
-%template (DeformableObjectPtr) rw::common::Ptr<DeformableObject>;
 
+%template (DeformableObjectPtr) rw::common::Ptr<DeformableObject>;
+OWNEDPTR(DeformableObject);
 
 class Device
 {
@@ -1304,7 +1993,13 @@ private:
 };
 
 %template (DevicePtr) rw::common::Ptr<Device>;
+%template (DeviceCPtr) rw::common::Ptr<const Device>;
 %template (DevicePtrVector) std::vector<rw::common::Ptr<Device> >;
+OWNEDPTR(Device)
+
+%extend rw::common::Ptr<Device> {
+    rw::common::Ptr<const Device> asDeviceCPtr() { return *$self; }
+}
 
 class JointDevice: public Device
 {
@@ -1334,8 +2029,10 @@ public:
 };
 
 %template (JointDevicePtr) rw::common::Ptr<JointDevice>;
+%template (JointDeviceCPtr) rw::common::Ptr<const JointDevice>;
+OWNEDPTR(JointDevice)
 
-class CompositeDevice: public Device
+class CompositeDevice: public JointDevice
 {
 public:
     CompositeDevice(
@@ -1351,19 +2048,29 @@ public:
         const std::vector<Frame*>& ends,
         const std::string& name,
         const State& state);
-
-    
 };
+
+%template (CompositeDevicePtr) rw::common::Ptr<CompositeDevice>;
+OWNEDPTR(CompositeDevice)
+
+%extend rw::common::Ptr<CompositeDevice> {
+    rw::common::Ptr<Device> asDevicePtr() { return *$self; }
+    rw::common::Ptr<const Device> asDeviceCPtr() { return *$self; }
+    rw::common::Ptr<JointDevice> asJointDevicePtr() { return *$self; }
+    rw::common::Ptr<const JointDevice> asJointDeviceCPtr() { return *$self; }
+}
 
 class SerialDevice: public JointDevice
 {
 };
 %template (SerialDevicePtr) rw::common::Ptr<SerialDevice>;
+OWNEDPTR(SerialDevice)
 
 class ParallelDevice: public JointDevice
 {
 };
 %template (ParallelDevicePtr) rw::common::Ptr<ParallelDevice>;
+OWNEDPTR(ParallelDevice)
 
 class TreeDevice: public JointDevice
 {
@@ -1375,6 +2082,7 @@ public:
 		const State& state);
 };
 %template (TreeDevicePtr) rw::common::Ptr<TreeDevice>;
+OWNEDPTR(TreeDevice)
 
 %nodefaultctor DHParameterSet;
 class DHParameterSet
@@ -1387,7 +2095,158 @@ class DHParameterSet
  * PATHPLANNING
  ********************************************/
 
+//! @brief Interface for the sampling a configuration.
+class QSampler
+{
+public:
+    /**
+       @brief Sample a configuration.
 
+       If sampling fails, the sampler may return the empty configuration. If
+       empty() is true then the sampler has no more configurations.
+       Otherwise sample() may (or may not) succeed if called a second time.
+    */
+    rw::math::Q sample();
+
+    /**
+       @brief True if the sampler is known to contain no more
+       configurations.
+    */
+    bool empty() const;
+
+    /**
+       @brief Destructor
+    */
+    virtual ~QSampler();
+
+    /**
+       @brief Empty sampler.
+    */
+	static rw::common::Ptr<QSampler> makeEmpty();
+
+    /**
+       @brief Sampler that always returns the same configuration.
+
+       The sampler is considered never empty (empty() always returns false).
+    */
+	static rw::common::Ptr<QSampler> makeFixed(const rw::math::Q& q);
+
+    /**
+       @brief Sampler that always returns a single configuration.
+
+       The sample() returns \b q the first time the method is called and the
+       empty configuration otherwise. empty() returns true after the first
+       call of sample().
+    */
+	static rw::common::Ptr<QSampler> makeSingle(const rw::math::Q& q);
+
+    /**
+       @brief Sampler for the values of a finite sequence.
+
+       sample() returns each of the values of \b qs in order. When all of
+       these samples have been returned, empty() returns true and sample()
+       returns the empty configuration.
+    */
+	static rw::common::Ptr<QSampler> makeFinite(const std::vector<rw::math::Q>& qs);
+
+    /**
+       @brief A sampler to that returns only the first \b cnt samples from
+       another sampler.
+
+       The sampler is considered empty as soon as \b sampler is empty or the
+       sampler has been called \b cnt times or more.
+    */
+	static rw::common::Ptr<QSampler> makeFinite(rw::common::Ptr<QSampler> sampler, int cnt);
+
+    /**
+       @brief Uniform random sampling for a box of the configuration space.
+    */
+	//static rw::common::Ptr<QSampler> makeUniform(const Device::QBox& bounds);
+
+    /**
+       @brief Uniform random sampling for a device.
+    */
+	static rw::common::Ptr<QSampler> makeUniform(
+        const Device& device);
+
+    /**
+       @brief Uniform random sampling for a device.
+    */
+	static rw::common::Ptr<QSampler> makeUniform(rw::common::Ptr<const Device> device);
+
+    /**
+       @brief Map a sampler of standard configurations into a sampler of
+       normalized configurations.
+    */
+	//static rw::common::Ptr<QSampler> makeNormalized(rw::common::Ptr<QSampler> sampler, const QNormalizer& normalizer);
+
+    /**
+       @brief A sampler of IK solutions for a specific target.
+
+       @param sampler [in] Sampler of IK solutions for \b target.
+       @param target [in] Target for IK solver.
+    */
+	//static rw::common::Ptr<QSampler> make(rw::common::Ptr<QIKSampler> sampler, const rw::math::Transform3D<>& target);
+
+    /**
+       @brief A sampler filtered by a constraint.
+
+       For each call of sample() up to \b maxAttempts configurations are
+       extracted from \b sampler and checked by \b constraint. The first
+       sample that satisfies the constraint is returned; if no such were
+       found the empty configuration is returned.
+
+       If \b maxAttempts is negative (this is the default), then \b sampler
+       is sampled forever until either the \b sampler is empty or a
+       configuration satisfying \b constraint is found.
+    */
+	//static rw::common::Ptr<QSampler> makeConstrained(
+	//	rw::common::Ptr<QSampler> sampler,
+	//	rw::common::Ptr<const QConstraint> constraint,
+    //    int maxAttempts = -1);
+
+    /**
+       @brief Sampler of direction vectors for a box shaped configuration
+       space.
+
+       Each random direction vector is found by sampling a configuration
+       uniformly at random from \b bounds, and returning the vector from the
+       center of the box to the configuration. The returned direction vector
+       can therefore be of length zero.
+    */
+    //static
+	//	rw::common::Ptr<QSampler> makeBoxDirectionSampler(
+    //    const Device::QBox& bounds);
+
+protected:
+    /**
+       @brief Constructor
+    */
+    QSampler();
+
+    /**
+       @brief Subclass implementation of the sample() method.
+    */
+    virtual rw::math::Q doSample() = 0;
+
+    /**
+       @brief Subclass implementation of the empty() method.
+
+       By default the sampler is assumed to be sampling an infinite set of
+       configurations. IOW. the function returns false by default.
+    */
+    virtual bool doEmpty() const;
+
+private:
+    QSampler(const QSampler&);
+    QSampler& operator=(const QSampler&);
+};
+//! @brief smart pointer type to this class
+%template (QSamplerPtr) rw::common::Ptr<QSampler>;
+//! @brief smart pointer type to this const class
+%template (QSamplerCPtr) rw::common::Ptr<const QSampler>;
+
+OWNEDPTR(QSampler)
 
 /********************************************
  * PLUGIN
@@ -1397,42 +2256,41 @@ class DHParameterSet
  * PROXIMITY
  ********************************************/
 
+class ProximityData {
+};
+
+%nodefaultctor ProximityStrategy;
+/**
+ * @brief The ProximityStrategy interface is a clean interface
+ * for defining methods that are common for different proximity
+ * strategy classes. Specifically adding of geometric models and
+ * relating them to frames.
+ */
+class ProximityStrategy {
+};
+
+%template (ProximityStrategyPtr) rw::common::Ptr<ProximityStrategy>;
+
 %nodefaultctor CollisionStrategy;
-class CollisionStrategy {
-public:
-/*
-    virtual bool inCollision(
-        const kinematics::Frame* a,
-        const math::Transform3D<double>& wTa,
-        const kinematics::Frame *b,
-        const math::Transform3D<double>& wTb,
-        CollisionQueryType type = FirstContact);
-
-    virtual bool inCollision(
-        const kinematics::Frame* a,
-        const math::Transform3D<double>& wTa,
-        const kinematics::Frame *b,
-        const math::Transform3D<double>& wTb,
-        ProximityStrategyData& data,
-        CollisionQueryType type = FirstContact);
-
-    virtual bool inCollision(
-        ProximityModel::Ptr a,
-        const math::Transform3D<double>& wTa,
-        ProximityModel::Ptr b,
-        const math::Transform3D<double>& wTb,
-        ProximityStrategyData& data) = 0;
-*/
-    /*
-    static CollisionStrategy::Ptr make(CollisionToleranceStrategy::Ptr strategy, double tolerance);
-
-    static CollisionStrategy::Ptr make(CollisionToleranceStrategy::Ptr strategy,
-                     const rw::kinematics::FrameMap<double>& frameToTolerance,
-                     double defaultTolerance);
-     */
+/**
+ * @brief An interface that defines methods to test collision between
+ * two objects.
+ */
+class CollisionStrategy : public virtual ProximityStrategy {
 };
 
 %template (CollisionStrategyPtr) rw::common::Ptr<CollisionStrategy>;
+
+%nodefaultctor DistanceStrategy;
+/**
+ * @brief This is an interface that defines methods for computing the minimum distance
+ * between geometric objects. If geometry objects has been related to frames (see ProximityStrategy)
+ * then distance functions computing the distance between the geometry attached to frames can also be used.
+ */
+class DistanceStrategy : public virtual ProximityStrategy {
+};
+
+%template (DistanceStrategyPtr) rw::common::Ptr<DistanceStrategy>;
 
 %nodefaultctor CollisionDetector;
 class CollisionDetector
@@ -1441,10 +2299,21 @@ public:
 	CollisionDetector(rw::common::Ptr<WorkCell> workcell);
 	CollisionDetector(rw::common::Ptr<WorkCell> workcell, rw::common::Ptr<CollisionStrategy> strategy);
 
+    /**
+     @brief Check the workcell for collisions.
+     @param state [in] The state for which to check for collisions.
+     @param data [in/out] Defines parameters for the collision check, the results and also
+     enables caching inbetween calls to incollision
+     @return true if a collision is detected; false otherwise.
+     */
+    bool inCollision(const State& state, class ProximityData &data) const;
+
     %extend {
+    /*
         static rw::common::Ptr<CollisionDetector> make(rw::common::Ptr<WorkCell> workcell){
             return rw::common::ownedPtr( new CollisionDetector(workcell, rwlibs::proximitystrategies::ProximityStrategyFactory::makeDefaultCollisionStrategy()) );
         }
+    */
 
         static rw::common::Ptr<CollisionDetector> make(rw::common::Ptr<WorkCell> workcell, rw::common::Ptr<CollisionStrategy> strategy){
             return rw::common::ownedPtr( new CollisionDetector(workcell, strategy) );
@@ -1453,6 +2322,7 @@ public:
 };
 
 %template (CollisionDetectorPtr) rw::common::Ptr<CollisionDetector>;
+OWNEDPTR(CollisionDetector)
 
 /********************************************
  * SENSOR
@@ -1509,6 +2379,8 @@ public:
 %template (TimedStateVector) std::vector<Timed<State> >;
 %template (TimedQVectorPtr) rw::common::Ptr<std::vector<Timed<rw::math::Q> > >;
 %template (TimedStateVectorPtr) rw::common::Ptr<std::vector<Timed<State> > >;
+OWNEDPTR(std::vector<Timed<rw::math::Q> > )
+//OWNEDPTR(std::vector<Timed<State> > )
 
 %template (PathSE3) Path<rw::math::Transform3D<double> >;
 %template (PathSE3Ptr) rw::common::Ptr<Path<rw::math::Transform3D<double> > >;
@@ -1518,6 +2390,10 @@ public:
 %template (PathTimedQPtr) rw::common::Ptr<Path<Timed<rw::math::Q> > >;
 %template (PathTimedState) Path<Timed<State> >;
 %template (PathTimedStatePtr) rw::common::Ptr<Path<Timed<State> > >;
+OWNEDPTR(Path<rw::math::Transform3D<double> > )
+OWNEDPTR(Path<rw::math::Q> )
+OWNEDPTR(Path<Timed<rw::math::Q> > )
+OWNEDPTR(Path<Timed<State> > )
 
 %extend Path<rw::math::Q> {
     rw::common::Ptr<Path<Timed<rw::math::Q> > > toTimedQPath(rw::math::Q speed){
@@ -1630,6 +2506,13 @@ public:
 %template (BlendSE3Ptr) rw::common::Ptr<Blend<rw::math::Transform3D<double> > >;
 %template (BlendQPtr) rw::common::Ptr<Blend<rw::math::Q> >;
 
+OWNEDPTR(Blend<double> )
+OWNEDPTR(Blend<rw::math::Vector2D<double> > )
+OWNEDPTR(Blend<rw::math::Vector3D<double> > )
+OWNEDPTR(Blend<rw::math::Rotation3D<double> > )
+OWNEDPTR(Blend<rw::math::Transform3D<double> > )
+OWNEDPTR(Blend<rw::math::Q> )
+
 template <class T>
 class Interpolator
 {
@@ -1653,6 +2536,13 @@ public:
 %template (InterpolatorSO3Ptr) rw::common::Ptr<Interpolator<rw::math::Rotation3D<double> > >;
 %template (InterpolatorSE3Ptr) rw::common::Ptr<Interpolator<rw::math::Transform3D<double> > >;
 %template (InterpolatorQPtr) rw::common::Ptr<Interpolator<rw::math::Q> >;
+
+OWNEDPTR(Interpolator<double> )
+OWNEDPTR(Interpolator<rw::math::Vector2D<double> > )
+OWNEDPTR(Interpolator<rw::math::Vector3D<double> > )
+OWNEDPTR(Interpolator<rw::math::Rotation3D<double> > )
+OWNEDPTR(Interpolator<rw::math::Transform3D<double> > )
+OWNEDPTR(Interpolator<rw::math::Q> )
 
 class LinearInterpolator: public Interpolator<double> {
 public:
@@ -1820,6 +2710,14 @@ protected:
 %template (TrajectorySE3Ptr) rw::common::Ptr<Trajectory<rw::math::Transform3D<double> > >;
 %template (TrajectoryQPtr) rw::common::Ptr<Trajectory<rw::math::Q> >;
 
+OWNEDPTR(Trajectory<State> )
+OWNEDPTR(Trajectory<double> )
+OWNEDPTR(Trajectory<rw::math::Vector2D<double> > )
+OWNEDPTR(Trajectory<rw::math::Vector3D<double> > )
+OWNEDPTR(Trajectory<rw::math::Rotation3D<double> > )
+OWNEDPTR(Trajectory<rw::math::Transform3D<double> > )
+OWNEDPTR(Trajectory<rw::math::Q> )
+
 template <class T>
 class InterpolatorTrajectory: public Trajectory<T> {
 public:
@@ -1873,184 +2771,6 @@ public:
  * RWLIBS ASSEMBLY
  ********************************************/
 
-class AssemblyControlResponse
-{
-public:
-	AssemblyControlResponse();
-	virtual ~AssemblyControlResponse();
-	
-	/*
-	typedef enum Type {
-		POSITION,    //!< Position control
-		VELOCITY,    //!< Velocity control
-		HYBRID_FT_POS//!< Hybrid position and force/torque control
-	} Type;
-
-	Type type;
-	*/
-	
-	rw::math::Transform3D<double>  femaleTmaleTarget;
-	rw::common::Ptr<Trajectory<rw::math::Transform3D<double> > > worldTendTrajectory;
-	rw::math::VelocityScrew6D<double>  femaleTmaleVelocityTarget;
-	rw::math::Rotation3D<double>  offset;
-	//VectorND<6,bool> selection;
-	rw::math::Wrench6D<double> force_torque;
-	bool done;
-	bool success;
-};
-
-%template (AssemblyControlResponsePtr) rw::common::Ptr<AssemblyControlResponse>;
-
-class AssemblyControlStrategy
-{
-public:
-	AssemblyControlStrategy();
-	virtual ~AssemblyControlStrategy();
-	
-	/*
-	class ControlState {
-	public:
-		//! @brief smart pointer type to this class
-	    typedef rw::common::Ptr<ControlState> Ptr;
-
-		//! @brief Constructor.
-		ControlState() {};
-
-		//! @brief Destructor.
-		virtual ~ControlState() {};
-	};
-	virtual rw::common::Ptr<ControlState> createState() const;
-	*/
-	
-	//virtual rw::common::Ptr<AssemblyControlResponse> update(rw::common::Ptr<AssemblyParameterization> parameters, rw::common::Ptr<AssemblyState> real, rw::common::Ptr<AssemblyState> assumed, rw::common::Ptr<ControlState> controlState, State &state, FTSensor* ftSensor, double time) const = 0;
-	virtual rw::math::Transform3D<double>  getApproach(rw::common::Ptr<AssemblyParameterization> parameters) = 0;
-	virtual std::string getID() = 0;
-	virtual std::string getDescription() = 0;
-	virtual rw::common::Ptr<AssemblyParameterization> createParameterization(const rw::common::Ptr<PropertyMap> map) = 0;
-};
-
-%template (AssemblyControlStrategyPtr) rw::common::Ptr<AssemblyControlStrategy>;
-
-class AssemblyParameterization
-{
-public:
-	AssemblyParameterization();
-	AssemblyParameterization(rw::common::Ptr<PropertyMap> pmap);
-	virtual ~AssemblyParameterization();
-	virtual rw::common::Ptr<PropertyMap> toPropertyMap() const;
-	virtual rw::common::Ptr<AssemblyParameterization> clone() const;
-};
-
-%template (AssemblyParameterizationPtr) rw::common::Ptr<AssemblyParameterization>;
-
-class AssemblyRegistry
-{
-public:
-	AssemblyRegistry();
-	virtual ~AssemblyRegistry();
-	void addStrategy(const std::string id, rw::common::Ptr<AssemblyControlStrategy> strategy);
-	std::vector<std::string> getStrategies() const;
-	bool hasStrategy(const std::string& id) const;
-	rw::common::Ptr<AssemblyControlStrategy> getStrategy(const std::string &id) const;
-};
-
-%template (AssemblyRegistryPtr) rw::common::Ptr<AssemblyRegistry>;
-
-class AssemblyResult
-{
-public:
-	AssemblyResult();
-	AssemblyResult(rw::common::Ptr<Task<rw::math::Transform3D<double> > > task);
-	virtual ~AssemblyResult();
-	rw::common::Ptr<AssemblyResult> clone() const;
-	rw::common::Ptr<Task<rw::math::Transform3D<double> > > toCartesianTask();
-	static void saveRWResult(rw::common::Ptr<AssemblyResult> result, const std::string& name);
-	static void saveRWResult(std::vector<rw::common::Ptr<AssemblyResult> > results, const std::string& name);
-	static std::vector<rw::common::Ptr<AssemblyResult> > load(const std::string& name);
-	static std::vector<rw::common::Ptr<AssemblyResult> > load(std::istringstream& inputStream);
-	
-	bool success;
-	//Error error;
-	rw::math::Transform3D<double>  femaleTmaleEnd;
-
-	std::string taskID;
-	std::string resultID;
-    
-    Path<Timed<AssemblyState> > realState;
-	Path<Timed<AssemblyState> > assumedState;
-	rw::math::Transform3D<double>  approach;
-	std::string errorMessage;
-};
-
-%template (AssemblyResultPtr) rw::common::Ptr<AssemblyResult>;
-%template (AssemblyResultPtrVector) std::vector<rw::common::Ptr<AssemblyResult> >;
-
-class AssemblyState
-{
-public:
-	AssemblyState();
-	//AssemblyState(rw::common::Ptr<Target<rw::math::Transform3D<double> > > target);
-	virtual ~AssemblyState();
-	//static rw::common::Ptr<Target<rw::math::Transform3D<double> > > toCartesianTarget(const AssemblyState &state);
-
-	std::string phase;
-	rw::math::Transform3D<double>  femaleOffset;
-	rw::math::Transform3D<double>  maleOffset;
-	rw::math::Transform3D<double>  femaleTmale;
-	rw::math::Wrench6D<double> ftSensorMale;
-	rw::math::Wrench6D<double> ftSensorFemale;
-	bool contact;
-	Path<rw::math::Transform3D<double> > maleflexT;
-	Path<rw::math::Transform3D<double> > femaleflexT;
-	Path<rw::math::Transform3D<double> > contacts;
-	rw::math::Vector3D<double> maxContactForce;
-};
-
-%template (AssemblyStatePtr) rw::common::Ptr<AssemblyState>;
-%template (TimedAssemblyState) Timed<AssemblyState>;
-%template (TimedAssemblyStateVector) std::vector<Timed<AssemblyState> >;
-%template (PathTimedAssemblyState) Path<Timed<AssemblyState> >;
-
-class AssemblyTask
-{
-public:
-	AssemblyTask();
-	AssemblyTask(rw::common::Ptr<Task<rw::math::Transform3D<double> > > task, rw::common::Ptr<AssemblyRegistry> registry = NULL);
-	virtual ~AssemblyTask();
-	rw::common::Ptr<Task<rw::math::Transform3D<double> > > toCartesianTask();
-	static void saveRWTask(rw::common::Ptr<AssemblyTask> task, const std::string& name);
-	static void saveRWTask(std::vector<rw::common::Ptr<AssemblyTask> > tasks, const std::string& name);
-	static std::vector<rw::common::Ptr<AssemblyTask> > load(const std::string& name, rw::common::Ptr<AssemblyRegistry> registry = NULL);
-	static std::vector<rw::common::Ptr<AssemblyTask> > load(std::istringstream& inputStream, rw::common::Ptr<AssemblyRegistry> registry = NULL);
-	rw::common::Ptr<AssemblyTask> clone() const;
-
-	std::string maleID;
-    std::string femaleID;
-    rw::math::Transform3D<double>  femaleTmaleTarget;
-    rw::common::Ptr<AssemblyControlStrategy> strategy;
-    rw::common::Ptr<AssemblyParameterization> parameters;
-    
-    std::string maleTCP;
-    std::string femaleTCP;
-    
-    std::string taskID;
-    std::string workcellName;
-    std::string generator;
-    std::string date;
-    std::string author;
-    
-    std::string malePoseController;
-    std::string femalePoseController;
-    std::string maleFTSensor;
-    std::string femaleFTSensor;
-    std::vector<std::string> maleFlexFrames;
-    std::vector<std::string> femaleFlexFrames;
-    std::vector<std::string> bodyContactSensors;
-};
-
-%template (AssemblyTaskPtr) rw::common::Ptr<AssemblyTask>;
-%template (AssemblyTaskPtrVector) std::vector<rw::common::Ptr<AssemblyTask> >;
-
 /********************************************
  * RWLIBS CALIBRATION
  ********************************************/
@@ -2098,67 +2818,6 @@ public:
  * RWLIBS PATHOPTIMIZATION
  ********************************************/
 
-class PathLengthOptimizer
-{
-public:
-
-    %extend {
-
-        PathLengthOptimizer(rw::common::Ptr<CollisionDetector> cd,
-                            rw::common::Ptr<Device> dev,
-                            const State &state)
-        {
-            rw::pathplanning::PlannerConstraint constraint =
-                    rw::pathplanning::PlannerConstraint::make(cd.get(), dev, state);
-            return new PathLengthOptimizer(constraint, rw::math::MetricFactory::makeEuclidean< rw::math::Q>());
-        }
-
-        PathLengthOptimizer(rw::common::Ptr<CollisionDetector> cd,
-                            rw::common::Ptr<Device> dev,
-                            rw::common::Ptr<Metric<rw::math::Q> > metric,
-                            const State &state)
-        {
-            rw::pathplanning::PlannerConstraint constraint =
-                    rw::pathplanning::PlannerConstraint::make(cd.get(), dev, state);
-            return new PathLengthOptimizer(constraint, metric );
-        }
-
-        PathLengthOptimizer(rw::common::Ptr<PlannerConstraint> constraint,
-                            rw::common::Ptr<Metric<rw::math::Q> > metric)
-        {
-            return new PathLengthOptimizer(*constraint, metric);
-        }
-
-        rw::common::Ptr<Path<rw::math::Q> > pathPruning(rw::common::Ptr<Path<rw::math::Q> > path){
-            PathQ res = $self->rwlibs::pathoptimization::PathLengthOptimizer::pathPruning(*path);
-            return rw::common::ownedPtr( new PathQ(res) );
-        }
-/*
-        rw::common::Ptr<Path<rw::math::Q> > shortCut(rw::common::Ptr<Path<rw::math::Q> > path,
-                                       size_t cnt,
-                                       double time,
-                                       double subDivideLength);
-*/
-        rw::common::Ptr<Path<rw::math::Q> > shortCut(rw::common::Ptr<Path<rw::math::Q> > path){
-            PathQ res = $self->rwlibs::pathoptimization::PathLengthOptimizer::shortCut(*path);
-            return rw::common::ownedPtr( new PathQ(res) );
-        }
-
-        rw::common::Ptr<Path<rw::math::Q> > partialShortCut(rw::common::Ptr<Path<rw::math::Q> > path){
-            PathQ res = $self->rwlibs::pathoptimization::PathLengthOptimizer::partialShortCut(*path);
-            return rw::common::ownedPtr( new PathQ(res) );
-        }
-/*
-        rw::common::Ptr<Path<rw::math::Q> > partialShortCut(rw::common::Ptr<Path<rw::math::Q> > path,
-                                              size_t cnt,
-                                              double time,
-                                              double subDivideLength);
-                                              */
-    }
-    PropertyMap& getPropertyMap();
-
-};
-
 /********************************************
  * RWLIBS PATHPLANNERS
  ********************************************/
@@ -2167,9 +2826,6 @@ public:
 /********************************************
  * RWLIBS PROXIMITYSTRATEGIES
  ********************************************/
-
-
- 
 
 /********************************************
  * RWLIBS SOFTBODY
@@ -2182,65 +2838,6 @@ public:
 /********************************************
  * RWLIBS TASK
  ********************************************/
-
-template <class T>
-class Task
-{
-};
-
-%template (TaskSE3) Task<rw::math::Transform3D<double> >;
-
-%template (TaskSE3Ptr) rw::common::Ptr<Task<rw::math::Transform3D<double> > >;
-
-class GraspTask {
-public:
-    GraspTask():
-    GraspTask(rw::common::Ptr<Task<rw::math::Transform3D<double> > > task);
-    rw::common::Ptr<Task<rw::math::Transform3D<double> > > toCartesianTask();
-    std::string getGripperID();
-    std::string getTCPID();
-    std::string getGraspControllerID();
-    void setGripperID(const std::string& id);
-    void setTCPID(const std::string& id);
-    void setGraspControllerID(const std::string& id);
-    static std::string toString(GraspResult::TestStatus status);
-    static void saveUIBK(rw::common::Ptr<GraspTask> task, const std::string& name );
-    static void saveRWTask(rw::common::Ptr<GraspTask> task, const std::string& name );
-    static void saveText(rw::common::Ptr<GraspTask> task, const std::string& name );
-    static rw::common::Ptr<GraspTask> load(const std::string& name);
-    static rw::common::Ptr<GraspTask> load(std::istringstream& inputStream);
-    rw::common::Ptr<GraspTask> clone();
-};
-
-%template (GraspTaskPtr) rw::common::Ptr<GraspTask>;
-
-class GraspResult {
-public:
-	enum TestStatus {
-        UnInitialized = 0,
-        Success, // 1
-        CollisionInitially, // 2
-        ObjectMissed, // 3
-        ObjectDropped, // 4
-        ObjectSlipped, // 5
-        TimeOut, // 6
-        SimulationFailure, // 7
-        InvKinFailure, // 8
-        PoseEstimateFailure, // 9
-        CollisionFiltered, // 10
-        CollisionObjectInitially, // 11
-        CollisionEnvironmentInitially, // 12
-        CollisionDuringExecution, // 13
-        Interference, // 14
-        WrenchInsufficient, // 15
-        SizeOfStatusArray
-     };
-};
-%template (GraspResultPtr) rw::common::Ptr<GraspResult>;
-
-/* @} */
-
-//TODO add other grasptask related classes
 
 /********************************************
  * RWLIBS TOOLS

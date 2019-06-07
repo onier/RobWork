@@ -31,7 +31,6 @@
 #include <utility>
 #include <iterator>
 #include <map>
-#include <boost/foreach.hpp>
 
 #define NS rwlibs::pathplanners::SBLInternal
 typedef NS::Motion Motion;
@@ -830,7 +829,7 @@ namespace
         SBL& sbl,
         const TreeChoice& tree)
     {
-        BOOST_FOREACH(const Q& q, qs) {
+        for(const Q& q : qs) {
             addAsRootIfCfree(q, constraint, sbl, tree);
         }
     }

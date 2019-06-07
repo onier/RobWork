@@ -53,12 +53,12 @@ Jacobian Device::baseJframe(const Frame* frame,
     return baseJframes(frames, state);
 }
 
-JacobianCalculatorPtr Device::baseJCend(const State& state) const
+JacobianCalculator::Ptr Device::baseJCend(const State& state) const
 {
     return baseJCframe(getEnd(), state);
 }
 
-JacobianCalculatorPtr Device::baseJCframe(const Frame* frame,
+JacobianCalculator::Ptr Device::baseJCframe(const Frame* frame,
                                                       const State& state) const
 {
     std::vector<Frame*> frames(1, const_cast<Frame*>(frame)); // Dirty.

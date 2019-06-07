@@ -22,6 +22,16 @@ using rw::pathplanning::PathPlanner;
 
 %pragma(java) jniclassclassmodifiers="class"
 
+%pragma(java) jniclassimports=%{
+import org.robwork.rw.*;
+%}
+%pragma(java) moduleimports=%{
+import org.robwork.rw.*;
+%}
+%typemap(javaimports) SWIGTYPE %{
+import org.robwork.rw.*;
+%}
+
 /********************************************
  * General utility functions
  ********************************************/

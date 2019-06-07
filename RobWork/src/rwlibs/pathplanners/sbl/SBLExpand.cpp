@@ -27,7 +27,6 @@
 #include <rw/common/macros.hpp>
 #include <rw/kinematics/Kinematics.hpp>
 #include <rw/kinematics/State.hpp>
-#include <boost/foreach.hpp>
 
 using namespace rwlibs::pathplanners;
 using namespace rw::pathplanning;
@@ -127,8 +126,8 @@ namespace
         }
 
         double maxDist = -1;
-        BOOST_FOREACH(const Q& q1, qs) {
-            BOOST_FOREACH(const Q& q2, qs) {
+        for(const Q& q1 : qs) {
+            for(const Q& q2 : qs) {
                 State s1 = state;
                 device.setQ(q1, s1);
 
@@ -205,7 +204,7 @@ namespace
         JacobianShrinkingUniformBox(
 			QConstraint::Ptr constraint,
             const QBox& outer,
-            JacobianCalculatorPtr jacobian,
+            JacobianCalculator::Ptr jacobian,
 			Device::Ptr device,
             const State& state,
             double angle_max,
@@ -247,7 +246,7 @@ namespace
     private:
 		QConstraint::Ptr _constraint;
         QBox _outer;
-        JacobianCalculatorPtr _jacobian;
+        JacobianCalculator::Ptr _jacobian;
 		Device::Ptr _device;
         State _state;
         double _angle_max;
@@ -255,14 +254,14 @@ namespace
     };
 }
 
-SBLExpandPtr SBLExpand::makeUniformBox(
+SBLExpand::Ptr SBLExpand::makeUniformBox(
     const QBox& outer,
     const QBox& inner)
 {
     return ownedPtr(new UniformBox(outer, inner));
 }
 
-SBLExpandPtr SBLExpand::makeUniformBox(
+SBLExpand::Ptr SBLExpand::makeUniformBox(
     const QBox& outer,
     double ratio)
 {
@@ -270,7 +269,7 @@ SBLExpandPtr SBLExpand::makeUniformBox(
     return makeUniformBox(outer, makeInner(outer, ratio));
 }
 
-SBLExpandPtr SBLExpand::makeShrinkingUniformBox(
+SBLExpand::Ptr SBLExpand::makeShrinkingUniformBox(
 	QConstraint::Ptr constraint,
     const QBox& outer,
     const QBox& inner)
@@ -278,7 +277,7 @@ SBLExpandPtr SBLExpand::makeShrinkingUniformBox(
     return ownedPtr(new ShrinkingUniformBox(constraint, outer, inner));
 }
 
-SBLExpandPtr SBLExpand::makeShrinkingUniformBox(
+SBLExpand::Ptr SBLExpand::makeShrinkingUniformBox(
 	QConstraint::Ptr constraint,
     const QBox& outer,
     double ratio)
@@ -286,10 +285,10 @@ SBLExpandPtr SBLExpand::makeShrinkingUniformBox(
     return makeShrinkingUniformBox(constraint, outer, makeInner(outer, ratio));
 }
 
-SBLExpandPtr SBLExpand::makeShrinkingUniformJacobianBox(QConstraint::Ptr constraint,
+SBLExpand::Ptr SBLExpand::makeShrinkingUniformJacobianBox(QConstraint::Ptr constraint,
 														Device::Ptr device,
                                                         const State& state,
-                                                        JacobianCalculatorPtr jacobian,
+                                                        JacobianCalculator::Ptr jacobian,
                                                         double angle_max,
                                                         double disp_max)
 {

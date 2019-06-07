@@ -31,68 +31,92 @@ RW_ADD_DOC( ${SUBSYS_NAME} )
 IF( build )
     INCLUDE(UseJava)
     INCLUDE(UseSWIG)
-    
-    SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES CPLUSPLUS ON)
-	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall")
-    if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
-    	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall;-doxygen")
-    endif()
-    
-   INCLUDE_DIRECTORIES(${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
-    set(CMAKE_SWIG_FLAGS "-package" "dk.robwork")
-    # Put java files in different directory suitable for JAR generation later on
-    SET(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/java_src/dk/robwork)
-    # SWIG
-	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
-		SWIG_ADD_LIBRARY(rw_jni TYPE MODULE LANGUAGE java SOURCES ../rw.i ../ScriptTypes.cpp)
-	ELSE()
-		SWIG_ADD_MODULE(rw_jni java ../rw.i ../ScriptTypes.cpp)
-	ENDIF()
-    SWIG_LINK_LIBRARIES(rw_jni
-    	rw_pathplanners
-    	rw_pathoptimization
-    	rw_assembly
-    	rw_task
-    	rw_proximitystrategies
-    	rw
-    )
-    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-      SET_TARGET_PROPERTIES(${SWIG_MODULE_rw_jni_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
-    ENDIF()
-    # Force removal of previous Java compilation and source when interface file changes
-    # This is required as types may be removed or change name
-    # (in this case previous java classes would interfere with current compilation).
-	ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CleanDep
-        COMMAND ${CMAKE_COMMAND} -E remove_directory java_src
-        COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/CleanDep
-        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../rw.i"
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-        COMMENT "Removing old Java source..."
-    )
-    ADD_CUSTOM_TARGET(CleanDepRW DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CleanDep )
-    IF((CMAKE_GENERATOR MATCHES "Make") AND (NOT CMAKE_VERSION VERSION_LESS 3.12))
-        ADD_DEPENDENCIES(rw_jni_swig_compilation CleanDepRW)
-    ELSE()
-        ADD_DEPENDENCIES(rw_jni CleanDepRW)
-    ENDIF()
-    # Compile java code and create JAR and Javadoc
-	ADD_CUSTOM_COMMAND(TARGET rw_jni
-		POST_BUILD
-		COMMAND ${CMAKE_COMMAND} -E echo "Removing old Java compilation..."
-        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/java_build"
-    	COMMAND ${CMAKE_COMMAND} -E remove_directory "${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc"
-		COMMAND ${CMAKE_COMMAND} -E echo "Copying Java source..."
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRW.java java_src/dk/robwork/LoaderRW.java
-		COMMAND ${CMAKE_COMMAND} -E echo "Compiling Java files..."
-        COMMAND ${CMAKE_COMMAND} -E make_directory java_build/dk/robwork
-        COMMAND ${Java_JAVAC_EXECUTABLE} -d ${CMAKE_CURRENT_BINARY_DIR}/java_build java_src/dk/robwork/*.java
-        COMMAND ${CMAKE_COMMAND} -E echo "Creating jar file..."
-        COMMAND ${Java_JAR_EXECUTABLE} cvf ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rw_java.jar  -C java_build .
-		COMMAND ${CMAKE_COMMAND} -E echo "Creating Javadoc..."
-    	COMMAND ${CMAKE_COMMAND} -E make_directory ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc
-    	COMMAND ${Java_JAVADOC_EXECUTABLE} -d ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc -windowtitle "RobWork Java API Documentation" -public -sourcepath java_src dk.robwork
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-    )
+
+    INCLUDE_DIRECTORIES(${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
     SET(CMAKE_SWIG_OUTDIR ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY})
-    
+
+    add_custom_target(${SUBSYS_NAME})
+
+    foreach(RW_MODULE rw rw_assembly rw_pathoptimization rw_pathplanners rw_proximitystrategies rw_task)
+	    SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES CPLUSPLUS ON)
+		SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES SWIG_FLAGS "-includeall")
+	    if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
+	    	SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES SWIG_FLAGS "-includeall;-doxygen")
+	    endif()
+	
+	    set(CMAKE_SWIG_FLAGS "-package" "org.robwork.${RW_MODULE}")
+	    # Put java files in different directory suitable for JAR generation later on
+	    SET(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/java_src_${RW_MODULE}/org/robwork/${RW_MODULE})
+	    # SWIG
+		IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
+			SWIG_ADD_LIBRARY(${RW_MODULE}_jni TYPE MODULE LANGUAGE java SOURCES ../${RW_MODULE}.i ../ScriptTypes.cpp)
+		ELSE()
+			SWIG_ADD_MODULE(${RW_MODULE}_jni java ../${RW_MODULE}.i ../ScriptTypes.cpp)
+		ENDIF()
+        add_dependencies(${SUBSYS_NAME} ${SWIG_MODULE_${RW_MODULE}_jni_REAL_NAME})
+	    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
+	      SET_TARGET_PROPERTIES(${SWIG_MODULE_${RW_MODULE}_jni_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+	    ENDIF()
+	    # Force removal of previous Java compilation and source when interface file changes
+	    # This is required as types may be removed or change name
+	    # (in this case previous java classes would interfere with current compilation).
+		ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/CleanDep_${RW_MODULE}
+	        COMMAND ${CMAKE_COMMAND} -E remove_directory java_src_${RW_MODULE}
+	        COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_BINARY_DIR}/CleanDep_${RW_MODULE}
+	        DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/../${RW_MODULE}.i"
+	        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	        COMMENT "Removing old Java source..."
+	    )
+	    ADD_CUSTOM_TARGET(CleanDepRW_${RW_MODULE} DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/CleanDep_${RW_MODULE} )
+	    IF((CMAKE_GENERATOR MATCHES "Make") AND (NOT CMAKE_VERSION VERSION_LESS 3.12))
+	        ADD_DEPENDENCIES(${RW_MODULE}_jni_swig_compilation CleanDepRW_${RW_MODULE})
+	    ELSE()
+	        ADD_DEPENDENCIES(${RW_MODULE}_jni CleanDepRW_${RW_MODULE})
+	    ENDIF()
+	    if (NOT "${RW_MODULE}" STREQUAL "rw")
+	        set(CLASSPATH -classpath ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rw_java.jar)
+	        set(LINK_JAVADOC -link ../rw)
+	        if ("${RW_MODULE}" STREQUAL "rw_assembly")
+	            set(CLASSPATH -classpath ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rw_java.jar:${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rw_task_java.jar)
+	            set(LINK_JAVADOC ${LINK_JAVADOC} -link ../rw_task)
+	        endif()
+	    endif()
+	    # Compile java code and create JAR and Javadoc
+		ADD_CUSTOM_COMMAND(TARGET ${RW_MODULE}_jni
+			POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E echo "Removing old Java compilation..."
+	        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/java_build_${RW_MODULE}"
+	    	COMMAND ${CMAKE_COMMAND} -E remove_directory "${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc/${RW_MODULE}"
+			COMMAND ${CMAKE_COMMAND} -E echo "Copying Java source..."
+	        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRW.java java_src_rw/org/robwork/rw/LoaderRW.java
+			COMMAND ${CMAKE_COMMAND} -E echo "Compiling Java files..."
+	        COMMAND ${CMAKE_COMMAND} -E make_directory java_build_${RW_MODULE}/org/robwork/${RW_MODULE}
+	        COMMAND ${Java_JAVAC_EXECUTABLE} ${CLASSPATH} -d ${CMAKE_CURRENT_BINARY_DIR}/java_build_${RW_MODULE} java_src_${RW_MODULE}/org/robwork/${RW_MODULE}/*.java
+	        COMMAND ${CMAKE_COMMAND} -E echo "Creating jar file..."
+	        COMMAND ${Java_JAR_EXECUTABLE} cvf ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${RW_MODULE}_java.jar  -C java_build_${RW_MODULE} .
+			COMMAND ${CMAKE_COMMAND} -E echo "Creating Javadoc..."
+	    	COMMAND ${CMAKE_COMMAND} -E make_directory ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc/${RW_MODULE}
+	    	COMMAND ${Java_JAVADOC_EXECUTABLE}
+    					${CLASSPATH}
+    					-d ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc/${RW_MODULE}
+    					-windowtitle "RobWork Java API Documentation"
+    					-public
+    					-sourcepath java_src_${RW_MODULE} org.robwork org.robwork.${RW_MODULE}
+    					${LINK_JAVADOC}
+	        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+	    )
+    endforeach()
+
+    SWIG_LINK_LIBRARIES(rw_jni rw)
+    SWIG_LINK_LIBRARIES(rw_assembly_jni rw_assembly rw)
+    SWIG_LINK_LIBRARIES(rw_pathoptimization_jni rw_pathoptimization rw)
+    SWIG_LINK_LIBRARIES(rw_pathplanners_jni rw_pathplanners rw)
+    SWIG_LINK_LIBRARIES(rw_proximitystrategies_jni rw_proximitystrategies rw)
+    SWIG_LINK_LIBRARIES(rw_task_jni rw_task rw)
+
+    add_dependencies(rw_assembly_jni rw_task_jni rw_jni)
+    add_dependencies(rw_pathoptimization_jni rw_jni)
+    add_dependencies(rw_pathplanners_jni rw_jni)
+    add_dependencies(rw_proximitystrategies_jni rw_jni)
+    add_dependencies(rw_task_jni rw_jni)
 ENDIF()

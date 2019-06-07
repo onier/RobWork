@@ -25,7 +25,7 @@ using namespace rw::models;
 
 SBLOptions::SBLOptions(QConstraint::Ptr& constraint,
 	QEdgeConstraintIncremental::Ptr& edgeConstraint,
-    SBLExpandPtr expansion,
+	SBLExpand::Ptr expansion,
 	QMetric::Ptr metric,
     double connectRadius)
     :
