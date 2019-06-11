@@ -52,7 +52,7 @@ INCLUDE(UseSWIG)
     else()
         set(TARGET_NAME ${SWIG_MODULE_rws_REAL_NAME})
     endif()
-    SWIG_LINK_LIBRARIES(rws
+    SWIG_LINK_LIBRARIES(${LIB_PREFIX}rws
         ${RWS_COMPONENT_LIBRARIES} 
         ${RWS_PLUGIN_LIBRARIES} 
         rws
