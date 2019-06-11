@@ -52,7 +52,7 @@ INCLUDE(UseSWIG)
     else()
         set(TARGET_NAME ${SWIG_MODULE_rwsim_REAL_NAME})
     endif()
-    SWIG_LINK_LIBRARIES(rwsim
+    SWIG_LINK_LIBRARIES(${LIB_PREFIX}rwsim
         ${RWSIM_ODE_LIBRARY}
         rwsim
         ${ROBWORK_LIBRARIES}

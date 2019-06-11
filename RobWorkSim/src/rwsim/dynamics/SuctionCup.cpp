@@ -42,7 +42,7 @@ namespace {
         void setAccelerationLimits(const Q& acclimits){ }
         size_t getDOF() const {return 1;};
         Jacobian baseJend(const State& state) const{ return Jacobian(6,6);};
-        JacobianCalculatorPtr baseJCframes(const std::vector<Frame*>& frames, const State& state) const{
+        JacobianCalculator::Ptr baseJCframes(const std::vector<Frame*>& frames, const State& state) const{
             return NULL;
         };
 
