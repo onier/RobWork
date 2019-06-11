@@ -53,9 +53,9 @@ IF( build )
 		ELSE()
 			SWIG_ADD_MODULE(${RW_MODULE}_jni java ../${RW_MODULE}.i ../ScriptTypes.cpp)
 		ENDIF()
-        add_dependencies(${SUBSYS_NAME} ${SWIG_MODULE_${RW_MODULE}_jni_REAL_NAME})
+        add_dependencies(${SUBSYS_NAME} ${RW_MODULE}_jni)
 	    IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-	      SET_TARGET_PROPERTIES(${SWIG_MODULE_${RW_MODULE}_jni_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+	      SET_TARGET_PROPERTIES(${RW_MODULE}_jni PROPERTIES LINK_FLAGS -Wl,--no-undefined)
 	    ENDIF()
 	    # Force removal of previous Java compilation and source when interface file changes
 	    # This is required as types may be removed or change name
@@ -88,7 +88,7 @@ IF( build )
 	        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/java_build_${RW_MODULE}"
 	    	COMMAND ${CMAKE_COMMAND} -E remove_directory "${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc/${RW_MODULE}"
 			COMMAND ${CMAKE_COMMAND} -E echo "Copying Java source..."
-	        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRW.java java_src_rw/org/robwork/rw/LoaderRW.java
+	        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRW.java java_src_${RW_MODULE}/org/robwork/LoaderRW.java
 			COMMAND ${CMAKE_COMMAND} -E echo "Compiling Java files..."
 	        COMMAND ${CMAKE_COMMAND} -E make_directory java_build_${RW_MODULE}/org/robwork/${RW_MODULE}
 	        COMMAND ${Java_JAVAC_EXECUTABLE} ${CLASSPATH} -d ${CMAKE_CURRENT_BINARY_DIR}/java_build_${RW_MODULE} java_src_${RW_MODULE}/org/robwork/${RW_MODULE}/*.java

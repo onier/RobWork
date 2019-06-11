@@ -50,7 +50,7 @@ IF( build )
         rws
         ${ROBWORK_LIBRARIES} )
     IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-      SET_TARGET_PROPERTIES(${SWIG_MODULE_rws_jni_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+      SET_TARGET_PROPERTIES(rws_jni PROPERTIES LINK_FLAGS -Wl,--no-undefined)
     ENDIF()
     # Force removal of previous Java compilation and source when interface file changes
     # This is required as types may be removed or change name

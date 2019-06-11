@@ -29,6 +29,12 @@ RW_ADD_DOC( ${SUBSYS_NAME} )
 IF( build )
 INCLUDE(UseSWIG)
     INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIRS})
+    if(POLICY CMP0078)
+        set(LIB_PREFIX "_")
+    else()
+        set(LIB_PREFIX "")
+    endif()
+
     SET_SOURCE_FILES_PROPERTIES(../rwsim.i PROPERTIES CPLUSPLUS ON)
 	SET_SOURCE_FILES_PROPERTIES(../rwsim.i PROPERTIES SWIG_FLAGS "-includeall")
     if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
@@ -37,23 +43,28 @@ INCLUDE(UseSWIG)
 	
     SET(CMAKE_SWIG_OUTDIR ${RWSIM_CMAKE_LIBRARY_OUTPUT_DIRECTORY})
 	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
-		SWIG_ADD_LIBRARY(rwsim TYPE MODULE LANGUAGE python SOURCES ../rwsim.i ../ScriptTypes.cpp)
+		SWIG_ADD_LIBRARY(${LIB_PREFIX}rwsim TYPE MODULE LANGUAGE python SOURCES ../rwsim.i ../ScriptTypes.cpp)
 	ELSE()
 		SWIG_ADD_MODULE(rwsim python ../rwsim.i ../ScriptTypes.cpp)
 	ENDIF()
+    if(POLICY CMP0078)
+        set(TARGET_NAME ${LIB_PREFIX}rwsim)
+    else()
+        set(TARGET_NAME ${SWIG_MODULE_rwsim_REAL_NAME})
+    endif()
     SWIG_LINK_LIBRARIES(rwsim
         ${RWSIM_ODE_LIBRARY}
         rwsim
         ${ROBWORK_LIBRARIES}
         ${PYTHON_LIBRARIES} )
     IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-      SET_TARGET_PROPERTIES(${SWIG_MODULE_rwsim_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+      SET_TARGET_PROPERTIES(${TARGET_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
     ENDIF()
 
     if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
         find_program(pydoc pydoc)
         if (pydoc)
-            add_custom_command(TARGET ${SWIG_MODULE_rwsim_REAL_NAME}
+            add_custom_command(TARGET ${TARGET_NAME}
                 POST_BUILD
                 COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/../../../RobWork/libs/${RW_BUILD_TYPE} ${pydoc} -w rwsim
                 WORKING_DIRECTORY ${RWSIM_CMAKE_LIBRARY_OUTPUT_DIRECTORY}
