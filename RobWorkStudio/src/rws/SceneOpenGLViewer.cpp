@@ -934,7 +934,9 @@ void SceneOpenGLViewer::propertyChangedListener(PropertyBase* base){
     } else if(base==_viewBackground){
         _backgroundnode->setVisible(_viewBackground->getValue());
     } else if(id=="BackGroundColorBottom"){
-
+        _backgroundRender.cast<RenderQuad>()->setBottomColor(_backgroundColorBottom->getValue());
+    } else if(id=="BackGroundColorTop"){
+        _backgroundRender.cast<RenderQuad>()->setBottomColor(_backgroundColorTop->getValue());
     } else if(id=="DrawWorldGrid" ){
 
     } else if(id=="ReInitializeGL"){

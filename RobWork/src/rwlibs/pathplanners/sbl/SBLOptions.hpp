@@ -91,14 +91,14 @@ namespace rwlibs { namespace pathplanners {
         SBLOptions(
 			rw::pathplanning::QConstraint::Ptr& constraint,
 			rw::pathplanning::QEdgeConstraintIncremental::Ptr& edgeConstraint,
-            SBLExpandPtr expansion,
+			SBLExpand::Ptr expansion,
 			rw::math::QMetric::Ptr metric,
             double connectRadius);
 
         //! @brief The constraint that determined if a path or configuration is valid (collision free) or not.
         SBLPlannerConstraint constraint;
         //! @brief The expand policy used to sample new configurations in the vicinity.
-        SBLExpandPtr expansion;
+        SBLExpand::Ptr expansion;
         //! @brief the distance metric for nearest neighbor searching.
 		rw::math::QMetric::Ptr metric;
 		//! @brief Attempt connection of the trees if the distance to the nearest neighbor is below this threshold.

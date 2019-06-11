@@ -26,34 +26,40 @@ using namespace rw::common;
 using namespace rw::loaders;
 using rw::models::WorkCell;
 
-WorkCellLoader::Ptr WorkCellLoader::Factory::getWorkCellLoader(const std::string& format){
-	WorkCellLoader::Factory ep;
-	std::vector<Extension::Ptr> exts = ep.getExtensions();
-	for(Extension::Ptr ext : exts) {
-		if(!ext->getProperties().has(format))
-			continue;
-		// else try casting to WorkCellLoader
-		WorkCellLoader::Ptr loader = ext->getObject().cast<WorkCellLoader>();
-		if (!loader.isNull())
-			return loader;
-	}
+WorkCellLoader::Ptr WorkCellLoader::Factory::getWorkCellLoader(
+        const std::string& format)
+{
+    const std::string formatUp = StringUtil::toUpper(format);
+    WorkCellLoader::Factory ep;
+    std::vector<Extension::Ptr> exts = ep.getExtensions();
+    for(Extension::Ptr ext : exts) {
+        if(!ext->getProperties().has(formatUp))
+            continue;
+        // else try casting to WorkCellLoader
+        WorkCellLoader::Ptr loader = ext->getObject().cast<WorkCellLoader>();
+        if (!loader.isNull())
+            return loader;
+    }
 
-	// Fallback to default formats
-	if (format == ".WU" || format == ".WC" || format == ".TAG" || format == ".DEV") {
-		return ownedPtr(new TULLoader());
-	} else {
-		return ownedPtr(new XMLRWLoader());
-	}
+    // Fallback to default formats
+    if (formatUp == ".WU" || formatUp == ".WC" || formatUp == ".TAG" ||
+            formatUp == ".DEV")
+    {
+        return ownedPtr(new TULLoader());
+    } else {
+        return ownedPtr(new XMLRWLoader());
+    }
 }
 
 WorkCell::Ptr WorkCellLoader::Factory::load(const std::string& file) {
     const std::string ext2 = StringUtil::getFileExtension(file);
     const std::string ext = StringUtil::toUpper(ext2);
-	const WorkCellLoader::Ptr loader = getWorkCellLoader(ext);
-	try {
-		return loader->loadWorkCell(file);
-	} catch (const std::exception& err){
-		Log::debugLog() << "Tried loading workcell with extension, but failed! " << err.what() << std::endl;
-	}
+    const WorkCellLoader::Ptr loader = getWorkCellLoader(ext);
+    try {
+        return loader->loadWorkCell(file);
+    } catch (const std::exception& err){
+        Log::debugLog() << "Tried loading workcell with extension, but failed!";
+        Log::debugLog() << " " << err.what() << std::endl;
+    }
     return nullptr;
 }

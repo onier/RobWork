@@ -34,9 +34,11 @@
 #include <rwlibs/pathoptimization/clearance/ClearanceOptimizer.hpp>
 #include <rwlibs/pathoptimization/clearance/MinimumClearanceCalculator.hpp>
 #include <rwlibs/pathoptimization/pathlength/PathLengthOptimizer.hpp>
+#include <rwlibs/pathplanners/arw/ARWPlanner.hpp>
 #include <rwlibs/pathplanners/prm/PRMPlanner.hpp>
 #include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
 #include <rwlibs/pathplanners/sbl/SBLPlanner.hpp>
+#include <rwlibs/pathplanners/z3/Z3Planner.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
 
 //#include <rws/components/propertyview/PropertyInspector.hpp>
@@ -72,9 +74,11 @@ namespace {
     const QString SHORTCUT = "Length (ShortCut)";
     const QString PARTIALSHORTCUT = "Length (Partial ShortCut)";
 
+    const QString ARW = "ARW";
     const QString RRT = "RRT";
     const QString SBL = "SBL";
     const QString PRM = "PRM";
+    const QString Z3 = "Z3";
 
     QMetric::CPtr getMetric()
     {
@@ -91,7 +95,9 @@ namespace {
         const PlannerConstraint constraint = PlannerConstraint::make(
             collisionDetector, device, state);
 
-        if (type == RRT) {
+        if (type == ARW) {
+            return ARWPlanner::makeQToQPlanner(constraint, device);
+        } else if (type == RRT) {
             return RRTPlanner::makeQToQPlanner(constraint, device);
         } else if (type == SBL) {
 			QConstraint::Ptr qconstraint = QConstraint::make(collisionDetector, device, state);
@@ -107,6 +113,8 @@ namespace {
             prm->setAStarTimeOutTime(1);
             prm->buildRoadmap(2000);
             return prm;
+        } else if (type == Z3) {
+            return Z3Planner::makeQToQPlanner(constraint, device);
         }
         else {
             RW_THROW("Unknown planner " << StringUtil::quote(type.toStdString()));
@@ -117,7 +125,8 @@ namespace {
 
 
 Planning::Planning():
-    RobWorkStudioPlugin("Planning", QIcon(":/planning.png"))
+    RobWorkStudioPlugin("Planning", QIcon(":/planning.png")),
+    _workcell(nullptr)
 {
     int row = 0;
 
@@ -161,10 +170,12 @@ Planning::Planning():
 */
     pLayout->addWidget(new QLabel("Planner"), row, 0);
     _cmbPlanners = new QComboBox();
+    _cmbPlanners->addItem(ARW);
     _cmbPlanners->addItem(RRT);
     _cmbPlanners->addItem(SBL);
     _cmbPlanners->addItem(PRM);
-    _cmbPlanners->setCurrentIndex(2);
+    _cmbPlanners->addItem(Z3);
+    _cmbPlanners->setCurrentIndex(3);
     pLayout->addWidget(_cmbPlanners, row++, 1);
 
     pLayout->addWidget(new QLabel("Collision Detector"), row, 0);

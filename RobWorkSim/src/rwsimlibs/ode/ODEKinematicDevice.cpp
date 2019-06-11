@@ -20,12 +20,11 @@
 #include "ODEUtil.hpp"
 #include "ODESimulator.hpp"
 #include <ode/ode.h>
-#include <boost/foreach.hpp>
 #include <rw/math/Math.hpp>
 #include <rwsim/dynamics/KinematicDevice.hpp>
 
-#include <boost/numeric/ublas/vector.hpp>
-#include <boost/numeric/ublas/vector_proxy.hpp>
+//#include <boost/numeric/ublas/vector.hpp>
+//#include <boost/numeric/ublas/vector_proxy.hpp>
 
 using namespace rw::math;
 using namespace rw::kinematics;
@@ -49,7 +48,7 @@ ODEKinematicDevice::ODEKinematicDevice(rwsim::dynamics::KinematicDevice *kdev,
     // ODE does not support kinematic joints.. instead all bodies are kinematic
     // and their velocity must be controlled based on the
     dSpaceID space = dHashSpaceCreate( sim->getODESpace() );
-    BOOST_FOREACH(Body::Ptr kbody, kdev->getLinks() ){
+    for(Body::Ptr kbody : kdev->getLinks() ) {
         _bodies.push_back( ODEBody::makeKinematicBody(kbody, space, sim) );
         _kbodies.push_back( _bodies.back()->getBodyID() );
         sim->addODEBody( _bodies.back() );
@@ -82,32 +81,32 @@ namespace {
         return jsub;
     }
 
-    /**
-     * @brief Calculates velocity vector of the i'th joint
-     * @param Jq [in] the jacobian @f$ \mathbf{J}_{\mathbf{q}} @f$
-     * @param dq [in] the joint velocity vector @f$ \dot{\mathbf{q}} @f$
-     * @return the velocity vector @f$ \mathbf{\nu} @f$
-     * @relates Jacobian
-     */
-    VelocityScrew6D<> mult(const Jacobian& Jq, const Q& dq, int column)
-    {
-        using namespace boost::numeric::ublas;
-        int m = (int)Jq.size1();
-        RW_ASSERT(column<(int)Jq.size2());
-
-        matrix<double> subjac(m,column+1);
-        matrix_range<matrix<double> > mr (subjac, range (0, m), range (0, column+1));
-        for (unsigned i = 0; i < mr.size1 (); ++ i)
-            for (unsigned j = 0; j < mr.size2 (); ++ j)
-                mr (i, j) = Jq(i,j);
-
-        vector<double> subdq(column+1);
-        vector_range<vector<double> > vr (subdq, range(0, column+1));
-        for (unsigned i = 0; i < vr.size (); ++ i)
-            vr (i) = dq(i);
-
-        return VelocityScrew6D<>(prod(subjac, subdq));
-    }
+//    /**
+//     * @brief Calculates velocity vector of the i'th joint
+//     * @param Jq [in] the jacobian @f$ \mathbf{J}_{\mathbf{q}} @f$
+//     * @param dq [in] the joint velocity vector @f$ \dot{\mathbf{q}} @f$
+//     * @return the velocity vector @f$ \mathbf{\nu} @f$
+//     * @relates Jacobian
+//     */
+//    VelocityScrew6D<> mult(const Jacobian& Jq, const Q& dq, int column)
+//    {
+//        using namespace boost::numeric::ublas;
+//        int m = (int)Jq.size1();
+//        RW_ASSERT(column<(int)Jq.size2());
+//
+//        matrix<double> subjac(m,column+1);
+//        matrix_range<matrix<double> > mr (subjac, range (0, m), range (0, column+1));
+//        for (unsigned i = 0; i < mr.size1 (); ++ i)
+//            for (unsigned j = 0; j < mr.size2 (); ++ j)
+//                mr (i, j) = Jq(i,j);
+//
+//        vector<double> subdq(column+1);
+//        vector_range<vector<double> > vr (subdq, range(0, column+1));
+//        for (unsigned i = 0; i < vr.size (); ++ i)
+//            vr (i) = dq(i);
+//
+//        return VelocityScrew6D<>(prod(subjac, subdq));
+//    }
 
 
 }

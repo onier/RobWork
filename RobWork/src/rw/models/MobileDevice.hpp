@@ -171,7 +171,7 @@ namespace rw { namespace models {
            @copydoc Device::baseJCframes
            Not implemented.
         */
-        virtual JacobianCalculatorPtr baseJCframes(const std::vector<kinematics::Frame*>& frames,
+        virtual JacobianCalculator::Ptr baseJCframes(const std::vector<kinematics::Frame*>& frames,
                                                    const kinematics::State& state) const;
 
     private:

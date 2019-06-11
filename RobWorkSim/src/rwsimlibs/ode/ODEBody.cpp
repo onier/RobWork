@@ -48,6 +48,7 @@ ODEBody::ODEBody(dBodyID odeBody, RigidBody::Ptr rwbody,
                 _contactReductionThreshold(0.005),// 1cm
                 _materialID(matID),
                 _contactID(conID),
+                _geomId(0),
                 _rwBody(rwbody),
                 _kBody(NULL),
                 _offset(offset)
@@ -64,6 +65,7 @@ ODEBody::ODEBody(dBodyID odeBody, KinematicBody::Ptr kbody, int matID, int conID
 				_contactReductionThreshold(0.005),// 1cm
                 _materialID(matID),
                 _contactID(conID),
+                _geomId(0),
 				_rwBody(NULL),
 				_kBody(kbody),
                 _offset(0,0,0)
@@ -98,6 +100,7 @@ ODEBody::ODEBody(dBodyID odeBody, dynamics::Body::Ptr body, rw::math::Vector3D<>
                 _contactReductionThreshold(0.005),// 1cm
                 _materialID(matID),
                 _contactID(conID),
+                _geomId(0),
                 _rwBody(NULL),
                 _kBody(NULL),
                 _offset(offset)
@@ -115,6 +118,7 @@ ODEBody::ODEBody(dBodyID odeBody, rw::kinematics::Frame* frame):
     _contactReductionThreshold(0.005),// 1cm
     _materialID(-1),
     _contactID(-1),
+    _geomId(0),
     _rwBody(NULL),
     _kBody(NULL)
 {

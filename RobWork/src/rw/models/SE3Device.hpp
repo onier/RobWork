@@ -148,7 +148,7 @@ namespace rw { namespace models {
         math::Jacobian baseJend(const kinematics::State& state) const;
 
 
-        JacobianCalculatorPtr baseJCframes(const std::vector<kinematics::Frame*>& frames, const kinematics::State& state) const{return NULL;}
+        JacobianCalculator::Ptr baseJCframes(const std::vector<kinematics::Frame*>& frames, const kinematics::State& state) const{return NULL;}
         /**
          * @copydoc Device::getDOF
          *

@@ -81,8 +81,23 @@ void java_ThreadSimulatorStepCallback(ThreadSimulator* sim, State &state, void *
 %include <shared_ptr.i>
 
 %import <rwlibs/swig/rw.i>
+%import <rwlibs/swig/rw_assembly.i>
 
 %pragma(java) jniclassclassmodifiers="class"
+
+%typemap(javaimports) SWIGTYPE %{
+import org.robwork.rw.*;
+import org.robwork.rw_assembly.*;
+import org.robwork.rw_task.*;
+%}
+%pragma(java) moduleimports=%{
+import org.robwork.rw.*;
+%}
+%pragma(java) jniclassimports=%{
+import org.robwork.rw.*;
+import org.robwork.rw_assembly.*;
+import org.robwork.rw_task.*;
+%}
 
 #if (defined(SWIGPYTHON) || defined(SWIGLUA))
 %feature("flatnested");

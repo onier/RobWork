@@ -38,9 +38,6 @@ namespace rwlibs { namespace pathplanners {
 
     class SBLExpand;
 
-    //! A pointer to a SBLExpand.
-    typedef rw::common::Ptr<SBLExpand> SBLExpandPtr;
-
     /**
        @brief Interface for sampling a configuration in the vicinity of some
        other configuration.
@@ -55,6 +52,9 @@ namespace rwlibs { namespace pathplanners {
     class SBLExpand
     {
     public:
+        //! @brief Smart pointer type for SBLExpand.
+        typedef rw::common::Ptr<SBLExpand> Ptr;
+
         /**
            @brief A configuration sampled from the vicinity of \b q.
 
@@ -89,7 +89,7 @@ namespace rwlibs { namespace pathplanners {
            If the overlap between the boxes is empty, expand() returns the empty
            configuration.
         */
-        static SBLExpandPtr makeUniformBox(
+        static SBLExpand::Ptr makeUniformBox(
             const QBox& outer,
             const QBox& inner);
 
@@ -116,7 +116,7 @@ namespace rwlibs { namespace pathplanners {
            If \b outer is non-empty, the expand() method will always return a
            non-empty configuration.
         */
-        static SBLExpandPtr makeUniformBox(
+        static SBLExpand::Ptr makeUniformBox(
             const QBox& outer,
             double ratio);
 
@@ -131,7 +131,7 @@ namespace rwlibs { namespace pathplanners {
            The inner and outer box are specified as explained for
            makeUniformBox().
         */
-        static SBLExpandPtr makeShrinkingUniformBox(
+        static SBLExpand::Ptr makeShrinkingUniformBox(
         	rw::common::Ptr<rw::pathplanning::QConstraint> constraint,
             const QBox& outer,
             const QBox& inner);
@@ -147,7 +147,7 @@ namespace rwlibs { namespace pathplanners {
            The inner and outer box are specified as explained for
            makeUniformBox().
         */
-        static SBLExpandPtr makeShrinkingUniformBox(
+        static SBLExpand::Ptr makeShrinkingUniformBox(
         	rw::common::Ptr<rw::pathplanning::QConstraint> constraint,
             const QBox& outer,
             double ratio);
@@ -172,7 +172,7 @@ namespace rwlibs { namespace pathplanners {
 
            The inner box shrinks in size as 1, 1/2, 1/3, ...
         */
-        static SBLExpandPtr makeShrinkingUniformJacobianBox(
+        static SBLExpand::Ptr makeShrinkingUniformJacobianBox(
         	rw::common::Ptr<rw::pathplanning::QConstraint> constraint,
 			rw::common::Ptr<rw::models::Device> device,
             const rw::kinematics::State& state,
