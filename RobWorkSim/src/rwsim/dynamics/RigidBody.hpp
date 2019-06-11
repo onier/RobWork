@@ -49,7 +49,7 @@ namespace dynamics {
     	//! @brief Smart pointer type for a RigidBody.
         typedef rw::common::Ptr<RigidBody> Ptr;
 
-        //! @copydoc Body::Body()
+        //! @copydoc dynamics::Body::Body()
         RigidBody(const BodyInfo& info, rw::models::Object::Ptr obj);
 
     	//! @brief Destructor.
@@ -58,19 +58,19 @@ namespace dynamics {
     public: // functions that need to be implemented by specialized class
 
         /**
-         * @copydoc Body::getPointVelW
+         * @copydoc dynamics::Body::getPointVelW
          */
         rw::math::Vector3D<> getPointVelW(const rw::math::Vector3D<>& p, const rw::kinematics::State& state) const;
 
-        //! @copydoc Body::getVelocity
+        //! @copydoc dynamics::Body::getVelocity
         rw::math::VelocityScrew6D<> getVelocity(const rw::kinematics::State &state) const;
         /**
-         * @copydoc Body::reset
+         * @copydoc dynamics::Body::reset
          */
         void reset(rw::kinematics::State &state);
 
         /**
-         * @copydoc Body::calcEnergy
+         * @copydoc dynamics::Body::calcEnergy
          * @note RigidBody energy is calculated as
          * \f$ \frac12 m \mathbf{v}^2 + \frac12 \mathbf{I} \mathbf{w} \cdot \mathbf{w} - m \mathbf{g} \cdot (\mathbf{p}-\mathbf{p_0}) \f$
          */
@@ -78,32 +78,32 @@ namespace dynamics {
         		const rw::math::Vector3D<>& gravity = rw::math::Vector3D<>::zero(),
 				const rw::math::Vector3D<>& potZero = rw::math::Vector3D<>::zero()) const;
 
-        //! @copydoc Body::setForce
+        //! @copydoc dynamics::Body::setForce
         void setForce(const rw::math::Vector3D<>& f, rw::kinematics::State& state){
             _rstate.get(state).force = f;
         }
 
-        //! @copydoc Body::addForce
+        //! @copydoc dynamics::Body::addForce
         void addForce(const rw::math::Vector3D<>& force, rw::kinematics::State& state){
             _rstate.get(state).force += force;
         }
 
-        //! @copydoc Body::getForce
+        //! @copydoc dynamics::Body::getForce
         rw::math::Vector3D<> getForce(const rw::kinematics::State& state) const {
             return _rstate.get(state).force;
         }
 
-        //! @copydoc Body::setTorque
+        //! @copydoc dynamics::Body::setTorque
         void setTorque(const rw::math::Vector3D<>& t, rw::kinematics::State& state){
             _rstate.get(state).torque = t;
         }
 
-        //! @copydoc Body::addTorque
+        //! @copydoc dynamics::Body::addTorque
         void addTorque(const rw::math::Vector3D<>& t, rw::kinematics::State& state){
             _rstate.get(state).torque += t;
         }
 
-        //! @copydoc Body::getTorque
+        //! @copydoc dynamics::Body::getTorque
         rw::math::Vector3D<> getTorque(const rw::kinematics::State& state) const{
             return _rstate.get(state).torque;
         }

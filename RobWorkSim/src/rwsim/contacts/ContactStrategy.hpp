@@ -168,7 +168,7 @@ public:
 	//! @copydoc rw::proximity::ProximityStrategy::addGeometry(rw::proximity::ProximityModel*,const rw::geometry::Geometry&)
 	virtual bool addGeometry(rw::proximity::ProximityModel* model, const rw::geometry::Geometry& geom) = 0;
 
-	//! @copydoc rw::proximity::ProximityStrategy::addGeometry(rw::proximity::ProximityModel*,rw::geometry::Geometry::Ptr,bool)
+	//! @copydoc rw::proximity::ProximityStrategy::addGeometry(rw::proximity::ProximityModel*,rw::common::Ptr<rw::geometry::Geometry>,bool)
 	virtual bool addGeometry(rw::proximity::ProximityModel* model, rw::common::Ptr<rw::geometry::Geometry> geom, bool forceCopy=false) = 0;
 
 	//! @copydoc rw::proximity::ProximityStrategy::removeGeometry
