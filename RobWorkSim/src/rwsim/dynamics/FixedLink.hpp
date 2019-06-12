@@ -58,49 +58,23 @@ namespace dynamics {
     	virtual ~FixedLink();
 
     public: // functions that need to be implemented by specialized class
-        /**
-         * @copydoc Body::saveState
-         */
+   
         virtual void saveState(double h, rw::kinematics::State& state);
 
-        /**
-         * @copydoc Body::rollBack
-         */
         virtual void rollBack(rw::kinematics::State& state);
 
-        /**
-         * @copydoc Body::updateVelocity
-         */
         virtual void updateVelocity(double h, rw::kinematics::State& state);
 
-        /**
-         * @copydoc Body::updatePosition
-         */
         virtual void updatePosition(double h, rw::kinematics::State& state);
 
-        /**
-         * @copydoc Body::updateImpulse
-         */
         virtual void updateImpulse();
 
-        /**
-         * @copydoc Body::getPointVelW
-         */
         rw::math::Vector3D<> getPointVelW(const rw::math::Vector3D<>& wPp);
 
-        /**
-         * @copydoc Body::getEffectiveMassW
-         */
         rw::math::InertiaMatrix<> getEffectiveMassW(const rw::math::Vector3D<>& wPc);
 
-        /**
-         * @copydoc Body::resetState
-         */
         void resetState(rw::kinematics::State &state);
 
-        /**
-         * @copydoc Body::reset
-         */
         virtual void reset(){
            rw::math::Vector3D<> zeroVec = rw::math::Vector3D<>(0.0,0.0,0.0);
            _force = zeroVec;
