@@ -187,6 +187,12 @@ public:
 
     //double& operator[](unsigned int i) ;
     //%rename(elem) operator[];
+
+    static Vector3D<T> zero();
+    static Vector3D<T> x();
+    static Vector3D<T> y();
+    //! @copydoc rw::math::Q::z
+    static Vector3D<T> z();
     
     %extend {
 #if (defined(SWIGLUA) || defined(SWIGPYTHON))
@@ -407,6 +413,8 @@ public:
 
     static Transform3D<T> DH(T alpha, T a, T d, T theta);
     static Transform3D<T> craigDH(T alpha, T a, T d, T theta);
+    
+    static Transform3D<T> makeLookAt(const Vector3D<T>& eye, const Vector3D<T>& center, const Vector3D<T>& up);
 	
     rw::math::Vector3D<T>& P();
     rw::math::Rotation3D<T>& R();
@@ -660,5 +668,8 @@ public:
 
 %template (MetricQ) Metric<rw::math::Q>;
 %template (MetricQPtr) rw::common::Ptr<Metric<rw::math::Q> >;
+%template (MetricQCPtr) rw::common::Ptr<const Metric<rw::math::Q> >;
 %template (MetricSE3) Metric<rw::math::Transform3D<double> >;
 %template (MetricSE3Ptr) rw::common::Ptr<Metric<rw::math::Transform3D<double> > >;
+OWNEDPTR(Metric<rw::math::Q> );
+OWNEDPTR(Metric<rw::math::Transform3D<double> > );

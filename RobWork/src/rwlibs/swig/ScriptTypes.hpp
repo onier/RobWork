@@ -52,8 +52,15 @@
 #include <rwlibs/assembly/AssemblyTask.hpp>
 #include <rwlibs/control/Controller.hpp>
 #include <rwlibs/control/JointController.hpp>
+#include <rwlibs/pathplanners/arw/ARWExpand.hpp>
+#include <rwlibs/pathplanners/arw/ARWPlanner.hpp>
+#include <rwlibs/pathplanners/prm/PRMPlanner.hpp>
 #include <rwlibs/pathplanners/rrt/RRTPlanner.hpp>
+#include <rwlibs/pathplanners/sbl/SBLExpand.hpp>
+#include <rwlibs/pathplanners/sbl/SBLOptions.hpp>
 #include <rwlibs/pathplanners/sbl/SBLPlanner.hpp>
+#include <rwlibs/pathplanners/sbl/SBLSetup.hpp>
+#include <rwlibs/pathplanners/z3/Z3Planner.hpp>
 #include <rwlibs/pathoptimization/pathlength/PathLengthOptimizer.hpp>
 #include <rwlibs/pathoptimization/clearance/ClearanceOptimizer.hpp>
 #include <rwlibs/proximitystrategies/ProximityStrategyFactory.hpp>
@@ -89,6 +96,12 @@ namespace swig {
 	///@{
 	//! @copydoc rw::common::PropertyMap
 	typedef rw::common::PropertyMap PropertyMap;
+    //! @copydoc rw::common::Log
+    typedef rw::common::Log Log;
+    //! @copydoc rw::common::LogWriter
+    typedef rw::common::LogWriter LogWriter;
+    //! @copydoc rw::common::Message
+    typedef rw::common::Message Message;
 	//! @copydoc rw::common::ThreadPool
 	typedef rw::common::ThreadPool ThreadPool;
 	//! @copydoc rw::common::ThreadTask
@@ -302,6 +315,9 @@ namespace swig {
 	 * Wrapped classes in models.
 	 */
 	///@{
+    //! @copydoc rw::models::JacobianCalculator
+    typedef rw::models::JacobianCalculator JacobianCalculator;
+
 	//! @copydoc rw::models::WorkCell
 	typedef rw::models::WorkCell WorkCell;
 	//! @copydoc rw::models::Joint
@@ -339,15 +355,31 @@ namespace swig {
 	 * Wrapped classes in pathplanning.
 	 */
 	///@{
-	//! @copydoc rw::pathplanning::QToQPlanner
-	typedef rw::pathplanning::QToQPlanner QToQPlanner;
+    //! @copydoc rw::pathplanning::QConstraint
+    typedef rw::pathplanning::QConstraint QConstraint;
+    //! @copydoc rw::pathplanning::QEdgeConstraint
+    typedef rw::pathplanning::QEdgeConstraint QEdgeConstraint;
+    //! @copydoc rw::pathplanning::QEdgeConstraintIncremental
+    typedef rw::pathplanning::QEdgeConstraintIncremental QEdgeConstraintIncremental;
+    //! @copydoc rw::pathplanning::QIKSampler
+    typedef rw::pathplanning::QIKSampler QIKSampler;
+    //! @copydoc rw::pathplanning::QNormalizer
+    typedef rw::pathplanning::QNormalizer QNormalizer;
+    //! @copydoc rw::pathplanning::QSampler
+    typedef rw::pathplanning::QSampler QSampler;
+    //! @copydoc rw::pathplanning::QToQPlanner
+    typedef rw::pathplanning::QToQPlanner QToQPlanner;
+    //! @copydoc rw::pathplanning::QToQSamplerPlanner
+    typedef rw::pathplanning::QToQSamplerPlanner QToQSamplerPlanner;
 	//! @copydoc rw::pathplanning::QToTPlanner
 	typedef rw::pathplanning::QToTPlanner QToTPlanner;
 
 	//! @copydoc rw::pathplanning::StopCriteria
 	typedef rw::pathplanning::StopCriteria StopCriteria;
-	//! @copydoc rw::pathplanning::PlannerConstraint
-	typedef rw::pathplanning::PlannerConstraint PlannerConstraint;
+    //! @copydoc rw::pathplanning::PlannerConstraint
+    typedef rw::pathplanning::PlannerConstraint PlannerConstraint;
+    //! @copydoc rw::pathplanning::StateConstraint
+    typedef rw::pathplanning::StateConstraint StateConstraint;
 	///@}
 
 	// plugin
@@ -363,8 +395,12 @@ namespace swig {
 	typedef rw::proximity::CollisionStrategy CollisionStrategy;
 	//! @copydoc rw::proximity::DistanceCalculator
 	typedef rw::proximity::DistanceCalculator DistanceCalculator;
-	//! @copydoc rw::proximity::DistanceStrategy
-	typedef rw::proximity::DistanceStrategy DistanceStrategy;
+    //! @copydoc rw::proximity::DistanceStrategy
+    typedef rw::proximity::DistanceStrategy DistanceStrategy;
+    //! @copydoc rw::proximity::ProximityStrategy
+    typedef rw::proximity::ProximityData ProximityData;
+    //! @copydoc rw::proximity::ProximityStrategy
+    typedef rw::proximity::ProximityStrategy ProximityStrategy;
 	///@}
 
 	/**
@@ -500,9 +536,41 @@ namespace swig {
 	typedef rwlibs::pathoptimization::ClearanceOptimizer ClearanceOptimizer;
 	///@}
 
-	// rwlibs pathplanners
+    /**
+     * @name pathplanners
+     * Wrapped classes in pathplanners.
+     */
+    ///@{
+    //! @copydoc rwlibs::pathplanners::ARWExpand
+    typedef rwlibs::pathplanners::ARWExpand ARWExpand;
+    //! @copydoc rwlibs::pathplanners::ARWPlanner
+    typedef rwlibs::pathplanners::ARWPlanner ARWPlanner;
+    //! @copydoc rwlibs::pathplanners::PRMPlanner
+    typedef rwlibs::pathplanners::PRMPlanner PRMPlanner;
+    //! @copydoc rwlibs::pathplanners::RRTPlanner
+    typedef rwlibs::pathplanners::RRTPlanner RRTPlanner;
+    //! @copydoc rwlibs::pathplanners::SBLExpand
+    typedef rwlibs::pathplanners::SBLExpand SBLExpand;
+    //! @copydoc rwlibs::pathplanners::SBLPlannerConstraint
+    typedef rwlibs::pathplanners::SBLPlannerConstraint SBLPlannerConstraint;
+    //! @copydoc rwlibs::pathplanners::SBLOptions
+    typedef rwlibs::pathplanners::SBLOptions SBLOptions;
+    //! @copydoc rwlibs::pathplanners::SBLPlanner
+    typedef rwlibs::pathplanners::SBLPlanner SBLPlanner;
+    //! @copydoc rwlibs::pathplanners::SBLSetup
+    typedef rwlibs::pathplanners::SBLSetup SBLSetup;
+    //! @copydoc rwlibs::pathplanners::Z3Planner
+    typedef rwlibs::pathplanners::Z3Planner Z3Planner;
+    ///@}
 
-	// rwlibs proximitystrategies
+    /**
+     * @name proximitystrategies
+     * Wrapped classes in proximitystrategies.
+     */
+    ///@{
+    //! @copydoc rwlibs::proximitystrategies::ProximityStrategyFactory
+    typedef rwlibs::proximitystrategies::ProximityStrategyFactory ProximityStrategyFactory;
+    ///@}
 
 	/**
 	 * @name simulation

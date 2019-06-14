@@ -1,4 +1,6 @@
-package dk.robwork;
+package org.robwork.rwsim;
+
+import org.robwork.rw.State;
 
 import java.util.EventObject;
 

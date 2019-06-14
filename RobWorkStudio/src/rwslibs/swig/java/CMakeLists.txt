@@ -31,13 +31,13 @@ IF( build )
     SET_SOURCE_FILES_PROPERTIES(../rws.i PROPERTIES CPLUSPLUS ON)
 	SET_SOURCE_FILES_PROPERTIES(../rws.i PROPERTIES SWIG_FLAGS "-includeall")
     if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
-    	SET_SOURCE_FILES_PROPERTIES(../rw.i PROPERTIES SWIG_FLAGS "-includeall;-doxygen")
+    	SET_SOURCE_FILES_PROPERTIES(../rws.i PROPERTIES SWIG_FLAGS "-includeall;-doxygen")
     endif()
     
     INCLUDE_DIRECTORIES(${JAVA_INCLUDE_DIRS} ${JNI_INCLUDE_DIRS})
-    set(CMAKE_SWIG_FLAGS "-package" "dk.robwork")
+    set(CMAKE_SWIG_FLAGS "-package" "org.robwork.rws")
     # Put java files in different directory suitable for JAR generation later on
-    SET(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/java_src/dk/robwork)
+    SET(CMAKE_SWIG_OUTDIR ${CMAKE_CURRENT_BINARY_DIR}/java_src/org/robwork/rws)
     # SWIG
 	IF ((CMAKE_VERSION VERSION_GREATER 3.8) OR (CMAKE_VERSION VERSION_EQUAL 3.8))
 		SWIG_ADD_LIBRARY(rws_jni TYPE MODULE LANGUAGE java SOURCES ../rws.i ../ScriptTypes.cpp)
@@ -50,7 +50,7 @@ IF( build )
         rws
         ${ROBWORK_LIBRARIES} )
     IF((CMAKE_COMPILER_IS_GNUCC) OR (CMAKE_C_COMPILER_ID STREQUAL "Clang"))
-      SET_TARGET_PROPERTIES(${SWIG_MODULE_rws_jni_REAL_NAME} PROPERTIES LINK_FLAGS -Wl,--no-undefined)
+      SET_TARGET_PROPERTIES(rws_jni PROPERTIES LINK_FLAGS -Wl,--no-undefined)
     ENDIF()
     # Force removal of previous Java compilation and source when interface file changes
     # This is required as types may be removed or change name
@@ -75,10 +75,10 @@ IF( build )
         COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/java_build"
     	COMMAND ${CMAKE_COMMAND} -E remove_directory "${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc"
 		COMMAND ${CMAKE_COMMAND} -E echo "Copying Java source..."
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRWS.java java_src/dk/robwork/LoaderRWS.java
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRWS.java java_src/org/robwork/LoaderRWS.java
 		COMMAND ${CMAKE_COMMAND} -E echo "Compiling Java files..."
-        COMMAND ${CMAKE_COMMAND} -E make_directory java_build/dk/robwork
-        COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${RW_LIBS}/rw_java.jar -d ${CMAKE_CURRENT_BINARY_DIR}/java_build java_src/dk/robwork/*.java
+        COMMAND ${CMAKE_COMMAND} -E make_directory java_build/org/robwork
+        COMMAND ${Java_JAVAC_EXECUTABLE} -cp ${RW_LIBS}/rw_java.jar -d ${CMAKE_CURRENT_BINARY_DIR}/java_build java_src/org/robwork/*.java
         COMMAND ${CMAKE_COMMAND} -E echo "Creating jar file..."
         COMMAND ${Java_JAR_EXECUTABLE} cvf ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rws_java.jar  -C java_build .
 		COMMAND ${CMAKE_COMMAND} -E echo "Creating Javadoc..."
@@ -88,8 +88,8 @@ IF( build )
     					-d ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc
     					-windowtitle "RobWorkStudio Java API Documentation"
     					-public
-    					-sourcepath java_src dk.robwork
-    					-linkoffline ${RW_LIBS}/javadoc ${RW_LIBS}/javadoc
+    					-sourcepath java_src org.robwork org.robwork.rws
+    					-link ${RW_LIBS}/javadoc/rw
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
     )
     SET(CMAKE_SWIG_OUTDIR ${RWS_CMAKE_LIBRARY_OUTPUT_DIRECTORY})

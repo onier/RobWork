@@ -162,8 +162,10 @@ namespace {
               }
             } else {
                 // create unit converter that does nothing
-                conv.push_back(1.0);
-                desc.push_back("None");
+                for (std::size_t i = 0; i < selectedDevice->getDOF(); i++) {
+                    conv.push_back(1.0);
+                    desc.push_back("None");
+                }
             }
             // --------------------------------------------------
             /*

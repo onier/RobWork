@@ -60,10 +60,6 @@ public:
 
 };
 
-//! deprecated smart pointer type
-typedef rw::common::Ptr<JacobianCalculator> JacobianCalculatorPtr;
-
-
 } //end namespace models
 } //end namespace rw
 

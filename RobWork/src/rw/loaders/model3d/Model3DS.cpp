@@ -170,8 +170,14 @@ Model3DS::Model3DS()
     numObjects = 0;
     numMaterials = 0;
 
+    totalVerts = 0;
+    totalFaces = 0;
+
     // Set the scale to one
     scale = 1.0f;
+
+    _retval = 0;
+    bin3ds = nullptr;
 }
 
 Model3DS::~Model3DS()
@@ -236,7 +242,6 @@ void Model3DS::Load(const std::string& name)
         }
     }
 
-    std::cout<<"Number of Materials = "<<numMaterials<<std::endl;
     // Let's build simple colored textures for the materials w/o a texture
     for (int j = 0; j < numMaterials; j++)
     {

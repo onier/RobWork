@@ -1,6 +1,7 @@
-package dk.robwork;
+package org.robwork.rwsim;
 
-import dk.robwork.ThreadSimulatorStepCallbackEnv;
+import org.robwork.rw.State;
+import org.robwork.rwsim.ThreadSimulatorStepCallbackEnv;
 
 /**
  * Interface for a callback from {@link ThreadSimulator}.

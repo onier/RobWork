@@ -13,6 +13,10 @@ ExtensionRegistry::ExtensionRegistry() {
     // load settings file
 }
 
+ExtensionRegistry::~ExtensionRegistry() {
+    clearExtensions();
+}
+
 std::vector<Extension::Descriptor> ExtensionRegistry::getExtensionDescriptors(const std::string& ext_point_id) const {
 	std::vector<Extension::Descriptor> result;
 
@@ -70,7 +74,7 @@ void ExtensionRegistry::registerExtensions(rw::common::Ptr<Plugin> plugin){
 		}
 		_descMap[desc.point].push_back( std::make_pair( desc , plugin ) );
 	}
-	_plugins.insert( plugin );
+	_plugins.push_back( plugin );
 }
 
 void ExtensionRegistry::unregisterExtensions(rw::common::Ptr<Plugin> plugin) {
@@ -87,10 +91,19 @@ void ExtensionRegistry::unregisterExtensions(rw::common::Ptr<Plugin> plugin) {
 			}
 		}
 	}
-	_plugins.erase(plugin);
+	std::list<rw::common::Ptr<Plugin> >::iterator it = _plugins.begin();
+	while (*it != plugin && it != _plugins.end()) {
+	    if (*it == plugin)
+	        it = _plugins.erase(it);
+	    else
+	        it++;
+	}
 }
 
 void ExtensionRegistry::clearExtensions() {
-	_descMap.clear();
-	_plugins.clear();
+    _descMap.clear();
+    // Remove plugins in reverse order as they were added.
+    while (_plugins.size() > 0) {
+        _plugins.erase(--_plugins.end());
+    }
 }

@@ -23,6 +23,9 @@ public:
     //! @brief Constructor
     ExtensionRegistry();
 
+    //! @brief Destructor
+    ~ExtensionRegistry();
+
 
     //! get registry instance
     static rw::common::Ptr<ExtensionRegistry> getInstance();
@@ -67,7 +70,7 @@ private:
     // maps extension point id's into description-plugin pair
     std::map<std::string, std::vector< std::pair<Extension::Descriptor, rw::common::Ptr<Plugin> > > > _descMap;
 
-    std::set<rw::common::Ptr<Plugin> > _plugins;
+    std::list<rw::common::Ptr<Plugin> > _plugins;
 };
 
 }

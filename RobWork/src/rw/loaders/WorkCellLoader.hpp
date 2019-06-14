@@ -37,35 +37,52 @@ namespace rw { namespace loaders {
     /* @{*/
 
     /**
-     * @brief Defines an interface
+     * @brief Extendible interface for loading of WorkCells from files.
+     *
+     * By default, the following formats are supported:
+     *
+     * - File extensions ".wu", ".wc", ".tag", ".dev" will be loaded using
+     *   the TULLoader.
+     * - Remaining file extensions will be loaded using the standard %RobWork
+     *   %XML format (XMLRWLoader).
+     *
+     * The Factory defines an extension point "rw.loaders.WorkCellLoader"
+     * that makes it possible to add loaders for other file formats than the
+     * ones above. Extensions take precedence over the default loaders.
+     *
+     * The WorkCell loader is chosen based on a case-insensitive file extension
+     * name. So "scene.wc.xml" will be loaded by the same loader as
+     * "scene.WC.XML"
+     *
+     * WorkCells are supposed to be loaded using the Factory::load function:
+     * \code{.cpp}
+     * WorkCell::Ptr wc = WorkCellLoader::Factory::load("scene.wc.xml");
+     * if (wc.isNull())
+     *     RW_TRHOW("WorkCell could not be loaded.");
+     * \endcode
+     *
+     * Alternatively a WorkCell can be loaded in the less convenient way:
+     * \code{.cpp}
+     * WorkCellLoader::Ptr loader = WorkCellLoader::Factory::getWorkCellLoader(".wc.xml");
+     * WorkCell::Ptr wc = loader.loadWorkCell("scene.wc.xml");
+     * if (wc.isNull())
+     *     RW_TRHOW("WorkCell could not be loaded.");
+     * \endcode
      */
     class WorkCellLoader
     {
     public:
-
-        //! @brief smart pointer of WorkCellLoader
+        //! @brief Smart pointer of WorkCellLoader.
         typedef rw::common::Ptr<WorkCellLoader> Ptr;
 
-        //! @brief destructor
+        //! @brief Destructor.
         virtual ~WorkCellLoader(){}
 
         /**
-         * @brief load a workcell from file
-         * @param filename [in] path to workcell file
+         * @brief Load a WorkCell from a file.
+         * @param filename [in] path to workcell file.
          */
         virtual models::WorkCell::Ptr loadWorkCell(const std::string& filename) = 0;
-
-        /**
-         * @brief set the scene that is used to create drawable models
-         * @param scene [in] scene factory
-         */
-        virtual void setScene( rw::graphics::WorkCellScene::Ptr scene ){_wcscene = scene;};
-
-        /**
-         * @brief get the scene used to create a drawable scene
-         * @return
-         */
-        virtual rw::graphics::WorkCellScene::Ptr getScene( ){return _wcscene;};
 
     	/**
     	 * @addtogroup extensionpoints
@@ -73,45 +90,42 @@ namespace rw { namespace loaders {
  	 	 */
 
 
-		/**
-		 * @brief a factory for WorkCellLoader. This factory also defines an
-		 * extension point for workcell loaders.
-		 */
-	    class Factory: public rw::common::ExtensionPoint<WorkCellLoader> {
-	    public:
-	    	//! constructor
-	        Factory():rw::common::ExtensionPoint<WorkCellLoader>("rw.loaders.WorkCellLoader", "Example extension point"){};
+        /**
+         * @brief A factory for WorkCellLoader. This factory also defines the
+         * "rw.loaders.WorkCellLoader" extension point where new loaders can be
+         * registered.
+         */
+        class Factory: public rw::common::ExtensionPoint<WorkCellLoader> {
+            public:
+                /**
+                 * @brief Get loaders for a specific format.
+                 * @param format [in] the extension (including initial dot).
+                 * The extension name is case-insensitive.
+                 * @return a suitable loader.
+                 */
+                static rw::common::Ptr<WorkCellLoader> getWorkCellLoader(
+                        const std::string& format);
 
-	        /**
-	         * @brief Get loaders for a specific format.
-	         * @param format [in] the extension (including initial dot).
-	         * @return a suitable loader.
-	         */
-	        static rw::common::Ptr<WorkCellLoader> getWorkCellLoader(const std::string& format);
+                /**
+                 * @brief Loads/imports a WorkCell from a file.
+                 *
+                 * An exception is thrown if the file can't be loaded.
+                 * The %RobWork %XML format is supported by default, as well as
+                 * TUL WorkCell format.
+                 * @param filename [in] name of the WorkCell file.
+                 */
+                static models::WorkCell::Ptr load(const std::string& filename);
 
-			/**
-			 * @brief Loads/imports a workcell from a file.
-			 * An exception is thrown if the file can't be loaded.
-			 * XML as well as TUL workcell formats are supported.
-			 * @param filename [in] name of workcell file.
-			 */
-			static models::WorkCell::Ptr load(const std::string& filename);
-
-	    };
+            private:
+                Factory(): rw::common::ExtensionPoint<WorkCellLoader>(
+                        "rw.loaders.WorkCellLoader",
+                        "Extension point for for WorkCell loaders.")
+                {}
+        };
 
     protected:
 	    //! @brief Constructor.
 		WorkCellLoader() {}
-
-		/**
-		 * @brief Constructor with a drawable scene.
-		 * @param scene [in] a workcell scene.
-		 */
-		WorkCellLoader(rw::graphics::WorkCellScene::Ptr scene):_wcscene(scene) {}
-
-    private:
-		rw::graphics::WorkCellScene::Ptr _wcscene;
-
     };
 
 	/**

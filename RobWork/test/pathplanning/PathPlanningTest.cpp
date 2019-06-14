@@ -31,7 +31,6 @@
 #include <rw/loaders/WorkCellLoader.hpp>
 #include <rw/models/WorkCell.hpp>
 #include <rw/math/MetricFactory.hpp>
-#include <boost/foreach.hpp>
 
 #if RW_HAVE_PQP == 1
 #include <rwlibs/proximitystrategies/ProximityStrategyPQP.hpp>
@@ -84,7 +83,7 @@ BOOST_AUTO_TEST_CASE( testPartialIndexTable )
     QMetric::Ptr metric = MetricFactory::makeInfinity<Q>();
 
     bool ok = true;
-    BOOST_FOREACH(const Q& q, neighbors) {
+    for(const Q& q : neighbors) {
         const double dist = metric->distance(pos, q);
 
         const bool bad = dist > 2 * radius;
@@ -198,10 +197,10 @@ void testPathPlanning(const CollisionStrategy::Ptr& strategy)
 
         // next test on each planner
         typedef std::pair<std::string, QToQPlanner::Ptr> Pair ;
-        BOOST_FOREACH( Pair planner, planners) {
+        for(const Pair planner : planners) {
         	std::cout << "Testing QToQPlanner " << planner.first;
         	Timer time;
-        	BOOST_FOREACH(Q to, samples){
+        	for(const Q to : samples) {
                 QPath path;
 
                 res = planner.second->query(from, to, path, 20);

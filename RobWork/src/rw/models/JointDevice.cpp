@@ -85,7 +85,7 @@ Jacobian JointDevice::baseJframes(const std::vector<Frame*>& frames,
     return baseDJframes(frames, state)->get(state);
 }
 */
-JacobianCalculatorPtr JointDevice::baseJCframes(const std::vector<Frame*>& frames,
+JacobianCalculator::Ptr JointDevice::baseJCframes(const std::vector<Frame*>& frames,
                                                 const State& state) const
 {
     JacobianCalculator* jc = new JointDeviceJacobianCalculator(const_cast<JointDevice*>(this), _base, frames, state);

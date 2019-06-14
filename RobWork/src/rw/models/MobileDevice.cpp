@@ -185,7 +185,7 @@ Jacobian MobileDevice::baseJframes(
     return Jacobian(Jacobian::zero(6,2));
 }
 
-JacobianCalculatorPtr MobileDevice::baseJCframes(const std::vector<Frame*>& frames,
+JacobianCalculator::Ptr MobileDevice::baseJCframes(const std::vector<Frame*>& frames,
                                                  const State& state) const
 {
     RW_THROW("Not implemented.");

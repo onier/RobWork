@@ -28,7 +28,7 @@ SBLSetup SBLSetup::make(
     //const PlannerConstraint& constraint,
 	QConstraint::Ptr qconstraint,
 	QEdgeConstraintIncremental::Ptr edgeConstraint,
-    SBLExpandPtr expansion,
+    SBLExpand::Ptr expansion,
 	QMetric::Ptr metric,
     double connectRadius)
 {
