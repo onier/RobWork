@@ -25,6 +25,9 @@ namespace control {
 		 * @param name [in] name of controller
 		 * @param pos [in] position from which bodies are generated
 		 * @param geoms
+		 * @param delay
+		 * @param lifetime
+		 * @param repeat
 		 */
 	    RigidBodyGenerator(
 		        const std::string& name,
@@ -41,13 +44,13 @@ namespace control {
 		 */
 		virtual ~RigidBodyGenerator(){};
 
-		//! @copydoc SimulatedController::update
+		//! @copydoc rwlibs::simulation::SimulatedController::update
 		void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::reset
+		//! @copydoc rwlibs::simulation::SimulatedController::reset
 		void reset(const rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::getController
+		//! @copydoc rwlibs::simulation::SimulatedController::getControllerName
 		Controller* getController(){ return NULL; };
 
         void setEnabled(bool enabled){ _enabled = enabled; };

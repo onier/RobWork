@@ -28,10 +28,13 @@ namespace control {
 
 		/**
 		 * @brief constructor
+		 * @param name
 		 * @param rdev [in] device that is to be controlled
+		 * @cond
 		 * @param state [in] target state
-		 * @param cmode [in] the control mode used
 		 * @param pdparams [in] list of pd parameters. must be same length as number of joints.
+		 * @endcond
+		 * @param cmode [in] the control mode used
 		 * @param dt [in] the sampletime (time between samples in seconds) used in the control
 		 * loop, this should be larger than the expected update sample time.
 		 */
@@ -61,10 +64,10 @@ namespace control {
 		 */
 		void setSampleTime(double stime);
 
-		//! @copydoc SimulatedController::update
+		//! @copydoc rwlibs::simulation::SimulatedController::update
 		void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::reset
+		//! @copydoc rwlibs::simulation::SimulatedController::reset
 		void reset(const rw::kinematics::State& state);
 
 		//! @copydoc rwlibs::simulation::SimulatedController::getControllerName
@@ -81,16 +84,16 @@ namespace control {
 		 */
 		unsigned int getControlModes(){return _mode;}
 
-		//! @copydoc JointController::setControlModes
+		//! @copydoc rwlibs::control::JointController::setControlMode
 		void setControlMode(ControlMode mode);
 
-		//! @copydoc JointController::setTargetPos
+		//! @copydoc rwlibs::control::JointController::setTargetPos
 		void setTargetPos(const rw::math::Q& target);
 
-		//! @copydoc JointController::setTargetVel
+		//! @copydoc rwlibs::control::JointController::setTargetVel
 		void setTargetVel(const rw::math::Q& vals);
 
-		//! @copydoc JointController::setTargetAcc
+		//! @copydoc rwlibs::control::JointController::setTargetAcc
 		void setTargetAcc(const rw::math::Q& vals);
 
 		//! @copydoc rwlibs::control::JointController::getQ

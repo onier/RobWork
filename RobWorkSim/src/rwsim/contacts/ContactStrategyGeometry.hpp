@@ -104,7 +104,7 @@ public:
 	}
 
 	/**
-	 * @copydoc rwsim::contacts::ContactStrategy::addGeometry
+	 * @copydoc rwsim::contacts::ContactStrategy::addGeometry(rw::proximity::ProximityModel*,rw::common::Ptr<rw::geometry::Geometry>,bool)
 	 */
 	virtual bool addGeometry(rw::proximity::ProximityModel* model, rw::geometry::Geometry::Ptr geom, bool forceCopy=false) {
 		return addGeometry(model, *geom);

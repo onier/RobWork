@@ -27,10 +27,13 @@ namespace control {
 
 		/**
 		 * @brief constructor
+		 * @param name
 		 * @param rdev [in] device that is to be controlled
 		 * @param state [in] target state
+		 * @cond
 		 * @param cmode [in] the control mode used
 		 * @param pdparams [in] list of pd parameters. must be same length as number of joints.
+		 * @endcond
 		 * @param dt [in] the sampletime (time between samples in seconds) used in the control
 		 * loop, this should be larger than the expected update sample time.
 		 */
@@ -43,11 +46,16 @@ namespace control {
 
 		/**
 		 * @brief constructor
+		 * @param name
 		 * @param rdev [in] device that is to be controlled
+		 * @param state [in] target state
+		 * @cond
 		 * @param cmode [in] the control mode used
 		 * @param pdparam [in] pd parameter - used for all joints
+		 * @endcond
 		 * @param dt [in] the sampletime (time between samples in seconds) used in the control
 		 * loop, this should be larger than the expected update sample time.
+		 * @param endframe
 		 */
 		PoseController(
 		        const std::string& name,
@@ -74,13 +82,13 @@ namespace control {
 		 */
 		void setSampleTime(double stime);
 
-		//! @copydoc SimulatedController::update
+		//! @copydoc rwlibs::simulation::SimulatedController::update
 		void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::reset
+		//! @copydoc rwlibs::simulation::SimulatedController::reset
 		void reset(const rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::getController
+//! @copydoc rwlibs::simulation::SimulatedController::getControllerName
 		Controller* getController(){ return this; };
 
 		std::string getControllerName(){ return getName(); };
@@ -97,7 +105,7 @@ namespace control {
 
 		////// inherited from JointController
 
-		//! @copydoc JointController::setTargetPos
+		//! @copydoc rwlibs::control::JointController::setTargetPos
 		void setTarget(const rw::math::Transform3D<>& target);
 
 		/**
