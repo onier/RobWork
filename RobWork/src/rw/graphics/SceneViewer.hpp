@@ -128,9 +128,11 @@ namespace graphics {
          * @return the center.
          */
         virtual rw::math::Vector3D<> getViewCenter() = 0;
-        //! @copydoc SceneGraph::pickDrawable(int,int)
+
+        //! @copydoc rw::graphics::SceneGraph::pickDrawable(SceneGraph::RenderInfo&,int,int)
         virtual DrawableNode::Ptr pickDrawable(int x, int y) = 0;
-        //! @copydoc SceneGraph::pickDrawable(SceneGraph::RenderInfo&,int,int)
+        
+        //! @copydoc rw::graphics::SceneGraph::pickDrawable(SceneGraph::RenderInfo&,int,int)
         virtual DrawableNode::Ptr pickDrawable(SceneGraph::RenderInfo& info, int x, int y) = 0;
 
         // get/create a slave camera

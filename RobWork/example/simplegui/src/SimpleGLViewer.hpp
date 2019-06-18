@@ -25,71 +25,72 @@ class SimpleGLViewer: public rw::graphics::SceneViewer {
     	//! @brief Destructor.
         virtual ~SimpleGLViewer();
 
-        //! @copydoc SceneViewer::getScene
+        //! @copydoc rw::graphics::SceneViewer::getScene
         virtual rw::graphics::SceneGraph::Ptr getScene();
 
-        //! @copydoc SceneViewer::getLogo
+        //! @copydoc rw::graphics::SceneViewer::getLogo
         virtual const std::string& getLogo() const;
 
-        //! @copydoc SceneViewer::setLogo
+        //! @copydoc rw::graphics::SceneViewer::setLogo
         virtual void setLogo(const std::string& string);
 
-        //! @copydoc SceneViewer::getPropertyMap
+        //! @copydoc rw::graphics::SceneViewer::getPropertyMap
         virtual rw::common::PropertyMap& getPropertyMap();
 
-        //! @copydoc SceneViewer::updateView
+        //! @copydoc rw::graphics::SceneViewer::updateView
         virtual void updateView();
 
-        //! @copydoc SceneViewer::updateState
+        //! @copydoc rw::graphics::SceneViewer::updateState
         virtual void updateState(const rw::kinematics::State& state);
 
-        //! @copydoc SceneViewer::setWorldNode
+        //! @copydoc rw::graphics::SceneViewer::setWorldNode
         virtual void setWorldNode(rw::graphics::GroupNode::Ptr wnode);
 
-        //! @copydoc SceneViewer::getWorldNode
+        //! @copydoc rw::graphics::SceneViewer::getWorldNode
         virtual rw::graphics::GroupNode::Ptr getWorldNode();
 
-        //! @copydoc SceneViewer::saveBufferToFile
-        virtual void saveBufferToFile(const std::string& stdfilename,
+        //! @copydoc rw::graphics::SceneViewer::saveBufferToFile(const std::string&, const int, const int, const int)
+        // changed stdfilename to filename due to doxygen error
+        virtual void saveBufferToFile(const std::string& filename,
                                       const int fillR, const int fillG, const int fillB);
 
-        //! @copydoc SceneViewer::getViewCamera
+        //! @copydoc rw::graphics::SceneViewer::getViewCamera
         virtual rw::graphics::SceneCamera::Ptr getViewCamera();
 
-        //! @copydoc SceneViewer::getViewCenter
+        //! @copydoc rw::graphics::SceneViewer::getViewCenter
         virtual rw::math::Vector3D<> getViewCenter();
 
-        //! @copydoc SceneViewer::pickDrawable(int,int)
+        //! @copydoc rw::graphics::SceneViewer::pickDrawable(SceneGraph::RenderInfo&, int, int)
         virtual rw::graphics::DrawableNode::Ptr pickDrawable(int x, int y);
 
-        //! @copydoc SceneViewer::pickDrawable(SceneGraph::RenderInfo&, int, int)
+        //! @copydoc rw::graphics::SceneViewer::pickDrawable(SceneGraph::RenderInfo&, int, int)
         virtual rw::graphics::DrawableNode::Ptr pickDrawable(rw::graphics::SceneGraph::RenderInfo& info, int x, int y);
 
-        //! @copydoc SceneViewer::createView
+        //! @copydoc rw::graphics::SceneViewer::createView
         virtual View::Ptr createView(const std::string& name, bool enableBackground=false);
 
-        //! @copydoc SceneViewer::getMainView
+        //! @copydoc rw::graphics::SceneViewer::getMainView
         virtual View::Ptr getMainView();
 
-        //! @copydoc SceneViewer::destroyView
+        //! @copydoc rw::graphics::SceneViewer::destroyView
         virtual void destroyView(View::Ptr view);
 
-        //! @copydoc SceneViewer::selectView
+        //! @copydoc rw::graphics::SceneViewer::selectView
         virtual void selectView(View::Ptr view);
 
-        //! @copydoc SceneViewer::getCurrentView
+        //! @copydoc rw::graphics::SceneViewer::getCurrentView
         virtual View::Ptr getCurrentView();
 
-        //! @copydoc SceneViewer::getViews
+        //! @copydoc rw::graphics::SceneViewer::getViews
         virtual std::vector<View::Ptr> getViews();
 
-        //! @copydoc SceneViewer::renderView
-        virtual void renderView(View::Ptr);
+        //! @copydoc rw::graphics::SceneViewer::renderView
+        virtual void renderView(View::Ptr view);
 
-        //! @copydoc SceneViewer::zoom
+        //! @copydoc rw::graphics::SceneViewer::zoom
         virtual void zoom(double amount);
 
-        //! @copydoc SceneViewer::autoZoom
+        //! @copydoc rw::graphics::SceneViewer::autoZoom
         virtual void autoZoom();
 
         void init(int argc, char** argv);
