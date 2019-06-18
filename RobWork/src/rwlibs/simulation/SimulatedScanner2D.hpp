@@ -118,10 +118,9 @@ namespace rwlibs { namespace simulation {
          */
         rw::sensor::Scanner2DModel::Ptr getSensorModel();
 
-        //! @copydoc SimulatedSensor::getAngularRange
+        //! @copydoc rwlibs::simulation::SimulatedSensor::getAngularRange
         virtual double getAngularRange();
 
-        //! @copydoc SimulatedSensor::getWidth
         virtual size_t getMeasurementCount() const;
 
     private:
