@@ -76,28 +76,28 @@ namespace rwlibs { namespace simulation {
 
     	///////////// below is inheritet functions form Scanner25D and Sensor
 
-    	//! @copydoc Scanner25D::open
+    	//! @copydoc rw::sensor::Scanner25D::open
         void open();
 
-        //! @copydoc Scanner25D::isOpen
+        //! @copydoc rw::sensor::Scanner25D::isOpen
         bool isOpen();
 
-        //! @copydoc Scanner25D::close
+        //! @copydoc rw::sensor::Scanner25D::close
         void close();
 
-        //! @copydoc Scanner25D::acquire
+        //! @copydoc rw::sensor::Scanner25D::acquire
         void acquire();
 
-        //! @copydoc Scanner25D::isScanReady
+        //! @copydoc rw::sensor::Scanner25D::isScanReady
         bool isScanReady();
 
-        //! @copydoc Scanner25D::getRange
+        //! @copydoc rw::sensor::Scanner25D::getRange
         std::pair<double,double> getRange();
 
-        //! @copydoc Scanner25D::getFrameRate
+        //! @copydoc rw::sensor::Scanner25D::getFrameRate
         double getFrameRate();
 
-        //! @copydoc Scanner25D::getImage
+        //! @copydoc rw::geometry::PointCloud::getData
     	const rw::geometry::PointCloud& getScan();
 
     	//! @copydoc SimulatedSensor::update
@@ -106,7 +106,7 @@ namespace rwlibs { namespace simulation {
     	//! @copydoc SimulatedSensor::reset
     	void reset(const rw::kinematics::State& state);
 
-    	//! @copydoc rw::simulation::SimulatedSensor::getSensorHandle
+    	//! @copydoc rwlibs::simulation::SimulatedSensor::getSensorHandle
         rw::sensor::Sensor::Ptr getSensorHandle(rwlibs::simulation::Simulator::Ptr instance);
 
     	//! get instance of scanner
