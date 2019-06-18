@@ -50,6 +50,8 @@ MACRO(GET_ROBWORKHARDWARE_BUILD_TYPE CFG_ROOT RWHW_BUILD_TYPE)
 SET(BTYPE_TMP release)
 if( CMAKE_BUILD_TYPE )
   STRING(TOLOWER ${CMAKE_BUILD_TYPE} BTYPE_TMP )
+else()
+  set(BTYPE_TMP "none")
 endif()
 
 # first test if the correct cmake build type is installed

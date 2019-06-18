@@ -2858,6 +2858,7 @@
 /RobWorkHardware/ext/ur_rtde/.git
 /RobWorkHardware/ext/ur_rtde/.gitignore
 /RobWorkHardware/ext/ur_rtde/.gitlab-ci.yml
+/RobWorkHardware/ext/ur_rtde/include/ur_rtde/rtde_control_script.h
 
 # /RobWorkHardware/src/
 /RobWorkHardware/src/cmake_install.cmake
