@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines the helper data structures for importing MDC files
+/** @file 
+ * Defines the helper data structures for importing MDC files
 
 **********************************************************************
 File format specification:

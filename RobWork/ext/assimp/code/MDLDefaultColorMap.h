@@ -39,7 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-/** @file Defines the default color map used for Quake 1 model textures
+/** @file 
+ * Defines the default color map used for Quake 1 model textures
  *
  * The lib tries to load colormap.lmp from the model's directory.
  * This table is only used when required.

@@ -40,7 +40,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 //
-//! @file Definition of in-memory structures for the HL2 MDL file format
+//! @file 
+// Definition of in-memory structures for the HL2 MDL file format
 //  and for the HalfLife text format (SMD)
 //
 // The specification has been taken from various sources on the internet.

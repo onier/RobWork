@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 //!
-//! @file Data structures for the 3D Game Studio Heightmap format (HMP)
+//! @file 
+//! Data structures for the 3D Game Studio Heightmap format (HMP)
 //!
 
 namespace Assimp    {

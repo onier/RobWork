@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines the helper data structures for importing MD4 files  */
+/** @file 
+ * Defines the helper data structures for importing MD4 files  */
 #ifndef AI_MD4FILEHELPER_H_INC
 #define AI_MD4FILEHELPER_H_INC
 
