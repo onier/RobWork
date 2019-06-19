@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Base class of all import post processing steps */
+/** @file 
+ * Base class of all import post processing steps */
 #ifndef INCLUDED_AI_BASEPROCESS_H
 #define INCLUDED_AI_BASEPROCESS_H
 

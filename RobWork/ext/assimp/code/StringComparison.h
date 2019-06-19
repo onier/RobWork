@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Definition of platform independent string workers:
+/** @file 
+   Definition of platform independent string workers:
 
    ASSIMP_itoa10
    ASSIMP_stricmp

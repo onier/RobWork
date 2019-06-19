@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Definition of a helper step that processes texture transformations */
+/** @file 
+ * Definition of a helper step that processes texture transformations */
 #ifndef AI_TEXTURE_TRANSFORM_H_INCLUDED
 #define AI_TEXTURE_TRANSFORM_H_INCLUDED
 

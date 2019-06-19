@@ -39,7 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---------------------------------------------------------------------------
 */
 
-/** @file Defines the StreamWriter class which writes data to
+/** @file 
+ *  Defines the StreamWriter class which writes data to
  *  a binary stream with a well-defined endianness. */
 
 #ifndef AI_STREAMWRITER_H_INCLUDED

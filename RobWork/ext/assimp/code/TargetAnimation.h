@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a helper class for the ASE and 3DS loaders to
+/** @file 
+ * Defines a helper class for the ASE and 3DS loaders to
  help them compute camera and spot light animation channels */
 #ifndef AI_TARGET_ANIMATION_H_INC
 #define AI_TARGET_ANIMATION_H_INC
