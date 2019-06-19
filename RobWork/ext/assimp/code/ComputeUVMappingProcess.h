@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to compute UV coordinates
-  from abstract mappings, such as box or spherical*/
+/** @file 
+ * Defines a post processing step to compute UV coordinates from abstract mappings, such as box or spherical*/
 #ifndef AI_COMPUTEUVMAPPING_H_INC
 #define AI_COMPUTEUVMAPPING_H_INC
 

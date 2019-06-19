@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file  FBXDConverter.h
+/** @file  FBXConverter.h
  *  @brief FBX DOM to aiScene conversion
  */
 #ifndef INCLUDED_AI_FBX_CONVERTER_H

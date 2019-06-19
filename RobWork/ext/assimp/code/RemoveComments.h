@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Declares a helper class, "CommentRemover", which can be
+/** @file 
+ *  Declares a helper class, "CommentRemover", which can be
  *  used to remove comments (single and multi line) from a text file.
  */
 #ifndef AI_REMOVE_COMMENTS_H_INC
