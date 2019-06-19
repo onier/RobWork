@@ -21,7 +21,7 @@
 /**
  * @file RobWorkStudio/gtest/TestEnvironment.hpp
  *
- * \copydoc ::TestEnvironment
+ * 
  */
 
 #include <gtest/gtest.h>
