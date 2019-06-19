@@ -39,7 +39,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---------------------------------------------------------------------------
 */
 
-/** @file config.h
+/** @file 
  *  @brief Defines constants for configurable properties for the library
  *
  *  Typically these properties are set via

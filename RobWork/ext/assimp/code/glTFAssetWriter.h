@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file glTFWriter.h
+/** @file 
  * Declares a class to write gltf/glb files
  *
  * glTF Extensions Support:

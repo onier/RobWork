@@ -102,7 +102,7 @@ namespace rwlibs { namespace simulation {
         double getMinDepth(){return _minDepth;};
 
         /**
-         * @copydoc FrameGrapper25D::getFieldOfViewY
+         * @copydoc FrameGrabber25D::getFieldOfViewY()
          */
         virtual double getFieldOfViewY();
 
