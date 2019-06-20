@@ -82,6 +82,9 @@ public:
 	//! @copydoc Curve::closestPoints
 	virtual std::vector<rw::math::Vector3D<> > closestPoints(const rw::math::Vector3D<>& p) const = 0;
 
+    //! @copydoc Curve::equals
+    virtual bool equals(Curve::CPtr curve, double eps) const = 0;
+
 	/**
 	 * @brief Evaluate a point on the curve.
 	 * @param t [in] the parameter to find point for.

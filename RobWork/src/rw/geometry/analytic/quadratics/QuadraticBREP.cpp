@@ -201,3 +201,8 @@ QuadraticBREP::CommonQuadraticCurveSet::CPtr QuadraticBREP::getCommonCurves(cons
 	}
 	return ownedPtr(new CommonQuadraticCurveSetImpl(this, edges));
 }
+
+void QuadraticBREP::doRemoveCurve(const std::size_t curveIndex)
+{
+    _curves.erase(_curves.begin()+curveIndex);
+}

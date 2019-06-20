@@ -21,6 +21,8 @@
 #include <rw/geometry/PolygonUtil.hpp>
 #include <rw/geometry/PlainTriMesh.hpp>
 #include <rw/geometry/Delaunay.hpp>
+#include <rw/geometry/analytic/AnalyticUtil.hpp>
+#include <rw/geometry/analytic/ImplicitTorus.hpp>
 #include <rw/math/Vector2D.hpp>
 
 #include <Eigen/Eigenvalues>
@@ -171,6 +173,38 @@ TriMesh::Ptr QuadraticSurface::getTriMesh(const std::vector<Vector3D<> >& border
 	return s.getTriMeshDiagonal(borderRot, inverse(R));
 }
 
+bool QuadraticSurface::equals(const Surface& surface, double threshold) const
+{
+    const QuadraticSurface* const qsurf = dynamic_cast<const QuadraticSurface*>(&surface);
+    if (qsurf != nullptr) {
+        if ((_A-qsurf->_A).cwiseAbs().maxCoeff() > threshold)
+            return false;
+        if ((_a-qsurf->_a).cwiseAbs().maxCoeff() > threshold)
+            return false;
+        if (std::fabs(_u-qsurf->_u) > threshold)
+            return false;
+        std::vector<bool> omatched(qsurf->_conditions.size(), false);
+        for (const QuadraticSurface::TrimmingRegion treg : _conditions) {
+            bool tmatched = false;
+            for (std::size_t i = 0; i < qsurf->_conditions.size(); i++) {
+                if (treg->equals(*qsurf->_conditions[i],threshold)) {
+                    tmatched = true;
+                    omatched[i] = true;
+                }
+            }
+            if (!tmatched)
+                return false;
+        }
+        for (const bool match : omatched) {
+            if (!match)
+                return false;
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 double QuadraticSurface::operator()(const Vector3D<>& p) const {
 	return p.e().transpose()*_A*p.e()+_a.dot(p.e())*2+_u;
 }
@@ -189,6 +223,36 @@ Vector3D<> QuadraticSurface::normal(const Vector3D<>& point) const {
 
 Vector3D<> QuadraticSurface::gradient(const Vector3D<>& point) const {
 	return Vector3D<>(_A*point.e()+_a)*2;
+}
+
+void QuadraticSurface::reuseTrimmingRegions(const ImplicitSurface::Ptr surface) const
+{
+    const QuadraticSurface::Ptr qsurf = surface.cast<QuadraticSurface>();
+    if (!qsurf.isNull()) {
+        for (std::size_t i = 0; i < qsurf->_conditions.size(); i++) {
+            const QuadraticSurface::TrimmingRegion reg = qsurf->_conditions[i];
+            for (const QuadraticSurface::TrimmingRegion treg : _conditions) {
+                if (reg->equals(*treg,1e-15)) {
+                    qsurf->_conditions[i] = treg;
+                    break;
+                }
+            }
+        }
+    }
+    const ImplicitTorus::Ptr tsurf = surface.cast<ImplicitTorus>();
+    if (!tsurf.isNull()) {
+        std::vector<ImplicitTorus::TrimmingRegion> regs = tsurf->getTrimmingConditions();
+        for (std::size_t i = 0; i < regs.size(); i++) {
+            const ImplicitTorus::TrimmingRegion reg = regs[i];
+            for (const ImplicitTorus::TrimmingRegion treg : _conditions) {
+                if (reg->equals(*treg,1e-15)) {
+                    regs[i] = treg;
+                    break;
+                }
+            }
+        }
+        tsurf->setTrimmingConditions(regs);
+    }
 }
 
 QuadraticSurface::Ptr QuadraticSurface::normalize() const {
@@ -267,23 +331,23 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 		{
 			Vector3D<> last = border.front();
 			std::vector<std::size_t> cur;
-			if (last[e] >= -EPS)
+			if (last[e] >= eSplit-EPS)
 				cur.push_back(0);
 			for (std::size_t i = 1; i < border.size(); i++) {
-				if (last[e] >= -EPS && border[i][e] >= -EPS) {
+				if (last[e] >= eSplit-EPS && border[i][e] >= eSplit-EPS) {
 					cur.push_back(i);
-				} else if (last[e] < -EPS) {
+				} else if (last[e] < eSplit-EPS) {
 					if (cur.size() > 0) {
 						borderFront.push_back(cur);
 						cur.clear();
 					}
-					if (border[i][e] >= -EPS)
+					if (border[i][e] >= eSplit-EPS)
 						cur.push_back(i);
 				}
 				last = border[i];
 			}
-			if (last[e] >= -EPS) {
-				if (border.front()[e] >= -EPS && borderFront.size() > 0) {
+			if (last[e] >= eSplit-EPS) {
+				if (border.front()[e] >= eSplit-EPS && borderFront.size() > 0) {
 					borderFront.front().insert(borderFront.front().begin(),cur.begin(),cur.end());
 					cur.clear();
 				}
@@ -296,23 +360,23 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 		{
 			Vector3D<> last = border.front();
 			std::vector<std::size_t> cur;
-			if (last[e] <= EPS)
+			if (last[e] <= eSplit+EPS)
 				cur.push_back(0);
 			for (std::size_t i = 1; i < border.size(); i++) {
-				if (last[e] <= EPS && border[i][e] <= EPS) {
+				if (last[e] <= eSplit+EPS && border[i][e] <= eSplit+EPS) {
 					cur.push_back(i);
-				} else if (last[e] > EPS) {
+				} else if (last[e] > eSplit+EPS) {
 					if (cur.size() > 0) {
 						borderBack.push_back(cur);
 						cur.clear();
 					}
-					if (border[i][e] <= EPS)
+					if (border[i][e] <= eSplit+EPS)
 						cur.push_back(i);
 				}
 				last = border[i];
 			}
-			if (last[e] <= EPS) {
-				if (border.front()[e] <= EPS && borderBack.size() > 0) {
+			if (last[e] <= eSplit+EPS) {
+				if (border.front()[e] <= eSplit+EPS && borderBack.size() > 0) {
 					borderBack.front().insert(borderBack.front().begin(),cur.begin(),cur.end());
 					cur.clear();
 				}
@@ -330,7 +394,7 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 			for (std::list<std::vector<std::size_t> >::iterator it = listA.begin(); it != listA.end();) { // do not use const_iterator (first supported with list.erase() from GCC 4.9)
 				bool within = true;
 				for (std::size_t i = 0; i < (*it).size() && within; i++) {
-					if (std::abs(border[(*it)[i]][e]) > EPS) {
+					if (std::abs(border[(*it)[i]][e]-eSplit) > EPS) {
 						within = false;
 					}
 				}
@@ -339,7 +403,7 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 					for (std::list<std::vector<std::size_t> >::const_iterator itB = listB.begin(); itB != listB.end() && !match; itB++) {
 						bool outsideB = false;
 						for (std::size_t i = 0; i < (*itB).size() && !outsideB; i++) {
-							if (std::abs(border[(*itB)[i]][e]) > EPS) {
+							if (std::abs(border[(*itB)[i]][e]-eSplit) > EPS) {
 								outsideB = true;
 							}
 						}
@@ -389,7 +453,7 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 			for (std::list<std::vector<std::size_t> >::iterator it = listA.begin(); it != listA.end();) { // do not use const_iterator (first supported with list.erase() from GCC 4.9)
 				bool within = true;
 				for (std::size_t i = 0; i < (*it).size() && within; i++) {
-					if (std::abs(border[(*it)[i]][e]) > EPS) {
+					if (std::abs(border[(*it)[i]][e]-eSplit) > EPS) {
 						within = false;
 					}
 				}
@@ -398,7 +462,7 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 					for (std::list<std::vector<std::size_t> >::const_iterator itB = listB.begin(); itB != listB.end() && !match; itB++) {
 						bool outsideB = false;
 						for (std::size_t i = 0; i < (*itB).size() && !outsideB; i++) {
-							if (std::abs(border[(*itB)[i]][e]) > EPS) {
+							if (std::abs(border[(*itB)[i]][e]-eSplit) > EPS) {
 								outsideB = true;
 							}
 						}
@@ -445,8 +509,8 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 		std::vector<QuadraticCurve> silhouette = findSilhouette(u, v, e, eSplit);
 
 		// Try to connect polygons if open
-		const std::list<std::vector<Vector3D<> > > fullPolygonFront = combinePolygons(border, borderFront, silhouette);
-		const std::list<std::vector<Vector3D<> > > fullPolygonBack = combinePolygons(border, borderBack, silhouette);
+		const std::list<std::vector<Vector3D<> > > fullPolygonFront = AnalyticUtil::combinePolygons(border, borderFront, silhouette, _stepsPerRevolution);
+		const std::list<std::vector<Vector3D<> > > fullPolygonBack = AnalyticUtil::combinePolygons(border, borderBack, silhouette, _stepsPerRevolution);
 
 		for (std::list<std::vector<Vector3D<> > >::const_iterator it = fullPolygonFront.begin(); it != fullPolygonFront.end(); it++) {
 			makeSurface(*it, u, v, e, eSplit, FRONT, R, mesh);
@@ -465,11 +529,11 @@ std::vector<QuadraticCurve> QuadraticSurface::findSilhouette(std::size_t u, std:
 	// Find silhouette of surface
 	std::vector<QuadraticCurve> silhouette;
 	if (std::fabs(_A(u,u)) < EPS && std::fabs(_a[u]) < EPS) {
-		const double s = _a[v]*_a[v]-(_u+_a[e]*_a[e]/_A(e,e))*_A(v,v);
+		const double s = _a[v]*_a[v]-(_u-_a[e]*_a[e]/_A(e,e))*_A(v,v);
 		if (s >= 0) {
-			const double vVal1 = (_a[v]+std::sqrt(s))/_A(v,v);
-			const double vVal2 = (_a[v]-std::sqrt(s))/_A(v,v);
-			const Vector3D<> c1((u==0)?0:(v==0)?vVal1:eSplit,(u==1)?0:(v==1)?vVal1:eSplit,(u==2)?0:(v==2)?vVal1:eSplit);
+			const double vVal1 = (-_a[v]+std::sqrt(s))/_A(v,v);
+		    const double vVal2 = (-_a[v]-std::sqrt(s))/_A(v,v);
+	        const Vector3D<> c1((u==0)?0:(v==0)?vVal1:eSplit,(u==1)?0:(v==1)?vVal1:eSplit,(u==2)?0:(v==2)?vVal1:eSplit);
 			const Vector3D<> c2((u==0)?0:(v==0)?vVal2:eSplit,(u==1)?0:(v==1)?vVal2:eSplit,(u==2)?0:(v==2)?vVal2:eSplit);
 			const Vector3D<> uDir((u==0)?1:0,(u==1)?1:0,(u==2)?1:0);
 			const Vector3D<> vDir((v==0)?1:0,(v==1)?1:0,(v==2)?1:0);
@@ -478,10 +542,10 @@ std::vector<QuadraticCurve> QuadraticSurface::findSilhouette(std::size_t u, std:
 				silhouette.push_back(QuadraticCurve(c2, uDir, vDir, QuadraticCurve::Line));
 		}
 	} else if (std::fabs(_A(v,v)) < EPS && std::fabs(_a[v]) < EPS) {
-		const double s = _a[u]*_a[u]-(_u+_a[e]*_a[e]/_A(e,e))*_A(u,u);
+		const double s = _a[u]*_a[u]-(_u-_a[e]*_a[e]/_A(e,e))*_A(u,u);
 		if (s >= 0) {
-			const double uVal1 = (_a[u]+std::sqrt(s))/_A(u,u);
-			const double uVal2 = (_a[u]-std::sqrt(s))/_A(u,u);
+			const double uVal1 = (-_a[u]+std::sqrt(s))/_A(u,u);
+			const double uVal2 = (-_a[u]-std::sqrt(s))/_A(u,u);
 			const Vector3D<> c1((u==0)?uVal1:(v==0)?0:eSplit,(u==1)?uVal1:(v==1)?0:eSplit,(u==2)?uVal1:(v==2)?0:eSplit);
 			const Vector3D<> c2((u==0)?uVal2:(v==0)?0:eSplit,(u==1)?uVal2:(v==1)?0:eSplit,(u==2)?uVal2:(v==2)?0:eSplit);
 			const Vector3D<> uDir((u==0)?1:0,(u==1)?1:0,(u==2)?1:0);
@@ -542,46 +606,6 @@ std::vector<QuadraticCurve> QuadraticSurface::findSilhouette(std::size_t u, std:
 		silhouette.push_back(QuadraticCurve(c, uDir, -vDir, QuadraticCurve::Hyperbola));
 	}
 	return silhouette;
-}
-
-std::list<std::vector<Vector3D<> > > QuadraticSurface::combinePolygons(const std::vector<Vector3D<> >& border, const std::list<std::vector<std::size_t> >& subborder, const std::vector<QuadraticCurve>& silhouette) const {
-	std::list<std::vector<std::size_t> >::const_iterator curPol;
-	// Try to connect polygons if open
-	std::list<std::vector<Vector3D<> > > fullPolygons;
-	for (curPol = subborder.begin(); curPol != subborder.end(); curPol++) {
-		fullPolygons.resize(fullPolygons.size()+1);
-		std::vector<Vector3D<> >& fullPolygon = fullPolygons.back();
-		const QuadraticCurve* closest = &silhouette[0];
-		const Vector3D<>& P1 = border[curPol->front()];
-		const Vector3D<>& P2 = border[curPol->back()];
-		double time1 = silhouette[0].closestTime(P1);
-		double time2 = silhouette[0].closestTime(P2);
-		double dist = std::min((silhouette[0](time1)-P1).norm2(),((silhouette[0](time2)-P2).norm2()));
-		for (std::size_t i = 1; i < silhouette.size(); i++) {
-			time1 = silhouette[i].closestTime(P1);
-			time2 = silhouette[i].closestTime(P2);
-			const double d = std::min((silhouette[i](time1)-P1).norm2(),((silhouette[i](time2)-P2).norm2()));
-			if (d < dist) {
-				closest = &silhouette[i];
-				dist = d;
-			}
-		}
-		time1 = closest->closestTime(P1);
-		time2 = closest->closestTime(P2);
-		QuadraticCurve cp(*closest);
-		cp.setLimits(std::make_pair((time1<time2)?time1:time2,(time1<time2)?time2:time1));
-		for (std::size_t k = 0; k < curPol->size(); k++) {
-			fullPolygon.push_back(border[(*curPol)[k]]);
-		}
-
-		const std::list<Vector3D<> > seg = cp.discretizeAdaptive(_stepsPerRevolution);
-		if ((seg.front()-P1).norm2() < (seg.front()-P2).norm2()) {
-			fullPolygon.insert(fullPolygon.end(),++seg.rbegin(),--seg.rend());
-		} else {
-			fullPolygon.insert(fullPolygon.end(),++seg.begin(),--seg.end());
-		}
-	}
-	return fullPolygons;
 }
 
 void QuadraticSurface::makeSurface(const std::vector<Vector3D<> > fullPolygon, std::size_t u, std::size_t v, std::size_t e, double eSplit, Place place, const Rotation3D<>& R, PlainTriMeshN1D::Ptr mesh) const {
@@ -1019,11 +1043,15 @@ QuadraticSurface::Ptr QuadraticSurface::makeEllipticCylinder(const double a, con
 	return ownedPtr(new QuadraticSurface(A, avec, u));
 }
 
-QuadraticSurface::Ptr QuadraticSurface::makeCircularCylinder(const double radius) {
-	static const Eigen::DiagonalMatrix<double,3> A(1, 1, 0);
+QuadraticSurface::Ptr QuadraticSurface::makeCircularCylinder(const double radius, const bool outward) {
+    static const Eigen::DiagonalMatrix<double,3> Aout(1, 1, 0);
+    static const Eigen::DiagonalMatrix<double,3> Ain(-1, -1, 0);
 	static const Eigen::Vector3d a = Eigen::Vector3d::Zero();
 	const double u = -radius*radius;
-	return ownedPtr(new QuadraticSurface(A, a, u));
+	if (outward)
+        return ownedPtr(new QuadraticSurface(Aout, a, u));
+	else
+        return ownedPtr(new QuadraticSurface(Ain, a, -u));
 }
 
 QuadraticSurface::Ptr QuadraticSurface::makeHyperbolicCylinder(const double a, const double b) {

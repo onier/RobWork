@@ -92,11 +92,13 @@ SET(GEOMETRY_TEST_LIBRARIES
 SET(GEOMETRY_TEST_SRC
   geometry/DelaunayTest.cpp
   geometry/HyperSphereTest.cpp
+  geometry/ImplicitTorusTest.cpp
   geometry/IndexedTriMeshTest.cpp
   geometry/IntersectUtilTest.cpp
   geometry/PlaneTest.cpp
   geometry/PolygonTest.cpp
   geometry/QHullTest.cpp
+  geometry/QuadraticCurveTest.cpp
   geometry/TriangulateTest.cpp
 )
 ADD_EXECUTABLE( rw_geometry-gtest ${GEOMETRY_TEST_SRC})       

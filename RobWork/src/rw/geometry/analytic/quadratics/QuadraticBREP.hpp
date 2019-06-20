@@ -165,6 +165,7 @@ private:
 	class CommonQuadraticCurveSetImpl;
 	virtual rw::common::Ptr<const Shell> doShellProxyBREP() const;
 	virtual BREP::Ptr doClone() const { return clone(); }
+    virtual void doRemoveCurve(std::size_t curveIndex);
 
 	// Geometry
 	std::vector<QuadraticCurve::CPtr> _curves;

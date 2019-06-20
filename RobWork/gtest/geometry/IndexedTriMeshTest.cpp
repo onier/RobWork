@@ -82,3 +82,41 @@ TYPED_TEST(IndexedTriMeshTest, GetTriangleTest) {
 	EXPECT_EQ((tri[1]-vertex2).normInf(),0);
 	EXPECT_EQ((tri[2]-vertex1).normInf(),0);
 }
+
+TYPED_TEST(IndexedTriMeshTest, GetIndexedTriangleTest) {
+	typedef typename TypeParam::First T;
+	typedef typename TypeParam::Second S;
+	typedef IndexedTriMeshN0<T,S> Mesh;
+	typedef typename Mesh::VertexArray VertexArray;
+	typedef typename Mesh::TriangleArray TriangleArray;
+	const Vector3D<T> vertex0(0.0,0.1,0.2);
+	const Vector3D<T> vertex1(0.3,0.4,0.5);
+	const Vector3D<T> vertex2(0.6,0.7,0.8);
+	const Vector3D<T> vertex3(0.9,1.0,1.1);
+	const rw::common::Ptr<VertexArray> vertices = ownedPtr(new VertexArray(4)); // allocation of exact size is important
+	(*vertices)[0] = vertex0;
+	(*vertices)[1] = vertex1;
+	(*vertices)[2] = vertex2;
+	(*vertices)[3] = vertex3;
+	const rw::common::Ptr<TriangleArray> triangles = ownedPtr(new TriangleArray(3)); // allocation of exact size is important
+	(*triangles)[0] = IndexedTriangle<S>(0,1,2);
+	(*triangles)[1] = IndexedTriangle<S>(2,3,1);
+	(*triangles)[2] = IndexedTriangle<S>(3,2,1);
+	//triangles->reserve(4);
+	const Mesh mesh(vertices,triangles);
+
+	// Check that the triangles can be retrieved
+	IndexedTriangle<uint32_t> tri;
+	tri = mesh.getIndexedTriangle(0);
+	EXPECT_EQ(tri[0],0);
+	EXPECT_EQ(tri[1],1);
+	EXPECT_EQ(tri[2],2);
+	tri = mesh.getIndexedTriangle(1);
+	EXPECT_EQ(tri[0],2);
+	EXPECT_EQ(tri[1],3);
+	EXPECT_EQ(tri[2],1);
+	tri = mesh.getIndexedTriangle(2);
+	EXPECT_EQ(tri[0],3);
+	EXPECT_EQ(tri[1],2);
+	EXPECT_EQ(tri[2],1);
+}

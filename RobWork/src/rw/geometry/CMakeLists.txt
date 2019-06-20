@@ -53,11 +53,16 @@ SET(FILES_CPP
     TriMeshSurfaceSampler.cpp
     PointCloud.cpp
     
+	analytic/AnalyticUtil.cpp
 	analytic/BREP.cpp
 	analytic/Curve.cpp
 	analytic/Face.cpp
 	analytic/GenericFace.cpp
+    analytic/ImplicitBREP.cpp
+    analytic/ImplicitFace.cpp
+    analytic/ImplicitShell.cpp
     analytic/ImplicitSurface.cpp
+    analytic/ImplicitTorus.cpp
     analytic/IndexedFaceArray.cpp
 	analytic/ParametricCurve.cpp
 	analytic/Shell.cpp
@@ -131,11 +136,16 @@ SET(FILES_HPP
     TriMeshSurfaceSampler.hpp
     PointCloud.hpp
     
+	analytic/AnalyticUtil.hpp
 	analytic/BREP.hpp
 	analytic/Curve.hpp
 	analytic/Face.hpp
 	analytic/GenericFace.hpp
+    analytic/ImplicitBREP.hpp
+    analytic/ImplicitFace.hpp
+    analytic/ImplicitShell.hpp
     analytic/ImplicitSurface.hpp
+    analytic/ImplicitTorus.hpp
     analytic/IndexedFaceArray.hpp
 	analytic/ParametricCurve.hpp
 	analytic/Shell.hpp

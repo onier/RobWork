@@ -158,6 +158,7 @@ namespace rw { namespace geometry {
 		    typedef typename TRILIST::value_type T;
 		    typedef typename TRILIST::tri_type TRI;
 		    typedef typename TRILIST::index_type S;
+		    typedef typename TRILIST::TriangleArray TriangleArray;
 		    using namespace rw::math;
 		    if( triMesh.getSize()==0)
 		        RW_THROW("Size of mesh must be more than 0!");
@@ -171,7 +172,7 @@ namespace rw { namespace geometry {
                 new std::vector<Vector3D<T> >(triMesh.getSize()*3);
 
 		    // allocate enough memory
-            std::vector<TRI> *triangles = new std::vector<TRI>(triMesh.getSize());
+            TriangleArray* triangles = new TriangleArray(triMesh.getSize());
 
             S vertCnt = 0;
             Vector3D<T> lastVert = (*verticesIdx)[0].n;

@@ -320,6 +320,22 @@ public:
 		return static_cast<int>(first);
 	}
 
+    /**
+     * @brief Connect two half-edges.
+     * @param first [in] id of the first edge. 0-indexing is expected, with a sign that indicates the edge direction.
+     * @param second [in] id of the second edge. 0-indexing is expected, with a sign that indicates the edge direction.
+     * @note Implementations calling this function should remember to delete the curve associated to the second
+     * half-edge if it is different than the curve set for the first half-edge.
+     * @throws rw::common::Exception if one of the given half-edges is already connected to another half-edge.
+     */
+    void stitchEdges(std::size_t first, std::size_t second);
+
+    /**
+     * @brief Try to stitch edges automatically.
+     * @param eps [in] distance threshold for vertices and curves.
+     */
+    void stitchAuto(double eps);
+
 	/**
 	 * @brief Create Oriented Bounding Box for a face.
 	 * @param faceIndex [in] the face index, which should be less than loopCount().
@@ -389,7 +405,7 @@ protected:
 		//! @brief Vertex point.
 		rw::math::Vector3D<> point;
 		//! @brief Pointer to the next half-edge.
-		const HalfEdge* nextEdge;
+		HalfEdge* nextEdge;
 	};
 
 	/**
@@ -429,7 +445,7 @@ protected:
 		~HalfEdge() {}
 
 		//! @brief Index of the geometric curve data.
-		const std::size_t curveIndex;
+		std::size_t curveIndex;
 		//! @brief Pointer to the vertex at beginning of curve (previous and next might be the same vertex).
 		const Vertex* previousVertex;
 		//! @brief Pointer to the vertex at end of curve (previous and next might be the same vertex).
@@ -475,7 +491,8 @@ protected:
 private:
 	class CommonCurveSetGeneric;
 	virtual rw::common::Ptr<const Shell> doShellProxyBREP() const;
-	virtual BREP::Ptr doClone() const = 0;
+    virtual BREP::Ptr doClone() const = 0;
+    virtual void doRemoveCurve(std::size_t curveIndex) = 0;
 
 	void setEdgeOrder(int before, int after);
 	void setHalfEdgeOrder(HalfEdge* before, HalfEdge* after);

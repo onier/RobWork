@@ -277,6 +277,153 @@ void BREP::makeLoop(int singleEdgeId) {
 	}
 }
 
+void BREP::stitchEdges(const std::size_t first, const std::size_t second)
+{
+    const bool first1 = (_edges[first].first->face == nullptr);
+    const bool first2 = (_edges[second].first->face == nullptr);
+    if (_edges[first].first->face == nullptr && _edges[first].second->face == nullptr)
+        RW_THROW("Could not stitch edges as the first edge is not connected to any face.");
+    if (_edges[second].first->face == nullptr && _edges[second].second->face == nullptr)
+        RW_THROW("Could not stitch edges as the second edge is not connected to any face.");
+    HalfEdge* const e1 = first1 ? _edges[first].second : _edges[first].first;
+    HalfEdge* const e2 = first2 ? _edges[second].second : _edges[second].first;
+    HalfEdge* const e1n = first1 ? _edges[first].first : _edges[first].second;
+    HalfEdge* const e2n = first2 ? _edges[second].first : _edges[second].second;
+    if (e1->face == nullptr)
+        RW_THROW("Could not stitch edges as the first edge is already connected to two faces.");
+    if (e2->face == nullptr)
+        RW_THROW("Could not stitch edges as the second edge is already connected to two faces.");
+
+    e1->oppositeEdge = e2;
+    e2->oppositeEdge = e1;
+
+    std::vector<Vertex*>::iterator vitPrev1;
+    std::vector<Vertex*>::iterator vitPrev2;
+    vitPrev1 = std::find(_vertices.begin(), _vertices.end(), e1n->previousVertex);
+    vitPrev2 = std::find(_vertices.begin(), _vertices.end(), e2n->previousVertex);
+    if (vitPrev1 == _vertices.end())
+        RW_THROW("Could not find previous vertex of first half-edge.");
+    if (vitPrev2 == _vertices.end())
+        RW_THROW("Could not find previous vertex of second half-edge.");
+
+    if (e1n->nextEdge != e2n) {
+        e1n->nextEdge->previousEdge = e2n->previousEdge;
+        e2n->previousEdge->nextEdge = e1n->nextEdge;
+        e2n->previousEdge->nextVertex = e1n->nextEdge->previousVertex;
+        HalfEdge* e = e2;
+        const Vertex* const oldVertex = e2->nextVertex;
+        while (e->nextVertex == oldVertex) {
+            e->nextEdge->previousVertex = e1n->nextEdge->previousVertex;
+            e->nextVertex = e1n->nextEdge->previousVertex;
+            e = e->nextEdge->oppositeEdge;
+        }
+        delete *vitPrev2;
+        _vertices.erase(vitPrev2);
+    } else {
+        if ((*vitPrev2)->nextEdge == e2n)
+            (*vitPrev2)->nextEdge = e2->nextEdge;
+    }
+    if (e2n->nextEdge != e1n) {
+        e1n->previousEdge->nextEdge = e2n->nextEdge;
+        e2n->nextEdge->previousEdge = e1n->previousEdge;
+        e1n->previousEdge->nextVertex = e2n->nextEdge->previousVertex;
+        HalfEdge* e = e1;
+        const Vertex* const oldVertex = e1->nextVertex;
+        while (e->nextVertex == oldVertex) {
+            e->nextEdge->previousVertex = e2n->nextEdge->previousVertex;
+            e->nextVertex = e2n->nextEdge->previousVertex;
+            e = e->nextEdge->oppositeEdge;
+        }
+        delete *vitPrev1;
+        _vertices.erase(vitPrev1);
+    } else {
+        if ((*vitPrev1)->nextEdge == e1n)
+            (*vitPrev1)->nextEdge = e1->nextEdge;
+    }
+
+    delete e1n;
+    delete e2n;
+    if (first1)
+        _edges[first].first = e2;
+    else
+        _edges[first].second = e2;
+    _edges.erase(_edges.begin()+second);
+    if (e1->curveIndex != e2->curveIndex) {
+        doRemoveCurve(e2->curveIndex);
+        for (const std::pair<HalfEdge*, HalfEdge*>& edge : _edges) {
+            if (edge.first->curveIndex > e2->curveIndex)
+                edge.first->curveIndex--;
+            if (edge.second->curveIndex > e2->curveIndex)
+                edge.second->curveIndex--;
+        }
+        e2->curveIndex = e1->curveIndex;
+    }
+    e2->reversed = !e1->reversed;
+}
+
+void BREP::stitchAuto(const double eps)
+{
+    // Make index-list of edges with exactly one half-edge connected to a face.
+    std::list<std::size_t> ids;
+    for (std::size_t i = 0; i < _edges.size(); i++) {
+        const std::pair<HalfEdge*, HalfEdge*>& e = _edges[i];
+        if ((e.first->face != nullptr && e.second->face == nullptr))
+            ids.push_back(i);
+        else if ((e.first->face == nullptr && e.second->face != nullptr))
+            ids.push_back(i);
+    }
+    // Find all candidate pairs
+    std::list<std::pair<std::size_t, std::size_t> > pairs;
+    std::list<std::size_t>::const_iterator itA;
+    for (itA = ids.begin(); itA != ids.end(); itA++) {
+        const std::pair<HalfEdge*, HalfEdge*>& eA = _edges[*itA];
+        HalfEdge* hA;
+        if (eA.first->face == nullptr)
+            hA = eA.second;
+        else
+            hA = eA.first;
+        unsigned int matches = 0;
+        std::list<std::size_t>::const_iterator itB = itA;
+        for (itB++; itB != ids.end(); itB++) {
+            const std::pair<HalfEdge*, HalfEdge*>& eB = _edges[*itB];
+            HalfEdge* hB;
+            if (eB.first->face == nullptr)
+                hB = eB.second;
+            else
+                hB = eB.first;
+            const Vector3D<>& vAp = hA->previousVertex->point;
+            const Vector3D<>& vAn = hA->nextVertex->point;
+            const Vector3D<>& vBp = hB->previousVertex->point;
+            const Vector3D<>& vBn = hB->nextVertex->point;
+            const double d1 = (vAp-vBn).norm2();
+            const double d2 = (vBp - vAn).norm2();
+            if (d1 < eps && d2 < eps) {
+                const Curve& c1 = getCurve(*itA);
+                const Curve& c2 = getCurve(*itB);
+                if (c1.equals(c2.reverse(),eps)) {
+                    if (matches == 0) {
+                        pairs.push_back(std::make_pair(*itA,*itB));
+                        matches++;
+                    } else {
+                        RW_THROW("Found multiple edges that can be stitched, "
+                                "please fix the topology of the BREP.");
+                    }
+                }
+            }
+        }
+    }
+    // Make map from original index to new reduced index
+    std::vector<std::size_t> map(_edges.size());
+    for (std::size_t i = 0; i < _edges.size(); i++)
+        map[i] = i;
+    // Do the stitching
+    for (const std::pair<std::size_t, std::size_t>& pair : pairs) {
+        stitchEdges(map[pair.first],map[pair.second]);
+        for (std::size_t i = pair.second; i < map.size(); i++)
+            map[i]--;
+    }
+}
+
 void BREP::setEdgeOrder(int before, int after) {
 	RW_ASSERT(before != 0);
 	RW_ASSERT(after != 0);
@@ -379,7 +526,6 @@ OBB<> BREP::faceOBB(std::size_t faceIndex) {
 	for (std::list<Curve::CPtr>::const_iterator it = edges.begin(); it != edges.end(); it++) {
 		for (std::size_t i = 0; i < 3; i++) {
 			const std::pair<double,double> extremums = (*it)->extremums(R.getCol(i));
-			//std::cout << "edge: " << i << " " << extremums.first << " " << extremums.second << std::endl;
 			if (extremums.first < min[i])
 				min[i] = extremums.first;
 			if (extremums.second > max[i])
@@ -517,7 +663,6 @@ void BREP::copyTopologyTo(BREP::Ptr brep) const {
 		if (brep->_vertices[i]->nextEdge == NULL)
 			RW_THROW("Make sure BREP is valid before scaling it.");
 	}
-	//std::cout << "adding faces" << std::endl;
 	// Make the loops...
 	for (std::size_t i = 0; i < _faces.size(); i++) {
 		brep->_faces[i] = new Face();
@@ -532,7 +677,6 @@ void BREP::copyTopologyTo(BREP::Ptr brep) const {
 		if (brep->_faces[i]->edge == NULL)
 			RW_THROW("Make sure BREP is valid before scaling it.");
 	}
-	//std::cout << "adding face and edge pointers to edges" << std::endl;
 	for (std::size_t i = 0; i < _edges.size(); i++) {
 		for (std::size_t fi = 0; fi < _faces.size() && (brep->_edges[i].first->face == NULL || brep->_edges[i].second->face == NULL); fi++) {
 			if (_faces[fi] == _edges[i].first->face)

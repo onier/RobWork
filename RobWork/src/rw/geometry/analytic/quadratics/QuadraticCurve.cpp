@@ -319,6 +319,104 @@ std::vector<Vector3D<> > QuadraticCurve::closestPoints(const Vector3D<>& p) cons
 	return res;
 }
 
+bool QuadraticCurve::equals(Curve::CPtr curve, double eps) const
+{
+    const QuadraticCurve::CPtr other = curve.cast<const QuadraticCurve>();
+    if (other.isNull())
+        return false;
+    if (other->type() != _type)
+        return false;
+    if ((other->hasLimits() && !_hasLimits) || (!other->hasLimits() && _hasLimits))
+        return false;
+
+    if (_hasLimits) {
+        const Vector3D<> t1 = x(_limits.first);
+        const Vector3D<> t2 = x((_limits.first+_limits.second)/2);
+        const Vector3D<> t3 = x(_limits.second);
+        const std::pair<double, double> olim = other->limits();
+        const Vector3D<> o1 = other->x(olim.first);
+        const Vector3D<> o2 = other->x((olim.first+olim.second)/2);
+        const Vector3D<> o3 = other->x(olim.second);
+        return (t1-o1).norm2() <= eps &&
+                (t2-o2).norm2() <= eps &&
+                (t3-o3).norm2() <= eps;
+    }
+
+    switch(_type) {
+        case Elliptic:
+        {
+            if ((_c-other->c()).norm2() > eps)
+                return false;
+            // Check that they lie in same plane and have same area
+            const Vector3D<> tcr = cross(_u,_v);
+            const Vector3D<> ocr = cross(other->u(),other->v());
+            if ((tcr-ocr).norm2() > eps)
+                return false;
+            const double tulen = _u.norm2();
+            const double tvlen = _v.norm2();
+            const double oulen = other->u().norm2();
+            const double ovlen = other->v().norm2();
+            const bool circle = std::fabs(tulen-tvlen) <= eps &&
+                    std::fabs(oulen-ovlen) <= eps;
+            if (circle) {
+                return true;
+            } else {
+                const double cruu = cross(_u,other->u()).norm2();
+                const double crvv = cross(_v,other->v()).norm2();
+                const double cruv = cross(_u,other->v()).norm2();
+                const double crvu = cross(_v,other->u()).norm2();
+                if (cruu <= eps && crvv <= eps) {
+                    return std::fabs(tulen-oulen) <= eps &&
+                            std::fabs(tvlen-ovlen) <= eps;
+                } else if (cruv <= eps && crvu <= eps) {
+                    return std::fabs(tulen-ovlen) <= eps &&
+                            std::fabs(tvlen-oulen) <= eps;
+                } else {
+                    return false;
+                }
+            }
+        }
+        break;
+        case Hyperbola:
+        {
+            if ((_c-other->c()).norm2() > eps)
+                return false;
+            return (_u-other->u()).norm2() <= eps &&
+                    (_v-other->v()).norm2() <= eps;
+        }
+        break;
+        case Line:
+        {
+            const Vector3D<> tdir = normalize(_u);
+            const Vector3D<> odir = normalize(other->u());
+            if ((tdir-odir).norm2() > eps)
+                return false;
+            const Vector3D<> tc = closestPoints(other->c())[0];
+            const Vector3D<> oc = other->closestPoints(_c)[0];
+            return (other->c()-tc).norm2() <= eps && (_c-oc).norm2() <= eps;
+        }
+        break;
+        case Parabola:
+        {
+            if ((_c-other->c()).norm2() > eps)
+                return false;
+            const Vector3D<> tudir = normalize(_u);
+            const Vector3D<> tvdir = normalize(_v);
+            const Vector3D<> oudir = normalize(other->u());
+            const Vector3D<> ovdir = normalize(other->v());
+            if ((tudir-oudir).norm2() > eps || (tvdir-ovdir).norm2() > eps)
+                return false;
+            const double tulen = _u.norm2();
+            const double tvlen = _v.norm2();
+            const double oulen = other->u().norm2();
+            const double ovlen = other->v().norm2();
+            return std::fabs(tvlen*tvlen/tulen-oulen*oulen/ovlen) <= eps;
+        }
+        break;
+    }
+    return false;
+}
+
 Vector3D<> QuadraticCurve::x(double t) const {
 	return _c+r(t)*_u+s(t)*_v;
 }
@@ -415,19 +513,32 @@ std::vector<double> QuadraticCurve::closestTimes(const Vector3D<>& p) const {
 	const Eigen::Vector3d dp = cc-p.e();
 
 	Polynomial<> pol(0);
+	double K0;
 	double K1;
 	double K2;
+	bool switched = false;
 	switch(_type) {
 	case QuadraticCurve::Elliptic:
 		pol = Polynomial<>(4);
-		K1 = dp.transpose()*u;
-		K2 = u.transpose()*u;
-		K2 -= v.transpose()*v;
-		pol[4] = dp.transpose()*v;
-		pol[3] = 2.*(K1-K2);
-		pol[2] = 0;
-		pol[1] = 2.*(K1+K2);
-		pol[0] = -pol[4];
+        K0 = -dp.transpose()*u;
+        K1 = -dp.transpose()*v;
+        K2 = u.transpose()*u;
+        K2 -= v.transpose()*v;
+        if (std::fabs(K0) > std::fabs(K1)) {
+            pol[4] = K0;
+            pol[3] = 2.*(K1-K2);
+            pol[2] = 0;
+            pol[1] = 2.*(K1+K2);
+            pol[0] = -K0;
+            switched = false;
+        } else {
+            pol[4] = K1;
+            pol[3] = 2.*(K0+K2);
+            pol[2] = 0;
+            pol[1] = 2.*(K0-K2);
+            pol[0] = -K1;
+            switched = true;
+        }
 		break;
 	case QuadraticCurve::Hyperbola:
 		pol = Polynomial<>(4);
@@ -464,8 +575,12 @@ std::vector<double> QuadraticCurve::closestTimes(const Vector3D<>& p) const {
 		}
 	}
 	if (_type == QuadraticCurve::Elliptic) {
-		for (std::size_t i = 0; i < minSols.size(); i++)
-			minSols[i] = std::atan(minSols[i])*2;
+		for (std::size_t i = 0; i < minSols.size(); i++) {
+            if (switched)
+                minSols[i] = Pi/2.-std::atan(minSols[i])*2;
+            else
+                minSols[i] = std::atan(minSols[i])*2;
+		}
 	} else if (_type == QuadraticCurve::Hyperbola) {
 		for (std::size_t i = 0; i < minSols.size(); i++) {
 			minSols[i] = std::atanh(minSols[i])*2;
@@ -538,6 +653,7 @@ double QuadraticCurve::s(double t) const {
 }
 
 std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) const {
+    const double rMax = std::max(_u.norm2(), _v.norm2());
 	double dt = 0;
 	double K = 0;
 	std::list<double> times;
@@ -548,7 +664,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 		if (_limits.first < -Pi*3/2) {
 			for (double t = _limits.first; std::cos(t) > 0; t += dt) {
 				K = curvature(t);
-				dt = Pi*2/K/stepsPerRevolution;
+				dt = Pi*2/K/stepsPerRevolution/rMax;
 				times.push_back(t);
 			}
 		}
@@ -557,7 +673,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 		// treat t=-3Pi/2 to t=-Pi
 		for (double t = -Pi; std::cos(t) < 0 && t > _limits.first; t -= dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			if (t != -Pi) {
 				segment.push_front(t);
 			}
@@ -571,7 +687,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 	if (_limits.first < -Pi/2) {
 		for (double t = (_limits.first > -Pi)?_limits.first:-Pi; std::cos(t) < 0 && t >= _limits.first && t < _limits.second; t += dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			times.push_back(t);
 		}
 		if (_limits.second < -Pi/2)
@@ -583,11 +699,14 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 	if (_limits.first < 0 && _limits.second > -Pi/2) {
 		for (double t = 0; std::cos(t) > 0 && t > _limits.first && t <= _limits.second; t -= dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			if (t != 0) {
 				segment.push_front(t);
 			}
 		}
+        if (_limits.first == -Pi/2) {
+            segment.push_front(-Pi/2);
+        }
 		if (_limits.second == 0) {
 			segment.push_back(0);
 		}
@@ -598,7 +717,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 	if (_limits.first < Pi/2 && _limits.second > 0) {
 		for (double t = (_limits.first <= 0)?0:_limits.first; std::cos(t) > 0 && t >= _limits.first && t < _limits.second; t += dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			times.push_back(t);
 		}
 		if (_limits.second >= Pi/2)
@@ -608,7 +727,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 	if (_limits.second > Pi/2) {
 		for (double t = (_limits.second < Pi)?_limits.second:Pi; std::cos(t) < 0 && t > _limits.first && t <= _limits.second; t -= dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			if (t != Pi) {
 				segment.push_front(t);
 			}
@@ -622,7 +741,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 		// treat t=Pi to t=Pi*3/2
 		for (double t = Pi; std::cos(t) < 0 && t < _limits.second; t += dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			times.push_back(t);
 		}
 		if (_limits.second < Pi*3/2)
@@ -633,7 +752,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 		if (_limits.second > Pi*3/2) {
 			for (double t = _limits.second; std::cos(t) > 0 && t <= _limits.second; t -= dt) {
 				K = curvature(t);
-				dt = Pi*2/K/stepsPerRevolution;
+				dt = Pi*2/K/stepsPerRevolution/rMax;
 				segment.push_front(t);
 			}
 			times.insert(times.end(),segment.begin(),segment.end());

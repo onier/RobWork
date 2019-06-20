@@ -36,7 +36,8 @@ namespace geometry {
 
 //! @{
 /**
- * @brief Interface for implicit surfaces. An implicit surface is given by an expression of the form \f$ F(\mathbf{x})=0, \mathbf{x} \in \mathbb{R}^3\f$.
+ * @brief Interface for implicit surfaces. An implicit surface is given by an
+ * expression of the form \f$ F(\mathbf{x})=0, \mathbf{x} \in \mathbb{R}^3\f$.
  */
 class ImplicitSurface: public Surface {
 public:
@@ -72,6 +73,9 @@ public:
 
 	//! @copydoc Surface::setDiscretizationResolution
 	virtual void setDiscretizationResolution(double resolution) = 0;
+
+    //! @copydoc Surface::equals
+    virtual bool equals(const Surface& surface, double threshold) const = 0;
 
 	/**
 	 * @brief Evaluate the implicit function, \f$ F(\mathbf{x}) \f$, for the surface.
@@ -110,6 +114,15 @@ public:
 	 * @see the normal function to find the normal to the surface (the normalized gradient).
 	 */
 	virtual rw::math::Vector3D<> gradient(const rw::math::Vector3D<>& x) const = 0;
+
+	/**
+	 * @brief Let other \b surface reuse this surfaces trimming regions,
+	 * if there are identical region definitions.
+	 *
+	 * This allows for some implementations to save a small amount of memory.
+	 * @param surface [in/out] the other surface.
+	 */
+	virtual void reuseTrimmingRegions(ImplicitSurface::Ptr surface) const {}
 
 private:
 	inline virtual Surface::Ptr doTransformSurface(const rw::math::Transform3D<>& T) const { return doTransformImplicitSurface(T); }
