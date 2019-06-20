@@ -135,6 +135,9 @@ public:
 	//! @copydoc ImplicitSurface::setDiscretizationResolution
 	virtual void setDiscretizationResolution(double resolution) { _stepsPerRevolution = resolution; }
 
+    //! @copydoc ImplicitSurface::equals
+    virtual bool equals(const Surface& surface, double threshold) const;
+
 	//! @copydoc ImplicitSurface::operator()(const rw::math::Vector3D<>&) const
 	virtual double operator()(const rw::math::Vector3D<>& x) const;
 
@@ -146,6 +149,9 @@ public:
 
 	//! @copydoc ImplicitSurface::gradient
 	virtual rw::math::Vector3D<> gradient(const rw::math::Vector3D<>& x) const;
+
+    //! @copydoc ImplicitSurface::reuseTrimmingRegions
+    virtual void reuseTrimmingRegions(ImplicitSurface::Ptr surface) const;
 
 	//! @brief Get the 3 x 3 symmetric matrix for the second order term in the implicit formulation.
 	const Eigen::Matrix3d& A() const { return _A; }
@@ -175,7 +181,7 @@ public:
 
 	/**
 	 * @brief Get the trimming conditions for the surface.
-	 * @return QuadraticSurface vector specifying the boundary of the surface. If surface is unbounded, the length of the vector is zero.
+	 * @return ImplicitSurface vector specifying the boundary of the surface. If surface is unbounded, the length of the vector is zero.
 	 */
 	const std::vector<TrimmingRegion>& getTrimmingConditions() const { return _conditions; }
 
@@ -412,7 +418,6 @@ private:
 	rw::common::Ptr<TriMesh> getTriMeshDiagonal(const std::vector<rw::math::Vector3D<> >& border, const rw::math::Rotation3D<>& R = rw::math::Rotation3D<>::identity()) const;
 	std::pair<double,double> extremumsDiagonal(const rw::math::Vector3D<>& dir) const;
 	std::vector<QuadraticCurve> findSilhouette(std::size_t u, std::size_t v, std::size_t e, double eSplit) const;
-	std::list<std::vector<rw::math::Vector3D<> > > combinePolygons(const std::vector<rw::math::Vector3D<> >& border, const std::list<std::vector<std::size_t> >& subborder, const std::vector<QuadraticCurve>& silhouette) const;
 	typedef enum Place {
 		FRONT,
 		BACK,

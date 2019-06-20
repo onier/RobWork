@@ -92,6 +92,7 @@ SET(GEOMETRY_TEST_LIBRARIES
 SET(GEOMETRY_TEST_SRC
   geometry/DelaunayTest.cpp
   geometry/HyperSphereTest.cpp
+  geometry/ImplicitTorusTest.cpp
   geometry/IndexedTriMeshTest.cpp
   geometry/IntersectUtilTest.cpp
   geometry/PlaneTest.cpp

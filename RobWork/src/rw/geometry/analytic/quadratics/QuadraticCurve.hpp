@@ -100,6 +100,9 @@ public:
 	//! @copydoc ParametricCurve::closestPoints
 	virtual std::vector<rw::math::Vector3D<> > closestPoints(const rw::math::Vector3D<>& p) const;
 
+    //! @copydoc ParametricCurve::equals
+    virtual bool equals(Curve::CPtr curve, double eps) const;
+
 	// ParametricCurve interface
 	//! @copydoc ParametricCurve::x
 	virtual rw::math::Vector3D<> x(double t) const;

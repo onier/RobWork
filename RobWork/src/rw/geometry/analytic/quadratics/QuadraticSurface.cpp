@@ -21,6 +21,8 @@
 #include <rw/geometry/PolygonUtil.hpp>
 #include <rw/geometry/PlainTriMesh.hpp>
 #include <rw/geometry/Delaunay.hpp>
+#include <rw/geometry/analytic/AnalyticUtil.hpp>
+#include <rw/geometry/analytic/ImplicitTorus.hpp>
 #include <rw/math/Vector2D.hpp>
 
 #include <Eigen/Eigenvalues>
@@ -171,6 +173,38 @@ TriMesh::Ptr QuadraticSurface::getTriMesh(const std::vector<Vector3D<> >& border
 	return s.getTriMeshDiagonal(borderRot, inverse(R));
 }
 
+bool QuadraticSurface::equals(const Surface& surface, double threshold) const
+{
+    const QuadraticSurface* const qsurf = dynamic_cast<const QuadraticSurface*>(&surface);
+    if (qsurf != nullptr) {
+        if ((_A-qsurf->_A).cwiseAbs().maxCoeff() > threshold)
+            return false;
+        if ((_a-qsurf->_a).cwiseAbs().maxCoeff() > threshold)
+            return false;
+        if (std::fabs(_u-qsurf->_u) > threshold)
+            return false;
+        std::vector<bool> omatched(qsurf->_conditions.size(), false);
+        for (const QuadraticSurface::TrimmingRegion treg : _conditions) {
+            bool tmatched = false;
+            for (std::size_t i = 0; i < qsurf->_conditions.size(); i++) {
+                if (treg->equals(*qsurf->_conditions[i],threshold)) {
+                    tmatched = true;
+                    omatched[i] = true;
+                }
+            }
+            if (!tmatched)
+                return false;
+        }
+        for (const bool match : omatched) {
+            if (!match)
+                return false;
+        }
+        return true;
+    } else {
+        return false;
+    }
+}
+
 double QuadraticSurface::operator()(const Vector3D<>& p) const {
 	return p.e().transpose()*_A*p.e()+_a.dot(p.e())*2+_u;
 }
@@ -189,6 +223,36 @@ Vector3D<> QuadraticSurface::normal(const Vector3D<>& point) const {
 
 Vector3D<> QuadraticSurface::gradient(const Vector3D<>& point) const {
 	return Vector3D<>(_A*point.e()+_a)*2;
+}
+
+void QuadraticSurface::reuseTrimmingRegions(const ImplicitSurface::Ptr surface) const
+{
+    const QuadraticSurface::Ptr qsurf = surface.cast<QuadraticSurface>();
+    if (!qsurf.isNull()) {
+        for (std::size_t i = 0; i < qsurf->_conditions.size(); i++) {
+            const QuadraticSurface::TrimmingRegion reg = qsurf->_conditions[i];
+            for (const QuadraticSurface::TrimmingRegion treg : _conditions) {
+                if (reg->equals(*treg,1e-15)) {
+                    qsurf->_conditions[i] = treg;
+                    break;
+                }
+            }
+        }
+    }
+    const ImplicitTorus::Ptr tsurf = surface.cast<ImplicitTorus>();
+    if (!tsurf.isNull()) {
+        std::vector<ImplicitTorus::TrimmingRegion> regs = tsurf->getTrimmingConditions();
+        for (std::size_t i = 0; i < regs.size(); i++) {
+            const ImplicitTorus::TrimmingRegion reg = regs[i];
+            for (const ImplicitTorus::TrimmingRegion treg : _conditions) {
+                if (reg->equals(*treg,1e-15)) {
+                    regs[i] = treg;
+                    break;
+                }
+            }
+        }
+        tsurf->setTrimmingConditions(regs);
+    }
 }
 
 QuadraticSurface::Ptr QuadraticSurface::normalize() const {
@@ -445,8 +509,8 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 		std::vector<QuadraticCurve> silhouette = findSilhouette(u, v, e, eSplit);
 
 		// Try to connect polygons if open
-		const std::list<std::vector<Vector3D<> > > fullPolygonFront = combinePolygons(border, borderFront, silhouette);
-		const std::list<std::vector<Vector3D<> > > fullPolygonBack = combinePolygons(border, borderBack, silhouette);
+		const std::list<std::vector<Vector3D<> > > fullPolygonFront = AnalyticUtil::combinePolygons(border, borderFront, silhouette, _stepsPerRevolution);
+		const std::list<std::vector<Vector3D<> > > fullPolygonBack = AnalyticUtil::combinePolygons(border, borderBack, silhouette, _stepsPerRevolution);
 
 		for (std::list<std::vector<Vector3D<> > >::const_iterator it = fullPolygonFront.begin(); it != fullPolygonFront.end(); it++) {
 			makeSurface(*it, u, v, e, eSplit, FRONT, R, mesh);
@@ -542,46 +606,6 @@ std::vector<QuadraticCurve> QuadraticSurface::findSilhouette(std::size_t u, std:
 		silhouette.push_back(QuadraticCurve(c, uDir, -vDir, QuadraticCurve::Hyperbola));
 	}
 	return silhouette;
-}
-
-std::list<std::vector<Vector3D<> > > QuadraticSurface::combinePolygons(const std::vector<Vector3D<> >& border, const std::list<std::vector<std::size_t> >& subborder, const std::vector<QuadraticCurve>& silhouette) const {
-	std::list<std::vector<std::size_t> >::const_iterator curPol;
-	// Try to connect polygons if open
-	std::list<std::vector<Vector3D<> > > fullPolygons;
-	for (curPol = subborder.begin(); curPol != subborder.end(); curPol++) {
-		fullPolygons.resize(fullPolygons.size()+1);
-		std::vector<Vector3D<> >& fullPolygon = fullPolygons.back();
-		const QuadraticCurve* closest = &silhouette[0];
-		const Vector3D<>& P1 = border[curPol->front()];
-		const Vector3D<>& P2 = border[curPol->back()];
-		double time1 = silhouette[0].closestTime(P1);
-		double time2 = silhouette[0].closestTime(P2);
-		double dist = std::min((silhouette[0](time1)-P1).norm2(),((silhouette[0](time2)-P2).norm2()));
-		for (std::size_t i = 1; i < silhouette.size(); i++) {
-			time1 = silhouette[i].closestTime(P1);
-			time2 = silhouette[i].closestTime(P2);
-			const double d = std::min((silhouette[i](time1)-P1).norm2(),((silhouette[i](time2)-P2).norm2()));
-			if (d < dist) {
-				closest = &silhouette[i];
-				dist = d;
-			}
-		}
-		time1 = closest->closestTime(P1);
-		time2 = closest->closestTime(P2);
-		QuadraticCurve cp(*closest);
-		cp.setLimits(std::make_pair((time1<time2)?time1:time2,(time1<time2)?time2:time1));
-		for (std::size_t k = 0; k < curPol->size(); k++) {
-			fullPolygon.push_back(border[(*curPol)[k]]);
-		}
-
-		const std::list<Vector3D<> > seg = cp.discretizeAdaptive(_stepsPerRevolution);
-		if ((seg.front()-P1).norm2() < (seg.front()-P2).norm2()) {
-			fullPolygon.insert(fullPolygon.end(),++seg.rbegin(),--seg.rend());
-		} else {
-			fullPolygon.insert(fullPolygon.end(),++seg.begin(),--seg.end());
-		}
-	}
-	return fullPolygons;
 }
 
 void QuadraticSurface::makeSurface(const std::vector<Vector3D<> > fullPolygon, std::size_t u, std::size_t v, std::size_t e, double eSplit, Place place, const Rotation3D<>& R, PlainTriMeshN1D::Ptr mesh) const {

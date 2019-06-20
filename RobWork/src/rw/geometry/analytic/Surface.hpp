@@ -39,8 +39,10 @@ class TriMesh;
 /**
  * @brief Surface is an abstract representation of a smooth surface geometry.
  *
- * The interface provides functions for affine transformations, such as scaling, rotation and translation.
- * In case of a trimmed surface, it is also possible to make a discretization of the surface to triangle mesh.
+ * The interface provides functions for affine transformations, such as
+ * scaling, rotation and translation.
+ * In case of a trimmed surface, it is also possible to make a discretization
+ * of the surface to triangle mesh.
  */
 class Surface {
 public:
@@ -125,6 +127,15 @@ public:
 	 * @param resolution [in] the resolution parameter.
 	 */
 	virtual void setDiscretizationResolution(double resolution) = 0;
+
+    /**
+     * @brief Check if this surface is identical to other \b surface .
+     * @param surface [in] other surface to compare to.
+     * @param threshold [in] threshold for when surfaces can be considered
+     * identical.
+     * @return true if identical, false otherwise.
+     */
+    virtual bool equals(const Surface& surface, double threshold) const = 0;
 
 private:
 	virtual Surface::Ptr doTransformSurface(const rw::math::Transform3D<>& T) const = 0;

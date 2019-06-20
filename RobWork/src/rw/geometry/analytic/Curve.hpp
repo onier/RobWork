@@ -131,12 +131,20 @@ public:
 	 */
 	virtual std::vector<rw::math::Vector3D<> > closestPoints(const rw::math::Vector3D<>& p) const = 0;
 
+	/**
+	 * @brief Check if this curve is equal to another curve.
+	 * @param curve [in] other curve.
+	 * @param eps [in] distance threshold.
+	 * @return true if curves are identical, false otherwise.
+	 */
+	virtual bool equals(Curve::CPtr curve, double eps) const = 0;
+
 private:
-	virtual Curve::Ptr doScaleCurve(double factor) const = 0;
-	virtual Curve::Ptr doTransformCurve(const rw::math::Vector3D<>& P) const = 0;
-	virtual Curve::Ptr doTransformCurve(const rw::math::Transform3D<>& T) const = 0;
-	virtual Curve::Ptr doReverseCurve() const = 0;
-	virtual Curve::Ptr doCloneCurve() const = 0;
+    virtual Curve::Ptr doScaleCurve(double factor) const = 0;
+    virtual Curve::Ptr doTransformCurve(const rw::math::Vector3D<>& P) const = 0;
+    virtual Curve::Ptr doTransformCurve(const rw::math::Transform3D<>& T) const = 0;
+    virtual Curve::Ptr doReverseCurve() const = 0;
+    virtual Curve::Ptr doCloneCurve() const = 0;
 };
 //! @}
 } /* namespace geometry */
