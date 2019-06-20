@@ -98,6 +98,7 @@ SET(GEOMETRY_TEST_SRC
   geometry/PlaneTest.cpp
   geometry/PolygonTest.cpp
   geometry/QHullTest.cpp
+  geometry/QuadraticCurveTest.cpp
   geometry/TriangulateTest.cpp
 )
 ADD_EXECUTABLE( rw_geometry-gtest ${GEOMETRY_TEST_SRC})       

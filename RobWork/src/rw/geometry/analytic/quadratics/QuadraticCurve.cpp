@@ -513,19 +513,32 @@ std::vector<double> QuadraticCurve::closestTimes(const Vector3D<>& p) const {
 	const Eigen::Vector3d dp = cc-p.e();
 
 	Polynomial<> pol(0);
+	double K0;
 	double K1;
 	double K2;
+	bool switched = false;
 	switch(_type) {
 	case QuadraticCurve::Elliptic:
 		pol = Polynomial<>(4);
-		K1 = dp.transpose()*u;
-		K2 = u.transpose()*u;
-		K2 -= v.transpose()*v;
-		pol[4] = dp.transpose()*v;
-		pol[3] = 2.*(K1-K2);
-		pol[2] = 0;
-		pol[1] = 2.*(K1+K2);
-		pol[0] = -pol[4];
+        K0 = -dp.transpose()*u;
+        K1 = -dp.transpose()*v;
+        K2 = u.transpose()*u;
+        K2 -= v.transpose()*v;
+        if (std::fabs(K0) > std::fabs(K1)) {
+            pol[4] = K0;
+            pol[3] = 2.*(K1-K2);
+            pol[2] = 0;
+            pol[1] = 2.*(K1+K2);
+            pol[0] = -K0;
+            switched = false;
+        } else {
+            pol[4] = K1;
+            pol[3] = 2.*(K0+K2);
+            pol[2] = 0;
+            pol[1] = 2.*(K0-K2);
+            pol[0] = -K1;
+            switched = true;
+        }
 		break;
 	case QuadraticCurve::Hyperbola:
 		pol = Polynomial<>(4);
@@ -562,8 +575,12 @@ std::vector<double> QuadraticCurve::closestTimes(const Vector3D<>& p) const {
 		}
 	}
 	if (_type == QuadraticCurve::Elliptic) {
-		for (std::size_t i = 0; i < minSols.size(); i++)
-			minSols[i] = std::atan(minSols[i])*2;
+		for (std::size_t i = 0; i < minSols.size(); i++) {
+            if (switched)
+                minSols[i] = Pi/2.-std::atan(minSols[i])*2;
+            else
+                minSols[i] = std::atan(minSols[i])*2;
+		}
 	} else if (_type == QuadraticCurve::Hyperbola) {
 		for (std::size_t i = 0; i < minSols.size(); i++) {
 			minSols[i] = std::atanh(minSols[i])*2;
@@ -636,6 +653,7 @@ double QuadraticCurve::s(double t) const {
 }
 
 std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) const {
+    const double rMax = std::max(_u.norm2(), _v.norm2());
 	double dt = 0;
 	double K = 0;
 	std::list<double> times;
@@ -646,7 +664,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 		if (_limits.first < -Pi*3/2) {
 			for (double t = _limits.first; std::cos(t) > 0; t += dt) {
 				K = curvature(t);
-				dt = Pi*2/K/stepsPerRevolution;
+				dt = Pi*2/K/stepsPerRevolution/rMax;
 				times.push_back(t);
 			}
 		}
@@ -655,7 +673,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 		// treat t=-3Pi/2 to t=-Pi
 		for (double t = -Pi; std::cos(t) < 0 && t > _limits.first; t -= dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			if (t != -Pi) {
 				segment.push_front(t);
 			}
@@ -669,7 +687,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 	if (_limits.first < -Pi/2) {
 		for (double t = (_limits.first > -Pi)?_limits.first:-Pi; std::cos(t) < 0 && t >= _limits.first && t < _limits.second; t += dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			times.push_back(t);
 		}
 		if (_limits.second < -Pi/2)
@@ -681,11 +699,14 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 	if (_limits.first < 0 && _limits.second > -Pi/2) {
 		for (double t = 0; std::cos(t) > 0 && t > _limits.first && t <= _limits.second; t -= dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			if (t != 0) {
 				segment.push_front(t);
 			}
 		}
+        if (_limits.first == -Pi/2) {
+            segment.push_front(-Pi/2);
+        }
 		if (_limits.second == 0) {
 			segment.push_back(0);
 		}
@@ -696,7 +717,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 	if (_limits.first < Pi/2 && _limits.second > 0) {
 		for (double t = (_limits.first <= 0)?0:_limits.first; std::cos(t) > 0 && t >= _limits.first && t < _limits.second; t += dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			times.push_back(t);
 		}
 		if (_limits.second >= Pi/2)
@@ -706,7 +727,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 	if (_limits.second > Pi/2) {
 		for (double t = (_limits.second < Pi)?_limits.second:Pi; std::cos(t) < 0 && t > _limits.first && t <= _limits.second; t -= dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			if (t != Pi) {
 				segment.push_front(t);
 			}
@@ -720,7 +741,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 		// treat t=Pi to t=Pi*3/2
 		for (double t = Pi; std::cos(t) < 0 && t < _limits.second; t += dt) {
 			K = curvature(t);
-			dt = Pi*2/K/stepsPerRevolution;
+			dt = Pi*2/K/stepsPerRevolution/rMax;
 			times.push_back(t);
 		}
 		if (_limits.second < Pi*3/2)
@@ -731,7 +752,7 @@ std::list<double> QuadraticCurve::discretizeEllipse(double stepsPerRevolution) c
 		if (_limits.second > Pi*3/2) {
 			for (double t = _limits.second; std::cos(t) > 0 && t <= _limits.second; t -= dt) {
 				K = curvature(t);
-				dt = Pi*2/K/stepsPerRevolution;
+				dt = Pi*2/K/stepsPerRevolution/rMax;
 				segment.push_front(t);
 			}
 			times.insert(times.end(),segment.begin(),segment.end());

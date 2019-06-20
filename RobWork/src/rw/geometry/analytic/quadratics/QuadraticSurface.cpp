@@ -331,23 +331,23 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 		{
 			Vector3D<> last = border.front();
 			std::vector<std::size_t> cur;
-			if (last[e] >= -EPS)
+			if (last[e] >= eSplit-EPS)
 				cur.push_back(0);
 			for (std::size_t i = 1; i < border.size(); i++) {
-				if (last[e] >= -EPS && border[i][e] >= -EPS) {
+				if (last[e] >= eSplit-EPS && border[i][e] >= eSplit-EPS) {
 					cur.push_back(i);
-				} else if (last[e] < -EPS) {
+				} else if (last[e] < eSplit-EPS) {
 					if (cur.size() > 0) {
 						borderFront.push_back(cur);
 						cur.clear();
 					}
-					if (border[i][e] >= -EPS)
+					if (border[i][e] >= eSplit-EPS)
 						cur.push_back(i);
 				}
 				last = border[i];
 			}
-			if (last[e] >= -EPS) {
-				if (border.front()[e] >= -EPS && borderFront.size() > 0) {
+			if (last[e] >= eSplit-EPS) {
+				if (border.front()[e] >= eSplit-EPS && borderFront.size() > 0) {
 					borderFront.front().insert(borderFront.front().begin(),cur.begin(),cur.end());
 					cur.clear();
 				}
@@ -360,23 +360,23 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 		{
 			Vector3D<> last = border.front();
 			std::vector<std::size_t> cur;
-			if (last[e] <= EPS)
+			if (last[e] <= eSplit+EPS)
 				cur.push_back(0);
 			for (std::size_t i = 1; i < border.size(); i++) {
-				if (last[e] <= EPS && border[i][e] <= EPS) {
+				if (last[e] <= eSplit+EPS && border[i][e] <= eSplit+EPS) {
 					cur.push_back(i);
-				} else if (last[e] > EPS) {
+				} else if (last[e] > eSplit+EPS) {
 					if (cur.size() > 0) {
 						borderBack.push_back(cur);
 						cur.clear();
 					}
-					if (border[i][e] <= EPS)
+					if (border[i][e] <= eSplit+EPS)
 						cur.push_back(i);
 				}
 				last = border[i];
 			}
-			if (last[e] <= EPS) {
-				if (border.front()[e] <= EPS && borderBack.size() > 0) {
+			if (last[e] <= eSplit+EPS) {
+				if (border.front()[e] <= eSplit+EPS && borderBack.size() > 0) {
 					borderBack.front().insert(borderBack.front().begin(),cur.begin(),cur.end());
 					cur.clear();
 				}
@@ -394,7 +394,7 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 			for (std::list<std::vector<std::size_t> >::iterator it = listA.begin(); it != listA.end();) { // do not use const_iterator (first supported with list.erase() from GCC 4.9)
 				bool within = true;
 				for (std::size_t i = 0; i < (*it).size() && within; i++) {
-					if (std::abs(border[(*it)[i]][e]) > EPS) {
+					if (std::abs(border[(*it)[i]][e]-eSplit) > EPS) {
 						within = false;
 					}
 				}
@@ -403,7 +403,7 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 					for (std::list<std::vector<std::size_t> >::const_iterator itB = listB.begin(); itB != listB.end() && !match; itB++) {
 						bool outsideB = false;
 						for (std::size_t i = 0; i < (*itB).size() && !outsideB; i++) {
-							if (std::abs(border[(*itB)[i]][e]) > EPS) {
+							if (std::abs(border[(*itB)[i]][e]-eSplit) > EPS) {
 								outsideB = true;
 							}
 						}
@@ -453,7 +453,7 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 			for (std::list<std::vector<std::size_t> >::iterator it = listA.begin(); it != listA.end();) { // do not use const_iterator (first supported with list.erase() from GCC 4.9)
 				bool within = true;
 				for (std::size_t i = 0; i < (*it).size() && within; i++) {
-					if (std::abs(border[(*it)[i]][e]) > EPS) {
+					if (std::abs(border[(*it)[i]][e]-eSplit) > EPS) {
 						within = false;
 					}
 				}
@@ -462,7 +462,7 @@ TriMesh::Ptr QuadraticSurface::getTriMeshDiagonal(const std::vector<Vector3D<> >
 					for (std::list<std::vector<std::size_t> >::const_iterator itB = listB.begin(); itB != listB.end() && !match; itB++) {
 						bool outsideB = false;
 						for (std::size_t i = 0; i < (*itB).size() && !outsideB; i++) {
-							if (std::abs(border[(*itB)[i]][e]) > EPS) {
+							if (std::abs(border[(*itB)[i]][e]-eSplit) > EPS) {
 								outsideB = true;
 							}
 						}
@@ -529,11 +529,11 @@ std::vector<QuadraticCurve> QuadraticSurface::findSilhouette(std::size_t u, std:
 	// Find silhouette of surface
 	std::vector<QuadraticCurve> silhouette;
 	if (std::fabs(_A(u,u)) < EPS && std::fabs(_a[u]) < EPS) {
-		const double s = _a[v]*_a[v]-(_u+_a[e]*_a[e]/_A(e,e))*_A(v,v);
+		const double s = _a[v]*_a[v]-(_u-_a[e]*_a[e]/_A(e,e))*_A(v,v);
 		if (s >= 0) {
-			const double vVal1 = (_a[v]+std::sqrt(s))/_A(v,v);
-			const double vVal2 = (_a[v]-std::sqrt(s))/_A(v,v);
-			const Vector3D<> c1((u==0)?0:(v==0)?vVal1:eSplit,(u==1)?0:(v==1)?vVal1:eSplit,(u==2)?0:(v==2)?vVal1:eSplit);
+			const double vVal1 = (-_a[v]+std::sqrt(s))/_A(v,v);
+		    const double vVal2 = (-_a[v]-std::sqrt(s))/_A(v,v);
+	        const Vector3D<> c1((u==0)?0:(v==0)?vVal1:eSplit,(u==1)?0:(v==1)?vVal1:eSplit,(u==2)?0:(v==2)?vVal1:eSplit);
 			const Vector3D<> c2((u==0)?0:(v==0)?vVal2:eSplit,(u==1)?0:(v==1)?vVal2:eSplit,(u==2)?0:(v==2)?vVal2:eSplit);
 			const Vector3D<> uDir((u==0)?1:0,(u==1)?1:0,(u==2)?1:0);
 			const Vector3D<> vDir((v==0)?1:0,(v==1)?1:0,(v==2)?1:0);
@@ -542,10 +542,10 @@ std::vector<QuadraticCurve> QuadraticSurface::findSilhouette(std::size_t u, std:
 				silhouette.push_back(QuadraticCurve(c2, uDir, vDir, QuadraticCurve::Line));
 		}
 	} else if (std::fabs(_A(v,v)) < EPS && std::fabs(_a[v]) < EPS) {
-		const double s = _a[u]*_a[u]-(_u+_a[e]*_a[e]/_A(e,e))*_A(u,u);
+		const double s = _a[u]*_a[u]-(_u-_a[e]*_a[e]/_A(e,e))*_A(u,u);
 		if (s >= 0) {
-			const double uVal1 = (_a[u]+std::sqrt(s))/_A(u,u);
-			const double uVal2 = (_a[u]-std::sqrt(s))/_A(u,u);
+			const double uVal1 = (-_a[u]+std::sqrt(s))/_A(u,u);
+			const double uVal2 = (-_a[u]-std::sqrt(s))/_A(u,u);
 			const Vector3D<> c1((u==0)?uVal1:(v==0)?0:eSplit,(u==1)?uVal1:(v==1)?0:eSplit,(u==2)?uVal1:(v==2)?0:eSplit);
 			const Vector3D<> c2((u==0)?uVal2:(v==0)?0:eSplit,(u==1)?uVal2:(v==1)?0:eSplit,(u==2)?uVal2:(v==2)?0:eSplit);
 			const Vector3D<> uDir((u==0)?1:0,(u==1)?1:0,(u==2)?1:0);
