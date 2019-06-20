@@ -1043,11 +1043,15 @@ QuadraticSurface::Ptr QuadraticSurface::makeEllipticCylinder(const double a, con
 	return ownedPtr(new QuadraticSurface(A, avec, u));
 }
 
-QuadraticSurface::Ptr QuadraticSurface::makeCircularCylinder(const double radius) {
-	static const Eigen::DiagonalMatrix<double,3> A(1, 1, 0);
+QuadraticSurface::Ptr QuadraticSurface::makeCircularCylinder(const double radius, const bool outward) {
+    static const Eigen::DiagonalMatrix<double,3> Aout(1, 1, 0);
+    static const Eigen::DiagonalMatrix<double,3> Ain(-1, -1, 0);
 	static const Eigen::Vector3d a = Eigen::Vector3d::Zero();
 	const double u = -radius*radius;
-	return ownedPtr(new QuadraticSurface(A, a, u));
+	if (outward)
+        return ownedPtr(new QuadraticSurface(Aout, a, u));
+	else
+        return ownedPtr(new QuadraticSurface(Ain, a, -u));
 }
 
 QuadraticSurface::Ptr QuadraticSurface::makeHyperbolicCylinder(const double a, const double b) {

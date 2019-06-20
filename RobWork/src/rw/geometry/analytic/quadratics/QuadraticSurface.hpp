@@ -367,9 +367,10 @@ public:
 	 * \image html geometry/quadrics_circular_cylinder.gif "Normal form of Quadratic Surface: Circular Cylinder (special case of elliptic cylinder)."
 	 *
 	 * @param radius [in] radius in the \f$x_1\f$ and \f$x_2\f$ directions.
+	 * @param outward [in] (optional) set to false to create inner surface of cylinder, with normals pointing inwards.
 	 * @return a QuadraticSurface representation of a circular cylinder.
 	 */
-	static QuadraticSurface::Ptr makeCircularCylinder(double radius);
+	static QuadraticSurface::Ptr makeCircularCylinder(double radius, bool outward = true);
 
 	/**
 	 * @brief Create a hyperbolic cylinder.
