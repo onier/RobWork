@@ -95,14 +95,14 @@ namespace rwlibs { namespace simulation {
         void grab(rw::kinematics::Frame* frame,
                   const rw::kinematics::State& state);
 
-        //! @copydoc FrameGrabber::getMacDepth
+        //! @copydoc FrameGrabber25D::getMaxDepth()
         double getMaxDepth(){return _maxDepth;};
 
-        //! @copydoc FrameGrabber::getMacDepth
+        //! @copydoc FrameGrabber25D::getMinDepth()
         double getMinDepth(){return _minDepth;};
 
         /**
-         * @copydoc FrameGrapper25D::getFieldOfViewY
+         * @copydoc FrameGrabber25D::getFieldOfViewY()
          */
         virtual double getFieldOfViewY();
 

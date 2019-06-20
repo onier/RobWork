@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Helper class to parse a XFile into a temporary structure */
+/** @file 
+ * Helper class to parse a XFile into a temporary structure */
 #ifndef AI_XFILEPARSER_H_INC
 #define AI_XFILEPARSER_H_INC
 

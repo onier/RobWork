@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to remove specific parts of the scene */
+/** @file 
+ *  Defines a post processing step to remove specific parts of the scene */
 #ifndef AI_REMOVEVCPROCESS_H_INCLUDED
 #define AI_REMOVEVCPROCESS_H_INCLUDED
 

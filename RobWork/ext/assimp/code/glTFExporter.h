@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file GltfExporter.h
+/** @file 
 * Declares the exporter class to write a scene to a gltf/glb file
 */
 #ifndef AI_GLTFEXPORTER_H_INC

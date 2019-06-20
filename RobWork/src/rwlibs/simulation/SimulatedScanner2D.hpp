@@ -75,28 +75,28 @@ namespace rwlibs { namespace simulation {
 
         ///////////// below is inheritet functions form Scanner25D and Sensor
 
-        //! @copydoc Scanner2D::open
+        //! @copydoc rw::sensor::Scanner2D::open
         void open();
 
-        //! @copydoc Scanner2D::isOpen
+        //! @copydoc rw::sensor::Scanner2D::isOpen
         bool isOpen();
 
-        //! @copydoc Scanner2D::close
+        //! @copydoc rw::sensor::Scanner2D::close
         void close();
 
-        //! @copydoc Scanner2D::acquire
+        //! @copydoc rw::sensor::Scanner2D::acquire
         void acquire();
 
-        //! @copydoc Scanner2D::isScanReady
+        //! @copydoc rw::sensor::Scanner2D::isScanReady
         bool isScanReady();
 
-        //! @copydoc Scanner2D::getRange
+        //! @copydoc rw::sensor::Scanner2D::getRange
         std::pair<double,double> getRange();
 
-        //! @copydoc Scanner2D::getFrameRate
+        //! @copydoc rw::sensor::Scanner2D::getFrameRate
         double getFrameRate();
 
-        //! @copydoc SimulatedSensor::getScan
+        //! @copydoc rwlibs::simulation::SimulatedKinect::getScan
         const rw::geometry::PointCloud& getScan() const;
 
         //! @copydoc SimulatedSensor::update
@@ -118,10 +118,9 @@ namespace rwlibs { namespace simulation {
          */
         rw::sensor::Scanner2DModel::Ptr getSensorModel();
 
-        //! @copydoc SimulatedSensor::getAngularRange
+        //! @copydoc rw::sensor::Scanner2DModel::getAngularRange
         virtual double getAngularRange();
 
-        //! @copydoc SimulatedSensor::getWidth
         virtual size_t getMeasurementCount() const;
 
     private:

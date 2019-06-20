@@ -46,10 +46,10 @@ namespace control {
         //! @copydoc rwlibs::simulation::SimulatedController::update
         void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-        //! @copydoc SimulatedController::reset
+        //! @copydoc rwlibs::simulation::SimulatedController::reset
         void reset(const rw::kinematics::State& state);
 
-        //! @copydoc SimulatedController::getController
+
         rwlibs::control::Controller* getController();
 
         void setEnabled(bool enabled){ _enabled = enabled; }

@@ -156,10 +156,10 @@ namespace simulator {
 
         /**
          * @brief add a dynamic device to the physics engine
-         * @param dev [in] device to add
+         * @param device [in] device to add
          * @param state [in] current state
          */
-		virtual void addDevice(rw::common::Ptr<rwsim::dynamics::DynamicDevice> dev, rw::kinematics::State &state) = 0;
+		virtual void addDevice(rw::common::Ptr<rwsim::dynamics::DynamicDevice> device, rw::kinematics::State &state) = 0;
 
 		/**
 		 * @brief add a simulated sensor to this simulator

@@ -60,7 +60,8 @@ namespace sensor {
 		 * @brief Creates a TactileSensor with a geometry specified by a height map and
 		 * equally sized Texels in an matrix of a given dimension. The transform describe the
 		 * location of the lower left corner of the texel (0,0).
-		 * @param frame [in]
+		 * @param name [in]
+		 * @param obj [in]
 		 * @param fThmap [in]
 		 * @param heightMap [in]
 		 * @param texelSize [in]
@@ -97,28 +98,28 @@ namespace sensor {
         //! @copydoc SimulatedTactileSensor::reset
         void reset(const rw::kinematics::State& state);
 
-        //! @copydoc rwlibs::simulation::SimulatedTactileSensor::addForceW
+        //! @copydoc SimulatedTactileSensor::addForceW
         void addForceW(const rw::math::Vector3D<>& point,
                        const rw::math::Vector3D<>& force,
                        const rw::math::Vector3D<>& snormal,
                        rw::kinematics::State& state,
 					   rw::common::Ptr<rwsim::dynamics::Body> body = NULL);
 
-        //! @copydoc rwlibs::simulation::SimulatedTactileSensor::addForce
+        //! @copydoc SimulatedTactileSensor::addForce
         void addForce(const rw::math::Vector3D<>& point,
                       const rw::math::Vector3D<>& force,
                       const rw::math::Vector3D<>& snormal,
                       rw::kinematics::State& state,
 					  rw::common::Ptr<rwsim::dynamics::Body> body = NULL);
 
-        //! @copydoc rwlibs::simulation::SimulatedTactileSensor::addWrenchToCOM
+        //! @copydoc SimulatedTactileSensor::addWrenchToCOM
         void addWrenchToCOM(
                       const rw::math::Vector3D<>& force,
                       const rw::math::Vector3D<>& torque,
                       rw::kinematics::State& state,
 					  rw::common::Ptr<rwsim::dynamics::Body> body=NULL);
 
-        //! @copydoc rwlibs::simulation::SimulatedTactileSensor::addWrenchWToCOM
+        //! @copydoc SimulatedTactileSensor::addWrenchWToCOM
         void addWrenchWToCOM(
                       const rw::math::Vector3D<>& force,
                       const rw::math::Vector3D<>& torque,
@@ -161,7 +162,7 @@ namespace sensor {
 
 		rw::sensor::TactileArrayModel::Ptr getTactileArrayModel(){ return _tmodel;}
 
-		//! @copydoc rwlibs::simulation::SimulatedSensor::getSensor
+		//! @copydoc rwlibs::simulation::Simulator::getSensor
 		rw::sensor::Sensor::Ptr getSensor(rwlibs::simulation::Simulator::Ptr sim);
 
 		/**
@@ -213,10 +214,10 @@ namespace sensor {
 
 		    ClassState(TactileArraySensor* tsensor,  size_t dim_x, size_t dim_y);
 
-	        //! @copydoc TactileArray::acquire
+	        //! @copydoc rw::sensor::TactileArray::acquire
 		     void acquire();
 
-	        //! @copydoc TactileArray::getTexelData
+	        //! @copydoc rw::sensor::TactileArray::getTexelData
 	         Eigen::MatrixXf getTexelData() const;
 
 	         void setTexelData(const Eigen::MatrixXf& data);
@@ -227,13 +228,13 @@ namespace sensor {
 	           */
 	         void reset(const rw::kinematics::State& state);
 
-	        //! @copydoc rwlibs::simulation::SimulatedTactileSensor::addForceW
+	        //! @copydoc SimulatedTactileSensor::addForceW
 	         void addForceW(const rw::math::Vector3D<>& point,
 	                       const rw::math::Vector3D<>& force,
 	                       const rw::math::Vector3D<>& snormal,
 						   rw::common::Ptr<rwsim::dynamics::Body> body = NULL);
 
-	        //! @copydoc rwlibs::simulation::SimulatedTactileSensor::addForce
+	        //! @copydoc SimulatedTactileSensor::addForce
 	         void addForce(const rw::math::Vector3D<>& point,
 	                      const rw::math::Vector3D<>& force,
 	                      const rw::math::Vector3D<>& snormal,
@@ -242,7 +243,7 @@ namespace sensor {
             //! @copydoc rwlibs::simulation::SimulatedSensor::update
              void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-            //! @copydoc rwlibs::simulation::TactileArraySensor::getActualContacts
+            //! @copydoc TactileArraySensor::getActualContacts
              const std::vector<rw::sensor::Contact3D>& getActualContacts(){ return _allForces; };
 
             std::vector<TactileArraySensor::DistPoint>

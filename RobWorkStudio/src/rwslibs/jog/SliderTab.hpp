@@ -240,7 +240,11 @@ public:
 	 */
     TransformSliderWidget(const std::pair<rw::math::Q, rw::math::Q>& bounds, const rw::math::Transform3D<>& transform, AngleType angleType = RPYtype, bool enablers = false);
 
-    //! @copydoc JointSliderWidget::setUnits
+    /**
+     * @brief Set the units.
+     * @param converters [in] the factor used to convert to units.
+     * @param descriptions [in] a description of the chosen units.
+     */
     void setUnits(const std::vector<double>& converters, const std::vector<std::string>& descriptions);
 
     /**
@@ -332,7 +336,11 @@ public:
                  rw::models::WorkCell* workcell,
                  const rw::kinematics::State& state);
 
-    //! @copydoc JointSliderWidget::setUnits
+    /**
+     * @brief Set the units.
+     * @param converters [in] the factor used to convert to units.
+     * @param descriptions [in] a description of the chosen units.
+     */
     void setUnits(const std::vector<double>& converters, const std::vector<std::string>& descriptions);
 
    // void setup(const std::pair<rw::math::Q, rw::math::Q>& bounds, rw::kinematics::Frame* frame);
@@ -386,14 +394,24 @@ public:
 		rw::models::WorkCell* workcell,
         const rw::kinematics::State& state);
 
-    //! @copydoc JointSliderWidget::setUnits
+    /**
+     * @brief Set the units.
+     * @param converters [in] the factor used to convert to units.
+     * @param descriptions [in] a description of the chosen units.
+     */
     void setUnits(const std::vector<double>& converters, const std::vector<std::string>& descriptions);
 
-    //! @copydoc MovableFrameTab::updateValues
+    /**
+     * @brief Change the transform.
+     * @param state [in] the state with the new configuration.
+     */
     void updateValues(const rw::kinematics::State& state);
 
 signals:
-	//! @copydoc MovableFrameTab::stateChanged
+	/**
+	 * @brief Emitted when the transform is changed.
+	 * @param state [in] the new state.
+	 */
     void stateChanged(const rw::kinematics::State& state);
 
 private slots:

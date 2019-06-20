@@ -39,7 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---------------------------------------------------------------------------
 */
 
-/** @file Provides cheat implementations for IOSystem and IOStream to
+/** @file 
+ * Provides cheat implementations for IOSystem and IOStream to
  *  redirect exporter output to a blob chain.*/
 
 #ifndef AI_BLOBIOSYSTEM_H_INCLUDED

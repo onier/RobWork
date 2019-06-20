@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to search an importer's output
-    for data that is obviously invalid  */
+/** @file 
+ * Defines a post processing step to search an importer's output for data that is obviously invalid  */
 #ifndef AI_FINDINVALIDDATA_H_INC
 #define AI_FINDINVALIDDATA_H_INC
 

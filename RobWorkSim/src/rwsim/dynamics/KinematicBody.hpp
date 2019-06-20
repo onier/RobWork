@@ -62,20 +62,16 @@ namespace dynamics {
     	rw::kinematics::MovableFrame* getMovableFrame(){ return _base; };
 
         /**
+         * @cond
          * @copydoc Body::getPointVelW
+         * @endcond
          */
         //rw::math::Vector3D<> getPointVelW(const rw::math::Vector3D<>& wPp, const rw::kinematics::State& state) const;
 
         rw::math::VelocityScrew6D<> getVelocity(const rw::kinematics::State &state) const;
 
-        /**
-         * @copydoc Body::getEffectiveMassW
-         */
         rw::math::InertiaMatrix<> getEffectiveMassW(const rw::math::Vector3D<>& wPc);
 
-        /**
-         * @copydoc Body::resetState
-         */
         void reset(rw::kinematics::State &state);
 
         /**

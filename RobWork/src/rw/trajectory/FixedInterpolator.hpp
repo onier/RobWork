@@ -79,17 +79,17 @@ public:
     }
 
     /**
-     * @copydoc Interpolator::x(double)
+     * @copydoc Interpolator::x()
      */
     T x(double t) const { return _value; }
 
     /**
-     * @copydoc Interpolator::dx(double)
+     * @copydoc Interpolator::dx()
      */
     T dx(double t) const { return _zeroValue; }
 
     /**
-     * @copydoc Interpolator::ddx(double)
+     * @copydoc Interpolator::ddx()
      */
     T ddx(double t) const { return _zeroValue; }
 

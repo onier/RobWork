@@ -135,9 +135,6 @@ namespace rwlibs { namespace simulation {
          */
         void reset(const rw::kinematics::State& state){}
 
-        /**
-         * @copydoc SimulatedSensor::getSensor
-         */
         rw::sensor::Sensor::Ptr getSensor(){ return _csensor; };
 
         /**

@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to compute face normals for all loaded faces*/
+/** @file 
+ * Defines a post processing step to compute face normals for all loaded faces*/
 #ifndef AI_GENFACENORMALPROCESS_H_INC
 #define AI_GENFACENORMALPROCESS_H_INC
 

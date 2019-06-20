@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a helper class to compute a vertex-triangle adjacency map */
+/** @file 
+ * Defines a helper class to compute a vertex-triangle adjacency map */
 #ifndef AI_VTADJACENCY_H_INC
 #define AI_VTADJACENCY_H_INC
 

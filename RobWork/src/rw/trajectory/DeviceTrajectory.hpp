@@ -56,13 +56,13 @@ namespace trajectory {
         //! @copydoc Trajectory::ddx(double) const
         rw::math::Q ddx(double t) const{ return _trajectory->ddx(t); }
 
-        //! @copydoc Trajectory::duration(double) const
+        //! @copydoc Trajectory::duration()
         double duration() const { return _trajectory->duration(); }
 
-        //! @copydoc Trajectory::startTime(double) const
+        //! @copydoc Trajectory::startTime()
         double startTime() const { return _trajectory->startTime(); }
 
-        //! @copydoc Trajectory::endTime(double) const
+        //! @copydoc Trajectory::endTime()
         double endTime() const{ return _trajectory->endTime(); }
 
 		//! @copydoc Trajectory<T>::getIterator(double) const

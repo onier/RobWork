@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Definition of the .b3d importer class. */
+/** @file 
+ * Definition of the .b3d importer class. */
 
 #ifndef AI_B3DIMPORTER_H_INC
 #define AI_B3DIMPORTER_H_INC

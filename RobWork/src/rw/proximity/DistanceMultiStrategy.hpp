@@ -150,7 +150,7 @@ namespace rw { namespace proximity {
             class ProximityStrategyData& data);
 
         /**
-         * @copydoc dodistances
+         * @copydoc doDistances
          */
         Result& distances(
 			ProximityModel::Ptr a,

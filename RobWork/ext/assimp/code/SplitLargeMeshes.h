@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to split large meshes into submeshes
+/** @file 
+ *  Defines a post processing step to split large meshes into submeshes
  */
 #ifndef AI_SPLITLARGEMESHES_H_INC
 #define AI_SPLITLARGEMESHES_H_INC

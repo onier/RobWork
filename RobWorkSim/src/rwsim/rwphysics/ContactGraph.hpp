@@ -30,8 +30,7 @@ namespace simulator {
         /**
          * @brief Constructor - constructs a ContactGraph with the
          * given nodes and edges. Ownership of nodes and edges is taken
-         * @param nodes [in] all initial nodes in the graph
-         * @param edges [in] all initial constraints in the graph
+		 * @param pool [in] all initial nodes in the graph and all initial constraints in the graph
          * @param factory [in] a factory for finding collision constraints
          */
     	ContactGraph(CNodePool *pool, ContactModelFactory &factory);

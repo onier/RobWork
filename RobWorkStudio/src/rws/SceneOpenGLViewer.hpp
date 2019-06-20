@@ -97,75 +97,75 @@ public:
     QWidget* getWidget(){ return this; }
 
     // ----------------- SceneViewer interface --------------------
-    //! @copydoc SceneViewer::getScene
+    //! @copydoc rw::graphics::SceneViewer::getScene
     rw::graphics::SceneGraph::Ptr getScene(){ return _scene; }
 
-    //! @copydoc SceneViewer::getPropertyMap
+    //! @copydoc rw::graphics::SceneViewer::getPropertyMap
     rw::common::PropertyMap& getPropertyMap(){return _pmap->getValue();}
 
-    //! @copydoc SceneViewer::getViewCamera
+    //! @copydoc rw::graphics::SceneViewer::getViewCamera
     virtual rw::graphics::SceneCamera::Ptr getViewCamera() { return _mainCam; }
 
-    //! @copydoc SceneViewer::setWorldNode
+    //! @copydoc rw::graphics::SceneViewer::setWorldNode
     void setWorldNode(rw::graphics::GroupNode::Ptr wnode);
 
-    //! @copydoc SceneViewer::getWorldNode
+    //! @copydoc rw::graphics::SceneViewer::getWorldNode
     rw::graphics::GroupNode::Ptr getWorldNode(){ return _worldNode; }
 
-    //! @copydoc SceneViewer::createView
+    //! @copydoc rw::graphics::SceneViewer::createView
     virtual View::Ptr createView(const std::string& name, bool enableBackground=false);
 
-    //! @copydoc SceneViewer::getMainView
+    //! @copydoc rw::graphics::SceneViewer::getMainView
     virtual View::Ptr getMainView(){ return _mainView; }
 
-    //! @copydoc SceneViewer::destroyView
+    //! @copydoc rw::graphics::SceneViewer::destroyView
     virtual void destroyView(View::Ptr view);
 
-    //! @copydoc SceneViewer::selectView
+    //! @copydoc rw::graphics::SceneViewer::selectView
     virtual void selectView(View::Ptr view);
 
-    //! @copydoc SceneViewer::getCurrentView
+    //! @copydoc rw::graphics::SceneViewer::getCurrentView
     virtual View::Ptr getCurrentView(){ return _currentView; }
 
-    //! @copydoc SceneViewer::getViews
+    //! @copydoc rw::graphics::SceneViewer::getViews
     virtual std::vector<View::Ptr> getViews(){ return _views; }
 
-    //! @copydoc SceneViewer::renderView
+    //! @copydoc rw::graphics::SceneViewer::renderView
     void renderView(View::Ptr);
 
-    //! @copydoc SceneViewer::updateState
+    //! @copydoc rw::graphics::SceneViewer::updateState
     void updateState(const rw::kinematics::State& state);
 
-    //! @copydoc SceneViewer::updateView
+    //! @copydoc rw::graphics::SceneViewer::updateView
     void updateView(){
         update();
     }
 
-    //! @copydoc SceneViewer::getViewCenter
+    //! @copydoc rw::graphics::SceneViewer::getViewCenter
     rw::math::Vector3D<> getViewCenter(){
         return _cameraCtrl->getCenter();
     }
 
-    //! @copydoc SceneViewer::setLogo
+    //! @copydoc rw::graphics::SceneViewer::setLogo
     void setLogo(const std::string& string) {
         _viewLogo = string;
         update();
     }
 
-    //! @copydoc SceneViewer::getLogo
+    //! @copydoc rw::graphics::SceneViewer::getLogo
     const std::string& getLogo() const{ return _viewLogo;}
 
-    //! @copydoc SceneViewer::setTransform
+    //! @copydoc rw::graphics::SceneViewer::setTransform
     virtual void setTransform(const rw::math::Transform3D<>& t3d){
         _cameraCtrl->setTransform(t3d);
         getViewCamera()->setTransform(t3d);
         //updateGL();
     }
 
-    //! @copydoc SceneViewer::pickDrawable(int,int)
+    //! @copydoc rw::graphics::SceneViewer::pickDrawable(int,int)
     rw::graphics::DrawableNode::Ptr pickDrawable(int x, int y);
 
-    //! @copydoc SceneViewer::pickDrawable(rw::graphics::SceneGraph::RenderInfo&,int,int)
+    //! @copydoc rw::graphics::SceneViewer::pickDrawable(rw::graphics::SceneGraph::RenderInfo&,int,int)
     rw::graphics::DrawableNode::Ptr pickDrawable(rw::graphics::SceneGraph::RenderInfo& info, int x, int y);
 
     //! @copydoc rw::graphics::SceneViewer::saveBufferToFile

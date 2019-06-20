@@ -39,7 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ---------------------------------------------------------------------------
 */
 
-/** @file Defines the StreamReader class which reads data from
+/** @file 
+ *  Defines the StreamReader class which reads data from
  *  a binary stream with a well-defined endianness. */
 
 #ifndef AI_STREAMREADER_H_INCLUDED

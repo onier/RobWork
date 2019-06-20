@@ -39,7 +39,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
 
-/** @file Defines the helper data structures for importing ASE files  */
+/** @file 
+ * Defines the helper data structures for importing ASE files  */
 #ifndef AI_ASEFILEHELPER_H_INC
 #define AI_ASEFILEHELPER_H_INC
 

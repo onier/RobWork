@@ -82,7 +82,7 @@ namespace rwlibs { namespace opengl {
         std::vector<rw::common::Ptr<rw::graphics::Render> > getRenders() const;
 
         //--------------------- inherited from DrawableGeometryNode
-        //! @copydoc DrawableGeometryNode::setColor(double r, double g, double b, double alpha)
+        //! @copydoc rw::graphics::DrawableGeometryNode::setColor(double r, double g, double b, double alpha)
         void setColor(double r, double g, double b, double alpha);
         //! @copydoc rw::graphics::DrawableGeometryNode::setColor(const rw::math::Vector3D<>& rgb)
         void setColor(const rw::math::Vector3D<>& rgb);

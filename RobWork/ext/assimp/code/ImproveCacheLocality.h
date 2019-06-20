@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to reorder faces for
- better cache locality*/
+/** @file 
+ * Defines a post processing step to reorder faces for better cache locality*/
 #ifndef AI_IMPROVECACHELOCALITY_H_INC
 #define AI_IMPROVECACHELOCALITY_H_INC
 

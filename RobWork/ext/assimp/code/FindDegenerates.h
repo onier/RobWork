@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to search all meshes for
+/** @file 
+ * Defines a post processing step to search all meshes for
   degenerated faces */
 #ifndef AI_FINDDEGENERATESPROCESS_H_INC
 #define AI_FINDDEGENERATESPROCESS_H_INC

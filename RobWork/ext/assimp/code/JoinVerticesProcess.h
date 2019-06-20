@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to join identical vertices
-    on all imported meshes.*/
+/** @file 
+ * Defines a post processing step to join identical vertices  on all imported meshes.*/
 #ifndef AI_JOINVERTICESPROCESS_H_INC
 #define AI_JOINVERTICESPROCESS_H_INC
 

@@ -33,39 +33,18 @@ public:
 
 	virtual ~RWBody(){};
 
-    /**
-     * @copydoc Body::saveState
-     */
     virtual void saveState(double h, rw::kinematics::State& state);
 
-    /**
-     * @copydoc Body::rollBack
-     */
     virtual void rollBack(rw::kinematics::State& state);
 
-    /**
-     * @copydoc Body::updateVelocity
-     */
     virtual void updateVelocity(double h, rw::kinematics::State& state);
 
-    /**
-     * @copydoc Body::updatePosition
-     */
     virtual void updatePosition(double h, rw::kinematics::State& state);
 
-    /**
-     * @copydoc Body::updateImpulse
-     */
-    virtual void updateImpulse();
+     virtual void updateImpulse();
 
-    /**
-     * @copydoc Body::getPointVelW
-     */
     rw::math::Vector3D<> getPointVelW(const rw::math::Vector3D<>& p);
 
-    /**
-     * @copydoc Body::getEffectiveMassW
-     */
     rw::math::InertiaMatrix<> getEffectiveMassW(const rw::math::Vector3D<>& wPc);
 
     /**
@@ -90,20 +69,14 @@ public:
         return _body->getBodyFrame();
     }
 
-    /**
-     * @copydoc Body::getMaterial
-     */
     const std::string& getMaterial(){
         return _materialID;
     }
 
-    /**
-     * @copydoc Body::resetState
-     */
     void resetState(rw::kinematics::State &state);
 
     /**
-     * @copydoc Body::reset
+     * @copydoc dynamics::Body::reset
      */
     virtual void reset(){
        rw::math::Vector3D<> zeroVec = rw::math::Vector3D<>(0.0,0.0,0.0);

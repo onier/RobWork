@@ -68,28 +68,28 @@ namespace rwlibs { namespace simulation {
 
         ///////////// below is inheritet functions form Scanner25D and Sensor
 
-        //! @copydoc Scanner1D::open
+        //! @copydoc rw::sensor::Scanner1D::open
         void open();
 
-        //! @copydoc Scanner1D::isOpen
+        //! @copydoc rw::sensor::Scanner1D::isOpen
         bool isOpen();
 
-        //! @copydoc Scanner1D::close
+        //! @copydoc rw::sensor::Scanner1D::close
         void close();
 
-        //! @copydoc Scanner1D::acquire
+        //! @copydoc rw::sensor::Scanner1D::acquire
         void acquire();
 
-        //! @copydoc Scanner1D::isScanReady
+        //! @copydoc rw::sensor::Scanner1D::isScanReady
         bool isScanReady();
 
-        //! @copydoc Scanner1D::getRange
+        //! @copydoc rw::sensor::Scanner1D::getRange
         std::pair<double,double> getRange();
 
-        //! @copydoc Scanner1D::getFrameRate
+        //! @copydoc rw::sensor::Scanner1D::getFrameRate
         double getFrameRate();
 
-        //! @copydoc Scanner1D::getImage
+        //! @copydoc rwlibs::simulation::SimulatedKinect
         const rw::geometry::PointCloud& getImage();
 
         /**
@@ -103,16 +103,14 @@ namespace rwlibs { namespace simulation {
         //! @copydoc SimulatedSensor::reset
         void reset(const rw::kinematics::State& state);
 
-        //! @copydoc SimulatedSensor::getSensor
         rw::sensor::Sensor* getSensor();
 
 
-        //! @copydoc SimulatedSensor::getData
+        //! @copydoc rw::geometry::PointCloud::getData
         virtual const rw::geometry::PointCloud& getData() {
             return _scan;
         }
 
-        //! @copydoc SimulatedSensor::getResolution
         virtual double getResolution() {
             return _framegrabber->getFieldOfViewY()*rw::math::Deg2Rad/_scan.getWidth();
         }

@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a (dummy) post processing step to validate the loader's
+/** @file 
+ * Defines a (dummy) post processing step to validate the loader's
  * output data structure (for debugging)
  */
 #ifndef AI_VALIDATEPROCESS_H_INC

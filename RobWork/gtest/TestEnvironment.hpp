@@ -19,9 +19,9 @@
 #define ROBWORK_GTEST_TESTENVIRONMENT_HPP_
 
 /**
- * @file TestEnvironment.hpp
+ * @file RobWork/gtest/TestEnvironment.hpp
  *
- * \copydoc ::TestEnvironment
+ * 
  */
 
 #include <gtest/gtest.h>

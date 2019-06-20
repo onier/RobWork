@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file  PLYLoader.h
+/** @file 
  *  @brief Declaration of the .ply importer class.
  */
 #ifndef AI_PLYLOADER_H_INCLUDED

@@ -37,7 +37,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ----------------------------------------------------------------------
 */
-/** @file Defines a helper class to represent an interleaved vertex
+/** @file 
+ * Defines a helper class to represent an interleaved vertex
   along with arithmetic operations to support vertex operations
   such as subdivision, smoothing etc.
 

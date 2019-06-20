@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a helper class to evaluate subdivision surfaces.*/
+/** @file 
+ * Defines a helper class to evaluate subdivision surfaces.*/
 #ifndef AI_SUBDISIVION_H_INC
 #define AI_SUBDISIVION_H_INC
 

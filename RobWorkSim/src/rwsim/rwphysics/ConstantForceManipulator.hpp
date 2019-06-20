@@ -31,12 +31,12 @@ namespace simulator {
 		virtual ~ConstantForceManipulator(){};
 
 		/**
-		 * @copydoc Bodycontroller::addForces
+		 * @copydoc BodyController::addForces
 		 */
 		void addForces(rw::kinematics::State &state, double h);
 
 		/**
-		 * @copydoc Bodycontroller::addForces
+		 * @copydoc BodyController::reset
 		 */
 		void reset(rw::kinematics::State &state){}
 

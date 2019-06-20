@@ -106,8 +106,10 @@ namespace simulation {
 
         /**
          * Enables or disables simulation of a frame
-         * @param frame
-         * @param enabled
+         * @cond
+         * @param frame [in]
+         * @param enabled [in]
+         * @endcond
          */
         virtual void setEnabled(rw::kinematics::Frame* frame, bool enabled) = 0;
 

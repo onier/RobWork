@@ -38,7 +38,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file  RAWLoader.h
+/** @file  RawLoader.h
  *  @brief Declaration of the RAW importer class.
  */
 #ifndef AI_RAWLOADER_H_INCLUDED

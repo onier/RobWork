@@ -152,7 +152,7 @@ namespace rwhw { namespace camera {
 		 bool setCapturePolicy(CameraFirewire::CapturePolicy);
 
         /**
-         * @copydoc rw::sensor::CameraFirewire::geFeature
+         * @copydoc rw::sensor::CameraFirewire::getFeature
          */
         virtual double getFeature(CameraFirewire::CameraFeature setting);
 

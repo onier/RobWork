@@ -180,4 +180,4 @@ inline T PropertyGet(const PropertyTable& in, const std::string& name,
 } //! FBX
 } //! Assimp
 
-#endif // INCLUDED_AI_FBX_PROPERTIES_H
+#endif //!  INCLUDED_AI_FBX_PROPERTIES_H

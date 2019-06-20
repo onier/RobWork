@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Default file I/O using fXXX()-family of functions */
+/** @file 
+ * Default file I/O using fXXX()-family of functions */
 #ifndef AI_DEFAULTIOSTREAM_H_INC
 #define AI_DEFAULTIOSTREAM_H_INC
 

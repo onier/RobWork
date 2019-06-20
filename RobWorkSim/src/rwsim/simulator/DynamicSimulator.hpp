@@ -171,15 +171,15 @@ namespace simulator {
 		 // Simulator interface
 
          /**
-          * @copydoc Simulator::step
+          * @copydoc rwlibs::simulation::Simulator::step
           */
          void step(double dt);
 
-         //! @copydoc Simulator::getState
+         //! @copydoc rwlibs::simulation::Simulator::getState
          rw::kinematics::State& getState();
 
          /**
-          * @copydoc Simulator::reset
+          * @copydoc rwlibs::simulation::Simulator::reset
           *
           * @note resets position, velocity and acceleration of all bodies to that defined in state or
           * by the default behavior of body/device interfaces.
@@ -187,13 +187,13 @@ namespace simulator {
          void reset(const rw::kinematics::State& state);
 
          /**
-          * @copydoc Simulator::init
+          * @copydoc rwlibs::simulation::Simulator::init
           * @note initialize simulator physics with state
           */
 		 void init(rw::kinematics::State& state);
 
 		 /**
-          * @copydoc Simulator::setEnabled
+          * @copydoc rwlibs::simulation::Simulator::setEnabled()
           * @note this only has an effect if the frame \b f is successfully mapped to any
           * fo the bodies in the scene eg. a body frame of one of the bodies.
 		  */

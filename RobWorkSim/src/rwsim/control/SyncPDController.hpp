@@ -30,6 +30,7 @@ namespace control {
 
 		/**
 		 * @brief constrictor
+		 * @param name
 		 * @param rdev
 		 * @param state
 		 */
@@ -63,13 +64,13 @@ namespace control {
 		 */
 		void setSampleTime(double stime);
 
-		//! @copydoc SimulatedController::update
+		//! @copydoc rwlibs::simulation::SimulatedController::update
 		void update(const rwlibs::simulation::Simulator::UpdateInfo& info, rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::reset
+		//! @copydoc rwlibs::simulation::SimulatedController::reset
 		void reset(const rw::kinematics::State& state);
 
-		//! @copydoc SimulatedController::getController
+		//! @copydoc rwlibs::simulation::SimulatedController::getControllerName
 		Controller* getController(){ return this; };
 
 		std::string getControllerName(){ return getName(); };
@@ -77,28 +78,28 @@ namespace control {
 		////// inherited from JointController
 
 		/**
-		 * @copydoc JointController::getControlModes
+		 * @copydoc rwlibs::control::JointController::getControlModes
 		 *
 		 * This controller supports both position and velocity control.
 		 */
 		unsigned int getControlModes(){return _mode;}
 
-		//! @copydoc JointController::setControlModes
+		//! @copydoc rwlibs::control::JointController::setControlMode
 		void setControlMode(ControlMode mode);
 
-		//! @copydoc JointController::setTargetPos
+		//! @copydoc rwlibs::control::JointController::setTargetPos
 		void setTargetPos(const rw::math::Q& target);
 
-		//! @copydoc JointController::setTargetVel
+		//! @copydoc rwlibs::control::JointController::setTargetVel
 		void setTargetVel(const rw::math::Q& vals);
 
-		//! @copydoc JointController::setTargetAcc
+		//! @copydoc rwlibs::control::JointController::setTargetAcc
 		void setTargetAcc(const rw::math::Q& vals);
 
-		//! @copydoc JointController::getQ
+		//! @copydoc rwlibs::control::JointController::getQ
 		rw::math::Q getQ(){ return _currentQ;}
 
-		//! @copydoc JointController::getQd
+		//! @copydoc rwlibs::control::JointController::getQd
 		rw::math::Q getQd(){ return _currentVel;}
 
         void setEnabled(bool enabled){ _enabled = enabled; };

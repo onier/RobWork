@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to compute vertex normals
-    for all loaded vertizes */
+/** @file 
+ * Defines a post processing step to compute vertex normals for all loaded vertizes */
 #ifndef AI_GENVERTEXNORMALPROCESS_H_INC
 #define AI_GENVERTEXNORMALPROCESS_H_INC
 

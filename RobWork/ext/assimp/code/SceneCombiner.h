@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Declares a helper class, "SceneCombiner" providing various
+/** @file 
+ *  Declares a helper class, "SceneCombiner" providing various
  *  utilities to merge scenes.
  */
 #ifndef AI_SCENE_COMBINER_H_INC

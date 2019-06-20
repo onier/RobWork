@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to triangulate all faces
+/** @file 
+ * Defines a post processing step to triangulate all faces
           with more than three vertices.
  */
 #ifndef AI_TRIANGULATEPROCESS_H_INC

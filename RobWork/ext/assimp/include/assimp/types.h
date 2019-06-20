@@ -422,7 +422,7 @@ enum aiOrigin
 // ----------------------------------------------------------------------------------
 /** @brief Enumerates predefined log streaming destinations.
  *  Logging to these streams can be enabled with a single call to
- *   #LogStream::createDefaultStream.
+ *   #LogStream::createDefaultStream
  */
 enum aiDefaultLogStream
 {

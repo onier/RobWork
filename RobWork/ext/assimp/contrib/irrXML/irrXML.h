@@ -512,7 +512,7 @@ namespace io
 	IrrXMLReaderUTF32* createIrrXMLReaderUTF32(IFileReadCallBack* callback);
 	
 
-	/*! \file irrxml.h
+	/*! \file irrXML.h
     \brief Header file of the irrXML, the Irrlicht XML parser.
     
     This file includes everything needed for using irrXML, 

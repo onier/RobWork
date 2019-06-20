@@ -38,8 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Helper class tp perform various byte oder swappings
-   (e.g. little to big endian) */
+/** @file 
+ * Helper class tp perform various byte oder swappings (e.g. little to big endian) */
 #ifndef AI_BYTESWAPPER_H_INC
 #define AI_BYTESWAPPER_H_INC
 

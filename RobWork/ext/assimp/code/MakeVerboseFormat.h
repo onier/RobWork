@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines a post processing step to bring a given scene
+/** @file 
+ Defines a post processing step to bring a given scene
  into the verbose format that is expected by most postprocess steps.
  This is the inverse of the "JoinIdenticalVertices" step. */
 #ifndef AI_MAKEVERBOSEFORMAT_H_INC

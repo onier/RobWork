@@ -190,7 +190,7 @@ public:
 	}
 
 
-	//! Returns if an element is an empty element, like <foo />
+	//! Returns if an element is an empty element, like "<foo>"
 	virtual bool isEmptyElement() const
 	{
 		return IsEmptyElement;

@@ -38,8 +38,9 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Defines the helper data structures for importing 3DS files.
-http://www.jalix.org/ressources/graphics/3DS/_unofficials/3ds-unofficial.txt */
+/** @file 
+ *  Defines the helper data structures for importing 3DS files.
+ *  http://www.jalix.org/ressources/graphics/3DS/_unofficials/3ds-unofficial.txt */
 
 #ifndef AI_SMOOTHINGGROUPS_H_INC
 #define AI_SMOOTHINGGROUPS_H_INC

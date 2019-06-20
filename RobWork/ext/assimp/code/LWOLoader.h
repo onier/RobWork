@@ -38,7 +38,8 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ----------------------------------------------------------------------
 */
 
-/** @file Declaration of the LWO importer class. */
+/** @file 
+ * Declaration of the LWO importer class. */
 #ifndef AI_LWOLOADER_H_INCLUDED
 #define AI_LWOLOADER_H_INCLUDED
 
