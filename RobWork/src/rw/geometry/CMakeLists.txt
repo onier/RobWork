@@ -58,6 +58,9 @@ SET(FILES_CPP
 	analytic/Curve.cpp
 	analytic/Face.cpp
 	analytic/GenericFace.cpp
+    analytic/ImplicitBREP.cpp
+    analytic/ImplicitFace.cpp
+    analytic/ImplicitShell.cpp
     analytic/ImplicitSurface.cpp
     analytic/ImplicitTorus.cpp
     analytic/IndexedFaceArray.cpp
@@ -138,6 +141,9 @@ SET(FILES_HPP
 	analytic/Curve.hpp
 	analytic/Face.hpp
 	analytic/GenericFace.hpp
+    analytic/ImplicitBREP.hpp
+    analytic/ImplicitFace.hpp
+    analytic/ImplicitShell.hpp
     analytic/ImplicitSurface.hpp
     analytic/ImplicitTorus.hpp
     analytic/IndexedFaceArray.hpp

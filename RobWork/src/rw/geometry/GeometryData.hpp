@@ -47,7 +47,7 @@ namespace rw { namespace geometry {
 					  SpherePrim, BoxPrim, OBBPrim, AABBPrim,
 					  LinePrim, PointPrim, PyramidPrim, ConePrim,
 					  TrianglePrim, CylinderPrim, TubePrim, PlanePrim, RayPrim,
-					  Quadratic,
+					  Implicit, Quadratic,
 					  UserType} GeometryType;
 	    //! @brief Destructor
 		virtual ~GeometryData(){}
