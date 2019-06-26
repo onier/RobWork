@@ -99,6 +99,11 @@ namespace rwlibs {
 	 */
 	namespace assembly {}
 
+    /**
+     * @brief Custom geometry implementations.
+     */
+    namespace geometry {}
+
 	//! @copydoc rwlibs::mathematica::Mathematica
 	namespace mathematica {}
 
@@ -261,6 +266,11 @@ namespace rwlibs {
     @defgroup assembly assembly
     @{
         @copydoc rwlibs::assembly
+    @}
+
+    @defgroup rwlibs_geometry Geometry
+    @{
+        @copydoc rwlibs::geometry
     @}
 
     @defgroup proximitystrategies proximitystrategies

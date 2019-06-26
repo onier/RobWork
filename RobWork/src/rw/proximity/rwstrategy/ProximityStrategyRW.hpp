@@ -26,10 +26,7 @@
 
 #include <rw/common/Cache.hpp>
 
-//#include <rw/proximity/CollisionData.hpp>
 #include <rw/proximity/CollisionStrategy.hpp>
-#include <rw/proximity/CollisionToleranceStrategy.hpp>
-#include <rw/proximity/DistanceStrategy.hpp>
 
 #include <rw/proximity/ProximityCache.hpp>
 
@@ -38,24 +35,10 @@
 
 #include <rw/geometry/OBBToleranceCollider.hpp>
 
-//#include "RSSDistanceCalc.hpp"
-
-
 namespace rw { namespace proximity {
     /** @addtogroup proximity */
     /*@{*/
-/*
-	class CollisionCache: public rw::proximity::ProximityCache {
-	public:
-		CollisionCache(rw::proximity::ProximityStrategy *owner):
-				rw::proximity::ProximityCache(owner){};
 
-		size_t size() const{ return result.num_pairs_alloced;}
-		void clear() { result.FreePairsList(); };
-
-		PQP::PQP_CollideResult result;
-	};
-*/
     /**
      * @brief This is a strategy wrapper for the distance library
      * PQP (Proximity Query Package).
@@ -76,10 +59,10 @@ namespace rw { namespace proximity {
         typedef std::pair<std::string, double> CacheKey;
 
         //! @brief cache for any of the queries possible on this strategy
-        struct PCache: public rw::proximity::ProximityCache{
-            PCache(void *owner):ProximityCache(owner){}
-            virtual size_t size() const{ return 0;};
-            virtual void clear(){};
+        struct PCache: public rw::proximity::ProximityCache {
+            PCache(void *owner): ProximityCache(owner), tolCollider(nullptr) {}
+            virtual size_t size() const { return 0; }
+            virtual void clear() {}
 
             // TODO: reuse stuff from the collision test
             rw::common::Ptr<rw::proximity::BVTreeCollider<rw::proximity::BinaryOBBPtrTreeD > > tcollider;
@@ -94,7 +77,11 @@ namespace rw { namespace proximity {
             typedef rw::common::Ptr<Model > Ptr;
 
             Model(std::string id, rw::math::Transform3D<> trans, rw::proximity::BinaryOBBPtrTreeD::Ptr obbtree):
-                geoid(id),t3d(trans),tree(obbtree){}
+                geoid(id),
+                scale(1),
+                t3d(trans),
+                tree(obbtree)
+            {}
 
             std::string geoid;
             double scale;
@@ -152,12 +139,7 @@ namespace rw { namespace proximity {
         std::vector<std::string> getGeometryIDs(rw::proximity::ProximityModel* model);
 
         /**
-         * @brief not implemented yet in rw::proximity::CollisionStrategy::setFirstContact
-         */
-        void setFirstContact(bool b);
-
-        /**
-         * @copydoc rw::proximity::CollisionStrategy::doInCollision
+         * @copydoc rw::proximity::CollisionStrategy::collision
          */
         bool doInCollision(
 			rw::proximity::ProximityModel::Ptr a,
@@ -175,18 +157,18 @@ namespace rw { namespace proximity {
          * @brief returns the number of bounding volume tests performed
          * since the last call to clearStats
          */
-        int getNrOfBVTests(){return _numBVTests;};
+        int getNrOfBVTests() { return _numBVTests; }
 
         /**
          * @brief returns the number of ptriangle tests performed
          * since the last call to clearStats
          */
-        int getNrOfTriTests(){return _numTriTests;};
+        int getNrOfTriTests() { return _numTriTests; }
 
         /**
          * @brief clears the bounding volume and triangle test counters.
          */
-        void clearStats(){ _numBVTests = 0; _numTriTests = 0;};
+        void clearStats() { _numBVTests = 0; _numTriTests = 0; }
 
 		void getCollisionContacts(std::vector<CollisionStrategy::Contact>& contacts,
 											  ProximityStrategyData& data);

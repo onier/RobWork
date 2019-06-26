@@ -1,1 +1,2 @@
+add_subdirectory(analytic_geometry)
 add_subdirectory(simplefinger)

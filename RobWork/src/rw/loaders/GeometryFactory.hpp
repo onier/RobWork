@@ -22,7 +22,6 @@
 #include <rw/common/Cache.hpp>
 #include <rw/common/ExtensionPoint.hpp>
 #include <rw/geometry/Geometry.hpp>
-#include <rw/geometry/Primitive.hpp>
 #include <rw/geometry/GeometryData.hpp>
 
 //! @file rw/loaders/GeometryFactory.hpp
@@ -73,7 +72,7 @@ namespace rw { namespace loaders {
      * where "type" is a custom geometry type provided by extensions,
      * "parameters" is a space separated string with custom geometry parameters.
      */
-    class GeometryFactory: public rw::common::ExtensionPoint<rw::geometry::Primitive>
+    class GeometryFactory: public rw::common::ExtensionPoint<rw::geometry::GeometryData>
     {
     public:
 		//! Constructor.

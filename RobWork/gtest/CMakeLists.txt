@@ -247,6 +247,7 @@ SET(PROXIMITY_TEST_LIBRARIES
  )
 
 SET(PROXIMITY_TEST_SRC
+  proximity/BVTreeTest.cpp
   proximity/CollisionStrategy.cpp
   proximity/CollisionToleranceStrategy.cpp
   proximity/DistanceMultiStrategy.cpp

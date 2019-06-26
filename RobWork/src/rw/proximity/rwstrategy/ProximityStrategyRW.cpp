@@ -27,8 +27,6 @@
 #include <rw/geometry/TriMesh.hpp>
 #include <rw/common/macros.hpp>
 
-#include <boost/foreach.hpp>
-
 using namespace rw::common;
 using namespace rw::proximity;
 using namespace rw::geometry;
@@ -72,7 +70,7 @@ bool ProximityStrategyRW::addGeometry(ProximityModel* model, const Geometry& geo
 
 
     // check if geomid is in model. remove it if it has
-    BOOST_FOREACH(Model::Ptr &m, pmodel->models){
+    for(Model::Ptr &m : pmodel->models) {
         if( m->geoid==geom.getId() ){
             removeGeometry( model, geom.getId() );
             break;
@@ -156,7 +154,7 @@ ProximityStrategyRW::QueryData ProximityStrategyRW::initQuery(ProximityModel::Pt
 std::vector<std::string> ProximityStrategyRW::getGeometryIDs(rw::proximity::ProximityModel* model){
 	std::vector<std::string> res;
 	RWProximityModel *pmodel = (RWProximityModel*) model;
-    BOOST_FOREACH(Model::Ptr &m, pmodel->models) {
+    for(Model::Ptr &m : pmodel->models) {
 		res.push_back(m->geoid);
     }
 	return res;
@@ -188,8 +186,8 @@ bool ProximityStrategyRW::doInCollision(ProximityModel::Ptr aModel,
 
     qdata.cache->tcollider->setQueryType( pdata.getCollisionQueryType() );
 
-    BOOST_FOREACH(Model::Ptr &ma, qdata.a->models) {
-        BOOST_FOREACH(Model::Ptr &mb, qdata.b->models) {
+    for(Model::Ptr &ma : qdata.a->models) {
+        for(Model::Ptr &mb : qdata.b->models) {
             int startIdx = static_cast<int>(data._geomPrimIds.size());
             bool res = qdata.cache->tcollider->collides(wTa*ma->t3d, *ma->tree, wTb*mb->t3d, *mb->tree, &data._geomPrimIds);
 

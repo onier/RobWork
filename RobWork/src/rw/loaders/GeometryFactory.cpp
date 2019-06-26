@@ -121,16 +121,18 @@ namespace
 			vector<Extension::Ptr> extensions = geoFactory.getExtensions();
 		
 			BOOST_FOREACH (Extension::Ptr& extension, extensions) {
-			
 				if (extension->getProperties().get("type", extension->getName()) == geometryType) {
 				
-					Primitive::Ptr primitive = extension->getObject().cast<Primitive>();
+					GeometryData::Ptr geomData = extension->getObject().cast<GeometryData>();
 					
 					if (q.size() > 0) {
-						primitive->setParameters(q);
+						const Primitive::Ptr primitive = geomData.cast<Primitive>();
+						if (!primitive.isNull()) {
+							primitive->setParameters(q);
+						}
 					}
 					
-					return ownedPtr(new Geometry(primitive));
+					return ownedPtr(new Geometry(geomData));
 				}
 			}
 		} else {
@@ -274,7 +276,7 @@ Geometry::Ptr GeometryFactory::getGeometry(const std::string& raw_filename, bool
 }
 
 GeometryFactory::GeometryFactory() :
-	ExtensionPoint<Primitive>("rw.loaders.GeometryFactory", "extension point for adding custom geometry primitives to the XML workcell format")
+	ExtensionPoint<GeometryData>("rw.loaders.GeometryFactory", "extension point for adding custom geometry primitives to the XML workcell format")
 {
 }
 

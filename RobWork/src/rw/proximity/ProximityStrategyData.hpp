@@ -15,8 +15,12 @@
  * limitations under the License.
  ********************************************************************************/
 
-#ifndef RW_PROXIMITY_COLLISIONDATA_HPP_
-#define RW_PROXIMITY_COLLISIONDATA_HPP_
+#ifndef RW_PROXIMITY_PROXIMITYSTRATEGYDATA_HPP_
+#define RW_PROXIMITY_PROXIMITYSTRATEGYDATA_HPP_
+
+/**
+ * @file rw/proximity/ProximityStrategyData.hpp
+ */
 
 #include "ProximityModel.hpp"
 #include "ProximityCache.hpp"
@@ -29,7 +33,6 @@ namespace rw {
 namespace proximity {
     //! @addtogroup proximity
     // @{
-    //! @file rw/proximity/CollisionStrategy.hpp
 
      // for backward compatability
     typedef CollisionStrategy::Result CollisionResult;
@@ -98,4 +101,4 @@ namespace proximity {
 }
 }
 
-#endif /* RW_PROXIMITY_COLLISIONDATA_HPP_ */
+#endif /* RW_PROXIMITY_PROXIMITYSTRATEGYDATA_HPP_ */
