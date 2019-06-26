@@ -97,14 +97,14 @@ namespace proximity {
             typedef BTPNode<BV,PRIM> Node;
 
             //! @brief constructor
-            NodeIterator():node(NULL),_depth(0){};
-            NodeIterator(Node* n, unsigned char dep):node(n),_depth(dep){};
+            NodeIterator():node(NULL),_depth(0){}
+            NodeIterator(Node* n, unsigned char dep):node(n),_depth(dep){}
 
-            inline const BVType& bv() const { return node->bv(); };
-            inline bool leaf() const { return node->isLeaf(); };
-            inline NodeIterator left() const { return NodeIterator( node->left(), _depth+1 ); };
-            inline NodeIterator right() const { return NodeIterator( node->right(), _depth+1 ); };
-            inline unsigned char depth() const { return _depth; };
+            inline const BVType& bv() const { return node->bv(); }
+            inline bool leaf() const { return node->isLeaf(); }
+            inline NodeIterator left() const { return NodeIterator( node->left(), _depth+1 ); }
+            inline NodeIterator right() const { return NodeIterator( node->right(), _depth+1 ); }
+            inline unsigned char depth() const { return _depth; }
             inline bool hasLeft() const { return node->left()!=NULL; }
             inline bool hasRight() const { return node->right()!=NULL; }
             //inline int getId() const { return (int)node; };
@@ -160,26 +160,30 @@ namespace proximity {
 		}
 
 		//! @brief Destructor.
-		~BinaryBVTree() {
+		~BinaryBVTree()
+		{
 			if (_root != NULL) {
 				delete _root;
 				_root = NULL;
 			}
 		}
 
-		NodeIterator getIterator() const { return getRootIterator(); };
+		NodeIterator getIterator() const { return getRootIterator(); }
 
-		NodeIterator createLeft( NodeIterator parent){
+		NodeIterator createLeft( NodeIterator parent)
+		{
             parent.node->setLeft( new Node() );
             return NodeIterator(parent.node->left(), parent.depth()+1);
         }
 
-		NodeIterator createRight( NodeIterator parent ){
+		NodeIterator createRight( NodeIterator parent )
+		{
 		    parent.node->setRight( new Node() );
 		    return NodeIterator(parent.node->right(), parent.depth()+1);
 		}
 
-		NodeIterator createRoot(){
+		NodeIterator createRoot()
+		{
 		    if( _root ==NULL){
 		        _root = new Node();
 		    }
@@ -240,7 +244,8 @@ namespace proximity {
             */
         }
 
-		void setLeafPrimitives(Node* node, size_t primStartIdxs){
+		void setLeafPrimitives(Node* node, size_t primStartIdxs)
+		{
 		    RW_ASSERT(0);
 			if( !node->isLeaf() )
 				RW_THROW("Not a leaf node!");
@@ -248,13 +253,15 @@ namespace proximity {
 			node->primIdx() = _leafIndexes.size();
 		}
 
-		NodeIterator getRootIterator() const {
+		NodeIterator getRootIterator() const
+		{
                 return NodeIterator(_root, 0);
-		};
+		}
 
-		Node* getRoot(){return _root;};
+		Node* getRoot() { return _root; }
 
-		std::pair<int,int> countNodes(){
+		std::pair<int,int> countNodes() const
+		{
 			int ncount = 0, lcount = 0;
 
 			std::stack<Node*> children;
@@ -279,7 +286,8 @@ namespace proximity {
 			return std::make_pair(ncount,lcount);
 		}
 
-        void print(){
+        void print() const
+        {
             std::stack<std::pair<Node*, int> > children;
             children.push(std::make_pair(_root,0));
             int id=1;
@@ -319,7 +327,7 @@ namespace proximity {
         }
 
 
-		int getMaxTrisPerLeaf() const{return 1;};
+		int getMaxTrisPerLeaf() const { return 1; }
 
 	private:
 

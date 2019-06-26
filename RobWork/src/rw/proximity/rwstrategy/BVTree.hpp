@@ -24,13 +24,27 @@
 namespace rw {
 namespace proximity {
 
+    //! @brief Interface for accessing primitives.
     template<class PRIM>
     struct PrimArrayAccessor {
-        typedef PRIM PRIMType;
-        virtual ~PrimArrayAccessor() {}
-        virtual void getPrimitive(size_t pidx, PRIM& prim) const = 0;
-        virtual size_t getSize() const = 0;
-        //virtual const PRIM& getPrimitive(size_t pidx) const = 0;
+            //! @brief Type of primitive.
+            typedef PRIM PRIMType;
+
+            //! @brief Destructor.
+            virtual ~PrimArrayAccessor() {}
+
+            /**
+             * @brief Get primitive.
+             * @param pidx [in] id of primitive.
+             * @param prim [out] the primitive.
+             */
+            virtual void getPrimitive(size_t pidx, PRIM& prim) const = 0;
+
+            /**
+             * @brief Get the number of primitives.
+             * @return the number of primitices.
+             */
+            virtual size_t getSize() const = 0;
     };
 
     template<class DERIVED, class BV>
@@ -184,7 +198,7 @@ namespace proximity {
             return (int)(idx+triNr);
         }
 
-        inline size_t getNrPrimitives(const NodeIterator& leafnode) const{ return leafnode.nrOfPrimitives() ; };
+        inline size_t getNrPrimitives(const NodeIterator& leafnode) const { return leafnode.nrOfPrimitives(); }
 
         /*
         inline int getPrimitive(const NodeIterator& leafnode, PRIMType& dst, size_t triNr) const {

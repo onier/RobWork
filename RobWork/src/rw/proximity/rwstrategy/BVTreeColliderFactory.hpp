@@ -87,12 +87,31 @@ namespace proximity {
          * of bv collisions between two hierarchical trees. The search is
          * balanced in the way that it equally switches between descending in the
          * trees.
+         * @return collider for checking if the bounding volume trees overlap.
          */
         template<class BVTREE>
         static BVTreeCollider<BVTREE>* makeBalancedDFSColliderOBB(){
             rw::geometry::OBBCollider<typename BVTREE::value_type>* bvcollider = new rw::geometry::OBBCollider<typename BVTREE::value_type>();
             BalancedDescentStrategy<BVTREE>* dstrategy = new BalancedDescentStrategy<BVTREE>();
             return makeDFSCollider<BVTREE>(bvcollider, dstrategy);
+        }
+
+        /**
+         * @brief Creates a tree collider that performes depth first search
+         * of bv collisions between two hierarchical trees. The search is
+         * balanced in the way that it equally switches between descending in the
+         * trees.
+         * @param primcollider the primitive collider to use.
+         * @return collider for checking if the bounding volume trees overlap.
+         */
+        template<class BVTREE, class PRIMCOLLIDER>
+        static BVTreeCollider<BVTREE>* makeBalancedDFSColliderOBB(PRIMCOLLIDER* primcollider)
+        {
+            rw::geometry::OBBCollider<typename BVTREE::value_type>* bvcollider =
+                    new rw::geometry::OBBCollider<typename BVTREE::value_type>();
+            BalancedDescentStrategy<BVTREE>* dstrategy =
+                    new BalancedDescentStrategy<BVTREE>();
+            return makeDFSCollider<BVTREE>(bvcollider, primcollider, dstrategy);
         }
 
         /**
@@ -113,6 +132,7 @@ namespace proximity {
          * @brief creates a depth first search tree collider for trees that use triangles for
          * primitives.
          * @param bvcollider
+         * @param primcollider
          * @param dstrat
          * @return
          */

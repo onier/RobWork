@@ -31,12 +31,13 @@
 
 #include <float.h>
 
-//#include <boost/foreach.hpp>
-
 #include <rw/geometry/BV.hpp>
 #include <rw/geometry/OBB.hpp>
 #include <rw/geometry/OBBFactory.hpp>
 #include <rw/geometry/IndexedTriArray.hpp>
+#include <rw/geometry/analytic/GenericFace.hpp>
+#include <rw/geometry/analytic/Shell.hpp>
+#include <rw/geometry/analytic/IndexedFaceArray.hpp>
 
 #include "BinaryBVTree.hpp"
 
@@ -57,9 +58,25 @@ namespace proximity {
 		 */
 		template<class BV>
 		struct BVSplitterStrategy {
-			virtual size_t partitionMesh(rw::geometry::IndexedTriArray<>& mesh, BV& bv) = 0;
+			virtual size_t partitionMesh(rw::geometry::IndexedTriArray<>& mesh, const BV& bv) const = 0;
 		};
 
+		/**
+		 * @brief Interface for bounding volume splitting strategy for objects
+		 * with analytical surfaces.
+		 */
+		template<class BV>
+		struct BVShellSplitterStrategy {
+		        /**
+		         * @brief Split the shell in two.
+		         *
+		         * @param shell [in/out] the shell to split.
+		         * @param bv [in] the bounding volume of the \b shell.
+		         * @return the quality of the split. A good split returns a
+		         * large value.
+		         */
+		        virtual size_t partitionShell(rw::geometry::IndexedFaceArray& shell, const BV& bv) const = 0;
+		};
 
 		template<class T>
         struct TriMeshAccessor: public PrimArrayAccessor<rw::geometry::Triangle<T> > {
@@ -78,7 +95,28 @@ namespace proximity {
             rw::geometry::TriMesh::Ptr _mesh;
         };
 
+		//! @brief Access GenericFace primitive of Shell.
+		template<class T>
+		struct ShellAccessor: public PrimArrayAccessor<rw::geometry::GenericFace> {
+		        /**
+		         * @brief Constructor.
+		         * @param object [in] the shell object.
+		         */
+		        ShellAccessor(rw::geometry::Shell::CPtr object):_object(object) {}
 
+		        //! @copydoc PrimArrayAccessor::getPrimitive
+		        void getPrimitive(size_t faceIdx, rw::geometry::GenericFace& face) const {
+		            _object->getFace(faceIdx, face);
+		        }
+
+		        //! @copydoc PrimArrayAccessor::getSize
+		        size_t getSize() const{
+		            return _object->size();
+		        }
+
+		    private:
+		        rw::geometry::Shell::CPtr _object;
+		};
 
 		/**
 		 * @brief creates a splitter strategy for OBB tree construction using
@@ -93,6 +131,23 @@ namespace proximity {
 		rw::common::Ptr<BVSplitterStrategy<OBV> > makeOBVMedianSplitter(){
 		    return rw::common::ownedPtr( new OBVMedianSplitter<OBV>() );
 		}
+
+        /**
+         * @brief Creates a splitter strategy for OBB tree construction using
+         * an object median splitting strategy.
+         *
+         * Splits a shell representation with analytic surfaces in one of the
+         * axes of the bounding volume. The splitter use a median based
+         * strategy where the splitpoint is determined as the object median
+         * and as such is suitable for creating balanced OBB trees.
+         *
+         * @return the splitting strategy.
+         */
+        template<class OBV>
+        rw::common::Ptr<BVShellSplitterStrategy<OBV> > makeOBVShellMedianSplitter()
+        {
+                return rw::common::ownedPtr( new OBVShellMedianSplitter<OBV>() );
+        }
 
 		/**
 		 * @brief creates a splitter strategy for OBB tree construction using
@@ -146,6 +201,24 @@ namespace proximity {
 			return makeTopDownTree<BVTREE>(mesh, *bvfactory, *splitter, maxTrisInLeaf);
 		}
 
+		/**
+		 * @brief Creates an OBB tree using a object median splitting strategy.
+		 * @param shell [in] the shell to create OBB tree for.
+		 * @param maxTrisInLeaf [in] the maximum number of faces in a leaf node.
+		 * @return the OBB tree.
+		 */
+		template<class BVTREE>
+		BVTREE* makeTopDownOBBTreeMedian(rw::geometry::Shell::CPtr shell, int maxTrisInLeaf = 1)
+		{
+		        using rw::geometry::BVFactory;
+		        typedef typename Traits<BVTREE>::BVType BVType;
+		        rw::common::Ptr<BVFactory<typename Traits<BVTREE>::BVType > > bvfactory =
+		                makeOBBCovarFactory<typename Traits<BVType>::value_type>();
+		        rw::common::Ptr<BVShellSplitterStrategy<typename Traits<BVTREE>::BVType > > splitter =
+		                makeOBVShellMedianSplitter<BVType>();
+		        return makeTopDownTree<BVTREE>(shell, *bvfactory, *splitter, maxTrisInLeaf);
+		}
+
 		template<class BVTREE>
 		BVTREE* makeTopDownOBBTreeCovarSpatialMedian(rw::geometry::TriMesh::Ptr mesh, int maxTrisInLeaf=1){
 		    typedef typename Traits<BVTREE>::BVType BVType;
@@ -185,7 +258,7 @@ namespace proximity {
 		template<class BVTREE>
 		static BVTREE* makeTopDownTree(rw::geometry::TriMesh::Ptr mesh,
 		                               geometry::BVFactory<typename Traits<BVTREE>::BVType>& bvFactory,
-		                               BVSplitterStrategy<typename Traits<BVTREE>::BVType>& splitter,
+		                               const BVSplitterStrategy<typename Traits<BVTREE>::BVType>& splitter,
 		                               int maxTrisInLeaf=1)
 		{
 		    typedef typename Traits<BVTREE>::BVType BVType;
@@ -217,6 +290,38 @@ namespace proximity {
 		}
 
 		/**
+		 * @brief Top-down construction of a bounding volume tree.
+		 * @param shell [in] the shell to create bounding volume tree for.
+		 * Must have at least one face.
+		 * @param bvFactory a factory for creating bounding volumes.
+		 * @param splitter [in] the splitting strategy used to divide the
+		 * shell.
+		 * @param maxTrisInLeaf [in] how many faces to allow in one leaf of the
+		 * tree.
+		 * @return the resulting bounding volume tree.
+		 */
+		template<class BVTREE>
+		static BVTREE* makeTopDownTree(rw::geometry::Shell::CPtr shell,
+		        geometry::BVFactory<typename Traits<BVTREE>::BVType>& bvFactory,
+		        const BVShellSplitterStrategy<typename Traits<BVTREE>::BVType>& splitter,
+		        int maxTrisInLeaf=1)
+		{
+		        typedef typename Traits<BVTREE>::BVType BVType;
+		        typedef typename Traits<BVType>::value_type value_type;
+		        typedef typename Traits<BVTREE>::NodeIterator NodeIterator;
+		        using rw::geometry::IndexedFaceArray;
+
+		        // we create the binary tree
+		        BVTREE* tree = new BVTREE(new ShellAccessor<value_type>(shell));
+		        IndexedFaceArray idxArray(shell);
+		        NodeIterator root = tree->createRoot();
+		        recursiveTopDownTree<BVTREE>(tree, root, idxArray, bvFactory,
+		                splitter, maxTrisInLeaf);
+
+		        return tree;
+		}
+
+		/**
 		 * @brief recursive top down construction of a bounding volume tree
 		 * @param tree
 		 * @param node
@@ -230,7 +335,7 @@ namespace proximity {
 									typename Traits<BVTREE>::NodeIterator &node,
 									rw::geometry::IndexedTriArray<> mesh,
 									rw::geometry::BVFactory<typename Traits<BVTREE>::BVType>& bvFactory,
-									BVSplitterStrategy<typename Traits<BVTREE>::BVType> &splitter,
+									const BVSplitterStrategy<typename Traits<BVTREE>::BVType> &splitter,
 									size_t maxTrisInLeaf)
 		{
             typedef typename Traits<BVTREE>::BVType BVType;
@@ -270,6 +375,63 @@ namespace proximity {
 			}
 		}
 
+		/**
+		 * @brief Recursive top-down construction of a bounding volume tree.
+		 *
+		 * @param tree [out] the resulting bounding volume tree.
+		 * @param node [in/out] current node being handled in tree.
+		 * @param shell [in] the shell to create bounding volume tree for.
+		 * Must have at least one face.
+		 * @param bvFactory a factory for creating bounding volumes.
+		 * @param splitter [in] the splitting strategy used to divide the
+		 * shell.
+		 * @param maxTrisInLeaf [in] how many faces to allow in one leaf of the
+		 * tree.
+		 */
+		template<class BVTREE>
+		static void recursiveTopDownTree(BVTree<BVTREE>* tree,
+		        typename Traits<BVTREE>::NodeIterator &node,
+		        rw::geometry::IndexedFaceArray shell,
+		        rw::geometry::BVFactory<typename Traits<BVTREE>::BVType>& bvFactory,
+		        const BVShellSplitterStrategy<typename Traits<BVTREE>::BVType> &splitter,
+		        const size_t maxTrisInLeaf)
+		{
+		        typedef typename Traits<BVTREE>::BVType BVType;
+		        typedef typename Traits<BVTREE>::NodeIterator NodeIterator;
+
+		        if(shell.size() == 0) {
+		            RW_ASSERT(0); // we should not arrive at this.
+		        } else if(shell.size()<=maxTrisInLeaf){
+		            // make a leaf node
+		            BVType bv = bvFactory.makeBV( shell );
+		            tree->setPrimIdx( (int) shell.getGlobalIndex(0), node);
+		            tree->setNrOfPrims( (int) shell.size(), node);
+		            tree->setBV(bv, node);
+		        } else {
+		            // create a bounding volume of the mesh and split it
+
+		            BVType bv = bvFactory.makeBV( shell );
+		            tree->setBV( bv , node);
+		            // were to split the mesh (the order in the mesh might be changed in this function)
+		            //rw::common::Timer t;
+		            const std::size_t k = splitter.partitionShell(shell, bv);
+		            // left child
+
+		            if(k > 0) {
+		                rw::geometry::IndexedFaceArray arr = shell.getSubRange(0,k);
+		                NodeIterator leftnode = tree->createLeft( node );
+		                recursiveTopDownTree(tree, leftnode, arr, bvFactory, splitter, maxTrisInLeaf);
+		            }
+
+		            // right child
+		            if(k < shell.size()) {
+		                rw::geometry::IndexedFaceArray arr = shell.getSubRange(k,shell.size());
+		                NodeIterator rightnode = tree->createRight( node );
+		                recursiveTopDownTree(tree, rightnode, arr, bvFactory, splitter, maxTrisInLeaf);
+		            }
+		        }
+		}
+
 
 	    /**
 	     * @brief computes a score of a specific splitting axis. Basically each triangle in the mesh is
@@ -307,13 +469,48 @@ namespace proximity {
 	    }
 
 	    /**
+	     * @brief Evaluate the quality of a split axis.
+	     *
+	     * A good split axis divides the object such that the number of faces
+	     * lying completely to the left or right of the axis is maximized.
+	     *
+	     * @note Remember to call sortAxis() on the \b shell for the given axis
+	     * before calling this method.
+	     *
+	     * @param shell [in] the shell where each IndexedFace contains the
+	     * face extremums along the given axis.
+	     * @param splitValue [in] the split axis value.
+	     * @return the number of faces lying completely to the left or right of
+	     * the split axis.
+	     */
+	    static int evaluateSplitAxis(const rw::geometry::IndexedFaceArray& shell, const double splitValue)
+	    {
+	        int left=0, right=0;
+	        rw::geometry::IndexedFaceArray::IndexedFace face;
+	        for(size_t i=0; i < shell.size(); i++) {
+	            // transform the vertex point to the obb root
+	            shell.getIndexedFace(i, face);
+	            bool toLeft = face.lower < splitValue;
+	            if(toLeft){
+	                // check if its really to the left
+	                toLeft &= face.upper < splitValue;
+	                if(toLeft) left++;
+	            } else {
+	                toLeft |= face.upper < splitValue;
+	                if(!toLeft) right++;
+	            }
+	        }
+	        return right+left;
+	    }
+
+	    /**
 	     * @brief Object median splitting strategy using axis of largest variance. Splits the mesh
 	     * in the median on the axis with largest variance.
 	     */
 	    template<class BV>
 	    struct OBVMedianSplitter: public BVTreeFactory::BVSplitterStrategy<BV> {
 	    public:
-	        size_t partitionMesh(rw::geometry::IndexedTriArray<>& mesh, BV& obb){
+	        size_t partitionMesh(rw::geometry::IndexedTriArray<>& mesh, const BV& obb) const {
 	            using namespace rw::geometry;
 	            using namespace rw::math;
 	            using namespace rw::common;
@@ -359,6 +556,59 @@ namespace proximity {
 	        }
 	    };
 
+        /**
+         * @brief Spatial Median splitting strategy for shell of analytical
+         * surfaces.
+         *
+         * Each of the three axes of the shell OBB is tested as good splitting
+         * axes. The first axis that causes 87.5\% of the faces to lie
+         * completely to the left or right of the split axis is used directly.
+         * If this is not the case for any axis, the best axis is chosen.
+         */
+	    template<class BV>
+	    struct OBVShellMedianSplitter: public BVTreeFactory::BVShellSplitterStrategy<BV> {
+	        public:
+	            //! @copydoc BVShellSplitterStrategy::partitionShell
+	            size_t partitionShell(rw::geometry::IndexedFaceArray& shell, const BV& obb) const
+	            {
+	                using rw::geometry::IndexedFaceArray;
+	                using namespace rw::math;
+	                Transform3D<> t3d = inverse( cast<double>(obb.getTransform()) );
+
+	                int splitAxis = 0, bestSplitAxis = 0; // choose longest (x-axis) for splitting the Box
+	                int bestSplitScore = 0;
+	                const int median = (int)(shell.size()/2);
+	                do{
+	                    // calculate median
+	                    // sort all indexes in trisIdx
+	                    shell.sortAxis(splitAxis, t3d );
+	                    // now make sure that the choosen split axis is not a bad one
+	                    const IndexedFaceArray::IndexedFace& face = shell.getIndexedFace(median);
+	                    const int score = evaluateSplitAxis(shell, face.center);
+	                    if(score > bestSplitScore) {
+	                        bestSplitScore = score;
+	                        bestSplitAxis = splitAxis;
+	                    }
+
+	                    // criteria for an okay splitting point
+	                    if( score + shell.size()/8 >= shell.size() ){
+	                        break;
+	                    }
+
+	                    splitAxis++;
+	                    if(splitAxis==3){
+	                        // No axis was goood, so we use the best one
+	                        if(bestSplitAxis!=2)
+	                            shell.sortAxis(bestSplitAxis, t3d);
+	                        break;
+	                    }
+
+	                } while( splitAxis<3 );
+
+	                return median;
+	            }
+	    };
+
 	    /**
 	     * @brief Spatial Median splitting strategy. The median of the bounding volume projection
 	     * extends are used as splitting point.
@@ -368,7 +618,7 @@ namespace proximity {
 	    public:
 	        //BOOST_STATIC_ASSERT_MSG( (boost::is_base_of<rw::geometry::OBV<BV>, BV>::value) , "Bounding volume MUST inherit geometry::OBV");
 
-	        size_t partitionMesh(rw::geometry::IndexedTriArray<>& mesh, BV& obb){
+	        size_t partitionMesh(rw::geometry::IndexedTriArray<>& mesh, const BV& obb) const {
 
                 using namespace rw::geometry;
                 using namespace rw::math;
@@ -441,7 +691,7 @@ namespace proximity {
 	    public:
 	        BOOST_STATIC_ASSERT( (boost::is_base_of<rw::geometry::OBV<BV>, BV>::value) );
 
-	        size_t partitionMesh(rw::geometry::IndexedTriArray<>& mesh, BV& obb){
+	        size_t partitionMesh(rw::geometry::IndexedTriArray<>& mesh, const BV& obb) const {
                 using namespace rw::geometry;
                 using namespace rw::math;
                 using namespace rw::common;

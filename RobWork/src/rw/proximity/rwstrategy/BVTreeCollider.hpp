@@ -45,7 +45,7 @@ namespace proximity {
         /**
          * @brief destructor
          */
-		virtual ~BVTreeCollider(){};
+		virtual ~BVTreeCollider(){}
 
 		/**
 		 * @brief tests if two BV trees are colliding.
@@ -62,12 +62,12 @@ namespace proximity {
 		/**
 		 * @brief set the query type
 		 */
-		virtual void setQueryType(CollisionStrategy::QueryType type){ _queryType=type;};
+		virtual void setQueryType(CollisionStrategy::QueryType type) { _queryType=type; }
 
         /**
          * @brief get the collision query type
          */
-		virtual CollisionStrategy::QueryType getQueryType(){ return _queryType;};
+		virtual CollisionStrategy::QueryType getQueryType() { return _queryType; }
 
 		//! type of the primitive in collision callb ack function
 		//typedef boost::function<void(int,int)> PrimitivesInCollisionCB;
@@ -80,15 +80,14 @@ namespace proximity {
 		virtual int getMemUsage() = 0;
 
 
-		virtual int getNrOfTestedBVs(){ return -1;};
-		virtual int getNrOfCollidingBVs(){ return -1;};
+		virtual int getNrOfTestedBVs() { return -1; }
+		virtual int getNrOfCollidingBVs() { return -1; }
 
-		virtual int getNrOfTestedPrimitives(){ return -1;};
-		virtual int getNrOfCollidingPrimitives(){ return -1;};
+		virtual int getNrOfTestedPrimitives() { return -1; }
+		virtual int getNrOfCollidingPrimitives() { return -1; }
 
 	protected:
 		CollisionStrategy::QueryType _queryType;
-		//PrimitivesInCollisionCB _pCB;
 	};
 
 
@@ -96,4 +95,4 @@ namespace proximity {
 }
 
 
-#endif /* TREECOLLIDER_HPP_ */
+#endif /* RW_PROXIMITY_BVTREECOLLIDER_HPP_ */

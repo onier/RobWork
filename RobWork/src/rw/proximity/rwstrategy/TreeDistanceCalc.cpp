@@ -9,7 +9,6 @@
 
 #include <rw/common/Ptr.hpp>
 #include <rw/math/Transform3D.hpp>
-#include <rw/geometry/TriDistanceCalc.hpp>
 
 using namespace rw::math;
 using namespace rw::geometry;
@@ -168,7 +167,6 @@ namespace {
             _firstContact = false;
         }
         rw::common::Ptr<TreeDistanceCalc::BVDISTANCECALC > _bvdistcalc;
-        rw::common::Ptr<rw::geometry::TriDistanceCalc<T> > _tridistcalc;
 
 
     private:
