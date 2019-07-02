@@ -24,59 +24,59 @@ import org.robwork.rw.*;
 %}
 
 /**
-   @brief ARWExpand expands a random walk in the configuration space by one
-   step.
-*/
+ * @brief ARWExpand expands a random walk in the configuration space by one
+ * step.
+ */
 class ARWExpand
 {
 public:
     /**
-       @brief Expand the path by one step and return true if a new
-       configuration was added to the path.
-
-       The current path can be retrieved with ARWExpand::getPath().
-
-       @return True iff a node was added to the end of the path.
-    */
+     * @brief Expand the path by one step and return true if a new
+     * configuration was added to the path.
+     *
+     * The current path can be retrieved with ARWExpand::getPath().
+     *
+     * @return True iff a node was added to the end of the path.
+     */
     bool expand();
 
     /**
-       @brief Construct a new random walk with start node at \b start.
-    */
+     * @brief Construct a new random walk with start node at \b start.
+     */
 	rw::common::Ptr<ARWExpand> duplicate(const rw::math::Q& start) const;
 
     /**
-       @brief Destructor
-    */
+     * @brief Destructor
+     */
     virtual ~ARWExpand();
 
     /**
-       @brief The current path of the random walk.
-    */
+     * @brief The current path of the random walk.
+     */
 	const Path<rw::math::Q>& getPath() const;
 
     /**
-       @brief Constructor
-
-       The expansion method computes the variance for the latest \b
-       historySize elements of the path and performs one step sampled from a
-       Gaussian distribution with the computed variances. Variances lower
-       than \b minVariances are never used.
-
-       If \b minVariances is empty, then a default value is chosen based on
-       \b bounds.
-
-       If \b historySize is negative, a default value is chosen.
-
-       @param bounds [in] Configuration space bounds.
-
-       @param constraint [in] Path planning constraint.
-
-       @param minVariances [in] Minimum variances.
-
-       @param historySize [in] Number of previous elements of the path to
-       use for variance computation.
-    */
+     * @brief Constructor
+     *
+     * The expansion method computes the variance for the latest \b
+     * historySize elements of the path and performs one step sampled from a
+     * Gaussian distribution with the computed variances. Variances lower
+     * than \b minVariances are never used.
+     *
+     * If \b minVariances is empty, then a default value is chosen based on
+     * \b bounds.
+     *
+     * If \b historySize is negative, a default value is chosen.
+     *
+     * @param bounds [in] Configuration space bounds.
+     *
+     * @param constraint [in] Path planning constraint.
+     *
+     * @param minVariances [in] Minimum variances.
+     *
+     * @param historySize [in] Number of previous elements of the path to
+     * use for variance computation.
+     */
 	static rw::common::Ptr<ARWExpand> make(
         const std::pair<rw::math::Q, rw::math::Q>& bounds,
         const PlannerConstraint& constraint,
@@ -85,27 +85,27 @@ public:
 
 protected:
     /**
-       @brief Constructor
-    */
+     * @brief Constructor
+     */
     ARWExpand();
 
     /**
-       @brief Subclass implementation of the expand() method.
-
-       The doExpand() adds one or more nodes to \b _path if and only if the
-       method returns true.
-    */
+     * @brief Subclass implementation of the expand() method.
+     *
+     * The doExpand() adds one or more nodes to \b _path if and only if the
+     * method returns true.
+     */
     virtual bool doExpand() = 0;
 
     /**
-       @brief Subclass implementation of the duplicate() method.
-    */
+     * @brief Subclass implementation of the duplicate() method.
+     */
 	virtual rw::common::Ptr<ARWExpand> doDuplicate(const rw::math::Q& start) const = 0;
 
 protected:
     /**
-       @brief The path of random walk.
-    */
+     * @brief The path of random walk.
+     */
 	Path<rw::math::Q> _path;
 };
 
@@ -114,34 +114,34 @@ protected:
 
 %nodefaultctor ARWPlanner;
 /**
-   @brief Adaptive Random Walk planners
-
-   The ARW planners are based on the algorithm of: Stefano Carpin and
-   Gianluigi Pillonetto, Motion Planning Using Adaptive Random Walks, IEEE
-   Transactions on Robotics, Vol. 21, No. 1, 2005.
-
-   @relates QToQPlanner
+ * @brief Adaptive Random Walk planners
+ *
+ * The ARW planners are based on the algorithm of: Stefano Carpin and
+ * Gianluigi Pillonetto, Motion Planning Using Adaptive Random Walks, IEEE
+ * Transactions on Robotics, Vol. 21, No. 1, 2005.
+ *
+ * @relates QToQPlanner
 */
 class ARWPlanner
 {
 public:
     /**
-       @brief ARW based point-to-point planner.
-
-       The ARW planner expands its paths using instances of \b expand. If
-       the end point of one of the paths is within a distance \b
-       nearDistance from a goal node when measured with \b metric, then that
-       connection is verified. If that connection is valid, the full path is
-       returned.
-
-       @param constraint [in] Path planning constraint.
-
-       @param expand [in] ARW expansion strategy.
-
-       @param metric [in] Distance to goal node measure.
-
-       @param nearDistance [in] Threshold for distance to goal node.
-    */
+     * @brief ARW based point-to-point planner.
+     *
+     * The ARW planner expands its paths using instances of \b expand. If
+     * the end point of one of the paths is within a distance \b
+     * nearDistance from a goal node when measured with \b metric, then that
+     * connection is verified. If that connection is valid, the full path is
+     * returned.
+     *
+     * @param constraint [in] Path planning constraint.
+     *
+     * @param expand [in] ARW expansion strategy.
+     *
+     * @param metric [in] Distance to goal node measure.
+     *
+     * @param nearDistance [in] Threshold for distance to goal node.
+     */
 	static rw::common::Ptr<QToQPlanner> makeQToQPlanner(
         const PlannerConstraint& constraint,
 		rw::common::Ptr<ARWExpand> expand,
@@ -149,29 +149,29 @@ public:
         double nearDistance);
 
     /**
-       @brief ARW based point-to-point planner.
-
-       Based on \b device, a default distance metric and expansion strategy
-       is chosen. A connection to a goal node is attempted if the distance
-       is below \b nearDistance. A variance based expansion method is chosen
-       with variances being calculated for the latest \b historySize
-       samples.
-
-       @param constraint [in] Path planning constraint.
-
-       @param device [in] Device for which the path is planned.
-
-       @param metric [in] Configuration space distance metric. If \b metric
-       is NULL, a default metric for \b device is chosen.
-
-       @param nearDistance [in] Try to connect to the goal if the distance
-       to the goal measured by \b metric is below this threshold. If \b
-       metric is null, a default value for \b nearDistance is chosen.
-
-       @param historySize [in] Number of previous configurations on the path
-       to include in computation of the next expand step. If \b historySize
-       is negative, a default value for the parameter is chosen.
-    */
+     * @brief ARW based point-to-point planner.
+     *
+     * Based on \b device, a default distance metric and expansion strategy
+     * is chosen. A connection to a goal node is attempted if the distance
+     * is below \b nearDistance. A variance based expansion method is chosen
+     * with variances being calculated for the latest \b historySize
+     * samples.
+     *
+     * @param constraint [in] Path planning constraint.
+     *
+     * @param device [in] Device for which the path is planned.
+     *
+     * @param metric [in] Configuration space distance metric. If \b metric
+     * is NULL, a default metric for \b device is chosen.
+     *
+     * @param nearDistance [in] Try to connect to the goal if the distance
+     * to the goal measured by \b metric is below this threshold. If \b
+     * metric is null, a default value for \b nearDistance is chosen.
+     *
+     * @param historySize [in] Number of previous configurations on the path
+     * to include in computation of the next expand step. If \b historySize
+     * is negative, a default value for the parameter is chosen.
+     */
 	static rw::common::Ptr<QToQPlanner> makeQToQPlanner(
         const PlannerConstraint& constraint,
 		rw::common::Ptr<Device> device,
@@ -190,14 +190,14 @@ OWNEDPTR(ARWPlanner);
  * The PRMPlanner is implemented freely after [1], and has a number of options:
  *
  * - Lazy Collision Checking: Using lazy collision checking as in [2], the
- * planner can be used for single as well as multiple queries.
+ *   planner can be used for single as well as multiple queries.
  *
  * - Nearest Neighbor Search: The algorithm can either use a partial index
- * table [3] or a simple brute force method to do the nearest neighbor
- * search.
+ *   table [3] or a simple brute force method to do the nearest neighbor
+ *   search.
  *
  * - Shortest Path Algorithm: Using the Boost Graph Library, both A* and
- * Dijkstra's Algorithm may be used for finding the shortest path.
+ *   Dijkstra's Algorithm may be used for finding the shortest path.
  *
  * As default the algorithm runs with lazy collision checking, brute force
  * neighbor search and with A* for shortest path search.
@@ -254,14 +254,14 @@ public:
         double resolution);
 
     /**
-       @brief Constructs PRMPlanner
-
-       @param constraint [in] Collision constraint
-       @param sampler [in] Configuration space sampler
-       @param resolution [in] Collision checking resolution
-       @param device [in] Device characteristics
-       @param state [in] State of rest of the workcell
-    */
+     * @brief Constructs PRMPlanner
+     *
+     * @param constraint [in] Collision constraint
+     * @param sampler [in] Configuration space sampler
+     * @param resolution [in] Collision checking resolution
+     * @param device [in] Device characteristics
+     * @param state [in] State of rest of the workcell
+     */
     PRMPlanner(
     	rw::common::Ptr<QConstraint> constraint,
 		rw::common::Ptr<QSampler> sampler,
@@ -276,6 +276,7 @@ public:
 
     /**
      * @brief Build the roadmap with the setup specified
+     *
      * @param nodecount [in] Number of nodes to insert
      */
     void buildRoadmap(size_t nodecount);
@@ -283,6 +284,7 @@ public:
 
     /**
      * @brief Sets the desired average number of neighbors. Default value is 20.
+     *
      * @param n [in] Desired average number of neighbors
      */
     void setNeighborCount(size_t n);
@@ -365,7 +367,7 @@ public:
      *
      * Default value for this timeout is 1second.
      *
-     * @brief timeout [in] Timeout time.
+     * @param timeout [in] Timeout time.
      */
     void setAStarTimeOutTime(double timeout);
 
@@ -387,55 +389,55 @@ public:
     //! The type of RRT planner to construct.
     enum PlannerType {
         /**
-           @brief Simple non-greedy, bidirectional RRT.
-
-           See BasicPlanner(), page 109 of James J. Kuffner, "Autonomous
-           Agensts for Real-Time Animation", 1999.
-        */
+         * @brief Simple non-greedy, bidirectional RRT.
+         *
+         * See BasicPlanner(), page 109 of James J. Kuffner, "Autonomous
+         * Agensts for Real-Time Animation", 1999.
+         */
         RRTBasic,
 
         /**
-           @brief RRT-Connect planner.
-
-           See James J. Kuffner and Steven M. LaValle, "RRT-Connect: An
-           Efficient Approach to Single-Query Path Planning", ICRA, 2000.
-        */
+         * @brief RRT-Connect planner.
+         *
+         * See James J. Kuffner and Steven M. LaValle, "RRT-Connect: An
+         * Efficient Approach to Single-Query Path Planning", ICRA, 2000.
+         */
         RRTConnect,
 
         /**
-           @brief Bidirectional RRT.
-
-           The algorithm of the planner is in the style of
-           RDT_BALANCED_BIDIRECTIONAL(), page 195 of Steven M. Lavalle,
-           "Planning Algorithms", 2006, except this planner is the non-balanced
-           version.
-        */
+         * @brief Bidirectional RRT.
+         *
+         * The algorithm of the planner is in the style of
+         * RDT_BALANCED_BIDIRECTIONAL(), page 195 of Steven M. Lavalle,
+         * "Planning Algorithms", 2006, except this planner is the non-balanced
+         * version.
+         */
         RRTBidirectional,
 
         /**
-           @brief Balanced, bidirectional RRT.
-
-           The algorithm of the planner is in the style of
-           RDT_BALANCED_BIDIRECTIONAL(), page 195 of Steven M. Lavalle,
-           "Planning Algorithms", 2006.
-        */
+         * @brief Balanced, bidirectional RRT.
+         *
+         * The algorithm of the planner is in the style of
+         * RDT_BALANCED_BIDIRECTIONAL(), page 195 of Steven M. Lavalle,
+         * "Planning Algorithms", 2006.
+         */
         RRTBalancedBidirectional
     };
 
     /**
-       @brief RRT based point-to-point planner.
-
-       @param constraint [in] Constraint for configurations and edges.
-
-       @param sampler [in] Sampler of the configuration space.
-
-       @param metric [in] Metric for nearest neighbor search.
-
-       @param extend [in] Distance measured by \b metric by which to extend
-       the tree towards an attractor configuration.
-
-       @param type [in] The particular variation the RRT planner algorithm.
-    */
+     * @brief RRT based point-to-point planner.
+     *
+     * @param constraint [in] Constraint for configurations and edges.
+     *
+     * @param sampler [in] Sampler of the configuration space.
+     *
+     * @param metric [in] Metric for nearest neighbor search.
+     *
+     * @param extend [in] Distance measured by \b metric by which to extend
+     * the tree towards an attractor configuration.
+     *
+     * @param type [in] The particular variation the RRT planner algorithm.
+     */
 	static rw::common::Ptr<QToQPlanner> makeQToQPlanner(
         const PlannerConstraint& constraint,
 		rw::common::Ptr<QSampler> sampler,
@@ -444,18 +446,18 @@ public:
         PlannerType type = RRTBalancedBidirectional);
 
     /**
-       @brief RRT based point-to-point planner.
-
-       Default configuration space sampling strategy
-       (rw::pathplanning::QSampler) and distance metrics (rw:math::QMetric)
-       are chosen based on \b device.
-
-       @param constraint [in] Constraint for configurations and edges.
-
-       @param device [in] Device for which the path is planned.
-
-       @param type [in] The particular variation the RRT planner algorithm.
-    */
+     * @brief RRT based point-to-point planner.
+     *
+     * Default configuration space sampling strategy
+     * (rw::pathplanning::QSampler) and distance metrics (rw:math::QMetric)
+     * are chosen based on \b device.
+     *
+     * @param constraint [in] Constraint for configurations and edges.
+     *
+     * @param device [in] Device for which the path is planned.
+     *
+     * @param type [in] The particular variation the RRT planner algorithm.
+     */
 	static rw::common::Ptr<QToQPlanner> makeQToQPlanner(
         const PlannerConstraint& constraint,
 		rw::common::Ptr<Device> device,
@@ -467,136 +469,136 @@ public:
 OWNEDPTR(RRTPlanner);
 
 /**
-   @brief Interface for sampling a configuration in the vicinity of some
-   other configuration.
-
-   SBLExpand is a primitive for planners in the SBL family. The primitive
-   takes a configuration \b q as parameter and returns another configuration
-   somewhere in the vicinity of \b q.
-
-   Different implementations can have different policies with respect to
-   what constraints are satisfied by the configurations returned.
+ * @brief Interface for sampling a configuration in the vicinity of some
+ * other configuration.
+ *
+ * SBLExpand is a primitive for planners in the SBL family. The primitive
+ * takes a configuration \b q as parameter and returns another configuration
+ * somewhere in the vicinity of \b q.
+ *
+ * Different implementations can have different policies with respect to
+ * what constraints are satisfied by the configurations returned.
 */
 class SBLExpand
 {
 public:
     /**
-       @brief A configuration sampled from the vicinity of \b q.
-
-       Implementation dependant, the sampler may return the empty
-       configuration if no configurations can be sampled near \b q.
-    */
+     * @brief A configuration sampled from the vicinity of \b q.
+     *
+     * Implementation dependant, the sampler may return the empty
+     * configuration if no configurations can be sampled near \b q.
+     */
     rw::math::Q expand(const rw::math::Q& q);
 
     /**
-       @brief A configuration space in the shape of a box.
-
-       The box is given by a lower and upper corner.
-    */
+     * @brief A configuration space in the shape of a box.
+     *
+     * The box is given by a lower and upper corner.
+     */
     typedef std::pair<rw::math::Q, rw::math::Q> QBox;
 
     /**
-       @brief Expansion within the overlap of an inner and outer box.
-
-       Given a configuration \b q, the expand() method returns a configuration
-       sampled uniformly at random from the intersection between
-		\code
+     * @brief Expansion within the overlap of an inner and outer box.
+     *
+     * Given a configuration \b q, the expand() method returns a configuration
+     * sampled uniformly at random from the intersection between
+     * \code
 		    q + inner
 		\endcode
-		           and
-		\code
+     * and
+     * \code
 		    outer
 		\endcode
-
-       Given a \b device, you typically use \b device.getBounds() as the box
-       for the outer configuration space.
-
-       If the overlap between the boxes is empty, expand() returns the empty
-       configuration.
-    */
+     *
+     * Given a \b device, you typically use \b device.getBounds() as the box
+     * for the outer configuration space.
+     *
+     * If the overlap between the boxes is empty, expand() returns the empty
+     * configuration.
+     */
     static rw::common::Ptr<SBLExpand> makeUniformBox(
         const QBox& outer,
         const QBox& inner);
 
     /**
-       @brief Expansion within a scaled down box of the configuration space.
-
-       Given a configuration \b q, the expand() method samples a
-       configuration uniformly at random from the intersection between
-		\code
+     * @brief Expansion within a scaled down box of the configuration space.
+     *
+     * Given a configuration \b q, the expand() method samples a
+     * configuration uniformly at random from the intersection between
+     * \code
 		    q + inner
 		\endcode
-		           and
-		\code
+     * and
+     * \code
 		    outer
 		\endcode
-       where \b inner equals \b outer scaled by a factor of \b ratio and
-       centered at origo.
-
-       This is a form of expansion you will use in a standard implementation
-       of an SBL planner.
-
-       \b ratio must be positive.
-
-       If \b outer is non-empty, the expand() method will always return a
-       non-empty configuration.
-    */
+     * where \b inner equals \b outer scaled by a factor of \b ratio and
+     * centered at origo.
+     *
+     * This is a form of expansion you will use in a standard implementation
+     * of an SBL planner.
+     *
+     * \b ratio must be positive.
+     *
+     * If \b outer is non-empty, the expand() method will always return a
+     * non-empty configuration.
+     */
     static rw::common::Ptr<SBLExpand> makeUniformBox(
         const QBox& outer,
         double ratio);
 
     /**
-       @brief Sample within a box of decreasing size until a collision free
-       configuration is found.
-
-       The inner box shrinks in size as 1, 1/2, 1/3, ...
-
-       This form of expansion is typical for SBL planners.
-
-       The inner and outer box are specified as explained for
-       makeUniformBox().
-    */
+     * @brief Sample within a box of decreasing size until a collision free
+     * configuration is found.
+     *
+     * The inner box shrinks in size as 1, 1/2, 1/3, ...
+     *
+     * This form of expansion is typical for SBL planners.
+     *
+     * The inner and outer box are specified as explained for
+     * makeUniformBox().
+     */
     static rw::common::Ptr<SBLExpand> makeShrinkingUniformBox(
     	rw::common::Ptr<QConstraint> constraint,
         const QBox& outer,
         const QBox& inner);
 
     /**
-       @brief Sample within a box of shrinking size until a collision free
-       configuration is found.
-
-       The inner box shrinks in size as 1, 1/2, 1/3, ...
-
-       This form of expansion is typical for SBL planners.
-
-       The inner and outer box are specified as explained for
-       makeUniformBox().
-    */
+     * @brief Sample within a box of shrinking size until a collision free
+     * configuration is found.
+     *
+     * The inner box shrinks in size as 1, 1/2, 1/3, ...
+     *
+     * This form of expansion is typical for SBL planners.
+     *
+     * The inner and outer box are specified as explained for
+     * makeUniformBox().
+     */
     static rw::common::Ptr<SBLExpand> makeShrinkingUniformBox(
     	rw::common::Ptr<QConstraint> constraint,
         const QBox& outer,
         double ratio);
 
     /**
-       @brief Sample within a box of shrinking size until a collision free
-       configuration is found.
-
-       The size of the inner box depends on the Jacobian of the current
-       configuration. The radius for the i'th dimension of the inner box is
-
-       R_i = min(angle_max / angle_vel, disp_max / disp_vel)
-
-       where angle_vel is the magnitude of the angular velocity and disp_vel
-       is the magnitude of the translational velocity.
-
-       If \b jacobian is NULL, a default device Jacobian is chosen based on
-       \b device.
-
-       If \b angle_max or \b disp_max is negative, a default value for the
-       variable is chosen.
-
-       The inner box shrinks in size as 1, 1/2, 1/3, ...
-    */
+     * @brief Sample within a box of shrinking size until a collision free
+     * configuration is found.
+     *
+     * The size of the inner box depends on the Jacobian of the current
+     * configuration. The radius for the i'th dimension of the inner box is
+     *
+     * R_i = min(angle_max / angle_vel, disp_max / disp_vel)
+     *
+     * where angle_vel is the magnitude of the angular velocity and disp_vel
+     * is the magnitude of the translational velocity.
+     *
+     * If \b jacobian is NULL, a default device Jacobian is chosen based on
+     * \b device.
+     *
+     * If \b angle_max or \b disp_max is negative, a default value for the
+     * variable is chosen.
+     *
+     * The inner box shrinks in size as 1, 1/2, 1/3, ...
+     */
     static rw::common::Ptr<SBLExpand> makeShrinkingUniformJacobianBox(
     	rw::common::Ptr<QConstraint> constraint,
 		rw::common::Ptr<Device> device,
@@ -606,19 +608,19 @@ public:
         double disp_max = -1);
 
     /**
-       @brief Destructor
-    */
+     * @brief Destructor
+     */
     virtual ~SBLExpand() {}
 
 protected:
     /**
-       @brief Constructor
-    */
+     * @brief Constructor
+     */
     SBLExpand() {}
 
     /**
-       @brief Subclass implementation of the expand() method.
-    */
+     * @brief Subclass implementation of the expand() method.
+     */
     virtual rw::math::Q doExpand(const rw::math::Q& q) = 0;
 
 private:
@@ -631,42 +633,42 @@ private:
 OWNEDPTR(SBLExpand);
 
 /**
-   @brief Common parameters for SBL based planners.
-
-   All versions of the SBL planner base verify configurations and paths in
-   the configuration space using a PlannerConstraint object.
-
-   In addition, parameters can given to define how expansion around a node
-   of the tree should be done and under what circumstances the two trees
-   should be connected.
-
-   A SBLSetup object stores pointers to the shared objects, but can be
-   copied and assigned freely.
-*/
+ * @brief Common parameters for SBL based planners.
+ *
+ * All versions of the SBL planner base verify configurations and paths in
+ * the configuration space using a PlannerConstraint object.
+ *
+ * In addition, parameters can given to define how expansion around a node
+ * of the tree should be done and under what circumstances the two trees
+ * should be connected.
+ *
+ * A SBLSetup object stores pointers to the shared objects, but can be
+ * copied and assigned freely.
+ */
 class SBLSetup
 {
 public:
     /**
-       @brief Constructor
-
-       The SBL planner for this setup performs brute force search for the
-       nearest neighbor of the other tree, and attempts to connect the trees
-       if the distance to the neighbor is below a given threshold.
-
-       @param constraint [in] Planning constraint.
-
-       @param edgeConstraint [in] Planning constraint for edges.
-
-       @param expansion [in] Expansion strategy for insertion of new nodes.
-       The nodes returned by the expansion strategy must be collision free
-       or empty. If an empty configuration is returned, the planner tries to
-       expand somewhere else.
-
-       @param metric [in] Distance metric for nearest neighbor searching.
-
-       @param connectRadius [in] Attempt connection of the trees if the
-       distance to the nearest neighbor is below this threshold.
-    */
+     * @brief Constructor
+     *
+     * The SBL planner for this setup performs brute force search for the
+     * nearest neighbor of the other tree, and attempts to connect the trees
+     * if the distance to the neighbor is below a given threshold.
+     *
+     * @param constraint [in] Planning constraint.
+     *
+     * @param edgeConstraint [in] Planning constraint for edges.
+     *
+     * @param expansion [in] Expansion strategy for insertion of new nodes.
+     * The nodes returned by the expansion strategy must be collision free
+     * or empty. If an empty configuration is returned, the planner tries to
+     * expand somewhere else.
+     *
+     * @param metric [in] Distance metric for nearest neighbor searching.
+     *
+     * @param connectRadius [in] Attempt connection of the trees if the
+     * distance to the nearest neighbor is below this threshold.
+     */
     static
     SBLSetup make(
 		rw::common::Ptr<QConstraint> constraint,
@@ -676,33 +678,33 @@ public:
         double connectRadius);
 
     /**
-       @brief Constructor
-
-       Simple default expansion and tree connection strategies are chosed
-       based on the device for which the planning is done.
-
-       The planner expands uniformly at random with a maximum stepsize of \b
-       expandRadius relative to the diameter of the configuration space. The
-       step size and the diameter is measured by the infinity metric.
-
-       The planner connect a newly created node to the nearest node of the
-       other tree if the distance to the other node (measured by the
-       infinity metric and relative to the diameter of the configuration
-       space) is less than \b connectRadius.
-
-       If \b expandRadius or \b connectRadius is negative, a default value
-       is chosen.
-
-       @param constraint [in] Planning constraint.
-
-       @param edgeConstraint [in] Planning constraint for edges.
-
-       @param device [in] Device for which planning is done.
-
-       @param expandRadius [in] Node expansion radius.
-
-       @param connectRadius [in] Neighbor connection radius.
-    */
+     * @brief Constructor
+     *
+     * Simple default expansion and tree connection strategies are chosed
+     * based on the device for which the planning is done.
+     *
+     * The planner expands uniformly at random with a maximum stepsize of \b
+     * expandRadius relative to the diameter of the configuration space. The
+     * step size and the diameter is measured by the infinity metric.
+     *
+     * The planner connect a newly created node to the nearest node of the
+     * other tree if the distance to the other node (measured by the
+     * infinity metric and relative to the diameter of the configuration
+     * space) is less than \b connectRadius.
+     *
+     * If \b expandRadius or \b connectRadius is negative, a default value
+     * is chosen.
+     *
+     * @param constraint [in] Planning constraint.
+     *
+     * @param edgeConstraint [in] Planning constraint for edges.
+     *
+     * @param device [in] Device for which planning is done.
+     *
+     * @param expandRadius [in] Node expansion radius.
+     *
+     * @param connectRadius [in] Neighbor connection radius.
+     */
     static
     SBLSetup make(
 		rw::common::Ptr<QConstraint> constraint,
@@ -725,6 +727,7 @@ class SBLPlannerConstraint {
 public:
 	/**
 	 * @brief Constructor for a planner constrinct.
+	 *
 	 * @param qconstraint [in] a constraint giving the valid (collision free) configurations.
 	 * @param edgeconstraint [in] a constraint for checking the edges in-between valid configurations.
 	 */
@@ -735,32 +738,35 @@ public:
 
 	/**
 	 * @brief Get the part that checks for valid configurations.
+	 *
 	 * @return a reference to the constraint.
 	 */
 	const QConstraint& getQConstraint() const;
 
 	/**
 	 * @brief Get the part that checks edges in-between valid configurations.
+	 *
 	 * @return a reference to the edge constraint.
 	 */
 	const QEdgeConstraintIncremental& getEdgeConstraint() const;
 };
 
 /**
-   @brief SBL planner setup.
-
-   SBLOptions is the value stored in SBLSetup.
-
-   SBLOptions is a seperate file so that we can keep SBLSetup as abstract as
-   possible.
-
-   SBLOptions is used by SBLInternal and is for internal use only.
-*/
+ * @brief SBL planner setup.
+ *
+ * SBLOptions is the value stored in SBLSetup.
+ *
+ * SBLOptions is a seperate file so that we can keep SBLSetup as abstract as
+ * possible.
+ *
+ * SBLOptions is used by SBLInternal and is for internal use only.
+ */
 class SBLOptions
 {
 public:
 	/**
 	 * @brief Construct a new set of options for the internal algorithms.
+	 *
 	 * @param constraint [in] a constraint on the valid configurations.
 	 * @param edgeConstraint [in] a constraint on the edges between valid configurations.
 	 * @param expansion [in] the policy for how to sample new configurations in the vicinity.
@@ -827,25 +833,25 @@ class SBLPlanner
 {
 public:
     /**
-       @brief An SBL based sampled region planner.
-
-       @param setup [in] Setup for the planner.
-    */
+     * @brief An SBL based sampled region planner.
+     *
+     * @param setup [in] Setup for the planner.
+     */
 	static rw::common::Ptr<QToQSamplerPlanner> makeQToQSamplerPlanner(const SBLSetup& setup);
 
     /**
-       @brief An SBL based point-to-point planner.
-
-       @param setup [in] Setup for the planner.
-    */
+     * @brief An SBL based point-to-point planner.
+     *
+     * @param setup [in] Setup for the planner.
+     */
 	static rw::common::Ptr<QToQPlanner> makeQToQPlanner(const SBLSetup& setup);
 
     /**
-       @brief An SBL based point-to-tool-position planner.
-
-       @param setup [in] Setup for the planner.
-       @param ikSampler [in] Sampler of IK solutions for the target transform.
-    */
+     * @brief An SBL based point-to-tool-position planner.
+     *
+     * @param setup [in] Setup for the planner.
+     * @param ikSampler [in] Sampler of IK solutions for the target transform.
+     */
 	static rw::common::Ptr<QToTPlanner> makeQToTPlanner(
         const SBLSetup& setup,
 		rw::common::Ptr<QIKSampler> ikSampler);
@@ -857,30 +863,28 @@ OWNEDPTR(SBLPlanner);
 
 %nodefaultctor Z3Planner;
 /**
-   @brief Z3 based planners
-
-   See "The Z3-Method for Fast Path Planning in Dynamic Environments", Boris
-   Baginski, 1996.
-
-   @relates QToQPlanner
+ * @brief Z3 based planners
+ *
+ * See "The Z3-Method for Fast Path Planning in Dynamic Environments", Boris
+ * Baginski, 1996.
 */
 class Z3Planner
 {
 public:
     /**
-       @brief Z3 based point-to-point planner.
-
-       @param sampler [in] Sampler of the configuration space.
-
-       @param localPlanner [in] Local planner for connecting the configurations.
-
-       @param nodeCnt [in] Number of supporting configurations to insert.
-       If \b nodeCnt is negative, a default value is chosen.
-
-       @param repeatCnt [in] Number of times to repeat the attempt. If \b
-       repeatCnt is negative (the default), the attempts are repeated until
-       the stop criteria returns true.
-    */
+     * @brief Z3 based point-to-point planner.
+     *
+     * @param sampler [in] Sampler of the configuration space.
+     *
+     * @param localPlanner [in] Local planner for connecting the configurations.
+     *
+     * @param nodeCnt [in] Number of supporting configurations to insert.
+     * If \b nodeCnt is negative, a default value is chosen.
+     *
+     * @param repeatCnt [in] Number of times to repeat the attempt. If \b
+     * repeatCnt is negative (the default), the attempts are repeated until
+     * the stop criteria returns true.
+     */
 	static rw::common::Ptr<QToQPlanner> makeQToQPlanner(
 		rw::common::Ptr<QSampler> sampler,
 		rw::common::Ptr<QToQPlanner> localPlanner,
@@ -888,47 +892,47 @@ public:
         int repeatCnt = -1);
 
     /**
-       @brief Z3 based point-to-point planner.
-
-       A default configuration space sampler (rw::pathplanning::QSampler)
-       and local planning is chosen for \b device using \b constraint for
-       collision checking.
-
-       @param constraint [in] Constraint for configurations and edges.
-
-       @param device [in] Device for which the path is planned.
-    */
+     * @brief Z3 based point-to-point planner.
+     *
+     * A default configuration space sampler (rw::pathplanning::QSampler)
+     * and local planning is chosen for \b device using \b constraint for
+     * collision checking.
+     *
+     * @param constraint [in] Constraint for configurations and edges.
+     *
+     * @param device [in] Device for which the path is planned.
+     */
 	static rw::common::Ptr<QToQPlanner> makeQToQPlanner(
         const PlannerConstraint& constraint,
 		rw::common::Ptr<Device> device);
 
     /**
-       @brief Sliding local planner.
-
-       This is a variation of the sliding local planner described in the Z3
-       paper.
-
-       This is the default local planner used for instantiation of the Z3
-       based planners.
-
-       @param constraint [in] Path planning constraint.
-
-       @param directionSampler [in] Sampler of direction vectors in the
-       configuration space.
-
-       @param boundsConstraint [in] Constraint checking for the bounds of
-       the configuration space.
-
-       @param metric [in] Configuration space distance measure.
-
-       @param extend [in] The length of each sliding step as measured by \b
-       metric.
-
-       @param slideImprovement [in] The minimum decrease in distance to the
-       goal that should be acheived for every valid slide step. If \b
-       slideImprovement is negative, a default value for \b slideImprovement
-       is chosen based on the value of \b extend.
-    */
+     * @brief Sliding local planner.
+     *
+     * This is a variation of the sliding local planner described in the Z3
+     * paper.
+     *
+     * This is the default local planner used for instantiation of the Z3
+     * based planners.
+     *
+     * @param constraint [in] Path planning constraint.
+     *
+     * @param directionSampler [in] Sampler of direction vectors in the
+     * configuration space.
+     *
+     * @param boundsConstraint [in] Constraint checking for the bounds of
+     * the configuration space.
+     *
+     * @param metric [in] Configuration space distance measure.
+     *
+     * @param extend [in] The length of each sliding step as measured by \b
+     * metric.
+     *
+     * @param slideImprovement [in] The minimum decrease in distance to the
+     * goal that should be acheived for every valid slide step. If \b
+     * slideImprovement is negative, a default value for \b slideImprovement
+     * is chosen based on the value of \b extend.
+     */
 	static rw::common::Ptr<QToQPlanner> makeSlidingQToQPlanner(
         const PlannerConstraint& constraint,
 		rw::common::Ptr<QSampler> directionSampler,
@@ -938,28 +942,28 @@ public:
         double slideImprovement = -1);
 
     /**
-       @brief Sliding local planner.
-
-       A default direction sampler and bounds checker is chosen for \b
-       device.
-
-       @param constraint [in] Path planning constraint.
-
-       @param device [in] Device for which the planning is done.
-
-       @param metric [in] Configuration space distance measure. If no metric
-       is given, a default metric for \b device is chosen. In this case \b
-       extend and \b slideImprovement should be negative, and default values
-       for these will be chosen.
-
-       @param extend [in] The length of each sliding step as measured by \b
-       metric.
-
-       @param slideImprovement [in] The minimum decrease in distance to the
-       goal that should be acheived for every valid slide step. If \b
-       slideImprovement is negative, a default value for \b slideImprovement
-       is chosen based on the value of \b extend.
-    */
+     * @brief Sliding local planner.
+     *
+     * A default direction sampler and bounds checker is chosen for \b
+     * device.
+     *
+     * @param constraint [in] Path planning constraint.
+     *
+     * @param device [in] Device for which the planning is done.
+     *
+     * @param metric [in] Configuration space distance measure. If no metric
+     * is given, a default metric for \b device is chosen. In this case \b
+     * extend and \b slideImprovement should be negative, and default values
+     * for these will be chosen.
+     *
+     * @param extend [in] The length of each sliding step as measured by \b
+     * metric.
+     *
+     * @param slideImprovement [in] The minimum decrease in distance to the
+     * goal that should be acheived for every valid slide step. If \b
+     * slideImprovement is negative, a default value for \b slideImprovement
+     * is chosen based on the value of \b extend.
+     */
     static rw::common::Ptr<QToQPlanner> makeSlidingQToQPlanner(
         const PlannerConstraint& constraint,
 		rw::common::Ptr<Device> device,

@@ -23,15 +23,17 @@
 #ifndef RW_INVKIN_HPP_
 #define RW_INVKIN_HPP_
 
+#include "./invkin/AmbiguityResolver.hpp"
 #include "./invkin/CCDSolver.hpp"
 #include "./invkin/ClosedFormIK.hpp"
+#include "./invkin/ClosedFormIKSolverKukaIIWA.hpp"
+#include "./invkin/ClosedFormIKSolverUR.hpp"
 #include "./invkin/IKMetaSolver.hpp"
 #include "./invkin/IterativeIK.hpp"
-//#include "./invkin/IterativeIKSetup.hpp"
 #include "./invkin/IterativeMultiIK.hpp"
-#include "./invkin/ParallelIKSolver.hpp"
-#include "./invkin/PieperSolver.hpp"
 #include "./invkin/JacobianIKSolver.hpp"
 #include "./invkin/JacobianIKSolverM.hpp"
+#include "./invkin/ParallelIKSolver.hpp"
+#include "./invkin/PieperSolver.hpp"
 
 #endif /* INVKIN_HPP_ */

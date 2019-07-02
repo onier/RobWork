@@ -27,7 +27,7 @@ IF( build )
 
     add_custom_target(${SUBSYS_NAME}_all)
 
-    foreach(RW_MODULE rw rw_assembly rw_pathoptimization rw_pathplanners rw_proximitystrategies rw_task)
+    foreach(RW_MODULE rw rw_assembly rw_control rw_pathoptimization rw_pathplanners rw_proximitystrategies rw_task)
 		SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES CPLUSPLUS ON)
 		SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES SWIG_FLAGS "-includeall")
 		
@@ -71,12 +71,14 @@ IF( build )
 
     SWIG_LINK_LIBRARIES(rw_lua rw ${LUA_LIBRARIES})
     SWIG_LINK_LIBRARIES(rw_assembly_lua rw_assembly rw ${LUA_LIBRARIES})
+    SWIG_LINK_LIBRARIES(rw_control_lua rw_control rw ${LUA_LIBRARIES})
     SWIG_LINK_LIBRARIES(rw_pathoptimization_lua rw_pathoptimization rw ${LUA_LIBRARIES})
     SWIG_LINK_LIBRARIES(rw_pathplanners_lua rw_pathplanners rw ${LUA_LIBRARIES})
     SWIG_LINK_LIBRARIES(rw_proximitystrategies_lua rw_proximitystrategies rw ${LUA_LIBRARIES})
     SWIG_LINK_LIBRARIES(rw_task_lua rw_task rw ${LUA_LIBRARIES})
     TARGET_LINK_LIBRARIES(rw_lua_s rw)
     TARGET_LINK_LIBRARIES(rw_assembly_lua_s rw_assembly rw_lua_s)
+    TARGET_LINK_LIBRARIES(rw_control_lua_s rw_control rw_lua_s)
     TARGET_LINK_LIBRARIES(rw_pathoptimization_lua_s rw_pathoptimization rw_lua_s)
     TARGET_LINK_LIBRARIES(rw_pathplanners_lua_s rw_pathplanners rw_lua_s)
     TARGET_LINK_LIBRARIES(rw_proximitystrategies_lua_s rw_proximitystrategies rw_lua_s)

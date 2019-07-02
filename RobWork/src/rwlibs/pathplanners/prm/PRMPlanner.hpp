@@ -230,7 +230,7 @@ namespace rwlibs { namespace pathplanners {
          *
          * Default value for this timeout is 1second.
          *
-         * @brief timeout [in] Timeout time.
+         * @param timeout [in] Timeout time.
          */
         void setAStarTimeOutTime(double timeout);
 

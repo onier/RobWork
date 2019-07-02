@@ -65,9 +65,9 @@ IF( build )
         ADD_DEPENDENCIES(rwsim_jni CleanDepRWSIM)
     ENDIF()
     if (WIN32)
-        set(CLASSPATH -classpath "${RW_LIBS}/rw_java.jar\;${RW_LIBS}/rw_task_java.jar\;${RW_LIBS}/rw_assembly_java.jar")
+        set(CLASSPATH -classpath "${RW_LIBS}/rw_java.jar\;${RW_LIBS}/rw_task_java.jar\;${RW_LIBS}/rw_assembly_java.jar\;${RW_LIBS}/rw_control_java.jar")
     else()
-        set(CLASSPATH -classpath ${RW_LIBS}/rw_java.jar:${RW_LIBS}/rw_task_java.jar:${RW_LIBS}/rw_assembly_java.jar)
+        set(CLASSPATH -classpath ${RW_LIBS}/rw_java.jar:${RW_LIBS}/rw_task_java.jar:${RW_LIBS}/rw_assembly_java.jar:${RW_LIBS}/rw_control_java.jar)
     endif()
     # Compile java code and create JAR and Javadoc
     ADD_CUSTOM_COMMAND(TARGET rwsim_jni
