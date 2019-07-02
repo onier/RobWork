@@ -2,6 +2,159 @@
  * PATHPLANNING
  ********************************************/
 
+//! @brief Interface for the sampling a configuration.
+class QSampler
+{
+public:
+    /**
+       @brief Sample a configuration.
+
+       If sampling fails, the sampler may return the empty configuration. If
+       empty() is true then the sampler has no more configurations.
+       Otherwise sample() may (or may not) succeed if called a second time.
+    */
+    rw::math::Q sample();
+
+    /**
+       @brief True if the sampler is known to contain no more
+       configurations.
+    */
+    bool empty() const;
+
+    /**
+       @brief Destructor
+    */
+    virtual ~QSampler();
+
+    /**
+       @brief Empty sampler.
+    */
+	static rw::common::Ptr<QSampler> makeEmpty();
+
+    /**
+       @brief Sampler that always returns the same configuration.
+
+       The sampler is considered never empty (empty() always returns false).
+    */
+	static rw::common::Ptr<QSampler> makeFixed(const rw::math::Q& q);
+
+    /**
+       @brief Sampler that always returns a single configuration.
+
+       The sample() returns \b q the first time the method is called and the
+       empty configuration otherwise. empty() returns true after the first
+       call of sample().
+    */
+	static rw::common::Ptr<QSampler> makeSingle(const rw::math::Q& q);
+
+    /**
+       @brief Sampler for the values of a finite sequence.
+
+       sample() returns each of the values of \b qs in order. When all of
+       these samples have been returned, empty() returns true and sample()
+       returns the empty configuration.
+    */
+	static rw::common::Ptr<QSampler> makeFinite(const std::vector<rw::math::Q>& qs);
+
+    /**
+       @brief A sampler to that returns only the first \b cnt samples from
+       another sampler.
+
+       The sampler is considered empty as soon as \b sampler is empty or the
+       sampler has been called \b cnt times or more.
+    */
+	static rw::common::Ptr<QSampler> makeFinite(rw::common::Ptr<QSampler> sampler, int cnt);
+
+    /**
+       @brief Uniform random sampling for a box of the configuration space.
+    */
+	//static rw::common::Ptr<QSampler> makeUniform(const Device::QBox& bounds);
+
+    /**
+       @brief Uniform random sampling for a device.
+    */
+	static rw::common::Ptr<QSampler> makeUniform(
+        const Device& device);
+
+    /**
+       @brief Uniform random sampling for a device.
+    */
+	static rw::common::Ptr<QSampler> makeUniform(rw::common::Ptr<const Device> device);
+
+    /**
+       @brief Map a sampler of standard configurations into a sampler of
+       normalized configurations.
+    */
+	//static rw::common::Ptr<QSampler> makeNormalized(rw::common::Ptr<QSampler> sampler, const QNormalizer& normalizer);
+
+    /**
+       @brief A sampler of IK solutions for a specific target.
+
+       @param sampler [in] Sampler of IK solutions for \b target.
+       @param target [in] Target for IK solver.
+    */
+	//static rw::common::Ptr<QSampler> make(rw::common::Ptr<QIKSampler> sampler, const rw::math::Transform3D<>& target);
+
+    /**
+       @brief A sampler filtered by a constraint.
+
+       For each call of sample() up to \b maxAttempts configurations are
+       extracted from \b sampler and checked by \b constraint. The first
+       sample that satisfies the constraint is returned; if no such were
+       found the empty configuration is returned.
+
+       If \b maxAttempts is negative (this is the default), then \b sampler
+       is sampled forever until either the \b sampler is empty or a
+       configuration satisfying \b constraint is found.
+    */
+	//static rw::common::Ptr<QSampler> makeConstrained(
+	//	rw::common::Ptr<QSampler> sampler,
+	//	rw::common::Ptr<const QConstraint> constraint,
+    //    int maxAttempts = -1);
+
+    /**
+       @brief Sampler of direction vectors for a box shaped configuration
+       space.
+
+       Each random direction vector is found by sampling a configuration
+       uniformly at random from \b bounds, and returning the vector from the
+       center of the box to the configuration. The returned direction vector
+       can therefore be of length zero.
+    */
+    //static
+	//	rw::common::Ptr<QSampler> makeBoxDirectionSampler(
+    //    const Device::QBox& bounds);
+
+protected:
+    /**
+       @brief Constructor
+    */
+    QSampler();
+
+    /**
+       @brief Subclass implementation of the sample() method.
+    */
+    virtual rw::math::Q doSample() = 0;
+
+    /**
+       @brief Subclass implementation of the empty() method.
+
+       By default the sampler is assumed to be sampling an infinite set of
+       configurations. IOW. the function returns false by default.
+    */
+    virtual bool doEmpty() const;
+
+private:
+    QSampler(const QSampler&);
+    QSampler& operator=(const QSampler&);
+};
+//! @brief smart pointer type to this class
+%template (QSamplerPtr) rw::common::Ptr<QSampler>;
+//! @brief smart pointer type to this const class
+%template (QSamplerCPtr) rw::common::Ptr<const QSampler>;
+
+OWNEDPTR(QSampler)
+
 class PlannerConstraint
 {
 public:

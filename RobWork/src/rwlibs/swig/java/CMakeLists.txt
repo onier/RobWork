@@ -37,7 +37,7 @@ IF( build )
 
     add_custom_target(${SUBSYS_NAME})
 
-    foreach(RW_MODULE rw rw_assembly rw_pathoptimization rw_pathplanners rw_proximitystrategies rw_task)
+    foreach(RW_MODULE rw rw_assembly rw_control rw_pathoptimization rw_pathplanners rw_proximitystrategies rw_task)
 	    SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES CPLUSPLUS ON)
 		SET_SOURCE_FILES_PROPERTIES(../${RW_MODULE}.i PROPERTIES SWIG_FLAGS "-includeall")
 	    if (NOT ${SWIG_VERSION} VERSION_LESS 4.0.0)
@@ -113,12 +113,14 @@ IF( build )
 
     SWIG_LINK_LIBRARIES(rw_jni rw)
     SWIG_LINK_LIBRARIES(rw_assembly_jni rw_assembly rw)
+    SWIG_LINK_LIBRARIES(rw_control_jni rw_control rw)
     SWIG_LINK_LIBRARIES(rw_pathoptimization_jni rw_pathoptimization rw)
     SWIG_LINK_LIBRARIES(rw_pathplanners_jni rw_pathplanners rw)
     SWIG_LINK_LIBRARIES(rw_proximitystrategies_jni rw_proximitystrategies rw)
     SWIG_LINK_LIBRARIES(rw_task_jni rw_task rw)
 
     add_dependencies(rw_assembly_jni rw_task_jni rw_jni)
+    add_dependencies(rw_control_jni rw_jni)
     add_dependencies(rw_pathoptimization_jni rw_jni)
     add_dependencies(rw_pathplanners_jni rw_jni)
     add_dependencies(rw_proximitystrategies_jni rw_jni)

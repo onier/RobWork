@@ -82,12 +82,14 @@ void java_ThreadSimulatorStepCallback(ThreadSimulator* sim, State &state, void *
 
 %import <rwlibs/swig/rw.i>
 %import <rwlibs/swig/rw_assembly.i>
+%import <rwlibs/swig/rw_control.i>
 
 %pragma(java) jniclassclassmodifiers="class"
 
 %typemap(javaimports) SWIGTYPE %{
 import org.robwork.rw.*;
 import org.robwork.rw_assembly.*;
+import org.robwork.rw_control.*;
 import org.robwork.rw_task.*;
 %}
 %pragma(java) moduleimports=%{

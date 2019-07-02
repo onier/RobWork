@@ -6,7 +6,6 @@ SET(FILES_CPP
   CCDSolver.cpp
   ParallelIKSolver.cpp
   PieperSolver.cpp
-  #ResolvedRateSolver.cpp
   IKMetaSolver.cpp
   JacobianIKSolver.cpp
   JacobianIKSolverM.cpp
@@ -23,6 +22,7 @@ SET(FILES_HPP
   ParallelIKSolver.hpp
   PieperSolver.hpp
   IKMetaSolver.hpp
+  InvKinSolver.hpp
   JacobianIKSolver.hpp
   JacobianIKSolverM.hpp
   ClosedFormIKSolverUR.hpp

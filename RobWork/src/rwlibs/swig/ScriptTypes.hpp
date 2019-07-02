@@ -201,8 +201,12 @@ namespace swig {
 	typedef rw::invkin::JacobianIKSolverM JacobianIKSolverM;
 	//! @copydoc rw::invkin::IKMetaSolver
 	typedef rw::invkin::IKMetaSolver IKMetaSolver;
-	//! @copydoc rw::invkin::ClosedFormIK
-	typedef rw::invkin::ClosedFormIK ClosedFormIK;
+    //! @copydoc rw::invkin::ClosedFormIK
+    typedef rw::invkin::ClosedFormIK ClosedFormIK;
+    //! @copydoc rw::invkin::ClosedFormIKSolverKukaIIWA
+    typedef rw::invkin::ClosedFormIKSolverKukaIIWA ClosedFormIKSolverKukaIIWA;
+    //! @copydoc rw::invkin::ClosedFormIKSolverUR
+    typedef rw::invkin::ClosedFormIKSolverUR ClosedFormIKSolverUR;
 	//! @copydoc rw::invkin::PieperSolver
 	typedef rw::invkin::PieperSolver PieperSolver;
 	///@}
