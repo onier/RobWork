@@ -66,8 +66,8 @@ TEST(BVTreeFactory, Quadratics) {
         ASSERT_TRUE(it.hasRight());
         BinaryTree::NodeIterator itLeft = it.left();
         BinaryTree::NodeIterator itRight = it.right();
-        // in first division OBVs increase in volume
-        //EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
+        EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
+        // in first division OBVs increase in volume:
         //EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
         {
             BinaryTree::NodeIterator it = itLeft;
@@ -119,9 +119,10 @@ TEST(BVTreeFactory, Quadratics) {
                 BinaryTree::NodeIterator itRight = it.right();
                 EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
                 EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
+                EXPECT_LT(itLeft.bv().calcVolume(), 1e-15);
                 EXPECT_LT(itRight.bv().calcVolume(), 1e-15);
-                EXPECT_EQ(std::size_t(1), itLeft.primitiveIdx());
-                EXPECT_EQ(std::size_t(7), itRight.primitiveIdx());
+                EXPECT_EQ(std::size_t(7), itLeft.primitiveIdx());
+                EXPECT_EQ(std::size_t(2), itRight.primitiveIdx());
             }
             {
                 BinaryTree::NodeIterator it = itRight;
@@ -131,10 +132,9 @@ TEST(BVTreeFactory, Quadratics) {
                 BinaryTree::NodeIterator itRight = it.right();
                 EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
                 EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
-                EXPECT_EQ(0, itLeft.bv().calcVolume());
                 EXPECT_LT(itRight.bv().calcVolume(), 1e-15);
-                EXPECT_EQ(std::size_t(5), itLeft.primitiveIdx());
-                EXPECT_EQ(std::size_t(2), itRight.primitiveIdx());
+                EXPECT_EQ(std::size_t(1), itLeft.primitiveIdx());
+                EXPECT_EQ(std::size_t(5), itRight.primitiveIdx());
             }
         }
     }
@@ -146,7 +146,6 @@ TEST(BVTreeFactory, Quadratics) {
         ASSERT_TRUE(it.hasRight());
         BinaryTree::NodeIterator itLeft = it.left();
         BinaryTree::NodeIterator itRight = it.right();
-        // in first division OBVs increase in volume
         EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
         EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
         {
@@ -157,18 +156,17 @@ TEST(BVTreeFactory, Quadratics) {
             BinaryTree::NodeIterator itRight = it.right();
             EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
             EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
-            EXPECT_LT(itLeft.bv().calcVolume(), 1e-15);
-            EXPECT_EQ(std::size_t(5), itLeft.primitiveIdx());
             {
                 BinaryTree::NodeIterator it = itRight;
                 ASSERT_TRUE(it.hasLeft());
                 ASSERT_TRUE(it.hasRight());
                 BinaryTree::NodeIterator itLeft = it.left();
                 BinaryTree::NodeIterator itRight = it.right();
-                //EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
+                EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
                 EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
+                EXPECT_LT(itLeft.bv().calcVolume(), 1e-15);
                 EXPECT_LT(itRight.bv().calcVolume(), 1e-15);
-                EXPECT_EQ(std::size_t(2), itLeft.primitiveIdx());
+                EXPECT_EQ(std::size_t(5), itLeft.primitiveIdx());
                 EXPECT_EQ(std::size_t(4), itRight.primitiveIdx());
             }
         }
@@ -179,8 +177,8 @@ TEST(BVTreeFactory, Quadratics) {
             BinaryTree::NodeIterator itLeft = it.left();
             BinaryTree::NodeIterator itRight = it.right();
             EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
-            //EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
-            EXPECT_EQ(std::size_t(3), itLeft.primitiveIdx());
+            EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
+            EXPECT_EQ(std::size_t(2), itLeft.primitiveIdx());
             {
                 BinaryTree::NodeIterator it = itRight;
                 ASSERT_TRUE(it.hasLeft());
@@ -189,9 +187,12 @@ TEST(BVTreeFactory, Quadratics) {
                 BinaryTree::NodeIterator itRight = it.right();
                 EXPECT_LT(itLeft.bv().calcVolume(), it.bv().calcVolume());
                 EXPECT_LT(itRight.bv().calcVolume(), it.bv().calcVolume());
-                EXPECT_EQ(std::size_t(1), itLeft.primitiveIdx());
-                EXPECT_EQ(std::size_t(0), itRight.primitiveIdx());
+                EXPECT_EQ(std::size_t(0), itLeft.primitiveIdx());
+                EXPECT_EQ(std::size_t(3), itRight.primitiveIdx());
             }
         }
     }
+
+    delete treeA;
+    delete treeB;
 }
