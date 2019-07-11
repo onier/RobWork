@@ -269,12 +269,12 @@ std::pair<QuadraticSurface,Rotation3D<> > QuadraticSurface::diagonalize() const 
 		return std::make_pair(*this,Rotation3D<>::identity());
 	const Eigen::SelfAdjointEigenSolver<Eigen::Matrix3d> eigen(_A);
 	Rotation3D<> R(eigen.eigenvectors().transpose());
-	if (!R.isProperRotation()) {
+	if (!R.isProperRotation(2*std::numeric_limits<double>::epsilon())) {
 		R(2,0) *= -1;
 		R(2,1) *= -1;
 		R(2,2) *= -1;
 	}
-	if (!R.isProperRotation())
+	if (!R.isProperRotation(2*std::numeric_limits<double>::epsilon()))
 		RW_THROW("Could not create proper rotation from eigenvalues!");
 	std::vector<TrimmingRegion> conditions;
 	for (std::size_t i = 0; i < _conditions.size(); i++)
