@@ -84,6 +84,11 @@ IF( build )
 	            endif()
 	            set(LINK_JAVADOC ${LINK_JAVADOC} -link ../rw_task)
 	        endif()
+	        set(LOADERRW_FILE)
+	        set(LOADERRW_CP_CMD echo " - Nothing to copy")
+	    else()
+	    	set(LOADERRW_FILE java_src_rw/org/robwork/LoaderRW.java)
+	        set(LOADERRW_CP_CMD copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRW.java java_src_${RW_MODULE}/org/robwork/LoaderRW.java)
 	    endif()
 	    # Compile java code and create JAR and Javadoc
 		ADD_CUSTOM_COMMAND(TARGET ${RW_MODULE}_jni
@@ -92,12 +97,14 @@ IF( build )
 	        COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/java_build_${RW_MODULE}"
 	    	COMMAND ${CMAKE_COMMAND} -E remove_directory "${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc/${RW_MODULE}"
 			COMMAND ${CMAKE_COMMAND} -E echo "Copying Java source..."
-	        COMMAND ${CMAKE_COMMAND} -E copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRW.java java_src_${RW_MODULE}/org/robwork/LoaderRW.java
+	        COMMAND ${CMAKE_COMMAND} -E ${LOADERRW_CP_CMD}
 			COMMAND ${CMAKE_COMMAND} -E echo "Compiling Java files..."
 	        COMMAND ${CMAKE_COMMAND} -E make_directory java_build_${RW_MODULE}/org/robwork/${RW_MODULE}
-	        COMMAND ${Java_JAVAC_EXECUTABLE} ${CLASSPATH} -d ${CMAKE_CURRENT_BINARY_DIR}/java_build_${RW_MODULE} java_src_${RW_MODULE}/org/robwork/${RW_MODULE}/*.java
+	        COMMAND ${Java_JAVAC_EXECUTABLE} ${CLASSPATH} -d ${CMAKE_CURRENT_BINARY_DIR}/java_build_${RW_MODULE} ${LOADERRW_FILE} java_src_${RW_MODULE}/org/robwork/${RW_MODULE}/*.java
 	        COMMAND ${CMAKE_COMMAND} -E echo "Creating jar file..."
 	        COMMAND ${Java_JAR_EXECUTABLE} cvf ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${RW_MODULE}_java.jar  -C java_build_${RW_MODULE} .
+	        COMMAND ${CMAKE_COMMAND} -E echo "Creating jar file of source..."
+	        COMMAND ${Java_JAR_EXECUTABLE} cvf ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/${RW_MODULE}_java-source.jar  -C java_src_${RW_MODULE} .
 			COMMAND ${CMAKE_COMMAND} -E echo "Creating Javadoc..."
 	    	COMMAND ${CMAKE_COMMAND} -E make_directory ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc/${RW_MODULE}
 	    	COMMAND ${Java_JAVADOC_EXECUTABLE}
