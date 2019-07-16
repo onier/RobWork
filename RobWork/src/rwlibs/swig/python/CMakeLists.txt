@@ -13,8 +13,23 @@ IF( NOT SWIG_FOUND)
     set(REASON "SWIG not found!")
 else()
 
-    FIND_PACKAGE(PythonInterp QUIET)
-    FIND_PACKAGE(PythonLibs QUIET)
+	# Prefer Python 3
+	find_package(PythonInterp 3 QUIET)
+	find_package(PythonLibs 3 QUIET)
+	
+	if (NOT PYTHONINTERP_FOUND)
+	    find_package(PythonInterp QUIET)
+	endif()
+	if (NOT PythonLibs)
+	    find_package(PythonLibs QUIET)
+	endif()
+	
+	if(PYTHONINTERP_FOUND)
+	    message(STATUS "Found Python interpreter ${PYTHON_VERSION_STRING}")
+	endif()
+	if(PYTHONLIBS_FOUND)
+	    message(STATUS "Found Python libraries ${PYTHONLIBS_VERSION_STRING}")
+	endif()
 
     if( NOT (PYTHONLIBS_FOUND AND PYTHONINTERP_FOUND) )
         set(DEFAULT false)
