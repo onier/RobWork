@@ -85,9 +85,11 @@ IF( build )
 	            set(LINK_JAVADOC ${LINK_JAVADOC} -link ../rw_task)
 	        endif()
 	        set(LOADERRW_FILE)
+	        set(LOADERRW_PKG)
 	        set(LOADERRW_CP_CMD echo " - Nothing to copy")
 	    else()
 	    	set(LOADERRW_FILE java_src_rw/org/robwork/LoaderRW.java)
+	        set(LOADERRW_PKG org.robwork)
 	        set(LOADERRW_CP_CMD copy_if_different ${CMAKE_CURRENT_SOURCE_DIR}/LoaderRW.java java_src_${RW_MODULE}/org/robwork/LoaderRW.java)
 	    endif()
 	    # Compile java code and create JAR and Javadoc
@@ -112,7 +114,7 @@ IF( build )
     					-d ${RW_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc/${RW_MODULE}
     					-windowtitle "RobWork Java API Documentation"
     					-public
-    					-sourcepath java_src_${RW_MODULE} org.robwork org.robwork.${RW_MODULE}
+    					-sourcepath java_src_${RW_MODULE} ${LOADERRW_PKG} org.robwork.${RW_MODULE}
     					${LINK_JAVADOC}
 	        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 	    )

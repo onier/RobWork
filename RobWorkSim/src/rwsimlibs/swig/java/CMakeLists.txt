@@ -86,6 +86,8 @@ IF( build )
         COMMAND ${Java_JAVAC_EXECUTABLE} ${CLASSPATH} -d ${CMAKE_CURRENT_BINARY_DIR}/java_build java_src/org/robwork/*.java
         COMMAND ${CMAKE_COMMAND} -E echo "Creating jar file..."
         COMMAND ${Java_JAR_EXECUTABLE} cvf ${RWSIM_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rwsim_java.jar  -C java_build .
+        COMMAND ${CMAKE_COMMAND} -E echo "Creating jar file of source..."
+        COMMAND ${Java_JAR_EXECUTABLE} cvf ${RWSIM_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/rwsim_java-source.jar  -C java_src .
     	COMMAND ${CMAKE_COMMAND} -E echo "Creating Javadoc..."
     	COMMAND ${CMAKE_COMMAND} -E make_directory ${RWSIM_CMAKE_LIBRARY_OUTPUT_DIRECTORY}/javadoc
     	COMMAND ${Java_JAVADOC_EXECUTABLE}
