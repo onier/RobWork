@@ -214,6 +214,7 @@ public:
       * also be saved in this state.
       * @param maxIter [in] max number of iterations
       * @return true if error is below max error
+      *
       * @note the result will be saved in state
       */
     bool solveLocal(const rw::math::Transform3D<double>  &bTed,
@@ -256,22 +257,6 @@ OWNEDPTR(JacobianIKSolver);
  * repeatingly calls the iterative solver with new random start configurations
  * until either a solution is found or a specified max attempts has been
  * reached.
- *
- * Usage example:
- * \code
- * // create a inverse kinematics solver for your dvs. here we use ResolvedRateSolver
- * ResolvedRateSolver iksolver(&myDevice); // takes a pointer to your device
- * // if we want colision free ik results then create or get the collisiondetector
- * CollisionDetector *detector = NULL; // here we don't care about collisions
- * // now create the meta solver
- * IKMetaSolver mSolver(&iksolver, &myDevice, detector);
- * // the pose that you want the endeffector to be in
- * Transform3D<> pose(Vector3D<>(0,0,1),RPY<>(1,0,0));
- * // and use it to generate joint configurations
- * std::vector<Q> result;
- * result = mSolver.solve( pose , state, 200, true );
- * \endcode
- *
  */
 class IKMetaSolver: public IterativeIK
 {
@@ -456,6 +441,7 @@ public:
      * @param dev [in] the device for which to extract the DH parameters.
      * @param joint6Tend [in] transform from the 6th joint to the end of the device
      * @param state [in] State using which the transformation between robot base and the DH-parameters reference frame are calculated.
+     *
      * @note throws an exception if the device has no DH params
      */
     PieperSolver(SerialDevice& dev, const rw::math::Transform3D<double> & joint6Tend, const State& state);

@@ -1351,18 +1351,58 @@ public:
 };
 %template (StateVector) std::vector<State>;
 
+/**
+ * @brief the basic building block for the stateless design using
+ * the StateStructure class. A StateData represents a size,
+ * a unique id, and a unique name, when inserted into the StateStructure.
+ * The size will allocate "size"-doubles in State objects originating from the
+ * StateStructure.
+ */
 class StateData {
 protected:
     StateData(int size, const std::string& name);
 public:
-    const std::string& getName();
+    /**
+     * @brief The name of the state data.
+     *
+     * @return The name of the state data.
+     */
+    const std::string& getName() const;
+
+    /**
+     * @brief The number of doubles allocated by this StateData in
+     * each State object.
+     *
+     * @return The number of doubles allocated by the StateData
+     */
     int size() const;
+
 #if !defined(SWIGJAVA)
+    /**
+     * @brief An array of length size() containing the values for
+     * the state data.
+     *
+     * It is OK to call this method also for a StateData with zero size.
+     *
+     * @param state [in] The state containing the StateData values.
+     *
+     * @return The values for the frame.
+     */
     double* getData(State& state);
 #endif
 #if defined(SWIGJAVA)
 %apply double[] {double *};
 #endif
+    /**
+     * @brief Assign for \b state data the size() of values of the array \b
+     * vals.
+     *
+     * The array \b vals must be of length at least size().
+     *
+     * @param state [inout] The state to which \b vals are written.
+     *
+     * @param vals [in] The joint values to assign.
+     */
     void setData(State& state, const double* vals) const;
 };
 
@@ -1377,49 +1417,193 @@ public:
 %template (StateStructurePtr) rw::common::Ptr<StateStructure>;
 OWNEDPTR(StateStructure);
 
+/**
+ * @brief The type of node of forward kinematic trees.
+ *
+ * Types of joints are implemented as subclasses of Frame. The
+ * responsibility of a joint is to implement the getTransform() method that
+ * returns the transform of the frame relative to whatever parent it is
+ * attached to.
+ *
+ * The getTransform() method takes as parameter the set of joint values
+ * State for the tree. Joint values for a particular frame can be accessed
+ * via State::getQ(). A frame may contain pointers to other frames so that
+ * the transform of a frame may depend on the joint values for other frames
+ * also.
+ */
 class Frame : public StateData
 {
 public:
 
-    rw::math::Transform3D<double>  getTransform(const State& state) const;
-    PropertyMap& getPropertyMap();
-    int getDOF() const ;
-    Frame* getParent() ;
-    Frame* getParent(const State& state);
-    Frame* getDafParent(const State& state);
+    /**
+     * @brief Post-multiply the transform of the frame to the parent transform.
+     *
+     * The transform is calculated for the joint values of \b state.
+     *
+     * The exact implementation of getTransform() depends on the type of
+     * frame. See for example RevoluteJoint and PrismaticJoint.
+     *
+     * @param parent [in] The world transform of the parent frame.
+     * @param state [in] Joint values for the forward kinematics tree.
+     * @param result [in] The transform of the frame in the world frame.
+     */
+    void multiplyTransform(const rw::math::Transform3D<double>& parent,
+                           const State& state,
+                           rw::math::Transform3D<double>& result) const;
+
+    /**
+     * @brief The transform of the frame relative to its parent.
+     *
+     * The transform is calculated for the joint values of \b state.
+     *
+     * The exact implementation of getTransform() depends on the type of
+     * frame. See for example RevoluteJoint and PrismaticJoint.
+     *
+     * @param state [in] Joint values for the forward kinematics tree.
+     *
+     * @return The transform of the frame relative to its parent.
+     */
+    rw::math::Transform3D<double> getTransform(const State& state) const;
 
 #if !defined(SWIGJAVA) 
-    const PropertyMap& getPropertyMap() const ; 
-    const Frame* getParent() const ;
+    /**
+     * @brief Miscellaneous properties of the frame.
+     *
+     * The property map of the frame is provided to let the user store
+     * various settings for the frame. The settings are typically loaded
+     * from setup files.
+     *
+     * The low-level manipulations of the property map can be cumbersome. To
+     * ease these manipulations, the PropertyAccessor utility class has been
+     * provided. Instances of this class are provided for a number of common
+     * settings, however it is undecided if these properties are a public
+     * part of RobWork.
+     *
+     * @return The property map of the frame.
+     */
+    const PropertyMap& getPropertyMap() const;
+#endif
+
+    /**
+     * @brief Miscellaneous properties of the frame.
+     *
+     * The property map of the frame is provided to let the user store
+     * various settings for the frame. The settings are typically loaded
+     * from setup files.
+     *
+     * The low-level manipulations of the property map can be cumbersome. To
+     * ease these manipulations, the PropertyAccessor utility class has been
+     * provided. Instances of this class are provided for a number of common
+     * settings, however it is undecided if these properties are a public
+     * part of RobWork.
+     *
+     * @return The property map of the frame.
+     */
+    PropertyMap& getPropertyMap();
+
+
+    /**
+     * @brief The number of degrees of freedom (dof) of the frame.
+     *
+     * The dof is the number of joint values that are used for controlling
+     * the frame.
+     *
+     * Given a set joint values of type State, the getDof() number of joint
+     * values for the frame can be read and written with State::getQ() and
+     * State::setQ().
+     *
+     * @return The number of degrees of freedom of the frame.
+     */
+    int getDOF() const;
+
+
+    // The parents
+
+#if !defined(SWIGJAVA)
+    //! @brief The parent of the frame or NULL if the frame is a DAF.
+    const Frame* getParent() const;
+#endif
+
+    //! @brief The parent of the frame or NULL if the frame is a DAF.
+    Frame* getParent();
+
+    /**
+     * @brief Returns the parent of the frame
+     *
+     * If no static parent exists it look for at DAF parent. If such
+     * does not exists either it returns NULL.
+     *
+     * @param state [in] the state to consider
+     * @return the parent
+     */
+    Frame* getParent(const State& state);
+
+#if !defined(SWIGJAVA)
+    /**
+     * @brief Returns the parent of the frame
+     *
+     * If no static parent exists it look for at DAF parent. If such
+     * does not exists either it returns NULL.
+     *
+     * @param state [in] the state to consider
+     * @return the parent
+     */
     const Frame* getParent(const State& state) const;
+
+    /**
+     * @brief The dynamically attached parent or NULL if the frame is not a
+     * DAF.
+     */
     const Frame* getDafParent(const State& state) const;
 #endif
-/*
-    typedef rw::common::ConcatVectorIterator<Frame> iterator;
-    typedef rw::common::ConstConcatVectorIterator<Frame> const_iterator;
 
-    typedef std::pair<iterator, iterator> iterator_pair;
-    typedef std::pair<const_iterator, const_iterator> const_iterator_pair;
+    /**
+     * @brief The dynamically attached parent or NULL if the frame is not a
+     * DAF.
+     */
+    Frame* getDafParent(const State& state);
 
-    const_iterator_pair getChildren() const;
-    iterator_pair getChildren();
-    const_iterator_pair getChildren(const State& state) const;
-    iterator_pair getChildren(const State& state);
-    const_iterator_pair getDafChildren(const State& state) const;
-    iterator_pair getDafChildren(const State& state);
-*/
-    %extend {
-        rw::math::Transform3D<double>  wTt(const State& state) const{
-            return ::rw::kinematics::Kinematics::worldTframe($self, state);
-        }
+    // Iterator stuff left out of script interface for now!
 
-        rw::math::Transform3D<double>  fTf(const Frame* frame, const State& state) const{
-            return ::rw::kinematics::Kinematics::frameTframe($self, frame, state);
-        }
-    }
+    // Dynamic frame attachments.
 
+    /**
+     * @brief Move a frame within the tree.
+     *
+     * The frame \b frame is detached from its parent and reattached to \b
+     * parent. The frames \b frame and \b parent must both belong to the
+     * same kinematics tree.
+     *
+     * Only frames with no static parent (see getParent()) can be moved.
+     *
+     * @param parent [in] The frame to attach \b frame to.
+     * @param state [inout] The state to which the attachment is written.
+     */
     void attachTo(Frame* parent, State& state);
+
+    /**
+     * @brief Test if this frame is a Dynamically Attachable Frame
+     *
+     * @return true if this frame is a DAF, false otherwise
+     */
     bool isDAF();
+
+    /**
+     * @brief Get the transform relative to world.
+     *
+     * @param state [in] the state.
+     * @return transform relative to world.
+     */
+    rw::math::Transform3D<double> wTf(const State& state) const;
+
+    /**
+     * @brief Get the transform of other frame relative to this frame.
+     *
+     * @param to [in] the other frame
+     * @param state [in] the state.
+     * @return transform of frame \b to relative to this frame.
+     */
+    rw::math::Transform3D<double> fTf(const Frame* to, const State& state) const;
 
 private:
     // Frames should not be copied.
@@ -1427,6 +1611,7 @@ private:
     Frame& operator=(const Frame&);
 };
 
+%template (FramePtr) rw::common::Ptr<Frame>;
 %template (FrameCPtr) rw::common::Ptr<const Frame>;
 %template (FrameVector) std::vector<Frame*>;
 
@@ -1975,6 +2160,10 @@ class SerialDevice: public JointDevice
 %template (SerialDeviceCPtr) rw::common::Ptr<const SerialDevice>;
 OWNEDPTR(SerialDevice)
 
+%extend rw::common::Ptr<SerialDevice> {
+    rw::common::Ptr<const SerialDevice> asSerialDeviceCPtr() { return *$self; }
+}
+
 class ParallelDevice: public JointDevice
 {
 };
@@ -2059,11 +2248,12 @@ public:
 	CollisionDetector(rw::common::Ptr<WorkCell> workcell, rw::common::Ptr<CollisionStrategy> strategy);
 
     /**
-     @brief Check the workcell for collisions.
-     @param state [in] The state for which to check for collisions.
-     @param data [in/out] Defines parameters for the collision check, the results and also
-     enables caching inbetween calls to incollision
-     @return true if a collision is detected; false otherwise.
+     * @brief Check the workcell for collisions.
+     *
+     * @param state [in] The state for which to check for collisions.
+     * @param data [in/out] Defines parameters for the collision check, the results and also
+     * enables caching inbetween calls to incollision
+     * @return true if a collision is detected; false otherwise.
      */
     bool inCollision(const State& state, class ProximityData &data) const;
 
